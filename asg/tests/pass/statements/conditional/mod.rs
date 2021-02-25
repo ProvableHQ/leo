@@ -14,42 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::new_context;
-
 use crate::load_asg;
 
 #[test]
 fn test_assert() {
     let program_string = include_str!("assert.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_mutate() {
     let program_string = include_str!("mutate.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_for_loop() {
     let program_string = include_str!("for_loop.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_chain() {
     let program_string = include_str!("chain.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_nested() {
     let program_string = include_str!("nested.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_multiple_returns() {
     let program_string = include_str!("multiple_returns.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }

@@ -32,7 +32,6 @@ use indexmap::IndexMap;
 use leo_ast::FunctionInput;
 
 use std::cell::{Cell, RefCell};
-use uuid::Uuid;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum FunctionQualifier {
@@ -43,7 +42,7 @@ pub enum FunctionQualifier {
 
 #[derive(Clone)]
 pub struct Function<'a> {
-    pub id: Uuid,
+    pub id: u32,
     pub name: RefCell<Identifier>,
     pub output: Type<'a>,
     pub has_input: bool,
@@ -99,7 +98,7 @@ impl<'a> Function<'a> {
                         ..
                     }) => {
                         let variable = scope.alloc_variable(RefCell::new(crate::InnerVariable {
-                            id: Uuid::new_v4(),
+                            id: scope.context.get_id(),
                             name: identifier.clone(),
                             type_: scope.resolve_ast_type(&type_)?,
                             mutable: *mutable,
@@ -117,7 +116,7 @@ impl<'a> Function<'a> {
             return Err(AsgConvertError::invalid_self_in_global(&value.span));
         }
         let function = scope.alloc_function(Function {
-            id: Uuid::new_v4(),
+            id: scope.context.get_id(),
             name: RefCell::new(value.identifier.clone()),
             output,
             has_input,
@@ -137,7 +136,7 @@ impl<'a> Function<'a> {
         if self.qualifier != FunctionQualifier::Static {
             let circuit = self.circuit.get();
             let self_variable = self.scope.alloc_variable(RefCell::new(crate::InnerVariable {
-                id: Uuid::new_v4(),
+                id: self.scope.context.get_id(),
                 name: Identifier::new("self".to_string()),
                 type_: Type::Circuit(circuit.as_ref().unwrap()),
                 mutable: self.qualifier == FunctionQualifier::MutSelfRef,

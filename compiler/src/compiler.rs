@@ -47,7 +47,10 @@ use std::{
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 
 thread_local! {
-    static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = Box::leak(Box::new(new_context()));
+    static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
+        let leaked = Box::leak(Box::new(leo_asg::new_alloc_context()));
+        leo_asg::new_context(leaked)
+    }
 }
 
 /// Conventience function to return a leaked thread-local global context. Should only be used for transient programs (like cli).

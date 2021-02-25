@@ -58,7 +58,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
         let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone())?;
         let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type)?;
         let variable = scope.alloc_variable(RefCell::new(InnerVariable {
-            id: uuid::Uuid::new_v4(),
+            id: scope.context.get_id(),
             name: statement.variable.clone(),
             type_: start
                 .get_type()

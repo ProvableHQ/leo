@@ -14,24 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::new_context;
-
 use crate::load_asg;
 
 #[test]
 fn test_unstable_blake2s() {
     let program_string = include_str!("unstable_blake2s.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_blake2s_input() {
     let program_string = include_str!("blake2s_input.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_blake2s_random() {
     let program_string = include_str!("blake2s_random.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }

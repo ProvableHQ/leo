@@ -104,7 +104,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let variable = target.unwrap();
         let variable = variable.borrow();
 
-        let mut result = vec![match self.get_mut(&variable.id) {
+        let mut result = vec![match self.get_mut(variable.id) {
             Some(value) => value,
             None => return Err(StatementError::undefined_variable(variable.name.to_string(), span)),
         }];

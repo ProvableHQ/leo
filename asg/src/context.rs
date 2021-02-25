@@ -14,28 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::load_asg;
+use std::{cell::Cell, unimplemented};
 
-#[test]
-fn test_core_circuit_invalid() {
-    let program_string = include_str!("core_package_invalid.leo");
-    load_asg(program_string).err().unwrap();
+use typed_arena::Arena;
+
+use crate::ArenaNode;
+
+pub struct AsgContextInner<'a> {
+    pub arena: &'a Arena<ArenaNode<'a>>,
+    pub next_id: Cell<u32>,
 }
 
-#[test]
-fn test_core_circuit_star_fail() {
-    let program_string = include_str!("core_circuit_star_fail.leo");
-    load_asg(program_string).err().unwrap();
+impl<'a> AsgContextInner<'a> {
+    pub fn new(arena: &'a Arena<ArenaNode<'a>>) -> &'a Self {
+        match arena.alloc(ArenaNode::Inner(AsgContextInner {
+            arena,
+            next_id: Cell::new(0),
+        })) {
+            ArenaNode::Inner(x) => x,
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn get_id(&self) -> u32 {
+        let next_id = self.next_id.get();
+        self.next_id.replace(next_id + 1);
+        next_id
+    }
 }
 
-#[test]
-fn test_core_package_invalid() {
-    let program_string = include_str!("core_package_invalid.leo");
-    load_asg(program_string).err().unwrap();
-}
-
-#[test]
-fn test_core_unstable_package_invalid() {
-    let program_string = include_str!("core_unstable_package_invalid.leo");
-    load_asg(program_string).err().unwrap();
-}
+pub type AsgContext<'a> = &'a AsgContextInner<'a>;
