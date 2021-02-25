@@ -138,6 +138,32 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-login-logout.sh
 
+  leo-clone:
+    docker:
+      - image: cimg/rust:1.50.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo clone
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-clone.sh
+
+  leo-publish:
+    docker:
+      - image: cimg/rust:1.50.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo publish
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-publish.sh
+
 workflows:
   version: 2
   main-workflow:
@@ -159,5 +185,11 @@ workflows:
           requires:
             - rust-stable
       - leo-login-logout:
+          requires:
+            - rust-stable
+      - leo-clone:
+          requires:
+            - rust-stable
+      - leo-publish:
           requires:
             - rust-stable
