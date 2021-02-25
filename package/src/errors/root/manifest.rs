@@ -18,6 +18,9 @@ use std::io;
 
 #[derive(Debug, Error)]
 pub enum ManifestError {
+    #[error("{}: {}", _0, _1)]
+    Crate(&'static str, String),
+
     #[error("`{}` creating: {}", _0, _1)]
     Creating(&'static str, io::Error),
 
@@ -35,4 +38,10 @@ pub enum ManifestError {
 
     #[error("`{}` writing: {}", _0, _1)]
     Writing(&'static str, io::Error),
+}
+
+impl From<crate::errors::PackageError> for ManifestError {
+    fn from(error: crate::errors::PackageError) -> Self {
+        ManifestError::Crate("leo-package", error.to_string())
+    }
 }

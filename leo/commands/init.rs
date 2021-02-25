@@ -23,15 +23,9 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Init Leo project command within current directory
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Init {}
-
-impl Init {
-    pub fn new() -> Init {
-        Init {}
-    }
-}
 
 impl Command for Init {
     type Input = ();
@@ -46,13 +40,20 @@ impl Command for Init {
     }
 
     fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+        // Derive the package directory path.
         let path = current_dir()?;
+
+        // Check that the given package name is valid.
         let package_name = path
             .file_stem()
             .ok_or_else(|| anyhow!("Project name invalid"))?
             .to_string_lossy()
             .to_string();
+        if !LeoPackage::is_package_name_valid(&package_name) {
+            return Err(anyhow!("Invalid Leo project name"));
+        }
 
+        // Check that the current package directory path exists.
         if !path.exists() {
             return Err(anyhow!("Directory does not exist"));
         }

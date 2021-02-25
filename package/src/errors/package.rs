@@ -26,6 +26,9 @@ pub enum PackageError {
     #[error("Failed to initialize package {:?} ({:?})", _0, _1)]
     FailedToInitialize(String, OsString),
 
+    #[error("Invalid project name: {:?}", _0)]
+    InvalidPackageName(String),
+
     #[error("`{}` metadata: {}", _0, _1)]
     Removing(&'static str, io::Error),
 }

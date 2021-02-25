@@ -90,9 +90,9 @@ impl Command for Add {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // checking that manifest exists...
-        if ctx.manifest().is_err() {
+        if context.manifest().is_err() {
             return Err(anyhow!("Package Manifest not found, try running leo init or leo new"));
         };
 
@@ -109,8 +109,8 @@ impl Command for Add {
             version,
         };
 
-        let bytes = ctx.api.run_route(fetch)?.bytes()?;
-        let mut path = ctx.dir()?;
+        let bytes = context.api.run_route(fetch)?.bytes()?;
+        let mut path = context.dir()?;
 
         {
             // setup directory structure since request was success

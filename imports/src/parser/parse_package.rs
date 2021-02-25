@@ -26,16 +26,16 @@ static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 impl<'a> ImportParser<'a> {
     fn parse_package_access(
         &mut self,
-        ctx: AsgContext<'a>,
+        context: AsgContext<'a>,
         package: &DirEntry,
         remaining_segments: &[&str],
         span: &Span,
     ) -> Result<Program<'a>, ImportParserError> {
         if !remaining_segments.is_empty() {
-            return self.parse_package(ctx, package.path(), remaining_segments, span);
+            return self.parse_package(context, package.path(), remaining_segments, span);
         }
         let program = Self::parse_import_file(package, span)?;
-        let asg = leo_asg::InternalProgram::new(ctx, &program, self)?;
+        let asg = leo_asg::InternalProgram::new(context, &program, self)?;
 
         Ok(asg)
     }
@@ -47,7 +47,7 @@ impl<'a> ImportParser<'a> {
     ///
     pub(crate) fn parse_package(
         &mut self,
-        ctx: AsgContext<'a>,
+        context: AsgContext<'a>,
         mut path: PathBuf,
         segments: &[&str],
         span: &Span,
@@ -113,8 +113,8 @@ impl<'a> ImportParser<'a> {
                     package_name,
                     span,
                 ))),
-                (Some(source_entry), None) => self.parse_package_access(ctx, &source_entry, &segments[1..], span),
-                (None, Some(import_entry)) => self.parse_package_access(ctx, &import_entry, &segments[1..], span),
+                (Some(source_entry), None) => self.parse_package_access(context, &source_entry, &segments[1..], span),
+                (None, Some(import_entry)) => self.parse_package_access(context, &import_entry, &segments[1..], span),
                 (None, None) => Err(ImportParserError::unknown_package(Identifier::new_with_span(
                     package_name,
                     span,
@@ -123,7 +123,7 @@ impl<'a> ImportParser<'a> {
         } else {
             // Enforce local package access with no found imports directory
             match matched_source_entry {
-                Some(source_entry) => self.parse_package_access(ctx, &source_entry, &segments[1..], span),
+                Some(source_entry) => self.parse_package_access(context, &source_entry, &segments[1..], span),
                 None => Err(ImportParserError::unknown_package(Identifier::new_with_span(
                     package_name,
                     span,

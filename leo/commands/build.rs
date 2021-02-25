@@ -36,15 +36,9 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Compile and build program command
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {}
-
-impl Build {
-    pub fn new() -> Build {
-        Build {}
-    }
-}
 
 impl Command for Build {
     type Input = ();
@@ -58,9 +52,9 @@ impl Command for Build {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = ctx.dir()?;
-        let package_name = ctx.manifest()?.get_package_name();
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
         // Sanitize the package path to the root directory
         let mut package_path = path.clone();
@@ -140,8 +134,8 @@ impl Command for Build {
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;
 
-                tracing::debug!("Compiled constraints - {:#?}", output);
-                tracing::debug!("Number of constraints - {:#?}", cs.num_constraints());
+                tracing::debug!("Compiled output - {:#?}", output);
+                tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
 
                 // Serialize the circuit
                 let circuit_object = SerializedCircuit::from(cs);

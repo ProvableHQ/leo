@@ -58,14 +58,14 @@ impl Command for Login {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // quick hack to check if user is already logged in. ;)
-        if ctx.api.auth_token().is_some() {
+        if context.api.auth_token().is_some() {
             tracing::info!("You are already logged in");
-            return Ok(ctx.api.auth_token().unwrap());
+            return Ok(context.api.auth_token().unwrap());
         };
 
-        let mut api = ctx.api;
+        let mut api = context.api;
 
         // ...or trying to use arguments to either get token or user-pass
         let token = match (self.token, self.user, self.pass) {

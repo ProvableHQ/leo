@@ -22,17 +22,11 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Remove imported package
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Remove {
     #[structopt(name = "PACKAGE")]
     name: String,
-}
-
-impl Remove {
-    pub fn new(name: String) -> Remove {
-        Remove { name }
-    }
 }
 
 impl Command for Remove {
@@ -47,8 +41,8 @@ impl Command for Remove {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = ctx.dir()?;
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
         let package_name = self.name;
 
         LeoPackage::remove_imported_package(&package_name, &path)?;

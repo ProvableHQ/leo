@@ -40,7 +40,7 @@ fn load_asg_imports<'a, T: ImportResolver<'a>>(
     InternalProgram::new(context, &ast.as_repr(), imports)
 }
 
-fn mocked_resolver<'a>(_ctx: AsgContext<'a>) -> MockedImportResolver<'a> {
+fn mocked_resolver<'a>(_context: AsgContext<'a>) -> MockedImportResolver<'a> {
     let packages = indexmap::IndexMap::new();
     MockedImportResolver { packages }
 }
