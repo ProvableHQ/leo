@@ -59,7 +59,7 @@ impl<'a> GlobalConst<'a> {
         let type_ = type_.or_else(|| value.get_type());
 
         let variable = scope.alloc_variable(RefCell::new(InnerVariable {
-            id: uuid::Uuid::new_v4(),
+            id: scope.context.get_id(),
             name: global_const.variable_name.identifier.clone(),
             type_: type_.ok_or_else(|| {
                 AsgConvertError::unresolved_type(&global_const.variable_name.identifier.name, &global_const.span)

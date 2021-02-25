@@ -280,6 +280,7 @@ impl<'a> InternalProgram<'a> {
             scope.global_consts.borrow_mut().insert(name.name.clone(), gc);
         }
 
+        // Load concrete definitions.
         let mut global_consts = IndexMap::new();
         for (name, global_const) in program.global_consts.iter() {
             assert_eq!(name.name, global_const.variable_name.identifier.name);
@@ -288,7 +289,6 @@ impl<'a> InternalProgram<'a> {
             global_consts.insert(name.name.clone(), asg_global_const);
         }
 
-        // Load concrete definitions.
         let mut test_functions = IndexMap::new();
         for (name, test_function) in program.tests.iter() {
             assert_eq!(name.name, test_function.function.identifier.name);

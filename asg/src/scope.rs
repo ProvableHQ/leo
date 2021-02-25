@@ -14,7 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArenaNode, AsgContext, AsgConvertError, Circuit, Expression, Function, GlobalConst Input, Statement, Type, Variable};
+use crate::{
+    ArenaNode,
+    AsgContext,
+    AsgConvertError,
+    Circuit,
+    Expression,
+    Function,
+    GlobalConst,
+    Input,
+    Statement,
+    Type,
+    Variable,
+};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -97,7 +109,7 @@ impl<'a> Scope<'a> {
     }
 
     pub fn alloc_global_const(&'a self, global_const: GlobalConst<'a>) -> &'a mut GlobalConst<'a> {
-        match self.arena.alloc(ArenaNode::GlobalConst(global_const)) {
+        match self.context.arena.alloc(ArenaNode::GlobalConst(global_const)) {
             ArenaNode::GlobalConst(e) => e,
             _ => unimplemented!(),
         }

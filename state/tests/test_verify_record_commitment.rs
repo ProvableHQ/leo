@@ -20,7 +20,7 @@ use leo_state::verify_record_commitment;
 
 use snarkvm_dpc::base_dpc::instantiated::*;
 
-use rand::SeedableRng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
 // TODO (Collin): Update input to reflect new parameter ordering.
