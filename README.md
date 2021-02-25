@@ -27,6 +27,7 @@ Leo is a functional, statically-typed programming language built for writing pri
 
 
 ## 1. Overview
+
 Welcome to the Leo programming language.
 
 Leo provides a high-level language that abstracts low-level cryptographic concepts and makes it easy to 
