@@ -22,7 +22,7 @@ use tracing::span::Span;
 
 /// Setting for automatic updates of Leo
 #[derive(Debug, StructOpt, PartialEq)]
-pub enum Sub {
+pub enum Automatic {
     Automatic {
         #[structopt(name = "bool", help = "Boolean value: true or false", parse(try_from_str))]
         value: bool,
@@ -43,11 +43,11 @@ pub struct Update {
 
     /// Setting for automatic updates of Leo
     #[structopt(subcommand)]
-    automatic: Option<Sub>,
+    automatic: Option<Automatic>,
 }
 
 impl Update {
-    pub fn new(list: bool, studio: bool, automatic: Option<Sub>) -> Update {
+    pub fn new(list: bool, studio: bool, automatic: Option<Automatic>) -> Update {
         Update {
             list,
             studio,
@@ -75,7 +75,7 @@ impl Command for Update {
         }
 
         // in case automatic subcommand was called
-        if let Some(Sub::Automatic { value }) = self.automatic {
+        if let Some(Automatic::Automatic { value }) = self.automatic {
             Config::set_update_automatic(value)?;
 
             match value {

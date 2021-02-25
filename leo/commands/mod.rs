@@ -52,7 +52,7 @@ pub mod test;
 pub use test::Test;
 
 pub mod update;
-pub use update::{Sub as UpdateAutomatic, Update};
+pub use update::{Automatic as UpdateAutomatic, Update};
 
 pub mod watch;
 pub use watch::Watch;
