@@ -134,7 +134,7 @@ impl Command for Build {
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;
 
-                tracing::info!("Compiled constraints - {:#?}", output);
+                tracing::debug!("Compiled output - {:#?}", output);
                 tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
 
                 // Serialize the circuit
