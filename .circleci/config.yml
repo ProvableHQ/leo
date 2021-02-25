@@ -55,7 +55,7 @@ jobs:
           no_output_timeout: 30m
           command: cargo install --path . --root .
       - persist_to_workspace:
-          root: ./
+          root: ~/
           paths: project/
       - clear_environment:
           cache_key: leo-stable-cache
@@ -69,7 +69,7 @@ jobs:
           at: /home/circleci/project/
       - run:
           name: leo new
-          command: ./bin/leo
+          command: ls -la
 
 workflows:
   version: 2
