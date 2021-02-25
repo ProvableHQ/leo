@@ -112,6 +112,19 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-add-remove.sh
 
+  leo-setup:
+    docker:
+      - image: cimg/rust:1.50.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo setup
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-setup.sh
+
 workflows:
   version: 2
   main-workflow:
@@ -127,5 +140,8 @@ workflows:
           requires:
             - rust-stable
       - leo-add-remove:
+          requires:
+            - rust-stable
+      - leo-setup:
           requires:
             - rust-stable
