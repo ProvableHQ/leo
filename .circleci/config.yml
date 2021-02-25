@@ -187,6 +187,9 @@ workflows:
       - leo-login-logout:
           requires:
             - rust-stable
+      - leo-clone:
+          requires:
+            - rust-stable
       - leo-publish:
           requires:
             - rust-stable
