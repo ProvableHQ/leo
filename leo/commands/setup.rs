@@ -65,7 +65,6 @@ impl Command for Setup {
                     && VerificationKeyFile::new(&package_name).exists_at(&path);
 
                 // If keys do not exist or the checksum differs, run the program setup
-                // If keys do not exist or the checksum differs, run the program setup
                 let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
                     tracing::info!("Starting...");
 
