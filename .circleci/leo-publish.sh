@@ -49,8 +49,6 @@ echo "$TOML" > Leo.toml
 # Run the package to confirm the manifest remains well-formed.
 $LEO run
 
-cat Leo.toml
-
 # Publish the package to Aleo.pm
 $LEO publish
 

@@ -1,6 +1,8 @@
 # leo clone
 
-$LEO clone leobot/test-app
+# Clone the test-app package.
+export PACKAGE="$ALEO_PM_USERNAME/test-app"
+$LEO clone $PACKAGE
 
 # Assert that the 'test-app' folder is not empty
 
