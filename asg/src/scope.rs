@@ -14,20 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArenaNode, AsgConvertError, Circuit, Expression, Function, Input, Statement, Type, Variable};
+use crate::{ArenaNode, AsgContext, AsgConvertError, Circuit, Expression, Function, Input, Statement, Type, Variable};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
-use typed_arena::Arena;
-use uuid::Uuid;
 
 /// An abstract data type that track the current bindings for variables, functions, and circuits.
 #[derive(Clone)]
 pub struct Scope<'a> {
-    pub arena: &'a Arena<ArenaNode<'a>>,
+    pub context: AsgContext<'a>,
 
     /// The unique id of the scope.
-    pub id: Uuid,
+    pub id: u32,
 
     /// The parent scope that this scope inherits.
     pub parent_scope: Cell<Option<&'a Scope<'a>>>,
@@ -54,42 +52,42 @@ pub struct Scope<'a> {
 #[allow(clippy::mut_from_ref)]
 impl<'a> Scope<'a> {
     pub fn alloc_expression(&'a self, expr: Expression<'a>) -> &'a mut Expression<'a> {
-        match self.arena.alloc(ArenaNode::Expression(expr)) {
+        match self.context.arena.alloc(ArenaNode::Expression(expr)) {
             ArenaNode::Expression(e) => e,
             _ => unimplemented!(),
         }
     }
 
     pub fn alloc_statement(&'a self, statement: Statement<'a>) -> &'a mut Statement<'a> {
-        match self.arena.alloc(ArenaNode::Statement(statement)) {
+        match self.context.arena.alloc(ArenaNode::Statement(statement)) {
             ArenaNode::Statement(e) => e,
             _ => unimplemented!(),
         }
     }
 
     pub fn alloc_variable(&'a self, variable: Variable<'a>) -> &'a mut Variable<'a> {
-        match self.arena.alloc(ArenaNode::Variable(variable)) {
+        match self.context.arena.alloc(ArenaNode::Variable(variable)) {
             ArenaNode::Variable(e) => e,
             _ => unimplemented!(),
         }
     }
 
     pub fn alloc_scope(&'a self, scope: Scope<'a>) -> &'a mut Scope<'a> {
-        match self.arena.alloc(ArenaNode::Scope(scope)) {
+        match self.context.arena.alloc(ArenaNode::Scope(scope)) {
             ArenaNode::Scope(e) => e,
             _ => unimplemented!(),
         }
     }
 
     pub fn alloc_circuit(&'a self, circuit: Circuit<'a>) -> &'a mut Circuit<'a> {
-        match self.arena.alloc(ArenaNode::Circuit(circuit)) {
+        match self.context.arena.alloc(ArenaNode::Circuit(circuit)) {
             ArenaNode::Circuit(e) => e,
             _ => unimplemented!(),
         }
     }
 
     pub fn alloc_function(&'a self, function: Function<'a>) -> &'a mut Function<'a> {
-        match self.arena.alloc(ArenaNode::Function(function)) {
+        match self.context.arena.alloc(ArenaNode::Function(function)) {
             ArenaNode::Function(e) => e,
             _ => unimplemented!(),
         }
@@ -198,8 +196,8 @@ impl<'a> Scope<'a> {
     ///
     pub fn make_subscope(self: &'a Scope<'a>) -> &'a Scope<'a> {
         self.alloc_scope(Scope::<'a> {
-            arena: self.arena,
-            id: Uuid::new_v4(),
+            context: self.context,
+            id: self.context.get_id(),
             parent_scope: Cell::new(Some(self)),
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),

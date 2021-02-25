@@ -1203,7 +1203,6 @@ dependencies = [
  "serde_json",
  "thiserror",
  "typed-arena",
- "uuid",
 ]
 
 [[package]]
@@ -1252,7 +1251,6 @@ dependencies = [
  "snarkvm-utilities",
  "thiserror",
  "tracing",
- "uuid",
 ]
 
 [[package]]
@@ -2387,9 +2385,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.62"
+version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea1c6153794552ea7cf7cf63b1231a25de00ec90db326ba6264440fa08e31486"
+checksum = "43535db9747a4ba938c0ce0a98cc631a46ebf943c9e1d604e091df6007620bf6"
 dependencies = [
  "itoa",
  "ryu",
@@ -3079,16 +3077,6 @@ dependencies = [
  "idna",
  "matches",
  "percent-encoding",
-]
-
-[[package]]
-name = "uuid"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
-dependencies = [
- "getrandom 0.2.2",
- "serde",
 ]
 
 [[package]]

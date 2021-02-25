@@ -18,7 +18,6 @@ use crate::{AsgConvertError, Function, Identifier, Node, Scope, Span, Type};
 
 use indexmap::IndexMap;
 use std::cell::RefCell;
-use uuid::Uuid;
 
 #[derive(Clone)]
 pub enum CircuitMember<'a> {
@@ -28,7 +27,7 @@ pub enum CircuitMember<'a> {
 
 #[derive(Clone)]
 pub struct Circuit<'a> {
-    pub id: Uuid,
+    pub id: u32,
     pub name: RefCell<Identifier>,
     pub core_mapping: RefCell<Option<String>>,
     pub scope: &'a Scope<'a>,
@@ -58,7 +57,7 @@ impl<'a> Circuit<'a> {
         let new_scope = scope.make_subscope();
 
         let circuit = scope.alloc_circuit(Circuit {
-            id: Uuid::new_v4(),
+            id: scope.context.get_id(),
             name: RefCell::new(value.circuit_name.clone()),
             members: RefCell::new(IndexMap::new()),
             core_mapping: RefCell::new(None),

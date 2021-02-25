@@ -14,17 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::new_context;
-
-use crate::{load_asg, load_asg_imports, mocked_resolver};
+use crate::{load_asg, load_asg_imports, make_test_context, mocked_resolver};
 
 #[test]
 fn test_basic() {
-    let context = new_context();
+    let context = make_test_context();
     let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
-        load_asg(&context, include_str!("src/test-import.leo")).unwrap(),
+        load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
     let program_string = include_str!("basic.leo");
     load_asg_imports(&context, program_string, &mut imports).unwrap();
@@ -32,11 +30,11 @@ fn test_basic() {
 
 #[test]
 fn test_multiple() {
-    let context = new_context();
+    let context = make_test_context();
     let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
-        load_asg(&context, include_str!("src/test-import.leo")).unwrap(),
+        load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
     let program_string = include_str!("multiple.leo");
     load_asg_imports(&context, program_string, &mut imports).unwrap();
@@ -44,11 +42,11 @@ fn test_multiple() {
 
 #[test]
 fn test_star() {
-    let context = new_context();
+    let context = make_test_context();
     let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
-        load_asg(&context, include_str!("src/test-import.leo")).unwrap(),
+        load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
 
     let program_string = include_str!("star.leo");
@@ -57,11 +55,11 @@ fn test_star() {
 
 #[test]
 fn test_alias() {
-    let context = new_context();
+    let context = make_test_context();
     let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
-        load_asg(&context, include_str!("src/test-import.leo")).unwrap(),
+        load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
 
     let program_string = include_str!("alias.leo");
@@ -71,20 +69,18 @@ fn test_alias() {
 // naming tests
 #[test]
 fn test_name() {
-    let context = new_context();
+    let context = make_test_context();
     let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "hello-world".to_string(),
-        load_asg(&context, include_str!("src/hello-world.leo")).unwrap(),
+        load_asg(include_str!("src/hello-world.leo")).unwrap(),
     );
-    imports.packages.insert(
-        "a0-f".to_string(),
-        load_asg(&context, include_str!("src/a0-f.leo")).unwrap(),
-    );
-    imports.packages.insert(
-        "a-9".to_string(),
-        load_asg(&context, include_str!("src/a-9.leo")).unwrap(),
-    );
+    imports
+        .packages
+        .insert("a0-f".to_string(), load_asg(include_str!("src/a0-f.leo")).unwrap());
+    imports
+        .packages
+        .insert("a-9".to_string(), load_asg(include_str!("src/a-9.leo")).unwrap());
 
     let program_string = include_str!("names.leo");
     load_asg_imports(&context, program_string, &mut imports).unwrap();
@@ -93,31 +89,31 @@ fn test_name() {
 // more complex tests
 #[test]
 fn test_many_import() {
-    let context = new_context();
+    let context = make_test_context();
     let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
-        load_asg(&context, include_str!("src/test-import.leo")).unwrap(),
+        load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
     imports.packages.insert(
         "bar".to_string(),
-        load_asg(&context, include_str!("imports/bar/src/lib.leo")).unwrap(),
+        load_asg(include_str!("imports/bar/src/lib.leo")).unwrap(),
     );
     imports.packages.insert(
         "bar.baz".to_string(),
-        load_asg(&context, include_str!("imports/bar/src/baz.leo")).unwrap(),
+        load_asg(include_str!("imports/bar/src/baz.leo")).unwrap(),
     );
     imports.packages.insert(
         "bar.baz".to_string(),
-        load_asg(&context, include_str!("imports/bar/src/baz.leo")).unwrap(),
+        load_asg(include_str!("imports/bar/src/baz.leo")).unwrap(),
     );
     imports.packages.insert(
         "bar.bat.bat".to_string(),
-        load_asg(&context, include_str!("imports/bar/src/bat/bat.leo")).unwrap(),
+        load_asg(include_str!("imports/bar/src/bat/bat.leo")).unwrap(),
     );
     imports.packages.insert(
         "car".to_string(),
-        load_asg(&context, include_str!("imports/car/src/lib.leo")).unwrap(),
+        load_asg(include_str!("imports/car/src/lib.leo")).unwrap(),
     );
 
     let program_string = include_str!("many_import.leo");
@@ -126,31 +122,31 @@ fn test_many_import() {
 
 #[test]
 fn test_many_import_star() {
-    let context = new_context();
+    let context = make_test_context();
     let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
-        load_asg(&context, include_str!("src/test-import.leo")).unwrap(),
+        load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
     imports.packages.insert(
         "bar".to_string(),
-        load_asg(&context, include_str!("imports/bar/src/lib.leo")).unwrap(),
+        load_asg(include_str!("imports/bar/src/lib.leo")).unwrap(),
     );
     imports.packages.insert(
         "bar.baz".to_string(),
-        load_asg(&context, include_str!("imports/bar/src/baz.leo")).unwrap(),
+        load_asg(include_str!("imports/bar/src/baz.leo")).unwrap(),
     );
     imports.packages.insert(
         "bar.baz".to_string(),
-        load_asg(&context, include_str!("imports/bar/src/baz.leo")).unwrap(),
+        load_asg(include_str!("imports/bar/src/baz.leo")).unwrap(),
     );
     imports.packages.insert(
         "bar.bat.bat".to_string(),
-        load_asg(&context, include_str!("imports/bar/src/bat/bat.leo")).unwrap(),
+        load_asg(include_str!("imports/bar/src/bat/bat.leo")).unwrap(),
     );
     imports.packages.insert(
         "car".to_string(),
-        load_asg(&context, include_str!("imports/car/src/lib.leo")).unwrap(),
+        load_asg(include_str!("imports/car/src/lib.leo")).unwrap(),
     );
 
     let program_string = include_str!("many_import_star.leo");

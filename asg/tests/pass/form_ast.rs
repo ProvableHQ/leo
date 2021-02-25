@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::new_context;
-
-use crate::load_asg;
+use crate::{load_asg, make_test_context};
 use leo_ast::Ast;
 use leo_grammar::Grammar;
 
@@ -25,8 +23,7 @@ use std::path::Path;
 #[test]
 fn test_basic() {
     let program_string = include_str!("./circuits/pedersen_mock.leo");
-    let context = new_context();
-    let asg = load_asg(&context, program_string).unwrap();
+    let asg = load_asg(program_string).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);
     println!("{}", reformed_ast);
     // panic!();
@@ -51,8 +48,7 @@ fn test_function_rename() {
         console.assert(total == 20);
     }
     "#;
-    let context = new_context();
-    let asg = load_asg(&context, program_string).unwrap();
+    let asg = load_asg(program_string).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);
     println!("{}", reformed_ast);
     // panic!();
@@ -60,7 +56,7 @@ fn test_function_rename() {
 
 #[test]
 fn test_imports() {
-    let context = new_context();
+    let context = make_test_context();
     let mut imports = crate::mocked_resolver(&context);
     let test_import = r#"
     circuit Point {
@@ -74,7 +70,7 @@ fn test_imports() {
   "#;
     imports
         .packages
-        .insert("test-import".to_string(), load_asg(&context, test_import).unwrap());
+        .insert("test-import".to_string(), load_asg(test_import).unwrap());
     let program_string = r#"
         import test-import.foo;
 
