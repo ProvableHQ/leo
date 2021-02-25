@@ -71,7 +71,20 @@ jobs:
           name: leo new
           command: |
             export LEO=./project/bin/leo
-            ./home/circleci/project/.circleci/leo-new.sh
+            ./project/.circleci/leo-new.sh
+
+  leo-init:
+    docker:
+      - image: cimg/rust:1.49.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo new
+          command: |
+            export LEO=./project/bin/leo
+            ./project/.circleci/leo-init.sh
 
 workflows:
   version: 2
@@ -79,5 +92,8 @@ workflows:
     jobs:
       - rust-stable
       - leo-new:
+          requires:
+            - rust-stable
+      - leo-init:
           requires:
             - rust-stable
