@@ -66,4 +66,4 @@ version = "0.2"
 version = "1.0"
 
 [dev-dependencies.snarkvm-storage]
-version = "0.0.4"
+version = "0.0.5"
