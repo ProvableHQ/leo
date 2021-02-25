@@ -14,20 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::new_context;
-
 use crate::load_asg;
 
 #[test]
 fn test_negate() {
     let program_string = include_str!("negate.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_add() {
     let program_string = include_str!("add.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
@@ -37,41 +35,41 @@ fn test_add_explicit() {
         let c: field = 0field + 1field;
     }
     "#;
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_sub() {
     let program_string = include_str!("sub.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_div() {
     let program_string = include_str!("div.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_mul() {
     let program_string = include_str!("mul.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_eq() {
     let program_string = include_str!("eq.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_console_assert_pass() {
     let program_string = include_str!("console_assert.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_ternary() {
     let program_string = include_str!("ternary.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }

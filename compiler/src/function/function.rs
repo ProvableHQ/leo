@@ -83,7 +83,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if function.qualifier == FunctionQualifier::MutSelfRef {
             if let (Some(self_var), Some(target)) = (self_var, target) {
                 let new_self = self
-                    .get(&self_var.borrow().id)
+                    .get(self_var.borrow().id)
                     .expect("no self variable found in mut self context")
                     .clone();
                 if let Some(assignable_target) = self.resolve_mut_ref(cs, target)? {

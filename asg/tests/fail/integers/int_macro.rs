@@ -16,27 +16,25 @@
 
 macro_rules! test_int {
     ($name: ident) => {
-        use leo_asg::new_context;
-
         pub struct $name {}
 
         // we are not doing constant folding here, so asg doesnt catch this
         // impl $name {
         //     fn test_negate_min_fail() {
         //         let program_string = include_str!("negate_min.leo");
-        //         crate::load_asg(&new_context(), program_string).err().unwrap();
+        //         crate::load_asg(program_string).err().unwrap();
         //     }
         // }
 
         impl super::IntegerTester for $name {
             fn test_min_fail() {
                 let program_string = include_str!("min_fail.leo");
-                crate::load_asg(&new_context(), program_string).err().unwrap();
+                crate::load_asg(program_string).err().unwrap();
             }
 
             fn test_max_fail() {
                 let program_string = include_str!("max_fail.leo");
-                crate::load_asg(&new_context(), program_string).err().unwrap();
+                crate::load_asg(program_string).err().unwrap();
             }
         }
     };

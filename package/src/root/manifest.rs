@@ -39,11 +39,11 @@ pub struct Manifest {
 }
 
 impl Manifest {
-    pub fn new(package_name: &str) -> Self {
-        Self {
-            project: Package::new(package_name),
+    pub fn new(package_name: &str) -> Result<Self, ManifestError> {
+        Ok(Self {
+            project: Package::new(package_name)?,
             remote: None,
-        }
+        })
     }
 
     pub fn filename() -> String {

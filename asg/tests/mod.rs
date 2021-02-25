@@ -26,8 +26,8 @@ mod pass;
 const TESTING_FILEPATH: &str = "input.leo";
 const TESTING_PROGRAM_NAME: &str = "test_program";
 
-fn load_asg<'a>(context: AsgContext<'a>, program_string: &str) -> Result<Program<'a>, AsgConvertError> {
-    load_asg_imports(context, program_string, &mut NullImportResolver)
+fn load_asg(program_string: &str) -> Result<Program<'static>, AsgConvertError> {
+    load_asg_imports(make_test_context(), program_string, &mut NullImportResolver)
 }
 
 fn load_asg_imports<'a, T: ImportResolver<'a>>(
@@ -40,7 +40,13 @@ fn load_asg_imports<'a, T: ImportResolver<'a>>(
     InternalProgram::new(context, &ast.as_repr(), imports)
 }
 
-fn mocked_resolver<'a>(_ctx: AsgContext<'a>) -> MockedImportResolver<'a> {
+fn mocked_resolver<'a>(_context: AsgContext<'a>) -> MockedImportResolver<'a> {
     let packages = indexmap::IndexMap::new();
     MockedImportResolver { packages }
+}
+
+//convenience function for tests, leaks memory
+pub(crate) fn make_test_context() -> AsgContext<'static> {
+    let allocator = Box::leak(Box::new(new_alloc_context()));
+    new_context(allocator)
 }

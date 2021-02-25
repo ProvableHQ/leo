@@ -36,7 +36,7 @@ pub mod statements;
 pub mod syntax;
 pub mod tuples;
 
-use leo_asg::{new_context, AsgContext};
+use leo_asg::{new_alloc_context, new_context, AsgContext};
 use leo_ast::{InputValue, MainInput};
 use leo_compiler::{
     compiler::Compiler,
@@ -60,7 +60,8 @@ pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupTyp
 
 //convenience function for tests, leaks memory
 pub(crate) fn make_test_context() -> AsgContext<'static> {
-    Box::leak(Box::new(new_context()))
+    let allocator = Box::leak(Box::new(new_alloc_context()));
+    new_context(allocator)
 }
 
 fn new_compiler() -> EdwardsTestCompiler {

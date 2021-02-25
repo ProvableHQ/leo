@@ -21,15 +21,9 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Lint Leo code command
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Lint {}
-
-impl Lint {
-    pub fn new() -> Lint {
-        Lint {}
-    }
-}
 
 impl Command for Lint {
     type Input = ();

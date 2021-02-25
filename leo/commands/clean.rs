@@ -23,15 +23,9 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Clean outputs folder command
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Clean {}
-
-impl Clean {
-    pub fn new() -> Clean {
-        Clean {}
-    }
-}
 
 impl Command for Clean {
     type Input = ();
@@ -45,9 +39,9 @@ impl Command for Clean {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = ctx.dir()?;
-        let package_name = ctx.manifest()?.get_package_name();
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
         // Remove the checksum from the output directory
         ChecksumFile::new(&package_name).remove(&path)?;

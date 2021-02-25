@@ -14,7 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, Circuit, Expression, Function, PartialType, Scope, Span, Statement, Variable};
+use crate::{
+    AsgContextInner,
+    AsgConvertError,
+    Circuit,
+    Expression,
+    Function,
+    PartialType,
+    Scope,
+    Span,
+    Statement,
+    Variable,
+};
 
 /// A node in the abstract semantic graph.
 pub trait Node {
@@ -38,4 +49,5 @@ pub enum ArenaNode<'a> {
     Variable(Variable<'a>),
     Circuit(Circuit<'a>),
     Function(Function<'a>),
+    Inner(AsgContextInner<'a>),
 }

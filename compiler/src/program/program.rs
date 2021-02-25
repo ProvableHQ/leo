@@ -22,11 +22,10 @@ use leo_asg::Program;
 use snarkvm_models::curves::PrimeField;
 
 use indexmap::IndexMap;
-use uuid::Uuid;
 
 pub struct ConstrainedProgram<'a, F: PrimeField, G: GroupType<F>> {
     pub asg: Program<'a>,
-    identifiers: IndexMap<Uuid, ConstrainedValue<'a, F, G>>,
+    identifiers: IndexMap<u32, ConstrainedValue<'a, F, G>>,
 }
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
@@ -37,15 +36,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         }
     }
 
-    pub(crate) fn store(&mut self, name: Uuid, value: ConstrainedValue<'a, F, G>) {
-        self.identifiers.insert(name, value);
+    pub(crate) fn store(&mut self, id: u32, value: ConstrainedValue<'a, F, G>) {
+        self.identifiers.insert(id, value);
     }
 
-    pub(crate) fn get(&self, name: &Uuid) -> Option<&ConstrainedValue<'a, F, G>> {
-        self.identifiers.get(name)
+    pub(crate) fn get(&self, id: u32) -> Option<&ConstrainedValue<'a, F, G>> {
+        self.identifiers.get(&id)
     }
 
-    pub(crate) fn get_mut(&mut self, name: &Uuid) -> Option<&mut ConstrainedValue<'a, F, G>> {
-        self.identifiers.get_mut(name)
+    pub(crate) fn get_mut(&mut self, id: u32) -> Option<&mut ConstrainedValue<'a, F, G>> {
+        self.identifiers.get_mut(&id)
     }
 }

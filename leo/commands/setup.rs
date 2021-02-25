@@ -28,17 +28,11 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Executes the setup command for a Leo program
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Setup {
     #[structopt(long = "skip-key-check", help = "Skip key verification")]
-    skip_key_check: bool,
-}
-
-impl Setup {
-    pub fn new(skip_key_check: bool) -> Setup {
-        Setup { skip_key_check }
-    }
+    pub(crate) skip_key_check: bool,
 }
 
 impl Command for Setup {
@@ -54,38 +48,32 @@ impl Command for Setup {
     }
 
     fn prelude(&self) -> Result<Self::Input> {
-        Build::new().execute()
+        (Build {}).execute()
     }
 
-    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output> {
-        let path = ctx.dir()?;
-        let package_name = ctx.manifest()?.get_package_name();
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
+        // If Build failed - exit.
         if input.is_none() {
             return Err(anyhow!("Unable to build, check that main file exists"));
         }
 
         let (program, checksum_differs) = input.unwrap();
-
         // Check if a proving key and verification key already exists
         let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
             && VerificationKeyFile::new(&package_name).exists_at(&path);
 
         // If keys do not exist or the checksum differs, run the program setup
-        // If keys do not exist or the checksum differs, run the program setup
         let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
             tracing::info!("Starting...");
 
             // Run the program setup operation
-            let (proving_key, prepared_verifying_key) = {
-                let rng = &mut thread_rng();
-                let setup_res = Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng);
-                match setup_res {
-                    Ok((proving_key, prepared_verifying_key)) => (proving_key, prepared_verifying_key),
-                    // for some reason, using `anyhow!("{}", err)` here causes stack overflow - FIXME
-                    Err(_err) => return Err(anyhow!("{}", "Unable to setup, see command output for more details")),
-                }
-            };
+            let rng = &mut thread_rng();
+            let (proving_key, prepared_verifying_key) =
+                Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng)
+                    .map_err(|_| anyhow!("{}", "Unable to setup, see command output for more details"))?;
 
             // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
             // Write the proving key file to the output directory
