@@ -96,7 +96,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                 )));
             }
             variables.push(&*scope.alloc_variable(RefCell::new(InnerVariable {
-                id: uuid::Uuid::new_v4(),
+                id: scope.context.get_id(),
                 name: variable.identifier.clone(),
                 type_:
                     type_.ok_or_else(|| AsgConvertError::unresolved_type(&variable.identifier.name, &statement.span))?,

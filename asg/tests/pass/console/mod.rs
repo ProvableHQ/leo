@@ -14,32 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::new_context;
-
 use crate::load_asg;
 
 #[test]
 fn test_log() {
     let program_string = include_str!("log.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_log_parameter() {
     let program_string = include_str!("log_parameter.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_log_parameter_many() {
     let program_string = include_str!("log_parameter_many.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_log_input() {
     let program_string = include_str!("log_input.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 // Debug
@@ -47,7 +45,7 @@ fn test_log_input() {
 #[test]
 fn test_debug() {
     let program_string = include_str!("debug.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 // Error
@@ -55,7 +53,7 @@ fn test_debug() {
 #[test]
 fn test_error() {
     let program_string = include_str!("error.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 // Assertion
@@ -63,11 +61,11 @@ fn test_error() {
 #[test]
 fn test_assert() {
     let program_string = include_str!("assert.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_conditional_assert() {
     let program_string = include_str!("conditional_assert.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }

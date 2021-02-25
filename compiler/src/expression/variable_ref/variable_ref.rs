@@ -27,10 +27,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         // Evaluate the identifier name in the current function scope
         let variable = variable_ref.variable.borrow();
 
-        let result_value = if let Some(value) = self.get(&variable.id) {
+        let result_value = if let Some(value) = self.get(variable.id) {
             value.clone()
         } else {
-            return Err(ExpressionError::undefined_identifier(variable.name.clone())); // todo: probably can be a panic here instead
+            return Err(ExpressionError::undefined_identifier(variable.name.clone()));
+            // todo: probably can be a panic here instead
         };
 
         Ok(result_value)

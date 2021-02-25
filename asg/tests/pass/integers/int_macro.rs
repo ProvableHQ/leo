@@ -16,96 +16,94 @@
 
 macro_rules! test_int {
     ($name: ident) => {
-        use leo_asg::new_context;
-
         pub struct $name {}
 
         impl $name {
             fn test_negate() {
                 let program_string = include_str!("negate.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_negate_zero() {
                 let program_string = include_str!("negate_zero.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
         }
 
         impl super::IntegerTester for $name {
             fn test_min() {
                 let program_string = include_str!("min.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_max() {
                 let program_string = include_str!("max.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_add() {
                 let program_string = include_str!("add.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_sub() {
                 let program_string = include_str!("sub.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_mul() {
                 let program_string = include_str!("mul.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_div() {
                 let program_string = include_str!("div.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_pow() {
                 let program_string = include_str!("pow.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_eq() {
                 let program_string = include_str!("eq.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_ne() {
                 let program_string = include_str!("ne.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_ge() {
                 let program_string = include_str!("ge.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_gt() {
                 let program_string = include_str!("gt.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_le() {
                 let program_string = include_str!("le.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_lt() {
                 let program_string = include_str!("lt.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_console_assert() {
                 let program_string = include_str!("console_assert.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
 
             fn test_ternary() {
                 let program_string = include_str!("ternary.leo");
-                crate::load_asg(&new_context(), program_string).unwrap();
+                crate::load_asg(program_string).unwrap();
             }
         }
     };

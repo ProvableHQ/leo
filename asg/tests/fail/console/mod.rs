@@ -14,30 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::new_context;
-
 use crate::load_asg;
 
 #[test]
 fn test_log_fail() {
     let program_string = include_str!("log_fail.leo");
-    load_asg(&new_context(), program_string).err().unwrap();
+    load_asg(program_string).err().unwrap();
 }
 
 #[test]
 fn test_log_parameter_fail_unknown() {
     let program_string = include_str!("log_parameter_fail_unknown.leo");
-    load_asg(&new_context(), program_string).err().unwrap();
+    load_asg(program_string).err().unwrap();
 }
 
 #[test]
 fn test_log_parameter_fail_empty() {
     let program_string = include_str!("log_parameter_fail_empty.leo");
-    load_asg(&new_context(), program_string).err().unwrap();
+    load_asg(program_string).err().unwrap();
 }
 
 #[test]
 fn test_log_parameter_fail_none() {
     let program_string = include_str!("log_parameter_fail_empty.leo");
-    load_asg(&new_context(), program_string).err().unwrap();
+    load_asg(program_string).err().unwrap();
 }

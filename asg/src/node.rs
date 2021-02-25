@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
+    AsgContextInner,
     AsgConvertError,
     Circuit,
     Expression,
@@ -50,4 +51,5 @@ pub enum ArenaNode<'a> {
     Circuit(Circuit<'a>),
     Function(Function<'a>),
     GlobalConst(GlobalConst<'a>),
+    Inner(AsgContextInner<'a>),
 }

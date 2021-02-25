@@ -32,7 +32,6 @@ use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
-use uuid::Uuid;
 
 /// Stores the Leo program abstract semantic graph (ASG).
 #[derive(Clone)]
@@ -40,7 +39,7 @@ pub struct InternalProgram<'a> {
     pub context: AsgContext<'a>,
 
     /// The unique id of the program.
-    pub id: Uuid,
+    pub id: u32,
 
     /// The program file name.
     pub name: String,
@@ -144,7 +143,7 @@ impl<'a> InternalProgram<'a> {
     /// 4. resolve all asg nodes
     ///
     pub fn new<T: ImportResolver<'a>>(
-        arena: AsgContext<'a>,
+        context: AsgContext<'a>,
         program: &leo_ast::Program,
         import_resolver: &mut T,
     ) -> Result<Program<'a>, AsgConvertError> {
@@ -168,7 +167,7 @@ impl<'a> InternalProgram<'a> {
             let pretty_package = package.join(".");
 
             let resolved_package = match wrapped_resolver.resolve_package(
-                arena,
+                context,
                 &package.iter().map(|x| &**x).collect::<Vec<_>>()[..],
                 span,
             )? {
@@ -223,9 +222,9 @@ impl<'a> InternalProgram<'a> {
             }
         }
 
-        let import_scope = match arena.alloc(ArenaNode::Scope(Scope {
-            arena,
-            id: uuid::Uuid::new_v4(),
+        let import_scope = match context.arena.alloc(ArenaNode::Scope(Scope {
+            context,
+            id: context.get_id(),
             parent_scope: Cell::new(None),
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
@@ -240,9 +239,9 @@ impl<'a> InternalProgram<'a> {
         };
 
         let scope = import_scope.alloc_scope(Scope {
-            arena,
+            context,
             input: Cell::new(Some(Input::new(import_scope))), // we use import_scope to avoid recursive scope ref here
-            id: uuid::Uuid::new_v4(),
+            id: context.get_id(),
             parent_scope: Cell::new(Some(import_scope)),
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
@@ -321,8 +320,8 @@ impl<'a> InternalProgram<'a> {
         }
 
         Ok(InternalProgram {
-            context: arena,
-            id: Uuid::new_v4(),
+            context,
+            id: context.get_id(),
             name: program.name.clone(),
             test_functions,
             functions,

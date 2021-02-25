@@ -71,9 +71,10 @@ pub use variable::*;
 pub mod pass;
 pub use pass::*;
 
-pub use leo_ast::{Ast, Identifier, Span};
+pub mod context;
+pub use context::*;
 
-pub type AsgContext<'a> = &'a Arena<ArenaNode<'a>>;
+pub use leo_ast::{Ast, Identifier, Span};
 
 use std::path::Path;
 
@@ -132,6 +133,10 @@ pub fn load_asg<'a, T: ImportResolver<'a>>(
     InternalProgram::new(context, leo_ast::Ast::new("load_ast", &ast)?.as_repr(), resolver)
 }
 
-pub fn new_context<'a>() -> Arena<ArenaNode<'a>> {
+pub fn new_alloc_context<'a>() -> Arena<ArenaNode<'a>> {
     Arena::new()
+}
+
+pub fn new_context<'a>(arena: &'a Arena<ArenaNode<'a>>) -> AsgContext<'a> {
+    AsgContextInner::new(arena)
 }
