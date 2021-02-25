@@ -54,22 +54,50 @@ impl Package {
     /// of ASCII alphanumeric characters, and may be word-separated
     /// by a single dash '-'.
     pub fn is_package_name_valid(package_name: &str) -> bool {
-        // Check that the package name:
-        // 1. is lowercase,
-        // 2. is ASCII alphanumeric or a dash.
-        package_name.chars().all(|x| {
-            if !x.is_lowercase() {
+        // Check that the package name is nonempty.
+        if package_name.len() == 0 {
+            tracing::error!("Project names must be nonempty");
+            return false;
+        }
+
+        let mut previous = package_name.chars().nth(0).unwrap();
+
+        // Check that the first character is not a dash.
+        if previous == '-' {
+            tracing::error!("Project names cannot begin with a dash");
+            return false;
+        }
+
+        // Iterate and check that the package name is valid.
+        for current in package_name.chars() {
+            // Check that the package name is lowercase.
+            if !current.is_ascii_lowercase() && current != '-' {
                 tracing::error!("Project names must be all lowercase");
                 return false;
             }
 
-            if x.is_ascii_alphanumeric() || x == '-' {
+            // Check that the package name is only ASCII alphanumeric or a dash.
+            if !current.is_ascii_alphanumeric() && current != '-' {
                 tracing::error!("Project names must be ASCII alphanumeric, and may be word-separated with a dash");
                 return false;
             }
 
-            true
-        })
+            // If the previous character was a dash, check that the current character is not a dash.
+            if previous == '-' && current == '-' {
+                tracing::error!("Project names may only be word-separated by one dash");
+                return false;
+            }
+
+            previous = current;
+        }
+
+        // Check that the last character is not a dash.
+        if previous == '-' {
+            tracing::error!("Project names cannot end with a dash");
+            return false;
+        }
+
+        true
     }
 
     /// Returns `true` if a package is can be initialized at a given path.
@@ -227,5 +255,29 @@ impl Package {
     /// Removes the package at the given path
     pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), PackageError> {
         Ok(ImportsDirectory::remove_import(path, package_name)?)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_package_name_valid() {
+        assert!(Package::is_package_name_valid("foo"));
+        assert!(Package::is_package_name_valid("foo-bar"));
+        assert!(Package::is_package_name_valid("foo-bar-baz"));
+
+        assert!(!Package::is_package_name_valid(""));
+        assert!(!Package::is_package_name_valid("-"));
+        assert!(!Package::is_package_name_valid("-foo"));
+        assert!(!Package::is_package_name_valid("-foo-"));
+        assert!(!Package::is_package_name_valid("foo--bar"));
+        assert!(!Package::is_package_name_valid("foo---bar"));
+        assert!(!Package::is_package_name_valid("foo--bar--baz"));
+        assert!(!Package::is_package_name_valid("foo---bar---baz"));
+        assert!(!Package::is_package_name_valid("foo*bar"));
+        assert!(!Package::is_package_name_valid("foo,bar"));
+        assert!(!Package::is_package_name_valid("foo_bar"));
     }
 }
