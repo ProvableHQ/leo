@@ -1,7 +1,7 @@
 # leo login, publish and logout
 
 # Login
-$LEO login -u "ALEO_PM_USERNAME" -p "ALEO_PM_PASSWORD"
+$LEO login -u "$ALEO_PM_USERNAME" -p "$ALEO_PM_PASSWORD"
 
 # Clone the test-app package.
 $LEO clone test-app
