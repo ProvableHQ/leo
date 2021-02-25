@@ -15,20 +15,21 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{api::Fetch, commands::Command, context::Context};
-use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
 
 use anyhow::{anyhow, Result};
 use std::{
-    fs::{create_dir_all, File},
+    borrow::Cow,
+    fs::{self, File},
     io::{Read, Write},
+    path::Path,
 };
 use structopt::StructOpt;
 use tracing::Span;
 
-/// Add a package from Aleo Package Manager
+/// Clone a package from Aleo Package Manager
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Add {
+pub struct Clone {
     #[structopt(name = "REMOTE")]
     remote: Option<String>,
 
@@ -42,14 +43,14 @@ pub struct Add {
     version: Option<String>,
 }
 
-impl Add {
+impl Clone {
     pub fn new(
         remote: Option<String>,
         author: Option<String>,
         package: Option<String>,
         version: Option<String>,
-    ) -> Add {
-        Add {
+    ) -> Self {
+        Self {
             remote,
             author,
             package,
@@ -76,14 +77,27 @@ impl Add {
             ))
         }
     }
+
+    /// Creates a directory at the provided path with the given directory name.
+    fn create_directory(path: &Path, directory_name: &str) -> Result<()> {
+        let mut path = Cow::from(path);
+
+        // Check that the path ends in the directory name.
+        // If it does not, proceed to append the directory name to the path.
+        if path.is_dir() && !path.ends_with(directory_name) {
+            path.to_mut().push(directory_name);
+        }
+
+        Ok(fs::create_dir_all(&path)?)
+    }
 }
 
-impl Command for Add {
+impl Command for Clone {
     type Input = ();
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Adding")
+        tracing::span!(tracing::Level::INFO, "Cloning")
     }
 
     fn prelude(&self) -> Result<Self::Input> {
@@ -91,11 +105,6 @@ impl Command for Add {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // Check that a manifest exists for the current package.
-        if context.manifest().is_err() {
-            return Err(anyhow!("Package manifest not found, try running `leo init`"));
-        };
-
         let (author, package_name) = match self.try_read_arguments() {
             Ok((author, package)) => (author, package),
             Err(err) => return Err(err),
@@ -114,12 +123,8 @@ impl Command for Add {
 
         // Construct the directory structure.
         let mut path = context.dir()?;
-        {
-            ImportsDirectory::create(&path)?;
-            path.push(IMPORTS_DIRECTORY_NAME);
-            path.push(package_name);
-            create_dir_all(&path)?;
-        };
+        path.push(package_name.clone());
+        Self::create_directory(&path, &package_name)?;
 
         // Proceed to unzip and parse the fetched bytes.
         let mut zip_archive = match zip::ZipArchive::new(reader) {
@@ -138,17 +143,17 @@ impl Command for Add {
             file_path.push(file_name);
 
             if file_name.ends_with('/') {
-                create_dir_all(file_path)?;
+                fs::create_dir_all(file_path)?;
             } else {
                 if let Some(parent_directory) = path.parent() {
-                    create_dir_all(parent_directory)?;
+                    fs::create_dir_all(parent_directory)?;
                 }
 
                 File::create(file_path)?.write_all(&file.bytes().map(|e| e.unwrap()).collect::<Vec<u8>>())?;
             }
         }
 
-        tracing::info!("Successfully added a package");
+        tracing::info!("Successfully cloned {}", package_name);
 
         Ok(())
     }
