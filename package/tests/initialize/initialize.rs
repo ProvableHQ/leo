@@ -52,7 +52,10 @@ fn initialize_fails_with_existing_manifest() {
     assert!(Package::can_initialize(TEST_PACKAGE_NAME, false, &test_directory));
 
     // Manually add a manifest file to the `test_directory`
-    Manifest::new(TEST_PACKAGE_NAME).write_to(&test_directory).unwrap();
+    Manifest::new(TEST_PACKAGE_NAME)
+        .unwrap()
+        .write_to(&test_directory)
+        .unwrap();
 
     // Attempt to initialize a package at the `test_directory`
     assert!(Package::initialize(TEST_PACKAGE_NAME, false, &test_directory).is_err());

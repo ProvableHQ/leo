@@ -158,7 +158,12 @@ where
     N: for<'a> FormatFields<'a> + 'static,
     T: FormatTime,
 {
-    fn format_event(&self, ctx: &FmtContext<'_, S, N>, writer: &mut dyn fmt::Write, event: &Event<'_>) -> fmt::Result {
+    fn format_event(
+        &self,
+        context: &FmtContext<'_, S, N>,
+        writer: &mut dyn fmt::Write,
+        event: &Event<'_>,
+    ) -> fmt::Result {
         let meta = event.metadata();
 
         if self.display_level {
@@ -174,7 +179,7 @@ where
 
             let mut message = "".to_string();
 
-            let scope = ctx.scope();
+            let scope = context.scope();
             for span in scope {
                 message += span.metadata().name();
 
@@ -190,7 +195,7 @@ where
             write!(writer, "{:>10} ", colored_string(meta.level(), &message)).expect("Error writing event");
         }
 
-        ctx.format_fields(writer, event)?;
+        context.format_fields(writer, event)?;
         writeln!(writer)
     }
 }

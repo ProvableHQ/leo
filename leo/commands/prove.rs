@@ -28,17 +28,11 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Run the program and produce a proof
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Prove {
     #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
-    skip_key_check: bool,
-}
-
-impl Prove {
-    pub fn new(skip_key_check: bool) -> Prove {
-        Prove { skip_key_check }
-    }
+    pub(crate) skip_key_check: bool,
 }
 
 impl Command for Prove {
@@ -50,15 +44,16 @@ impl Command for Prove {
     }
 
     fn prelude(&self) -> Result<Self::Input> {
-        Setup::new(self.skip_key_check).execute()
+        let skip_key_check = self.skip_key_check;
+        (Setup { skip_key_check }).execute()
     }
 
-    fn apply(self, ctx: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
         let (program, parameters, prepared_verifying_key) = input;
 
         // Get the package name
-        let path = ctx.dir()?;
-        let package_name = ctx.manifest()?.get_package_name();
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
         tracing::info!("Starting...");
 

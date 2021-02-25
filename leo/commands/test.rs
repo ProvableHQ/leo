@@ -32,17 +32,11 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Build program and run tests command
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Test {
     #[structopt(short = "f", long = "file", name = "file")]
-    files: Vec<PathBuf>,
-}
-
-impl Test {
-    pub fn new(files: Vec<PathBuf>) -> Test {
-        Test { files }
-    }
+    pub(crate) files: Vec<PathBuf>,
 }
 
 impl Command for Test {
@@ -57,12 +51,12 @@ impl Command for Test {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Get the package name
-        let package_name = ctx.manifest()?.get_package_name();
+        let package_name = context.manifest()?.get_package_name();
 
         // Sanitize the package path to the root directory
-        let mut package_path = ctx.dir()?;
+        let mut package_path = context.dir()?;
         if package_path.is_file() {
             package_path.pop();
         }
