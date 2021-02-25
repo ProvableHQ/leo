@@ -27,7 +27,8 @@ use snarkvm_models::{
 use snarkvm_objects::Account;
 use snarkvm_utilities::{bytes::ToBytes, to_bytes};
 
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use snarkvm_models::dpc::DPCScheme;
 use snarkvm_storage::Ledger;
