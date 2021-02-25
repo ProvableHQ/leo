@@ -1331,7 +1331,7 @@ dependencies = [
  "snarkvm-algorithms",
  "snarkvm-curves",
  "snarkvm-dpc",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.5",
  "snarkvm-gadgets",
  "snarkvm-models",
  "snarkvm-objects",
@@ -1348,7 +1348,7 @@ dependencies = [
  "criterion",
  "rand",
  "rand_xorshift",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.5",
  "snarkvm-models",
  "snarkvm-utilities",
  "thiserror",
@@ -1423,7 +1423,7 @@ dependencies = [
  "serde_json",
  "snarkvm-algorithms",
  "snarkvm-curves",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.5",
  "snarkvm-gadgets",
  "snarkvm-models",
  "snarkvm-utilities",
@@ -1464,7 +1464,7 @@ dependencies = [
  "snarkvm-algorithms",
  "snarkvm-curves",
  "snarkvm-dpc",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.5",
  "snarkvm-models",
  "snarkvm-objects",
  "snarkvm-storage",
@@ -2618,7 +2618,7 @@ dependencies = [
  "rayon",
  "sha2",
  "smallvec",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.4",
  "snarkvm-models",
  "snarkvm-profiler",
  "snarkvm-utilities",
@@ -2635,7 +2635,7 @@ dependencies = [
  "rand_xorshift",
  "rustc_version 0.3.3",
  "serde",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.4",
  "snarkvm-models",
  "snarkvm-utilities",
 ]
@@ -2667,7 +2667,7 @@ dependencies = [
  "rand",
  "snarkvm-algorithms",
  "snarkvm-curves",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.4",
  "snarkvm-gadgets",
  "snarkvm-models",
  "snarkvm-objects",
@@ -2694,6 +2694,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "snarkvm-errors"
+version = "0.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2cfe9f6fac097aed079fa68a63c8989783b2cf21705de75bc91672dec60c9684"
+dependencies = [
+ "base58",
+ "bech32",
+ "bincode",
+ "hex",
+ "thiserror",
+]
+
+[[package]]
 name = "snarkvm-gadgets"
 version = "0.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2704,7 +2717,7 @@ dependencies = [
  "itertools 0.10.0",
  "snarkvm-algorithms",
  "snarkvm-curves",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.4",
  "snarkvm-models",
  "snarkvm-utilities",
 ]
@@ -2725,7 +2738,7 @@ dependencies = [
  "rand",
  "rand_xorshift",
  "serde",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.4",
  "snarkvm-utilities",
 ]
 
@@ -2746,7 +2759,7 @@ dependencies = [
  "sha2",
  "snarkvm-algorithms",
  "snarkvm-curves",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.4",
  "snarkvm-models",
  "snarkvm-utilities",
 ]
@@ -2760,7 +2773,7 @@ dependencies = [
  "curl",
  "hex",
  "snarkvm-algorithms",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.4",
  "snarkvm-models",
  "snarkvm-utilities",
 ]
@@ -2785,7 +2798,7 @@ dependencies = [
  "rocksdb",
  "serde",
  "snarkvm-algorithms",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.4",
  "snarkvm-models",
  "snarkvm-objects",
  "snarkvm-parameters",
@@ -2802,7 +2815,7 @@ dependencies = [
  "bincode",
  "rand",
  "snarkvm-derives",
- "snarkvm-errors",
+ "snarkvm-errors 0.0.4",
 ]
 
 [[package]]
