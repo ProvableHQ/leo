@@ -44,7 +44,7 @@ export UPDATED=$(cat Leo.toml \
 
 # Write the updated Leo package version number to the Leo.toml file.
 export TOML=$(cat Leo.toml | sed "s/$CURRENT/$UPDATED/g")
-echo $TOML > Leo.toml
+echo "$TOML" > Leo.toml
 
 # Run the package to confirm the manifest remains well-formed.
 $LEO run
