@@ -20,6 +20,7 @@ cd ..
 
 $LEO clean
 cd outputs && ls -la
+cd ..
 
 # Assert that the 'outputs' folder is empty
 
