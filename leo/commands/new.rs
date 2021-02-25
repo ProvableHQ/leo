@@ -30,12 +30,6 @@ pub struct New {
     name: String,
 }
 
-impl New {
-    pub fn new(name: String) -> New {
-        New { name }
-    }
-}
-
 impl Command for New {
     type Input = ();
     type Output = ();

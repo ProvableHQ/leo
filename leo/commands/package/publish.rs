@@ -37,15 +37,9 @@ struct ResponseJson {
 }
 
 /// Publish package to Aleo Package Manager
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Publish {}
-
-impl Publish {
-    pub fn new() -> Publish {
-        Publish {}
-    }
-}
 
 impl Command for Publish {
     type Input = <Build as Command>::Output;
@@ -53,7 +47,7 @@ impl Command for Publish {
 
     /// Build program before publishing
     fn prelude(&self) -> Result<Self::Input> {
-        Build::new().execute()
+        (Build {}).execute()
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {

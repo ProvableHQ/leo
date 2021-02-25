@@ -32,17 +32,11 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Build program and run tests command
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Test {
     #[structopt(short = "f", long = "file", name = "file")]
     files: Vec<PathBuf>,
-}
-
-impl Test {
-    pub fn new(files: Vec<PathBuf>) -> Test {
-        Test { files }
-    }
 }
 
 impl Command for Test {

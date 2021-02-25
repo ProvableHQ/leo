@@ -23,15 +23,9 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Init Leo project command within current directory
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Init {}
-
-impl Init {
-    pub fn new() -> Init {
-        Init {}
-    }
-}
 
 impl Command for Init {
     type Input = ();

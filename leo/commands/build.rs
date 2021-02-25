@@ -36,15 +36,9 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Compile and build program command
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {}
-
-impl Build {
-    pub fn new() -> Build {
-        Build {}
-    }
-}
 
 impl Command for Build {
     type Input = ();

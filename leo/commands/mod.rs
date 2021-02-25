@@ -60,57 +60,55 @@ pub use watch::Watch;
 // Aleo PM related commands
 pub mod package;
 
-/// Base trait for Leo CLI, see methods and their documentation for details
+/// Base trait for the Leo CLI, see methods and their documentation for details.
 pub trait Command {
-    /// If current command requires running another command before
-    /// and needs its output results, this is the place to set.
+    /// If the current command requires running another command beforehand
+    /// and needs its output result, this is where the result type is defined.
     /// Example: type Input: <CommandA as Command>::Out
     type Input;
 
-    /// Define output of the command to be reused as an Input for another
-    /// command. If this command is not used as a prelude for another, keep empty
+    /// Defines the output of this command, which may be used as `Input` for another
+    /// command. If this command is not used as a prelude for another command,
+    /// this field may be left empty.
     type Output;
 
-    /// Returns project context, currently keeping it simple but it is possible
-    /// that in the future leo will not depend on current directory, and we're keeping
-    /// option for extending current core
+    /// Returns the project context, which is defined as the current directory.
     fn context(&self) -> Result<Context> {
         get_context()
     }
 
-    /// Add span to the logger tracing::span.
-    /// Due to specifics of macro implementation it is impossible to set
-    /// span name with non-literal i.e. dynamic variable even if this
-    /// variable is &'static str
+    /// Adds a span to the logger via `tracing::span`.
+    /// Because of the specifics of the macro implementation, it is not possible
+    /// to set the span name with a non-literal i.e. a dynamic variable even if this
+    /// variable is a &'static str.
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Leo")
     }
 
-    /// Run prelude and get Input for current command. As simple as that.
-    /// But due to inability to pass default implementation of a type, this
-    /// method must be present in every trait implementation.
+    /// Runs the prelude and returns the Input of the current command.
     fn prelude(&self) -> Result<Self::Input>
     where
         Self: std::marker::Sized;
 
-    /// Core of the execution - do what is necessary. This function is run within
-    /// context of 'execute' function, which sets logging and timers
+    /// Runs the main operation of this command. This function is run within
+    /// context of 'execute' function, which sets logging and timers.
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output>
     where
         Self: std::marker::Sized;
 
-    /// Wrapper around apply function, sets up tracing, time tracking and context
+    /// A wrapper around the `apply` method.
+    /// This function sets up tracing, timing, and the context.
     fn execute(self) -> Result<Self::Output>
     where
         Self: std::marker::Sized,
     {
         let input = self.prelude()?;
 
-        // create span for this command
+        // Create the span for this command.
         let span = self.log_span();
         let span = span.enter();
 
-        // calculate execution time for each run
+        // Calculate the execution time for this command.
         let timer = Instant::now();
 
         let context = self.context()?;
@@ -118,7 +116,7 @@ pub trait Command {
 
         drop(span);
 
-        // use done context to print time
+        // Use the done context to print the execution time for this command.
         tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
             tracing::info!("Finished in {} milliseconds \n", timer.elapsed().as_millis());
         });
@@ -126,7 +124,7 @@ pub trait Command {
         out
     }
 
-    /// Execute command but empty the result. Comes in handy where there's a
+    /// Executes command but empty the result. Comes in handy where there's a
     /// need to make match arms compatible while keeping implementation-specific
     /// output possible. Errors however are all of the type Error
     fn try_execute(self) -> Result<()>

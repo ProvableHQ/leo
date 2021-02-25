@@ -30,7 +30,7 @@ pub enum Automatic {
 }
 
 /// Update Leo to the latest version
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Update {
     /// List all available versions of Leo
@@ -44,16 +44,6 @@ pub struct Update {
     /// Setting for automatic updates of Leo
     #[structopt(subcommand)]
     automatic: Option<Automatic>,
-}
-
-impl Update {
-    pub fn new(list: bool, studio: bool, automatic: Option<Automatic>) -> Update {
-        Update {
-            list,
-            studio,
-            automatic,
-        }
-    }
 }
 
 impl Command for Update {
