@@ -69,7 +69,12 @@ jobs:
           at: /home/circleci/project/
       - run:
           name: leo new
-          command: ls -la project
+          command: |
+            export LEO=./project/bin/leo
+            leo new hello-world
+            ls -la
+            cd hello-world && ls -la
+            leo run
 
 workflows:
   version: 2
