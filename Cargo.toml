@@ -120,7 +120,7 @@ version = "4.0.15"
 version = "0.3"
 
 [dependencies.rand]
-version = "0.7"
+version = "0.8"
 
 [dependencies.rand_core]
 version = "0.6.2"
