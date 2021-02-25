@@ -39,7 +39,7 @@ pub const STATE_LEAF_PSEUDO_CIRCUIT: &str = "$InputStateLeaf";
 impl<'a> Input<'a> {
     fn make_header(scope: &'a Scope<'a>, name: &str) -> &'a Circuit<'a> {
         scope.alloc_circuit(Circuit {
-            id: uuid::Uuid::new_v4(),
+            id: scope.context.get_id(),
             name: RefCell::new(Identifier::new(name.to_string())),
             members: RefCell::new(IndexMap::new()),
             core_mapping: RefCell::new(None),
@@ -68,7 +68,7 @@ impl<'a> Input<'a> {
         );
 
         let container_circuit = input_scope.alloc_circuit(Circuit {
-            id: uuid::Uuid::new_v4(),
+            id: scope.context.get_id(),
             name: RefCell::new(Identifier::new(CONTAINER_PSEUDO_CIRCUIT.to_string())),
             members: RefCell::new(container_members),
             core_mapping: RefCell::new(None),
@@ -83,7 +83,7 @@ impl<'a> Input<'a> {
             state_leaf,
             container_circuit,
             container: input_scope.alloc_variable(RefCell::new(crate::InnerVariable {
-                id: uuid::Uuid::new_v4(),
+                id: scope.context.get_id(),
                 name: Identifier::new("input".to_string()),
                 type_: Type::Circuit(container_circuit),
                 mutable: false,

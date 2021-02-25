@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::new_context;
-
 use crate::load_asg;
 
 pub mod conditional;
@@ -25,7 +23,7 @@ pub mod conditional;
 #[test]
 fn test_ternary_basic() {
     let program_string = include_str!("ternary_basic.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 // Iteration for i {start}..{stop} { statements }
@@ -33,11 +31,11 @@ fn test_ternary_basic() {
 #[test]
 fn test_iteration_basic() {
     let program_string = include_str!("iteration_basic.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_block() {
     let program_string = include_str!("block.leo");
-    load_asg(&new_context(), program_string).unwrap();
+    load_asg(program_string).unwrap();
 }

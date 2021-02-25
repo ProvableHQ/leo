@@ -37,10 +37,6 @@ path = "../ast"
 version = "1.2.2"
 path = "../grammar"
 
-[dependencies.uuid]
-version = "0.8"
-features = [ "v4", "serde" ]
-
 [dependencies.num-bigint]
 version = "0.3"
 

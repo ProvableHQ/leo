@@ -16,19 +16,17 @@
 
 macro_rules! test_uint {
     ($name: ident) => {
-        use leo_asg::new_context;
-
         pub struct $name {}
 
         impl super::IntegerTester for $name {
             fn test_min_fail() {
                 let program_string = include_str!("min_fail.leo");
-                crate::load_asg(&new_context(), program_string).err().unwrap();
+                crate::load_asg(program_string).err().unwrap();
             }
 
             fn test_max_fail() {
                 let program_string = include_str!("max_fail.leo");
-                crate::load_asg(&new_context(), program_string).err().unwrap();
+                crate::load_asg(program_string).err().unwrap();
             }
         }
     };

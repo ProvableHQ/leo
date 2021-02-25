@@ -19,8 +19,6 @@ use std::cell::RefCell;
 use crate::{Expression, Statement, Type};
 use leo_ast::Identifier;
 
-use uuid::Uuid;
-
 /// Specifies how a program variable was declared.
 #[derive(Clone, Copy, PartialEq)]
 pub enum VariableDeclaration {
@@ -33,7 +31,7 @@ pub enum VariableDeclaration {
 /// Stores information on a program variable.
 #[derive(Clone)]
 pub struct InnerVariable<'a> {
-    pub id: Uuid,
+    pub id: u32,
     pub name: Identifier,
     pub type_: Type<'a>,
     pub mutable: bool,
