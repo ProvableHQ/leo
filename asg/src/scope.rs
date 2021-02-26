@@ -14,58 +14,96 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, Circuit, Function, Input, Type, Variable};
+use crate::{ArenaNode, AsgContext, AsgConvertError, Circuit, Expression, Function, Input, Statement, Type, Variable};
 
 use indexmap::IndexMap;
-use std::{cell::RefCell, sync::Arc};
-use uuid::Uuid;
+use std::cell::{Cell, RefCell};
 
 /// An abstract data type that track the current bindings for variables, functions, and circuits.
-#[derive(Debug)]
-pub struct InnerScope {
+#[derive(Clone)]
+pub struct Scope<'a> {
+    pub context: AsgContext<'a>,
+
     /// The unique id of the scope.
-    pub id: Uuid,
+    pub id: u32,
 
     /// The parent scope that this scope inherits.
-    pub parent_scope: Option<Scope>,
+    pub parent_scope: Cell<Option<&'a Scope<'a>>>,
 
     /// The function definition that this scope occurs in.
-    pub function: Option<Arc<Function>>,
+    pub function: Cell<Option<&'a Function<'a>>>,
 
     /// The circuit definition that this scope occurs in.
-    pub circuit_self: Option<Arc<Circuit>>,
+    pub circuit_self: Cell<Option<&'a Circuit<'a>>>,
 
     /// Maps variable name => variable.
-    pub variables: IndexMap<String, Variable>,
+    pub variables: RefCell<IndexMap<String, &'a Variable<'a>>>,
 
     /// Maps function name => function.
-    pub functions: IndexMap<String, Arc<Function>>,
+    pub functions: RefCell<IndexMap<String, &'a Function<'a>>>,
 
     /// Maps circuit name => circuit.
-    pub circuits: IndexMap<String, Arc<Circuit>>,
+    pub circuits: RefCell<IndexMap<String, &'a Circuit<'a>>>,
 
     /// The main input to the program.
-    pub input: Option<Input>,
+    pub input: Cell<Option<Input<'a>>>,
 }
 
-pub type Scope = Arc<RefCell<InnerScope>>;
+#[allow(clippy::mut_from_ref)]
+impl<'a> Scope<'a> {
+    pub fn alloc_expression(&'a self, expr: Expression<'a>) -> &'a mut Expression<'a> {
+        match self.context.arena.alloc(ArenaNode::Expression(expr)) {
+            ArenaNode::Expression(e) => e,
+            _ => unimplemented!(),
+        }
+    }
 
-impl InnerScope {
+    pub fn alloc_statement(&'a self, statement: Statement<'a>) -> &'a mut Statement<'a> {
+        match self.context.arena.alloc(ArenaNode::Statement(statement)) {
+            ArenaNode::Statement(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn alloc_variable(&'a self, variable: Variable<'a>) -> &'a mut Variable<'a> {
+        match self.context.arena.alloc(ArenaNode::Variable(variable)) {
+            ArenaNode::Variable(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn alloc_scope(&'a self, scope: Scope<'a>) -> &'a mut Scope<'a> {
+        match self.context.arena.alloc(ArenaNode::Scope(scope)) {
+            ArenaNode::Scope(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn alloc_circuit(&'a self, circuit: Circuit<'a>) -> &'a mut Circuit<'a> {
+        match self.context.arena.alloc(ArenaNode::Circuit(circuit)) {
+            ArenaNode::Circuit(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    pub fn alloc_function(&'a self, function: Function<'a>) -> &'a mut Function<'a> {
+        match self.context.arena.alloc(ArenaNode::Function(function)) {
+            ArenaNode::Function(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
     ///
     /// Returns a reference to the variable corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
-    pub fn resolve_variable(&self, name: &str) -> Option<Variable> {
-        if let Some(resolved) = self.variables.get(name) {
-            Some(resolved.clone())
-        } else if let Some(resolved) = self.parent_scope.as_ref() {
-            if let Some(resolved) = resolved.borrow().resolve_variable(name) {
-                Some(resolved)
-            } else {
-                None
-            }
+    pub fn resolve_variable(&self, name: &str) -> Option<&'a Variable<'a>> {
+        if let Some(resolved) = self.variables.borrow().get(name) {
+            Some(*resolved)
+        } else if let Some(scope) = self.parent_scope.get() {
+            scope.resolve_variable(name)
         } else {
             None
         }
@@ -77,15 +115,11 @@ impl InnerScope {
     /// If the current scope did not have a function present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
-    pub fn resolve_current_function(&self) -> Option<Arc<Function>> {
-        if let Some(resolved) = self.function.as_ref() {
-            Some(resolved.clone())
-        } else if let Some(resolved) = self.parent_scope.as_ref() {
-            if let Some(resolved) = resolved.borrow().resolve_current_function() {
-                Some(resolved)
-            } else {
-                None
-            }
+    pub fn resolve_current_function(&self) -> Option<&'a Function> {
+        if let Some(resolved) = self.function.get() {
+            Some(resolved)
+        } else if let Some(scope) = self.parent_scope.get() {
+            scope.resolve_current_function()
         } else {
             None
         }
@@ -97,15 +131,11 @@ impl InnerScope {
     /// If the current scope did not have an input present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
-    pub fn resolve_input(&self) -> Option<Input> {
-        if let Some(input) = self.input.as_ref() {
-            Some(input.clone())
-        } else if let Some(resolved) = self.parent_scope.as_ref() {
-            if let Some(resolved) = resolved.borrow().resolve_input() {
-                Some(resolved)
-            } else {
-                None
-            }
+    pub fn resolve_input(&self) -> Option<Input<'a>> {
+        if let Some(input) = self.input.get() {
+            Some(input)
+        } else if let Some(resolved) = self.parent_scope.get() {
+            resolved.resolve_input()
         } else {
             None
         }
@@ -117,15 +147,11 @@ impl InnerScope {
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
-    pub fn resolve_function(&self, name: &str) -> Option<Arc<Function>> {
-        if let Some(resolved) = self.functions.get(name) {
-            Some(resolved.clone())
-        } else if let Some(resolved) = self.parent_scope.as_ref() {
-            if let Some(resolved) = resolved.borrow().resolve_function(name) {
-                Some(resolved)
-            } else {
-                None
-            }
+    pub fn resolve_function(&self, name: &str) -> Option<&'a Function<'a>> {
+        if let Some(resolved) = self.functions.borrow().get(name) {
+            Some(*resolved)
+        } else if let Some(resolved) = self.parent_scope.get() {
+            resolved.resolve_function(name)
         } else {
             None
         }
@@ -137,17 +163,13 @@ impl InnerScope {
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
-    pub fn resolve_circuit(&self, name: &str) -> Option<Arc<Circuit>> {
-        if let Some(resolved) = self.circuits.get(name) {
-            Some(resolved.clone())
-        } else if name == "Self" && self.circuit_self.is_some() {
-            self.circuit_self.clone()
-        } else if let Some(resolved) = self.parent_scope.as_ref() {
-            if let Some(resolved) = resolved.borrow().resolve_circuit(name) {
-                Some(resolved)
-            } else {
-                None
-            }
+    pub fn resolve_circuit(&self, name: &str) -> Option<&'a Circuit<'a>> {
+        if let Some(resolved) = self.circuits.borrow().get(name) {
+            Some(*resolved)
+        } else if name == "Self" && self.circuit_self.get().is_some() {
+            self.circuit_self.get()
+        } else if let Some(resolved) = self.parent_scope.get() {
+            resolved.resolve_circuit(name)
         } else {
             None
         }
@@ -159,15 +181,11 @@ impl InnerScope {
     /// If the current scope did not have a circuit self present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
-    pub fn resolve_circuit_self(&self) -> Option<Arc<Circuit>> {
-        if let Some(resolved) = self.circuit_self.as_ref() {
-            Some(resolved.clone())
-        } else if let Some(resolved) = self.parent_scope.as_ref() {
-            if let Some(resolved) = resolved.borrow().resolve_circuit_self() {
-                Some(resolved)
-            } else {
-                None
-            }
+    pub fn resolve_circuit_self(&self) -> Option<&'a Circuit<'a>> {
+        if let Some(resolved) = self.circuit_self.get() {
+            Some(resolved)
+        } else if let Some(resolved) = self.parent_scope.get() {
+            resolved.resolve_circuit_self()
         } else {
             None
         }
@@ -176,23 +194,24 @@ impl InnerScope {
     ///
     /// Returns a new scope given a parent scope.
     ///
-    pub fn make_subscope(scope: &Scope) -> Scope {
-        Arc::new(RefCell::new(InnerScope {
-            id: Uuid::new_v4(),
-            parent_scope: Some(scope.clone()),
-            circuit_self: None,
-            variables: IndexMap::new(),
-            functions: IndexMap::new(),
-            circuits: IndexMap::new(),
-            function: None,
-            input: None,
-        }))
+    pub fn make_subscope(self: &'a Scope<'a>) -> &'a Scope<'a> {
+        self.alloc_scope(Scope::<'a> {
+            context: self.context,
+            id: self.context.get_id(),
+            parent_scope: Cell::new(Some(self)),
+            circuit_self: Cell::new(None),
+            variables: RefCell::new(IndexMap::new()),
+            functions: RefCell::new(IndexMap::new()),
+            circuits: RefCell::new(IndexMap::new()),
+            function: Cell::new(None),
+            input: Cell::new(None),
+        })
     }
 
     ///
     /// Returns the type returned by the current scope.
     ///
-    pub fn resolve_ast_type(&self, type_: &leo_ast::Type) -> Result<Type, AsgConvertError> {
+    pub fn resolve_ast_type(&self, type_: &leo_ast::Type) -> Result<Type<'a>, AsgConvertError> {
         use leo_ast::Type::*;
         Ok(match type_ {
             Address => Type::Address,

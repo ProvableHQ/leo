@@ -30,43 +30,39 @@ use crate::{
     Variable,
 };
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::{Cell, RefCell};
 
-#[derive(Debug)]
-pub struct IterationStatement {
-    pub parent: Option<Weak<Statement>>,
+#[derive(Clone)]
+pub struct IterationStatement<'a> {
+    pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
-    pub variable: Variable,
-    pub start: Arc<Expression>,
-    pub stop: Arc<Expression>,
-    pub body: Arc<Statement>,
+    pub variable: &'a Variable<'a>,
+    pub start: Cell<&'a Expression<'a>>,
+    pub stop: Cell<&'a Expression<'a>>,
+    pub body: Cell<&'a Statement<'a>>,
 }
 
-impl Node for IterationStatement {
+impl<'a> Node for IterationStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl FromAst<leo_ast::IterationStatement> for Arc<Statement> {
+impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         statement: &leo_ast::IterationStatement,
-        _expected_type: Option<PartialType>,
-    ) -> Result<Arc<Statement>, AsgConvertError> {
+        _expected_type: Option<PartialType<'a>>,
+    ) -> Result<Self, AsgConvertError> {
         let expected_index_type = Some(PartialType::Integer(None, Some(IntegerType::U32)));
-        let start = Arc::<Expression>::from_ast(scope, &statement.start, expected_index_type.clone())?;
-        let stop = Arc::<Expression>::from_ast(scope, &statement.stop, expected_index_type)?;
-        let variable = Arc::new(RefCell::new(InnerVariable {
-            id: uuid::Uuid::new_v4(),
+        let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone())?;
+        let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type)?;
+        let variable = scope.alloc_variable(RefCell::new(InnerVariable {
+            id: scope.context.get_id(),
             name: statement.variable.clone(),
             type_: start
                 .get_type()
-                .ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?
-                .weak(),
+                .ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?,
             mutable: false,
             const_: true,
             declaration: crate::VariableDeclaration::IterationDefinition,
@@ -74,34 +70,34 @@ impl FromAst<leo_ast::IterationStatement> for Arc<Statement> {
             assignments: vec![],
         }));
         scope
-            .borrow_mut()
             .variables
-            .insert(statement.variable.name.clone(), variable.clone());
+            .borrow_mut()
+            .insert(statement.variable.name.clone(), variable);
 
-        let statement = Arc::new(Statement::Iteration(IterationStatement {
-            parent: None,
+        let statement = scope.alloc_statement(Statement::Iteration(IterationStatement {
+            parent: Cell::new(None),
             span: Some(statement.span.clone()),
-            variable: variable.clone(),
-            stop,
-            start,
-            body: Arc::new(Statement::Block(crate::BlockStatement::from_ast(
+            variable,
+            stop: Cell::new(stop),
+            start: Cell::new(start),
+            body: Cell::new(scope.alloc_statement(Statement::Block(crate::BlockStatement::from_ast(
                 scope,
                 &statement.block,
                 None,
-            )?)),
+            )?))),
         }));
-        variable.borrow_mut().assignments.push(Arc::downgrade(&statement));
+        variable.borrow_mut().assignments.push(statement);
         Ok(statement)
     }
 }
 
-impl Into<leo_ast::IterationStatement> for &IterationStatement {
+impl<'a> Into<leo_ast::IterationStatement> for &IterationStatement<'a> {
     fn into(self) -> leo_ast::IterationStatement {
         leo_ast::IterationStatement {
             variable: self.variable.borrow().name.clone(),
-            start: self.start.as_ref().into(),
-            stop: self.stop.as_ref().into(),
-            block: match self.body.as_ref() {
+            start: self.start.get().into(),
+            stop: self.stop.get().into(),
+            block: match self.body.get() {
                 Statement::Block(block) => block.into(),
                 _ => unimplemented!(),
             },

@@ -61,3 +61,10 @@ impl<'ast> TryFrom<AnnotationName<'ast>> for DeprecatedError {
         }
     }
 }
+
+impl DeprecatedError {
+    pub fn const_statement(span: &Span) -> Self {
+        let message = "const _ = ... is deprecated. Did you mean let?".to_string();
+        Self::new_from_span(message, span.clone())
+    }
+}

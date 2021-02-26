@@ -3,6 +3,6 @@ function foo() -> field {
 }
 
 function main() {
-    const myGlobal = 42field;
+    let myGlobal = 42field;
     let err = foo();
 }

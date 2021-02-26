@@ -37,15 +37,9 @@ struct ResponseJson {
 }
 
 /// Publish package to Aleo Package Manager
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Publish {}
-
-impl Publish {
-    pub fn new() -> Publish {
-        Publish {}
-    }
-}
 
 impl Command for Publish {
     type Input = <Build as Command>::Output;
@@ -53,13 +47,13 @@ impl Command for Publish {
 
     /// Build program before publishing
     fn prelude(&self) -> Result<Self::Input> {
-        Build::new().execute()
+        (Build {}).execute()
     }
 
-    fn apply(self, ctx: Context, _input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
         // Get the package manifest
-        let path = ctx.dir()?;
-        let manifest = ctx.manifest()?;
+        let path = context.dir()?;
+        let manifest = context.manifest()?;
 
         let package_name = manifest.get_package_name();
         let package_version = manifest.get_package_version();
@@ -99,7 +93,7 @@ impl Command for Publish {
         // Client for make POST request
         let client = Client::new();
 
-        let token = match ctx.api.auth_token() {
+        let token = match context.api.auth_token() {
             Some(token) => token,
             None => return Err(anyhow!("Login before publishing package: try leo login --help")),
         };
@@ -119,14 +113,17 @@ impl Command for Publish {
             .send();
 
         // Get a response result
-        let result = match response {
-            Ok(json_result) => match json_result.json::<ResponseJson>() {
-                Ok(json) => json,
-                Err(error) => {
-                    tracing::warn!("{:?}", error);
-                    return Err(anyhow!("Package not published"));
+        let result: ResponseJson = match response {
+            Ok(json_result) => {
+                let text = json_result.text()?;
+
+                match serde_json::from_str(&text) {
+                    Ok(json) => json,
+                    Err(_) => {
+                        return Err(anyhow!("Package not published: {}", text));
+                    }
                 }
-            },
+            }
             Err(error) => {
                 tracing::warn!("{:?}", error);
                 return Err(anyhow!("Connection unavailable"));

@@ -27,27 +27,27 @@ use crate::{
 use leo_asg::IterationStatement;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{boolean::Boolean, uint::UInt32},
     },
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_iteration_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         indicator: &Boolean,
-        statement: &IterationStatement,
-    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<F, G>>> {
+        statement: &IterationStatement<'a>,
+    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<'a, F, G>>> {
         let mut results = vec![];
 
         let span = statement.span.clone().unwrap_or_default();
 
-        let from = self.enforce_index(cs, &statement.start, &span)?;
-        let to = self.enforce_index(cs, &statement.stop, &span)?;
+        let from = self.enforce_index(cs, statement.start.get(), &span)?;
+        let to = self.enforce_index(cs, statement.stop.get(), &span)?;
 
         for i in from..to {
             // Store index in current function scope.
@@ -64,7 +64,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             let result = self.enforce_statement(
                 &mut cs.ns(|| format!("for loop iteration {} {}:{}", i, &span.line, &span.start)),
                 indicator,
-                &statement.body,
+                statement.body.get(),
             )?;
 
             results.extend(result);

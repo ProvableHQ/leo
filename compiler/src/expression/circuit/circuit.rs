@@ -22,26 +22,18 @@ use crate::{
     value::{ConstrainedCircuitMember, ConstrainedValue},
     GroupType,
 };
-use leo_asg::{CircuitInitExpression, CircuitMemberBody, Span};
+use leo_asg::{CircuitInitExpression, CircuitMember, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn enforce_circuit<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        expr: &CircuitInitExpression,
+        expr: &CircuitInitExpression<'a>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let circuit = expr
-            .circuit
-            .body
-            .borrow()
-            .upgrade()
-            .expect("circuit init stale circuit ref");
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+        let circuit = expr.circuit.get();
         let members = circuit.members.borrow();
 
         let mut resolved_members = Vec::with_capacity(members.len());
@@ -52,15 +44,15 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 .get(&name.name)
                 .expect("illegal name in asg circuit init expression");
             match target {
-                CircuitMemberBody::Variable(_type_) => {
-                    let variable_value = self.enforce_expression(cs, inner)?;
+                CircuitMember::Variable(_type_) => {
+                    let variable_value = self.enforce_expression(cs, inner.get())?;
                     resolved_members.push(ConstrainedCircuitMember(name.clone(), variable_value));
                 }
                 _ => return Err(ExpressionError::expected_circuit_member(name.to_string(), span.clone())),
             }
         }
 
-        let value = ConstrainedValue::CircuitExpression(circuit.clone(), resolved_members);
+        let value = ConstrainedValue::CircuitExpression(circuit, resolved_members);
         Ok(value)
     }
 }

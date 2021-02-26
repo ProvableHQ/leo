@@ -19,7 +19,10 @@ use crate::{
     context::Context,
     synthesizer::{CircuitSynthesizer, SerializedCircuit},
 };
-use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use leo_compiler::{
+    compiler::{thread_leaked_context, Compiler},
+    group::targets::edwards_bls12::EdwardsGroupType,
+};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -33,19 +36,13 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Compile and build program command
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {}
 
-impl Build {
-    pub fn new() -> Build {
-        Build {}
-    }
-}
-
 impl Command for Build {
     type Input = ();
-    type Output = Option<(Compiler<Fq, EdwardsGroupType>, bool)>;
+    type Output = Option<(Compiler<'static, Fq, EdwardsGroupType>, bool)>;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -55,9 +52,9 @@ impl Command for Build {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
-        let path = ctx.dir()?;
-        let package_name = ctx.manifest()?.get_package_name();
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
         // Sanitize the package path to the root directory
         let mut package_path = path.clone();
@@ -86,6 +83,7 @@ impl Command for Build {
                 package_name.clone(),
                 lib_file_path,
                 output_directory.clone(),
+                thread_leaked_context(),
             )?;
             tracing::info!("Complete");
         };
@@ -118,6 +116,7 @@ impl Command for Build {
                 &input_path,
                 &state_string,
                 &state_path,
+                thread_leaked_context(),
             )?;
 
             // Compute the current program checksum
@@ -135,8 +134,8 @@ impl Command for Build {
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;
 
-                tracing::debug!("Compiled constraints - {:#?}", output);
-                tracing::debug!("Number of constraints - {:#?}", cs.num_constraints());
+                tracing::debug!("Compiled output - {:#?}", output);
+                tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
 
                 // Serialize the circuit
                 let circuit_object = SerializedCircuit::from(cs);

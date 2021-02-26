@@ -20,7 +20,7 @@ use leo_ast::{InputValue, Span};
 use snarkvm_dpc::base_dpc::instantiated::Components;
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::{Assignment, ConstraintSystem},
         utilities::{
@@ -63,12 +63,12 @@ impl Address {
         self.bytes.iter().all(|byte| byte.is_constant())
     }
 
-    pub(crate) fn from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+    pub(crate) fn from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         cs: &mut CS,
         name: &str,
         input_value: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, AddressError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, AddressError> {
         // Check that the input value is the correct type
         let address_value = match input_value {
             Some(input) => {
@@ -105,7 +105,7 @@ impl Address {
     }
 }
 
-impl<F: Field + PrimeField> AllocGadget<String, F> for Address {
+impl<F: PrimeField> AllocGadget<String, F> for Address {
     fn alloc<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
         cs: CS,
         value_gen: Fn,
@@ -143,7 +143,7 @@ impl<F: Field + PrimeField> AllocGadget<String, F> for Address {
     }
 }
 
-impl<F: Field + PrimeField> EvaluateEqGadget<F> for Address {
+impl<F: PrimeField> EvaluateEqGadget<F> for Address {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         if self.is_constant() && other.is_constant() {
             Ok(Boolean::Constant(self.eq(other)))
@@ -178,7 +178,7 @@ fn cond_equal_helper(first: &Address, second: &Address, cond: bool) -> Result<()
     }
 }
 
-impl<F: Field + PrimeField> ConditionalEqGadget<F> for Address {
+impl<F: PrimeField> ConditionalEqGadget<F> for Address {
     fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
         &self,
         mut cs: CS,
@@ -208,7 +208,7 @@ fn cond_select_helper(first: &Address, second: &Address, cond: bool) -> Address 
     if cond { first.clone() } else { second.clone() }
 }
 
-impl<F: Field + PrimeField> CondSelectGadget<F> for Address {
+impl<F: PrimeField> CondSelectGadget<F> for Address {
     fn conditionally_select<CS: ConstraintSystem<F>>(
         mut cs: CS,
         cond: &Boolean,

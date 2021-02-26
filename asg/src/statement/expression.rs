@@ -16,41 +16,41 @@
 
 use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span, Statement};
 
-use std::sync::{Arc, Weak};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct ExpressionStatement {
-    pub parent: Option<Weak<Statement>>,
+#[derive(Clone)]
+pub struct ExpressionStatement<'a> {
+    pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
-    pub expression: Arc<Expression>,
+    pub expression: Cell<&'a Expression<'a>>,
 }
 
-impl Node for ExpressionStatement {
+impl<'a> Node for ExpressionStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl FromAst<leo_ast::ExpressionStatement> for ExpressionStatement {
+impl<'a> FromAst<'a, leo_ast::ExpressionStatement> for ExpressionStatement<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         statement: &leo_ast::ExpressionStatement,
-        _expected_type: Option<PartialType>,
+        _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
-        let expression = Arc::<Expression>::from_ast(scope, &statement.expression, None)?;
+        let expression = <&Expression<'a>>::from_ast(scope, &statement.expression, None)?;
 
         Ok(ExpressionStatement {
-            parent: None,
+            parent: Cell::new(None),
             span: Some(statement.span.clone()),
-            expression,
+            expression: Cell::new(expression),
         })
     }
 }
 
-impl Into<leo_ast::ExpressionStatement> for &ExpressionStatement {
+impl<'a> Into<leo_ast::ExpressionStatement> for &ExpressionStatement<'a> {
     fn into(self) -> leo_ast::ExpressionStatement {
         leo_ast::ExpressionStatement {
-            expression: self.expression.as_ref().into(),
+            expression: self.expression.get().into(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

@@ -22,15 +22,9 @@ use structopt::StructOpt;
 use tracing::Span;
 
 /// Remove credentials for Aleo PM from .leo directory
-#[derive(StructOpt, Debug, Default)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Logout {}
-
-impl Logout {
-    pub fn new() -> Logout {
-        Logout {}
-    }
-}
 
 impl Command for Logout {
     type Input = ();
@@ -44,7 +38,7 @@ impl Command for Logout {
         Ok(())
     }
 
-    fn apply(self, _ctx: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         // the only error we're interested here is NotFound
         // however err in this case can also be of kind PermissionDenied or other
         if let Err(err) = remove_token() {

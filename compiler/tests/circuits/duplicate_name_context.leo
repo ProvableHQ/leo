@@ -8,6 +8,6 @@ circuit Bar {
 
 function main () {
     let Bar = 66u32;
-    const k1 = Bar{ b2: 30u32 };
-    const k2 = Bar::add_five(55u32);
+    let k1 = Bar{ b2: 30u32 };
+    let k2 = Bar::add_five(55u32);
 }

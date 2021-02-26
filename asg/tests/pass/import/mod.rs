@@ -14,58 +14,63 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{load_asg, load_asg_imports, mocked_resolver};
+use crate::{load_asg, load_asg_imports, make_test_context, mocked_resolver};
 
 #[test]
 fn test_basic() {
-    let mut imports = mocked_resolver();
+    let context = make_test_context();
+    let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
         load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
     let program_string = include_str!("basic.leo");
-    load_asg_imports(program_string, &mut imports).unwrap();
+    load_asg_imports(&context, program_string, &mut imports).unwrap();
 }
 
 #[test]
 fn test_multiple() {
-    let mut imports = mocked_resolver();
+    let context = make_test_context();
+    let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
         load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
     let program_string = include_str!("multiple.leo");
-    load_asg_imports(program_string, &mut imports).unwrap();
+    load_asg_imports(&context, program_string, &mut imports).unwrap();
 }
 
 #[test]
 fn test_star() {
-    let mut imports = mocked_resolver();
+    let context = make_test_context();
+    let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
         load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
 
     let program_string = include_str!("star.leo");
-    load_asg_imports(program_string, &mut imports).unwrap();
+    load_asg_imports(&context, program_string, &mut imports).unwrap();
 }
 
 #[test]
 fn test_alias() {
-    let mut imports = mocked_resolver();
+    let context = make_test_context();
+    let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
         load_asg(include_str!("src/test-import.leo")).unwrap(),
     );
 
     let program_string = include_str!("alias.leo");
-    load_asg_imports(program_string, &mut imports).unwrap();
+    load_asg_imports(&context, program_string, &mut imports).unwrap();
 }
 
 // naming tests
 #[test]
 fn test_name() {
-    let mut imports = mocked_resolver();
+    let context = make_test_context();
+    let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "hello-world".to_string(),
         load_asg(include_str!("src/hello-world.leo")).unwrap(),
@@ -78,13 +83,14 @@ fn test_name() {
         .insert("a-9".to_string(), load_asg(include_str!("src/a-9.leo")).unwrap());
 
     let program_string = include_str!("names.leo");
-    load_asg_imports(program_string, &mut imports).unwrap();
+    load_asg_imports(&context, program_string, &mut imports).unwrap();
 }
 
 // more complex tests
 #[test]
 fn test_many_import() {
-    let mut imports = mocked_resolver();
+    let context = make_test_context();
+    let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
         load_asg(include_str!("src/test-import.leo")).unwrap(),
@@ -111,12 +117,13 @@ fn test_many_import() {
     );
 
     let program_string = include_str!("many_import.leo");
-    load_asg_imports(program_string, &mut imports).unwrap();
+    load_asg_imports(&context, program_string, &mut imports).unwrap();
 }
 
 #[test]
 fn test_many_import_star() {
-    let mut imports = mocked_resolver();
+    let context = make_test_context();
+    let mut imports = mocked_resolver(&context);
     imports.packages.insert(
         "test-import".to_string(),
         load_asg(include_str!("src/test-import.leo")).unwrap(),
@@ -143,5 +150,5 @@ fn test_many_import_star() {
     );
 
     let program_string = include_str!("many_import_star.leo");
-    load_asg_imports(program_string, &mut imports).unwrap();
+    load_asg_imports(&context, program_string, &mut imports).unwrap();
 }

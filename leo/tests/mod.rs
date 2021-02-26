@@ -39,34 +39,34 @@ const PEDERSEN_HASH_PATH: &str = "./examples/pedersen-hash/";
 
 #[test]
 pub fn build_pedersen_hash() -> Result<()> {
-    Build::new().apply(ctx()?, ())?;
+    (Build {}).apply(context()?, ())?;
     Ok(())
 }
 
 #[test]
 pub fn setup_pedersen_hash() -> Result<()> {
-    let build = Build::new().apply(ctx()?, ())?;
-    Setup::new(false).apply(ctx()?, build.clone())?;
-    Setup::new(true).apply(ctx()?, build)?;
+    let build = (Build {}).apply(context()?, ())?;
+    (Setup { skip_key_check: false }).apply(context()?, build.clone())?;
+    (Setup { skip_key_check: true }).apply(context()?, build)?;
     Ok(())
 }
 
 #[test]
 pub fn prove_pedersen_hash() -> Result<()> {
-    let build = Build::new().apply(ctx()?, ())?;
-    let setup = Setup::new(false).apply(ctx()?, build)?;
-    Prove::new(false).apply(ctx()?, setup.clone())?;
-    Prove::new(true).apply(ctx()?, setup)?;
+    let build = (Build {}).apply(context()?, ())?;
+    let setup = (Setup { skip_key_check: false }).apply(context()?, build)?;
+    (Prove { skip_key_check: false }).apply(context()?, setup.clone())?;
+    (Prove { skip_key_check: true }).apply(context()?, setup)?;
     Ok(())
 }
 
 #[test]
 pub fn run_pedersen_hash() -> Result<()> {
-    let build = Build::new().apply(ctx()?, ())?;
-    let setup = Setup::new(false).apply(ctx()?, build)?;
-    let prove = Prove::new(false).apply(ctx()?, setup)?;
-    Run::new(false).apply(ctx()?, prove.clone())?;
-    Run::new(true).apply(ctx()?, prove)?;
+    let build = (Build {}).apply(context()?, ())?;
+    let setup = (Setup { skip_key_check: false }).apply(context()?, build)?;
+    let prove = (Prove { skip_key_check: false }).apply(context()?, setup)?;
+    (Run { skip_key_check: false }).apply(context()?, prove.clone())?;
+    (Run { skip_key_check: true }).apply(context()?, prove)?;
     Ok(())
 }
 
@@ -75,14 +75,14 @@ pub fn test_pedersen_hash() -> Result<()> {
     let mut main_file = PathBuf::from(PEDERSEN_HASH_PATH);
     main_file.push("src/main.leo");
 
-    Test::new(Vec::new()).apply(ctx()?, ())?;
-    Test::new(vec![main_file]).apply(ctx()?, ())?;
+    (Test { files: vec![] }).apply(context()?, ())?;
+    (Test { files: vec![main_file] }).apply(context()?, ())?;
     Ok(())
 }
 
 #[test]
 pub fn test_logout() -> Result<()> {
-    Logout::new().apply(ctx()?, ())?;
+    (Logout {}).apply(context()?, ())?;
     Ok(())
 }
 
@@ -91,19 +91,19 @@ pub fn test_logout() -> Result<()> {
 #[test]
 pub fn login_incorrect_credentials_or_token() -> Result<()> {
     // no credentials passed
-    let login = Login::new(None, None, None).apply(ctx()?, ());
+    let login = Login::new(None, None, None).apply(context()?, ());
     assert!(login.is_err());
 
     // incorrect token
-    let login = Login::new(Some("none".to_string()), None, None).apply(ctx()?, ());
+    let login = Login::new(Some("none".to_string()), None, None).apply(context()?, ());
     assert!(login.is_err());
 
     // only user, no pass
-    let login = Login::new(None, Some("user".to_string()), None).apply(ctx()?, ());
+    let login = Login::new(None, Some("user".to_string()), None).apply(context()?, ());
     assert!(login.is_err());
 
     // no user, only pass
-    let login = Login::new(None, None, Some("pass".to_string())).apply(ctx()?, ());
+    let login = Login::new(None, None, Some("pass".to_string())).apply(context()?, ());
     assert!(login.is_err());
 
     Ok(())
@@ -111,20 +111,48 @@ pub fn login_incorrect_credentials_or_token() -> Result<()> {
 
 #[test]
 pub fn leo_update_and_update_automatic() -> Result<()> {
-    Update::new(true, true, None).apply(ctx()?, ())?;
-    Update::new(false, true, None).apply(ctx()?, ())?;
-    Update::new(false, false, None).apply(ctx()?, ())?;
+    let update = Update {
+        list: true,
+        studio: true,
+        automatic: None,
+    };
+    update.apply(context()?, ())?;
 
-    Update::new(false, false, Some(UpdateAutomatic::Automatic { value: true })).apply(ctx()?, ())?;
-    Update::new(false, false, Some(UpdateAutomatic::Automatic { value: false })).apply(ctx()?, ())?;
+    let update = Update {
+        list: false,
+        studio: true,
+        automatic: None,
+    };
+    update.apply(context()?, ())?;
+
+    let update = Update {
+        list: false,
+        studio: false,
+        automatic: None,
+    };
+    update.apply(context()?, ())?;
+
+    let update = Update {
+        list: false,
+        studio: false,
+        automatic: Some(UpdateAutomatic::Automatic { value: true }),
+    };
+    update.apply(context()?, ())?;
+
+    let update = Update {
+        list: false,
+        studio: false,
+        automatic: Some(UpdateAutomatic::Automatic { value: false }),
+    };
+    update.apply(context()?, ())?;
 
     Ok(())
 }
 
 /// Create context for Pedersen Hash example
-fn ctx() -> Result<Context> {
+fn context() -> Result<Context> {
     let path = PathBuf::from(&PEDERSEN_HASH_PATH);
-    let ctx = create_context(path)?;
+    let context = create_context(path)?;
 
-    Ok(ctx)
+    Ok(context)
 }

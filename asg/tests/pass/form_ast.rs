@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::load_asg;
+use crate::{load_asg, make_test_context};
 use leo_ast::Ast;
 use leo_grammar::Grammar;
 
@@ -56,7 +56,8 @@ fn test_function_rename() {
 
 #[test]
 fn test_imports() {
-    let mut imports = crate::mocked_resolver();
+    let context = make_test_context();
+    let mut imports = crate::mocked_resolver(&context);
     let test_import = r#"
     circuit Point {
       x: u32
@@ -90,7 +91,7 @@ fn test_imports() {
         serde_json::to_string(Ast::new("test", &test_grammar).unwrap().as_repr()).unwrap()
     );
 
-    let asg = crate::load_asg_imports(program_string, &mut imports).unwrap();
+    let asg = crate::load_asg_imports(&context, program_string, &mut imports).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);
     println!("{}", serde_json::to_string(&reformed_ast).unwrap());
     // panic!();

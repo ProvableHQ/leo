@@ -25,7 +25,7 @@ use std::{
 use structopt::StructOpt;
 use tracing::Span;
 
-/// Add package from Aleo Package Manager
+/// Add a package from Aleo Package Manager
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Add {
@@ -58,7 +58,7 @@ impl Add {
     }
 
     /// Try to parse author/package string from self.remote
-    pub fn try_read_arguments(&self) -> Result<(String, String)> {
+    fn try_read_arguments(&self) -> Result<(String, String)> {
         if let Some(val) = &self.remote {
             let v: Vec<&str> = val.split('/').collect();
             if v.len() == 2 {
@@ -90,43 +90,42 @@ impl Command for Add {
         Ok(())
     }
 
-    fn apply(self, ctx: Context, _: Self::Input) -> Result<Self::Output> {
-        // checking that manifest exists...
-        if ctx.manifest().is_err() {
-            return Err(anyhow!("Package Manifest not found, try running leo init or leo new"));
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        // Check that a manifest exists for the current package.
+        if context.manifest().is_err() {
+            return Err(anyhow!("Package manifest not found, try running `leo init`"));
         };
 
         let (author, package_name) = match self.try_read_arguments() {
             Ok((author, package)) => (author, package),
             Err(err) => return Err(err),
         };
-        let version = self.version;
 
-        // build request body (Options are skipped when sealizing)
-        let fetch = Fetch {
-            author,
-            package_name: package_name.clone(),
-            version,
+        // Attempt to fetch the package.
+        let reader = {
+            let fetch = Fetch {
+                author,
+                package_name: package_name.clone(),
+                version: self.version,
+            };
+            let bytes = context.api.run_route(fetch)?.bytes()?;
+            std::io::Cursor::new(bytes)
         };
 
-        let bytes = ctx.api.run_route(fetch)?.bytes()?;
-        let mut path = ctx.dir()?;
-
+        // Construct the directory structure.
+        let mut path = context.dir()?;
         {
-            // setup directory structure since request was success
             ImportsDirectory::create(&path)?;
             path.push(IMPORTS_DIRECTORY_NAME);
             path.push(package_name);
             create_dir_all(&path)?;
         };
 
-        let reader = std::io::Cursor::new(bytes);
-
+        // Proceed to unzip and parse the fetched bytes.
         let mut zip_archive = match zip::ZipArchive::new(reader) {
             Ok(zip) => zip,
             Err(error) => return Err(anyhow!(error)),
         };
-
         for i in 0..zip_archive.len() {
             let file = match zip_archive.by_index(i) {
                 Ok(file) => file,

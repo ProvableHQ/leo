@@ -21,3 +21,9 @@ fn test_num_returns_fail() {
     let program_string = include_str!("num_returns_fail.leo");
     load_asg(program_string).err().unwrap();
 }
+
+#[test]
+fn test_const_declaration_fail() {
+    let program_string = include_str!("const_declaration_fail.leo");
+    load_asg(program_string).err().unwrap();
+}

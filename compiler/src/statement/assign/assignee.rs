@@ -19,10 +19,7 @@
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{AssignAccess, AssignStatement, Identifier, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 pub(crate) enum ResolvedAssigneeAccess {
     ArrayRange(Option<usize>, Option<usize>),
@@ -31,12 +28,12 @@ pub(crate) enum ResolvedAssigneeAccess {
     Member(Identifier),
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn resolve_assign<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        assignee: &AssignStatement,
-    ) -> Result<Vec<&mut ConstrainedValue<F, G>>, StatementError> {
+        assignee: &AssignStatement<'a>,
+    ) -> Result<Vec<&mut ConstrainedValue<'a, F, G>>, StatementError> {
         let span = assignee.span.clone().unwrap_or_default();
 
         let resolved_accesses = assignee
@@ -45,17 +42,14 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             .map(|access| match access {
                 AssignAccess::ArrayRange(start, stop) => {
                     let start_index = start
-                        .as_ref()
+                        .get()
                         .map(|start| self.enforce_index(cs, start, &span))
                         .transpose()?;
-                    let stop_index = stop
-                        .as_ref()
-                        .map(|stop| self.enforce_index(cs, stop, &span))
-                        .transpose()?;
+                    let stop_index = stop.get().map(|stop| self.enforce_index(cs, stop, &span)).transpose()?;
                     Ok(ResolvedAssigneeAccess::ArrayRange(start_index, stop_index))
                 }
                 AssignAccess::ArrayIndex(index) => {
-                    let index = self.enforce_index(cs, index, &span)?;
+                    let index = self.enforce_index(cs, index.get(), &span)?;
 
                     Ok(ResolvedAssigneeAccess::ArrayIndex(index))
                 }
@@ -64,9 +58,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             })
             .collect::<Result<Vec<_>, crate::errors::ExpressionError>>()?;
 
-        let variable = assignee.target_variable.borrow();
+        let variable = assignee.target_variable.get().borrow();
 
-        let mut result = vec![match self.get_mut(&variable.id) {
+        let mut result = vec![match self.get_mut(variable.id) {
             Some(value) => value,
             None => return Err(StatementError::undefined_variable(variable.name.to_string(), span)),
         }];
@@ -99,11 +93,11 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     }
 
     // todo: this can prob have most of its error checking removed
-    pub(crate) fn resolve_assignee_access<'a>(
+    pub(crate) fn resolve_assignee_access<'b>(
         access: ResolvedAssigneeAccess,
         span: &Span,
-        mut value: Vec<&'a mut ConstrainedValue<F, G>>,
-    ) -> Result<Vec<&'a mut ConstrainedValue<F, G>>, StatementError> {
+        mut value: Vec<&'b mut ConstrainedValue<'a, F, G>>,
+    ) -> Result<Vec<&'b mut ConstrainedValue<'a, F, G>>, StatementError> {
         match access {
             ResolvedAssigneeAccess::ArrayIndex(index) => {
                 if value.len() != 1 {

@@ -33,7 +33,7 @@ use leo_state::verify_local_data_commitment;
 use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
 };
 
@@ -44,24 +44,44 @@ use std::{
     path::{Path, PathBuf},
 };
 
+pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
+
+thread_local! {
+    static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
+        let leaked = Box::leak(Box::new(leo_asg::new_alloc_context()));
+        leo_asg::new_context(leaked)
+    }
+}
+
+/// Conventience function to return a leaked thread-local global context. Should only be used for transient programs (like cli).
+pub fn thread_leaked_context() -> AsgContext<'static> {
+    THREAD_GLOBAL_CONTEXT.with(|f| *f)
+}
+
 /// Stores information to compile a Leo program.
 #[derive(Clone)]
-pub struct Compiler<F: Field + PrimeField, G: GroupType<F>> {
+pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     program_name: String,
     main_file_path: PathBuf,
     output_directory: PathBuf,
     program: Program,
     program_input: Input,
-    asg: Option<Asg>,
+    context: AsgContext<'a>,
+    asg: Option<Asg<'a>>,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     /// Returns a new Leo program compiler.
     ///
-    pub fn new(package_name: String, main_file_path: PathBuf, output_directory: PathBuf) -> Self {
+    pub fn new(
+        package_name: String,
+        main_file_path: PathBuf,
+        output_directory: PathBuf,
+        context: AsgContext<'a>,
+    ) -> Self {
         Self {
             program_name: package_name.clone(),
             main_file_path,
@@ -69,6 +89,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
             program: Program::new(package_name),
             program_input: Input::new(),
             asg: None,
+            context,
             _engine: PhantomData,
             _group: PhantomData,
         }
@@ -85,8 +106,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         package_name: String,
         main_file_path: PathBuf,
         output_directory: PathBuf,
+        context: AsgContext<'a>,
     ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name, main_file_path, output_directory);
+        let mut compiler = Self::new(package_name, main_file_path, output_directory, context);
 
         compiler.parse_program()?;
 
@@ -101,6 +123,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     /// Parses and stores all imported programs.
     /// Performs type inference checking on the program, imported programs, and program input.
     ///
+    #[allow(clippy::too_many_arguments)]
     pub fn parse_program_with_input(
         package_name: String,
         main_file_path: PathBuf,
@@ -109,8 +132,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         input_path: &Path,
         state_string: &str,
         state_path: &Path,
+        context: AsgContext<'a>,
     ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name, main_file_path, output_directory);
+        let mut compiler = Self::new(package_name, main_file_path, output_directory, context);
 
         compiler.parse_input(input_string, input_path, state_string, state_path)?;
 
@@ -189,7 +213,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
         // Create a new symbol table from the program, imported_programs, and program_input.
-        let asg = Asg::new(&core_ast, &mut leo_imports::ImportParser::default())?;
+        let asg = Asg::new(self.context, &core_ast, &mut leo_imports::ImportParser::default())?;
 
         tracing::debug!("ASG generation complete");
 
@@ -261,7 +285,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> Compiler<F, G> {
     }
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'a, F, G> {
     ///
     /// Synthesizes the circuit with program input.
     ///

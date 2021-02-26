@@ -14,17 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Statement, WeakType};
+use std::cell::RefCell;
+
+use crate::{Expression, Statement, Type};
 use leo_ast::Identifier;
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
-use uuid::Uuid;
-
 /// Specifies how a program variable was declared.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum VariableDeclaration {
     Definition,
     IterationDefinition,
@@ -33,17 +29,16 @@ pub enum VariableDeclaration {
 }
 
 /// Stores information on a program variable.
-#[derive(Debug)]
-pub struct InnerVariable {
-    pub id: Uuid,
+#[derive(Clone)]
+pub struct InnerVariable<'a> {
+    pub id: u32,
     pub name: Identifier,
-    pub type_: WeakType,
+    pub type_: Type<'a>,
     pub mutable: bool,
     pub const_: bool, // only function arguments, const var definitions NOT included
     pub declaration: VariableDeclaration,
-    pub references: Vec<Weak<Expression>>, // all Expression::VariableRef or panic
-    pub assignments: Vec<Weak<Statement>>, // all Statement::Assign or panic -- must be 1 if not mutable, or 0 if declaration == input | parameter
+    pub references: Vec<&'a Expression<'a>>, // all Expression::VariableRef or panic
+    pub assignments: Vec<&'a Statement<'a>>, // all Statement::Assign or panic -- must be 1 if not mutable, or 0 if declaration == input | parameter
 }
 
-pub type Variable = Arc<RefCell<InnerVariable>>;
-pub type WeakVariable = Weak<RefCell<InnerVariable>>;
+pub type Variable<'a> = RefCell<InnerVariable<'a>>;

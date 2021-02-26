@@ -67,6 +67,14 @@ fn test_negate() {
 }
 
 #[test]
+fn test_field() {
+    let program_string = include_str!("field.leo");
+    let mut program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program)
+}
+
+#[test]
 fn test_add() {
     use std::ops::Add;
 

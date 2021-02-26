@@ -26,20 +26,27 @@ mod pass;
 const TESTING_FILEPATH: &str = "input.leo";
 const TESTING_PROGRAM_NAME: &str = "test_program";
 
-fn load_asg(program_string: &str) -> Result<Program, AsgConvertError> {
-    load_asg_imports(program_string, &mut NullImportResolver)
+fn load_asg(program_string: &str) -> Result<Program<'static>, AsgConvertError> {
+    load_asg_imports(make_test_context(), program_string, &mut NullImportResolver)
 }
 
-fn load_asg_imports<T: ImportResolver + 'static>(
+fn load_asg_imports<'a, T: ImportResolver<'a>>(
+    context: AsgContext<'a>,
     program_string: &str,
     imports: &mut T,
-) -> Result<Program, AsgConvertError> {
+) -> Result<Program<'a>, AsgConvertError> {
     let grammar = Grammar::new(Path::new(&TESTING_FILEPATH), program_string)?;
     let ast = Ast::new(TESTING_PROGRAM_NAME, &grammar)?;
-    InternalProgram::new(&ast.as_repr(), imports)
+    InternalProgram::new(context, &ast.as_repr(), imports)
 }
 
-fn mocked_resolver() -> MockedImportResolver {
+fn mocked_resolver<'a>(_context: AsgContext<'a>) -> MockedImportResolver<'a> {
     let packages = indexmap::IndexMap::new();
     MockedImportResolver { packages }
+}
+
+//convenience function for tests, leaks memory
+pub(crate) fn make_test_context() -> AsgContext<'static> {
+    let allocator = Box::leak(Box::new(new_alloc_context()));
+    new_context(allocator)
 }

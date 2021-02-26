@@ -27,24 +27,24 @@ use crate::{
 use leo_asg::{Span, Type};
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{boolean::Boolean, select::CondSelectGadget},
     },
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ///
     /// Returns a conditionally selected result from the given possible function returns and
     /// given function return type.
     ///
     pub fn conditionally_select_result<CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        expected_return: &Type,
-        results: Vec<(Boolean, ConstrainedValue<F, G>)>,
+        expected_return: &Type<'a>,
+        results: Vec<(Boolean, ConstrainedValue<'a, F, G>)>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, StatementError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, StatementError> {
         // Initialize empty return value.
         let mut return_value = None;
 

@@ -15,35 +15,31 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_asg::{AsgConvertError, CircuitBody, CircuitMemberBody};
+use leo_asg::{AsgConvertError, Circuit, CircuitMember};
 use leo_ast::{Identifier, InputValue, Parameter};
-use std::sync::Arc;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 use indexmap::IndexMap;
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_input_section<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         identifier: Identifier,
-        expected_type: Arc<CircuitBody>,
+        expected_type: &'a Circuit<'a>,
         section: IndexMap<Parameter, Option<InputValue>>,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
         let mut members = Vec::with_capacity(section.len());
 
         // Allocate each section definition as a circuit member value
         for (parameter, option) in section.into_iter() {
             let section_members = expected_type.members.borrow();
             let expected_type = match section_members.get(&parameter.variable.name) {
-                Some(CircuitMemberBody::Variable(inner)) => inner,
+                Some(CircuitMember::Variable(inner)) => inner,
                 _ => continue, // present, but unused
             };
-            let declared_type = self.asg.borrow().scope.borrow().resolve_ast_type(&parameter.type_)?;
+            let declared_type = self.asg.scope.resolve_ast_type(&parameter.type_)?;
             if !expected_type.is_assignable_from(&declared_type) {
                 return Err(AsgConvertError::unexpected_type(
                     &expected_type.to_string(),

@@ -50,14 +50,6 @@ fn test_const_fail() {
 }
 
 #[test]
-fn test_const_mut_fail() {
-    let program_string = include_str!("const_mut.leo");
-    let error = parse_program(program_string).err().unwrap();
-
-    expect_asg_error(error);
-}
-
-#[test]
 fn test_array() {
     let program_string = include_str!("array.leo");
     let error = parse_program(program_string).err().unwrap();

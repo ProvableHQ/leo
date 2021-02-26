@@ -93,3 +93,23 @@ fn test_input_array_dimensions_mismatch() {
 
     expect_fail(program);
 }
+
+#[test]
+fn test_field_input() {
+    let program_string = include_str!("main_field.leo");
+    let input_string = include_str!("input/main_field.in");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_group_input() {
+    let program_string = include_str!("main_group.leo");
+    let input_string = include_str!("input/main_group.in");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}

@@ -19,16 +19,13 @@
 use crate::{errors::StatementError, program::ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_asg::{DefinitionStatement, Span, Variable};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     fn enforce_multiple_definition(
         &mut self,
-        variable_names: &[Variable],
-        values: Vec<ConstrainedValue<F, G>>,
+        variable_names: &[&'a Variable<'a>],
+        values: Vec<ConstrainedValue<'a, F, G>>,
         span: &Span,
     ) -> Result<(), StatementError> {
         if values.len() != variable_names.len() {
@@ -50,10 +47,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
     pub fn enforce_definition_statement<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        statement: &DefinitionStatement,
+        statement: &DefinitionStatement<'a>,
     ) -> Result<(), StatementError> {
         let num_variables = statement.variables.len();
-        let expression = self.enforce_expression(cs, &statement.value)?;
+        let expression = self.enforce_expression(cs, statement.value.get())?;
 
         let span = statement.span.clone().unwrap_or_default();
         if num_variables == 1 {
@@ -68,7 +65,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 value => return Err(StatementError::multiple_definition(value.to_string(), span)),
             };
 
-            self.enforce_multiple_definition(&statement.variables, values, &span)
+            self.enforce_multiple_definition(&statement.variables[..], values, &span)
         }
     }
 }
