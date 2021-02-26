@@ -34,11 +34,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         arguments: &[Cell<&'a Expression<'a>>],
         span: &Span,
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-        let target_value = if let Some(target) = target {
-            Some(self.enforce_expression(cs, target)?)
-        } else {
-            None
-        };
+        let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
 
         // Get the value of each core function argument
         let arguments = arguments

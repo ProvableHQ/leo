@@ -71,10 +71,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
     }
 
     fn visit_opt_expression(&mut self, input: &Cell<Option<&'a Expression<'a>>>) -> ConcreteVisitResult {
-        let interior = match input.get() {
-            Some(expr) => Some(Cell::new(expr)),
-            None => None,
-        };
+        let interior = input.get().map(Cell::new);
         if let Some(interior) = interior.as_ref() {
             let result = self.visit_expression(interior);
             input.replace(Some(interior.get()));
@@ -246,10 +243,7 @@ impl<'a, R: StatementVisitor<'a>> VisitorDirector<'a, R> {
     }
 
     fn visit_opt_statement(&mut self, input: &Cell<Option<&'a Statement<'a>>>) -> ConcreteVisitResult {
-        let interior = match input.get() {
-            Some(expr) => Some(Cell::new(expr)),
-            None => None,
-        };
+        let interior = input.get().map(Cell::new);
         if let Some(interior) = interior.as_ref() {
             let result = self.visit_statement(interior);
             input.replace(Some(interior.get()));
