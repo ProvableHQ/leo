@@ -20,12 +20,20 @@ edition = "2018"
 [lib]
 crate-type = [ "cdylib", "rlib" ]
 
+[dependencies.leo-asg]
+path = "../asg"
+version = "1.2.3"
+
 [dependencies.leo-ast]
 path = "../ast"
 version = "1.2.3"
 
 [dependencies.leo-grammar]
 path = "../grammar"
+version = "1.2.3"
+
+[dependencies.leo-imports]
+path = "../imports"
 version = "1.2.3"
 
 [dependencies.serde]

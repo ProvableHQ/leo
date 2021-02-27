@@ -15,20 +15,21 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::ast::Ast;
-use leo_asg::Asg as LeoAsg;
+use leo_asg::{new_alloc_context, new_context, Asg as LeoAsg};
 use leo_grammar::Grammar as LeoGrammar;
 
 use std::path::Path;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-pub struct Asg(LeoAsg);
+pub struct Asg(LeoAsg<'static>);
 
 #[wasm_bindgen]
 impl Asg {
     #[wasm_bindgen(constructor)]
     pub fn from(ast: &Ast) -> Self {
-        let asg = LeoAsg::new(&ast.0, &mut leo_imports::ImportParser::default()).unwrap();
+        let arena = new_alloc_context();
+        let asg = LeoAsg::new(new_context(&arena), &ast.0, &mut leo_imports::ImportParser::default()).unwrap();
         Self(asg)
     }
 }
