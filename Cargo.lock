@@ -1192,7 +1192,7 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "leo-asg"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "criterion",
  "indexmap",
@@ -1207,7 +1207,7 @@ dependencies = [
 
 [[package]]
 name = "leo-ast"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "criterion",
  "indexmap",
@@ -1221,7 +1221,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "bincode",
  "hex",
@@ -1255,7 +1255,7 @@ dependencies = [
 
 [[package]]
 name = "leo-gadgets"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "criterion",
  "rand",
@@ -1269,7 +1269,7 @@ dependencies = [
 
 [[package]]
 name = "leo-grammar"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "criterion",
  "from-pest",
@@ -1285,7 +1285,7 @@ dependencies = [
 
 [[package]]
 name = "leo-imports"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "indexmap",
  "leo-asg",
@@ -1297,7 +1297,7 @@ dependencies = [
 
 [[package]]
 name = "leo-input"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "from-pest",
  "pest",
@@ -1309,7 +1309,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "anyhow",
  "clap",
@@ -1350,11 +1350,11 @@ dependencies = [
 
 [[package]]
 name = "leo-linter"
-version = "1.2.2"
+version = "1.2.3"
 
 [[package]]
 name = "leo-package"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "lazy_static",
  "serde",
@@ -1367,7 +1367,7 @@ dependencies = [
 
 [[package]]
 name = "leo-state"
-version = "1.2.2"
+version = "1.2.3"
 dependencies = [
  "indexmap",
  "leo-ast",
