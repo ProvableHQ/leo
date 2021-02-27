@@ -20,6 +20,10 @@ edition = "2018"
 [lib]
 crate-type = [ "cdylib", "rlib" ]
 
+#[dependencies.snarkvm-curves]
+#version = "0.0.5"
+#default-features = false
+
 [dependencies.leo-asg]
 path = "../asg"
 version = "1.2.3"
@@ -35,6 +39,11 @@ version = "1.2.3"
 [dependencies.leo-imports]
 path = "../imports"
 version = "1.2.3"
+
+#[dependencies.leo-synthesizer]
+#path = "../synthesizer"
+#version = "1.2.3"
+#default-features = false
 
 [dependencies.serde]
 version = "1.0"
