@@ -18,15 +18,15 @@ license = "GPL-3.0"
 edition = "2018"
 
 [dependencies.snarkvm-errors]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-models]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.5"
+version = "0.0.6"
 
 [dependencies.rand]
 version = "0.8"

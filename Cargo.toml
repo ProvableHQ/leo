@@ -37,7 +37,6 @@ members = [
   "package",
   "state",
   "synthesizer",
-  "wasm"
 ]
 
 [dependencies.leo-ast]
@@ -73,27 +72,27 @@ path = "./synthesizer"
 version = "1.2.3"
 
 [dependencies.snarkvm-algorithms]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-curves]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-errors]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-models]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.5"
+version = "0.0.6"
 
 [dependencies.anyhow]
 version = "1.0"
