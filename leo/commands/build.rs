@@ -125,8 +125,8 @@ impl Command for Build {
                     at: vec![],
                     bt: vec![],
                     ct: vec![],
-                    input_assignment: vec![],
-                    aux_assignment: vec![],
+                    public_variables: vec![],
+                    private_variables: vec![],
                 };
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;

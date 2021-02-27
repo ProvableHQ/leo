@@ -27,8 +27,8 @@ pub struct CircuitSynthesizer<E: PairingEngine> {
     pub ct: Vec<Vec<(E::Fr, Index)>>,
 
     // Assignments of variables
-    pub input_assignment: Vec<E::Fr>,
-    pub aux_assignment: Vec<E::Fr>,
+    pub public_variables: Vec<E::Fr>,
+    pub private_variables: Vec<E::Fr>,
 }
 
 impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
@@ -41,9 +41,9 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
         A: FnOnce() -> AR,
         AR: AsRef<str>,
     {
-        let index = self.aux_assignment.len();
-        self.aux_assignment.push(f()?);
-        Ok(Variable::new_unchecked(Index::Aux(index)))
+        let index = self.private_variables.len();
+        self.private_variables.push(f()?);
+        Ok(Variable::new_unchecked(Index::Private(index)))
     }
 
     #[inline]
@@ -53,9 +53,9 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
         A: FnOnce() -> AR,
         AR: AsRef<str>,
     {
-        let index = self.input_assignment.len();
-        self.input_assignment.push(f()?);
-        Ok(Variable::new_unchecked(Index::Input(index)))
+        let index = self.public_variables.len();
+        self.public_variables.push(f()?);
+        Ok(Variable::new_unchecked(Index::Public(index)))
     }
 
     #[inline]
@@ -99,13 +99,21 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     fn num_constraints(&self) -> usize {
         self.at.len()
     }
+
+    fn num_public_variables(&self) -> usize {
+        self.public_variables.len()
+    }
+
+    fn num_private_variables(&self) -> usize {
+        self.private_variables.len()
+    }
 }
 
 fn push_constraints<F: Field>(l: LinearCombination<F>, constraints: &mut [Vec<(F, Index)>], this_constraint: usize) {
     for (var, coeff) in l.as_ref() {
         match var.get_unchecked() {
-            Index::Input(i) => constraints[this_constraint].push((*coeff, Index::Input(i))),
-            Index::Aux(i) => constraints[this_constraint].push((*coeff, Index::Aux(i))),
+            Index::Public(i) => constraints[this_constraint].push((*coeff, Index::Public(i))),
+            Index::Private(i) => constraints[this_constraint].push((*coeff, Index::Private(i))),
         }
     }
 }
