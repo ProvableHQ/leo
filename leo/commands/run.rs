@@ -14,47 +14,42 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::*, cli_types::*, commands::ProveCommand, errors::CLIError};
+use super::prove::Prove;
+use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
+use anyhow::Result;
 use snarkvm_algorithms::snark::groth16::Groth16;
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_models::algorithms::SNARK;
+use structopt::StructOpt;
+use tracing::span::Span;
 
-use clap::ArgMatches;
-use std::time::Instant;
+/// Build, Prove and Run Leo program with inputs
+#[derive(StructOpt, Debug)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Run {
+    #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
+    pub(crate) skip_key_check: bool,
+}
 
-#[derive(Debug)]
-pub struct RunCommand;
-
-impl CLI for RunCommand {
-    type Options = bool;
+impl Command for Run {
+    type Input = <Prove as Command>::Output;
     type Output = ();
 
-    const ABOUT: AboutType = "Run a program with input variables";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[("--skip-key-check")];
-    const NAME: NameType = "run";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(!arguments.is_present("skip-key-check"))
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Verifying")
     }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(do_setup_check: Self::Options) -> Result<(), CLIError> {
-        let (proof, prepared_verifying_key) = ProveCommand::output(do_setup_check)?;
+    fn prelude(&self) -> Result<Self::Input> {
+        let skip_key_check = self.skip_key_check;
+        (Prove { skip_key_check }).execute()
+    }
 
-        // Begin "Verifying" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Verifying");
-        let enter = span.enter();
+    fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {
+        let (proof, prepared_verifying_key) = input;
 
         tracing::info!("Starting...");
-
-        // Start the timer
-        let start = Instant::now();
 
         // Run the verifier
         let is_success = Groth16::<Bls12_377, Compiler<Fr, EdwardsGroupType>, Vec<Fr>>::verify(
@@ -63,22 +58,11 @@ impl CLI for RunCommand {
             &proof,
         )?;
 
-        // End the timer
-        let end = start.elapsed().as_millis();
-
         // Log the verifier output
         match is_success {
             true => tracing::info!("Proof is valid"),
             false => tracing::error!("Proof is invalid"),
         };
-
-        // Drop "Verifying" context for console logging
-        drop(enter);
-
-        // Begin "Done" context for console logging
-        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-            tracing::info!("Finished in {:?} milliseconds\n", end);
-        });
 
         Ok(())
     }

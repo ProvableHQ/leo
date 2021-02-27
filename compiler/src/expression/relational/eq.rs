@@ -20,19 +20,19 @@ use crate::{enforce_and, errors::ExpressionError, value::ConstrainedValue, Group
 use leo_asg::Span;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         r1cs::ConstraintSystem,
         utilities::{boolean::Boolean, eq::EvaluateEqGadget},
     },
 };
 
-pub fn evaluate_eq<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    left: ConstrainedValue<F, G>,
-    right: ConstrainedValue<F, G>,
+    left: ConstrainedValue<'a, F, G>,
+    right: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
     let namespace_string = format!("evaluate {} == {} {}:{}", left, right, span.line, span.start);
     let constraint_result = match (left, right) {
         (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => {

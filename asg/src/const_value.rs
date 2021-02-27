@@ -226,7 +226,7 @@ impl ConstInt {
         }
     }
 
-    pub fn get_type(&self) -> Type {
+    pub fn get_type<'a>(&self) -> Type<'a> {
         Type::Integer(self.get_int_type())
     }
 
@@ -247,7 +247,7 @@ impl ConstInt {
 }
 
 impl ConstValue {
-    pub fn get_type(&self) -> Option<Type> {
+    pub fn get_type<'a>(&self) -> Option<Type<'a>> {
         Some(match self {
             ConstValue::Int(i) => i.get_type(),
             ConstValue::Group(_) => Type::Group,

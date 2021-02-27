@@ -20,20 +20,25 @@ use crate::{errors::ConsoleError, program::ConstrainedProgram, statement::get_in
 use leo_asg::{ConsoleFunction, ConsoleStatement};
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn evaluate_console_function_call<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         indicator: &Boolean,
-        console: &ConsoleStatement,
+        console: &ConsoleStatement<'a>,
     ) -> Result<(), ConsoleError> {
         match &console.function {
             ConsoleFunction::Assert(expression) => {
-                self.evaluate_console_assert(cs, indicator, expression, &console.span.clone().unwrap_or_default())?;
+                self.evaluate_console_assert(
+                    cs,
+                    indicator,
+                    expression.get(),
+                    &console.span.clone().unwrap_or_default(),
+                )?;
             }
             ConsoleFunction::Debug(string) => {
                 let string = self.format(cs, string)?;

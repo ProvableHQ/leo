@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ImportParserError;
-use leo_asg::{AsgConvertError, ImportResolver, Program, Span};
+use leo_asg::{AsgContext, AsgConvertError, ImportResolver, Program, Span};
 
 use indexmap::{IndexMap, IndexSet};
 use std::env::current_dir;
@@ -25,14 +25,19 @@ use std::env::current_dir;
 /// A program can import one or more packages. A package can be found locally in the source
 /// directory, foreign in the imports directory, or part of the core package list.
 #[derive(Clone, Default)]
-pub struct ImportParser {
+pub struct ImportParser<'a> {
     partial_imports: IndexSet<String>,
-    imports: IndexMap<String, Program>,
+    imports: IndexMap<String, Program<'a>>,
 }
 
 //todo: handle relative imports relative to file...
-impl ImportResolver for ImportParser {
-    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>, AsgConvertError> {
+impl<'a> ImportResolver<'a> for ImportParser<'a> {
+    fn resolve_package(
+        &mut self,
+        context: AsgContext<'a>,
+        package_segments: &[&str],
+        span: &Span,
+    ) -> Result<Option<Program<'a>>, AsgConvertError> {
         let full_path = package_segments.join(".");
         if self.partial_imports.contains(&full_path) {
             return Err(ImportParserError::recursive_imports(&full_path, span).into());
@@ -46,7 +51,7 @@ impl ImportResolver for ImportParser {
 
         self.partial_imports.insert(full_path.clone());
         let program = imports
-            .parse_package(path, package_segments, span)
+            .parse_package(context, path, package_segments, span)
             .map_err(|x| -> AsgConvertError { x.into() })?;
         self.partial_imports.remove(&full_path);
         self.imports.insert(full_path, program.clone());

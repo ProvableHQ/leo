@@ -18,32 +18,27 @@
 
 use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use leo_asg::{Expression, FunctionBody, FunctionQualifier};
-use std::sync::Arc;
+use leo_asg::{Expression, Function, FunctionQualifier};
+use std::cell::Cell;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_function<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        function: &Arc<FunctionBody>,
-        target: Option<&Arc<Expression>>,
-        arguments: &[Arc<Expression>],
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
-        let target_value = if let Some(target) = target {
-            Some(self.enforce_expression(cs, target)?)
-        } else {
-            None
-        };
+        function: &'a Function<'a>,
+        target: Option<&'a Expression<'a>>,
+        arguments: &[Cell<&'a Expression<'a>>],
+    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
+        let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
 
         let self_var = if let Some(target) = &target_value {
             let self_var = function
                 .scope
-                .borrow()
                 .resolve_variable("self")
                 .expect("attempted to call static function from non-static context");
             self.store(self_var.borrow().id, target.clone());
@@ -60,9 +55,9 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         }
 
         // Store input values as new variables in resolved program
-        for (variable, input_expression) in function.arguments.iter().zip(arguments.iter()) {
-            let input_value = self.enforce_expression(cs, input_expression)?;
-            let variable = variable.borrow();
+        for ((_, variable), input_expression) in function.arguments.iter().zip(arguments.iter()) {
+            let input_value = self.enforce_expression(cs, input_expression.get())?;
+            let variable = variable.get().borrow();
 
             self.store(variable.id, input_value);
         }
@@ -71,16 +66,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         let mut results = vec![];
         let indicator = Boolean::constant(true);
 
-        let output = function.function.output.clone().strong();
+        let output = function.output.clone();
 
-        let mut result = self.enforce_statement(cs, &indicator, &function.body)?;
+        let mut result = self.enforce_statement(
+            cs,
+            &indicator,
+            function.body.get().expect("attempted to call function header"),
+        )?;
 
         results.append(&mut result);
 
-        if function.function.qualifier == FunctionQualifier::MutSelfRef {
+        if function.qualifier == FunctionQualifier::MutSelfRef {
             if let (Some(self_var), Some(target)) = (self_var, target) {
                 let new_self = self
-                    .get(&self_var.borrow().id)
+                    .get(self_var.borrow().id)
                     .expect("no self variable found in mut self context")
                     .clone();
                 if let Some(assignable_target) = self.resolve_mut_ref(cs, target)? {

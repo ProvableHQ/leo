@@ -29,6 +29,16 @@ fn test_add() {
 }
 
 #[test]
+fn test_add_explicit() {
+    let program_string = r#"
+    function main() {
+        let c: field = 0field + 1field;
+    }
+    "#;
+    load_asg(program_string).unwrap();
+}
+
+#[test]
 fn test_sub() {
     let program_string = include_str!("sub.leo");
     load_asg(program_string).unwrap();

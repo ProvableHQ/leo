@@ -25,8 +25,6 @@ use crate::{
     Span,
 };
 
-use std::sync::Arc;
-
 pub struct ReturnPathReducer {
     pub errors: Vec<(Span, String)>,
 }
@@ -48,14 +46,14 @@ impl Default for ReturnPathReducer {
 }
 
 #[allow(unused_variables)]
-impl MonoidalReducerExpression<BoolAnd> for ReturnPathReducer {
-    fn reduce_expression(&mut self, input: &Arc<Expression>, value: BoolAnd) -> BoolAnd {
+impl<'a> MonoidalReducerExpression<'a, BoolAnd> for ReturnPathReducer {
+    fn reduce_expression(&mut self, input: &'a Expression<'a>, value: BoolAnd) -> BoolAnd {
         BoolAnd(false)
     }
 }
 
 #[allow(unused_variables)]
-impl MonoidalReducerStatement<BoolAnd> for ReturnPathReducer {
+impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
     fn reduce_assign_access(&mut self, input: &AssignAccess, left: Option<BoolAnd>, right: Option<BoolAnd>) -> BoolAnd {
         BoolAnd(false)
     }
@@ -69,7 +67,7 @@ impl MonoidalReducerStatement<BoolAnd> for ReturnPathReducer {
             BoolAnd(false)
         } else if let Some(index) = statements[..statements.len() - 1].iter().map(|x| x.0).position(|x| x) {
             self.record_error(
-                input.statements[index].span(),
+                input.statements[index].get().span(),
                 "dead code due to unconditional early return".to_string(),
             );
             BoolAnd(true)

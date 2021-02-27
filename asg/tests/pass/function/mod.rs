@@ -29,6 +29,66 @@ fn test_iteration() {
 }
 
 #[test]
+fn test_const_args() {
+    let program_string = r#"
+    function one(const value: u32) -> u32 {
+        return value + 1
+    }
+    
+    function main() {
+        let mut a = 0u32;
+    
+        for i in 0..10 {
+            a += one(i);
+        }
+    
+        console.assert(a == 20u32);
+    }
+    "#;
+    load_asg(program_string).unwrap();
+}
+
+#[test]
+fn test_const_args_used() {
+    let program_string = r#"
+    function index(arr: [u8; 3], const value: u32) -> u8 {
+        return arr[value]
+    }
+    
+    function main() {
+        let mut a = 0u8;
+        let arr = [1u8, 2, 3];
+    
+        for i in 0..3 {
+            a += index(arr, i);
+        }
+    
+        console.assert(a == 6u8);
+    }
+    "#;
+    load_asg(program_string).unwrap();
+}
+
+#[test]
+fn test_const_args_fail() {
+    let program_string = r#"
+    function index(arr: [u8; 3], const value: u32) -> u8 {
+        return arr[value]
+    }
+    
+    function main(x_value: u32) {
+        let mut a = 0u8;
+        let arr = [1u8, 2, 3];
+    
+        a += index(arr, x_value);
+    
+        console.assert(a == 1u8);
+    }
+    "#;
+    load_asg(program_string).err().unwrap();
+}
+
+#[test]
 fn test_iteration_repeated() {
     let program_string = include_str!("iteration_repeated.leo");
     load_asg(program_string).unwrap();

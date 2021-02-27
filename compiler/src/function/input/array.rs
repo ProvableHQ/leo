@@ -21,12 +21,9 @@ use crate::{errors::FunctionError, program::ConstrainedProgram, value::Constrain
 use leo_asg::Type;
 use leo_ast::{InputValue, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_array<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -35,12 +32,20 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
         array_len: usize,
         input_value: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
         // Build the array value using the expected types.
         let mut array_value = vec![];
 
         match input_value {
             Some(InputValue::Array(arr)) => {
+                if array_len != arr.len() {
+                    return Err(FunctionError::invalid_input_array_dimensions(
+                        arr.len(),
+                        array_len,
+                        span.clone(),
+                    ));
+                }
+
                 // Allocate each value in the current row
                 for (i, value) in arr.into_iter().enumerate() {
                     let value_name = format!("{}_{}", &name, &i.to_string());

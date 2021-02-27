@@ -14,38 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, FromAst, InnerScope, Node, PartialType, Scope, Span, Statement};
+use crate::{AsgConvertError, FromAst, Node, PartialType, Scope, Span, Statement};
 
-use std::sync::{Arc, Weak};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct BlockStatement {
-    pub parent: Option<Weak<Statement>>,
+#[derive(Clone)]
+pub struct BlockStatement<'a> {
+    pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
-    pub statements: Vec<Arc<Statement>>,
-    pub scope: Scope,
+    pub statements: Vec<Cell<&'a Statement<'a>>>,
+    pub scope: &'a Scope<'a>,
 }
 
-impl Node for BlockStatement {
+impl<'a> Node for BlockStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl FromAst<leo_ast::Block> for BlockStatement {
+impl<'a> FromAst<'a, leo_ast::Block> for BlockStatement<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         statement: &leo_ast::Block,
-        _expected_type: Option<PartialType>,
+        _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
-        let new_scope = InnerScope::make_subscope(scope);
+        let new_scope = scope.make_subscope();
 
         let mut output = vec![];
         for item in statement.statements.iter() {
-            output.push(Arc::<Statement>::from_ast(&new_scope, item, None)?);
+            output.push(Cell::new(<&'a Statement<'a>>::from_ast(&new_scope, item, None)?));
         }
         Ok(BlockStatement {
-            parent: None,
+            parent: Cell::new(None),
             span: Some(statement.span.clone()),
             statements: output,
             scope: new_scope,
@@ -53,14 +53,10 @@ impl FromAst<leo_ast::Block> for BlockStatement {
     }
 }
 
-impl Into<leo_ast::Block> for &BlockStatement {
+impl<'a> Into<leo_ast::Block> for &BlockStatement<'a> {
     fn into(self) -> leo_ast::Block {
         leo_ast::Block {
-            statements: self
-                .statements
-                .iter()
-                .map(|statement| statement.as_ref().into())
-                .collect(),
+            statements: self.statements.iter().map(|statement| statement.get().into()).collect(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

@@ -15,28 +15,24 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_asg::{CircuitBody, CircuitMemberBody, Type};
+use leo_asg::{Circuit, CircuitMember, Type};
 use leo_ast::{Identifier, Input, Span};
-use std::sync::Arc;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
 pub const RECORD_VARIABLE_NAME: &str = "record";
 pub const REGISTERS_VARIABLE_NAME: &str = "registers";
 pub const STATE_VARIABLE_NAME: &str = "state";
 pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         span: Span,
-        expected_type: &Arc<CircuitBody>,
+        expected_type: &'a Circuit<'a>,
         input: &Input,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
         // Create an identifier for each input variable
 
         let registers_name = Identifier {
@@ -76,11 +72,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         for (name, values) in sections {
             let sub_circuit = match expected_type.members.borrow().get(&name.name) {
-                Some(CircuitMemberBody::Variable(Type::Circuit(circuit))) => circuit
-                    .body
-                    .borrow()
-                    .upgrade()
-                    .expect("stale circuit body for input subtype"),
+                Some(CircuitMember::Variable(Type::Circuit(circuit))) => *circuit,
                 _ => panic!("illegal input type definition from asg"),
             };
 
@@ -94,6 +86,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Return input variable keyword as circuit expression
 
-        Ok(ConstrainedValue::CircuitExpression(expected_type.clone(), members))
+        Ok(ConstrainedValue::CircuitExpression(expected_type, members))
     }
 }

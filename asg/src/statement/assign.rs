@@ -35,49 +35,49 @@ use crate::{
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
 
-use std::sync::{Arc, Weak};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub enum AssignAccess {
-    ArrayRange(Option<Arc<Expression>>, Option<Arc<Expression>>),
-    ArrayIndex(Arc<Expression>),
+#[derive(Clone)]
+pub enum AssignAccess<'a> {
+    ArrayRange(Cell<Option<&'a Expression<'a>>>, Cell<Option<&'a Expression<'a>>>),
+    ArrayIndex(Cell<&'a Expression<'a>>),
     Tuple(usize),
     Member(Identifier),
 }
 
-#[derive(Debug)]
-pub struct AssignStatement {
-    pub parent: Option<Weak<Statement>>,
+#[derive(Clone)]
+pub struct AssignStatement<'a> {
+    pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub operation: AssignOperation,
-    pub target_variable: Variable,
-    pub target_accesses: Vec<AssignAccess>,
-    pub value: Arc<Expression>,
+    pub target_variable: Cell<&'a Variable<'a>>,
+    pub target_accesses: Vec<AssignAccess<'a>>,
+    pub value: Cell<&'a Expression<'a>>,
 }
 
-impl Node for AssignStatement {
+impl<'a> Node for AssignStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
+impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         statement: &leo_ast::AssignStatement,
-        _expected_type: Option<PartialType>,
-    ) -> Result<Arc<Statement>, AsgConvertError> {
+        _expected_type: Option<PartialType<'a>>,
+    ) -> Result<Self, AsgConvertError> {
         let (name, span) = (&statement.assignee.identifier.name, &statement.assignee.identifier.span);
 
         let variable = if name == "input" {
-            if let Some(function) = scope.borrow().resolve_current_function() {
+            if let Some(function) = scope.resolve_current_function() {
                 if !function.has_input {
                     return Err(AsgConvertError::unresolved_reference(name, span));
                 }
             } else {
                 return Err(AsgConvertError::unresolved_reference(name, span));
             }
-            if let Some(input) = scope.borrow().resolve_input() {
+            if let Some(input) = scope.resolve_input() {
                 input.container
             } else {
                 return Err(AsgConvertError::InternalError(
@@ -86,7 +86,6 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
             }
         } else {
             scope
-                .borrow()
                 .resolve_variable(&name)
                 .ok_or_else(|| AsgConvertError::unresolved_reference(name, span))?
         };
@@ -104,16 +103,16 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
                     let left = left
                         .as_ref()
                         .map(
-                            |left: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> {
-                                Arc::<Expression>::from_ast(scope, left, index_type.clone())
+                            |left: &leo_ast::Expression| -> Result<&'a Expression<'a>, AsgConvertError> {
+                                <&Expression<'a>>::from_ast(scope, left, index_type.clone())
                             },
                         )
                         .transpose()?;
                     let right = right
                         .as_ref()
                         .map(
-                            |right: &leo_ast::Expression| -> Result<Arc<Expression>, AsgConvertError> {
-                                Arc::<Expression>::from_ast(scope, right, index_type)
+                            |right: &leo_ast::Expression| -> Result<&'a Expression<'a>, AsgConvertError> {
+                                <&Expression<'a>>::from_ast(scope, right, index_type)
                             },
                         )
                         .transpose()?;
@@ -156,18 +155,18 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
                         _ => return Err(AsgConvertError::index_into_non_array(&name, &statement.span)),
                     }
 
-                    AssignAccess::ArrayRange(left, right)
+                    AssignAccess::ArrayRange(Cell::new(left), Cell::new(right))
                 }
                 AstAssigneeAccess::ArrayIndex(index) => {
                     target_type = match target_type.clone() {
                         Some(PartialType::Array(item, _)) => item.map(|x| *x),
                         _ => return Err(AsgConvertError::index_into_non_array(&name, &statement.span)),
                     };
-                    AssignAccess::ArrayIndex(Arc::<Expression>::from_ast(
+                    AssignAccess::ArrayIndex(Cell::new(<&Expression<'a>>::from_ast(
                         scope,
                         index,
                         Some(PartialType::Integer(None, Some(IntegerType::U32))),
-                    )?)
+                    )?))
                 }
                 AstAssigneeAccess::Tuple(index, _) => {
                     let index = index
@@ -203,7 +202,7 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
                                     return Err(AsgConvertError::illegal_function_assign(&name.name, &statement.span));
                                 }
                             };
-                            Some(x.strong().partial())
+                            Some(x.partial())
                         }
                         _ => {
                             return Err(AsgConvertError::index_into_non_tuple(
@@ -216,41 +215,40 @@ impl FromAst<leo_ast::AssignStatement> for Arc<Statement> {
                 }
             });
         }
-        let value = Arc::<Expression>::from_ast(scope, &statement.value, target_type)?;
+        let value = <&Expression<'a>>::from_ast(scope, &statement.value, target_type)?;
 
-        let statement = Arc::new(Statement::Assign(AssignStatement {
-            parent: None,
+        let statement = scope.alloc_statement(Statement::Assign(AssignStatement {
+            parent: Cell::new(None),
             span: Some(statement.span.clone()),
             operation: statement.operation.clone(),
-            target_variable: variable.clone(),
+            target_variable: Cell::new(variable),
             target_accesses,
-            value,
+            value: Cell::new(value),
         }));
 
         {
             let mut variable = variable.borrow_mut();
-            variable.assignments.push(Arc::downgrade(&statement));
+            variable.assignments.push(statement);
         }
 
         Ok(statement)
     }
 }
 
-impl Into<leo_ast::AssignStatement> for &AssignStatement {
+impl<'a> Into<leo_ast::AssignStatement> for &AssignStatement<'a> {
     fn into(self) -> leo_ast::AssignStatement {
         leo_ast::AssignStatement {
             operation: self.operation.clone(),
             assignee: leo_ast::Assignee {
-                identifier: self.target_variable.borrow().name.clone(),
+                identifier: self.target_variable.get().borrow().name.clone(),
                 accesses: self
                     .target_accesses
                     .iter()
                     .map(|access| match access {
-                        AssignAccess::ArrayRange(left, right) => AstAssigneeAccess::ArrayRange(
-                            left.as_ref().map(|e| e.as_ref().into()),
-                            right.as_ref().map(|e| e.as_ref().into()),
-                        ),
-                        AssignAccess::ArrayIndex(index) => AstAssigneeAccess::ArrayIndex(index.as_ref().into()),
+                        AssignAccess::ArrayRange(left, right) => {
+                            AstAssigneeAccess::ArrayRange(left.get().map(|e| e.into()), right.get().map(|e| e.into()))
+                        }
+                        AssignAccess::ArrayIndex(index) => AstAssigneeAccess::ArrayIndex(index.get().into()),
                         AssignAccess::Tuple(index) => AstAssigneeAccess::Tuple(
                             leo_ast::PositiveNumber {
                                 value: index.to_string(),
@@ -262,7 +260,7 @@ impl Into<leo_ast::AssignStatement> for &AssignStatement {
                     .collect(),
                 span: self.span.clone().unwrap_or_default(),
             },
-            value: self.value.as_ref().into(),
+            value: self.value.get().into(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

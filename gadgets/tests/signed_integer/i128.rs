@@ -24,7 +24,8 @@ use snarkvm_models::{
     },
 };
 
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::i128;
 
@@ -238,8 +239,8 @@ fn test_int128_mul_constants() {
         let max = i64::MAX as i128;
         let min = i64::MIN as i128;
 
-        let a: i128 = rng.gen_range(min, max);
-        let b: i128 = rng.gen_range(min, max);
+        let a: i128 = rng.gen_range(min..max);
+        let b: i128 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
@@ -267,8 +268,8 @@ fn test_int128_mul() {
         let max = i64::MAX as i128;
         let min = i64::MIN as i128;
 
-        let a: i128 = rng.gen_range(min, max);
-        let b: i128 = rng.gen_range(min, max);
+        let a: i128 = rng.gen_range(min..max);
+        let b: i128 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,

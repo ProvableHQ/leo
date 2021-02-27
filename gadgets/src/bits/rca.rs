@@ -51,7 +51,7 @@ impl<F: Field> RippleCarryAdder<F> for Vec<Boolean> {
 
 macro_rules! rpc_impl {
     ($($gadget: ident)*) => ($(
-        impl<F: Field + PrimeField> RippleCarryAdder<F> for $gadget {
+        impl<F: PrimeField> RippleCarryAdder<F> for $gadget {
             fn add_bits<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Vec<Boolean>, SynthesisError> {
                 self.bits.add_bits(cs, &other.bits)
             }

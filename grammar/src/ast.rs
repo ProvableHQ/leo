@@ -23,6 +23,7 @@ use crate::{
         CircuitInlineExpression,
         Expression,
         PostfixExpression,
+        SelfPostfixExpression,
         TernaryExpression,
         UnaryExpression,
     },
@@ -115,6 +116,9 @@ fn parse_term(pair: Pair<Rule>) -> Expression {
                 }
                 Rule::expression_postfix => {
                     Expression::Postfix(PostfixExpression::from_pest(&mut pair.into_inner()).unwrap())
+                }
+                Rule::self_expression_postfix => {
+                    Expression::SelfPostfix(SelfPostfixExpression::from_pest(&mut pair.into_inner()).unwrap())
                 }
                 Rule::value => Expression::Value(Value::from_pest(&mut pair.into_inner()).unwrap()),
                 Rule::identifier => Expression::Identifier(Identifier::from_pest(&mut pair.into_inner()).unwrap()),

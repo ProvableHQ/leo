@@ -16,7 +16,7 @@
 
 use crate::{
     ast::Rule,
-    imports::{ImportSymbol, Package, Star},
+    imports::{ImportSymbol, Package, Packages, Star},
 };
 
 use pest_ast::FromPest;
@@ -28,5 +28,5 @@ pub enum PackageAccess<'ast> {
     Star(Star<'ast>),
     SubPackage(Box<Package<'ast>>),
     Symbol(ImportSymbol<'ast>),
-    Multiple(Vec<PackageAccess<'ast>>),
+    Multiple(Packages<'ast>),
 }

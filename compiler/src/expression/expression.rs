@@ -28,21 +28,20 @@ use crate::{
     GroupType,
 };
 use leo_asg::{expression::*, ConstValue, Expression, Node};
-use std::sync::Arc;
 
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
 };
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        expression: &Arc<Expression>,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        expression: &'a Expression<'a>,
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let span = expression.span().cloned().unwrap_or_default();
-        match &**expression {
+        match expression {
             // Variables
             Expression::VariableRef(variable_ref) => self.evaluate_ref(variable_ref),
 
@@ -62,7 +61,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             Expression::Binary(BinaryExpression {
                 left, right, operation, ..
             }) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(cs, left, right)?;
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(cs, left.get(), right.get())?;
 
                 match operation {
                     BinaryOperation::Add => enforce_add(cs, resolved_left, resolved_right, &span),
@@ -89,10 +88,10 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             // Unary operations
             Expression::Unary(UnaryExpression { inner, operation, .. }) => match operation {
                 UnaryOperation::Negate => {
-                    let resolved_inner = self.enforce_expression(cs, inner)?;
+                    let resolved_inner = self.enforce_expression(cs, inner.get())?;
                     enforce_negate(cs, resolved_inner, &span)
                 }
-                UnaryOperation::Not => Ok(evaluate_not(self.enforce_expression(cs, inner)?, &span)?),
+                UnaryOperation::Not => Ok(evaluate_not(self.enforce_expression(cs, inner.get())?, &span)?),
             },
 
             Expression::Ternary(TernaryExpression {
@@ -100,24 +99,26 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 if_true,
                 if_false,
                 ..
-            }) => self.enforce_conditional_expression(cs, condition, if_true, if_false, &span),
+            }) => self.enforce_conditional_expression(cs, condition.get(), if_true.get(), if_false.get(), &span),
 
             // Arrays
-            Expression::ArrayInline(ArrayInlineExpression { elements, .. }) => self.enforce_array(cs, elements, span),
+            Expression::ArrayInline(ArrayInlineExpression { elements, .. }) => {
+                self.enforce_array(cs, &elements[..], span)
+            }
             Expression::ArrayInit(ArrayInitExpression { element, len, .. }) => {
-                self.enforce_array_initializer(cs, element, *len)
+                self.enforce_array_initializer(cs, element.get(), *len)
             }
             Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
-                self.enforce_array_access(cs, array, index, &span)
+                self.enforce_array_access(cs, array.get(), index.get(), &span)
             }
             Expression::ArrayRangeAccess(ArrayRangeAccessExpression { array, left, right, .. }) => {
-                self.enforce_array_range_access(cs, array, left.as_ref(), right.as_ref(), &span)
+                self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), &span)
             }
 
             // Tuples
-            Expression::TupleInit(TupleInitExpression { elements, .. }) => self.enforce_tuple(cs, elements),
+            Expression::TupleInit(TupleInitExpression { elements, .. }) => self.enforce_tuple(cs, &elements[..]),
             Expression::TupleAccess(TupleAccessExpression { tuple_ref, index, .. }) => {
-                self.enforce_tuple_access(cs, tuple_ref, *index, &span)
+                self.enforce_tuple_access(cs, tuple_ref.get(), *index, &span)
             }
 
             // Circuits
@@ -131,26 +132,21 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 arguments,
                 ..
             }) => {
-                if let Some(circuit) = function
-                    .circuit
-                    .borrow()
-                    .as_ref()
-                    .map(|x| x.upgrade().expect("stale circuit for member function"))
-                {
+                if let Some(circuit) = function.get().circuit.get() {
                     let core_mapping = circuit.core_mapping.borrow();
                     if let Some(core_mapping) = core_mapping.as_deref() {
                         let core_circuit = resolve_core_circuit::<F, G>(core_mapping);
                         return self.enforce_core_circuit_call_expression(
                             cs,
                             &core_circuit,
-                            &function,
-                            target.as_ref(),
-                            arguments,
+                            function.get(),
+                            target.get(),
+                            &arguments[..],
                             &span,
                         );
                     }
                 }
-                self.enforce_function_call_expression(cs, &function, target.as_ref(), arguments, &span)
+                self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], &span)
             }
         }
     }

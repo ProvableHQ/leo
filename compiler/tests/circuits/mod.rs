@@ -248,6 +248,24 @@ fn test_self_member_undefined() {
     expect_asg_error(error);
 }
 
+// Inline circuit member
+
+#[test]
+fn test_inline_member_pass() {
+    let program_string = include_str!("inline_member_pass.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_inline_member_fail() {
+    let program_string = include_str!("inline_member_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
+}
+
 // All
 
 #[test]
@@ -261,6 +279,14 @@ fn test_pedersen_mock() {
 #[test]
 fn test_define_circuit_inside_circuit_function() {
     let program_string = include_str!("define_circuit_inside_circuit_function.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_duplicate_name_context() {
+    let program_string = include_str!("duplicate_name_context.leo");
     let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);

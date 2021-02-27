@@ -18,23 +18,19 @@
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Expression;
-use std::sync::Arc;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-type ConstrainedValuePair<T, U> = (ConstrainedValue<T, U>, ConstrainedValue<T, U>);
+type ConstrainedValuePair<'a, T, U> = (ConstrainedValue<'a, T, U>, ConstrainedValue<'a, T, U>);
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_binary_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        left: &Arc<Expression>,
-        right: &Arc<Expression>,
-    ) -> Result<ConstrainedValuePair<F, G>, ExpressionError> {
+        left: &'a Expression<'a>,
+        right: &'a Expression<'a>,
+    ) -> Result<ConstrainedValuePair<'a, F, G>, ExpressionError> {
         let resolved_left = self.enforce_expression(cs, left)?;
         let resolved_right = self.enforce_expression(cs, right)?;
 

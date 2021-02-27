@@ -16,31 +16,31 @@
 
 use crate::{AsgConvertError, BlockStatement, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
 
-use std::sync::{Arc, Weak};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct ConditionalStatement {
-    pub parent: Option<Weak<Statement>>,
+#[derive(Clone)]
+pub struct ConditionalStatement<'a> {
+    pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
-    pub condition: Arc<Expression>,
-    pub result: Arc<Statement>,
-    pub next: Option<Arc<Statement>>,
+    pub condition: Cell<&'a Expression<'a>>,
+    pub result: Cell<&'a Statement<'a>>,
+    pub next: Cell<Option<&'a Statement<'a>>>,
 }
 
-impl Node for ConditionalStatement {
+impl<'a> Node for ConditionalStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl FromAst<leo_ast::ConditionalStatement> for ConditionalStatement {
+impl<'a> FromAst<'a, leo_ast::ConditionalStatement> for ConditionalStatement<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         statement: &leo_ast::ConditionalStatement,
-        _expected_type: Option<PartialType>,
+        _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
-        let condition = Arc::<Expression>::from_ast(scope, &statement.condition, Some(Type::Boolean.into()))?;
-        let result = Arc::new(Statement::Block(BlockStatement::from_ast(
+        let condition = <&Expression<'a>>::from_ast(scope, &statement.condition, Some(Type::Boolean.into()))?;
+        let result = scope.alloc_statement(Statement::Block(BlockStatement::from_ast(
             scope,
             &statement.block,
             None,
@@ -48,28 +48,30 @@ impl FromAst<leo_ast::ConditionalStatement> for ConditionalStatement {
         let next = statement
             .next
             .as_deref()
-            .map(|next| -> Result<Arc<Statement>, AsgConvertError> { Arc::<Statement>::from_ast(scope, next, None) })
+            .map(|next| -> Result<&'a Statement<'a>, AsgConvertError> {
+                <&'a Statement<'a>>::from_ast(scope, next, None)
+            })
             .transpose()?;
 
         Ok(ConditionalStatement {
-            parent: None,
+            parent: Cell::new(None),
             span: Some(statement.span.clone()),
-            condition,
-            result,
-            next,
+            condition: Cell::new(condition),
+            result: Cell::new(result),
+            next: Cell::new(next),
         })
     }
 }
 
-impl Into<leo_ast::ConditionalStatement> for &ConditionalStatement {
+impl<'a> Into<leo_ast::ConditionalStatement> for &ConditionalStatement<'a> {
     fn into(self) -> leo_ast::ConditionalStatement {
         leo_ast::ConditionalStatement {
-            condition: self.condition.as_ref().into(),
-            block: match self.result.as_ref() {
+            condition: self.condition.get().into(),
+            block: match self.result.get() {
                 Statement::Block(block) => block.into(),
                 _ => unimplemented!(),
             },
-            next: self.next.as_deref().map(|e| Box::new(e.into())),
+            next: self.next.get().as_deref().map(|e| Box::new(e.into())),
             span: self.span.clone().unwrap_or_default(),
         }
     }

@@ -14,80 +14,204 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_lang::{cli::*, commands::*, errors::CLIError, logger, updater::Updater};
+pub mod api;
+pub mod commands;
+pub mod config;
+pub mod context;
+pub mod logger;
+pub mod synthesizer;
+pub mod updater;
 
-use clap::{App, AppSettings, Arg};
+use commands::{
+    package::{Add, Clone, Login, Logout, Publish, Remove},
+    Build,
+    Clean,
+    Command,
+    Deploy,
+    Init,
+    Lint,
+    New,
+    Prove,
+    Run,
+    Setup,
+    Test,
+    Update,
+    Watch,
+};
 
-#[cfg_attr(tarpaulin, skip)]
-fn main() -> Result<(), CLIError> {
-    let app = App::new("leo")
-        .version(env!("CARGO_PKG_VERSION"))
-        .about("Leo compiler and package manager")
-        .author("The Aleo Team <hello@aleo.org>")
-        .settings(&[
-            AppSettings::ColoredHelp,
-            AppSettings::DisableHelpSubcommand,
-            AppSettings::DisableVersion,
-        ])
-        .args(&[Arg::with_name("debug")
-            .short("d")
-            .long("debug")
-            .help("Enables debugging mode")
-            .global(true)])
-        .subcommands(vec![
-            NewCommand::new().display_order(0),
-            InitCommand::new().display_order(1),
-            BuildCommand::new().display_order(2),
-            WatchCommand::new().display_order(3),
-            TestCommand::new().display_order(4),
-            SetupCommand::new().display_order(5),
-            ProveCommand::new().display_order(6),
-            RunCommand::new().display_order(7),
-            LoginCommand::new().display_order(8),
-            AddCommand::new().display_order(9),
-            RemoveCommand::new().display_order(10),
-            PublishCommand::new().display_order(11),
-            DeployCommand::new().display_order(12),
-            CleanCommand::new().display_order(13),
-            LintCommand::new().display_order(14),
-            UpdateCommand::new().display_order(15),
-            LogoutCommand::new().display_order(16),
-        ])
-        .set_term_width(0);
+use anyhow::Error;
+use std::process::exit;
+use structopt::{clap::AppSettings, StructOpt};
 
-    let mut help = app.clone();
-    let arguments = app.get_matches();
+/// CLI Arguments entry point - includes global parameters and subcommands
+#[derive(StructOpt, Debug)]
+#[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
+struct Opt {
+    #[structopt(short, long, help = "Print additional information for debugging")]
+    debug: bool,
 
-    match arguments.subcommand() {
-        ("new", Some(arguments)) => NewCommand::process(arguments),
-        ("init", Some(arguments)) => InitCommand::process(arguments),
-        ("build", Some(arguments)) => BuildCommand::process(arguments),
-        ("watch", Some(arguments)) => WatchCommand::process(arguments),
-        ("test", Some(arguments)) => TestCommand::process(arguments),
-        ("setup", Some(arguments)) => SetupCommand::process(arguments),
-        ("prove", Some(arguments)) => ProveCommand::process(arguments),
-        ("run", Some(arguments)) => RunCommand::process(arguments),
-        ("login", Some(arguments)) => LoginCommand::process(arguments),
-        ("add", Some(arguments)) => AddCommand::process(arguments),
-        ("remove", Some(arguments)) => RemoveCommand::process(arguments),
-        ("publish", Some(arguments)) => PublishCommand::process(arguments),
-        ("deploy", Some(arguments)) => DeployCommand::process(arguments),
-        ("clean", Some(arguments)) => CleanCommand::process(arguments),
-        ("lint", Some(arguments)) => LintCommand::process(arguments),
-        ("update", Some(arguments)) => UpdateCommand::process(arguments),
-        ("logout", Some(arguments)) => LogoutCommand::process(arguments),
-        _ => {
-            // Set logging environment
-            match arguments.is_present("debug") {
-                true => logger::init_logger("leo", 2),
-                false => logger::init_logger("leo", 1),
-            }
+    #[structopt(short, long, help = "Suppress CLI output")]
+    quiet: bool,
 
-            Updater::print_cli();
+    #[structopt(subcommand)]
+    command: CommandOpts,
+}
 
-            help.print_help()?;
-            println!();
-            Ok(())
+///Leo compiler and package manager
+#[derive(StructOpt, Debug)]
+#[structopt(setting = AppSettings::ColoredHelp)]
+enum CommandOpts {
+    #[structopt(about = "Create a new Leo package in an existing directory")]
+    Init {
+        #[structopt(flatten)]
+        command: Init,
+    },
+
+    #[structopt(about = "Create a new Leo package in a new directory")]
+    New {
+        #[structopt(flatten)]
+        command: New,
+    },
+
+    #[structopt(about = "Compile the current package as a program")]
+    Build {
+        #[structopt(flatten)]
+        command: Build,
+    },
+
+    #[structopt(about = "Run a program setup")]
+    Setup {
+        #[structopt(flatten)]
+        command: Setup,
+    },
+
+    #[structopt(about = "Run the program and produce a proof")]
+    Prove {
+        #[structopt(flatten)]
+        command: Prove,
+    },
+
+    #[structopt(about = "Run a program with input variables")]
+    Run {
+        #[structopt(flatten)]
+        command: Run,
+    },
+
+    #[structopt(about = "Clean the output directory")]
+    Clean {
+        #[structopt(flatten)]
+        command: Clean,
+    },
+
+    #[structopt(about = "Watch for changes of Leo source files")]
+    Watch {
+        #[structopt(flatten)]
+        command: Watch,
+    },
+
+    #[structopt(about = "Update Leo to the latest version")]
+    Update {
+        #[structopt(flatten)]
+        command: Update,
+    },
+
+    #[structopt(about = "Compile and run all tests in the current package")]
+    Test {
+        #[structopt(flatten)]
+        command: Test,
+    },
+
+    #[structopt(about = "Import a package from the Aleo Package Manager")]
+    Add {
+        #[structopt(flatten)]
+        command: Add,
+    },
+
+    #[structopt(about = "Clone a package from the Aleo Package Manager")]
+    Clone {
+        #[structopt(flatten)]
+        command: Clone,
+    },
+
+    #[structopt(about = "Login to the Aleo Package Manager")]
+    Login {
+        #[structopt(flatten)]
+        command: Login,
+    },
+
+    #[structopt(about = "Logout of the Aleo Package Manager")]
+    Logout {
+        #[structopt(flatten)]
+        command: Logout,
+    },
+
+    #[structopt(about = "Publish the current package to the Aleo Package Manager")]
+    Publish {
+        #[structopt(flatten)]
+        command: Publish,
+    },
+
+    #[structopt(about = "Uninstall a package from the current package")]
+    Remove {
+        #[structopt(flatten)]
+        command: Remove,
+    },
+
+    #[structopt(about = "Lints the Leo files in the package (*)")]
+    Lint {
+        #[structopt(flatten)]
+        command: Lint,
+    },
+
+    #[structopt(about = "Deploy the current package as a program to the network (*)")]
+    Deploy {
+        #[structopt(flatten)]
+        command: Deploy,
+    },
+}
+
+fn main() {
+    // read command line arguments
+    let opt = Opt::from_args();
+
+    if !opt.quiet {
+        // init logger with optional debug flag
+        logger::init_logger("leo", match opt.debug {
+            false => 1,
+            true => 2,
+        });
+    }
+
+    handle_error(match opt.command {
+        CommandOpts::Init { command } => command.try_execute(),
+        CommandOpts::New { command } => command.try_execute(),
+        CommandOpts::Build { command } => command.try_execute(),
+        CommandOpts::Setup { command } => command.try_execute(),
+        CommandOpts::Prove { command } => command.try_execute(),
+        CommandOpts::Test { command } => command.try_execute(),
+        CommandOpts::Run { command } => command.try_execute(),
+        CommandOpts::Clean { command } => command.try_execute(),
+        CommandOpts::Watch { command } => command.try_execute(),
+        CommandOpts::Update { command } => command.try_execute(),
+
+        CommandOpts::Add { command } => command.try_execute(),
+        CommandOpts::Clone { command } => command.try_execute(),
+        CommandOpts::Login { command } => command.try_execute(),
+        CommandOpts::Logout { command } => command.try_execute(),
+        CommandOpts::Publish { command } => command.try_execute(),
+        CommandOpts::Remove { command } => command.try_execute(),
+
+        CommandOpts::Lint { command } => command.try_execute(),
+        CommandOpts::Deploy { command } => command.try_execute(),
+    });
+}
+
+fn handle_error<T>(res: Result<T, Error>) -> T {
+    match res {
+        Ok(t) => t,
+        Err(err) => {
+            eprintln!("Error: {}", err);
+            exit(1);
         }
     }
 }

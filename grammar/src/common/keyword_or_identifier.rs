@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, common::SelfKeywordOrIdentifier, functions::InputKeyword, types::SelfType};
+use crate::{ast::Rule, common::Identifier, functions::InputKeyword, types::SelfType};
 
 use pest_ast::FromPest;
 use serde::Serialize;
@@ -25,7 +25,7 @@ use std::fmt;
 pub enum KeywordOrIdentifier<'ast> {
     SelfType(SelfType<'ast>),
     Input(InputKeyword<'ast>),
-    SelfKeywordOrIdentifier(SelfKeywordOrIdentifier<'ast>),
+    Identifier(Identifier<'ast>),
 }
 
 impl<'ast> fmt::Display for KeywordOrIdentifier<'ast> {
@@ -33,7 +33,7 @@ impl<'ast> fmt::Display for KeywordOrIdentifier<'ast> {
         match self {
             KeywordOrIdentifier::SelfType(self_type) => write!(f, "{}", self_type),
             KeywordOrIdentifier::Input(input_keyword) => write!(f, "{}", input_keyword),
-            KeywordOrIdentifier::SelfKeywordOrIdentifier(name) => write!(f, "{}", name),
+            KeywordOrIdentifier::Identifier(name) => write!(f, "{}", name),
         }
     }
 }

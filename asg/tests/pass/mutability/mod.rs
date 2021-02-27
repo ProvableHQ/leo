@@ -65,7 +65,6 @@ fn test_function_input_mut() {
 }
 
 #[test]
-#[ignore]
 fn test_swap() {
     let program_string = include_str!("swap.leo");
     load_asg(program_string).unwrap();

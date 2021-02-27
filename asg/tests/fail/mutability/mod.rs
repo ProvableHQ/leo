@@ -29,12 +29,6 @@ fn test_const_fail() {
 }
 
 #[test]
-fn test_const_mut_fail() {
-    let program_string = include_str!("const_mut.leo");
-    load_asg(program_string).err().unwrap();
-}
-
-#[test]
 fn test_array() {
     let program_string = include_str!("array.leo");
     load_asg(program_string).err().unwrap();

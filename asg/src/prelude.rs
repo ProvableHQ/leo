@@ -16,15 +16,16 @@
 
 // TODO (protryon): We should merge this with core
 
-use crate::{AsgConvertError, Program};
+use crate::{AsgContext, AsgConvertError, Program};
 
 // TODO (protryon): Make asg deep copy so we can cache resolved core modules
 // TODO (protryon): Figure out how to do headers without bogus returns
 
-pub fn resolve_core_module(module: &str) -> Result<Option<Program>, AsgConvertError> {
+pub fn resolve_core_module<'a>(context: AsgContext<'a>, module: &str) -> Result<Option<Program<'a>>, AsgConvertError> {
     match module {
         "unstable.blake2s" => {
             let asg = crate::load_asg(
+                context,
                 r#"
                 circuit Blake2s {
                     function hash(seed: [u8; 32], message: [u8; 32]) -> [u8; 32] {
@@ -34,7 +35,7 @@ pub fn resolve_core_module(module: &str) -> Result<Option<Program>, AsgConvertEr
                 "#,
                 &mut crate::NullImportResolver,
             )?;
-            asg.borrow().set_core_mapping("blake2s");
+            asg.set_core_mapping("blake2s");
             Ok(Some(asg))
         }
         _ => Ok(None),

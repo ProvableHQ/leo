@@ -24,7 +24,8 @@ use snarkvm_models::{
     },
 };
 
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::i64;
 
@@ -238,8 +239,8 @@ fn test_int64_mul_constants() {
         let max = i32::MAX as i64;
         let min = i32::MIN as i64;
 
-        let a: i64 = rng.gen_range(min, max);
-        let b: i64 = rng.gen_range(min, max);
+        let a: i64 = rng.gen_range(min..max);
+        let b: i64 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
@@ -267,8 +268,8 @@ fn test_int64_mul() {
         let max = i32::MAX as i64;
         let min = i32::MIN as i64;
 
-        let a: i64 = rng.gen_range(min, max);
-        let b: i64 = rng.gen_range(min, max);
+        let a: i64 = rng.gen_range(min..max);
+        let b: i64 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
@@ -366,8 +367,8 @@ fn test_int64_pow_constants() {
 
     let mut cs = TestConstraintSystem::<Fr>::new();
 
-    let a: i64 = rng.gen_range(-16, 16);
-    let b: i64 = rng.gen_range(-12, 12);
+    let a: i64 = rng.gen_range(-16..16);
+    let b: i64 = rng.gen_range(-12..12);
 
     let expected = a.checked_pow(b as u32).unwrap();
 
@@ -388,8 +389,8 @@ fn test_int64_pow() {
 
     let mut cs = TestConstraintSystem::<Fr>::new();
 
-    let a: i64 = rng.gen_range(-16, 16);
-    let b: i64 = rng.gen_range(-12, 12);
+    let a: i64 = rng.gen_range(-16..16);
+    let b: i64 = rng.gen_range(-12..12);
 
     let expected = a.checked_pow(b as u32).unwrap();
 

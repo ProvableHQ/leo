@@ -16,44 +16,46 @@
 
 use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
 
-use std::sync::{Arc, Weak};
-
-#[derive(Debug)]
-pub struct ReturnStatement {
-    pub parent: Option<Weak<Statement>>,
+use std::cell::Cell;
+#[derive(Clone)]
+pub struct ReturnStatement<'a> {
+    pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
-    pub expression: Arc<Expression>,
+    pub expression: Cell<&'a Expression<'a>>,
 }
 
-impl Node for ReturnStatement {
+impl<'a> Node for ReturnStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl FromAst<leo_ast::ReturnStatement> for ReturnStatement {
+impl<'a> FromAst<'a, leo_ast::ReturnStatement> for ReturnStatement<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         statement: &leo_ast::ReturnStatement,
-        _expected_type: Option<PartialType>,
+        _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
         let return_type: Option<Type> = scope
-            .borrow()
             .resolve_current_function()
             .map(|x| x.output.clone())
             .map(Into::into);
         Ok(ReturnStatement {
-            parent: None,
+            parent: Cell::new(None),
             span: Some(statement.span.clone()),
-            expression: Arc::<Expression>::from_ast(scope, &statement.expression, return_type.map(Into::into))?,
+            expression: Cell::new(<&Expression<'a>>::from_ast(
+                scope,
+                &statement.expression,
+                return_type.map(Into::into),
+            )?),
         })
     }
 }
 
-impl Into<leo_ast::ReturnStatement> for &ReturnStatement {
+impl<'a> Into<leo_ast::ReturnStatement> for &ReturnStatement<'a> {
     fn into(self) -> leo_ast::ReturnStatement {
         leo_ast::ReturnStatement {
-            expression: self.expression.as_ref().into(),
+            expression: self.expression.get().into(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

@@ -1,6 +1,6 @@
 [package]
 name = "leo-wasm"
-version = "1.2.1"
+version = "1.2.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "WASM interpreter of the Leo programming language"
 homepage = "https://aleo.org"
@@ -22,11 +22,11 @@ crate-type = [ "cdylib", "rlib" ]
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.2.1"
+version = "1.2.3"
 
 [dependencies.leo-grammar]
 path = "../grammar"
-version = "1.2.1"
+version = "1.2.3"
 
 [dependencies.serde]
 version = "1.0"

@@ -14,14 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::sync::Arc;
-
 use super::CoreCircuit;
 use crate::{errors::ExpressionError, ConstrainedValue, GroupType, Integer};
-use leo_asg::{FunctionBody, Span};
+use leo_asg::{Function, Span};
 use snarkvm_gadgets::algorithms::prf::Blake2sGadget;
 use snarkvm_models::{
-    curves::{Field, PrimeField},
+    curves::PrimeField,
     gadgets::{
         algorithms::PRFGadget,
         r1cs::ConstraintSystem,
@@ -31,7 +29,7 @@ use snarkvm_models::{
 
 pub struct Blake2s;
 
-fn unwrap_argument<F: Field + PrimeField, G: GroupType<F>>(arg: ConstrainedValue<F, G>) -> Vec<UInt8> {
+fn unwrap_argument<F: PrimeField, G: GroupType<F>>(arg: ConstrainedValue<F, G>) -> Vec<UInt8> {
     if let ConstrainedValue::Array(args) = arg {
         assert_eq!(args.len(), 32); // asg enforced
         args.into_iter()
@@ -48,17 +46,17 @@ fn unwrap_argument<F: Field + PrimeField, G: GroupType<F>>(arg: ConstrainedValue
     }
 }
 
-impl<F: Field + PrimeField, G: GroupType<F>> CoreCircuit<F, G> for Blake2s {
+impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuit<'a, F, G> for Blake2s {
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         cs: &mut CS,
-        function: Arc<FunctionBody>,
+        function: &'a Function<'a>,
         span: &Span,
-        target: Option<ConstrainedValue<F, G>>,
-        mut arguments: Vec<ConstrainedValue<F, G>>,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        target: Option<ConstrainedValue<'a, F, G>>,
+        mut arguments: Vec<ConstrainedValue<'a, F, G>>,
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         assert_eq!(arguments.len(), 2); // asg enforced
-        assert!(function.function.name.borrow().name == "hash"); // asg enforced
+        assert!(function.name.borrow().name == "hash"); // asg enforced
         assert!(target.is_none()); // asg enforced
         let input = unwrap_argument(arguments.remove(1));
         let seed = unwrap_argument(arguments.remove(0));

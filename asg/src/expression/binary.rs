@@ -17,44 +17,41 @@
 use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
 pub use leo_ast::{BinaryOperation, BinaryOperationClass};
 
-use std::{
-    cell::RefCell,
-    sync::{Arc, Weak},
-};
+use std::cell::Cell;
 
-#[derive(Debug)]
-pub struct BinaryExpression {
-    pub parent: RefCell<Option<Weak<Expression>>>,
+#[derive(Clone)]
+pub struct BinaryExpression<'a> {
+    pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub operation: BinaryOperation,
-    pub left: Arc<Expression>,
-    pub right: Arc<Expression>,
+    pub left: Cell<&'a Expression<'a>>,
+    pub right: Cell<&'a Expression<'a>>,
 }
 
-impl Node for BinaryExpression {
+impl<'a> Node for BinaryExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl ExpressionNode for BinaryExpression {
-    fn set_parent(&self, parent: Weak<Expression>) {
+impl<'a> ExpressionNode<'a> for BinaryExpression<'a> {
+    fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
 
-    fn get_parent(&self) -> Option<Arc<Expression>> {
-        self.parent.borrow().as_ref().map(Weak::upgrade).flatten()
+    fn get_parent(&self) -> Option<&'a Expression<'a>> {
+        self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &Arc<Expression>) {
-        self.left.set_parent(Arc::downgrade(expr));
-        self.right.set_parent(Arc::downgrade(expr));
+    fn enforce_parents(&self, expr: &'a Expression<'a>) {
+        self.left.get().set_parent(expr);
+        self.right.get().set_parent(expr);
     }
 
-    fn get_type(&self) -> Option<Type> {
+    fn get_type(&self) -> Option<Type<'a>> {
         match self.operation.class() {
             BinaryOperationClass::Boolean => Some(Type::Boolean),
-            BinaryOperationClass::Numeric => self.left.get_type(),
+            BinaryOperationClass::Numeric => self.left.get().get_type(),
         }
     }
 
@@ -64,8 +61,8 @@ impl ExpressionNode for BinaryExpression {
 
     fn const_value(&self) -> Option<ConstValue> {
         use BinaryOperation::*;
-        let left = self.left.const_value()?;
-        let right = self.right.const_value()?;
+        let left = self.left.get().const_value()?;
+        let right = self.right.get().const_value()?;
 
         match (left, right) {
             (ConstValue::Int(left), ConstValue::Int(right)) => Some(match self.operation {
@@ -110,16 +107,16 @@ impl ExpressionNode for BinaryExpression {
     }
 
     fn is_consty(&self) -> bool {
-        self.left.is_consty() && self.right.is_consty()
+        self.left.get().is_consty() && self.right.get().is_consty()
     }
 }
 
-impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
+impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
     fn from_ast(
-        scope: &Scope,
+        scope: &'a Scope<'a>,
         value: &leo_ast::BinaryExpression,
-        expected_type: Option<PartialType>,
-    ) -> Result<BinaryExpression, AsgConvertError> {
+        expected_type: Option<PartialType<'a>>,
+    ) -> Result<BinaryExpression<'a>, AsgConvertError> {
         let class = value.op.class();
         let expected_type = match class {
             BinaryOperationClass::Boolean => match expected_type {
@@ -134,10 +131,12 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
             },
             BinaryOperationClass::Numeric => match expected_type {
                 Some(x @ PartialType::Integer(_, _)) => Some(x),
+                Some(x @ PartialType::Type(Type::Field)) => Some(x),
+                Some(x @ PartialType::Type(Type::Group)) => Some(x),
                 Some(x) => {
                     return Err(AsgConvertError::unexpected_type(
                         &x.to_string(),
-                        Some("integer"),
+                        Some("integer, field, or group"),
                         &value.span,
                     ));
                 }
@@ -146,16 +145,16 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
         };
 
         // left
-        let (left, right) = match Arc::<Expression>::from_ast(scope, &*value.left, expected_type.clone()) {
+        let (left, right) = match <&Expression<'a>>::from_ast(scope, &*value.left, expected_type.clone()) {
             Ok(left) => {
                 if let Some(left_type) = left.get_type() {
-                    let right = Arc::<Expression>::from_ast(scope, &*value.right, Some(left_type.partial()))?;
+                    let right = <&Expression<'a>>::from_ast(scope, &*value.right, Some(left_type.partial()))?;
                     (left, right)
                 } else {
-                    let right = Arc::<Expression>::from_ast(scope, &*value.right, expected_type)?;
+                    let right = <&Expression<'a>>::from_ast(scope, &*value.right, expected_type)?;
                     if let Some(right_type) = right.get_type() {
                         (
-                            Arc::<Expression>::from_ast(scope, &*value.left, Some(right_type.partial()))?,
+                            <&Expression<'a>>::from_ast(scope, &*value.left, Some(right_type.partial()))?,
                             right,
                         )
                     } else {
@@ -164,10 +163,10 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
                 }
             }
             Err(e) => {
-                let right = Arc::<Expression>::from_ast(scope, &*value.right, expected_type)?;
+                let right = <&Expression<'a>>::from_ast(scope, &*value.right, expected_type)?;
                 if let Some(right_type) = right.get_type() {
                     (
-                        Arc::<Expression>::from_ast(scope, &*value.left, Some(right_type.partial()))?,
+                        <&Expression<'a>>::from_ast(scope, &*value.left, Some(right_type.partial()))?,
                         right,
                     )
                 } else {
@@ -242,21 +241,21 @@ impl FromAst<leo_ast::BinaryExpression> for BinaryExpression {
             (_, _) => (),
         }
         Ok(BinaryExpression {
-            parent: RefCell::new(None),
+            parent: Cell::new(None),
             span: Some(value.span.clone()),
             operation: value.op.clone(),
-            left,
-            right,
+            left: Cell::new(left),
+            right: Cell::new(right),
         })
     }
 }
 
-impl Into<leo_ast::BinaryExpression> for &BinaryExpression {
+impl<'a> Into<leo_ast::BinaryExpression> for &BinaryExpression<'a> {
     fn into(self) -> leo_ast::BinaryExpression {
         leo_ast::BinaryExpression {
             op: self.operation.clone(),
-            left: Box::new(self.left.as_ref().into()),
-            right: Box::new(self.right.as_ref().into()),
+            left: Box::new(self.left.get().into()),
+            right: Box::new(self.right.get().into()),
             span: self.span.clone().unwrap_or_default(),
         }
     }

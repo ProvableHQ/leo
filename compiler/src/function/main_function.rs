@@ -18,36 +18,32 @@
 
 use crate::{errors::FunctionError, program::ConstrainedProgram, GroupType, OutputBytes};
 
-use leo_asg::{Expression, FunctionBody, FunctionQualifier};
+use leo_asg::{Expression, Function, FunctionQualifier};
 use leo_ast::Input;
-use std::sync::Arc;
+use std::cell::Cell;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn enforce_main_function<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        function: &Arc<FunctionBody>,
+        function: &'a Function<'a>,
         input: &Input,
     ) -> Result<OutputBytes, FunctionError> {
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
-        if function.function.has_input {
+        if function.has_input {
             // let input_var = function.scope.
             let asg_input = function
                 .scope
-                .borrow()
                 .resolve_input()
                 .expect("no input variable in scope when function is qualified");
 
             let value = self.allocate_input_keyword(
                 cs,
-                function.function.name.borrow().span.clone(),
+                function.name.borrow().span.clone(),
                 &asg_input.container_circuit,
                 input,
             )?;
@@ -55,7 +51,7 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
             self.store(asg_input.container.borrow().id, value);
         }
 
-        match function.function.qualifier {
+        match function.qualifier {
             FunctionQualifier::SelfRef | FunctionQualifier::MutSelfRef => {
                 unimplemented!("cannot access self variable in main function")
             }
@@ -64,16 +60,16 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         let mut arguments = vec![];
 
-        for input_variable in function.arguments.iter() {
+        for (_, input_variable) in function.arguments.iter() {
             {
-                let input_variable = input_variable.borrow();
+                let input_variable = input_variable.get().borrow();
                 let name = input_variable.name.name.clone();
                 let input_option = input.get(&name).ok_or_else(|| {
                     FunctionError::input_not_found(name.clone(), function.span.clone().unwrap_or_default())
                 })?;
                 let input_value = self.allocate_main_function_input(
                     cs,
-                    &input_variable.type_,
+                    &input_variable.type_.clone(),
                     &name,
                     input_option,
                     &function.span.clone().unwrap_or_default(),
@@ -82,11 +78,13 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
                 // Store a new variable for every allocated main function input
                 self.store(input_variable.id, input_value);
             }
-            arguments.push(Arc::new(Expression::VariableRef(leo_asg::VariableRef {
-                parent: std::cell::RefCell::new(None),
-                span: Some(input_variable.borrow().name.span.clone()),
-                variable: input_variable.clone(),
-            })));
+            arguments.push(Cell::new(&*function.scope.alloc_expression(Expression::VariableRef(
+                leo_asg::VariableRef {
+                    parent: Cell::new(None),
+                    span: Some(input_variable.get().borrow().name.span.clone()),
+                    variable: input_variable.get(),
+                },
+            ))));
         }
 
         let span = function.span.clone().unwrap_or_default();

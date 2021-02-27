@@ -14,58 +14,51 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    cli::*,
-    cli_types::*,
-    errors::{CLIError, InitError},
-};
+use crate::{commands::Command, context::Context};
 use leo_package::LeoPackage;
 
-use clap::ArgMatches;
+use anyhow::{anyhow, Result};
 use std::env::current_dir;
+use structopt::StructOpt;
+use tracing::span::Span;
 
-#[derive(Debug)]
-pub struct InitCommand;
+/// Init Leo project command within current directory
+#[derive(StructOpt, Debug)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Init {}
 
-impl CLI for InitCommand {
-    type Options = bool;
+impl Command for Init {
+    type Input = ();
     type Output = ();
 
-    const ABOUT: AboutType = "Create a new Leo package in an existing directory";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[("--lib"), ("--bin")];
-    const NAME: NameType = "init";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(arguments.is_present("lib"))
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Initializing")
     }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Begin "Initializing" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Initializing");
-        let _enter = span.enter();
+    fn prelude(&self) -> Result<Self::Input> {
+        Ok(())
+    }
 
+    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+        // Derive the package directory path.
         let path = current_dir()?;
 
-        // Derive the package name
+        // Check that the given package name is valid.
         let package_name = path
             .file_stem()
-            .ok_or_else(|| InitError::ProjectNameInvalid(path.as_os_str().to_owned()))?
+            .ok_or_else(|| anyhow!("Project name invalid"))?
             .to_string_lossy()
             .to_string();
-
-        // Verify the directory does not exist
-        if !path.exists() {
-            return Err(InitError::DirectoryDoesNotExist(path.as_os_str().to_owned()).into());
+        if !LeoPackage::is_package_name_valid(&package_name) {
+            return Err(anyhow!("Invalid Leo project name"));
         }
 
-        LeoPackage::initialize(&package_name, options, &path)?;
+        // Check that the current package directory path exists.
+        if !path.exists() {
+            return Err(anyhow!("Directory does not exist"));
+        }
 
-        tracing::info!("Successfully initialized package \"{}\"\n", package_name);
+        LeoPackage::initialize(&package_name, false, &path)?;
 
         Ok(())
     }

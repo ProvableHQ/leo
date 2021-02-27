@@ -16,7 +16,7 @@
 
 use crate::{
     ast::Rule,
-    common::{Identifier, Mutable},
+    common::{Const, Identifier, Mutable},
     types::Type,
     SpanDef,
 };
@@ -28,6 +28,7 @@ use serde::Serialize;
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize)]
 #[pest_ast(rule(Rule::function_input))]
 pub struct FunctionInput<'ast> {
+    pub const_: Option<Const>,
     pub mutable: Option<Mutable>,
     pub identifier: Identifier<'ast>,
     pub type_: Type<'ast>,

@@ -14,179 +14,87 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::CLI, cli_types::*, config::Config, updater::Updater};
+use crate::{commands::Command, config::Config, context::Context, updater::Updater};
 
-use clap::AppSettings;
+use anyhow::{anyhow, Result};
+use structopt::StructOpt;
+use tracing::span::Span;
 
-#[derive(Debug)]
-pub struct UpdateCommand;
-
-impl CLI for UpdateCommand {
-    // (show_all_versions, quiet)
-    type Options = Option<(bool, bool, bool)>;
-    type Output = ();
-
-    const ABOUT: AboutType = "Update Leo to the latest version";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[
-        "[list] -l --list 'List all available versions of Leo'",
-        "[quiet] -q --quiet 'Suppress outputs to terminal'",
-        "[studio] -s --studio 'For Aleo Studio only'",
-    ];
-    const NAME: NameType = "update";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[
-        // (name, description, options, settings)
-        (
-            UpdateAutomatic::NAME,
-            UpdateAutomatic::ABOUT,
-            UpdateAutomatic::ARGUMENTS,
-            UpdateAutomatic::FLAGS,
-            &UpdateAutomatic::OPTIONS,
-            &[
-                AppSettings::ColoredHelp,
-                AppSettings::DisableHelpSubcommand,
-                AppSettings::DisableVersion,
-            ],
-        ),
-    ];
-
-    fn parse(arguments: &clap::ArgMatches) -> Result<Self::Options, crate::errors::CLIError> {
-        if let ("automatic", Some(arguments)) = arguments.subcommand() {
-            // Run the `automatic` subcommand
-            let options = UpdateAutomatic::parse(arguments)?;
-            let _output = UpdateAutomatic::output(options)?;
-            return Ok(None);
-        };
-
-        let show_all_versions = arguments.is_present("list");
-        let quiet = arguments.is_present("quiet");
-        let studio = arguments.is_present("studio");
-
-        Ok(Some((show_all_versions, quiet, studio)))
-    }
-
-    fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
-        // Begin "Updating" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Updating");
-        let _enter = span.enter();
-
-        let (show_all_versions, quiet, studio) = match options {
-            Some(options) => options,
-            None => return Ok(()),
-        };
-
-        match show_all_versions {
-            true => match Updater::show_available_releases() {
-                Ok(_) => return Ok(()),
-                Err(e) => {
-                    tracing::error!("Could not fetch that latest version of Leo");
-                    tracing::error!("{}", e);
-                }
-            },
-            false => {
-                let config = Config::read_config()?;
-
-                // If update is run with studio and the automatic update is off, finish quietly
-                if studio && !config.update.automatic {
-                    return Ok(());
-                }
-
-                match Updater::update_to_latest_release(!quiet) {
-                    Ok(status) => {
-                        if !quiet {
-                            if status.uptodate() {
-                                tracing::info!("Leo is already on the latest version");
-                            } else if status.updated() {
-                                tracing::info!("Leo has successfully updated to version {}", status.version());
-                            }
-                        }
-                        return Ok(());
-                    }
-                    Err(e) => {
-                        if !quiet {
-                            tracing::error!("Could not update Leo to the latest version");
-                            tracing::error!("{}", e);
-                        }
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
+/// Setting for automatic updates of Leo
+#[derive(Debug, StructOpt, PartialEq)]
+pub enum Automatic {
+    Automatic {
+        #[structopt(name = "bool", help = "Boolean value: true or false", parse(try_from_str))]
+        value: bool,
+    },
 }
 
-//TODO (raychu86) Move this to dedicated file/module
-#[derive(Debug)]
-pub struct UpdateAutomatic;
+/// Update Leo to the latest version
+#[derive(StructOpt, Debug)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Update {
+    /// List all available versions of Leo
+    #[structopt(short, long)]
+    pub(crate) list: bool,
 
-impl CLI for UpdateAutomatic {
-    // (is_automatic, quiet)
-    type Options = (Option<bool>, bool);
+    /// For Aleo Studio only
+    #[structopt(short, long)]
+    pub(crate) studio: bool,
+
+    /// Setting for automatic updates of Leo
+    #[structopt(subcommand)]
+    pub(crate) automatic: Option<Automatic>,
+}
+
+impl Command for Update {
+    type Input = ();
     type Output = ();
 
-    const ABOUT: AboutType = "Setting for automatic updates of Leo";
-    const ARGUMENTS: &'static [ArgumentType] = &[
-        // (name, description, possible_values, required, index)
-        (
-            "automatic",
-            "Enable or disable automatic updates",
-            &["true", "false"],
-            false,
-            1u64,
-        ),
-    ];
-    const FLAGS: &'static [FlagType] = &["[quiet] -q --quiet 'Suppress outputs to terminal'"];
-    const NAME: NameType = "automatic";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    fn parse(arguments: &clap::ArgMatches) -> Result<Self::Options, crate::errors::CLIError> {
-        let quiet = arguments.is_present("quiet");
-
-        match arguments.value_of("automatic") {
-            Some(automatic) => {
-                // TODO enforce that the possible values is true or false
-                let automatic = match automatic {
-                    "true" => Some(true),
-                    "false" => Some(false),
-                    _ => unreachable!(),
-                };
-
-                Ok((automatic, quiet))
-            }
-            None => Ok((None, quiet)),
-        }
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Updating")
     }
 
-    fn output(options: Self::Options) -> Result<Self::Output, crate::errors::CLIError> {
-        // Begin "Settings" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Settings");
-        let enter = span.enter();
+    fn prelude(&self) -> Result<Self::Input> {
+        Ok(())
+    }
 
-        // If a boolean value is provided, update the saved
-        // `automatic` configuration value to this boolean value.
-        if let Some(automatic) = options.0 {
-            Config::set_update_automatic(automatic)?;
+    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+        // If --list is passed, list all available versions and return.
+        if self.list {
+            return Updater::show_available_releases().map_err(|e| anyhow!("Could not fetch versions: {}", e));
         }
 
-        // If --quiet is not enabled, log the output.
-        if !options.1 {
-            // Read the `automatic` value now.
-            let automatic = Config::read_config()?.update.automatic;
+        // Handles enabling and disabling automatic updates in the config file.
+        if let Some(Automatic::Automatic { value }) = self.automatic {
+            Config::set_update_automatic(value)?;
 
-            // Log the output.
-            tracing::debug!("automatic = {}", automatic);
-            match automatic {
-                true => tracing::info!("Automatic updates are enabled. Leo will update as new versions are released."),
+            match value {
+                true => tracing::info!("Automatic updates are enabled. Leo will update as new versions are released"),
                 false => {
-                    tracing::info!("Automatic updates are disabled. Leo will not update as new versions are released.")
+                    tracing::info!("Automatic updates are disabled. Leo will not update as new versions are released")
                 }
             };
+
+            return Ok(());
         }
 
-        // Drop "Settings" context for console logging.
-        drop(enter);
+        let config = Config::read_config()?;
+        // If update is run with studio and the automatic update is off, finish quietly
+        if self.studio && !config.update.automatic {
+            return Ok(());
+        }
+
+        match Updater::update_to_latest_release(true) {
+            Ok(status) => match (status.uptodate(), status.updated()) {
+                (true, _) => tracing::info!("Leo is already on the latest version"),
+                (_, true) => tracing::info!("Leo has successfully updated to version {}", status.version()),
+                (_, _) => (),
+            },
+            Err(e) => {
+                tracing::error!("Could not update Leo to the latest version");
+                tracing::error!("{}", e);
+            }
+        }
 
         Ok(())
     }

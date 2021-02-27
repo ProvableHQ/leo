@@ -27,7 +27,8 @@ use snarkvm_models::{
 use snarkvm_objects::Account;
 use snarkvm_utilities::{bytes::ToBytes, to_bytes};
 
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use snarkvm_models::dpc::DPCScheme;
 use snarkvm_storage::Ledger;
@@ -98,7 +99,7 @@ fn test_generate_values_from_dpc() {
     let payload: [u8; 32] = rng.gen();
 
     let old_record = DPC::generate_record(
-        system_parameters.clone(),
+        &system_parameters,
         sn_nonce,
         dummy_account.address,
         false,

@@ -65,11 +65,18 @@ pub mod type_;
 pub use type_::*;
 
 pub mod variable;
+use typed_arena::Arena;
 pub use variable::*;
+
+pub mod pass;
+pub use pass::*;
+
+pub mod context;
+pub use context::*;
 
 pub use leo_ast::{Ast, Identifier, Span};
 
-use std::{cell::RefCell, path::Path, sync::Arc};
+use std::path::Path;
 
 /// The abstract semantic graph (ASG) for a Leo program.
 ///
@@ -77,21 +84,27 @@ use std::{cell::RefCell, path::Path, sync::Arc};
 /// These data types form a graph that begins from a [`Program`] type node.
 ///
 /// A new [`Asg`] can be created from an [`Ast`] generated in the `ast` module.
-#[derive(Debug, Clone)]
-pub struct Asg {
-    asg: Arc<RefCell<InternalProgram>>,
+#[derive(Clone)]
+pub struct Asg<'a> {
+    context: AsgContext<'a>,
+    asg: Program<'a>,
 }
 
-impl Asg {
+impl<'a> Asg<'a> {
     /// Creates a new ASG from a given AST and import resolver.
-    pub fn new<T: ImportResolver + 'static>(ast: &Ast, resolver: &mut T) -> Result<Self, AsgConvertError> {
+    pub fn new<T: ImportResolver<'a>>(
+        context: AsgContext<'a>,
+        ast: &Ast,
+        resolver: &mut T,
+    ) -> Result<Self, AsgConvertError> {
         Ok(Self {
-            asg: InternalProgram::new(&ast.as_repr(), resolver)?,
+            context,
+            asg: InternalProgram::new(context, &ast.as_repr(), resolver)?,
         })
     }
 
     /// Returns the internal program ASG representation.
-    pub fn as_repr(&self) -> Arc<RefCell<InternalProgram>> {
+    pub fn as_repr(&self) -> Program<'a> {
         self.asg.clone()
     }
 
@@ -108,10 +121,22 @@ impl Asg {
 }
 
 // TODO (howardwu): Remove this.
-pub fn load_asg<T: ImportResolver + 'static>(content: &str, resolver: &mut T) -> Result<Program, AsgConvertError> {
+pub fn load_asg<'a, T: ImportResolver<'a>>(
+    context: AsgContext<'a>,
+    content: &str,
+    resolver: &mut T,
+) -> Result<Program<'a>, AsgConvertError> {
     // Parses the Leo file and constructs a grammar ast.
     let ast = leo_grammar::Grammar::new(&Path::new("input.leo"), content)
         .map_err(|e| AsgConvertError::InternalError(format!("ast: {:?}", e)))?;
 
-    InternalProgram::new(leo_ast::Ast::new("load_ast", &ast)?.as_repr(), resolver)
+    InternalProgram::new(context, leo_ast::Ast::new("load_ast", &ast)?.as_repr(), resolver)
+}
+
+pub fn new_alloc_context<'a>() -> Arena<ArenaNode<'a>> {
+    Arena::new()
+}
+
+pub fn new_context<'a>(arena: &'a Arena<ArenaNode<'a>>) -> AsgContext<'a> {
+    AsgContextInner::new(arena)
 }
