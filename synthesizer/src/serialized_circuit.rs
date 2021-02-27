@@ -24,7 +24,7 @@ use snarkvm_models::{
     gadgets::r1cs::{ConstraintSystem, Index},
 };
 
-use crate::synthesizer::{CircuitSynthesizer, SerializedField, SerializedIndex};
+use crate::{CircuitSynthesizer, SerializedField, SerializedIndex};
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedCircuit {

@@ -15,11 +15,23 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::ast::Ast;
-use leo_asg::{new_alloc_context, new_context, Asg as LeoAsg};
+use leo_asg::{new_alloc_context, new_context, Asg as LeoAsg, AsgContext};
 use leo_grammar::Grammar as LeoGrammar;
 
-use std::path::Path;
+use std::{boxed::Box, path::Path};
 use wasm_bindgen::prelude::*;
+
+thread_local! {
+    static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
+        let leaked = Box::leak(Box::new(leo_asg::new_alloc_context()));
+        leo_asg::new_context(leaked)
+    }
+}
+
+/// Convenience function to return a leaked thread-local global context. Should only be used for transient programs.
+pub fn thread_leaked_context() -> AsgContext<'static> {
+    THREAD_GLOBAL_CONTEXT.with(|f| *f)
+}
 
 #[wasm_bindgen]
 pub struct Asg(LeoAsg<'static>);
@@ -28,8 +40,12 @@ pub struct Asg(LeoAsg<'static>);
 impl Asg {
     #[wasm_bindgen(constructor)]
     pub fn from(ast: &Ast) -> Self {
-        let arena = new_alloc_context();
-        let asg = LeoAsg::new(new_context(&arena), &ast.0, &mut leo_imports::ImportParser::default()).unwrap();
+        let asg = LeoAsg::new(
+            thread_leaked_context(),
+            &ast.0,
+            &mut leo_imports::ImportParser::default(),
+        )
+        .unwrap();
         Self(asg)
     }
 }

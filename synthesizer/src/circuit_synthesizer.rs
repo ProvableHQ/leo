@@ -22,13 +22,13 @@ use snarkvm_models::{
 
 pub struct CircuitSynthesizer<E: PairingEngine> {
     // Constraints
-    pub(crate) at: Vec<Vec<(E::Fr, Index)>>,
-    pub(crate) bt: Vec<Vec<(E::Fr, Index)>>,
-    pub(crate) ct: Vec<Vec<(E::Fr, Index)>>,
+    pub at: Vec<Vec<(E::Fr, Index)>>,
+    pub bt: Vec<Vec<(E::Fr, Index)>>,
+    pub ct: Vec<Vec<(E::Fr, Index)>>,
 
     // Assignments of variables
-    pub(crate) input_assignment: Vec<E::Fr>,
-    pub(crate) aux_assignment: Vec<E::Fr>,
+    pub input_assignment: Vec<E::Fr>,
+    pub aux_assignment: Vec<E::Fr>,
 }
 
 impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {

@@ -36,6 +36,7 @@ members = [
   "linter",
   "package",
   "state",
+  "synthesizer",
   "wasm"
 ]
 
@@ -65,6 +66,10 @@ version = "1.2.3"
 
 [dependencies.leo-state]
 path = "./state"
+version = "1.2.3"
+
+[dependencies.leo-synthesizer]
+path = "./synthesizer"
 version = "1.2.3"
 
 [dependencies.snarkvm-algorithms]
@@ -116,9 +121,6 @@ version = "1.4.0"
 
 [dependencies.notify]
 version = "4.0.15"
-
-[dependencies.num-bigint]
-version = "0.3"
 
 [dependencies.rand]
 version = "0.8"

@@ -19,7 +19,6 @@ pub mod commands;
 pub mod config;
 pub mod context;
 pub mod logger;
-pub mod synthesizer;
 pub mod updater;
 
 use commands::{

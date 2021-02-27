@@ -1334,8 +1334,8 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-state",
+ "leo-synthesizer",
  "notify",
- "num-bigint",
  "rand",
  "rand_core",
  "reqwest",
@@ -1396,11 +1396,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-synthesizer"
+version = "1.2.3"
+dependencies = [
+ "num-bigint",
+ "serde",
+ "serde_json",
+ "snarkvm-curves",
+ "snarkvm-errors",
+ "snarkvm-models",
+]
+
+[[package]]
 name = "leo-wasm"
 version = "1.2.3"
 dependencies = [
+ "leo-asg",
  "leo-ast",
  "leo-grammar",
+ "leo-imports",
  "serde",
  "wasm-bindgen",
  "wasm-bindgen-test",
