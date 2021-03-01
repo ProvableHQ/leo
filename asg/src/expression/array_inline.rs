@@ -114,7 +114,28 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
             }
         };
 
+        // If we still don't know the type iterate through processing to get a type.
+        // Once we encouter the type break the loop so we process as little as possible.
+        if expected_item.is_none() {
+            for expr in value.elements.iter() {
+                expected_item = match expr {
+                    SpreadOrExpression::Expression(e) => {
+                        match <&Expression<'a>>::from_ast(scope, e, expected_item.clone()) {
+                            Ok(expr) => expr.get_type().map(Type::partial),
+                            Err(_) => continue,
+                        }
+                    }
+                    _ => None,
+                };
+
+                if expected_item.is_some() {
+                    break;
+                }
+            }
+        }
+
         let mut len = 0;
+
         let output = ArrayInlineExpression {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
