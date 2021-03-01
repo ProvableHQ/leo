@@ -50,7 +50,7 @@ path = "../asg"
 version = "1.2.3"
 
 [dependencies.snarkvm-curves]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-dpc]
