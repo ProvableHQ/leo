@@ -19,15 +19,15 @@ use snarkvm_models::gadgets::r1cs::Index;
 
 #[derive(Serialize, Deserialize)]
 pub enum SerializedIndex {
-    Input(usize),
-    Aux(usize),
+    Public(usize),
+    Private(usize),
 }
 
 impl From<Index> for SerializedIndex {
     fn from(index: Index) -> Self {
         match index {
-            Index::Input(idx) => Self::Input(idx),
-            Index::Aux(idx) => Self::Aux(idx),
+            Index::Public(idx) => Self::Public(idx),
+            Index::Private(idx) => Self::Private(idx),
         }
     }
 }
@@ -35,8 +35,8 @@ impl From<Index> for SerializedIndex {
 impl From<&SerializedIndex> for Index {
     fn from(serialized_index: &SerializedIndex) -> Self {
         match serialized_index {
-            SerializedIndex::Input(idx) => Index::Input(*idx),
-            SerializedIndex::Aux(idx) => Index::Aux(*idx),
+            SerializedIndex::Public(idx) => Index::Public(*idx),
+            SerializedIndex::Private(idx) => Index::Private(*idx),
         }
     }
 }

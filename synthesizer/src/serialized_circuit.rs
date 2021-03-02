@@ -24,16 +24,16 @@ use snarkvm_models::{
     gadgets::r1cs::{ConstraintSystem, Index},
 };
 
-use crate::synthesizer::{CircuitSynthesizer, SerializedField, SerializedIndex};
+use crate::{CircuitSynthesizer, SerializedField, SerializedIndex};
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedCircuit {
-    pub num_inputs: usize,
-    pub num_aux: usize,
+    pub num_public_variables: usize,
+    pub num_private_variables: usize,
     pub num_constraints: usize,
 
-    pub input_assignment: Vec<SerializedField>,
-    pub aux_assignment: Vec<SerializedField>,
+    pub public_variables: Vec<SerializedField>,
+    pub private_variables: Vec<SerializedField>,
 
     pub at: Vec<Vec<(SerializedField, SerializedIndex)>>,
     pub bt: Vec<Vec<(SerializedField, SerializedIndex)>>,
@@ -52,8 +52,8 @@ impl SerializedCircuit {
 
 impl<E: PairingEngine> From<CircuitSynthesizer<E>> for SerializedCircuit {
     fn from(synthesizer: CircuitSynthesizer<E>) -> Self {
-        let num_inputs = synthesizer.input_assignment.len();
-        let num_aux = synthesizer.aux_assignment.len();
+        let num_public_variables = synthesizer.num_public_variables();
+        let num_private_variables = synthesizer.num_private_variables();
         let num_constraints = synthesizer.num_constraints();
 
         // Serialize assignments
@@ -61,8 +61,8 @@ impl<E: PairingEngine> From<CircuitSynthesizer<E>> for SerializedCircuit {
             assignments.iter().map(SerializedField::from).collect()
         }
 
-        let input_assignment = get_serialized_assignments::<E>(&synthesizer.input_assignment);
-        let aux_assignment = get_serialized_assignments::<E>(&synthesizer.aux_assignment);
+        let public_variables = get_serialized_assignments::<E>(&synthesizer.public_variables);
+        let private_variables = get_serialized_assignments::<E>(&synthesizer.private_variables);
 
         // Serialize constraints
         fn get_serialized_constraints<E: PairingEngine>(
@@ -102,11 +102,11 @@ impl<E: PairingEngine> From<CircuitSynthesizer<E>> for SerializedCircuit {
         }
 
         Self {
-            num_inputs,
-            num_aux,
+            num_public_variables,
+            num_private_variables,
             num_constraints,
-            input_assignment,
-            aux_assignment,
+            public_variables,
+            private_variables,
             at,
             bt,
             ct,
@@ -133,8 +133,8 @@ impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
             Ok(deserialized)
         }
 
-        let input_assignment = get_deserialized_assignments(&serialized.input_assignment)?;
-        let aux_assignment = get_deserialized_assignments(&serialized.aux_assignment)?;
+        let public_variables = get_deserialized_assignments(&serialized.public_variables)?;
+        let private_variables = get_deserialized_assignments(&serialized.private_variables)?;
 
         // Deserialize constraints
         fn get_deserialized_constraints(
@@ -177,8 +177,8 @@ impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
             at,
             bt,
             ct,
-            input_assignment,
-            aux_assignment,
+            public_variables,
+            private_variables,
         })
     }
 }

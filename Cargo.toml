@@ -35,7 +35,8 @@ members = [
   "input",
   "linter",
   "package",
-  "state"
+  "state",
+  "synthesizer",
 ]
 
 [dependencies.leo-ast]
@@ -66,28 +67,32 @@ version = "1.2.3"
 path = "./state"
 version = "1.2.3"
 
+[dependencies.leo-synthesizer]
+path = "./synthesizer"
+version = "1.2.3"
+
 [dependencies.snarkvm-algorithms]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-curves]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-errors]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-models]
-version = "0.0.5"
+version = "0.0.6"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.5"
+version = "0.0.6"
 
 [dependencies.anyhow]
 version = "1.0"
@@ -115,9 +120,6 @@ version = "1.4.0"
 
 [dependencies.notify]
 version = "4.0.15"
-
-[dependencies.num-bigint]
-version = "0.3"
 
 [dependencies.rand]
 version = "0.8"

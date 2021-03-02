@@ -23,7 +23,7 @@ use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::{
     curves::PrimeField,
     gadgets::{
-        curves::{FieldGadget, FpGadget},
+        curves::{AllocatedFp, FieldGadget, FpGadget},
         r1cs::ConstraintSystem,
         utilities::{
             alloc::AllocGadget,
@@ -187,7 +187,7 @@ impl<F: PrimeField> FieldType<F> {
         match self {
             FieldType::Constant(constant) => FpGadget::alloc(&mut cs.ns(|| format!("{:?}", constant)), || Ok(constant)),
             FieldType::Allocated(allocated) => FpGadget::alloc(&mut cs.ns(|| format!("{:?}", allocated)), || {
-                allocated.value.ok_or(SynthesisError::AssignmentMissing)
+                allocated.get_value().ok_or(SynthesisError::AssignmentMissing)
             }),
         }
     }
@@ -273,7 +273,7 @@ impl<F: PrimeField> ConditionalEqGadget<F> for FieldType<F> {
             // c - a = a - c
             (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => {
-                let constant_gadget = FpGadget::from(&mut cs, constant_value);
+                let constant_gadget = FpGadget::from(AllocatedFp::from(&mut cs, constant_value));
 
                 constant_gadget.conditional_enforce_equal(cs, allocated_value, condition)
             }

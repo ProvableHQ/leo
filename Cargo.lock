@@ -11,9 +11,9 @@ dependencies = [
 
 [[package]]
 name = "adler"
-version = "1.0.1"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bedc89c5c7b5550ffb9372eb5c5ffc7f9f705cc3f4a128bd4669b9745f555093"
+checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 
 [[package]]
 name = "adler32"
@@ -906,9 +906,9 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
 name = "h2"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b67e66362108efccd8ac053abafc8b7a8d86a37e6e48fc4f6f7485eb5e9e6a5"
+checksum = "d832b01df74254fe364568d6ddc294443f61cbec82816b60904303af87efae78"
 dependencies = [
  "bytes",
  "fnv",
@@ -921,7 +921,6 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
- "tracing-futures",
 ]
 
 [[package]]
@@ -1161,9 +1160,9 @@ dependencies = [
 
 [[package]]
 name = "js-sys"
-version = "0.3.47"
+version = "0.3.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5cfb73131c35423a367daf8cbd24100af0d077668c8c2943f0e7dd775fef0f65"
+checksum = "dc9f84f9b115ce7843d60706df1422a916680bfdfcbdb0447c5614ff9d7e4d78"
 dependencies = [
  "wasm-bindgen",
 ]
@@ -1325,8 +1324,8 @@ dependencies = [
  "leo-input",
  "leo-package",
  "leo-state",
+ "leo-synthesizer",
  "notify",
- "num-bigint",
  "rand",
  "rand_core",
  "reqwest",
@@ -1384,6 +1383,18 @@ dependencies = [
  "snarkvm-storage",
  "snarkvm-utilities",
  "thiserror",
+]
+
+[[package]]
+name = "leo-synthesizer"
+version = "1.2.3"
+dependencies = [
+ "num-bigint",
+ "serde",
+ "serde_json",
+ "snarkvm-curves",
+ "snarkvm-errors",
+ "snarkvm-models",
 ]
 
 [[package]]
@@ -2281,9 +2292,9 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "security-framework"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c6af1b6204f89cf0069736daf8b852573e3bc34898eee600e95d3dd855c12e81"
+checksum = "2dfd318104249865096c8da1dfabf09ddbb6d0330ea176812a62ec75e40c4166"
 dependencies = [
  "bitflags",
  "core-foundation",
@@ -2294,9 +2305,9 @@ dependencies = [
 
 [[package]]
 name = "security-framework-sys"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31531d257baab426203cf81c5ce1b0b55159dda7ed602ac81b582ccd62265741"
+checksum = "dee48cdde5ed250b0d3252818f646e174ab414036edb884dde62d80a3ac6082d"
 dependencies = [
  "core-foundation-sys",
  "libc",
@@ -2469,9 +2480,9 @@ checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 
 [[package]]
 name = "snarkvm-algorithms"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "739c2aaf5dbf6322d3a40bbb9739a87d458f32460da1b8affeae45214ec88e8c"
+checksum = "7d3de956d0221ff897ebcc2a36e8a88482dee06acaebce67f7819c41be843a11"
 dependencies = [
  "blake2",
  "derivative",
@@ -2490,9 +2501,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-curves"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c39148bec803c5e41b0696326a60817d9b84c4c2c1df6ea5be56f857b078988"
+checksum = "dd45a9c60e9c81bbfc4568f8c7d4c3fd0b6dc7b75916086eb16795fc3ea854b2"
 dependencies = [
  "derivative",
  "rand",
@@ -2506,9 +2517,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-derives"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24c5c4170d43a65e23bce115d6d2940c7fc66e1562a7822dd460db56f1fb07b1"
+checksum = "1b3339f816745870549adbcf7f5b1db3441c8d73377278fec9c7829a87ebdc07"
 dependencies = [
  "proc-macro-crate",
  "proc-macro-error",
@@ -2519,9 +2530,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-dpc"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3feb5d2cec547779e0acec01cd58f5d5fe6aac60cc4804e5e3cf9c807bb1880"
+checksum = "f9d43c0c63eedf067284496e068527f2448ea3ecba1ba9c44d486c3fb66e04e2"
 dependencies = [
  "anyhow",
  "blake2",
@@ -2542,9 +2553,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-errors"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cfe9f6fac097aed079fa68a63c8989783b2cf21705de75bc91672dec60c9684"
+checksum = "ce13866aa05abf33972261ab9803b2f223bd5bee9e5336aac0618c2aa8249f24"
 dependencies = [
  "base58",
  "bech32",
@@ -2556,9 +2567,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-gadgets"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "978bcc75bce7a1274f51b2adc4d69c30d866930aa37c656b4b8c1be5d631891c"
+checksum = "e5f6de0307dba124bf510fdf52b870a9ba76ad3177b2b742f91c87ee39a038d8"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2572,9 +2583,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-models"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c8da5920c6f4062c0d348e93ff0f72d17681c34f3c13ee4e99196495d896ed9"
+checksum = "21afc37b95e310387d9a7ea25e439c7e5f444896a760e5f3893d4e6ef387d48c"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2592,9 +2603,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-objects"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4641e23002d38caeb51fa3244320355cab07eaf22d17dc44b481c763b63b5f4d"
+checksum = "724332214a919a1c14f07c458c191319101cc3252319cf2f9e8f122fd2a5f5d5"
 dependencies = [
  "base58",
  "bech32",
@@ -2614,29 +2625,46 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-parameters"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8cb0f27fbccad7dee0ad4c2e5aeb0832c393fec76b4ad5d834c2e6cc0297e9a9"
+checksum = "9e69a1db7cba8b07538943c0a9c547f515a4d726d8863dc1d40c5f9266a8af27"
 dependencies = [
  "curl",
  "hex",
  "snarkvm-algorithms",
  "snarkvm-errors",
  "snarkvm-models",
+ "snarkvm-polycommit",
+ "snarkvm-utilities",
+]
+
+[[package]]
+name = "snarkvm-polycommit"
+version = "0.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1f29eab35b3214dee0847deae11ea3af13c42e3beefb8cf7c22ed567cf3a70e"
+dependencies = [
+ "derivative",
+ "digest 0.9.0",
+ "rand_core",
+ "snarkvm-algorithms",
+ "snarkvm-errors",
+ "snarkvm-models",
+ "snarkvm-profiler",
  "snarkvm-utilities",
 ]
 
 [[package]]
 name = "snarkvm-profiler"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fb5e9b964cb9653588607d8793bc7d6d0dfa78763a02d61aa3daa6c7d665e2b"
+checksum = "37ce2100d7198526f11290d70d83a1bb6a1dd578f43821ceb544421ebd398312"
 
 [[package]]
 name = "snarkvm-storage"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ef134de5e33fe0577f3936e9dcf9bfac1973a0d820390e19558672808bad6b9"
+checksum = "b57ef27e6b3073f4681332ac018158cea1f28c8a14e2187085e2c656f1641550"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2656,9 +2684,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-utilities"
-version = "0.0.5"
+version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "872c2ee1675c5039caf8cb4c5ef37b0ad844ffe7e0d81b68fb39f713da199561"
+checksum = "272b8758ef7fed8dc70cc01ecfd13e9add23edbabcaae1c5c7cfaca54d0fcae5"
 dependencies = [
  "bincode",
  "rand",
@@ -2940,16 +2968,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tracing-futures"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97d095ae15e245a057c8e8451bab9b3ee1e1f68e9ba2b4fbc18d0ac5237835f2"
-dependencies = [
- "pin-project",
- "tracing",
-]
-
-[[package]]
 name = "tracing-log"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3138,9 +3156,9 @@ checksum = "fd6fbd9a79829dd1ad0cc20627bf1ed606756a7f77edff7b66b7064f9cb327c6"
 
 [[package]]
 name = "wasm-bindgen"
-version = "0.2.70"
+version = "0.2.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55c0f7123de74f0dab9b7d00fd614e7b19349cd1e2f5252bbe9b1754b59433be"
+checksum = "7ee1280240b7c461d6a0071313e08f34a60b0365f14260362e5a2b17d1d31aa7"
 dependencies = [
  "cfg-if 1.0.0",
  "serde",
@@ -3150,9 +3168,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-backend"
-version = "0.2.70"
+version = "0.2.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7bc45447f0d4573f3d65720f636bbcc3dd6ce920ed704670118650bcd47764c7"
+checksum = "5b7d8b6942b8bb3a9b0e73fc79b98095a27de6fa247615e59d096754a3bc2aa8"
 dependencies = [
  "bumpalo",
  "lazy_static",
@@ -3165,9 +3183,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-futures"
-version = "0.4.20"
+version = "0.4.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3de431a2910c86679c34283a33f66f4e4abd7e0aec27b6669060148872aadf94"
+checksum = "8e67a5806118af01f0d9045915676b22aaebecf4178ae7021bc171dab0b897ab"
 dependencies = [
  "cfg-if 1.0.0",
  "js-sys",
@@ -3177,9 +3195,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro"
-version = "0.2.70"
+version = "0.2.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b8853882eef39593ad4174dd26fc9865a64e84026d223f63bb2c42affcbba2c"
+checksum = "e5ac38da8ef716661f0f36c0d8320b89028efe10c7c0afde65baffb496ce0d3b"
 dependencies = [
  "quote 1.0.9",
  "wasm-bindgen-macro-support",
@@ -3187,9 +3205,9 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-macro-support"
-version = "0.2.70"
+version = "0.2.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4133b5e7f2a531fa413b3a1695e925038a05a71cf67e87dafa295cb645a01385"
+checksum = "cc053ec74d454df287b9374ee8abb36ffd5acb95ba87da3ba5b7d3fe20eb401e"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
@@ -3200,15 +3218,15 @@ dependencies = [
 
 [[package]]
 name = "wasm-bindgen-shared"
-version = "0.2.70"
+version = "0.2.71"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd4945e4943ae02d15c13962b38a5b1e81eadd4b71214eee75af64a4d6a4fd64"
+checksum = "7d6f8ec44822dd71f5f221a5847fb34acd9060535c1211b70a05844c0f6383b1"
 
 [[package]]
 name = "web-sys"
-version = "0.3.47"
+version = "0.3.48"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c40dc691fc48003eba817c38da7113c15698142da971298003cac3ef175680b3"
+checksum = "ec600b26223b2948cedfde2a0aa6756dcf1fef616f43d7b3097aaf53a6c4d92b"
 dependencies = [
  "js-sys",
  "wasm-bindgen",

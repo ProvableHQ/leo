@@ -14,11 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    commands::Command,
-    context::Context,
-    synthesizer::{CircuitSynthesizer, SerializedCircuit},
-};
+use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
@@ -28,6 +24,7 @@ use leo_package::{
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
+use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
 use anyhow::Result;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
@@ -128,8 +125,8 @@ impl Command for Build {
                     at: vec![],
                     bt: vec![],
                     ct: vec![],
-                    input_assignment: vec![],
-                    aux_assignment: vec![],
+                    public_variables: vec![],
+                    private_variables: vec![],
                 };
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;

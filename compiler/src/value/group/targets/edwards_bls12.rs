@@ -26,7 +26,7 @@ use snarkvm_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
 use snarkvm_models::{
     curves::{AffineCurve, Fp256, One, TEModelParameters, Zero},
     gadgets::{
-        curves::{FieldGadget, FpGadget, GroupGadget},
+        curves::{AllocatedFp, FieldGadget, FpGadget, GroupGadget},
         r1cs::ConstraintSystem,
         utilities::{
             alloc::AllocGadget,
@@ -459,8 +459,8 @@ impl ConditionalEqGadget<Fq> for EdwardsGroupType {
             // c - a = a - c
             (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
             | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
-                let x = FpGadget::from(&mut cs, &constant_value.x);
-                let y = FpGadget::from(&mut cs, &constant_value.y);
+                let x = FpGadget::from(AllocatedFp::from(&mut cs, &constant_value.x));
+                let y = FpGadget::from(AllocatedFp::from(&mut cs, &constant_value.y));
                 let constant_gadget = EdwardsBlsGadget::new(x, y);
 
                 constant_gadget.conditional_enforce_equal(cs, allocated_value, condition)

@@ -1,8 +1,8 @@
 [package]
-name = "leo-gadgets"
+name = "leo-synthesizer"
 version = "1.2.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
-description = "Gadgets of the Leo programming language"
+description = "Circuit synthesizer of the Leo programming language"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
@@ -17,6 +17,10 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
+[dependencies.snarkvm-curves]
+version = "0.0.6"
+default-features = false
+
 [dependencies.snarkvm-errors]
 version = "0.0.6"
 default-features = false
@@ -25,27 +29,12 @@ default-features = false
 version = "0.0.6"
 default-features = false
 
-[dependencies.snarkvm-utilities]
-version = "0.0.6"
-
-[dependencies.rand]
-version = "0.8"
-default-features = false
-
-[dependencies.rand_xorshift]
+[dependencies.num-bigint]
 version = "0.3"
-default-features = false
 
-[dependencies.thiserror]
+[dependencies.serde]
 version = "1.0"
+features = [ "derive" ]
 
-[dev-dependencies.criterion]
-version = "0.3"
-
-[dev-dependencies.rand_core]
-version = "0.6.2"
-
-[[bench]]
-name = "integer_arithmetic"
-path = "benches/integer_arithmetic.rs"
-harness = false
+[dependencies.serde_json]
+version = "1.0"
