@@ -30,9 +30,6 @@ pub fn enforce_negate<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F
         ConstrainedValue::Integer(integer) => Ok(ConstrainedValue::Integer(integer.negate(cs, span)?)),
         ConstrainedValue::Field(field) => Ok(ConstrainedValue::Field(field.negate(cs, span)?)),
         ConstrainedValue::Group(group) => Ok(ConstrainedValue::Group(group.negate(cs, span)?)),
-        value => Err(ExpressionError::incompatible_types(
-            format!("-{}", value),
-            span.to_owned(),
-        )),
+        value => Err(ExpressionError::incompatible_types(format!("-{}", value), span)),
     }
 }

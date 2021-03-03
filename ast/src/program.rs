@@ -17,17 +17,7 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{
-    load_annotation,
-    Circuit,
-    DeprecatedError,
-    Function,
-    FunctionInput,
-    Identifier,
-    ImportStatement,
-    TestFunction,
-};
-use leo_grammar::{definitions::Definition, files::File};
+use crate::{Circuit, Function, FunctionInput, Identifier, ImportStatement};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -41,7 +31,12 @@ pub struct Program {
     pub imports: Vec<ImportStatement>,
     pub circuits: IndexMap<Identifier, Circuit>,
     pub functions: IndexMap<Identifier, Function>,
-    pub tests: IndexMap<Identifier, TestFunction>,
+}
+
+impl AsRef<Program> for Program {
+    fn as_ref(&self) -> &Program {
+        self
+    }
 }
 
 impl fmt::Display for Program {
@@ -60,77 +55,7 @@ impl fmt::Display for Program {
             function.fmt(f)?;
             writeln!(f,)?;
         }
-        for (_, test) in self.tests.iter() {
-            write!(f, "test ")?;
-            test.function.fmt(f)?;
-            writeln!(f,)?;
-        }
         write!(f, "")
-    }
-}
-
-const MAIN_FUNCTION_NAME: &str = "main";
-
-impl<'ast> Program {
-    //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
-    pub fn from(program_name: &str, program_ast: &File<'ast>) -> Result<Self, DeprecatedError> {
-        let mut imports = vec![];
-        let mut circuits = IndexMap::new();
-        let mut functions = IndexMap::new();
-        let mut tests = IndexMap::new();
-        let mut expected_input = vec![];
-
-        program_ast
-            .definitions
-            .to_owned()
-            .into_iter()
-            // Use of Infallible to say we never expect an Some(Ok(...))
-            .find_map::<Result<std::convert::Infallible, _>, _>(|definition| match definition {
-                Definition::Import(import) => {
-                    imports.push(ImportStatement::from(import));
-                    None
-                }
-                Definition::Circuit(circuit) => {
-                    circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
-                    None
-                }
-                Definition::Function(function_def) => {
-                    let function = Function::from(function_def);
-                    if function.identifier.name.eq(MAIN_FUNCTION_NAME) {
-                        expected_input = function.input.clone();
-                    }
-                    functions.insert(function.identifier.clone(), function);
-                    None
-                }
-                Definition::Deprecated(deprecated) => {
-                    Some(Err(DeprecatedError::from(deprecated)))
-                }
-                Definition::Annotated(annotated_definition) => {
-                    let loaded_annotation = load_annotation(
-                        annotated_definition,
-                        &mut imports,
-                        &mut circuits,
-                        &mut functions,
-                        &mut tests,
-                        &mut expected_input,
-                    );
-
-                    match loaded_annotation {
-                        Ok(_) => None,
-                        Err(deprecated_err) => Some(Err(deprecated_err))
-                    }
-                }
-            })
-            .transpose()?;
-
-        Ok(Self {
-            name: program_name.to_string(),
-            expected_input,
-            imports,
-            circuits,
-            functions,
-            tests,
-        })
     }
 }
 
@@ -142,7 +67,6 @@ impl Program {
             imports: vec![],
             circuits: IndexMap::new(),
             functions: IndexMap::new(),
-            tests: IndexMap::new(),
         }
     }
 

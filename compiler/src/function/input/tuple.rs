@@ -52,10 +52,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(FunctionError::invalid_tuple(
-                    input_value.unwrap().to_string(),
-                    span.to_owned(),
-                ));
+                return Err(FunctionError::invalid_tuple(input_value.unwrap().to_string(), span));
             }
         }
 

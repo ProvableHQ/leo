@@ -33,7 +33,7 @@ pub fn enforce_pow<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         }
         (val_1, val_2) => Err(ExpressionError::incompatible_types(
             format!("{} ** {}", val_1, val_2,),
-            span.to_owned(),
+            span,
         )),
     }
 }

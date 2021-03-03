@@ -37,7 +37,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let conditional_value = match self.enforce_expression(cs, conditional)? {
             ConstrainedValue::Boolean(resolved) => resolved,
-            value => return Err(ExpressionError::conditional_boolean(value.to_string(), span.to_owned())),
+            value => return Err(ExpressionError::conditional_boolean(value.to_string(), span)),
         };
 
         let first_value = self.enforce_expression(cs, first)?;
@@ -47,11 +47,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let unique_namespace = cs.ns(|| {
             format!(
                 "select {} or {} {}:{}",
-                first_value, second_value, span.line, span.start
+                first_value, second_value, span.line_start, span.col_start
             )
         });
 
         ConstrainedValue::conditionally_select(unique_namespace, &conditional_value, &first_value, &second_value)
-            .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, span.to_owned()))
+            .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, span))
     }
 }

@@ -16,8 +16,6 @@
 
 use crate::{Expression, Node, Span};
 
-pub use leo_grammar::operations::AssignOperation as GrammarAssignOperation;
-use leo_grammar::statements::AssignStatement as GrammarAssignStatement;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -32,6 +30,15 @@ pub enum AssignOperation {
     Mul,
     Div,
     Pow,
+    Or,
+    And,
+    BitOr,
+    BitAnd,
+    BitXor,
+    Shr,
+    ShrSigned,
+    Shl,
+    Mod,
 }
 
 impl AsRef<str> for AssignOperation {
@@ -43,6 +50,15 @@ impl AsRef<str> for AssignOperation {
             AssignOperation::Mul => "*=",
             AssignOperation::Div => "/=",
             AssignOperation::Pow => "**=",
+            AssignOperation::Or => "||=",
+            AssignOperation::And => "&&=",
+            AssignOperation::BitOr => "|=",
+            AssignOperation::BitAnd => "&=",
+            AssignOperation::BitXor => "^=",
+            AssignOperation::Shr => ">>=",
+            AssignOperation::ShrSigned => ">>>=",
+            AssignOperation::Shl => "<<=",
+            AssignOperation::Mod => "%=",
         }
     }
 }
@@ -58,24 +74,6 @@ pub struct AssignStatement {
 impl fmt::Display for AssignStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {} {};", self.assignee, self.operation.as_ref(), self.value)
-    }
-}
-
-impl<'ast> From<GrammarAssignStatement<'ast>> for AssignStatement {
-    fn from(statement: GrammarAssignStatement<'ast>) -> Self {
-        AssignStatement {
-            operation: match statement.assign {
-                GrammarAssignOperation::Assign(_) => AssignOperation::Assign,
-                GrammarAssignOperation::AddAssign(_) => AssignOperation::Add,
-                GrammarAssignOperation::SubAssign(_) => AssignOperation::Sub,
-                GrammarAssignOperation::MulAssign(_) => AssignOperation::Mul,
-                GrammarAssignOperation::DivAssign(_) => AssignOperation::Div,
-                GrammarAssignOperation::PowAssign(_) => AssignOperation::Pow,
-            },
-            assignee: Assignee::from(statement.assignee),
-            value: Expression::from(statement.expression),
-            span: Span::from(statement.span),
-        }
     }
 }
 

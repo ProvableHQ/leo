@@ -29,7 +29,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        span: Span,
+        span: &Span,
         expected_type: &'a Circuit<'a>,
         input: &Input,
     ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
@@ -49,7 +49,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
         let state_leaf_name = Identifier {
             name: STATE_LEAF_VARIABLE_NAME.to_string(),
-            span,
+            span: span.clone(),
         };
 
         // Fetch each input variable's definitions

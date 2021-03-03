@@ -29,7 +29,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         array: &[(Cell<&'a Expression<'a>>, bool)],
-        span: Span,
+        span: &Span,
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let expected_dimension = None;
 

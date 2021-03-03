@@ -32,7 +32,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
+            value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
         };
 
         let index_resolved = self.enforce_index(cs, index, span)?;
@@ -50,7 +50,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
+            value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
         };
 
         let from_resolved = match left {

@@ -23,9 +23,9 @@ use crate::{
     OutputBytes,
     OutputFile,
 };
+use indexmap::IndexMap;
 use leo_asg::Asg;
-use leo_ast::{Ast, Input, MainInput, Program};
-use leo_grammar::Grammar;
+use leo_ast::{Input, LeoError, MainInput, Program};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
@@ -39,9 +39,11 @@ use snarkvm_models::{
 
 use sha2::{Digest, Sha256};
 use std::{
+    cell::RefCell,
     fs,
     marker::PhantomData,
     path::{Path, PathBuf},
+    rc::Rc,
 };
 
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
@@ -68,6 +70,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     program_input: Input,
     context: AsgContext<'a>,
     asg: Option<Asg<'a>>,
+    file_contents: RefCell<IndexMap<String, Rc<Vec<String>>>>,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
 }
@@ -90,6 +93,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             program_input: Input::new(),
             asg: None,
             context,
+            file_contents: RefCell::new(IndexMap::new()),
             _engine: PhantomData,
             _group: PhantomData,
         }
@@ -156,28 +160,54 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         state_path: &Path,
     ) -> Result<(), CompilerError> {
         let input_syntax_tree = LeoInputParser::parse_file(&input_string).map_err(|mut e| {
-            e.set_path(input_path);
+            e.set_path(
+                input_path.to_str().unwrap_or_default(),
+                &input_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
+            );
 
             e
         })?;
         let state_syntax_tree = LeoInputParser::parse_file(&state_string).map_err(|mut e| {
-            e.set_path(state_path);
+            e.set_path(
+                state_path.to_str().unwrap_or_default(),
+                &state_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
+            );
 
             e
         })?;
 
         self.program_input.parse_input(input_syntax_tree).map_err(|mut e| {
-            e.set_path(input_path);
+            e.set_path(
+                input_path.to_str().unwrap_or_default(),
+                &input_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
+            );
 
             e
         })?;
         self.program_input.parse_state(state_syntax_tree).map_err(|mut e| {
-            e.set_path(state_path);
+            e.set_path(
+                state_path.to_str().unwrap_or_default(),
+                &state_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
+            );
 
             e
         })?;
 
         Ok(())
+    }
+
+    fn resolve_content(&self, path: &str) -> Result<Rc<Vec<String>>, CompilerError> {
+        let mut file_contents = self.file_contents.borrow_mut();
+        if file_contents.contains_key(path) {
+            // using this pattern because of mutable reference in branch below
+            Ok(file_contents.get(path).unwrap().clone())
+        } else {
+            let content = fs::read_to_string(path).map_err(|e| CompilerError::FileReadError(PathBuf::from(path), e))?;
+
+            let content = Rc::new(content.lines().map(|x| x.to_string()).collect::<Vec<String>>());
+            file_contents.insert(path.to_string(), content);
+            Ok(file_contents.get(path).unwrap().clone())
+        }
     }
 
     ///
@@ -187,9 +217,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     pub fn parse_program(&mut self) -> Result<(), CompilerError> {
         // Load the program file.
-        let program_string = Grammar::load_file(&self.main_file_path)?;
+        let content = fs::read_to_string(&self.main_file_path)
+            .map_err(|e| CompilerError::FileReadError(self.main_file_path.clone(), e))?;
 
-        self.parse_program_from_string(&program_string)
+        self.parse_program_from_string(&content)
     }
 
     ///
@@ -197,23 +228,23 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     /// file path.
     ///
     pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
-        // Use the parser to construct the pest abstract syntax tree (ast).
-        let grammar = Grammar::new(&self.main_file_path, &program_string).map_err(|mut e| {
-            e.set_path(&self.main_file_path);
+        // Use the parser to construct the abstract syntax tree (ast).
+        let lines = program_string.lines().map(|x| x.to_string()).collect();
+        self.file_contents.borrow_mut().insert(
+            self.main_file_path.to_str().map(|x| x.to_string()).unwrap_or_default(),
+            Rc::new(lines),
+        );
 
-            e
-        })?;
-
-        // Construct the AST from the grammar.
-        let core_ast = Ast::new(&self.program_name, &grammar)?;
+        let ast = leo_parser::parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
         // Store the main program file.
-        self.program = core_ast.as_repr().clone();
+        self.program = ast.into_repr();
+        self.program.name = self.program_name.clone();
 
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
         // Create a new symbol table from the program, imported_programs, and program_input.
-        let asg = Asg::new(self.context, &core_ast, &mut leo_imports::ImportParser::default())?;
+        let asg = Asg::new(self.context, &self.program, &mut leo_imports::ImportParser::default())?;
 
         tracing::debug!("ASG generation complete");
 
@@ -228,7 +259,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
         generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input).map_err(|mut error| {
-            error.set_path(&self.main_file_path);
+            if let Some(path) = error.get_path().map(|x| x.to_string()) {
+                let content = match self.resolve_content(&path) {
+                    Err(e) => return e,
+                    Ok(x) => x,
+                };
+                error.set_path(&path, &content[..]);
+            }
             error
         })
     }
@@ -251,7 +288,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     pub fn checksum(&self) -> Result<String, CompilerError> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
-            .map_err(|_| CompilerError::FileReadError(self.main_file_path.clone()))?;
+            .map_err(|e| CompilerError::FileReadError(self.main_file_path.clone(), e))?;
 
         // Hash the file contents
         let mut hasher = Sha256::new();

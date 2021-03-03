@@ -123,6 +123,10 @@ impl<'a> Type<'a> {
     pub fn is_unit(&self) -> bool {
         matches!(self, Type::Tuple(t) if t.is_empty())
     }
+
+    pub fn can_cast_to(&self, to: &Type<'a>) -> bool {
+        matches!(self, Type::Integer(_)) && matches!(to, Type::Integer(_))
+    }
 }
 
 impl<'a> fmt::Display for Type<'a> {

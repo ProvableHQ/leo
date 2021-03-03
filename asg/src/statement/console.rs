@@ -15,15 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
-use leo_ast::ConsoleFunction as AstConsoleFunction;
+use leo_ast::{ConsoleFunction as AstConsoleFunction, FormattedStringPart};
 
 use std::cell::Cell;
 
 // TODO (protryon): Refactor to not require/depend on span
 #[derive(Clone)]
 pub struct FormattedString<'a> {
-    pub string: String,
-    pub containers: Vec<Span>,
+    pub parts: Vec<FormattedStringPart>,
     pub parameters: Vec<Cell<&'a Expression<'a>>>,
     pub span: Span,
 }
@@ -55,10 +54,15 @@ impl<'a> FromAst<'a, leo_ast::FormattedString> for FormattedString<'a> {
         value: &leo_ast::FormattedString,
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
-        if value.parameters.len() != value.containers.len() {
+        let expected_param_len = value
+            .parts
+            .iter()
+            .filter(|x| matches!(x, FormattedStringPart::Container))
+            .count();
+        if value.parameters.len() != expected_param_len {
             // + 1 for formatting string as to not confuse user
             return Err(AsgConvertError::unexpected_call_argument_count(
-                value.containers.len() + 1,
+                expected_param_len + 1,
                 value.parameters.len() + 1,
                 &value.span,
             ));
@@ -68,8 +72,7 @@ impl<'a> FromAst<'a, leo_ast::FormattedString> for FormattedString<'a> {
             parameters.push(Cell::new(<&Expression<'a>>::from_ast(scope, parameter, None)?));
         }
         Ok(FormattedString {
-            string: value.string.clone(),
-            containers: value.containers.iter().map(|x| x.span.clone()).collect(),
+            parts: value.parts.clone(),
             parameters,
             span: value.span.clone(),
         })
@@ -79,12 +82,7 @@ impl<'a> FromAst<'a, leo_ast::FormattedString> for FormattedString<'a> {
 impl<'a> Into<leo_ast::FormattedString> for &FormattedString<'a> {
     fn into(self) -> leo_ast::FormattedString {
         leo_ast::FormattedString {
-            string: self.string.clone(),
-            containers: self
-                .containers
-                .iter()
-                .map(|span| leo_ast::FormattedContainer { span: span.clone() })
-                .collect(),
+            parts: self.parts.clone(),
             parameters: self.parameters.iter().map(|e| e.get().into()).collect(),
             span: self.span.clone(),
         }

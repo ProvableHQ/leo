@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Span;
+use crate::{LeoError, Span};
 
-use std::{fmt, path::Path};
+use std::fmt;
 
 pub const INDENT: &str = "    ";
 
@@ -28,68 +28,59 @@ pub const INDENT: &str = "    ";
 ///      |
 ///      = undefined value `x`
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct Error {
+pub struct FormattedError {
     /// File path where error occurred
     pub path: Option<String>,
-    /// Line number
-    pub line: usize,
+    /// Line start number
+    pub line_start: usize,
+    /// Line end number
+    pub line_stop: usize,
     /// Starting column
     pub start: usize,
     /// Ending column
     pub end: usize,
-    /// Text of errored line
-    pub text: String,
+    /// Text of errored lines
+    pub text: Option<Vec<String>>,
     /// Error explanation
     pub message: String,
 }
 
-impl Error {
-    pub fn new_from_span(message: String, span: Span) -> Self {
+impl FormattedError {
+    pub fn new_from_span(message: String, span: &Span) -> Self {
         Self {
             path: None,
-            line: span.line,
-            start: span.start,
-            end: span.end,
-            text: span.text,
+            line_start: span.line_start,
+            line_stop: span.line_stop,
+            start: span.col_start,
+            end: span.col_stop,
+            text: None,
             message,
         }
     }
+}
 
-    pub fn new_from_span_with_path(message: String, span: Span, path: &Path) -> Self {
-        Self {
-            path: Some(format!("{:?}", path)),
-            line: span.line,
-            start: span.start,
-            end: span.end,
-            text: span.text,
-            message,
+impl LeoError for FormattedError {
+    fn set_path(&mut self, path: &str, content: &[String]) {
+        self.path = Some(path.to_string());
+        if self.line_stop - 1 > content.len() {
+            self.text = Some(vec!["corrupt file".to_string()]);
+            return;
         }
+        assert!(self.line_stop >= self.line_start);
+        // if self.line_stop == self.line_start {
+        //     self.text = Some(vec![content[self.line_start - 1][self.start - 1..self.end - 1].to_string()]);
+        // } else {
+        self.text = Some(
+            content[self.line_start - 1..self.line_stop]
+                .iter()
+                .map(|x| x.to_string())
+                .collect(),
+        );
+        // }
     }
 
-    pub fn set_path(&mut self, path: &Path) {
-        self.path = Some(format!("{:?}", path));
-    }
-
-    pub fn format(&self) -> String {
-        let path = self.path.as_ref().map(|path| format!("{}:", path)).unwrap_or_default();
-        let underline = underline(self.start, self.end);
-
-        format!(
-            "{indent     }--> {path} {line}:{start}\n\
-             {indent     } |\n\
-             {line:width$} | {text}\n\
-             {indent     } | {underline}\n\
-             {indent     } |\n\
-             {indent     } = {message}",
-            indent = INDENT,
-            width = INDENT.len(),
-            path = path,
-            line = self.line,
-            start = self.start,
-            text = self.text,
-            underline = underline,
-            message = self.message,
-        )
+    fn get_path(&self) -> Option<&str> {
+        self.path.as_deref()
     }
 }
 
@@ -112,13 +103,46 @@ fn underline(mut start: usize, mut end: usize) -> String {
     underline
 }
 
-impl fmt::Display for Error {
+impl fmt::Display for FormattedError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.format())
+        let path = self.path.as_ref().map(|path| format!("{}:", path)).unwrap_or_default();
+        let underline = underline(self.start - 1, self.end - 1);
+
+        write!(
+            f,
+            "{indent     }--> {path}{line_start}:{start}\n\
+             {indent     } |\n",
+            indent = INDENT,
+            path = path,
+            line_start = self.line_start,
+            start = self.start,
+        )?;
+
+        if let Some(lines) = &self.text {
+            for (line_no, line) in lines.iter().enumerate() {
+                writeln!(
+                    f,
+                    "{line_no:width$} | {text}",
+                    width = INDENT.len(),
+                    line_no = self.line_start + line_no,
+                    text = line,
+                )?;
+            }
+        }
+
+        write!(
+            f,
+            "{indent     } | {underline}\n\
+             {indent     } |\n\
+             {indent     } = {message}",
+            indent = INDENT,
+            underline = underline,
+            message = self.message,
+        )
     }
 }
 
-impl std::error::Error for Error {
+impl std::error::Error for FormattedError {
     fn description(&self) -> &str {
         &self.message
     }
@@ -126,12 +150,13 @@ impl std::error::Error for Error {
 
 #[test]
 fn test_error() {
-    let err = Error {
+    let err = FormattedError {
         path: Some("file.leo".to_string()),
-        line: 2,
+        line_start: 2,
+        line_stop: 2,
         start: 8,
         end: 9,
-        text: "let a = x;".to_string(),
+        text: Some(vec!["let a = x;".to_string()]),
         message: "undefined value `x`".to_string(),
     };
 

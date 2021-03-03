@@ -18,7 +18,7 @@
 
 use crate::{errors::CompilerError, ConstrainedProgram, GroupType, OutputBytes, OutputFile};
 use leo_asg::Asg;
-use leo_ast::Input;
+use leo_ast::{Input, LeoError};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
@@ -63,22 +63,33 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
     // Get default input
     let default = input.pairs.get(&program_name);
 
-    let tests = &program.test_functions;
+    let tests = program
+        .functions
+        .iter()
+        .filter(|(_name, func)| func.is_test())
+        .collect::<Vec<_>>();
     tracing::info!("Running {} tests", tests.len());
 
     // Count passed and failed tests
     let mut passed = 0;
     let mut failed = 0;
 
-    for (test_name, (function, input_file)) in tests.into_iter() {
+    for (test_name, function) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
         let full_test_name = format!("{}::{}", program_name.clone(), test_name);
         let mut output_file_name = program_name.clone();
 
+        let input_file = function
+            .annotations
+            .iter()
+            .find(|x| x.name.name == "test")
+            .unwrap()
+            .arguments
+            .get(0);
         // get input file name from annotation or use test_name
         let input_pair = match input_file {
             Some(file_id) => {
-                let file_name = file_id.name.clone();
+                let file_name = file_id.clone();
 
                 output_file_name = file_name.clone();
 
@@ -129,7 +140,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
             (false, _) => {
                 // Set file location of error
                 let mut error = result.unwrap_err();
-                error.set_path(main_file_path);
+                error.set_path(main_file_path.to_str().unwrap_or_default(), &[]);
 
                 tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
 

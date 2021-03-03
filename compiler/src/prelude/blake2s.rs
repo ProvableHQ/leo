@@ -61,15 +61,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuit<'a, F, G> for Blake2s {
         let input = unwrap_argument(arguments.remove(1));
         let seed = unwrap_argument(arguments.remove(0));
 
-        let digest =
-            Blake2sGadget::check_evaluation_gadget(cs.ns(|| "blake2s hash"), &seed[..], &input[..]).map_err(|e| {
-                ExpressionError::cannot_enforce("Blake2s check evaluation gadget".to_owned(), e, span.clone())
-            })?;
+        let digest = Blake2sGadget::check_evaluation_gadget(cs.ns(|| "blake2s hash"), &seed[..], &input[..])
+            .map_err(|e| ExpressionError::cannot_enforce("Blake2s check evaluation gadget".to_owned(), e, span))?;
 
         Ok(ConstrainedValue::Array(
             digest
                 .to_bytes(cs)
-                .map_err(|e| ExpressionError::cannot_enforce("Vec<UInt8> ToBytes".to_owned(), e, span.clone()))?
+                .map_err(|e| ExpressionError::cannot_enforce("Vec<UInt8> ToBytes".to_owned(), e, span))?
                 .into_iter()
                 .map(Integer::U8)
                 .map(ConstrainedValue::Integer)

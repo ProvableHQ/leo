@@ -14,30 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod deprecated;
-pub use deprecated::*;
-
 pub mod error;
 pub use error::*;
 
-use error::Error as FormattedError;
+pub trait LeoError {
+    fn get_path(&self) -> Option<&str>;
 
-use leo_grammar::ParserError;
-
-#[derive(Debug, Error)]
-pub enum AstError {
-    #[error("{}", _0)]
-    DeprecatedError(#[from] DeprecatedError),
-
-    #[error("{}", _0)]
-    Error(#[from] FormattedError),
-
-    #[error("{}", _0)]
-    IoError(#[from] std::io::Error),
-
-    #[error("{}", _0)]
-    ParserError(#[from] ParserError),
-
-    #[error("{}", _0)]
-    JsonError(#[from] serde_json::error::Error),
+    fn set_path(&mut self, path: &str, contents: &[String]);
 }

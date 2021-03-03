@@ -45,7 +45,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             Self::enforce_assign_operation(
                 cs,
                 indicator,
-                format!("select {} {}:{}", new_value, &span.line, &span.start),
+                format!("select {} {}:{}", new_value, &span.line_start, &span.col_start),
                 &statement.operation,
                 resolved_assignee[0],
                 new_value,
@@ -62,7 +62,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         Self::enforce_assign_operation(
                             cs,
                             indicator,
-                            format!("select-splice {} {} {}:{}", i, new_value, &span.line, &span.start),
+                            format!(
+                                "select-splice {} {} {}:{}",
+                                i, new_value, &span.line_start, &span.col_start
+                            ),
                             &statement.operation,
                             old_ref,
                             new_value,
@@ -72,7 +75,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
                 _ => {
                     return Err(StatementError::array_assign_range(
-                        statement.span.clone().unwrap_or_default(),
+                        &statement.span.clone().unwrap_or_default(),
                     ));
                 }
             };
@@ -97,9 +100,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             AssignOperation::Mul => enforce_mul(cs, target.clone(), new_value, span)?,
             AssignOperation::Div => enforce_div(cs, target.clone(), new_value, span)?,
             AssignOperation::Pow => enforce_pow(cs, target.clone(), new_value, span)?,
+            _ => unimplemented!("unimplemented assign operator"),
         };
         let selected_value = ConstrainedValue::conditionally_select(cs.ns(|| scope), condition, &new_value, target)
-            .map_err(|_| StatementError::select_fail(new_value.to_string(), target.to_string(), span.clone()))?;
+            .map_err(|_| StatementError::select_fail(new_value.to_string(), target.to_string(), span))?;
 
         *target = selected_value;
         Ok(())

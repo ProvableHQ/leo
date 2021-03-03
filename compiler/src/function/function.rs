@@ -50,7 +50,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if function.arguments.len() != arguments.len() {
             return Err(FunctionError::input_not_found(
                 "arguments length invalid".to_string(),
-                function.span.clone().unwrap_or_default(),
+                &function.span.clone().unwrap_or_default(),
             ));
         }
 

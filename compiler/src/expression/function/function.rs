@@ -37,8 +37,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             format!(
                 "function call {} {}:{}",
                 function.name.borrow().clone(),
-                span.line,
-                span.start,
+                span.line_start,
+                span.col_start,
             )
         };
 

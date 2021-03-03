@@ -14,21 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{InputKeyword, MutSelfKeyword, SelfKeyword, Span};
-use leo_grammar::{
-    annotations::AnnotationArgument,
-    common::{
-        Identifier as GrammarIdentifier,
-        KeywordOrIdentifier,
-        MutSelfKeyword as GrammarMutSelfKeyword,
-        SelfKeyword as GrammarSelfKeyword,
-        SelfKeywordOrIdentifier,
-    },
-    expressions::CircuitName,
-    functions::InputKeyword as GrammarInputKeyword,
-    imports::PackageName as GrammarPackageName,
-    types::SelfType,
-};
+use crate::Span;
 use leo_input::common::Identifier as InputIdentifier;
 
 use crate::Node;
@@ -74,10 +60,10 @@ impl Identifier {
         }
     }
 
-    pub fn new_with_span(name: &str, span: &Span) -> Self {
+    pub fn new_with_span(name: &str, span: Span) -> Self {
         Self {
             name: name.to_owned(),
-            span: span.to_owned(),
+            span,
         }
     }
 
@@ -90,129 +76,11 @@ impl Identifier {
     }
 }
 
-impl<'ast> From<GrammarIdentifier<'ast>> for Identifier {
-    fn from(identifier: GrammarIdentifier<'ast>) -> Self {
-        Self {
-            name: identifier.value,
-            span: Span::from(identifier.span),
-        }
-    }
-}
-
-impl<'ast> From<GrammarPackageName<'ast>> for Identifier {
-    fn from(name: GrammarPackageName<'ast>) -> Self {
-        Self {
-            name: name.value,
-            span: Span::from(name.span),
-        }
-    }
-}
-
 impl<'ast> From<InputIdentifier<'ast>> for Identifier {
     fn from(identifier: InputIdentifier<'ast>) -> Self {
         Self {
             name: identifier.value,
             span: Span::from(identifier.span),
-        }
-    }
-}
-
-impl<'ast> From<AnnotationArgument<'ast>> for Identifier {
-    fn from(argument: AnnotationArgument<'ast>) -> Self {
-        Self {
-            name: argument.value,
-            span: Span::from(argument.span),
-        }
-    }
-}
-
-impl<'ast> From<KeywordOrIdentifier<'ast>> for Identifier {
-    fn from(name: KeywordOrIdentifier<'ast>) -> Self {
-        match name {
-            KeywordOrIdentifier::Identifier(keyword) => Identifier::from(keyword),
-            KeywordOrIdentifier::SelfType(self_type) => Identifier::from(self_type),
-            KeywordOrIdentifier::Input(keyword) => Identifier::from(keyword),
-        }
-    }
-}
-
-impl<'ast> From<SelfKeywordOrIdentifier<'ast>> for Identifier {
-    fn from(name: SelfKeywordOrIdentifier<'ast>) -> Self {
-        match name {
-            SelfKeywordOrIdentifier::Identifier(identifier) => Identifier::from(identifier),
-            SelfKeywordOrIdentifier::SelfKeyword(keyword) => Identifier::from(keyword),
-        }
-    }
-}
-
-impl<'ast> From<GrammarSelfKeyword<'ast>> for Identifier {
-    fn from(grammar: GrammarSelfKeyword<'ast>) -> Self {
-        Self {
-            name: grammar.keyword,
-            span: Span::from(grammar.span),
-        }
-    }
-}
-
-impl From<SelfKeyword> for Identifier {
-    fn from(keyword: SelfKeyword) -> Self {
-        Self {
-            name: keyword.to_string(),
-            span: keyword.span,
-        }
-    }
-}
-
-impl<'ast> From<GrammarMutSelfKeyword<'ast>> for Identifier {
-    fn from(grammar: GrammarMutSelfKeyword<'ast>) -> Self {
-        Self {
-            name: grammar.to_string(),
-            span: Span::from(grammar.span),
-        }
-    }
-}
-
-impl From<MutSelfKeyword> for Identifier {
-    fn from(keyword: MutSelfKeyword) -> Self {
-        Self {
-            name: keyword.to_string(),
-            span: keyword.span,
-        }
-    }
-}
-
-impl<'ast> From<GrammarInputKeyword<'ast>> for Identifier {
-    fn from(grammar: GrammarInputKeyword<'ast>) -> Self {
-        Self {
-            name: grammar.keyword,
-            span: Span::from(grammar.span),
-        }
-    }
-}
-
-impl From<InputKeyword> for Identifier {
-    fn from(keyword: InputKeyword) -> Self {
-        Self {
-            name: keyword.to_string(),
-            span: keyword.span,
-        }
-    }
-}
-
-impl<'ast> From<CircuitName<'ast>> for Identifier {
-    fn from(name: CircuitName<'ast>) -> Self {
-        match name {
-            CircuitName::SelfType(self_type) => Identifier::from(self_type),
-            CircuitName::Identifier(identifier) => Identifier::from(identifier),
-        }
-    }
-}
-
-impl<'ast> From<SelfType<'ast>> for Identifier {
-    fn from(self_type: SelfType<'ast>) -> Self {
-        Self {
-            name: self_type.keyword,
-            span: Span::from(self_type.span),
         }
     }
 }

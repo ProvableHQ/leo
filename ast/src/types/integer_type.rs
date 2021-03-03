@@ -14,11 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_grammar::types::{
-    IntegerType as GrammarIntegerType,
-    SignedIntegerType as GrammarSignedIntegerType,
-    UnsignedIntegerType as GrammarUnsignedIntegerType,
-};
 use leo_input::types::{
     IntegerType as InputIntegerType,
     SignedIntegerType as InputSignedIntegerType,
@@ -42,39 +37,6 @@ pub enum IntegerType {
     I32,
     I64,
     I128,
-}
-
-impl From<GrammarIntegerType> for IntegerType {
-    fn from(integer_type: GrammarIntegerType) -> Self {
-        match integer_type {
-            GrammarIntegerType::Signed(signed) => Self::from(signed),
-            GrammarIntegerType::Unsigned(unsigned) => Self::from(unsigned),
-        }
-    }
-}
-
-impl From<GrammarUnsignedIntegerType> for IntegerType {
-    fn from(integer_type: GrammarUnsignedIntegerType) -> Self {
-        match integer_type {
-            GrammarUnsignedIntegerType::U8Type(_type) => IntegerType::U8,
-            GrammarUnsignedIntegerType::U16Type(_type) => IntegerType::U16,
-            GrammarUnsignedIntegerType::U32Type(_type) => IntegerType::U32,
-            GrammarUnsignedIntegerType::U64Type(_type) => IntegerType::U64,
-            GrammarUnsignedIntegerType::U128Type(_type) => IntegerType::U128,
-        }
-    }
-}
-
-impl From<GrammarSignedIntegerType> for IntegerType {
-    fn from(integer_type: GrammarSignedIntegerType) -> Self {
-        match integer_type {
-            GrammarSignedIntegerType::I8Type(_type) => IntegerType::I8,
-            GrammarSignedIntegerType::I16Type(_type) => IntegerType::I16,
-            GrammarSignedIntegerType::I32Type(_type) => IntegerType::I32,
-            GrammarSignedIntegerType::I64Type(_type) => IntegerType::I64,
-            GrammarSignedIntegerType::I128Type(_type) => IntegerType::I128,
-        }
-    }
 }
 
 impl From<InputIntegerType> for IntegerType {

@@ -15,9 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ExpressionError;
-use leo_ast::{Error as FormattedError, Span};
-
-use std::path::Path;
+use leo_ast::{FormattedError, LeoError, Span};
 
 #[derive(Debug, Error)]
 pub enum ConsoleError {
@@ -28,19 +26,28 @@ pub enum ConsoleError {
     Expression(#[from] ExpressionError),
 }
 
-impl ConsoleError {
-    pub fn set_path(&mut self, path: &Path) {
+impl LeoError for ConsoleError {
+    fn get_path(&self) -> Option<&str> {
         match self {
-            ConsoleError::Expression(error) => error.set_path(path),
-            ConsoleError::Error(error) => error.set_path(path),
+            ConsoleError::Error(error) => error.get_path(),
+            ConsoleError::Expression(error) => error.get_path(),
         }
     }
 
-    fn new_from_span(message: String, span: Span) -> Self {
+    fn set_path(&mut self, path: &str, contents: &[String]) {
+        match self {
+            ConsoleError::Error(error) => error.set_path(path, contents),
+            ConsoleError::Expression(error) => error.set_path(path, contents),
+        }
+    }
+}
+
+impl ConsoleError {
+    fn new_from_span(message: String, span: &Span) -> Self {
         ConsoleError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn length(containers: usize, parameters: usize, span: Span) -> Self {
+    pub fn length(containers: usize, parameters: usize, span: &Span) -> Self {
         let message = format!(
             "Formatter given {} containers and found {} parameters",
             containers, parameters
@@ -49,21 +56,21 @@ impl ConsoleError {
         Self::new_from_span(message, span)
     }
 
-    pub fn assertion_depends_on_input(span: Span) -> Self {
+    pub fn assertion_depends_on_input(span: &Span) -> Self {
         let message =
             "console.assert() failed to evaluate. This error is caused by empty input file values".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn assertion_failed(expression: String, span: Span) -> Self {
-        let message = format!("Assertion `{}` failed", expression);
+    pub fn assertion_failed(span: &Span) -> Self {
+        let message = "Assertion failed".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn assertion_must_be_boolean(expression: String, span: Span) -> Self {
-        let message = format!("Assertion expression `{}` must evaluate to a boolean value", expression);
+    pub fn assertion_must_be_boolean(span: &Span) -> Self {
+        let message = "Assertion expression must evaluate to a boolean value".to_string();
 
         Self::new_from_span(message, span)
     }

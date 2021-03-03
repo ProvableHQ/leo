@@ -60,6 +60,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
                 Expression::CircuitAccess(e) => self.visit_circuit_access(e),
                 Expression::CircuitInit(e) => self.visit_circuit_init(e),
                 Expression::Ternary(e) => self.visit_ternary_expression(e),
+                Expression::Cast(e) => self.visit_cast_expression(e),
                 Expression::Constant(e) => self.visit_constant(e),
                 Expression::TupleAccess(e) => self.visit_tuple_access(e),
                 Expression::TupleInit(e) => self.visit_tuple_init(e),
@@ -178,6 +179,16 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
                 self.visit_expression(&input.condition)?;
                 self.visit_expression(&input.if_true)?;
                 self.visit_expression(&input.if_false)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
+    }
+
+    pub fn visit_cast_expression(&mut self, input: &CastExpression<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_cast_expression(input) {
+            VisitResult::VisitChildren => {
+                self.visit_expression(&input.inner)?;
                 Ok(())
             }
             x => x.into(),
@@ -418,9 +429,6 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
             VisitResult::VisitChildren => {
                 for (_, import) in input.imported_modules.iter() {
                     self.visit_program(import)?;
-                }
-                for (_, (function, _)) in input.test_functions.iter() {
-                    self.visit_function(function)?;
                 }
                 for (_, function) in input.functions.iter() {
                     self.visit_function(function)?;

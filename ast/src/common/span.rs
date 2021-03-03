@@ -14,62 +14,84 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use pest::Span as GrammarSpan;
+use std::{fmt, rc::Rc};
+
 use serde::{Deserialize, Serialize};
-use std::hash::{Hash, Hasher};
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Span {
-    /// text of input string
-    pub text: String,
-    /// program line
-    pub line: usize,
-    /// start column
-    pub start: usize,
-    /// end column
-    pub end: usize,
+    pub line_start: usize,
+    pub line_stop: usize,
+    pub col_start: usize,
+    pub col_stop: usize,
+    pub path: Rc<String>,
 }
 
-impl PartialEq for Span {
-    fn eq(&self, other: &Self) -> bool {
-        self.line == other.line && self.start == other.start && self.end == other.end
-    }
-}
-
-impl Eq for Span {}
-
-impl Hash for Span {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.line.hash(state);
-        self.start.hash(state);
-        self.end.hash(state);
-    }
-}
-
-impl Span {
-    pub fn from_internal_string(value: &str) -> Span {
-        Span {
-            text: value.to_string(),
-            line: 0,
-            start: 0,
-            end: 0,
+impl fmt::Display for Span {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.line_start == self.line_stop {
+            write!(f, "{}:{}-{}", self.line_start, self.col_start, self.col_stop)
+        } else {
+            write!(
+                f,
+                "{}:{}-{}:{}",
+                self.line_start, self.col_start, self.line_stop, self.col_stop
+            )
         }
     }
 }
 
-impl<'ast> From<GrammarSpan<'ast>> for Span {
-    fn from(span: GrammarSpan<'ast>) -> Self {
-        let mut text = " ".to_string();
-        let line_col = span.start_pos().line_col();
-        let end = span.end_pos().line_col().1;
+impl<'ast> From<pest::Span<'ast>> for Span {
+    fn from(span: pest::Span) -> Self {
+        let start = span.start_pos().line_col();
+        let end = span.end_pos().line_col();
 
-        text.push_str(span.start_pos().line_of().trim_end());
+        Span {
+            line_start: start.0,
+            line_stop: end.0,
+            col_start: start.1,
+            col_stop: end.1,
+            path: Rc::new(String::new()),
+        }
+    }
+}
 
-        Self {
-            text,
-            line: line_col.0,
-            start: line_col.1,
-            end,
+impl std::ops::Add for &Span {
+    type Output = Span;
+
+    fn add(self, other: &Span) -> Span {
+        self.clone() + other.clone()
+    }
+}
+
+impl std::ops::Add for Span {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        if self.line_start == other.line_stop {
+            Span {
+                line_start: self.line_start,
+                line_stop: self.line_stop,
+                col_start: self.col_start.min(other.col_start),
+                col_stop: self.col_stop.max(other.col_stop),
+                path: self.path,
+            }
+        } else if self.line_start < other.line_start {
+            Span {
+                line_start: self.line_start,
+                line_stop: other.line_stop,
+                col_start: self.col_start,
+                col_stop: other.col_stop,
+                path: self.path,
+            }
+        } else {
+            Span {
+                line_start: other.line_start,
+                line_stop: self.line_stop,
+                col_start: other.col_start,
+                col_stop: self.col_stop,
+                path: self.path,
+            }
         }
     }
 }
