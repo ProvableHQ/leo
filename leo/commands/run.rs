@@ -22,9 +22,9 @@ use leo_compiler::group::targets::edwards_bls12::EdwardsGroupType;
 
 use anyhow::Result;
 use snarkvm_algorithms::snark::groth16::Groth16;
+use snarkvm_algorithms::traits::SNARK;
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_curves::bls12_377::Fr;
-use snarkvm_models::algorithms::SNARK;
 use structopt::StructOpt;
 use tracing::span::Span;
 

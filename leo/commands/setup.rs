@@ -31,9 +31,9 @@ use snarkvm_algorithms::snark::groth16::Groth16;
 use snarkvm_algorithms::snark::groth16::Parameters;
 use snarkvm_algorithms::snark::groth16::PreparedVerifyingKey;
 use snarkvm_algorithms::snark::groth16::VerifyingKey;
+use snarkvm_algorithms::traits::snark::SNARK;
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_curves::bls12_377::Fr;
-use snarkvm_models::algorithms::snark::SNARK;
 use structopt::StructOpt;
 use tracing::span::Span;
 
