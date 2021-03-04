@@ -24,7 +24,7 @@ use snarkvm_dpc::base_dpc::instantiated::*;
 use snarkvm_dpc::base_dpc::record_payload::RecordPayload;
 use snarkvm_dpc::base_dpc::DPC;
 use snarkvm_dpc::Account;
-use snarkvm_models::dpc::Record;
+use snarkvm_dpc::Record;
 use snarkvm_models::objects::AccountScheme;
 use snarkvm_utilities::bytes::ToBytes;
 use snarkvm_utilities::to_bytes;
@@ -32,7 +32,7 @@ use snarkvm_utilities::to_bytes;
 use rand::Rng;
 use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
-use snarkvm_models::dpc::DPCScheme;
+use snarkvm_dpc::DPCScheme;
 use snarkvm_storage::Ledger;
 
 // TODO (Collin): Update input to reflect new parameter ordering.
