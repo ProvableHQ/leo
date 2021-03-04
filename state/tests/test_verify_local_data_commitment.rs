@@ -23,9 +23,9 @@ use snarkvm_algorithms::traits::CRH;
 use snarkvm_dpc::base_dpc::instantiated::*;
 use snarkvm_dpc::base_dpc::record_payload::RecordPayload;
 use snarkvm_dpc::base_dpc::DPC;
+use snarkvm_dpc::Account;
 use snarkvm_models::dpc::Record;
 use snarkvm_models::objects::AccountScheme;
-use snarkvm_objects::Account;
 use snarkvm_utilities::bytes::ToBytes;
 use snarkvm_utilities::to_bytes;
 

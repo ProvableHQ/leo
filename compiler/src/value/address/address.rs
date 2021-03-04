@@ -20,6 +20,7 @@ use crate::GroupType;
 use leo_ast::InputValue;
 use leo_ast::Span;
 
+use snarkvm_dpc::account::AccountAddress;
 use snarkvm_dpc::base_dpc::instantiated::Components;
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
@@ -30,7 +31,6 @@ use snarkvm_gadgets::traits::utilities::eq::EvaluateEqGadget;
 use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
 use snarkvm_gadgets::traits::utilities::uint::UInt;
 use snarkvm_gadgets::traits::utilities::uint::UInt8;
-use snarkvm_objects::account::AccountAddress;
 use snarkvm_r1cs::Assignment;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;

@@ -1374,7 +1374,6 @@ dependencies = [
  "snarkvm-algorithms",
  "snarkvm-curves",
  "snarkvm-dpc",
- "snarkvm-objects",
  "snarkvm-storage",
  "snarkvm-utilities",
  "thiserror",
