@@ -1336,6 +1336,7 @@ dependencies = [
  "snarkvm-algorithms",
  "snarkvm-curves",
  "snarkvm-gadgets",
+ "snarkvm-r1cs",
  "snarkvm-utilities",
  "structopt",
  "thiserror",
