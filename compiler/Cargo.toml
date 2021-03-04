@@ -65,6 +65,10 @@ default-features = false
 version = "0.2.0"
 default-features = false
 
+[dependencies.snarkvm-r1cs]
+version = "0.2.0"
+default-features = false
+
 [dependencies.snarkvm-utilities]
 version = "0.2.0"
 

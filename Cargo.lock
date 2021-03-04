@@ -1245,6 +1245,7 @@ dependencies = [
  "snarkvm-dpc",
  "snarkvm-fields",
  "snarkvm-gadgets",
+ "snarkvm-r1cs",
  "snarkvm-utilities",
  "thiserror",
  "tracing",
