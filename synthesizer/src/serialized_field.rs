@@ -21,7 +21,7 @@ use num_bigint::BigUint;
 use serde::Deserialize;
 use serde::Serialize;
 use snarkvm_errors::curves::FieldError;
-use snarkvm_models::curves::Field;
+use snarkvm_fields::Field;
 use snarkvm_models::curves::Fp256;
 use snarkvm_models::curves::Fp256Parameters;
 

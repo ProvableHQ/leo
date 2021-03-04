@@ -24,9 +24,9 @@ use leo_ast::Span;
 
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
 use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub(crate) fn allocate_bool<F: PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,
