@@ -16,7 +16,7 @@
 
 use serde::Deserialize;
 use serde::Serialize;
-use snarkvm_models::gadgets::r1cs::Index;
+use snarkvm_r1cs::Index;
 
 #[derive(Serialize, Deserialize)]
 pub enum SerializedIndex {

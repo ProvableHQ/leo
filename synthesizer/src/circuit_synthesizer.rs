@@ -17,11 +17,11 @@
 use snarkvm_curves::traits::PairingEngine;
 use snarkvm_fields::Field;
 use snarkvm_gadgets::traits::utilities::OptionalVec;
-use snarkvm_models::gadgets::r1cs::Index;
-use snarkvm_models::gadgets::r1cs::LinearCombination;
-use snarkvm_models::gadgets::r1cs::Variable;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::Index;
+use snarkvm_r1cs::LinearCombination;
 use snarkvm_r1cs::SynthesisError;
+use snarkvm_r1cs::Variable;
 
 #[derive(Default)]
 pub struct Namespace {

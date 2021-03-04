@@ -22,9 +22,9 @@ use leo_gadgets::Int64;
 use leo_gadgets::Int8;
 
 use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_models::gadgets::r1cs::Fr;
-use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::Fr;
+use snarkvm_r1cs::TestConstraintSystem;
 
 use rand::Rng;
 use rand::SeedableRng;

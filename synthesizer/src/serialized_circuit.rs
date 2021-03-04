@@ -22,8 +22,8 @@ use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_curves::traits::PairingEngine;
 use snarkvm_errors::curves::FieldError;
 use snarkvm_gadgets::traits::utilities::OptionalVec;
-use snarkvm_models::gadgets::r1cs::Index;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::Index;
 
 use crate::CircuitSynthesizer;
 use crate::SerializedField;

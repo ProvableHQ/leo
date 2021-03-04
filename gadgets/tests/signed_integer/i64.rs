@@ -21,9 +21,9 @@ use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_models::curves::One;
 use snarkvm_models::curves::Zero;
-use snarkvm_models::gadgets::r1cs::Fr;
-use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::Fr;
+use snarkvm_r1cs::TestConstraintSystem;
 
 use rand::Rng;
 use rand_core::SeedableRng;

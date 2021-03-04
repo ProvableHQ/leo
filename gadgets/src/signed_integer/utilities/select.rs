@@ -21,7 +21,7 @@ use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_gadgets::traits::utilities::eq::EqGadget;
 use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
-use snarkvm_models::gadgets::r1cs::Assignment;
+use snarkvm_r1cs::Assignment;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 

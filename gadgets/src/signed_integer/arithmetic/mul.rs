@@ -30,9 +30,9 @@ use snarkvm_gadgets::traits::utilities::boolean::AllocatedBit;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
 use snarkvm_models::curves::FpParameters;
-use snarkvm_models::gadgets::r1cs::Assignment;
-use snarkvm_models::gadgets::r1cs::LinearCombination;
+use snarkvm_r1cs::Assignment;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::LinearCombination;
 
 use std::iter;
 

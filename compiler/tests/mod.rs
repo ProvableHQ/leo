@@ -51,7 +51,7 @@ use leo_input::types::U32Type;
 use leo_input::types::UnsignedIntegerType;
 
 use snarkvm_curves::edwards_bls12::Fq;
-use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
+use snarkvm_r1cs::TestConstraintSystem;
 
 use std::path::PathBuf;
 

@@ -29,9 +29,9 @@ use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
 use snarkvm_gadgets::traits::utilities::boolean::AllocatedBit;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_models::curves::fp_parameters::FpParameters;
-use snarkvm_models::gadgets::r1cs::Assignment;
-use snarkvm_models::gadgets::r1cs::LinearCombination;
+use snarkvm_r1cs::Assignment;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::LinearCombination;
 
 macro_rules! add_int_impl {
     ($($gadget: ident)*) => ($(
