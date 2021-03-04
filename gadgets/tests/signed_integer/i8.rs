@@ -17,10 +17,10 @@
 use leo_gadgets::arithmetic::*;
 use leo_gadgets::Int8;
 
+use snarkvm_fields::One;
+use snarkvm_fields::Zero;
 use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_models::curves::One;
-use snarkvm_models::curves::Zero;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::Fr;
 use snarkvm_r1cs::TestConstraintSystem;
