@@ -1244,7 +1244,6 @@ dependencies = [
  "snarkvm-curves",
  "snarkvm-dpc",
  "snarkvm-gadgets",
- "snarkvm-objects",
  "snarkvm-utilities",
  "thiserror",
  "tracing",
