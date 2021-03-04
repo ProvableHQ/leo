@@ -22,8 +22,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use snarkvm_fields::Field;
 use snarkvm_fields::FieldError;
-use snarkvm_models::curves::Fp256;
-use snarkvm_models::curves::Fp256Parameters;
+use snarkvm_fields::Fp256;
+use snarkvm_fields::Fp256Parameters;
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedField(pub String);
