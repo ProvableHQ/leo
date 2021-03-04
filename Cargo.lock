@@ -1259,6 +1259,7 @@ dependencies = [
  "rand_core",
  "rand_xorshift",
  "snarkvm-fields",
+ "snarkvm-r1cs",
  "snarkvm-utilities",
  "thiserror",
 ]
