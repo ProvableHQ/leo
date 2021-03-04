@@ -122,11 +122,12 @@ impl Command for Build {
             // Generate the program on the constraint system and verify correctness
             {
                 let mut cs = CircuitSynthesizer::<Bls12_377> {
-                    at: vec![],
-                    bt: vec![],
-                    ct: vec![],
-                    public_variables: vec![],
-                    private_variables: vec![],
+                    at: Default::default(),
+                    bt: Default::default(),
+                    ct: Default::default(),
+                    public_variables: Default::default(),
+                    private_variables: Default::default(),
+                    namespaces: Default::default(),
                 };
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;
