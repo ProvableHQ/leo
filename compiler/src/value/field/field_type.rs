@@ -22,8 +22,8 @@ use leo_ast::Span;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::fields::AllocatedFp;
-use snarkvm_gadgets::fields::FieldGadget;
 use snarkvm_gadgets::fields::FpGadget;
+use snarkvm_gadgets::traits::fields::FieldGadget;
 use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_gadgets::traits::utilities::eq::ConditionalEqGadget;
