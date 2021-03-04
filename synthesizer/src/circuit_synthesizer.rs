@@ -16,10 +16,10 @@
 
 use snarkvm_curves::traits::PairingEngine;
 use snarkvm_fields::Field;
-use snarkvm_gadgets::traits::utilities::OptionalVec;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::Index;
 use snarkvm_r1cs::LinearCombination;
+use snarkvm_r1cs::OptionalVec;
 use snarkvm_r1cs::SynthesisError;
 use snarkvm_r1cs::Variable;
 

@@ -23,7 +23,7 @@ use leo_asg::Function;
 use leo_asg::Span;
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::algorithms::prf::Blake2sGadget;
-use snarkvm_gadgets::algorithms::PRFGadget;
+use snarkvm_gadgets::traits::algorithms::PRFGadget;
 use snarkvm_gadgets::traits::utilities::uint::UInt8;
 use snarkvm_gadgets::traits::utilities::ToBytesGadget;
 use snarkvm_r1cs::ConstraintSystem;
