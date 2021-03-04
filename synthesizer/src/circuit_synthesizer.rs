@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use snarkvm_curves::traits::PairingEngine;
 use snarkvm_fields::Field;
 use snarkvm_gadgets::traits::utilities::OptionalVec;
-use snarkvm_models::curves::PairingEngine;
 use snarkvm_models::gadgets::r1cs::Index;
 use snarkvm_models::gadgets::r1cs::LinearCombination;
 use snarkvm_models::gadgets::r1cs::Variable;
