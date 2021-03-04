@@ -18,8 +18,7 @@ use std::{convert::TryFrom, str::FromStr};
 
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
-use snarkvm_errors::curves::FieldError;
-use snarkvm_models::curves::{Field, Fp256, Fp256Parameters};
+use snarkvm_fields::{Field, FieldError, Fp256, Fp256Parameters};
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedField(pub String);

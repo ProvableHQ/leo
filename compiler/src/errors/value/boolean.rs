@@ -16,7 +16,7 @@
 
 use leo_ast::{Error as FormattedError, Span};
 
-use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_r1cs::SynthesisError;
 use std::path::Path;
 
 #[derive(Debug, Error)]

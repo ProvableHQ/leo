@@ -24,20 +24,15 @@ use leo_gadgets::{
     signed_integer::*,
 };
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            uint::*,
-        },
-    },
+use snarkvm_fields::{Field, PrimeField};
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::Boolean,
+    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+    select::CondSelectGadget,
+    uint::*,
 };
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::fmt;
 
 /// An integer type enum wrapping the integer value.

@@ -29,10 +29,9 @@ use crate::{
 };
 use leo_asg::{expression::*, ConstValue, Expression, Node};
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(

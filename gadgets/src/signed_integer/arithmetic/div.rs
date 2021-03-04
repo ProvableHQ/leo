@@ -25,18 +25,14 @@ use crate::{
     Int64,
     Int8,
 };
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::{AllocatedBit, Boolean},
-            eq::EvaluateEqGadget,
-            select::CondSelectGadget,
-        },
-    },
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::{AllocatedBit, Boolean},
+    eq::EvaluateEqGadget,
+    select::CondSelectGadget,
 };
+use snarkvm_r1cs::ConstraintSystem;
 
 macro_rules! div_int_impl {
     ($($gadget:ident),*) => ($(

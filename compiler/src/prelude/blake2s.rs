@@ -17,15 +17,15 @@
 use super::CoreCircuit;
 use crate::{errors::ExpressionError, ConstrainedValue, GroupType, Integer};
 use leo_asg::{Function, Span};
-use snarkvm_gadgets::algorithms::prf::Blake2sGadget;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::{
+    algorithms::prf::Blake2sGadget,
+    traits::{
         algorithms::PRFGadget,
-        r1cs::ConstraintSystem,
         utilities::{uint::UInt8, ToBytesGadget},
     },
 };
+use snarkvm_r1cs::ConstraintSystem;
 
 pub struct Blake2s;
 

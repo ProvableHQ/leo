@@ -31,11 +31,8 @@ use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
 
 use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
 use sha2::{Digest, Sha256};
 use std::{

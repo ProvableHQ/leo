@@ -25,17 +25,13 @@ use crate::{
     Int64,
     Int8,
 };
-use snarkvm_models::{
-    curves::{FpParameters, PrimeField},
-    gadgets::{
-        r1cs::{Assignment, ConstraintSystem, LinearCombination},
-        utilities::{
-            alloc::AllocGadget,
-            boolean::{AllocatedBit, Boolean},
-            select::CondSelectGadget,
-        },
-    },
+use snarkvm_fields::{FpParameters, PrimeField};
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::{AllocatedBit, Boolean},
+    select::CondSelectGadget,
 };
+use snarkvm_r1cs::{Assignment, ConstraintSystem, LinearCombination};
 
 use std::iter;
 

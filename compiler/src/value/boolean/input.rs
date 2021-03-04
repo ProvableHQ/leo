@@ -19,14 +19,9 @@
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_ast::{InputValue, Span};
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{alloc::AllocGadget, boolean::Boolean},
-    },
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, boolean::Boolean};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 pub(crate) fn allocate_bool<F: PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,

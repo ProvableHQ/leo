@@ -26,10 +26,9 @@ use crate::{
 };
 use leo_asg::ConditionalStatement;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 fn indicator_to_string(indicator: &Boolean) -> String {
     indicator

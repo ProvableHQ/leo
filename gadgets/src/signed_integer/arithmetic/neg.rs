@@ -16,7 +16,8 @@
 
 use crate::{arithmetic::Neg, errors::SignedIntegerError, signed_integer::*};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 macro_rules! neg_int_impl {
     ($($gadget: ident)*) => ($(

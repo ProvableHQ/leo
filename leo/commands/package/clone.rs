@@ -19,7 +19,10 @@ use crate::{api::Fetch, commands::Command, context::Context};
 use anyhow::{anyhow, Result};
 use std::{
     borrow::Cow,
-    fs::{self, File},
+    fs::{
+        File,
+        {self},
+    },
     io::{Read, Write},
     path::Path,
 };

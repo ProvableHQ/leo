@@ -17,15 +17,9 @@
 use std::convert::TryFrom;
 
 use serde::{Deserialize, Serialize};
-use snarkvm_curves::bls12_377::Bls12_377;
-use snarkvm_errors::curves::FieldError;
-use snarkvm_models::{
-    curves::PairingEngine,
-    gadgets::{
-        r1cs::{ConstraintSystem, Index},
-        utilities::OptionalVec,
-    },
-};
+use snarkvm_curves::{bls12_377::Bls12_377, traits::PairingEngine};
+use snarkvm_fields::FieldError;
+use snarkvm_r1cs::{ConstraintSystem, Index, OptionalVec};
 
 use crate::{CircuitSynthesizer, SerializedField, SerializedIndex};
 

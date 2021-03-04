@@ -19,7 +19,8 @@ pub use blake2s::*;
 
 use crate::{errors::ExpressionError, ConstrainedValue, GroupType};
 use leo_asg::{Function, Span};
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub trait CoreCircuit<'a, F: PrimeField, G: GroupType<F>>: Send + Sync {
     fn call_function<CS: ConstraintSystem<F>>(
