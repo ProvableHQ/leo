@@ -24,11 +24,11 @@ use crate::Int32;
 use crate::Int64;
 use crate::Int8;
 
+use snarkvm_fields::fp_parameters::FpParameters;
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
 use snarkvm_gadgets::traits::utilities::boolean::AllocatedBit;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_models::curves::fp_parameters::FpParameters;
 use snarkvm_r1cs::Assignment;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::LinearCombination;
