@@ -21,20 +21,20 @@ use crate::number_string_typing;
 use leo_ast::Span;
 
 use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_gadgets::traits::alloc::AllocGadget;
+use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_gadgets::traits::eq::ConditionalEqGadget;
+use snarkvm_gadgets::traits::eq::EqGadget;
+use snarkvm_gadgets::traits::eq::EvaluateEqGadget;
+use snarkvm_gadgets::traits::select::CondSelectGadget;
+use snarkvm_gadgets::traits::uint::UInt8;
+use snarkvm_gadgets::traits::ToBitsGadget;
+use snarkvm_gadgets::traits::ToBytesGadget;
 use snarkvm_models::curves::PrimeField;
 use snarkvm_models::gadgets::curves::AllocatedFp;
 use snarkvm_models::gadgets::curves::FieldGadget;
 use snarkvm_models::gadgets::curves::FpGadget;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
-use snarkvm_models::gadgets::utilities::eq::ConditionalEqGadget;
-use snarkvm_models::gadgets::utilities::eq::EqGadget;
-use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
-use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
-use snarkvm_models::gadgets::utilities::uint::UInt8;
-use snarkvm_models::gadgets::utilities::ToBitsGadget;
-use snarkvm_models::gadgets::utilities::ToBytesGadget;
+use snarkvm_r1cs::ConstraintSystem;
 
 use std::borrow::Borrow;
 use std::cmp::Ordering;
@@ -293,7 +293,11 @@ impl<F: PrimeField> CondSelectGadget<F> for FieldType<F> {
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         if let Boolean::Constant(cond) = *cond {
-            if cond { Ok(first.clone()) } else { Ok(second.clone()) }
+            if cond {
+                Ok(first.clone())
+            } else {
+                Ok(second.clone())
+            }
         } else {
             let first_gadget = first.allocated(&mut cs)?;
             let second_gadget = second.allocated(&mut cs)?;

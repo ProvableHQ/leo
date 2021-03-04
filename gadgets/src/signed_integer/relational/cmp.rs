@@ -23,10 +23,10 @@ use crate::Int64;
 use crate::Int8;
 
 use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_gadgets::traits::select::CondSelectGadget;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
-use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
+use snarkvm_r1cs::ConstraintSystem;
 use std::cmp::Ordering;
 
 macro_rules! cmp_gadget_impl {

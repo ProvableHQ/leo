@@ -22,9 +22,9 @@ use crate::value::ConstrainedValue;
 use crate::GroupType;
 use leo_asg::Statement;
 
+use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub type StatementResult<T> = Result<T, StatementError>;
 pub type IndicatorAndConstrainedValue<'a, T, U> = (Boolean, ConstrainedValue<'a, T, U>);

@@ -24,7 +24,7 @@ use crate::Int32;
 use crate::Int64;
 use crate::Int8;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 
 macro_rules! sub_int_impl {
     ($($gadget: ident)*) => ($(

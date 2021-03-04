@@ -24,14 +24,14 @@ use crate::Int32;
 use crate::Int64;
 use crate::Int8;
 
+use snarkvm_gadgets::traits::alloc::AllocGadget;
+use snarkvm_gadgets::traits::boolean::AllocatedBit;
+use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_models::curves::fp_parameters::FpParameters;
 use snarkvm_models::curves::PrimeField;
 use snarkvm_models::gadgets::r1cs::Assignment;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 use snarkvm_models::gadgets::r1cs::LinearCombination;
-use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
-use snarkvm_models::gadgets::utilities::boolean::AllocatedBit;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 macro_rules! add_int_impl {
     ($($gadget: ident)*) => ($(

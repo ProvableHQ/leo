@@ -23,7 +23,7 @@ use crate::GroupType;
 use leo_asg::Expression;
 
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 
 type ConstrainedValuePair<'a, T, U> = (ConstrainedValue<'a, T, U>, ConstrainedValue<'a, T, U>);
 

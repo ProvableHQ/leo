@@ -32,9 +32,9 @@ use leo_asg::ConstValue;
 use leo_asg::Expression;
 use leo_asg::Node;
 
+use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(

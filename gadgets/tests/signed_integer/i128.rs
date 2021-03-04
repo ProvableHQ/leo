@@ -17,13 +17,13 @@
 use leo_gadgets::arithmetic::*;
 use leo_gadgets::Int128;
 
+use snarkvm_gadgets::traits::alloc::AllocGadget;
+use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_models::curves::One;
 use snarkvm_models::curves::Zero;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 use snarkvm_models::gadgets::r1cs::Fr;
 use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
-use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 use rand::Rng;
 use rand_core::SeedableRng;

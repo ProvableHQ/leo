@@ -25,9 +25,9 @@ use leo_ast::InputValue;
 use leo_ast::Span;
 
 use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_gadgets::traits::alloc::AllocGadget;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,

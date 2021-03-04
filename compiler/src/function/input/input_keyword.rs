@@ -27,7 +27,7 @@ use leo_ast::Input;
 use leo_ast::Span;
 
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub const RECORD_VARIABLE_NAME: &str = "record";
 pub const REGISTERS_VARIABLE_NAME: &str = "registers";

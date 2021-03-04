@@ -26,7 +26,7 @@ use leo_asg::Identifier;
 use leo_asg::Span;
 
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub(crate) enum ResolvedAssigneeAccess {
     ArrayRange(Option<usize>, Option<usize>),

@@ -30,7 +30,7 @@ use leo_asg::Type;
 use leo_ast::InputValue;
 use leo_ast::Span;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_main_function_input<CS: ConstraintSystem<F>>(

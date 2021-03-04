@@ -36,8 +36,8 @@ use snarkvm_dpc::base_dpc::instantiated::Components;
 use snarkvm_dpc::SystemParameters;
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSynthesizer;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSynthesizer;
+use snarkvm_r1cs::ConstraintSystem;
 
 use sha2::Digest;
 use sha2::Sha256;

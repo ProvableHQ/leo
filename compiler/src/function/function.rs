@@ -26,9 +26,9 @@ use leo_asg::Function;
 use leo_asg::FunctionQualifier;
 use std::cell::Cell;
 
+use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_function<CS: ConstraintSystem<F>>(

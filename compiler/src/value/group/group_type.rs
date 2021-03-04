@@ -21,15 +21,15 @@ use leo_asg::GroupValue;
 use leo_asg::Span;
 
 use snarkvm_fields::Field;
+use snarkvm_gadgets::traits::alloc::AllocGadget;
+use snarkvm_gadgets::traits::eq::ConditionalEqGadget;
+use snarkvm_gadgets::traits::eq::EqGadget;
+use snarkvm_gadgets::traits::eq::EvaluateEqGadget;
+use snarkvm_gadgets::traits::select::CondSelectGadget;
+use snarkvm_gadgets::traits::ToBitsGadget;
+use snarkvm_gadgets::traits::ToBytesGadget;
 use snarkvm_models::curves::One;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
-use snarkvm_models::gadgets::utilities::eq::ConditionalEqGadget;
-use snarkvm_models::gadgets::utilities::eq::EqGadget;
-use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
-use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
-use snarkvm_models::gadgets::utilities::ToBitsGadget;
-use snarkvm_models::gadgets::utilities::ToBytesGadget;
+use snarkvm_r1cs::ConstraintSystem;
 use std::fmt::Debug;
 use std::fmt::Display;
 

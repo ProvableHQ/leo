@@ -31,7 +31,7 @@ use leo_asg::TupleAccessExpression;
 use leo_asg::Variable;
 
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     fn prepare_mut_access<CS: ConstraintSystem<F>>(

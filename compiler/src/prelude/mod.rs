@@ -23,7 +23,7 @@ use crate::GroupType;
 use leo_asg::Function;
 use leo_asg::Span;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub trait CoreCircuit<'a, F: PrimeField, G: GroupType<F>>: Send + Sync {
     fn call_function<CS: ConstraintSystem<F>>(

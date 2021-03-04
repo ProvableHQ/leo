@@ -27,8 +27,8 @@ use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 use std::path::Path;
 
 pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

@@ -16,14 +16,14 @@
 
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_fields::Field;
+use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_gadgets::traits::select::CondSelectGadget;
+use snarkvm_gadgets::traits::uint::UInt128;
+use snarkvm_gadgets::traits::uint::UInt16;
+use snarkvm_gadgets::traits::uint::UInt32;
+use snarkvm_gadgets::traits::uint::UInt64;
+use snarkvm_gadgets::traits::uint::UInt8;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
-use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
-use snarkvm_models::gadgets::utilities::uint::UInt128;
-use snarkvm_models::gadgets::utilities::uint::UInt16;
-use snarkvm_models::gadgets::utilities::uint::UInt32;
-use snarkvm_models::gadgets::utilities::uint::UInt64;
-use snarkvm_models::gadgets::utilities::uint::UInt8;
 use snarkvm_r1cs::ConstraintSystem;
 
 pub trait EvaluateLtGadget<F: Field> {

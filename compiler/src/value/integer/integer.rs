@@ -28,15 +28,15 @@ use leo_gadgets::signed_integer::*;
 
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_fields::Field;
+use snarkvm_gadgets::traits::alloc::AllocGadget;
+use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_gadgets::traits::eq::ConditionalEqGadget;
+use snarkvm_gadgets::traits::eq::EqGadget;
+use snarkvm_gadgets::traits::eq::EvaluateEqGadget;
+use snarkvm_gadgets::traits::select::CondSelectGadget;
+use snarkvm_gadgets::traits::uint::*;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
-use snarkvm_models::gadgets::utilities::eq::ConditionalEqGadget;
-use snarkvm_models::gadgets::utilities::eq::EqGadget;
-use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
-use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
-use snarkvm_models::gadgets::utilities::uint::*;
+use snarkvm_r1cs::ConstraintSystem;
 use std::fmt;
 
 /// An integer type enum wrapping the integer value.

@@ -21,8 +21,8 @@ use crate::value::ConstrainedValue;
 use crate::GroupType;
 use leo_asg::Span;
 
+use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 pub fn enforce_and<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

@@ -35,7 +35,7 @@ use leo_synthesizer::SerializedCircuit;
 use anyhow::Result;
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_curves::edwards_bls12::Fq;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
 

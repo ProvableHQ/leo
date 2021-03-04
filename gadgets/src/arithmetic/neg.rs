@@ -18,8 +18,8 @@ use crate::bits::RippleCarryAdder;
 
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_fields::Field;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 use std::iter;
 

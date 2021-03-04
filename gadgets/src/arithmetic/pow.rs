@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use snarkvm_fields::Field;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 
 /// Returns exponentiation of `self` ** `other` in the constraint system.
 pub trait Pow<F: Field, Rhs = Self>

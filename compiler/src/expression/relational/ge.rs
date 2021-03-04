@@ -23,7 +23,7 @@ use leo_asg::Span;
 use leo_gadgets::bits::ComparatorGadget;
 
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub fn evaluate_ge<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,

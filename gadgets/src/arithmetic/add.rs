@@ -16,14 +16,14 @@
 
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_fields::Field;
+use snarkvm_gadgets::traits::uint::UInt;
+use snarkvm_gadgets::traits::uint::UInt128;
+use snarkvm_gadgets::traits::uint::UInt16;
+use snarkvm_gadgets::traits::uint::UInt32;
+use snarkvm_gadgets::traits::uint::UInt64;
+use snarkvm_gadgets::traits::uint::UInt8;
 use snarkvm_models::curves::PrimeField;
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
-use snarkvm_models::gadgets::utilities::uint::UInt;
-use snarkvm_models::gadgets::utilities::uint::UInt128;
-use snarkvm_models::gadgets::utilities::uint::UInt16;
-use snarkvm_models::gadgets::utilities::uint::UInt32;
-use snarkvm_models::gadgets::utilities::uint::UInt64;
-use snarkvm_models::gadgets::utilities::uint::UInt8;
+use snarkvm_r1cs::ConstraintSystem;
 
 /// Returns addition of `self` + `other` in the constraint system.
 pub trait Add<F: Field, Rhs = Self>
