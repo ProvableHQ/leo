@@ -1389,6 +1389,7 @@ dependencies = [
  "serde_json",
  "snarkvm-curves",
  "snarkvm-fields",
+ "snarkvm-gadgets",
  "snarkvm-r1cs",
 ]
 
