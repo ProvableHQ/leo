@@ -21,6 +21,10 @@ edition = "2018"
 version = "0.2.0"
 default-features = false
 
+[dependencies.snarkvm-fields]
+version = "0.2.0"
+default-features = false
+
 [dependencies.num-bigint]
 version = "0.3"
 
