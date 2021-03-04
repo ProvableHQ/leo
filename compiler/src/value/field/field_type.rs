@@ -21,6 +21,9 @@ use crate::number_string_typing;
 use leo_ast::Span;
 
 use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::curves::AllocatedFp;
+use snarkvm_gadgets::curves::FieldGadget;
+use snarkvm_gadgets::curves::FpGadget;
 use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_gadgets::traits::utilities::eq::ConditionalEqGadget;
@@ -30,9 +33,6 @@ use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
 use snarkvm_gadgets::traits::utilities::uint::UInt8;
 use snarkvm_gadgets::traits::utilities::ToBitsGadget;
 use snarkvm_gadgets::traits::utilities::ToBytesGadget;
-use snarkvm_models::gadgets::curves::AllocatedFp;
-use snarkvm_models::gadgets::curves::FieldGadget;
-use snarkvm_models::gadgets::curves::FpGadget;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 
