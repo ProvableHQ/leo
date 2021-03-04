@@ -19,7 +19,10 @@ use leo_input::common::Identifier as InputIdentifier;
 
 use crate::Node;
 use serde::{
-    de::{self, Visitor},
+    de::{
+        Visitor,
+        {self},
+    },
     Deserialize,
     Deserializer,
     Serialize,

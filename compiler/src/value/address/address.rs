@@ -17,22 +17,16 @@
 use crate::{errors::AddressError, ConstrainedValue, GroupType};
 use leo_ast::{InputValue, Span};
 
-use snarkvm_dpc::base_dpc::instantiated::Components;
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::{Assignment, ConstraintSystem},
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            uint::{UInt, UInt8},
-        },
-    },
+use snarkvm_dpc::{account::AccountAddress, base_dpc::instantiated::Components};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::Boolean,
+    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+    select::CondSelectGadget,
+    uint::{UInt, UInt8},
 };
-use snarkvm_objects::account::AccountAddress;
+use snarkvm_r1cs::{Assignment, ConstraintSystem, SynthesisError};
 use snarkvm_utilities::ToBytes;
 use std::{borrow::Borrow, str::FromStr};
 

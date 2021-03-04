@@ -19,11 +19,9 @@
 use crate::{errors::FieldError, number_string_typing, value::ConstrainedValue, FieldType, GroupType};
 use leo_ast::{InputValue, Span};
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::alloc::AllocGadget},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,

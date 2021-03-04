@@ -14,11 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::Field,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_fields::Field;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 /// Single bit binary adder with carry bit
 /// https://en.wikipedia.org/wiki/Adder_(electronics)#Full_adder

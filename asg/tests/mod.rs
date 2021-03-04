@@ -16,7 +16,7 @@
 
 use leo_asg::*;
 use leo_ast::Ast;
-use leo_grammar::Grammar;
+use leo_parser::parse_ast;
 
 use std::path::Path;
 
@@ -35,7 +35,7 @@ fn load_asg_imports<'a, T: ImportResolver<'a>>(
     program_string: &str,
     imports: &mut T,
 ) -> Result<Program<'a>, AsgConvertError> {
-    let grammar = Grammar::new(Path::new(&TESTING_FILEPATH), program_string)?;
+    // let grammar = Grammar::new(Path::new(&TESTING_FILEPATH), program_string)?;
     let ast = Ast::new(TESTING_PROGRAM_NAME, &grammar)?;
     InternalProgram::new(context, &ast.as_repr(), imports)
 }

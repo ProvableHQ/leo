@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use serde::{Deserialize, Serialize};
-use snarkvm_models::gadgets::r1cs::Index;
+use snarkvm_r1cs::Index;
 
 #[derive(Serialize, Deserialize)]
 pub enum SerializedIndex {

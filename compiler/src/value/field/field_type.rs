@@ -19,12 +19,11 @@
 use crate::{errors::FieldError, number_string_typing};
 use leo_ast::Span;
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        curves::{AllocatedFp, FieldGadget, FpGadget},
-        r1cs::ConstraintSystem,
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::{
+    fields::{AllocatedFp, FpGadget},
+    traits::{
+        fields::FieldGadget,
         utilities::{
             alloc::AllocGadget,
             boolean::Boolean,
@@ -36,6 +35,7 @@ use snarkvm_models::{
         },
     },
 };
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 use std::{borrow::Borrow, cmp::Ordering};
 

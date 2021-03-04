@@ -15,7 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use std::{
-    fs::{self, create_dir_all, File},
+    fs::{
+        create_dir_all,
+        File,
+        {self},
+    },
     io,
     io::prelude::*,
     path::{Path, PathBuf},

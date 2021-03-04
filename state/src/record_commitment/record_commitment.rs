@@ -17,11 +17,11 @@
 use crate::{DPCRecordValues, RecordVerificationError};
 use leo_ast::Record as AstRecord;
 
+use snarkvm_algorithms::traits::CommitmentScheme;
 use snarkvm_dpc::base_dpc::{
     instantiated::{Components, RecordCommitment},
     parameters::SystemParameters,
 };
-use snarkvm_models::algorithms::CommitmentScheme;
 use snarkvm_utilities::{bytes::ToBytes, to_bytes, FromBytes};
 
 use std::convert::TryFrom;

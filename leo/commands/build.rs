@@ -28,7 +28,7 @@ use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
 use anyhow::Result;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -122,11 +122,12 @@ impl Command for Build {
             // Generate the program on the constraint system and verify correctness
             {
                 let mut cs = CircuitSynthesizer::<Bls12_377> {
-                    at: vec![],
-                    bt: vec![],
-                    ct: vec![],
-                    public_variables: vec![],
-                    private_variables: vec![],
+                    at: Default::default(),
+                    bt: Default::default(),
+                    ct: Default::default(),
+                    public_variables: Default::default(),
+                    private_variables: Default::default(),
+                    namespaces: Default::default(),
                 };
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;

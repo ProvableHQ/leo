@@ -70,7 +70,7 @@ pub struct Ast {
 }
 
 impl Ast {
-    /// Creates a new AST from a given program name and grammar tree.
+    /// Creates a new AST from a given program tree.
     pub fn new(program: Program) -> Self {
         Self { ast: program }
     }

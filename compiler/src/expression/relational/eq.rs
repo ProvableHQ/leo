@@ -19,13 +19,9 @@
 use crate::{enforce_and, errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_asg::Span;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::EvaluateEqGadget},
-    },
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, eq::EvaluateEqGadget};
+use snarkvm_r1cs::ConstraintSystem;
 
 pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,

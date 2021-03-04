@@ -24,9 +24,11 @@ use leo_package::{
 
 use anyhow::{anyhow, Result};
 use rand::thread_rng;
-use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
+use snarkvm_algorithms::{
+    snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey},
+    traits::snark::SNARK,
+};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
-use snarkvm_models::algorithms::snark::SNARK;
 use structopt::StructOpt;
 use tracing::span::Span;
 

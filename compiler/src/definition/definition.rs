@@ -19,7 +19,7 @@
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Variable;
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn store_definition(&mut self, variable: &Variable, value: ConstrainedValue<'a, F, G>) {

@@ -16,13 +16,9 @@
 
 use leo_gadgets::{arithmetic::*, Int8};
 
-use snarkvm_models::{
-    curves::{One, Zero},
-    gadgets::{
-        r1cs::{ConstraintSystem, Fr, TestConstraintSystem},
-        utilities::{alloc::AllocGadget, boolean::Boolean},
-    },
-};
+use snarkvm_fields::{One, Zero};
+use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, boolean::Boolean};
+use snarkvm_r1cs::{ConstraintSystem, Fr, TestConstraintSystem};
 
 use rand::Rng;
 use rand_core::SeedableRng;

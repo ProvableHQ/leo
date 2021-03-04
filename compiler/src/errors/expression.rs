@@ -16,8 +16,7 @@
 
 use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
 use leo_ast::{ArrayDimensions, FormattedError, Identifier, LeoError, PositiveNumber, Span};
-
-use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {

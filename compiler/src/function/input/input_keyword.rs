@@ -18,7 +18,8 @@ use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram,
 use leo_asg::{Circuit, CircuitMember, Type};
 use leo_ast::{Identifier, Input, Span};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub const RECORD_VARIABLE_NAME: &str = "record";
 pub const REGISTERS_VARIABLE_NAME: &str = "registers";

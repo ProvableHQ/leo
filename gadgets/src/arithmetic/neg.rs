@@ -16,11 +16,9 @@
 
 use crate::bits::RippleCarryAdder;
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::Field,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_fields::Field;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 use std::iter;
 

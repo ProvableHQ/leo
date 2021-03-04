@@ -16,14 +16,9 @@
 
 use crate::signed_integer::*;
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::ConditionalEqGadget},
-    },
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, eq::ConditionalEqGadget};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 macro_rules! cond_eq_int_impl {
     ($($gadget: ident),*) => ($(

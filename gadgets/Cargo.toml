@@ -17,16 +17,20 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
-[dependencies.snarkvm-errors]
-version = "0.0.6"
+[dependencies.snarkvm-fields]
+version = "0.2.0"
 default-features = false
 
-[dependencies.snarkvm-models]
-version = "0.0.6"
+[dependencies.snarkvm-gadgets]
+version = "0.2.0"
+default-features = false
+
+[dependencies.snarkvm-r1cs]
+version = "0.2.0"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.6"
+version = "0.2.0"
 
 [dependencies.rand]
 version = "0.8"

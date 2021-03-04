@@ -14,21 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PairingEngine},
-    gadgets::r1cs::{ConstraintSystem, Index, LinearCombination, Variable},
-};
+use snarkvm_curves::traits::PairingEngine;
+use snarkvm_fields::Field;
+use snarkvm_r1cs::{ConstraintSystem, Index, LinearCombination, OptionalVec, SynthesisError, Variable};
+
+#[derive(Default)]
+pub struct Namespace {
+    constraint_indices: Vec<usize>,
+    public_var_indices: Vec<usize>,
+    private_var_indices: Vec<usize>,
+}
 
 pub struct CircuitSynthesizer<E: PairingEngine> {
     // Constraints
-    pub at: Vec<Vec<(E::Fr, Index)>>,
-    pub bt: Vec<Vec<(E::Fr, Index)>>,
-    pub ct: Vec<Vec<(E::Fr, Index)>>,
+    pub at: OptionalVec<Vec<(E::Fr, Index)>>,
+    pub bt: OptionalVec<Vec<(E::Fr, Index)>>,
+    pub ct: OptionalVec<Vec<(E::Fr, Index)>>,
 
     // Assignments of variables
-    pub public_variables: Vec<E::Fr>,
-    pub private_variables: Vec<E::Fr>,
+    pub public_variables: OptionalVec<E::Fr>,
+    pub private_variables: OptionalVec<E::Fr>,
+
+    // Technical namespaces used to remove of out-of-scope objects.
+    pub namespaces: Vec<Namespace>,
 }
 
 impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
@@ -41,8 +49,10 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
         A: FnOnce() -> AR,
         AR: AsRef<str>,
     {
-        let index = self.private_variables.len();
-        self.private_variables.push(f()?);
+        let index = self.private_variables.insert(f()?);
+        if let Some(ref mut ns) = self.namespaces.last_mut() {
+            ns.private_var_indices.push(index);
+        }
         Ok(Variable::new_unchecked(Index::Private(index)))
     }
 
@@ -53,8 +63,10 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
         A: FnOnce() -> AR,
         AR: AsRef<str>,
     {
-        let index = self.public_variables.len();
-        self.public_variables.push(f()?);
+        let index = self.public_variables.insert(f()?);
+        if let Some(ref mut ns) = self.namespaces.last_mut() {
+            ns.public_var_indices.push(index);
+        }
         Ok(Variable::new_unchecked(Index::Public(index)))
     }
 
@@ -67,17 +79,17 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
         LB: FnOnce(LinearCombination<E::Fr>) -> LinearCombination<E::Fr>,
         LC: FnOnce(LinearCombination<E::Fr>) -> LinearCombination<E::Fr>,
     {
-        let num_constraints = self.num_constraints();
+        let index = self.at.insert(Vec::new());
+        self.bt.insert(Vec::new());
+        self.ct.insert(Vec::new());
 
-        self.at.push(Vec::new());
-        self.bt.push(Vec::new());
-        self.ct.push(Vec::new());
+        push_constraints(a(LinearCombination::zero()), &mut self.at, index);
+        push_constraints(b(LinearCombination::zero()), &mut self.bt, index);
+        push_constraints(c(LinearCombination::zero()), &mut self.ct, index);
 
-        push_constraints(a(LinearCombination::zero()), &mut self.at, num_constraints);
-
-        push_constraints(b(LinearCombination::zero()), &mut self.bt, num_constraints);
-
-        push_constraints(c(LinearCombination::zero()), &mut self.ct, num_constraints);
+        if let Some(ref mut ns) = self.namespaces.last_mut() {
+            ns.constraint_indices.push(index);
+        }
     }
 
     fn push_namespace<NR, N>(&mut self, _: N)
@@ -85,11 +97,25 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
         NR: AsRef<str>,
         N: FnOnce() -> NR,
     {
-        // Do nothing; we don't care about namespaces in this context.
+        self.namespaces.push(Namespace::default());
     }
 
     fn pop_namespace(&mut self) {
-        // Do nothing; we don't care about namespaces in this context.
+        if let Some(ns) = self.namespaces.pop() {
+            for idx in ns.constraint_indices {
+                self.at.remove(idx);
+                self.bt.remove(idx);
+                self.ct.remove(idx);
+            }
+
+            for idx in ns.private_var_indices {
+                self.private_variables.remove(idx);
+            }
+
+            for idx in ns.public_var_indices {
+                self.public_variables.remove(idx);
+            }
+        }
     }
 
     fn get_root(&mut self) -> &mut Self::Root {
@@ -109,7 +135,11 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     }
 }
 
-fn push_constraints<F: Field>(l: LinearCombination<F>, constraints: &mut [Vec<(F, Index)>], this_constraint: usize) {
+fn push_constraints<F: Field>(
+    l: LinearCombination<F>,
+    constraints: &mut OptionalVec<Vec<(F, Index)>>,
+    this_constraint: usize,
+) {
     for (var, coeff) in l.as_ref() {
         match var.get_unchecked() {
             Index::Public(i) => constraints[this_constraint].push((*coeff, Index::Public(i))),

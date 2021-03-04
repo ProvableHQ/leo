@@ -22,10 +22,8 @@ use leo_ast::{Input, LeoError};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::{ConstraintSystem, TestConstraintSystem};
 use std::path::Path;
 
 pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

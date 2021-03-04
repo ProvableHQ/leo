@@ -26,16 +26,12 @@ use crate::{
     Int8,
 };
 
-use snarkvm_models::{
-    curves::{fp_parameters::FpParameters, PrimeField},
-    gadgets::{
-        r1cs::{Assignment, ConstraintSystem, LinearCombination},
-        utilities::{
-            alloc::AllocGadget,
-            boolean::{AllocatedBit, Boolean},
-        },
-    },
+use snarkvm_fields::{fp_parameters::FpParameters, PrimeField};
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::{AllocatedBit, Boolean},
 };
+use snarkvm_r1cs::{Assignment, ConstraintSystem, LinearCombination};
 
 macro_rules! add_int_impl {
     ($($gadget: ident)*) => ($(

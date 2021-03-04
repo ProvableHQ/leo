@@ -25,17 +25,16 @@ use crate::{
 };
 use indexmap::IndexMap;
 use leo_asg::Asg;
+pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_ast::{Input, LeoError, MainInput, Program};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
+use leo_parser::parse_ast;
 use leo_state::verify_local_data_commitment;
 
 use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::r1cs::{ConstraintSynthesizer, ConstraintSystem},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
 use sha2::{Digest, Sha256};
 use std::{
@@ -46,8 +45,6 @@ use std::{
     rc::Rc,
 };
 
-pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
-
 thread_local! {
     static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
         let leaked = Box::leak(Box::new(leo_asg::new_alloc_context()));
@@ -55,7 +52,7 @@ thread_local! {
     }
 }
 
-/// Conventience function to return a leaked thread-local global context. Should only be used for transient programs (like cli).
+/// Convenience function to return a leaked thread-local global context. Should only be used for transient programs (like cli).
 pub fn thread_leaked_context() -> AsgContext<'static> {
     THREAD_GLOBAL_CONTEXT.with(|f| *f)
 }
@@ -235,7 +232,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             Rc::new(lines),
         );
 
-        let ast = leo_parser::parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
+        let ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
         // Store the main program file.
         self.program = ast.into_repr();

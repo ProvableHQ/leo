@@ -20,14 +20,16 @@ use leo_asg::{GroupCoordinate, GroupValue, Span};
 use snarkvm_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
     templates::twisted_edwards_extended::GroupAffine,
+    AffineCurve,
+    TEModelParameters,
 };
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
-use snarkvm_models::{
-    curves::{AffineCurve, Fp256, One, TEModelParameters, Zero},
-    gadgets::{
-        curves::{AllocatedFp, FieldGadget, FpGadget, GroupGadget},
-        r1cs::ConstraintSystem,
+use snarkvm_fields::{Fp256, One, Zero};
+use snarkvm_gadgets::{
+    curves::edwards_bls12::EdwardsBlsGadget,
+    fields::{AllocatedFp, FpGadget},
+    traits::{
+        curves::GroupGadget,
+        fields::FieldGadget,
         utilities::{
             alloc::AllocGadget,
             boolean::Boolean,
@@ -39,6 +41,7 @@ use snarkvm_models::{
         },
     },
 };
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::{
     borrow::Borrow,
     ops::{Mul, Neg, Sub},

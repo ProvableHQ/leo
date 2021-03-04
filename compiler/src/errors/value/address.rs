@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{FormattedError, LeoError, Span};
-
-use snarkvm_errors::{gadgets::SynthesisError, objects::account::AccountError};
+use snarkvm_dpc::AccountError;
+use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
 pub enum AddressError {

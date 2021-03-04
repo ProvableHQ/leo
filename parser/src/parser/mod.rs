@@ -14,28 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::unimplemented;
+//! The parser to convert Leo code text into an [`Program`] AST type.
+//!
+//! This module contains the [`parse()`] method which calls the underlying [`tokenize()`]
+//! method to create a new program ast.
 
-use crate::{tokenizer::*, DeprecatedError, ParserContext, SyntaxError, Token};
-use indexmap::IndexMap;
-use leo_ast::*;
-
-pub type SyntaxResult<T> = Result<T, SyntaxError>;
+mod context;
+use context::*;
 
 mod expression;
 mod file;
 mod statement;
 mod type_;
 
-pub fn parse(path: &str, script: &str) -> SyntaxResult<Program> {
-    let mut tokens = ParserContext::new(crate::tokenize(script, path)?);
+use std::unimplemented;
+
+use crate::{tokenizer::*, DeprecatedError, SyntaxError, Token};
+use indexmap::IndexMap;
+use leo_ast::*;
+
+pub type SyntaxResult<T> = Result<T, SyntaxError>;
+
+/// Creates a new program from a given file path and source code text.
+pub fn parse(path: &str, source: &str) -> SyntaxResult<Program> {
+    let mut tokens = ParserContext::new(crate::tokenize(source, path)?);
 
     match tokens.parse_program() {
         Ok(x) => Ok(x),
         Err(mut e) => {
             e.set_path(
                 path,
-                &script.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
+                &source.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
             );
             Err(e)
         }
