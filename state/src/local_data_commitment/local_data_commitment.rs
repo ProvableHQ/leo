@@ -21,12 +21,12 @@ use crate::StateValues;
 use leo_ast::Input as AstInput;
 
 use snarkvm_algorithms::commitment_tree::CommitmentMerklePath;
+use snarkvm_algorithms::traits::CommitmentScheme;
+use snarkvm_algorithms::traits::CRH;
 use snarkvm_dpc::base_dpc::instantiated::Components;
 use snarkvm_dpc::base_dpc::instantiated::LocalDataCRH;
 use snarkvm_dpc::base_dpc::instantiated::LocalDataCommitment;
 use snarkvm_dpc::base_dpc::parameters::SystemParameters;
-use snarkvm_models::algorithms::CommitmentScheme;
-use snarkvm_models::algorithms::CRH;
 use snarkvm_models::dpc::DPCComponents;
 use snarkvm_utilities::bytes::ToBytes;
 use snarkvm_utilities::to_bytes;
