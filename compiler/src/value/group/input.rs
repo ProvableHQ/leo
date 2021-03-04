@@ -23,9 +23,9 @@ use leo_asg::GroupValue;
 use leo_asg::Span;
 use leo_ast::InputValue;
 
-use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_models::curves::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::SynthesisError;
 
 pub(crate) fn allocate_group<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,

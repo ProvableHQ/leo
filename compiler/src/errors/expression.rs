@@ -27,7 +27,7 @@ use leo_ast::Identifier;
 use leo_ast::PositiveNumber;
 use leo_ast::Span;
 
-use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_r1cs::SynthesisError;
 use std::path::Path;
 
 #[derive(Debug, Error)]

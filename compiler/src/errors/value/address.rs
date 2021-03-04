@@ -17,8 +17,8 @@
 use leo_ast::Error as FormattedError;
 use leo_ast::Span;
 
-use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_errors::objects::account::AccountError;
+use snarkvm_r1cs::SynthesisError;
 use std::path::Path;
 
 #[derive(Debug, Error)]

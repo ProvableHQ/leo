@@ -16,10 +16,10 @@
 
 use crate::bits::RippleCarryAdder;
 
-use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_fields::Field;
 use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::SynthesisError;
 
 use std::iter;
 
