@@ -15,16 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_asg::*;
-use leo_ast::Ast;
 use leo_parser::parse_ast;
-
-use std::path::Path;
 
 mod fail;
 mod pass;
 
 const TESTING_FILEPATH: &str = "input.leo";
-const TESTING_PROGRAM_NAME: &str = "test_program";
 
 fn load_asg(program_string: &str) -> Result<Program<'static>, AsgConvertError> {
     load_asg_imports(make_test_context(), program_string, &mut NullImportResolver)
@@ -35,8 +31,7 @@ fn load_asg_imports<'a, T: ImportResolver<'a>>(
     program_string: &str,
     imports: &mut T,
 ) -> Result<Program<'a>, AsgConvertError> {
-    // let grammar = Grammar::new(Path::new(&TESTING_FILEPATH), program_string)?;
-    let ast = Ast::new(TESTING_PROGRAM_NAME, &grammar)?;
+    let ast = parse_ast(&TESTING_FILEPATH, program_string)?;
     InternalProgram::new(context, &ast.as_repr(), imports)
 }
 

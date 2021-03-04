@@ -57,21 +57,21 @@ impl ParserContext {
         self.inner.last().ok_or_else(|| self.eof())
     }
 
-    pub fn peek_oneof(&self, token: &[Token]) -> SyntaxResult<&SpannedToken> {
-        if let Some(spanned_token) = self.inner.last() {
-            if token.iter().any(|x| x == &spanned_token.token) {
-                Ok(spanned_token)
-            } else {
-                Err(SyntaxError::unexpected(
-                    &spanned_token.token,
-                    token,
-                    &spanned_token.span,
-                ))
-            }
-        } else {
-            Err(self.eof())
-        }
-    }
+    // pub fn peek_oneof(&self, token: &[Token]) -> SyntaxResult<&SpannedToken> {
+    //     if let Some(spanned_token) = self.inner.last() {
+    //         if token.iter().any(|x| x == &spanned_token.token) {
+    //             Ok(spanned_token)
+    //         } else {
+    //             Err(SyntaxError::unexpected(
+    //                 &spanned_token.token,
+    //                 token,
+    //                 &spanned_token.span,
+    //             ))
+    //         }
+    //     } else {
+    //         Err(self.eof())
+    //     }
+    // }
 
     pub fn has_next(&self) -> bool {
         !self.inner.is_empty()

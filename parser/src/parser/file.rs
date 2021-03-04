@@ -161,7 +161,10 @@ impl ParserContext {
     }
 
     pub fn parse_package_name(&mut self) -> SyntaxResult<Identifier> {
+        // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
         let mut base = self.expect_loose_ident()?;
+
+        // Build the rest of the package name including dashes.
         while let Some(token) = self.eat(Token::Minus) {
             if token.span.line_start == base.span.line_stop && token.span.col_start == base.span.col_stop {
                 base.name += "-";
@@ -173,9 +176,13 @@ impl ParserContext {
                 break;
             }
         }
+
+        // Return an error if the package name contains a keyword.
         if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.to_string() == base.name) {
             return Err(SyntaxError::unexpected_str(token, "package name", &base.span));
         }
+
+        // Return an error if the package name contains invalid characters.
         if !base
             .name
             .chars()
@@ -183,6 +190,8 @@ impl ParserContext {
         {
             return Err(SyntaxError::invalid_package_name(&base.span));
         }
+
+        // Return the package name.
         Ok(base)
     }
 
