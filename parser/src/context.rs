@@ -60,13 +60,13 @@ impl ParserContext {
     pub fn peek_oneof(&self, token: &[Token]) -> SyntaxResult<&SpannedToken> {
         if let Some(spanned_token) = self.inner.last() {
             if token.iter().any(|x| x == &spanned_token.token) {
-                return Ok(spanned_token);
+                Ok(spanned_token)
             } else {
-                return Err(SyntaxError::unexpected(
+                Err(SyntaxError::unexpected(
                     &spanned_token.token,
                     token,
                     &spanned_token.span,
-                ));
+                ))
             }
         } else {
             Err(self.eof())

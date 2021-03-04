@@ -53,7 +53,7 @@ pub fn parser_pass_tests() {
             }
         }
     }
-    if fail.len() > 0 {
+    if !fail.is_empty() {
         for (i, fail) in fail.iter().enumerate() {
             println!(
                 "\n\n-----------------TEST #{} FAILED (and shouldn't have)-----------------",
@@ -84,7 +84,7 @@ pub fn parser_fail_tests() {
             }
         }
     }
-    if fail.len() > 0 {
+    if !fail.is_empty() {
         for (i, fail) in fail.iter().enumerate() {
             println!(
                 "\n\n-----------------TEST #{} PASSED (and shouldn't have)-----------------",

@@ -79,7 +79,7 @@ impl Token {
     }
 
     fn gobble(input: &[u8]) -> (&[u8], Option<Token>) {
-        if input.len() == 0 {
+        if input.is_empty() {
             return (input, None);
         }
         match input[0] {
