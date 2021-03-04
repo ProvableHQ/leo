@@ -25,7 +25,7 @@ use leo_asg::AssignStatement;
 use leo_asg::Identifier;
 use leo_asg::Span;
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
 pub(crate) enum ResolvedAssigneeAccess {

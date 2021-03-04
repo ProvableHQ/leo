@@ -25,9 +25,9 @@ use leo_asg::AssignOperation;
 use leo_asg::AssignStatement;
 use leo_asg::Span;
 
-use snarkvm_gadgets::traits::boolean::Boolean;
-use snarkvm_gadgets::traits::select::CondSelectGadget;
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

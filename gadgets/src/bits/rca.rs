@@ -18,8 +18,8 @@ use crate::bits::FullAdder;
 use crate::signed_integer::*;
 
 use snarkvm_fields::Field;
-use snarkvm_gadgets::traits::boolean::Boolean;
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 

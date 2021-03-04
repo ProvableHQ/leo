@@ -32,8 +32,8 @@ use leo_asg::ConstValue;
 use leo_asg::Expression;
 use leo_asg::Node;
 
-use snarkvm_gadgets::traits::boolean::Boolean;
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

@@ -17,8 +17,8 @@
 use leo_gadgets::arithmetic::*;
 use leo_gadgets::Int16;
 
-use snarkvm_gadgets::traits::alloc::AllocGadget;
-use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_models::curves::One;
 use snarkvm_models::curves::Zero;
 use snarkvm_models::gadgets::r1cs::Fr;

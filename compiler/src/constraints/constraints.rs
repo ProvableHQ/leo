@@ -26,7 +26,7 @@ use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
 use snarkvm_r1cs::ConstraintSystem;
 use std::path::Path;

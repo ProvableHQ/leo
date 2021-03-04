@@ -25,7 +25,7 @@ use leo_asg::CircuitInitExpression;
 use leo_asg::CircuitMember;
 use leo_asg::Span;
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

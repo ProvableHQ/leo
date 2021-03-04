@@ -23,7 +23,7 @@ use leo_ast::Parameter;
 use leo_ast::Registers;
 use leo_ast::Span;
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 
 use serde::Deserialize;
 use serde::Serialize;

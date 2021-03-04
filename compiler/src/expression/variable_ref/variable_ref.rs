@@ -22,7 +22,7 @@ use crate::value::ConstrainedValue;
 use crate::GroupType;
 use leo_asg::VariableRef;
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce a variable expression by getting the resolved value

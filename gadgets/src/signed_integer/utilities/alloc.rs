@@ -24,9 +24,9 @@ use crate::Int8;
 use core::borrow::Borrow;
 use core::iter;
 use snarkvm_fields::Field;
-use snarkvm_gadgets::traits::alloc::AllocGadget;
-use snarkvm_gadgets::traits::boolean::AllocatedBit;
-use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
+use snarkvm_gadgets::traits::utilities::boolean::AllocatedBit;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 

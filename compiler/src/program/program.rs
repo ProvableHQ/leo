@@ -20,7 +20,7 @@ use crate::value::ConstrainedValue;
 use crate::GroupType;
 
 use leo_asg::Program;
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 
 use indexmap::IndexMap;
 

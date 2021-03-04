@@ -26,10 +26,10 @@ use leo_asg::Identifier;
 use leo_asg::Span;
 use leo_asg::Type;
 
-use snarkvm_gadgets::traits::boolean::Boolean;
-use snarkvm_gadgets::traits::eq::ConditionalEqGadget;
-use snarkvm_gadgets::traits::select::CondSelectGadget;
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::eq::ConditionalEqGadget;
+use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 use std::fmt;

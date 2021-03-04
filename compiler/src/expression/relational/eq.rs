@@ -22,9 +22,9 @@ use crate::value::ConstrainedValue;
 use crate::GroupType;
 use leo_asg::Span;
 
-use snarkvm_gadgets::traits::boolean::Boolean;
-use snarkvm_gadgets::traits::eq::EvaluateEqGadget;
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::eq::EvaluateEqGadget;
 use snarkvm_r1cs::ConstraintSystem;
 
 pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use snarkvm_fields::Field;
-use snarkvm_gadgets::traits::OptionalVec;
+use snarkvm_gadgets::traits::utilities::OptionalVec;
 use snarkvm_models::curves::PairingEngine;
 use snarkvm_models::gadgets::r1cs::Index;
 use snarkvm_models::gadgets::r1cs::LinearCombination;

@@ -22,7 +22,7 @@ use crate::GroupType;
 use leo_asg::Span;
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 pub fn enforce_and<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

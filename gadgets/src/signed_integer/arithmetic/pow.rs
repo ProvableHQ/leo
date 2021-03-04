@@ -24,10 +24,10 @@ use crate::Int32;
 use crate::Int64;
 use crate::Int8;
 
-use snarkvm_gadgets::traits::alloc::AllocGadget;
-use snarkvm_gadgets::traits::boolean::Boolean;
-use snarkvm_gadgets::traits::select::CondSelectGadget;
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
 use snarkvm_r1cs::ConstraintSystem;
 
 macro_rules! pow_int_impl {

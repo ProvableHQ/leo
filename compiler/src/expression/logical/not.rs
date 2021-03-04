@@ -21,7 +21,7 @@ use crate::value::ConstrainedValue;
 use crate::GroupType;
 use leo_asg::Span;
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 
 pub fn evaluate_not<'a, F: PrimeField, G: GroupType<F>>(
     value: ConstrainedValue<'a, F, G>,

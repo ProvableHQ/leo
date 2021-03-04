@@ -17,7 +17,7 @@
 use crate::bits::RippleCarryAdder;
 
 use snarkvm_fields::Field;
-use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 

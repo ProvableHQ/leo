@@ -21,7 +21,7 @@ use leo_gadgets::Int32;
 use leo_gadgets::Int64;
 use leo_gadgets::Int8;
 
-use snarkvm_gadgets::traits::alloc::AllocGadget;
+use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
 use snarkvm_models::gadgets::r1cs::Fr;
 use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
 use snarkvm_r1cs::ConstraintSystem;

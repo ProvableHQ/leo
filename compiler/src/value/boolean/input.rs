@@ -23,8 +23,8 @@ use leo_ast::InputValue;
 use leo_ast::Span;
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::alloc::AllocGadget;
-use snarkvm_gadgets::traits::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 
