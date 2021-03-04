@@ -27,7 +27,7 @@ use leo_gadgets::bits::comparator::EvaluateLtGadget;
 use leo_gadgets::signed_integer::*;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::curves::Field;
+use snarkvm_fields::Field;
 use snarkvm_models::curves::PrimeField;
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 use snarkvm_models::gadgets::utilities::alloc::AllocGadget;

@@ -18,7 +18,7 @@ use crate::bits::FullAdder;
 use crate::signed_integer::*;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::curves::Field;
+use snarkvm_fields::Field;
 use snarkvm_models::curves::PrimeField;
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 use snarkvm_models::gadgets::utilities::boolean::Boolean;

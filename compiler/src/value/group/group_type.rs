@@ -20,7 +20,7 @@ use crate::errors::GroupError;
 use leo_asg::GroupValue;
 use leo_asg::Span;
 
-use snarkvm_models::curves::Field;
+use snarkvm_fields::Field;
 use snarkvm_models::curves::One;
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
