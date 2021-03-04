@@ -16,20 +16,17 @@
 
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
-use crate::{
-    errors::StatementError,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-    IndicatorAndConstrainedValue,
-    StatementResult,
-};
+use crate::errors::StatementError;
+use crate::program::ConstrainedProgram;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
+use crate::IndicatorAndConstrainedValue;
+use crate::StatementResult;
 use leo_asg::ConditionalStatement;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
 
 fn indicator_to_string(indicator: &Boolean) -> String {
     indicator

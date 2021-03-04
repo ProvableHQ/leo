@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, config::remove_token, context::Context};
+use crate::commands::Command;
+use crate::config::remove_token;
+use crate::context::Context;
 
 use anyhow::Result;
 use std::io::ErrorKind;

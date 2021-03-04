@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{bits::FullAdder, signed_integer::*};
+use crate::bits::FullAdder;
+use crate::signed_integer::*;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_models::curves::Field;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
 
 /// Returns the bitwise sum of a n-bit number with carry bit
 pub trait RippleCarryAdder<F: Field, Rhs = Self>

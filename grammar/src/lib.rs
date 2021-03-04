@@ -51,7 +51,8 @@ pub(crate) mod span;
 pub(crate) use span::*;
 
 use from_pest::FromPest;
-use std::{fs, path::Path};
+use std::fs;
+use std::path::Path;
 
 ///
 /// The grammar of a Leo program, encoded as an abstract syntax tree (AST).

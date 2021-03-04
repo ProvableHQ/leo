@@ -14,8 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_grammar::{Grammar, ParserError};
-use std::{env, fs, path::Path};
+use leo_grammar::Grammar;
+use leo_grammar::ParserError;
+use std::env;
+use std::fs;
+use std::path::Path;
 
 fn to_grammar(filepath: &Path) -> Result<String, ParserError> {
     // Loads the Leo code as a string from the given file path.

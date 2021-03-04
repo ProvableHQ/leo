@@ -16,13 +16,15 @@
 
 //! Enforces a branch of a conditional or iteration statement in a compiled Leo program.
 
-use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue, StatementResult};
+use crate::program::ConstrainedProgram;
+use crate::GroupType;
+use crate::IndicatorAndConstrainedValue;
+use crate::StatementResult;
 use leo_asg::BlockStatement;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Evaluates a branch of one or more statements and returns a result in

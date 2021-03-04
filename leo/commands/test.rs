@@ -14,20 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
-use leo_compiler::{
-    compiler::{thread_leaked_context, Compiler},
-    group::targets::edwards_bls12::EdwardsGroupType,
-};
-use leo_package::{
-    inputs::*,
-    outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
-};
+use crate::commands::Command;
+use crate::context::Context;
+use leo_compiler::compiler::thread_leaked_context;
+use leo_compiler::compiler::Compiler;
+use leo_compiler::group::targets::edwards_bls12::EdwardsGroupType;
+use leo_package::inputs::*;
+use leo_package::outputs::OutputsDirectory;
+use leo_package::outputs::OUTPUTS_DIRECTORY_NAME;
+use leo_package::source::MainFile;
+use leo_package::source::MAIN_FILENAME;
+use leo_package::source::SOURCE_DIRECTORY_NAME;
 
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use snarkvm_curves::edwards_bls12::Fq;
-use std::{convert::TryFrom, path::PathBuf, time::Instant};
+use std::convert::TryFrom;
+use std::path::PathBuf;
+use std::time::Instant;
 use structopt::StructOpt;
 use tracing::span::Span;
 

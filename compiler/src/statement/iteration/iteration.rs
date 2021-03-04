@@ -16,23 +16,18 @@
 
 //! Enforces an iteration statement in a compiled Leo program.
 
-use crate::{
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-    IndicatorAndConstrainedValue,
-    Integer,
-    StatementResult,
-};
+use crate::program::ConstrainedProgram;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
+use crate::IndicatorAndConstrainedValue;
+use crate::Integer;
+use crate::StatementResult;
 use leo_asg::IterationStatement;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, uint::UInt32},
-    },
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::uint::UInt32;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]

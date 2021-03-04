@@ -14,8 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{expect_compiler_error, EdwardsTestCompiler};
-use leo_compiler::errors::{CompilerError, ExpressionError, FunctionError, IntegerError, StatementError};
+use crate::expect_compiler_error;
+use crate::EdwardsTestCompiler;
+use leo_compiler::errors::CompilerError;
+use leo_compiler::errors::ExpressionError;
+use leo_compiler::errors::FunctionError;
+use leo_compiler::errors::IntegerError;
+use leo_compiler::errors::StatementError;
 
 pub trait IntegerTester {
     /// Tests defining the smalled value that can be represented by the integer type

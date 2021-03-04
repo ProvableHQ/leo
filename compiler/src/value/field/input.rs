@@ -16,14 +16,18 @@
 
 //! Methods to enforce constraints on input field values in a compiled Leo program.
 
-use crate::{errors::FieldError, number_string_typing, value::ConstrainedValue, FieldType, GroupType};
-use leo_ast::{InputValue, Span};
+use crate::errors::FieldError;
+use crate::number_string_typing;
+use crate::value::ConstrainedValue;
+use crate::FieldType;
+use crate::GroupType;
+use leo_ast::InputValue;
+use leo_ast::Span;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::alloc::AllocGadget},
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
 
 pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,

@@ -15,17 +15,24 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::Build;
-use crate::{commands::Command, context::Context};
-use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
-use leo_package::{
-    outputs::{ProvingKeyFile, VerificationKeyFile},
-    source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
-};
+use crate::commands::Command;
+use crate::context::Context;
+use leo_compiler::compiler::Compiler;
+use leo_compiler::group::targets::edwards_bls12::EdwardsGroupType;
+use leo_package::outputs::ProvingKeyFile;
+use leo_package::outputs::VerificationKeyFile;
+use leo_package::source::MAIN_FILENAME;
+use leo_package::source::SOURCE_DIRECTORY_NAME;
 
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use rand::thread_rng;
-use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
-use snarkvm_curves::bls12_377::{Bls12_377, Fr};
+use snarkvm_algorithms::snark::groth16::Groth16;
+use snarkvm_algorithms::snark::groth16::Parameters;
+use snarkvm_algorithms::snark::groth16::PreparedVerifyingKey;
+use snarkvm_algorithms::snark::groth16::VerifyingKey;
+use snarkvm_curves::bls12_377::Bls12_377;
+use snarkvm_curves::bls12_377::Fr;
 use snarkvm_models::algorithms::snark::SNARK;
 use structopt::StructOpt;
 use tracing::span::Span;

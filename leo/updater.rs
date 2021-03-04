@@ -16,9 +16,12 @@
 
 use crate::config::Config;
 
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use colored::Colorize;
-use self_update::{backends::github, version::bump_is_greater, Status};
+use self_update::backends::github;
+use self_update::version::bump_is_greater;
+use self_update::Status;
 
 pub struct Updater;
 

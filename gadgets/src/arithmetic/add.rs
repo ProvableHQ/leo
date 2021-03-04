@@ -15,13 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::uint::{UInt, UInt128, UInt16, UInt32, UInt64, UInt8},
-    },
-};
+use snarkvm_models::curves::Field;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::uint::UInt;
+use snarkvm_models::gadgets::utilities::uint::UInt128;
+use snarkvm_models::gadgets::utilities::uint::UInt16;
+use snarkvm_models::gadgets::utilities::uint::UInt32;
+use snarkvm_models::gadgets::utilities::uint::UInt64;
+use snarkvm_models::gadgets::utilities::uint::UInt8;
 
 /// Returns addition of `self` + `other` in the constraint system.
 pub trait Add<F: Field, Rhs = Self>

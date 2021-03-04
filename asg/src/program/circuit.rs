@@ -14,7 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, Function, Identifier, Node, Scope, Span, Type};
+use crate::AsgConvertError;
+use crate::Function;
+use crate::Identifier;
+use crate::Node;
+use crate::Scope;
+use crate::Span;
+use crate::Type;
 
 use indexmap::IndexMap;
 use std::cell::RefCell;

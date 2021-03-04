@@ -14,16 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    arithmetic::{Add, Neg, Sub},
-    errors::SignedIntegerError,
-    Int128,
-    Int16,
-    Int32,
-    Int64,
-    Int8,
-};
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use crate::arithmetic::Add;
+use crate::arithmetic::Neg;
+use crate::arithmetic::Sub;
+use crate::errors::SignedIntegerError;
+use crate::Int128;
+use crate::Int16;
+use crate::Int32;
+use crate::Int64;
+use crate::Int8;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 macro_rules! sub_int_impl {
     ($($gadget: ident)*) => ($(

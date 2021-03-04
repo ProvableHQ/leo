@@ -15,10 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use from_pest::FromPest;
-use leo_grammar::{
-    ast::{LanguageParser, Rule},
-    statements::ConditionalStatement,
-};
+use leo_grammar::ast::LanguageParser;
+use leo_grammar::ast::Rule;
+use leo_grammar::statements::ConditionalStatement;
 
 use pest::*;
 

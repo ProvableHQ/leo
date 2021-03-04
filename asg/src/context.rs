@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{cell::Cell, unimplemented};
+use std::cell::Cell;
+use std::unimplemented;
 
 use typed_arena::Arena;
 

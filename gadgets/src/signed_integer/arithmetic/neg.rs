@@ -14,9 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{arithmetic::Neg, errors::SignedIntegerError, signed_integer::*};
+use crate::arithmetic::Neg;
+use crate::errors::SignedIntegerError;
+use crate::signed_integer::*;
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 macro_rules! neg_int_impl {
     ($($gadget: ident)*) => ($(

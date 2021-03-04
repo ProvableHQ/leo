@@ -18,10 +18,14 @@
 
 use std::cell::Cell;
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::errors::ExpressionError;
+use crate::program::ConstrainedProgram;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
 use leo_asg::Expression;
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce tuple expressions

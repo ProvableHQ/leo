@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    common::{Declare, LineEnd, Variables},
-    expressions::Expression,
-    SpanDef,
-};
+use crate::ast::Rule;
+use crate::common::Declare;
+use crate::common::LineEnd;
+use crate::common::Variables;
+use crate::expressions::Expression;
+use crate::SpanDef;
 
 use pest::Span;
 use pest_ast::FromPest;

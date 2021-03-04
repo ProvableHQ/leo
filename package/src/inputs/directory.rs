@@ -16,12 +16,11 @@
 
 use crate::errors::InputsDirectoryError;
 
-use std::{
-    borrow::Cow,
-    fs,
-    fs::ReadDir,
-    path::{Path, PathBuf},
-};
+use std::borrow::Cow;
+use std::fs;
+use std::fs::ReadDir;
+use std::path::Path;
+use std::path::PathBuf;
 
 pub static INPUTS_DIRECTORY_NAME: &str = "inputs/";
 

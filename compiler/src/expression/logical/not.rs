@@ -16,7 +16,9 @@
 
 //! Enforces a logical `!` operator in a resolved Leo program.
 
-use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
+use crate::errors::BooleanError;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
 use leo_asg::Span;
 
 use snarkvm_models::curves::PrimeField;

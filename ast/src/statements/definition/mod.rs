@@ -14,9 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, Span, Type};
+use crate::Expression;
+use crate::Node;
+use crate::Span;
+use crate::Type;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 mod variable_name;

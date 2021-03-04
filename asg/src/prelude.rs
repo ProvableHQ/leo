@@ -16,7 +16,9 @@
 
 // TODO (protryon): We should merge this with core
 
-use crate::{AsgContext, AsgConvertError, Program};
+use crate::AsgContext;
+use crate::AsgConvertError;
+use crate::Program;
 
 // TODO (protryon): Make asg deep copy so we can cache resolved core modules
 // TODO (protryon): Figure out how to do headers without bogus returns

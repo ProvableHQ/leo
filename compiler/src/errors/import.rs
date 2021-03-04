@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Error as FormattedError, Identifier, ImportSymbol, Span};
+use leo_ast::Error as FormattedError;
+use leo_ast::Identifier;
+use leo_ast::ImportSymbol;
+use leo_ast::Span;
 
 #[derive(Debug, Error)]
 pub enum ImportError {

@@ -16,13 +16,19 @@
 
 //! Enforces constraints on the main function of a compiled Leo program.
 
-use crate::{errors::FunctionError, program::ConstrainedProgram, GroupType, OutputBytes};
+use crate::errors::FunctionError;
+use crate::program::ConstrainedProgram;
+use crate::GroupType;
+use crate::OutputBytes;
 
-use leo_asg::{Expression, Function, FunctionQualifier};
+use leo_asg::Expression;
+use leo_asg::Function;
+use leo_asg::FunctionQualifier;
 use leo_ast::Input;
 use std::cell::Cell;
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn enforce_main_function<CS: ConstraintSystem<F>>(

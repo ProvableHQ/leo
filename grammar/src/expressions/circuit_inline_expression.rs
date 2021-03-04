@@ -14,7 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, circuits::CircuitImpliedVariable, common::Identifier, types::SelfType, SpanDef};
+use crate::ast::Rule;
+use crate::circuits::CircuitImpliedVariable;
+use crate::common::Identifier;
+use crate::types::SelfType;
+use crate::SpanDef;
 
 use pest::Span;
 use pest_ast::FromPest;

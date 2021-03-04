@@ -14,13 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
+use crate::errors::OutputBytesError;
+use crate::ConstrainedValue;
+use crate::GroupType;
+use crate::REGISTERS_VARIABLE_NAME;
 use leo_asg::Program;
-use leo_ast::{Parameter, Registers, Span};
+use leo_ast::Parameter;
+use leo_ast::Registers;
+use leo_ast::Span;
 
 use snarkvm_models::curves::PrimeField;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Serialized program return output.
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq)]

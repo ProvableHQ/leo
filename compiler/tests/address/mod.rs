@@ -14,7 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_asg_error, expect_compiler_error, generate_main_input, parse_program};
+use crate::assert_satisfied;
+use crate::expect_asg_error;
+use crate::expect_compiler_error;
+use crate::generate_main_input;
+use crate::parse_program;
 use leo_ast::InputValue;
 
 static TEST_ADDRESS_1: &str = "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8";

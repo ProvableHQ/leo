@@ -14,28 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    arithmetic::Add,
-    bits::RippleCarryAdder,
-    errors::SignedIntegerError,
-    Int,
-    Int128,
-    Int16,
-    Int32,
-    Int64,
-    Int8,
-};
+use crate::arithmetic::Add;
+use crate::bits::RippleCarryAdder;
+use crate::errors::SignedIntegerError;
+use crate::Int;
+use crate::Int128;
+use crate::Int16;
+use crate::Int32;
+use crate::Int64;
+use crate::Int8;
 
-use snarkvm_models::{
-    curves::{fp_parameters::FpParameters, PrimeField},
-    gadgets::{
-        r1cs::{Assignment, ConstraintSystem, LinearCombination},
-        utilities::{
-            alloc::AllocGadget,
-            boolean::{AllocatedBit, Boolean},
-        },
-    },
-};
+use snarkvm_models::curves::fp_parameters::FpParameters;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::Assignment;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::r1cs::LinearCombination;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::AllocatedBit;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
 
 macro_rules! add_int_impl {
     ($($gadget: ident)*) => ($(

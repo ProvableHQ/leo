@@ -14,9 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, config::Config, context::Context, updater::Updater};
+use crate::commands::Command;
+use crate::config::Config;
+use crate::context::Context;
+use crate::updater::Updater;
 
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
+use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
 

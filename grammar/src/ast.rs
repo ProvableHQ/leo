@@ -15,31 +15,31 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! Abstract syntax tree (ast) representation from leo.pest.
-use crate::{
-    common::Identifier,
-    expressions::{
-        ArrayInitializerExpression,
-        ArrayInlineExpression,
-        CircuitInlineExpression,
-        Expression,
-        PostfixExpression,
-        SelfPostfixExpression,
-        TernaryExpression,
-        UnaryExpression,
-    },
-    operations::{BinaryOperation, UnaryOperation},
-    values::Value,
-};
+use crate::common::Identifier;
+use crate::expressions::ArrayInitializerExpression;
+use crate::expressions::ArrayInlineExpression;
+use crate::expressions::CircuitInlineExpression;
+use crate::expressions::Expression;
+use crate::expressions::PostfixExpression;
+use crate::expressions::SelfPostfixExpression;
+use crate::expressions::TernaryExpression;
+use crate::expressions::UnaryExpression;
+use crate::operations::BinaryOperation;
+use crate::operations::UnaryOperation;
+use crate::values::Value;
 
 use crate::expressions::TupleExpression;
-use from_pest::{ConversionError, FromPest, Void};
-use pest::{
-    error::Error,
-    iterators::{Pair, Pairs},
-    prec_climber::{Assoc, Operator, PrecClimber},
-    Parser,
-    Span,
-};
+use from_pest::ConversionError;
+use from_pest::FromPest;
+use from_pest::Void;
+use pest::error::Error;
+use pest::iterators::Pair;
+use pest::iterators::Pairs;
+use pest::prec_climber::Assoc;
+use pest::prec_climber::Operator;
+use pest::prec_climber::PrecClimber;
+use pest::Parser;
+use pest::Span;
 
 #[derive(Parser)]
 #[grammar = "leo.pest"]

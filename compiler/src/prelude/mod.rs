@@ -17,9 +17,13 @@
 pub mod blake2s;
 pub use blake2s::*;
 
-use crate::{errors::ExpressionError, ConstrainedValue, GroupType};
-use leo_asg::{Function, Span};
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use crate::errors::ExpressionError;
+use crate::ConstrainedValue;
+use crate::GroupType;
+use leo_asg::Function;
+use leo_asg::Span;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 pub trait CoreCircuit<'a, F: PrimeField, G: GroupType<F>>: Send + Sync {
     fn call_function<CS: ConstraintSystem<F>>(

@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{common::Identifier, expressions::*, operations::BinaryOperation, values::Value};
+use crate::common::Identifier;
+use crate::expressions::*;
+use crate::operations::BinaryOperation;
+use crate::values::Value;
 
 use pest::Span;
 use serde::Serialize;

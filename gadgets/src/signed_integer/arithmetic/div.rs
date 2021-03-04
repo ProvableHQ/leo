@@ -14,29 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    arithmetic::{Add, Div, Neg, Sub},
-    bits::ComparatorGadget,
-    errors::SignedIntegerError,
-    Int,
-    Int128,
-    Int16,
-    Int32,
-    Int64,
-    Int8,
-};
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::{AllocatedBit, Boolean},
-            eq::EvaluateEqGadget,
-            select::CondSelectGadget,
-        },
-    },
-};
+use crate::arithmetic::Add;
+use crate::arithmetic::Div;
+use crate::arithmetic::Neg;
+use crate::arithmetic::Sub;
+use crate::bits::ComparatorGadget;
+use crate::errors::SignedIntegerError;
+use crate::Int;
+use crate::Int128;
+use crate::Int16;
+use crate::Int32;
+use crate::Int64;
+use crate::Int8;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::AllocatedBit;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
 
 macro_rules! div_int_impl {
     ($($gadget:ident),*) => ($(

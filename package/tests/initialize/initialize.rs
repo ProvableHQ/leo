@@ -15,12 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::test_dir;
-use leo_package::{
-    inputs::{InputFile, InputsDirectory, StateFile},
-    package::Package,
-    root::Manifest,
-    source::{LibraryFile, MainFile, SourceDirectory},
-};
+use leo_package::inputs::InputFile;
+use leo_package::inputs::InputsDirectory;
+use leo_package::inputs::StateFile;
+use leo_package::package::Package;
+use leo_package::root::Manifest;
+use leo_package::source::LibraryFile;
+use leo_package::source::MainFile;
+use leo_package::source::SourceDirectory;
 
 const TEST_PACKAGE_NAME: &str = "test-package";
 

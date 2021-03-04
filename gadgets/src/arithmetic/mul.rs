@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_models::{curves::Field, gadgets::r1cs::ConstraintSystem};
+use snarkvm_models::curves::Field;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 /// Returns multiplication of `self` * `other` in the constraint system.
 pub trait Mul<F: Field, Rhs = Self>

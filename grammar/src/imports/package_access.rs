@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    imports::{ImportSymbol, Package, Packages, Star},
-};
+use crate::ast::Rule;
+use crate::imports::ImportSymbol;
+use crate::imports::Package;
+use crate::imports::Packages;
+use crate::imports::Star;
 
 use pest_ast::FromPest;
 use serde::Serialize;

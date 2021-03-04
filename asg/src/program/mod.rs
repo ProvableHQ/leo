@@ -24,11 +24,20 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
-use crate::{ArenaNode, AsgContext, AsgConvertError, ImportResolver, Input, Scope};
-use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
+use crate::ArenaNode;
+use crate::AsgContext;
+use crate::AsgConvertError;
+use crate::ImportResolver;
+use crate::Input;
+use crate::Scope;
+use leo_ast::Identifier;
+use leo_ast::PackageAccess;
+use leo_ast::PackageOrPackages;
+use leo_ast::Span;
 
 use indexmap::IndexMap;
-use std::cell::{Cell, RefCell};
+use std::cell::Cell;
+use std::cell::RefCell;
 
 /// Stores the Leo program abstract semantic graph (ASG).
 #[derive(Clone)]

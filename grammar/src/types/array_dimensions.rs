@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, values::PositiveNumber, SpanDef};
+use crate::ast::Rule;
+use crate::values::PositiveNumber;
+use crate::SpanDef;
 
 use pest::Span;
 use pest_ast::FromPest;

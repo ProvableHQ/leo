@@ -16,19 +16,17 @@
 
 //! Enforces an assert equals statement in a compiled Leo program.
 
-use crate::{
-    errors::ConsoleError,
-    get_indicator_value,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-};
-use leo_asg::{Expression, Span};
+use crate::errors::ConsoleError;
+use crate::get_indicator_value;
+use crate::program::ConstrainedProgram;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
+use leo_asg::Expression;
+use leo_asg::Span;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn evaluate_console_assert<CS: ConstraintSystem<F>>(

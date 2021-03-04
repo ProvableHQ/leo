@@ -16,7 +16,8 @@
 
 use crate::InputValueError;
 
-use std::{num::ParseIntError, str::ParseBoolError};
+use std::num::ParseIntError;
+use std::str::ParseBoolError;
 
 #[derive(Debug, Error)]
 pub enum StateLeafValuesError {

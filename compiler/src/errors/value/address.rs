@@ -14,9 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Error as FormattedError, Span};
+use leo_ast::Error as FormattedError;
+use leo_ast::Span;
 
-use snarkvm_errors::{gadgets::SynthesisError, objects::account::AccountError};
+use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_errors::objects::account::AccountError;
 use std::path::Path;
 
 #[derive(Debug, Error)]

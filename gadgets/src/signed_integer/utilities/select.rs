@@ -17,13 +17,13 @@
 use crate::signed_integer::*;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::{Assignment, ConstraintSystem},
-        utilities::{alloc::AllocGadget, boolean::Boolean, eq::EqGadget, select::CondSelectGadget},
-    },
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::Assignment;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::eq::EqGadget;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
 
 macro_rules! select_int_impl {
     ($($gadget: ident)*) => ($(

@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, expressions::Expression, operations::UnaryOperation, SpanDef};
+use crate::ast::Rule;
+use crate::expressions::Expression;
+use crate::operations::UnaryOperation;
+use crate::SpanDef;
 
 use pest::Span;
 use pest_ast::FromPest;

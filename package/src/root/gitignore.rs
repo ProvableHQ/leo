@@ -19,7 +19,10 @@
 use crate::errors::GitignoreError;
 
 use serde::Deserialize;
-use std::{borrow::Cow, fs::File, io::Write, path::Path};
+use std::borrow::Cow;
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 
 pub static GITIGNORE_FILENAME: &str = ".gitignore";
 

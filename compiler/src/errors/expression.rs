@@ -14,8 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
-use leo_ast::{ArrayDimensions, Error as FormattedError, Identifier, PositiveNumber, Span};
+use crate::errors::AddressError;
+use crate::errors::BooleanError;
+use crate::errors::FieldError;
+use crate::errors::FunctionError;
+use crate::errors::GroupError;
+use crate::errors::IntegerError;
+use crate::errors::ValueError;
+use leo_ast::ArrayDimensions;
+use leo_ast::Error as FormattedError;
+use leo_ast::Identifier;
+use leo_ast::PositiveNumber;
+use leo_ast::Span;
 
 use snarkvm_errors::gadgets::SynthesisError;
 use std::path::Path;

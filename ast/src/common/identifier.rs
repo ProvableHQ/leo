@@ -14,36 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{InputKeyword, MutSelfKeyword, SelfKeyword, Span};
-use leo_grammar::{
-    annotations::AnnotationArgument,
-    common::{
-        Identifier as GrammarIdentifier,
-        KeywordOrIdentifier,
-        MutSelfKeyword as GrammarMutSelfKeyword,
-        SelfKeyword as GrammarSelfKeyword,
-        SelfKeywordOrIdentifier,
-    },
-    expressions::CircuitName,
-    functions::InputKeyword as GrammarInputKeyword,
-    imports::PackageName as GrammarPackageName,
-    types::SelfType,
-};
+use crate::InputKeyword;
+use crate::MutSelfKeyword;
+use crate::SelfKeyword;
+use crate::Span;
+use leo_grammar::annotations::AnnotationArgument;
+use leo_grammar::common::Identifier as GrammarIdentifier;
+use leo_grammar::common::KeywordOrIdentifier;
+use leo_grammar::common::MutSelfKeyword as GrammarMutSelfKeyword;
+use leo_grammar::common::SelfKeyword as GrammarSelfKeyword;
+use leo_grammar::common::SelfKeywordOrIdentifier;
+use leo_grammar::expressions::CircuitName;
+use leo_grammar::functions::InputKeyword as GrammarInputKeyword;
+use leo_grammar::imports::PackageName as GrammarPackageName;
+use leo_grammar::types::SelfType;
 use leo_input::common::Identifier as InputIdentifier;
 
 use crate::Node;
-use serde::{
-    de::{self, Visitor},
-    Deserialize,
-    Deserializer,
-    Serialize,
-    Serializer,
-};
-use std::{
-    collections::BTreeMap,
-    fmt,
-    hash::{Hash, Hasher},
-};
+use serde::de::Visitor;
+use serde::de::{self};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
+use std::collections::BTreeMap;
+use std::fmt;
+use std::hash::Hash;
+use std::hash::Hasher;
 
 /// An identifier in the constrained program.
 ///

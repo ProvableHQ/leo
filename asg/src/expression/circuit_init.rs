@@ -14,23 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    AsgConvertError,
-    Circuit,
-    CircuitMember,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Identifier,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Type,
-};
+use crate::AsgConvertError;
+use crate::Circuit;
+use crate::CircuitMember;
+use crate::ConstValue;
+use crate::Expression;
+use crate::ExpressionNode;
+use crate::FromAst;
+use crate::Identifier;
+use crate::Node;
+use crate::PartialType;
+use crate::Scope;
+use crate::Span;
+use crate::Type;
 
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
+use indexmap::IndexSet;
 use std::cell::Cell;
 
 #[derive(Clone)]

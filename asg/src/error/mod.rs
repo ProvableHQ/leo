@@ -17,7 +17,8 @@
 //! Errors encountered when attempting to convert to an asg from an ast.
 
 use crate::Span;
-use leo_ast::{AstError, Error as FormattedError};
+use leo_ast::AstError;
+use leo_ast::Error as FormattedError;
 use leo_grammar::ParserError;
 
 #[derive(Debug, Error)]

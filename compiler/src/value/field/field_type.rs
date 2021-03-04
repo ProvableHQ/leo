@@ -16,28 +16,28 @@
 
 //! A data type that represents a field value
 
-use crate::{errors::FieldError, number_string_typing};
+use crate::errors::FieldError;
+use crate::number_string_typing;
 use leo_ast::Span;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        curves::{AllocatedFp, FieldGadget, FpGadget},
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            uint::UInt8,
-            ToBitsGadget,
-            ToBytesGadget,
-        },
-    },
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::curves::AllocatedFp;
+use snarkvm_models::gadgets::curves::FieldGadget;
+use snarkvm_models::gadgets::curves::FpGadget;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::eq::ConditionalEqGadget;
+use snarkvm_models::gadgets::utilities::eq::EqGadget;
+use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
+use snarkvm_models::gadgets::utilities::uint::UInt8;
+use snarkvm_models::gadgets::utilities::ToBitsGadget;
+use snarkvm_models::gadgets::utilities::ToBytesGadget;
 
-use std::{borrow::Borrow, cmp::Ordering};
+use std::borrow::Borrow;
+use std::cmp::Ordering;
 
 #[derive(Clone, Debug)]
 pub enum FieldType<F: PrimeField> {

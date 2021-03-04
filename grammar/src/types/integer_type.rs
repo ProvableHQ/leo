@@ -14,10 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    types::{SignedIntegerType, UnsignedIntegerType},
-};
+use crate::ast::Rule;
+use crate::types::SignedIntegerType;
+use crate::types::UnsignedIntegerType;
 
 use pest_ast::FromPest;
 use serde::Serialize;

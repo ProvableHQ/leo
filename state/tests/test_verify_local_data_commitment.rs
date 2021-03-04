@@ -18,14 +18,16 @@ use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_state::verify_local_data_commitment;
 
-use snarkvm_dpc::base_dpc::{instantiated::*, record_payload::RecordPayload, DPC};
-use snarkvm_models::{
-    algorithms::{CommitmentScheme, CRH},
-    dpc::Record,
-    objects::AccountScheme,
-};
+use snarkvm_dpc::base_dpc::instantiated::*;
+use snarkvm_dpc::base_dpc::record_payload::RecordPayload;
+use snarkvm_dpc::base_dpc::DPC;
+use snarkvm_models::algorithms::CommitmentScheme;
+use snarkvm_models::algorithms::CRH;
+use snarkvm_models::dpc::Record;
+use snarkvm_models::objects::AccountScheme;
 use snarkvm_objects::Account;
-use snarkvm_utilities::{bytes::ToBytes, to_bytes};
+use snarkvm_utilities::bytes::ToBytes;
+use snarkvm_utilities::to_bytes;
 
 use rand::Rng;
 use rand_core::SeedableRng;

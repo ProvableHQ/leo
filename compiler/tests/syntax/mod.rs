@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{expect_asg_error, parse_input, parse_program};
+use crate::expect_asg_error;
+use crate::parse_input;
+use crate::parse_program;
 use leo_compiler::errors::CompilerError;
 use leo_grammar::ParserError;
 use leo_input::InputParserError;

@@ -14,24 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    arithmetic::{Mul, Pow},
-    errors::SignedIntegerError,
-    Int,
-    Int128,
-    Int16,
-    Int32,
-    Int64,
-    Int8,
-};
+use crate::arithmetic::Mul;
+use crate::arithmetic::Pow;
+use crate::errors::SignedIntegerError;
+use crate::Int;
+use crate::Int128;
+use crate::Int16;
+use crate::Int32;
+use crate::Int64;
+use crate::Int8;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{alloc::AllocGadget, boolean::Boolean, select::CondSelectGadget},
-    },
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
 
 macro_rules! pow_int_impl {
     ($($gadget:ty)*) => ($(

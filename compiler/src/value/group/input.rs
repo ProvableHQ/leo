@@ -16,12 +16,16 @@
 
 //! Methods to enforce constraints on input group values in a Leo program.
 
-use crate::{errors::GroupError, ConstrainedValue, GroupType};
-use leo_asg::{GroupValue, Span};
+use crate::errors::GroupError;
+use crate::ConstrainedValue;
+use crate::GroupType;
+use leo_asg::GroupValue;
+use leo_asg::Span;
 use leo_ast::InputValue;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 pub(crate) fn allocate_group<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,

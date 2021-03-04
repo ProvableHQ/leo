@@ -16,10 +16,13 @@
 
 //! Enforces an arithmetic `**` operator in a resolved Leo program.
 
-use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
+use crate::errors::ExpressionError;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
 use leo_ast::Span;
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 pub fn enforce_pow<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,

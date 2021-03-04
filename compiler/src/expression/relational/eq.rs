@@ -16,16 +16,16 @@
 
 //! Enforces a relational `==` operator in a resolved Leo program.
 
-use crate::{enforce_and, errors::ExpressionError, value::ConstrainedValue, GroupType};
+use crate::enforce_and;
+use crate::errors::ExpressionError;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
 use leo_asg::Span;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::EvaluateEqGadget},
-    },
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
 
 pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,

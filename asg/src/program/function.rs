@@ -14,24 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    AsgConvertError,
-    BlockStatement,
-    Circuit,
-    FromAst,
-    Identifier,
-    MonoidalDirector,
-    ReturnPathReducer,
-    Scope,
-    Span,
-    Statement,
-    Type,
-    Variable,
-};
+use crate::AsgConvertError;
+use crate::BlockStatement;
+use crate::Circuit;
+use crate::FromAst;
+use crate::Identifier;
+use crate::MonoidalDirector;
+use crate::ReturnPathReducer;
+use crate::Scope;
+use crate::Span;
+use crate::Statement;
+use crate::Type;
+use crate::Variable;
 use indexmap::IndexMap;
 use leo_ast::FunctionInput;
 
-use std::cell::{Cell, RefCell};
+use std::cell::Cell;
+use std::cell::RefCell;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum FunctionQualifier {

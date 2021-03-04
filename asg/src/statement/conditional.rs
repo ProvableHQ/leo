@@ -14,7 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, BlockStatement, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
+use crate::AsgConvertError;
+use crate::BlockStatement;
+use crate::Expression;
+use crate::FromAst;
+use crate::Node;
+use crate::PartialType;
+use crate::Scope;
+use crate::Span;
+use crate::Statement;
+use crate::Type;
 
 use std::cell::Cell;
 

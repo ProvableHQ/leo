@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, parse_input_and_state, parse_program_with_input_and_state};
+use crate::assert_satisfied;
+use crate::parse_input_and_state;
+use crate::parse_program_with_input_and_state;
 
 #[test]
 fn test_basic() {

@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::InputValueError;
-use leo_ast::{InputValue, Parameter};
+use leo_ast::InputValue;
+use leo_ast::Parameter;
 
 use indexmap::IndexMap;
 

@@ -14,20 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Int, Int128, Int16, Int32, Int64, Int8};
+use crate::Int;
+use crate::Int128;
+use crate::Int16;
+use crate::Int32;
+use crate::Int64;
+use crate::Int8;
 
-use core::{borrow::Borrow, iter};
+use core::borrow::Borrow;
+use core::iter;
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::Field,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::{AllocatedBit, Boolean},
-        },
-    },
-};
+use snarkvm_models::curves::Field;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::AllocatedBit;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
 
 fn create_value<T: Borrow<bool>, I: IntoIterator<Item = Option<T>>, F: Field, CS: ConstraintSystem<F>>(
     cs: &mut CS,

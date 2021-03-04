@@ -14,13 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, PositiveNumber, Span};
-use leo_grammar::{
-    access::{ArrayAccess, AssigneeAccess as GrammarAssigneeAccess},
-    common::{Assignee as GrammarAssignee, Range, RangeOrExpression},
-};
+use crate::Expression;
+use crate::Identifier;
+use crate::PositiveNumber;
+use crate::Span;
+use leo_grammar::access::ArrayAccess;
+use leo_grammar::access::AssigneeAccess as GrammarAssigneeAccess;
+use leo_grammar::common::Assignee as GrammarAssignee;
+use leo_grammar::common::Range;
+use leo_grammar::common::RangeOrExpression;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

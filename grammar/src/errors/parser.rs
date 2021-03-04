@@ -14,10 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, errors::SyntaxError};
+use crate::ast::Rule;
+use crate::errors::SyntaxError;
 
 use pest::error::Error;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum ParserError {

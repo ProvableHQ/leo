@@ -16,7 +16,8 @@
 
 //! An in memory store to keep track of defined names when constraining a Leo program.
 
-use crate::{value::ConstrainedValue, GroupType};
+use crate::value::ConstrainedValue;
+use crate::GroupType;
 
 use leo_asg::Program;
 use snarkvm_models::curves::PrimeField;

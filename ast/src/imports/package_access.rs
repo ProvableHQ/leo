@@ -14,10 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ImportSymbol, Package, Packages, Span};
+use crate::ImportSymbol;
+use crate::Package;
+use crate::Packages;
+use crate::Span;
 use leo_grammar::imports::PackageAccess as GrammarPackageAccess;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]

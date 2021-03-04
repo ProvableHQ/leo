@@ -16,7 +16,9 @@
 
 use std::cell::RefCell;
 
-use crate::{Expression, Statement, Type};
+use crate::Expression;
+use crate::Statement;
+use crate::Type;
 use leo_ast::Identifier;
 
 /// Specifies how a program variable was declared.

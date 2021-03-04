@@ -21,26 +21,30 @@ pub mod context;
 pub mod logger;
 pub mod updater;
 
-use commands::{
-    package::{Add, Clone, Login, Logout, Publish, Remove},
-    Build,
-    Clean,
-    Command,
-    Deploy,
-    Init,
-    Lint,
-    New,
-    Prove,
-    Run,
-    Setup,
-    Test,
-    Update,
-    Watch,
-};
+use commands::package::Add;
+use commands::package::Clone;
+use commands::package::Login;
+use commands::package::Logout;
+use commands::package::Publish;
+use commands::package::Remove;
+use commands::Build;
+use commands::Clean;
+use commands::Command;
+use commands::Deploy;
+use commands::Init;
+use commands::Lint;
+use commands::New;
+use commands::Prove;
+use commands::Run;
+use commands::Setup;
+use commands::Test;
+use commands::Update;
+use commands::Watch;
 
 use anyhow::Error;
 use std::process::exit;
-use structopt::{clap::AppSettings, StructOpt};
+use structopt::clap::AppSettings;
+use structopt::StructOpt;
 
 /// CLI Arguments entry point - includes global parameters and subcommands
 #[derive(StructOpt, Debug)]

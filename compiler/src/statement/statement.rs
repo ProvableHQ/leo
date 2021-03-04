@@ -16,13 +16,15 @@
 
 //! Enforces a statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::errors::StatementError;
+use crate::program::ConstrainedProgram;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
 use leo_asg::Statement;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
 
 pub type StatementResult<T> = Result<T, StatementError>;
 pub type IndicatorAndConstrainedValue<'a, T, U> = (Boolean, ConstrainedValue<'a, T, U>);

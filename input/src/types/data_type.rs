@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    types::{BooleanType, FieldType, GroupType, IntegerType},
-};
+use crate::ast::Rule;
+use crate::types::BooleanType;
+use crate::types::FieldType;
+use crate::types::GroupType;
+use crate::types::IntegerType;
 
 use crate::types::AddressType;
 use pest_ast::FromPest;

@@ -14,20 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
-use leo_compiler::{
-    compiler::{thread_leaked_context, Compiler},
-    group::targets::edwards_bls12::EdwardsGroupType,
-};
-use leo_package::{
-    inputs::*,
-    outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
-};
-use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
+use crate::commands::Command;
+use crate::context::Context;
+use leo_compiler::compiler::thread_leaked_context;
+use leo_compiler::compiler::Compiler;
+use leo_compiler::group::targets::edwards_bls12::EdwardsGroupType;
+use leo_package::inputs::*;
+use leo_package::outputs::ChecksumFile;
+use leo_package::outputs::CircuitFile;
+use leo_package::outputs::OutputsDirectory;
+use leo_package::outputs::OUTPUTS_DIRECTORY_NAME;
+use leo_package::source::LibraryFile;
+use leo_package::source::MainFile;
+use leo_package::source::LIBRARY_FILENAME;
+use leo_package::source::MAIN_FILENAME;
+use leo_package::source::SOURCE_DIRECTORY_NAME;
+use leo_synthesizer::CircuitSynthesizer;
+use leo_synthesizer::SerializedCircuit;
 
 use anyhow::Result;
-use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
+use snarkvm_curves::bls12_377::Bls12_377;
+use snarkvm_curves::edwards_bls12::Fq;
 use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;

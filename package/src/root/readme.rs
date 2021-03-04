@@ -19,7 +19,10 @@
 use crate::errors::READMEError;
 
 use serde::Deserialize;
-use std::{borrow::Cow, fs::File, io::Write, path::Path};
+use std::borrow::Cow;
+use std::fs::File;
+use std::io::Write;
+use std::path::Path;
 
 pub static README_FILENAME: &str = "README.md";
 

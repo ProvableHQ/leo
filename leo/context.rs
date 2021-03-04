@@ -14,11 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{api::Api, config};
+use crate::api::Api;
+use crate::config;
 use leo_package::root::Manifest;
 
 use anyhow::Result;
-use std::{convert::TryFrom, env::current_dir, path::PathBuf};
+use std::convert::TryFrom;
+use std::env::current_dir;
+use std::path::PathBuf;
 
 pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
 

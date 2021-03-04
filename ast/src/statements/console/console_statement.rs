@@ -14,10 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConsoleFunction, Node, Span};
+use crate::ConsoleFunction;
+use crate::Node;
+use crate::Span;
 use leo_grammar::console::ConsoleFunctionCall as GrammarConsoleFunctionCall;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]

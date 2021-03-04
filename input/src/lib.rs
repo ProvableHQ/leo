@@ -34,7 +34,8 @@ pub mod types;
 pub mod values;
 
 use from_pest::FromPest;
-use std::{fs, path::Path};
+use std::fs;
+use std::path::Path;
 
 pub struct LeoInputParser;
 

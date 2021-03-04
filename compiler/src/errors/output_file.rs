@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{io, path::PathBuf};
+use std::io;
+use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum OutputFileError {

@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{load_asg, load_asg_imports, make_test_context, mocked_resolver};
+use crate::load_asg;
+use crate::load_asg_imports;
+use crate::make_test_context;
+use crate::mocked_resolver;
 
 #[test]
 fn test_basic() {

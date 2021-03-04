@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{expression::*, program::*, statement::*, Monoid};
+use crate::expression::*;
+use crate::program::*;
+use crate::statement::*;
+use crate::Monoid;
 
 #[allow(unused_variables)]
 pub trait MonoidalReducerExpression<'a, T: Monoid> {

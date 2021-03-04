@@ -16,7 +16,8 @@
 
 use leo_grammar::common::Declare as GrammarDeclare;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -17,7 +17,8 @@
 use leo_grammar::values::PositiveNumber as GrammarPositiveNumber;
 use leo_input::values::PositiveNumber as InputPositiveNumber;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 /// A number string guaranteed to be positive by the pest grammar.

@@ -16,10 +16,17 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{AssignAccess, AssignStatement, Identifier, Span};
+use crate::errors::StatementError;
+use crate::program::ConstrainedProgram;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
+use leo_asg::AssignAccess;
+use leo_asg::AssignStatement;
+use leo_asg::Identifier;
+use leo_asg::Span;
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 pub(crate) enum ResolvedAssigneeAccess {
     ArrayRange(Option<usize>, Option<usize>),

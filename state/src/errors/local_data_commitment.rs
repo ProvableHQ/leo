@@ -14,9 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{RecordVerificationError, StateLeafValuesError, StateValuesError};
+use crate::RecordVerificationError;
+use crate::StateLeafValuesError;
+use crate::StateValuesError;
 
-use snarkvm_errors::algorithms::{CommitmentError, MerkleError};
+use snarkvm_errors::algorithms::CommitmentError;
+use snarkvm_errors::algorithms::MerkleError;
 
 use std::io::Error as IOError;
 

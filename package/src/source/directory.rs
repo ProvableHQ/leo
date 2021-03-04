@@ -16,11 +16,10 @@
 
 use crate::errors::SourceDirectoryError;
 
-use std::{
-    borrow::Cow,
-    fs,
-    path::{Path, PathBuf},
-};
+use std::borrow::Cow;
+use std::fs;
+use std::path::Path;
+use std::path::PathBuf;
 
 pub static SOURCE_DIRECTORY_NAME: &str = "src/";
 

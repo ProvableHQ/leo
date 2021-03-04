@@ -14,19 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{verify_record_commitment, LocalDataVerificationError, StateLeafValues, StateValues};
+use crate::verify_record_commitment;
+use crate::LocalDataVerificationError;
+use crate::StateLeafValues;
+use crate::StateValues;
 use leo_ast::Input as AstInput;
 
 use snarkvm_algorithms::commitment_tree::CommitmentMerklePath;
-use snarkvm_dpc::base_dpc::{
-    instantiated::{Components, LocalDataCRH, LocalDataCommitment},
-    parameters::SystemParameters,
-};
-use snarkvm_models::{
-    algorithms::{CommitmentScheme, CRH},
-    dpc::DPCComponents,
-};
-use snarkvm_utilities::{bytes::ToBytes, to_bytes, FromBytes};
+use snarkvm_dpc::base_dpc::instantiated::Components;
+use snarkvm_dpc::base_dpc::instantiated::LocalDataCRH;
+use snarkvm_dpc::base_dpc::instantiated::LocalDataCommitment;
+use snarkvm_dpc::base_dpc::parameters::SystemParameters;
+use snarkvm_models::algorithms::CommitmentScheme;
+use snarkvm_models::algorithms::CRH;
+use snarkvm_models::dpc::DPCComponents;
+use snarkvm_utilities::bytes::ToBytes;
+use snarkvm_utilities::to_bytes;
+use snarkvm_utilities::FromBytes;
 
 use std::convert::TryFrom;
 

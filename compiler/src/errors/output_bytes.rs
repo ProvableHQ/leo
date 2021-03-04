@@ -15,8 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ValueError;
-use leo_asg::{AsgConvertError, Type};
-use leo_ast::{Error as FormattedError, Span};
+use leo_asg::AsgConvertError;
+use leo_asg::Type;
+use leo_ast::Error as FormattedError;
+use leo_ast::Span;
 
 use std::path::Path;
 

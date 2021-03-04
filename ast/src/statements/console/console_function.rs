@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, FormattedString};
-use leo_grammar::console::{
-    ConsoleAssert as GrammarConsoleAssert,
-    ConsoleDebug as GrammarConsoleDebug,
-    ConsoleError as GrammarConsoleError,
-    ConsoleFunction as GrammarConsoleFunction,
-    ConsoleLog as GrammarConsoleLog,
-};
+use crate::Expression;
+use crate::FormattedString;
+use leo_grammar::console::ConsoleAssert as GrammarConsoleAssert;
+use leo_grammar::console::ConsoleDebug as GrammarConsoleDebug;
+use leo_grammar::console::ConsoleError as GrammarConsoleError;
+use leo_grammar::console::ConsoleFunction as GrammarConsoleFunction;
+use leo_grammar::console::ConsoleLog as GrammarConsoleLog;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]

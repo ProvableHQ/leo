@@ -14,28 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    arithmetic::Mul,
-    bits::{RippleCarryAdder, SignExtend},
-    errors::SignedIntegerError,
-    Int,
-    Int128,
-    Int16,
-    Int32,
-    Int64,
-    Int8,
-};
-use snarkvm_models::{
-    curves::{FpParameters, PrimeField},
-    gadgets::{
-        r1cs::{Assignment, ConstraintSystem, LinearCombination},
-        utilities::{
-            alloc::AllocGadget,
-            boolean::{AllocatedBit, Boolean},
-            select::CondSelectGadget,
-        },
-    },
-};
+use crate::arithmetic::Mul;
+use crate::bits::RippleCarryAdder;
+use crate::bits::SignExtend;
+use crate::errors::SignedIntegerError;
+use crate::Int;
+use crate::Int128;
+use crate::Int16;
+use crate::Int32;
+use crate::Int64;
+use crate::Int8;
+use snarkvm_models::curves::FpParameters;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::Assignment;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::r1cs::LinearCombination;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::AllocatedBit;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
 
 use std::iter;
 

@@ -14,36 +14,43 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::GroupError, number_string_typing, GroupType};
-use leo_asg::{GroupCoordinate, GroupValue, Span};
+use crate::errors::GroupError;
+use crate::number_string_typing;
+use crate::GroupType;
+use leo_asg::GroupCoordinate;
+use leo_asg::GroupValue;
+use leo_asg::Span;
 
-use snarkvm_curves::{
-    edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
-    templates::twisted_edwards_extended::GroupAffine,
-};
+use snarkvm_curves::edwards_bls12::EdwardsAffine;
+use snarkvm_curves::edwards_bls12::EdwardsParameters;
+use snarkvm_curves::edwards_bls12::Fq;
+use snarkvm_curves::templates::twisted_edwards_extended::GroupAffine;
 use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
-use snarkvm_models::{
-    curves::{AffineCurve, Fp256, One, TEModelParameters, Zero},
-    gadgets::{
-        curves::{AllocatedFp, FieldGadget, FpGadget, GroupGadget},
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            uint::UInt8,
-            ToBitsGadget,
-            ToBytesGadget,
-        },
-    },
-};
-use std::{
-    borrow::Borrow,
-    ops::{Mul, Neg, Sub},
-    str::FromStr,
-};
+use snarkvm_models::curves::AffineCurve;
+use snarkvm_models::curves::Fp256;
+use snarkvm_models::curves::One;
+use snarkvm_models::curves::TEModelParameters;
+use snarkvm_models::curves::Zero;
+use snarkvm_models::gadgets::curves::AllocatedFp;
+use snarkvm_models::gadgets::curves::FieldGadget;
+use snarkvm_models::gadgets::curves::FpGadget;
+use snarkvm_models::gadgets::curves::GroupGadget;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::eq::ConditionalEqGadget;
+use snarkvm_models::gadgets::utilities::eq::EqGadget;
+use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
+use snarkvm_models::gadgets::utilities::uint::UInt8;
+use snarkvm_models::gadgets::utilities::ToBitsGadget;
+use snarkvm_models::gadgets::utilities::ToBytesGadget;
+use std::borrow::Borrow;
+use std::ops::Mul;
+use std::ops::Neg;
+use std::ops::Sub;
+use std::str::FromStr;
 
 #[derive(Clone, Debug)]
 pub enum EdwardsGroupType {

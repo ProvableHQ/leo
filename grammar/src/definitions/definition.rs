@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    circuits::Circuit,
-    definitions::{AnnotatedDefinition, Deprecated},
-    functions::Function,
-    imports::Import,
-};
+use crate::ast::Rule;
+use crate::circuits::Circuit;
+use crate::definitions::AnnotatedDefinition;
+use crate::definitions::Deprecated;
+use crate::functions::Function;
+use crate::imports::Import;
 
 use pest_ast::FromPest;
 use serde::Serialize;

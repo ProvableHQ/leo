@@ -16,13 +16,14 @@
 
 //! Enforces a logical `||` operator in a resolved Leo program.
 
-use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
+use crate::errors::BooleanError;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
 use leo_asg::Span;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
 
 pub fn enforce_or<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,

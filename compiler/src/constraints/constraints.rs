@@ -16,16 +16,19 @@
 
 //! Generates R1CS constraints for a compiled Leo program.
 
-use crate::{errors::CompilerError, ConstrainedProgram, GroupType, OutputBytes, OutputFile};
+use crate::errors::CompilerError;
+use crate::ConstrainedProgram;
+use crate::GroupType;
+use crate::OutputBytes;
+use crate::OutputFile;
 use leo_asg::Asg;
 use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
 use std::path::Path;
 
 pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

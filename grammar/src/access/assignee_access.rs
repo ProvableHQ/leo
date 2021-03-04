@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    access::{ArrayAccess, MemberAccess, TupleAccess},
-    ast::Rule,
-};
+use crate::access::ArrayAccess;
+use crate::access::MemberAccess;
+use crate::access::TupleAccess;
+use crate::ast::Rule;
 
 use pest_ast::FromPest;
 use serde::Serialize;

@@ -16,11 +16,17 @@
 
 use std::cell::Cell;
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreCircuit, GroupType};
+use crate::program::ConstrainedProgram;
+use crate::value::ConstrainedValue;
+use crate::CoreCircuit;
+use crate::GroupType;
 
 use crate::errors::ExpressionError;
-use leo_asg::{Expression, Function, Span};
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use leo_asg::Expression;
+use leo_asg::Function;
+use leo_asg::Span;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Call a default core circuit function with arguments

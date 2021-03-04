@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ManifestError, package::Package};
+use crate::errors::ManifestError;
+use crate::package::Package;
 
 use serde::Deserialize;
-use std::{
-    borrow::Cow,
-    convert::TryFrom,
-    fs::File,
-    io::{Read, Write},
-    path::Path,
-};
+use std::borrow::Cow;
+use std::convert::TryFrom;
+use std::fs::File;
+use std::io::Read;
+use std::io::Write;
+use std::path::Path;
 
 pub const MANIFEST_FILENAME: &str = "Leo.toml";
 

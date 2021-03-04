@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::InputValue;
-use leo_input::{definitions::Definition, InputParserError};
+use leo_input::definitions::Definition;
+use leo_input::InputParserError;
 
 use indexmap::IndexMap;
 

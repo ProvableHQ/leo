@@ -42,7 +42,12 @@ pub use iteration::*;
 mod return_;
 pub use return_::*;
 
-use crate::{AsgConvertError, FromAst, Node, PartialType, Scope, Span};
+use crate::AsgConvertError;
+use crate::FromAst;
+use crate::Node;
+use crate::PartialType;
+use crate::Scope;
+use crate::Span;
 
 #[derive(Clone)]
 pub enum Statement<'a> {

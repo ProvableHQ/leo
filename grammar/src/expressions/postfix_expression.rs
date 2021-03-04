@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{access::Access, ast::Rule, common::KeywordOrIdentifier, SpanDef};
+use crate::access::Access;
+use crate::ast::Rule;
+use crate::common::KeywordOrIdentifier;
+use crate::SpanDef;
 
 use pest::Span;
 use pest_ast::FromPest;

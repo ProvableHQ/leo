@@ -16,15 +16,15 @@
 
 //! The verification key file.
 
-use crate::{errors::VerificationKeyFileError, outputs::OUTPUTS_DIRECTORY_NAME};
+use crate::errors::VerificationKeyFileError;
+use crate::outputs::OUTPUTS_DIRECTORY_NAME;
 
 use serde::Deserialize;
-use std::{
-    borrow::Cow,
-    fs::{self, File},
-    io::Write,
-    path::Path,
-};
+use std::borrow::Cow;
+use std::fs::File;
+use std::fs::{self};
+use std::io::Write;
+use std::path::Path;
 
 pub static VERIFICATION_KEY_FILE_EXTENSION: &str = ".lvk";
 

@@ -14,11 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Circuit, DeprecatedError, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
-use leo_grammar::{
-    annotations::{Annotation, AnnotationArguments, AnnotationName},
-    definitions::{AnnotatedDefinition, Definition},
-};
+use crate::Circuit;
+use crate::DeprecatedError;
+use crate::Function;
+use crate::FunctionInput;
+use crate::Identifier;
+use crate::ImportStatement;
+use crate::TestFunction;
+use leo_grammar::annotations::Annotation;
+use leo_grammar::annotations::AnnotationArguments;
+use leo_grammar::annotations::AnnotationName;
+use leo_grammar::definitions::AnnotatedDefinition;
+use leo_grammar::definitions::Definition;
 
 use std::convert::TryFrom;
 

@@ -17,22 +17,21 @@
 //! A data type that represents members in the group formed by the set of affine points on a curve.
 
 use crate::errors::GroupError;
-use leo_asg::{GroupValue, Span};
+use leo_asg::GroupValue;
+use leo_asg::Span;
 
-use snarkvm_models::{
-    curves::{Field, One},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            ToBitsGadget,
-            ToBytesGadget,
-        },
-    },
-};
-use std::fmt::{Debug, Display};
+use snarkvm_models::curves::Field;
+use snarkvm_models::curves::One;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::eq::ConditionalEqGadget;
+use snarkvm_models::gadgets::utilities::eq::EqGadget;
+use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
+use snarkvm_models::gadgets::utilities::ToBitsGadget;
+use snarkvm_models::gadgets::utilities::ToBytesGadget;
+use std::fmt::Debug;
+use std::fmt::Display;
 
 pub trait GroupType<F: Field>:
     Sized

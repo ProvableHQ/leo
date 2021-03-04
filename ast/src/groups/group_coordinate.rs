@@ -15,22 +15,19 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::common::span::Span;
-use leo_grammar::values::{
-    GroupCoordinate as GrammarGroupCoordinate,
-    Inferred as GrammarInferred,
-    NumberValue as GrammarNumberValue,
-    SignHigh as GrammarSignHigh,
-    SignLow as GrammarSignLow,
-};
-use leo_input::values::{
-    GroupCoordinate as InputGroupCoordinate,
-    Inferred as InputInferred,
-    NumberValue as InputNumberValue,
-    SignHigh as InputSignHigh,
-    SignLow as InputSignLow,
-};
+use leo_grammar::values::GroupCoordinate as GrammarGroupCoordinate;
+use leo_grammar::values::Inferred as GrammarInferred;
+use leo_grammar::values::NumberValue as GrammarNumberValue;
+use leo_grammar::values::SignHigh as GrammarSignHigh;
+use leo_grammar::values::SignLow as GrammarSignLow;
+use leo_input::values::GroupCoordinate as InputGroupCoordinate;
+use leo_input::values::Inferred as InputInferred;
+use leo_input::values::NumberValue as InputNumberValue;
+use leo_input::values::SignHigh as InputSignHigh;
+use leo_input::values::SignLow as InputSignLow;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

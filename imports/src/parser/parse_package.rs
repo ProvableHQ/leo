@@ -14,10 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ImportParserError, ImportParser};
-use leo_asg::{AsgContext, Identifier, Program, Span};
+use crate::errors::ImportParserError;
+use crate::ImportParser;
+use leo_asg::AsgContext;
+use leo_asg::Identifier;
+use leo_asg::Program;
+use leo_asg::Span;
 
-use std::{fs, fs::DirEntry, path::PathBuf};
+use std::fs;
+use std::fs::DirEntry;
+use std::path::PathBuf;
 
 static SOURCE_FILE_EXTENSION: &str = ".leo";
 static SOURCE_DIRECTORY_NAME: &str = "src/";

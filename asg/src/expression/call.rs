@@ -14,22 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    AsgConvertError,
-    CircuitMember,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Function,
-    FunctionQualifier,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Type,
-};
-pub use leo_ast::{BinaryOperation, Node as AstNode};
+use crate::AsgConvertError;
+use crate::CircuitMember;
+use crate::ConstValue;
+use crate::Expression;
+use crate::ExpressionNode;
+use crate::FromAst;
+use crate::Function;
+use crate::FunctionQualifier;
+use crate::Node;
+use crate::PartialType;
+use crate::Scope;
+use crate::Span;
+use crate::Type;
+pub use leo_ast::BinaryOperation;
+pub use leo_ast::Node as AstNode;
 
 use std::cell::Cell;
 

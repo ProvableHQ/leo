@@ -14,13 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Function, Identifier, Type};
-use leo_grammar::{
-    circuits::{CircuitMember as GrammarCircuitMember, CircuitVariableDefinition as GrammarCircuitVariableDefinition},
-    functions::Function as GrammarFunction,
-};
+use crate::Function;
+use crate::Identifier;
+use crate::Type;
+use leo_grammar::circuits::CircuitMember as GrammarCircuitMember;
+use leo_grammar::circuits::CircuitVariableDefinition as GrammarCircuitVariableDefinition;
+use leo_grammar::functions::Function as GrammarFunction;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]

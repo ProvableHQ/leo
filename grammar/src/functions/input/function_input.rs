@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    common::{Const, Identifier, Mutable},
-    types::Type,
-    SpanDef,
-};
+use crate::ast::Rule;
+use crate::common::Const;
+use crate::common::Identifier;
+use crate::common::Mutable;
+use crate::types::Type;
+use crate::SpanDef;
 
 use pest::Span;
 use pest_ast::FromPest;

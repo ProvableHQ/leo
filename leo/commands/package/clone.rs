@@ -14,15 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{api::Fetch, commands::Command, context::Context};
+use crate::api::Fetch;
+use crate::commands::Command;
+use crate::context::Context;
 
-use anyhow::{anyhow, Result};
-use std::{
-    borrow::Cow,
-    fs::{self, File},
-    io::{Read, Write},
-    path::Path,
-};
+use anyhow::anyhow;
+use anyhow::Result;
+use std::borrow::Cow;
+use std::fs::File;
+use std::fs::{self};
+use std::io::Read;
+use std::io::Write;
+use std::path::Path;
 use structopt::StructOpt;
 use tracing::Span;
 

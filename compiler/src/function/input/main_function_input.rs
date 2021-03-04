@@ -16,23 +16,21 @@
 
 //! Allocates a main function input parameter in a compiled Leo program.
 
-use crate::{
-    address::Address,
-    errors::FunctionError,
-    program::ConstrainedProgram,
-    value::{
-        boolean::input::bool_from_input,
-        field::input::field_from_input,
-        group::input::group_from_input,
-        ConstrainedValue,
-    },
-    GroupType,
-    Integer,
-};
+use crate::address::Address;
+use crate::errors::FunctionError;
+use crate::program::ConstrainedProgram;
+use crate::value::boolean::input::bool_from_input;
+use crate::value::field::input::field_from_input;
+use crate::value::group::input::group_from_input;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
+use crate::Integer;
 
 use leo_asg::Type;
-use leo_ast::{InputValue, Span};
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use leo_ast::InputValue;
+use leo_ast::Span;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_main_function_input<CS: ConstraintSystem<F>>(

@@ -14,12 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    inputs::{InputFile, InputsDirectory, StateFile, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION},
-    InputsDirectoryError,
-};
+use crate::inputs::InputFile;
+use crate::inputs::InputsDirectory;
+use crate::inputs::StateFile;
+use crate::inputs::INPUT_FILE_EXTENSION;
+use crate::inputs::STATE_FILE_EXTENSION;
+use crate::InputsDirectoryError;
 
-use std::{collections::HashMap, convert::TryFrom, path::Path};
+use std::collections::HashMap;
+use std::convert::TryFrom;
+use std::path::Path;
 
 #[derive(Default)]
 pub struct InputPairs {

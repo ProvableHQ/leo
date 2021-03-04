@@ -15,12 +15,18 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::Build;
-use crate::{commands::Command, context::Context};
+use crate::commands::Command;
+use crate::context::Context;
 
-use std::{sync::mpsc::channel, time::Duration};
+use std::sync::mpsc::channel;
+use std::time::Duration;
 
-use anyhow::{anyhow, Result};
-use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
+use anyhow::anyhow;
+use anyhow::Result;
+use notify::watcher;
+use notify::DebouncedEvent;
+use notify::RecursiveMode;
+use notify::Watcher;
 use structopt::StructOpt;
 use tracing::span::Span;
 

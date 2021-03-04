@@ -14,27 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::AddressError, ConstrainedValue, GroupType};
-use leo_ast::{InputValue, Span};
+use crate::errors::AddressError;
+use crate::ConstrainedValue;
+use crate::GroupType;
+use leo_ast::InputValue;
+use leo_ast::Span;
 
 use snarkvm_dpc::base_dpc::instantiated::Components;
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::{Assignment, ConstraintSystem},
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            uint::{UInt, UInt8},
-        },
-    },
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::Assignment;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::eq::ConditionalEqGadget;
+use snarkvm_models::gadgets::utilities::eq::EqGadget;
+use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
+use snarkvm_models::gadgets::utilities::uint::UInt;
+use snarkvm_models::gadgets::utilities::uint::UInt8;
 use snarkvm_objects::account::AccountAddress;
 use snarkvm_utilities::ToBytes;
-use std::{borrow::Borrow, str::FromStr};
+use std::borrow::Borrow;
+use std::str::FromStr;
 
 /// A public address
 #[derive(Clone, Debug, PartialEq, Eq)]

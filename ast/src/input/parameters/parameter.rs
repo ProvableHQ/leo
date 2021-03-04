@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Span, Type};
+use crate::Identifier;
+use crate::Span;
+use crate::Type;
 use leo_input::parameters::Parameter as GrammarParameter;
 
 #[derive(Clone, PartialEq, Eq, Hash)]

@@ -14,10 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Error as FormattedError, Span};
-use leo_grammar::{annotations::AnnotationName, definitions::Deprecated};
+use crate::Error as FormattedError;
+use crate::Span;
+use leo_grammar::annotations::AnnotationName;
+use leo_grammar::definitions::Deprecated;
 
-use std::{convert::TryFrom, path::Path};
+use std::convert::TryFrom;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum DeprecatedError {

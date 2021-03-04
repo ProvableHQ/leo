@@ -14,10 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use leo_asg::AsgConvertError;
-use leo_ast::{AstError, DeprecatedError, Error as FormattedError, Identifier, Span};
+use leo_ast::AstError;
+use leo_ast::DeprecatedError;
+use leo_ast::Error as FormattedError;
+use leo_ast::Identifier;
+use leo_ast::Span;
 use leo_grammar::ParserError;
 
-use std::{io, path::Path};
+use std::io;
+use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum ImportParserError {

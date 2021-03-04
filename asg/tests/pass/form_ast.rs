@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{load_asg, make_test_context};
+use crate::load_asg;
+use crate::make_test_context;
 use leo_ast::Ast;
 use leo_grammar::Grammar;
 

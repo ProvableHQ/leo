@@ -15,29 +15,28 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! Conversion of integer declarations to constraints in Leo.
-use crate::{errors::IntegerError, IntegerTrait};
-use leo_asg::{ConstInt, IntegerType, Span};
+use crate::errors::IntegerError;
+use crate::IntegerTrait;
+use leo_asg::ConstInt;
+use leo_asg::IntegerType;
+use leo_asg::Span;
 use leo_ast::InputValue;
-use leo_gadgets::{
-    arithmetic::*,
-    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
-    signed_integer::*,
-};
+use leo_gadgets::arithmetic::*;
+use leo_gadgets::bits::comparator::ComparatorGadget;
+use leo_gadgets::bits::comparator::EvaluateLtGadget;
+use leo_gadgets::signed_integer::*;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            uint::*,
-        },
-    },
-};
+use snarkvm_models::curves::Field;
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::alloc::AllocGadget;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::eq::ConditionalEqGadget;
+use snarkvm_models::gadgets::utilities::eq::EqGadget;
+use snarkvm_models::gadgets::utilities::eq::EvaluateEqGadget;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
+use snarkvm_models::gadgets::utilities::uint::*;
 use std::fmt;
 
 /// An integer type enum wrapping the integer value.

@@ -14,25 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::Rule,
-    errors::SyntaxError as InputSyntaxError,
-    expressions::{ArrayInlineExpression, Expression},
-    sections::Header,
-    tables::Table,
-    types::{DataType, Type},
-    values::{NumberValue, Value},
-};
+use crate::ast::Rule;
+use crate::errors::SyntaxError as InputSyntaxError;
+use crate::expressions::ArrayInlineExpression;
+use crate::expressions::Expression;
+use crate::sections::Header;
+use crate::tables::Table;
+use crate::types::DataType;
+use crate::types::Type;
+use crate::values::NumberValue;
+use crate::values::Value;
 
-use pest::{
-    error::{Error, ErrorVariant},
-    Span,
-};
-use std::{
-    num::ParseIntError,
-    path::{Path, PathBuf},
-    str::ParseBoolError,
-};
+use pest::error::Error;
+use pest::error::ErrorVariant;
+use pest::Span;
+use std::num::ParseIntError;
+use std::path::Path;
+use std::path::PathBuf;
+use std::str::ParseBoolError;
 
 #[derive(Debug, Error)]
 pub enum InputParserError {

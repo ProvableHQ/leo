@@ -18,7 +18,8 @@ use crate::PositiveNumber;
 use leo_grammar::types::ArrayDimensions as GrammarArrayDimensions;
 use leo_input::types::ArrayDimensions as InputArrayDimensions;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::fmt;
 
 /// A vector of positive numbers that represent array dimensions.

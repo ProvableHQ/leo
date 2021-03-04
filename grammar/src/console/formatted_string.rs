@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ast::{span_into_string, Rule},
-    console::FormattedContainer,
-    expressions::Expression,
-    SpanDef,
-};
+use crate::ast::span_into_string;
+use crate::ast::Rule;
+use crate::console::FormattedContainer;
+use crate::expressions::Expression;
+use crate::SpanDef;
 
 use pest::Span;
 use pest_ast::FromPest;

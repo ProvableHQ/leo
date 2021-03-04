@@ -16,23 +16,25 @@
 
 //! Enforce constraints on an expression in a compiled Leo program.
 
-use crate::{
-    arithmetic::*,
-    errors::ExpressionError,
-    logical::*,
-    program::ConstrainedProgram,
-    relational::*,
-    resolve_core_circuit,
-    value::{Address, ConstrainedValue, Integer},
-    FieldType,
-    GroupType,
-};
-use leo_asg::{expression::*, ConstValue, Expression, Node};
+use crate::arithmetic::*;
+use crate::errors::ExpressionError;
+use crate::logical::*;
+use crate::program::ConstrainedProgram;
+use crate::relational::*;
+use crate::resolve_core_circuit;
+use crate::value::Address;
+use crate::value::ConstrainedValue;
+use crate::value::Integer;
+use crate::FieldType;
+use crate::GroupType;
+use leo_asg::expression::*;
+use leo_asg::ConstValue;
+use leo_asg::Expression;
+use leo_asg::Node;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(

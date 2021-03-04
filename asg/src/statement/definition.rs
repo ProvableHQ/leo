@@ -14,23 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    AsgConvertError,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    InnerVariable,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Statement,
-    Type,
-    Variable,
-};
-use leo_ast::{AstError, DeprecatedError};
+use crate::AsgConvertError;
+use crate::Expression;
+use crate::ExpressionNode;
+use crate::FromAst;
+use crate::InnerVariable;
+use crate::Node;
+use crate::PartialType;
+use crate::Scope;
+use crate::Span;
+use crate::Statement;
+use crate::Type;
+use crate::Variable;
+use leo_ast::AstError;
+use leo_ast::DeprecatedError;
 
-use std::cell::{Cell, RefCell};
+use std::cell::Cell;
+use std::cell::RefCell;
 
 #[derive(Clone)]
 pub struct DefinitionStatement<'a> {

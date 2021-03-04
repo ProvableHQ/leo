@@ -15,9 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{expression::*, program::*, statement::*};
+use crate::expression::*;
+use crate::program::*;
+use crate::statement::*;
 
-use std::{cell::Cell, marker::PhantomData};
+use std::cell::Cell;
+use std::marker::PhantomData;
 
 pub struct VisitorDirector<'a, R: ExpressionVisitor<'a>> {
     visitor: R,

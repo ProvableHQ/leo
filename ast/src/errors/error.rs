@@ -16,7 +16,8 @@
 
 use crate::Span;
 
-use std::{fmt, path::Path};
+use std::fmt;
+use std::path::Path;
 
 pub const INDENT: &str = "    ";
 

@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, console::FormattedString, SpanDef};
+use crate::ast::Rule;
+use crate::console::FormattedString;
+use crate::SpanDef;
 
 use pest::Span;
 use pest_ast::FromPest;

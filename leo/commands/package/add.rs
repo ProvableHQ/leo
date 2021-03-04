@@ -14,14 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{api::Fetch, commands::Command, context::Context};
-use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
+use crate::api::Fetch;
+use crate::commands::Command;
+use crate::context::Context;
+use leo_package::imports::ImportsDirectory;
+use leo_package::imports::IMPORTS_DIRECTORY_NAME;
 
-use anyhow::{anyhow, Result};
-use std::{
-    fs::{create_dir_all, File},
-    io::{Read, Write},
-};
+use anyhow::anyhow;
+use anyhow::Result;
+use std::fs::create_dir_all;
+use std::fs::File;
+use std::io::Read;
+use std::io::Write;
 use structopt::StructOpt;
 use tracing::Span;
 

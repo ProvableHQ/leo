@@ -16,23 +16,19 @@
 
 //! Enforces that one return value is produced in a compiled Leo program.
 
-use crate::{
-    errors::StatementError,
-    get_indicator_value,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-};
+use crate::errors::StatementError;
+use crate::get_indicator_value;
+use crate::program::ConstrainedProgram;
+use crate::value::ConstrainedValue;
+use crate::GroupType;
 
-use leo_asg::{Span, Type};
+use leo_asg::Span;
+use leo_asg::Type;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, select::CondSelectGadget},
-    },
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ///

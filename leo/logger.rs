@@ -17,12 +17,14 @@
 use std::fmt;
 
 use colored::Colorize;
-use tracing::{event::Event, subscriber::Subscriber};
-use tracing_subscriber::{
-    fmt::{format::*, time::*, FmtContext, FormattedFields},
-    registry::LookupSpan,
-    FmtSubscriber,
-};
+use tracing::event::Event;
+use tracing::subscriber::Subscriber;
+use tracing_subscriber::fmt::format::*;
+use tracing_subscriber::fmt::time::*;
+use tracing_subscriber::fmt::FmtContext;
+use tracing_subscriber::fmt::FormattedFields;
+use tracing_subscriber::registry::LookupSpan;
+use tracing_subscriber::FmtSubscriber;
 
 #[derive(Debug, Clone)]
 pub struct Format<F = Full, T = SystemTime> {

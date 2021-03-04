@@ -15,8 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use pest::Span as GrammarSpan;
-use serde::{Deserialize, Serialize};
-use std::hash::{Hash, Hasher};
+use serde::Deserialize;
+use serde::Serialize;
+use std::hash::Hash;
+use std::hash::Hasher;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct Span {

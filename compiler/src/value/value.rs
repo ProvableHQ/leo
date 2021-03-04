@@ -16,17 +16,22 @@
 
 //! The in memory stored value for a defined name in a compiled Leo program.
 
-use crate::{errors::ValueError, Address, FieldType, GroupType, Integer};
-use leo_asg::{Circuit, Identifier, Span, Type};
+use crate::errors::ValueError;
+use crate::Address;
+use crate::FieldType;
+use crate::GroupType;
+use crate::Integer;
+use leo_asg::Circuit;
+use leo_asg::Identifier;
+use leo_asg::Span;
+use leo_asg::Type;
 
 use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget},
-    },
-};
+use snarkvm_models::curves::PrimeField;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_models::gadgets::utilities::eq::ConditionalEqGadget;
+use snarkvm_models::gadgets::utilities::select::CondSelectGadget;
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]

@@ -16,18 +16,18 @@
 
 use std::convert::TryFrom;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_errors::curves::FieldError;
-use snarkvm_models::{
-    curves::PairingEngine,
-    gadgets::{
-        r1cs::{ConstraintSystem, Index},
-        utilities::OptionalVec,
-    },
-};
+use snarkvm_models::curves::PairingEngine;
+use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_models::gadgets::r1cs::Index;
+use snarkvm_models::gadgets::utilities::OptionalVec;
 
-use crate::{CircuitSynthesizer, SerializedField, SerializedIndex};
+use crate::CircuitSynthesizer;
+use crate::SerializedField;
+use crate::SerializedIndex;
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedCircuit {
