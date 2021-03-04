@@ -18,8 +18,8 @@ use crate::RecordVerificationError;
 use crate::StateLeafValuesError;
 use crate::StateValuesError;
 
-use snarkvm_errors::algorithms::CommitmentError;
-use snarkvm_errors::algorithms::MerkleError;
+use snarkvm_algorithms::CommitmentError;
+use snarkvm_algorithms::MerkleError;
 
 use std::io::Error as IOError;
 
