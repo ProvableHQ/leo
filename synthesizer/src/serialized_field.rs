@@ -20,8 +20,8 @@ use std::str::FromStr;
 use num_bigint::BigUint;
 use serde::Deserialize;
 use serde::Serialize;
-use snarkvm_curves::FieldError;
 use snarkvm_fields::Field;
+use snarkvm_fields::FieldError;
 use snarkvm_models::curves::Fp256;
 use snarkvm_models::curves::Fp256Parameters;
 
