@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_fields::Field;
 use snarkvm_gadgets::traits::OptionalVec;
 use snarkvm_models::curves::PairingEngine;
@@ -22,6 +21,7 @@ use snarkvm_models::gadgets::r1cs::Index;
 use snarkvm_models::gadgets::r1cs::LinearCombination;
 use snarkvm_models::gadgets::r1cs::Variable;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::SynthesisError;
 
 #[derive(Default)]
 pub struct Namespace {

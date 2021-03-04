@@ -23,12 +23,12 @@ use crate::Int8;
 
 use core::borrow::Borrow;
 use core::iter;
-use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_fields::Field;
 use snarkvm_gadgets::traits::alloc::AllocGadget;
 use snarkvm_gadgets::traits::boolean::AllocatedBit;
 use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::SynthesisError;
 
 fn create_value<T: Borrow<bool>, I: IntoIterator<Item = Option<T>>, F: Field, CS: ConstraintSystem<F>>(
     cs: &mut CS,

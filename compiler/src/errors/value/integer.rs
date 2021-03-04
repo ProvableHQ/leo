@@ -20,7 +20,7 @@ use leo_ast::Span;
 use leo_ast::Type;
 use leo_gadgets::errors::SignedIntegerError;
 
-use snarkvm_errors::gadgets::SynthesisError;
+use snarkvm_r1cs::SynthesisError;
 use std::path::Path;
 
 #[derive(Debug, Error)]

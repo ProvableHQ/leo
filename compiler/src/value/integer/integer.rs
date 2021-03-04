@@ -26,7 +26,6 @@ use leo_gadgets::bits::comparator::ComparatorGadget;
 use leo_gadgets::bits::comparator::EvaluateLtGadget;
 use leo_gadgets::signed_integer::*;
 
-use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_fields::Field;
 use snarkvm_gadgets::traits::alloc::AllocGadget;
 use snarkvm_gadgets::traits::boolean::Boolean;
@@ -37,6 +36,7 @@ use snarkvm_gadgets::traits::select::CondSelectGadget;
 use snarkvm_gadgets::traits::uint::*;
 use snarkvm_models::curves::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::SynthesisError;
 use std::fmt;
 
 /// An integer type enum wrapping the integer value.

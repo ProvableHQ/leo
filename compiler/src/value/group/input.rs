@@ -23,7 +23,7 @@ use leo_asg::GroupValue;
 use leo_asg::Span;
 use leo_ast::InputValue;
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 

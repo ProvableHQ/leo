@@ -20,7 +20,6 @@ use crate::errors::FieldError;
 use crate::number_string_typing;
 use leo_ast::Span;
 
-use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_gadgets::traits::alloc::AllocGadget;
 use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_gadgets::traits::eq::ConditionalEqGadget;
@@ -35,6 +34,7 @@ use snarkvm_models::gadgets::curves::AllocatedFp;
 use snarkvm_models::gadgets::curves::FieldGadget;
 use snarkvm_models::gadgets::curves::FpGadget;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::SynthesisError;
 
 use std::borrow::Borrow;
 use std::cmp::Ordering;

@@ -26,7 +26,7 @@ use leo_ast::Identifier;
 use leo_ast::InputValue;
 use leo_ast::Parameter;
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
 use indexmap::IndexMap;

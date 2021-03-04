@@ -17,11 +17,11 @@
 use crate::bits::FullAdder;
 use crate::signed_integer::*;
 
-use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_fields::Field;
 use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_models::curves::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::SynthesisError;
 
 /// Returns the bitwise sum of a n-bit number with carry bit
 pub trait RippleCarryAdder<F: Field, Rhs = Self>

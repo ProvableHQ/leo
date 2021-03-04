@@ -21,7 +21,6 @@ use leo_ast::InputValue;
 use leo_ast::Span;
 
 use snarkvm_dpc::base_dpc::instantiated::Components;
-use snarkvm_errors::gadgets::SynthesisError;
 use snarkvm_gadgets::traits::alloc::AllocGadget;
 use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_gadgets::traits::eq::ConditionalEqGadget;
@@ -34,6 +33,7 @@ use snarkvm_models::curves::PrimeField;
 use snarkvm_models::gadgets::r1cs::Assignment;
 use snarkvm_objects::account::AccountAddress;
 use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_r1cs::SynthesisError;
 use snarkvm_utilities::ToBytes;
 use std::borrow::Borrow;
 use std::str::FromStr;

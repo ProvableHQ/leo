@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use snarkvm_fields::Field;
+use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::boolean::Boolean;
 use snarkvm_gadgets::traits::select::CondSelectGadget;
 use snarkvm_gadgets::traits::uint::UInt128;
@@ -22,7 +23,6 @@ use snarkvm_gadgets::traits::uint::UInt16;
 use snarkvm_gadgets::traits::uint::UInt32;
 use snarkvm_gadgets::traits::uint::UInt64;
 use snarkvm_gadgets::traits::uint::UInt8;
-use snarkvm_models::curves::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 
