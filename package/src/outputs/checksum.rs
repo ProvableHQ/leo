@@ -16,15 +16,18 @@
 
 //! The build checksum file.
 
-use crate::errors::ChecksumFileError;
-use crate::outputs::OUTPUTS_DIRECTORY_NAME;
+use crate::{errors::ChecksumFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
-use std::borrow::Cow;
-use std::fs::File;
-use std::fs::{self};
-use std::io::Write;
-use std::path::Path;
+use std::{
+    borrow::Cow,
+    fs::{
+        File,
+        {self},
+    },
+    io::Write,
+    path::Path,
+};
 
 pub static CHECKSUM_FILE_EXTENSION: &str = ".sum";
 

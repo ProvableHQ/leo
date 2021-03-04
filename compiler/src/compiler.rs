@@ -16,39 +16,32 @@
 
 //! Compiles a Leo program from a file path.
 
-use crate::constraints::generate_constraints;
-use crate::constraints::generate_test_constraints;
-use crate::errors::CompilerError;
-use crate::GroupType;
-use crate::OutputBytes;
-use crate::OutputFile;
+use crate::{
+    constraints::{generate_constraints, generate_test_constraints},
+    errors::CompilerError,
+    GroupType,
+    OutputBytes,
+    OutputFile,
+};
 use leo_asg::Asg;
-use leo_ast::Ast;
-use leo_ast::Input;
-use leo_ast::MainInput;
-use leo_ast::Program;
+use leo_ast::{Ast, Input, MainInput, Program};
 use leo_grammar::Grammar;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_state::verify_local_data_commitment;
 
-use snarkvm_dpc::base_dpc::instantiated::Components;
-use snarkvm_dpc::SystemParameters;
+use snarkvm_dpc::{base_dpc::instantiated::Components, SystemParameters};
 use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSynthesizer;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::SynthesisError;
+use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
-use sha2::Digest;
-use sha2::Sha256;
-use std::fs;
-use std::marker::PhantomData;
-use std::path::Path;
-use std::path::PathBuf;
+use sha2::{Digest, Sha256};
+use std::{
+    fs,
+    marker::PhantomData,
+    path::{Path, PathBuf},
+};
 
-pub use leo_asg::new_context;
-pub use leo_asg::AsgContext as Context;
-pub use leo_asg::AsgContext;
+pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 
 thread_local! {
     static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {

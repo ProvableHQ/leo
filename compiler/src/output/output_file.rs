@@ -18,11 +18,15 @@
 
 use crate::errors::OutputFileError;
 
-use std::borrow::Cow;
-use std::fs::File;
-use std::fs::{self};
-use std::io::Write;
-use std::path::Path;
+use std::{
+    borrow::Cow,
+    fs::{
+        File,
+        {self},
+    },
+    io::Write,
+    path::Path,
+};
 
 pub static OUTPUTS_DIRECTORY_NAME: &str = "outputs/";
 pub static OUTPUT_FILE_EXTENSION: &str = ".out";

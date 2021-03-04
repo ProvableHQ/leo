@@ -13,8 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use std::ffi::OsString;
-use std::io;
+use std::{ffi::OsString, io};
 
 #[derive(Debug, Error)]
 pub enum PackageError {

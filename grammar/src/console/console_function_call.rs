@@ -14,11 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::common::LineEnd;
-use crate::console::ConsoleFunction;
-use crate::console::ConsoleKeyword;
-use crate::SpanDef;
+use crate::{
+    ast::Rule,
+    common::LineEnd,
+    console::{ConsoleFunction, ConsoleKeyword},
+    SpanDef,
+};
 
 use pest::Span;
 use pest_ast::FromPest;

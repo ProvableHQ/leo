@@ -14,13 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::common::Identifier;
-use crate::sections::Main;
-use crate::sections::Record;
-use crate::sections::Registers;
-use crate::sections::State;
-use crate::sections::StateLeaf;
+use crate::{
+    ast::Rule,
+    common::Identifier,
+    sections::{Main, Record, Registers, State, StateLeaf},
+};
 
 use pest::Span;
 use pest_ast::FromPest;

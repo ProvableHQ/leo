@@ -14,20 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ArenaNode;
-use crate::AsgContext;
-use crate::AsgConvertError;
-use crate::Circuit;
-use crate::Expression;
-use crate::Function;
-use crate::Input;
-use crate::Statement;
-use crate::Type;
-use crate::Variable;
+use crate::{ArenaNode, AsgContext, AsgConvertError, Circuit, Expression, Function, Input, Statement, Type, Variable};
 
 use indexmap::IndexMap;
-use std::cell::Cell;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 
 /// An abstract data type that track the current bindings for variables, functions, and circuits.
 #[derive(Clone)]

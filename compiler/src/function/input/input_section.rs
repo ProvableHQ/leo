@@ -14,17 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::FunctionError;
-use crate::ConstrainedCircuitMember;
-use crate::ConstrainedProgram;
-use crate::ConstrainedValue;
-use crate::GroupType;
-use leo_asg::AsgConvertError;
-use leo_asg::Circuit;
-use leo_asg::CircuitMember;
-use leo_ast::Identifier;
-use leo_ast::InputValue;
-use leo_ast::Parameter;
+use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
+use leo_asg::{AsgConvertError, Circuit, CircuitMember};
+use leo_ast::{Identifier, InputValue, Parameter};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;

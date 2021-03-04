@@ -16,13 +16,8 @@
 
 //! Enforces a definition statement in a compiled Leo program.
 
-use crate::errors::StatementError;
-use crate::program::ConstrainedProgram;
-use crate::ConstrainedValue;
-use crate::GroupType;
-use leo_asg::DefinitionStatement;
-use leo_asg::Span;
-use leo_asg::Variable;
+use crate::{errors::StatementError, program::ConstrainedProgram, ConstrainedValue, GroupType};
+use leo_asg::{DefinitionStatement, Span, Variable};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;

@@ -16,14 +16,10 @@
 
 //! Allocates an array as a main function input parameter in a compiled Leo program.
 
-use crate::errors::FunctionError;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
+use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::Type;
-use leo_ast::InputValue;
-use leo_ast::Span;
+use leo_ast::{InputValue, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;

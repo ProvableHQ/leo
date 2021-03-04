@@ -16,9 +16,7 @@
 
 use crate::errors::OutputsDirectoryError;
 
-use std::borrow::Cow;
-use std::fs;
-use std::path::Path;
+use std::{borrow::Cow, fs, path::Path};
 
 pub static OUTPUTS_DIRECTORY_NAME: &str = "outputs/";
 

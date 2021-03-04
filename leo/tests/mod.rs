@@ -18,18 +18,20 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 
-use crate::commands::package::Login;
-use crate::commands::package::Logout;
-use crate::commands::Build;
-use crate::commands::Command;
-use crate::commands::Prove;
-use crate::commands::Run;
-use crate::commands::Setup;
-use crate::commands::Test;
-use crate::commands::Update;
-use crate::commands::UpdateAutomatic;
-use crate::context::create_context;
-use crate::context::Context;
+use crate::{
+    commands::{
+        package::{Login, Logout},
+        Build,
+        Command,
+        Prove,
+        Run,
+        Setup,
+        Test,
+        Update,
+        UpdateAutomatic,
+    },
+    context::{create_context, Context},
+};
 
 /// Path to the only complex Leo program that we have
 /// - relative to source dir - where Cargo.toml is located

@@ -14,16 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::convert::TryFrom;
-use std::str::FromStr;
+use std::{convert::TryFrom, str::FromStr};
 
 use num_bigint::BigUint;
-use serde::Deserialize;
-use serde::Serialize;
-use snarkvm_fields::Field;
-use snarkvm_fields::FieldError;
-use snarkvm_fields::Fp256;
-use snarkvm_fields::Fp256Parameters;
+use serde::{Deserialize, Serialize};
+use snarkvm_fields::{Field, FieldError, Fp256, Fp256Parameters};
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedField(pub String);

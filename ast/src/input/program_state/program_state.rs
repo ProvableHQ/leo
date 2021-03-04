@@ -14,14 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::PrivateState;
-use crate::PublicState;
-use crate::Record;
-use crate::State;
-use crate::StateLeaf;
-use leo_input::tables::Table;
-use leo_input::tables::Visibility;
-use leo_input::InputParserError;
+use crate::{PrivateState, PublicState, Record, State, StateLeaf};
+use leo_input::{
+    tables::{Table, Visibility},
+    InputParserError,
+};
 
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct ProgramState {

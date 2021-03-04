@@ -14,16 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Block;
-use crate::Expression;
-use crate::Node;
-use crate::Span;
-use crate::Statement;
-use leo_grammar::statements::ConditionalNestedOrEndStatement;
-use leo_grammar::statements::ConditionalStatement as GrammarConditionalStatement;
+use crate::{Block, Expression, Node, Span, Statement};
+use leo_grammar::statements::{ConditionalNestedOrEndStatement, ConditionalStatement as GrammarConditionalStatement};
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]

@@ -14,17 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_fields::Field;
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
-use snarkvm_gadgets::traits::utilities::uint::UInt128;
-use snarkvm_gadgets::traits::utilities::uint::UInt16;
-use snarkvm_gadgets::traits::utilities::uint::UInt32;
-use snarkvm_gadgets::traits::utilities::uint::UInt64;
-use snarkvm_gadgets::traits::utilities::uint::UInt8;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::SynthesisError;
+use snarkvm_fields::{Field, PrimeField};
+use snarkvm_gadgets::traits::utilities::{
+    boolean::Boolean,
+    select::CondSelectGadget,
+    uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
+};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 pub trait EvaluateLtGadget<F: Field> {
     fn less_than<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError>;

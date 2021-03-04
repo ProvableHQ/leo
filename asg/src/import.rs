@@ -18,10 +18,7 @@
 
 use std::marker::PhantomData;
 
-use crate::AsgContext;
-use crate::AsgConvertError;
-use crate::Program;
-use crate::Span;
+use crate::{AsgContext, AsgConvertError, Program, Span};
 
 use indexmap::IndexMap;
 

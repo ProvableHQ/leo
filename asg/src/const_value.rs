@@ -14,14 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::AsgConvertError;
-use crate::IntegerType;
-use crate::Span;
-use crate::Type;
+use crate::{AsgConvertError, IntegerType, Span, Type};
 
 use num_bigint::BigInt;
-use std::convert::TryInto;
-use std::fmt;
+use std::{convert::TryInto, fmt};
 
 /// Constant integer values in a program.
 #[derive(Clone, Debug, PartialEq)]

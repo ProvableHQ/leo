@@ -16,17 +16,18 @@
 
 //! Enforces an iteration statement in a compiled Leo program.
 
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use crate::IndicatorAndConstrainedValue;
-use crate::Integer;
-use crate::StatementResult;
+use crate::{
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
+    IndicatorAndConstrainedValue,
+    Integer,
+    StatementResult,
+};
 use leo_asg::IterationStatement;
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::uint::UInt32;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, uint::UInt32};
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

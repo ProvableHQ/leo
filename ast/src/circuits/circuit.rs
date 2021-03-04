@@ -14,12 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::CircuitMember;
-use crate::Identifier;
+use crate::{CircuitMember, Identifier};
 use leo_grammar::circuits::Circuit as GrammarCircuit;
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]

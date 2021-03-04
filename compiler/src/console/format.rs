@@ -16,9 +16,7 @@
 
 //! Evaluates a formatted string in a compiled Leo program.
 
-use crate::errors::ConsoleError;
-use crate::program::ConstrainedProgram;
-use crate::GroupType;
+use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
 use leo_asg::FormattedString;
 
 use snarkvm_fields::PrimeField;

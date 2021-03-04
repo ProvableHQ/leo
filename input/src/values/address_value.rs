@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::values::Address;
-use crate::values::AddressTyped;
+use crate::{
+    ast::Rule,
+    values::{Address, AddressTyped},
+};
 
 use pest::Span;
 use pest_ast::FromPest;

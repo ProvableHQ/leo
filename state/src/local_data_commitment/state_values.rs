@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::find_input;
-use crate::input_to_bytes;
-use crate::input_to_integer_string;
-use crate::StateValuesError;
+use crate::{find_input, input_to_bytes, input_to_integer_string, StateValuesError};
 use leo_ast::State as AstState;
 
 use std::convert::TryFrom;

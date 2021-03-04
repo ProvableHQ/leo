@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::assert_satisfied;
-use crate::expect_compiler_error;
-use crate::parse_program_with_input;
-use crate::EdwardsTestCompiler;
+use crate::{assert_satisfied, expect_compiler_error, parse_program_with_input, EdwardsTestCompiler};
 use leo_compiler::errors::CompilerError;
 
 fn expect_fail(program: EdwardsTestCompiler) {

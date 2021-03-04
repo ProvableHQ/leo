@@ -18,13 +18,8 @@
 
 use std::cell::Cell;
 
-use crate::errors::ExpressionError;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use leo_asg::Expression;
-use leo_asg::Function;
-use leo_asg::Span;
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{Expression, Function, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;

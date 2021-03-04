@@ -14,22 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::assert_satisfied;
-use crate::expect_asg_error;
-use crate::generate_main_input;
-use crate::get_output;
-use crate::parse_program;
-use crate::parse_program_with_input;
+use crate::{
+    assert_satisfied,
+    expect_asg_error,
+    generate_main_input,
+    get_output,
+    parse_program,
+    parse_program_with_input,
+};
 
 use leo_ast::InputValue;
-use leo_input::types::IntegerType;
-use leo_input::types::U8Type;
-use leo_input::types::UnsignedIntegerType;
+use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
 use rand::Rng;
 use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
-use snarkvm_algorithms::prf::blake2s::Blake2s as B2SPRF;
-use snarkvm_algorithms::traits::PRF;
+use snarkvm_algorithms::{prf::blake2s::Blake2s as B2SPRF, traits::PRF};
 
 #[test]
 fn test_arguments_length_fail() {

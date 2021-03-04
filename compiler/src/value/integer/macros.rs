@@ -16,12 +16,10 @@
 
 use leo_gadgets::signed_integer::*;
 
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::uint::UInt128;
-use snarkvm_gadgets::traits::utilities::uint::UInt16;
-use snarkvm_gadgets::traits::utilities::uint::UInt32;
-use snarkvm_gadgets::traits::utilities::uint::UInt64;
-use snarkvm_gadgets::traits::utilities::uint::UInt8;
+use snarkvm_gadgets::traits::utilities::{
+    boolean::Boolean,
+    uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
+};
 use std::fmt::Debug;
 
 pub trait IntegerTrait: Sized + Clone + Debug {

@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::tables::Private;
-use crate::tables::Public;
+use crate::{
+    ast::Rule,
+    tables::{Private, Public},
+};
 
 use pest_ast::FromPest;
 use std::fmt;

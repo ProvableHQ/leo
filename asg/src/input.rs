@@ -14,12 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Circuit;
-use crate::CircuitMember;
-use crate::Identifier;
-use crate::Scope;
-use crate::Type;
-use crate::Variable;
+use crate::{Circuit, CircuitMember, Identifier, Scope, Type, Variable};
 
 use indexmap::IndexMap;
 use std::cell::RefCell;

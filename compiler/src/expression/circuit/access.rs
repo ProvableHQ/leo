@@ -16,12 +16,8 @@
 
 //! Enforces a circuit access expression in a compiled Leo program.
 
-use crate::errors::ExpressionError;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use leo_asg::CircuitAccessExpression;
-use leo_asg::Node;
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{CircuitAccessExpression, Node};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;

@@ -14,25 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::arithmetic::Mul;
-use crate::bits::RippleCarryAdder;
-use crate::bits::SignExtend;
-use crate::errors::SignedIntegerError;
-use crate::Int;
-use crate::Int128;
-use crate::Int16;
-use crate::Int32;
-use crate::Int64;
-use crate::Int8;
-use snarkvm_fields::FpParameters;
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_gadgets::traits::utilities::boolean::AllocatedBit;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
-use snarkvm_r1cs::Assignment;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::LinearCombination;
+use crate::{
+    arithmetic::Mul,
+    bits::{RippleCarryAdder, SignExtend},
+    errors::SignedIntegerError,
+    Int,
+    Int128,
+    Int16,
+    Int32,
+    Int64,
+    Int8,
+};
+use snarkvm_fields::{FpParameters, PrimeField};
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::{AllocatedBit, Boolean},
+    select::CondSelectGadget,
+};
+use snarkvm_r1cs::{Assignment, ConstraintSystem, LinearCombination};
 
 use std::iter;
 

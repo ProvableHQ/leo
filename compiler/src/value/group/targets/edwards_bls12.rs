@@ -14,43 +14,39 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::GroupError;
-use crate::number_string_typing;
-use crate::GroupType;
-use leo_asg::GroupCoordinate;
-use leo_asg::GroupValue;
-use leo_asg::Span;
+use crate::{errors::GroupError, number_string_typing, GroupType};
+use leo_asg::{GroupCoordinate, GroupValue, Span};
 
-use snarkvm_curves::edwards_bls12::EdwardsAffine;
-use snarkvm_curves::edwards_bls12::EdwardsParameters;
-use snarkvm_curves::edwards_bls12::Fq;
-use snarkvm_curves::templates::twisted_edwards_extended::GroupAffine;
-use snarkvm_curves::AffineCurve;
-use snarkvm_curves::TEModelParameters;
-use snarkvm_fields::Fp256;
-use snarkvm_fields::One;
-use snarkvm_fields::Zero;
-use snarkvm_gadgets::curves::edwards_bls12::EdwardsBlsGadget;
-use snarkvm_gadgets::fields::AllocatedFp;
-use snarkvm_gadgets::fields::FpGadget;
-use snarkvm_gadgets::traits::curves::GroupGadget;
-use snarkvm_gadgets::traits::fields::FieldGadget;
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::eq::ConditionalEqGadget;
-use snarkvm_gadgets::traits::utilities::eq::EqGadget;
-use snarkvm_gadgets::traits::utilities::eq::EvaluateEqGadget;
-use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
-use snarkvm_gadgets::traits::utilities::uint::UInt8;
-use snarkvm_gadgets::traits::utilities::ToBitsGadget;
-use snarkvm_gadgets::traits::utilities::ToBytesGadget;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::SynthesisError;
-use std::borrow::Borrow;
-use std::ops::Mul;
-use std::ops::Neg;
-use std::ops::Sub;
-use std::str::FromStr;
+use snarkvm_curves::{
+    edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
+    templates::twisted_edwards_extended::GroupAffine,
+    AffineCurve,
+    TEModelParameters,
+};
+use snarkvm_fields::{Fp256, One, Zero};
+use snarkvm_gadgets::{
+    curves::edwards_bls12::EdwardsBlsGadget,
+    fields::{AllocatedFp, FpGadget},
+    traits::{
+        curves::GroupGadget,
+        fields::FieldGadget,
+        utilities::{
+            alloc::AllocGadget,
+            boolean::Boolean,
+            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+            select::CondSelectGadget,
+            uint::UInt8,
+            ToBitsGadget,
+            ToBytesGadget,
+        },
+    },
+};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
+use std::{
+    borrow::Borrow,
+    ops::{Mul, Neg, Sub},
+    str::FromStr,
+};
 
 #[derive(Clone, Debug)]
 pub enum EdwardsGroupType {
@@ -488,11 +484,7 @@ impl CondSelectGadget<Fq> for EdwardsGroupType {
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         if let Boolean::Constant(cond) = *cond {
-            if cond {
-                Ok(first.clone())
-            } else {
-                Ok(second.clone())
-            }
+            if cond { Ok(first.clone()) } else { Ok(second.clone()) }
         } else {
             let first_gadget = first.allocated(cs.ns(|| "first"))?;
             let second_gadget = second.allocated(cs.ns(|| "second"))?;

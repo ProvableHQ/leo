@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::arithmetic::Neg;
-use crate::errors::SignedIntegerError;
-use crate::signed_integer::*;
+use crate::{arithmetic::Neg, errors::SignedIntegerError, signed_integer::*};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;

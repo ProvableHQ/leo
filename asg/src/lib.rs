@@ -74,9 +74,7 @@ pub use pass::*;
 pub mod context;
 pub use context::*;
 
-pub use leo_ast::Ast;
-pub use leo_ast::Identifier;
-pub use leo_ast::Span;
+pub use leo_ast::{Ast, Identifier, Span};
 
 use std::path::Path;
 

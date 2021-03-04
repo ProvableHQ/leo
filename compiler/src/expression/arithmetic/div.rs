@@ -16,9 +16,7 @@
 
 //! Enforces an arithmetic `/` operator in a resolved Leo program.
 
-use crate::errors::ExpressionError;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
+use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_ast::Span;
 
 use snarkvm_fields::PrimeField;

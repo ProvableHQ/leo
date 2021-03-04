@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::context::get_context;
-use crate::context::Context;
+use crate::context::{get_context, Context};
 
 use anyhow::Result;
 use std::time::Instant;
@@ -53,8 +52,7 @@ pub mod test;
 pub use test::Test;
 
 pub mod update;
-pub use update::Automatic as UpdateAutomatic;
-pub use update::Update;
+pub use update::{Automatic as UpdateAutomatic, Update};
 
 pub mod watch;
 pub use watch::Watch;

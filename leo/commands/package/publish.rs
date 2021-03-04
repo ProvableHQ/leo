@@ -15,18 +15,17 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::Build;
-use crate::commands::Command;
-use crate::context::Context;
-use crate::context::PACKAGE_MANAGER_URL;
-use leo_package::outputs::OutputsDirectory;
-use leo_package::root::ZipFile;
+use crate::{
+    commands::Command,
+    context::{Context, PACKAGE_MANAGER_URL},
+};
+use leo_package::{outputs::OutputsDirectory, root::ZipFile};
 
-use anyhow::anyhow;
-use anyhow::Result;
-use reqwest::blocking::multipart::Form;
-use reqwest::blocking::Client;
-use reqwest::header::HeaderMap;
-use reqwest::header::HeaderValue;
+use anyhow::{anyhow, Result};
+use reqwest::{
+    blocking::{multipart::Form, Client},
+    header::{HeaderMap, HeaderValue},
+};
 use serde::Deserialize;
 use structopt::StructOpt;
 

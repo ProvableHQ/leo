@@ -16,9 +16,7 @@
 
 //! Stores all defined names in a compiled Leo program.
 
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Variable;
 
 use snarkvm_fields::PrimeField;

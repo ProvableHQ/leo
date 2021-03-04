@@ -14,11 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::assert_satisfied;
-use crate::expect_asg_error;
-use crate::get_output;
-use crate::parse_program;
-use crate::parse_program_with_input;
+use crate::{assert_satisfied, expect_asg_error, get_output, parse_program, parse_program_with_input};
 
 #[test]
 fn test_conditional_return() {

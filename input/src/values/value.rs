@@ -14,12 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::values::BooleanValue;
-use crate::values::FieldValue;
-use crate::values::GroupValue;
-use crate::values::IntegerValue;
-use crate::values::NumberValue;
+use crate::{
+    ast::Rule,
+    values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberValue},
+};
 
 use crate::values::AddressValue;
 use pest::Span;

@@ -14,16 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::AsgContextInner;
-use crate::AsgConvertError;
-use crate::Circuit;
-use crate::Expression;
-use crate::Function;
-use crate::PartialType;
-use crate::Scope;
-use crate::Span;
-use crate::Statement;
-use crate::Variable;
+use crate::{
+    AsgContextInner,
+    AsgConvertError,
+    Circuit,
+    Expression,
+    Function,
+    PartialType,
+    Scope,
+    Span,
+    Statement,
+    Variable,
+};
 
 /// A node in the abstract semantic graph.
 pub trait Node {

@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::commands::Command;
-use crate::context::Context;
+use crate::{commands::Command, context::Context};
 use leo_package::LeoPackage;
 
 use anyhow::Result;

@@ -16,20 +16,21 @@
 
 use leo_ast::IntegerType;
 
-use crate::AsgConvertError;
-use crate::Expression;
-use crate::ExpressionNode;
-use crate::FromAst;
-use crate::InnerVariable;
-use crate::Node;
-use crate::PartialType;
-use crate::Scope;
-use crate::Span;
-use crate::Statement;
-use crate::Variable;
+use crate::{
+    AsgConvertError,
+    Expression,
+    ExpressionNode,
+    FromAst,
+    InnerVariable,
+    Node,
+    PartialType,
+    Scope,
+    Span,
+    Statement,
+    Variable,
+};
 
-use std::cell::Cell;
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 
 #[derive(Clone)]
 pub struct IterationStatement<'a> {

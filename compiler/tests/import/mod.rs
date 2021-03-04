@@ -14,11 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::assert_satisfied;
-use crate::parse_program;
+use crate::{assert_satisfied, parse_program};
 
-use std::env::current_dir;
-use std::env::set_current_dir;
+use std::env::{current_dir, set_current_dir};
 
 static TEST_SOURCE_DIRECTORY: &str = "tests/import";
 

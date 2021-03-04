@@ -16,10 +16,7 @@
 
 //! Enforces a statement in a compiled Leo program.
 
-use crate::errors::StatementError;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
+use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Statement;
 
 use snarkvm_fields::PrimeField;

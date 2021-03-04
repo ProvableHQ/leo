@@ -18,16 +18,14 @@ use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_state::verify_local_data_commitment;
 
-use snarkvm_algorithms::traits::CommitmentScheme;
-use snarkvm_algorithms::traits::CRH;
-use snarkvm_dpc::base_dpc::instantiated::*;
-use snarkvm_dpc::base_dpc::record_payload::RecordPayload;
-use snarkvm_dpc::base_dpc::DPC;
-use snarkvm_dpc::Account;
-use snarkvm_dpc::AccountScheme;
-use snarkvm_dpc::Record;
-use snarkvm_utilities::bytes::ToBytes;
-use snarkvm_utilities::to_bytes;
+use snarkvm_algorithms::traits::{CommitmentScheme, CRH};
+use snarkvm_dpc::{
+    base_dpc::{instantiated::*, record_payload::RecordPayload, DPC},
+    Account,
+    AccountScheme,
+    Record,
+};
+use snarkvm_utilities::{bytes::ToBytes, to_bytes};
 
 use rand::Rng;
 use rand_core::SeedableRng;
@@ -74,11 +72,13 @@ fn test_generate_values_from_dpc() {
     let noop_program_snark_pp =
         InstantiatedDPC::generate_noop_program_snark_parameters(&system_parameters, &mut rng).unwrap();
 
-    let noop_program_id = to_bytes![ProgramVerificationKeyCRH::hash(
-        &system_parameters.program_verification_key_crh,
-        &to_bytes![noop_program_snark_pp.verification_key].unwrap()
-    )
-    .unwrap()]
+    let noop_program_id = to_bytes![
+        ProgramVerificationKeyCRH::hash(
+            &system_parameters.program_verification_key_crh,
+            &to_bytes![noop_program_snark_pp.verification_key].unwrap()
+        )
+        .unwrap()
+    ]
     .unwrap();
 
     let signature_parameters = &system_parameters.account_signature;

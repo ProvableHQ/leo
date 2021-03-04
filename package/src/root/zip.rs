@@ -16,32 +16,34 @@
 
 //! The program package zip file.
 
-use crate::errors::ZipFileError;
-use crate::imports::IMPORTS_DIRECTORY_NAME;
-use crate::inputs::INPUTS_DIRECTORY_NAME;
-use crate::inputs::INPUT_FILE_EXTENSION;
-use crate::inputs::STATE_FILE_EXTENSION;
-use crate::outputs::CHECKSUM_FILE_EXTENSION;
-use crate::outputs::CIRCUIT_FILE_EXTENSION;
-use crate::outputs::OUTPUTS_DIRECTORY_NAME;
-use crate::outputs::PROOF_FILE_EXTENSION;
-use crate::outputs::PROVING_KEY_FILE_EXTENSION;
-use crate::outputs::VERIFICATION_KEY_FILE_EXTENSION;
-use crate::root::MANIFEST_FILENAME;
-use crate::root::README_FILENAME;
-use crate::source::SOURCE_DIRECTORY_NAME;
-use crate::source::SOURCE_FILE_EXTENSION;
+use crate::{
+    errors::ZipFileError,
+    imports::IMPORTS_DIRECTORY_NAME,
+    inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION},
+    outputs::{
+        CHECKSUM_FILE_EXTENSION,
+        CIRCUIT_FILE_EXTENSION,
+        OUTPUTS_DIRECTORY_NAME,
+        PROOF_FILE_EXTENSION,
+        PROVING_KEY_FILE_EXTENSION,
+        VERIFICATION_KEY_FILE_EXTENSION,
+    },
+    root::{MANIFEST_FILENAME, README_FILENAME},
+    source::{SOURCE_DIRECTORY_NAME, SOURCE_FILE_EXTENSION},
+};
 
 use serde::Deserialize;
-use std::borrow::Cow;
-use std::fs::File;
-use std::fs::{self};
-use std::io::Read;
-use std::io::Write;
-use std::path::Path;
+use std::{
+    borrow::Cow,
+    fs::{
+        File,
+        {self},
+    },
+    io::{Read, Write},
+    path::Path,
+};
 use walkdir::WalkDir;
-use zip::write::FileOptions;
-use zip::write::ZipWriter;
+use zip::write::{FileOptions, ZipWriter};
 
 pub static ZIP_FILE_EXTENSION: &str = ".zip";
 

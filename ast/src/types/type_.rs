@@ -14,21 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ArrayDimensions;
-use crate::Identifier;
-use crate::IntegerType;
-use leo_grammar::types::ArrayType;
-use leo_grammar::types::CircuitType;
-use leo_grammar::types::DataType;
-use leo_grammar::types::TupleType;
-use leo_grammar::types::Type as GrammarType;
-use leo_input::types::ArrayType as InputArrayType;
-use leo_input::types::DataType as InputDataType;
-use leo_input::types::TupleType as InputTupleType;
-use leo_input::types::Type as InputType;
+use crate::{ArrayDimensions, Identifier, IntegerType};
+use leo_grammar::types::{ArrayType, CircuitType, DataType, TupleType, Type as GrammarType};
+use leo_input::types::{
+    ArrayType as InputArrayType,
+    DataType as InputDataType,
+    TupleType as InputTupleType,
+    Type as InputType,
+};
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type

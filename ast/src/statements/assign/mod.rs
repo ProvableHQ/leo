@@ -14,14 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Expression;
-use crate::Node;
-use crate::Span;
+use crate::{Expression, Node, Span};
 
 pub use leo_grammar::operations::AssignOperation as GrammarAssignOperation;
 use leo_grammar::statements::AssignStatement as GrammarAssignStatement;
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 mod assignee;

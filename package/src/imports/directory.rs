@@ -16,9 +16,7 @@
 
 use crate::errors::ImportsDirectoryError;
 
-use std::borrow::Cow;
-use std::fs;
-use std::path::Path;
+use std::{borrow::Cow, fs, path::Path};
 
 pub static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 

@@ -16,14 +16,13 @@
 
 //! Enforces a circuit expression in a compiled Leo program.
 
-use crate::errors::ExpressionError;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedCircuitMember;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use leo_asg::CircuitInitExpression;
-use leo_asg::CircuitMember;
-use leo_asg::Span;
+use crate::{
+    errors::ExpressionError,
+    program::ConstrainedProgram,
+    value::{ConstrainedCircuitMember, ConstrainedValue},
+    GroupType,
+};
+use leo_asg::{CircuitInitExpression, CircuitMember, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;

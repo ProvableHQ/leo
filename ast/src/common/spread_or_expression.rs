@@ -14,14 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Expression;
-use crate::Node;
-use crate::Span;
-use leo_grammar::common::SpreadOrExpression as GrammarSpreadOrExpression;
-use leo_grammar::expressions::Expression as GrammarExpression;
+use crate::{Expression, Node, Span};
+use leo_grammar::{
+    common::SpreadOrExpression as GrammarSpreadOrExpression,
+    expressions::Expression as GrammarExpression,
+};
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Spread or expression

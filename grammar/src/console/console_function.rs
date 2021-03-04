@@ -14,11 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::console::ConsoleAssert;
-use crate::console::ConsoleDebug;
-use crate::console::ConsoleError;
-use crate::console::ConsoleLog;
+use crate::{
+    ast::Rule,
+    console::{ConsoleAssert, ConsoleDebug, ConsoleError, ConsoleLog},
+};
 
 use pest_ast::FromPest;
 use serde::Serialize;

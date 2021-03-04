@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::circuits::CircuitVariableDefinition;
-use crate::functions::Function;
+use crate::{ast::Rule, circuits::CircuitVariableDefinition, functions::Function};
 
 use pest_ast::FromPest;
 use serde::Serialize;

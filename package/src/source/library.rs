@@ -16,14 +16,10 @@
 
 //! The `lib.leo` file.
 
-use crate::errors::LibraryFileError;
-use crate::source::directory::SOURCE_DIRECTORY_NAME;
+use crate::{errors::LibraryFileError, source::directory::SOURCE_DIRECTORY_NAME};
 
 use serde::Deserialize;
-use std::borrow::Cow;
-use std::fs::File;
-use std::io::Write;
-use std::path::Path;
+use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
 pub static LIBRARY_FILENAME: &str = "lib.leo";
 

@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::assert_satisfied;
-use crate::import::set_local_dir;
-use crate::parse_program;
+use crate::{assert_satisfied, import::set_local_dir, parse_program};
 
 #[test]
 fn test_out_of_order() {

@@ -20,12 +20,13 @@ pub mod initialize;
 pub mod manifest;
 
 use lazy_static::lazy_static;
-use std::cell::RefCell;
-use std::env;
-use std::fs;
-use std::path::PathBuf;
-use std::sync::atomic::AtomicUsize;
-use std::sync::atomic::Ordering;
+use std::{
+    cell::RefCell,
+    env,
+    fs,
+    path::PathBuf,
+    sync::atomic::{AtomicUsize, Ordering},
+};
 
 const PACKAGE_TEST_DIRECTORY: &str = "package-testing";
 

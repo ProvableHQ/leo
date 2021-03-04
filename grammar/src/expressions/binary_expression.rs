@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::expressions::Expression;
-use crate::operations::BinaryOperation;
-use crate::SpanDef;
+use crate::{expressions::Expression, operations::BinaryOperation, SpanDef};
 
 use pest::Span;
 use serde::Serialize;

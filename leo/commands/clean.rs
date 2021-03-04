@@ -14,14 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::commands::Command;
-use crate::context::Context;
+use crate::{commands::Command, context::Context};
 use leo_compiler::OutputFile;
-use leo_package::outputs::ChecksumFile;
-use leo_package::outputs::CircuitFile;
-use leo_package::outputs::ProofFile;
-use leo_package::outputs::ProvingKeyFile;
-use leo_package::outputs::VerificationKeyFile;
+use leo_package::outputs::{ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, VerificationKeyFile};
 
 use anyhow::Result;
 use structopt::StructOpt;

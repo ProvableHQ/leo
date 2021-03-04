@@ -14,17 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::common::span::Span;
-use crate::groups::GroupCoordinate;
-use leo_grammar::values::GroupRepresentation as GrammarGroupRepresentation;
-use leo_grammar::values::GroupTuple as GrammarGroupTuple;
-use leo_grammar::values::GroupValue as GrammarGroupValue;
-use leo_input::values::GroupRepresentation as InputGroupRepresentation;
-use leo_input::values::GroupTuple as InputGroupTuple;
-use leo_input::values::GroupValue as InputGroupValue;
+use crate::{common::span::Span, groups::GroupCoordinate};
+use leo_grammar::values::{
+    GroupRepresentation as GrammarGroupRepresentation,
+    GroupTuple as GrammarGroupTuple,
+    GroupValue as GrammarGroupValue,
+};
+use leo_input::values::{
+    GroupRepresentation as InputGroupRepresentation,
+    GroupTuple as InputGroupTuple,
+    GroupValue as InputGroupValue,
+};
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

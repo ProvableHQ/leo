@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::ffi::OsString;
-use std::fs::FileType;
-use std::io;
+use std::{ffi::OsString, fs::FileType, io};
 
 #[derive(Debug, Error)]
 pub enum ImportsDirectoryError {

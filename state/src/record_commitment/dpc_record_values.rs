@@ -14,15 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::utilities::*;
-use crate::DPCRecordValuesError;
+use crate::{utilities::*, DPCRecordValuesError};
 use leo_ast::Record as AstRecord;
 
-use snarkvm_dpc::base_dpc::instantiated::Components;
-use snarkvm_dpc::AccountAddress;
+use snarkvm_dpc::{base_dpc::instantiated::Components, AccountAddress};
 
-use std::convert::TryFrom;
-use std::str::FromStr;
+use std::{convert::TryFrom, str::FromStr};
 
 static SERIAL_NUMBER_PARAMETER_STRING: &str = "serial_number";
 static OWNER_PARAMETER_STRING: &str = "owner";

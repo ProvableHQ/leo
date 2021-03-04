@@ -16,13 +16,14 @@
 
 //! Enforces an assert equals statement in a compiled Leo program.
 
-use crate::errors::ConsoleError;
-use crate::get_indicator_value;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use leo_asg::Expression;
-use leo_asg::Span;
+use crate::{
+    errors::ConsoleError,
+    get_indicator_value,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
+};
+use leo_asg::{Expression, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;

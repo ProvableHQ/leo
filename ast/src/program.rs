@@ -17,20 +17,20 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::load_annotation;
-use crate::Circuit;
-use crate::DeprecatedError;
-use crate::Function;
-use crate::FunctionInput;
-use crate::Identifier;
-use crate::ImportStatement;
-use crate::TestFunction;
-use leo_grammar::definitions::Definition;
-use leo_grammar::files::File;
+use crate::{
+    load_annotation,
+    Circuit,
+    DeprecatedError,
+    Function,
+    FunctionInput,
+    Identifier,
+    ImportStatement,
+    TestFunction,
+};
+use leo_grammar::{definitions::Definition, files::File};
 
 use indexmap::IndexMap;
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Stores the Leo program abstract syntax tree.

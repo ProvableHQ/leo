@@ -16,14 +16,9 @@
 
 //! Enforces constraints on the main function of a compiled Leo program.
 
-use crate::errors::FunctionError;
-use crate::program::ConstrainedProgram;
-use crate::GroupType;
-use crate::OutputBytes;
+use crate::{errors::FunctionError, program::ConstrainedProgram, GroupType, OutputBytes};
 
-use leo_asg::Expression;
-use leo_asg::Function;
-use leo_asg::FunctionQualifier;
+use leo_asg::{Expression, Function, FunctionQualifier};
 use leo_ast::Input;
 use std::cell::Cell;
 

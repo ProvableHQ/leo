@@ -16,17 +16,12 @@
 
 //! Methods to enforce constraints on input boolean values in a resolved Leo program.
 
-use crate::errors::BooleanError;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use leo_ast::InputValue;
-use leo_ast::Span;
+use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
+use leo_ast::{InputValue, Span};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::SynthesisError;
+use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, boolean::Boolean};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 pub(crate) fn allocate_bool<F: PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,

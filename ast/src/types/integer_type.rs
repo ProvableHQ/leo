@@ -14,15 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_grammar::types::IntegerType as GrammarIntegerType;
-use leo_grammar::types::SignedIntegerType as GrammarSignedIntegerType;
-use leo_grammar::types::UnsignedIntegerType as GrammarUnsignedIntegerType;
-use leo_input::types::IntegerType as InputIntegerType;
-use leo_input::types::SignedIntegerType as InputSignedIntegerType;
-use leo_input::types::UnsignedIntegerType as InputUnsignedIntegerType;
+use leo_grammar::types::{
+    IntegerType as GrammarIntegerType,
+    SignedIntegerType as GrammarSignedIntegerType,
+    UnsignedIntegerType as GrammarUnsignedIntegerType,
+};
+use leo_input::types::{
+    IntegerType as InputIntegerType,
+    SignedIntegerType as InputSignedIntegerType,
+    UnsignedIntegerType as InputUnsignedIntegerType,
+};
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit integer type

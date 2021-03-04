@@ -16,15 +16,18 @@
 
 //! The `program.state` file.
 
-use crate::errors::StateFileError;
-use crate::inputs::INPUTS_DIRECTORY_NAME;
+use crate::{errors::StateFileError, inputs::INPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
-use std::borrow::Cow;
-use std::fs::File;
-use std::fs::{self};
-use std::io::Write;
-use std::path::Path;
+use std::{
+    borrow::Cow,
+    fs::{
+        File,
+        {self},
+    },
+    io::Write,
+    path::Path,
+};
 
 pub static STATE_FILE_EXTENSION: &str = ".state";
 

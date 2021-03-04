@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Record;
-use crate::StateLeaf;
-use leo_input::sections::Header;
-use leo_input::sections::Section;
-use leo_input::InputParserError;
+use crate::{Record, StateLeaf};
+use leo_input::{
+    sections::{Header, Section},
+    InputParserError,
+};
 
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct PrivateState {

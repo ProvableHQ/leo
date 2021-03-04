@@ -14,10 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::ImportParserError;
-use crate::ImportParser;
-use leo_ast::Program;
-use leo_ast::Span;
+use crate::{errors::ImportParserError, ImportParser};
+use leo_ast::{Program, Span};
 use leo_grammar::Grammar;
 
 use std::fs::DirEntry;

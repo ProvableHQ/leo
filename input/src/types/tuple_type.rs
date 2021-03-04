@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::types::Type;
+use crate::{ast::Rule, types::Type};
 
 use pest::Span;
 use pest_ast::FromPest;

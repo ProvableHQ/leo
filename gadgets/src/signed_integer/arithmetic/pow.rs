@@ -14,20 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::arithmetic::Mul;
-use crate::arithmetic::Pow;
-use crate::errors::SignedIntegerError;
-use crate::Int;
-use crate::Int128;
-use crate::Int16;
-use crate::Int32;
-use crate::Int64;
-use crate::Int8;
+use crate::{
+    arithmetic::{Mul, Pow},
+    errors::SignedIntegerError,
+    Int,
+    Int128,
+    Int16,
+    Int32,
+    Int64,
+    Int8,
+};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
+use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, boolean::Boolean, select::CondSelectGadget};
 use snarkvm_r1cs::ConstraintSystem;
 
 macro_rules! pow_int_impl {

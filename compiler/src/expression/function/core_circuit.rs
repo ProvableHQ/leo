@@ -16,15 +16,10 @@
 
 use std::cell::Cell;
 
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::CoreCircuit;
-use crate::GroupType;
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreCircuit, GroupType};
 
 use crate::errors::ExpressionError;
-use leo_asg::Expression;
-use leo_asg::Function;
-use leo_asg::Span;
+use leo_asg::{Expression, Function, Span};
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 

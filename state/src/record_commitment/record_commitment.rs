@@ -14,17 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::DPCRecordValues;
-use crate::RecordVerificationError;
+use crate::{DPCRecordValues, RecordVerificationError};
 use leo_ast::Record as AstRecord;
 
 use snarkvm_algorithms::traits::CommitmentScheme;
-use snarkvm_dpc::base_dpc::instantiated::Components;
-use snarkvm_dpc::base_dpc::instantiated::RecordCommitment;
-use snarkvm_dpc::base_dpc::parameters::SystemParameters;
-use snarkvm_utilities::bytes::ToBytes;
-use snarkvm_utilities::to_bytes;
-use snarkvm_utilities::FromBytes;
+use snarkvm_dpc::base_dpc::{
+    instantiated::{Components, RecordCommitment},
+    parameters::SystemParameters,
+};
+use snarkvm_utilities::{bytes::ToBytes, to_bytes, FromBytes};
 
 use std::convert::TryFrom;
 

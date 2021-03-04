@@ -16,15 +16,18 @@
 
 //! The proving key file.
 
-use crate::errors::ProvingKeyFileError;
-use crate::outputs::OUTPUTS_DIRECTORY_NAME;
+use crate::{errors::ProvingKeyFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
-use std::borrow::Cow;
-use std::fs::File;
-use std::fs::{self};
-use std::io::Write;
-use std::path::Path;
+use std::{
+    borrow::Cow,
+    fs::{
+        File,
+        {self},
+    },
+    io::Write,
+    path::Path,
+};
 
 pub static PROVING_KEY_FILE_EXTENSION: &str = ".lpk";
 

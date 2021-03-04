@@ -14,13 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::AddressError;
-use crate::errors::BooleanError;
-use crate::errors::FieldError;
-use crate::errors::GroupError;
-use crate::errors::IntegerError;
-use leo_ast::Error as FormattedError;
-use leo_ast::Span;
+use crate::errors::{AddressError, BooleanError, FieldError, GroupError, IntegerError};
+use leo_ast::{Error as FormattedError, Span};
 
 use std::path::Path;
 

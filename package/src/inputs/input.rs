@@ -16,15 +16,18 @@
 
 //! The `program.in` file.
 
-use crate::errors::InputFileError;
-use crate::inputs::INPUTS_DIRECTORY_NAME;
+use crate::{errors::InputFileError, inputs::INPUTS_DIRECTORY_NAME};
 
 use serde::Deserialize;
-use std::borrow::Cow;
-use std::fs::File;
-use std::fs::{self};
-use std::io::Write;
-use std::path::Path;
+use std::{
+    borrow::Cow,
+    fs::{
+        File,
+        {self},
+    },
+    io::Write,
+    path::Path,
+};
 
 pub static INPUT_FILE_EXTENSION: &str = ".in";
 

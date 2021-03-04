@@ -16,9 +16,7 @@
 
 pub mod packages;
 
-use crate::assert_satisfied;
-use crate::expect_asg_error;
-use crate::parse_program;
+use crate::{assert_satisfied, expect_asg_error, parse_program};
 
 #[test]
 fn test_core_circuit_invalid() {

@@ -16,18 +16,11 @@
 
 //! Enforces an assign statement in a compiled Leo program.
 
-use crate::arithmetic::*;
-use crate::errors::StatementError;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use leo_asg::AssignOperation;
-use leo_asg::AssignStatement;
-use leo_asg::Span;
+use crate::{arithmetic::*, errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{AssignOperation, AssignStatement, Span};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, select::CondSelectGadget};
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

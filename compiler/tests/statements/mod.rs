@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::assert_satisfied;
-use crate::expect_asg_error;
-use crate::generate_main_input;
-use crate::parse_program;
+use crate::{assert_satisfied, expect_asg_error, generate_main_input, parse_program};
 use leo_ast::InputValue;
 
 pub mod conditional;

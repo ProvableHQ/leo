@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::console::ConsoleFunctionCall;
-use crate::statements::*;
+use crate::{ast::Rule, console::ConsoleFunctionCall, statements::*};
 
 use pest_ast::FromPest;
 use serde::Serialize;

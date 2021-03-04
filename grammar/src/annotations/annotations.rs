@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::annotations::AnnotationArguments;
-use crate::annotations::AnnotationName;
-use crate::annotations::AnnotationSymbol;
-use crate::ast::Rule;
-use crate::SpanDef;
+use crate::{
+    annotations::{AnnotationArguments, AnnotationName, AnnotationSymbol},
+    ast::Rule,
+    SpanDef,
+};
 
 use pest::Span;
 use pest_ast::FromPest;

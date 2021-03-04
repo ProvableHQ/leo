@@ -16,19 +16,23 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::errors::StatementError;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use crate::ResolvedAssigneeAccess;
-use leo_asg::ArrayAccessExpression;
-use leo_asg::ArrayRangeAccessExpression;
-use leo_asg::CircuitAccessExpression;
-use leo_asg::Expression;
-use leo_asg::Node;
-use leo_asg::Span;
-use leo_asg::TupleAccessExpression;
-use leo_asg::Variable;
+use crate::{
+    errors::StatementError,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
+    ResolvedAssigneeAccess,
+};
+use leo_asg::{
+    ArrayAccessExpression,
+    ArrayRangeAccessExpression,
+    CircuitAccessExpression,
+    Expression,
+    Node,
+    Span,
+    TupleAccessExpression,
+    Variable,
+};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;

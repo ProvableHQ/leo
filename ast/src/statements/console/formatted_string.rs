@@ -14,14 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Expression;
-use crate::FormattedContainer;
-use crate::Node;
-use crate::Span;
+use crate::{Expression, FormattedContainer, Node, Span};
 use leo_grammar::console::FormattedString as GrammarFormattedString;
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]

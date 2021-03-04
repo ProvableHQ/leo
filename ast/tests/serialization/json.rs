@@ -14,15 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::Ast;
-use leo_ast::AstError;
 #[cfg(not(feature = "ci_skip"))]
 use leo_ast::Program;
-use leo_grammar::Grammar;
-use leo_grammar::ParserError;
+use leo_ast::{Ast, AstError};
+use leo_grammar::{Grammar, ParserError};
 
-use std::path::Path;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 fn to_ast(program_filepath: &Path) -> Result<Ast, AstError> {
     // Loads the Leo code as a string from the given file path.

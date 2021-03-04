@@ -15,28 +15,24 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! Conversion of integer declarations to constraints in Leo.
-use crate::errors::IntegerError;
-use crate::IntegerTrait;
-use leo_asg::ConstInt;
-use leo_asg::IntegerType;
-use leo_asg::Span;
+use crate::{errors::IntegerError, IntegerTrait};
+use leo_asg::{ConstInt, IntegerType, Span};
 use leo_ast::InputValue;
-use leo_gadgets::arithmetic::*;
-use leo_gadgets::bits::comparator::ComparatorGadget;
-use leo_gadgets::bits::comparator::EvaluateLtGadget;
-use leo_gadgets::signed_integer::*;
+use leo_gadgets::{
+    arithmetic::*,
+    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+    signed_integer::*,
+};
 
-use snarkvm_fields::Field;
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::eq::ConditionalEqGadget;
-use snarkvm_gadgets::traits::utilities::eq::EqGadget;
-use snarkvm_gadgets::traits::utilities::eq::EvaluateEqGadget;
-use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
-use snarkvm_gadgets::traits::utilities::uint::*;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::SynthesisError;
+use snarkvm_fields::{Field, PrimeField};
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::Boolean,
+    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+    select::CondSelectGadget,
+    uint::*,
+};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::fmt;
 
 /// An integer type enum wrapping the integer value.

@@ -16,14 +16,10 @@
 
 //! The `main.leo` file.
 
-use crate::errors::MainFileError;
-use crate::source::directory::SOURCE_DIRECTORY_NAME;
+use crate::{errors::MainFileError, source::directory::SOURCE_DIRECTORY_NAME};
 
 use serde::Deserialize;
-use std::borrow::Cow;
-use std::fs::File;
-use std::io::Write;
-use std::path::Path;
+use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
 pub static MAIN_FILENAME: &str = "main.leo";
 

@@ -15,15 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::setup::Setup;
-use crate::commands::Command;
-use crate::context::Context;
+use crate::{commands::Command, context::Context};
 use leo_package::outputs::ProofFile;
-use snarkvm_algorithms::snark::groth16::Groth16;
-use snarkvm_algorithms::snark::groth16::PreparedVerifyingKey;
-use snarkvm_algorithms::snark::groth16::Proof;
-use snarkvm_algorithms::traits::SNARK;
-use snarkvm_curves::bls12_377::Bls12_377;
-use snarkvm_curves::bls12_377::Fr;
+use snarkvm_algorithms::{
+    snark::groth16::{Groth16, PreparedVerifyingKey, Proof},
+    traits::SNARK,
+};
+use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_utilities::bytes::ToBytes;
 
 use anyhow::Result;

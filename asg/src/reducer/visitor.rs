@@ -16,9 +16,7 @@
 
 use std::cell::Cell;
 
-use crate::expression::*;
-use crate::program::*;
-use crate::statement::*;
+use crate::{expression::*, program::*, statement::*};
 
 pub enum VisitResult {
     VisitChildren,

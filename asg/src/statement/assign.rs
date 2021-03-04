@@ -14,22 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::AsgConvertError;
-use crate::CircuitMember;
-use crate::ConstInt;
-use crate::ConstValue;
-use crate::Expression;
-use crate::ExpressionNode;
-use crate::FromAst;
-use crate::Identifier;
-use crate::IntegerType;
-use crate::Node;
-use crate::PartialType;
-use crate::Scope;
-use crate::Span;
-use crate::Statement;
-use crate::Type;
-use crate::Variable;
+use crate::{
+    AsgConvertError,
+    CircuitMember,
+    ConstInt,
+    ConstValue,
+    Expression,
+    ExpressionNode,
+    FromAst,
+    Identifier,
+    IntegerType,
+    Node,
+    PartialType,
+    Scope,
+    Span,
+    Statement,
+    Type,
+    Variable,
+};
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
 

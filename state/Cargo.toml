@@ -27,7 +27,7 @@ version = "1.2.3"
 
 [dependencies.snarkvm-algorithms]
 version = "0.2.0"
-default-features = false
+#default-features = false
 
 [dependencies.snarkvm-curves]
 version = "0.2.0"

@@ -16,10 +16,7 @@
 
 //! Enforces a branch of a conditional or iteration statement in a compiled Leo program.
 
-use crate::program::ConstrainedProgram;
-use crate::GroupType;
-use crate::IndicatorAndConstrainedValue;
-use crate::StatementResult;
+use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue, StatementResult};
 use leo_asg::BlockStatement;
 
 use snarkvm_fields::PrimeField;

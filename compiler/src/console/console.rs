@@ -16,12 +16,8 @@
 
 //! Evaluates a macro in a compiled Leo program.
 
-use crate::errors::ConsoleError;
-use crate::program::ConstrainedProgram;
-use crate::statement::get_indicator_value;
-use crate::GroupType;
-use leo_asg::ConsoleFunction;
-use leo_asg::ConsoleStatement;
+use crate::{errors::ConsoleError, program::ConstrainedProgram, statement::get_indicator_value, GroupType};
+use leo_asg::{ConsoleFunction, ConsoleStatement};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;

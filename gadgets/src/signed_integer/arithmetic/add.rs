@@ -14,24 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::arithmetic::Add;
-use crate::bits::RippleCarryAdder;
-use crate::errors::SignedIntegerError;
-use crate::Int;
-use crate::Int128;
-use crate::Int16;
-use crate::Int32;
-use crate::Int64;
-use crate::Int8;
+use crate::{
+    arithmetic::Add,
+    bits::RippleCarryAdder,
+    errors::SignedIntegerError,
+    Int,
+    Int128,
+    Int16,
+    Int32,
+    Int64,
+    Int8,
+};
 
-use snarkvm_fields::fp_parameters::FpParameters;
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_gadgets::traits::utilities::boolean::AllocatedBit;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_r1cs::Assignment;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::LinearCombination;
+use snarkvm_fields::{fp_parameters::FpParameters, PrimeField};
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::{AllocatedBit, Boolean},
+};
+use snarkvm_r1cs::{Assignment, ConstraintSystem, LinearCombination};
 
 macro_rules! add_int_impl {
     ($($gadget: ident)*) => ($(

@@ -15,14 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ImportParserError;
-use leo_asg::AsgContext;
-use leo_asg::AsgConvertError;
-use leo_asg::ImportResolver;
-use leo_asg::Program;
-use leo_asg::Span;
+use leo_asg::{AsgContext, AsgConvertError, ImportResolver, Program, Span};
 
-use indexmap::IndexMap;
-use indexmap::IndexSet;
+use indexmap::{IndexMap, IndexSet};
 use std::env::current_dir;
 
 /// Stores imported packages.

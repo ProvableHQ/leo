@@ -14,17 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::InputValue;
-use crate::MainInput;
-use crate::ProgramInput;
-use crate::ProgramState;
-use crate::Record;
-use crate::Registers;
-use crate::State;
-use crate::StateLeaf;
-use leo_input::files::File;
-use leo_input::files::TableOrSection;
-use leo_input::InputParserError;
+use crate::{InputValue, MainInput, ProgramInput, ProgramState, Record, Registers, State, StateLeaf};
+use leo_input::{
+    files::{File, TableOrSection},
+    InputParserError,
+};
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct Input {

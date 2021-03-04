@@ -15,9 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::State;
-use leo_input::sections::Header;
-use leo_input::sections::Section;
-use leo_input::InputParserError;
+use leo_input::{
+    sections::{Header, Section},
+    InputParserError,
+};
 
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct PublicState {

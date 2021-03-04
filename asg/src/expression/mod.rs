@@ -62,14 +62,7 @@ pub use unary::*;
 mod variable_ref;
 pub use variable_ref::*;
 
-use crate::AsgConvertError;
-use crate::ConstValue;
-use crate::FromAst;
-use crate::Node;
-use crate::PartialType;
-use crate::Scope;
-use crate::Span;
-use crate::Type;
+use crate::{AsgConvertError, ConstValue, FromAst, Node, PartialType, Scope, Span, Type};
 
 #[derive(Clone)]
 pub enum Expression<'a> {

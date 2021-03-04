@@ -18,8 +18,7 @@ use crate::InputValueError;
 
 use snarkvm_dpc::AccountError;
 
-use std::num::ParseIntError;
-use std::str::ParseBoolError;
+use std::{num::ParseIntError, str::ParseBoolError};
 
 #[derive(Debug, Error)]
 pub enum DPCRecordValuesError {

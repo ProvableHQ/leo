@@ -17,11 +17,8 @@
 use leo_ast::Ast;
 use leo_grammar::Grammar;
 
-use criterion::criterion_group;
-use criterion::criterion_main;
-use criterion::Criterion;
-use std::path::Path;
-use std::time::Duration;
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::{path::Path, time::Duration};
 
 fn ast(ast: &Grammar) -> Ast {
     Ast::new("leo_tree", &ast).unwrap()

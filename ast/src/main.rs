@@ -14,12 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::Ast;
-use leo_ast::AstError;
+use leo_ast::{Ast, AstError};
 use leo_grammar::Grammar;
-use std::env;
-use std::fs;
-use std::path::Path;
+use std::{env, fs, path::Path};
 
 fn to_leo_tree(filepath: &Path) -> Result<String, AstError> {
     // Loads the Leo code as a string from the given file path.

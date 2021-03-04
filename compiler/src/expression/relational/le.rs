@@ -16,9 +16,7 @@
 
 //! Enforces a relational `<=` operator in a resolved Leo program.
 
-use crate::errors::ExpressionError;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
+use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_asg::Span;
 use leo_gadgets::bits::ComparatorGadget;
 

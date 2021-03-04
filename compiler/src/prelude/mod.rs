@@ -17,11 +17,8 @@
 pub mod blake2s;
 pub use blake2s::*;
 
-use crate::errors::ExpressionError;
-use crate::ConstrainedValue;
-use crate::GroupType;
-use leo_asg::Function;
-use leo_asg::Span;
+use crate::{errors::ExpressionError, ConstrainedValue, GroupType};
+use leo_asg::{Function, Span};
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 

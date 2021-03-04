@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::common::Identifier;
-use crate::functions::InputKeyword;
-use crate::types::SelfType;
+use crate::{ast::Rule, common::Identifier, functions::InputKeyword, types::SelfType};
 
 use pest_ast::FromPest;
 use serde::Serialize;

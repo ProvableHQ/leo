@@ -14,12 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Node;
-use crate::Span;
+use crate::{Node, Span};
 use leo_grammar::common::MutSelfKeyword as GrammarMutSelfKeyword;
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// The `mut self` keyword can view and modify circuit values inside of a circuit function.

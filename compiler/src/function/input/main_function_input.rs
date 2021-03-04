@@ -16,19 +16,22 @@
 
 //! Allocates a main function input parameter in a compiled Leo program.
 
-use crate::address::Address;
-use crate::errors::FunctionError;
-use crate::program::ConstrainedProgram;
-use crate::value::boolean::input::bool_from_input;
-use crate::value::field::input::field_from_input;
-use crate::value::group::input::group_from_input;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use crate::Integer;
+use crate::{
+    address::Address,
+    errors::FunctionError,
+    program::ConstrainedProgram,
+    value::{
+        boolean::input::bool_from_input,
+        field::input::field_from_input,
+        group::input::group_from_input,
+        ConstrainedValue,
+    },
+    GroupType,
+    Integer,
+};
 
 use leo_asg::Type;
-use leo_ast::InputValue;
-use leo_ast::Span;
+use leo_ast::{InputValue, Span};
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 

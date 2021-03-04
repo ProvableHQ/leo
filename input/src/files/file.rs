@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::common::EOI;
-use crate::files::TableOrSection;
+use crate::{ast::Rule, common::EOI, files::TableOrSection};
 
 use pest::Span;
 use pest_ast::FromPest;

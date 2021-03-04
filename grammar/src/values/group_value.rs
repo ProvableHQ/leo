@@ -14,11 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::types::GroupType;
-use crate::values::GroupCoordinate;
-use crate::values::NumberValue;
-use crate::SpanDef;
+use crate::{
+    ast::Rule,
+    types::GroupType,
+    values::{GroupCoordinate, NumberValue},
+    SpanDef,
+};
 
 use pest::Span;
 use pest_ast::FromPest;

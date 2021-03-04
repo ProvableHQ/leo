@@ -14,17 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::PackageError;
-use crate::imports::ImportsDirectory;
-use crate::inputs::InputFile;
-use crate::inputs::InputsDirectory;
-use crate::inputs::StateFile;
-use crate::root::Gitignore;
-use crate::root::Manifest;
-use crate::root::README;
-use crate::source::LibraryFile;
-use crate::source::MainFile;
-use crate::source::SourceDirectory;
+use crate::{
+    errors::PackageError,
+    imports::ImportsDirectory,
+    inputs::{InputFile, InputsDirectory, StateFile},
+    root::{Gitignore, Manifest, README},
+    source::{LibraryFile, MainFile, SourceDirectory},
+};
 
 use serde::Deserialize;
 use std::path::Path;

@@ -15,17 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::CoreCircuit;
-use crate::errors::ExpressionError;
-use crate::ConstrainedValue;
-use crate::GroupType;
-use crate::Integer;
-use leo_asg::Function;
-use leo_asg::Span;
+use crate::{errors::ExpressionError, ConstrainedValue, GroupType, Integer};
+use leo_asg::{Function, Span};
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::algorithms::prf::Blake2sGadget;
-use snarkvm_gadgets::traits::algorithms::PRFGadget;
-use snarkvm_gadgets::traits::utilities::uint::UInt8;
-use snarkvm_gadgets::traits::utilities::ToBytesGadget;
+use snarkvm_gadgets::{
+    algorithms::prf::Blake2sGadget,
+    traits::{
+        algorithms::PRFGadget,
+        utilities::{uint::UInt8, ToBytesGadget},
+    },
+};
 use snarkvm_r1cs::ConstraintSystem;
 
 pub struct Blake2s;

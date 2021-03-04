@@ -14,19 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::bits::ComparatorGadget;
-use crate::bits::EvaluateLtGadget;
-use crate::Int128;
-use crate::Int16;
-use crate::Int32;
-use crate::Int64;
-use crate::Int8;
+use crate::{
+    bits::{ComparatorGadget, EvaluateLtGadget},
+    Int128,
+    Int16,
+    Int32,
+    Int64,
+    Int8,
+};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::SynthesisError;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, select::CondSelectGadget};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::cmp::Ordering;
 
 macro_rules! cmp_gadget_impl {

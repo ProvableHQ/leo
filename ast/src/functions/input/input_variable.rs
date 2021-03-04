@@ -14,16 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::FunctionInputVariable;
-use crate::InputKeyword;
-use crate::MutSelfKeyword;
-use crate::Node;
-use crate::SelfKeyword;
-use crate::Span;
+use crate::{FunctionInputVariable, InputKeyword, MutSelfKeyword, Node, SelfKeyword, Span};
 use leo_grammar::functions::input::Input as GrammarInput;
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Enumerates the possible inputs to a function.

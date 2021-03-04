@@ -14,29 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::AddressError;
-use crate::ConstrainedValue;
-use crate::GroupType;
-use leo_ast::InputValue;
-use leo_ast::Span;
+use crate::{errors::AddressError, ConstrainedValue, GroupType};
+use leo_ast::{InputValue, Span};
 
-use snarkvm_dpc::account::AccountAddress;
-use snarkvm_dpc::base_dpc::instantiated::Components;
+use snarkvm_dpc::{account::AccountAddress, base_dpc::instantiated::Components};
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::eq::ConditionalEqGadget;
-use snarkvm_gadgets::traits::utilities::eq::EqGadget;
-use snarkvm_gadgets::traits::utilities::eq::EvaluateEqGadget;
-use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
-use snarkvm_gadgets::traits::utilities::uint::UInt;
-use snarkvm_gadgets::traits::utilities::uint::UInt8;
-use snarkvm_r1cs::Assignment;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::SynthesisError;
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::Boolean,
+    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+    select::CondSelectGadget,
+    uint::{UInt, UInt8},
+};
+use snarkvm_r1cs::{Assignment, ConstraintSystem, SynthesisError};
 use snarkvm_utilities::ToBytes;
-use std::borrow::Borrow;
-use std::str::FromStr;
+use std::{borrow::Borrow, str::FromStr};
 
 /// A public address
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -207,11 +199,7 @@ impl<F: PrimeField> ConditionalEqGadget<F> for Address {
 }
 
 fn cond_select_helper(first: &Address, second: &Address, cond: bool) -> Address {
-    if cond {
-        first.clone()
-    } else {
-        second.clone()
-    }
+    if cond { first.clone() } else { second.clone() }
 }
 
 impl<F: PrimeField> CondSelectGadget<F> for Address {

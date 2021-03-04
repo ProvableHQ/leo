@@ -16,12 +16,14 @@
 
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
-use crate::errors::StatementError;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
-use crate::IndicatorAndConstrainedValue;
-use crate::StatementResult;
+use crate::{
+    errors::StatementError,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
+    IndicatorAndConstrainedValue,
+    StatementResult,
+};
 use leo_asg::ConditionalStatement;
 
 use snarkvm_fields::PrimeField;

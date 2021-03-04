@@ -14,9 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ast::Rule;
-use crate::common::Range;
-use crate::expressions::Expression;
+use crate::{ast::Rule, common::Range, expressions::Expression};
 
 use pest_ast::FromPest;
 use serde::Serialize;

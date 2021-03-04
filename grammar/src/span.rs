@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use pest::Span;
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 // Provide getters for every private field of the remote struct. The getter must
 // return either `T` or `&T` where `T` is the type of the field.

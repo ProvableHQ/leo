@@ -16,28 +16,28 @@
 
 //! A data type that represents a field value
 
-use crate::errors::FieldError;
-use crate::number_string_typing;
+use crate::{errors::FieldError, number_string_typing};
 use leo_ast::Span;
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::fields::AllocatedFp;
-use snarkvm_gadgets::fields::FpGadget;
-use snarkvm_gadgets::traits::fields::FieldGadget;
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::eq::ConditionalEqGadget;
-use snarkvm_gadgets::traits::utilities::eq::EqGadget;
-use snarkvm_gadgets::traits::utilities::eq::EvaluateEqGadget;
-use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
-use snarkvm_gadgets::traits::utilities::uint::UInt8;
-use snarkvm_gadgets::traits::utilities::ToBitsGadget;
-use snarkvm_gadgets::traits::utilities::ToBytesGadget;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::SynthesisError;
+use snarkvm_gadgets::{
+    fields::{AllocatedFp, FpGadget},
+    traits::{
+        fields::FieldGadget,
+        utilities::{
+            alloc::AllocGadget,
+            boolean::Boolean,
+            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+            select::CondSelectGadget,
+            uint::UInt8,
+            ToBitsGadget,
+            ToBytesGadget,
+        },
+    },
+};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
-use std::borrow::Borrow;
-use std::cmp::Ordering;
+use std::{borrow::Borrow, cmp::Ordering};
 
 #[derive(Clone, Debug)]
 pub enum FieldType<F: PrimeField> {
@@ -293,11 +293,7 @@ impl<F: PrimeField> CondSelectGadget<F> for FieldType<F> {
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         if let Boolean::Constant(cond) = *cond {
-            if cond {
-                Ok(first.clone())
-            } else {
-                Ok(second.clone())
-            }
+            if cond { Ok(first.clone()) } else { Ok(second.clone()) }
         } else {
             let first_gadget = first.allocated(&mut cs)?;
             let second_gadget = second.allocated(&mut cs)?;

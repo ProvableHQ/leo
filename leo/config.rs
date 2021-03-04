@@ -14,19 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::fs::create_dir_all;
-use std::fs::File;
-use std::fs::{self};
-use std::io;
-use std::io::prelude::*;
-use std::path::Path;
-use std::path::PathBuf;
+use std::{
+    fs::{
+        create_dir_all,
+        File,
+        {self},
+    },
+    io,
+    io::prelude::*,
+    path::{Path, PathBuf},
+};
 
 use anyhow::Error;
 use dirs::home_dir;
 use lazy_static::lazy_static;
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 pub const LEO_CREDENTIALS_FILE: &str = "credentials";
 pub const LEO_CONFIG_FILE: &str = "config.toml";

@@ -14,26 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_gadgets::arithmetic::*;
-use leo_gadgets::Int128;
-use leo_gadgets::Int16;
-use leo_gadgets::Int32;
-use leo_gadgets::Int64;
-use leo_gadgets::Int8;
+use leo_gadgets::{arithmetic::*, Int128, Int16, Int32, Int64, Int8};
 
 use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::Fr;
-use snarkvm_r1cs::TestConstraintSystem;
+use snarkvm_r1cs::{ConstraintSystem, Fr, TestConstraintSystem};
 
-use rand::Rng;
-use rand::SeedableRng;
+use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 use std::i128;
 
-use criterion::criterion_group;
-use criterion::criterion_main;
-use criterion::Criterion;
+use criterion::{criterion_group, criterion_main, Criterion};
 
 macro_rules! create_add_bench {
     ($bench_name:ident, $bench_id:expr, $foo_name:ident, $std_type:ty, $bit_type:ty) => {

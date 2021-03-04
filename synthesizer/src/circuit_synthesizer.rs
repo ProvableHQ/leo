@@ -16,12 +16,7 @@
 
 use snarkvm_curves::traits::PairingEngine;
 use snarkvm_fields::Field;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::Index;
-use snarkvm_r1cs::LinearCombination;
-use snarkvm_r1cs::OptionalVec;
-use snarkvm_r1cs::SynthesisError;
-use snarkvm_r1cs::Variable;
+use snarkvm_r1cs::{ConstraintSystem, Index, LinearCombination, OptionalVec, SynthesisError, Variable};
 
 #[derive(Default)]
 pub struct Namespace {

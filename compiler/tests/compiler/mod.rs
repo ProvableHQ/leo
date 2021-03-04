@@ -14,11 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::get_output;
-use crate::EdwardsTestCompiler;
+use crate::{get_output, EdwardsTestCompiler};
 
-use std::env::current_dir;
-use std::path::PathBuf;
+use std::{env::current_dir, path::PathBuf};
 
 static MAIN_FILE_NAME: &str = "tests/compiler/main.leo";
 

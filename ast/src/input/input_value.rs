@@ -14,25 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ArrayDimensions;
-use crate::GroupValue;
-use leo_input::errors::InputParserError;
-use leo_input::expressions::ArrayInitializerExpression;
-use leo_input::expressions::ArrayInlineExpression;
-use leo_input::expressions::Expression;
-use leo_input::expressions::TupleExpression;
-use leo_input::types::ArrayType;
-use leo_input::types::DataType;
-use leo_input::types::IntegerType;
-use leo_input::types::TupleType;
-use leo_input::types::Type;
-use leo_input::values::Address;
-use leo_input::values::AddressValue;
-use leo_input::values::BooleanValue;
-use leo_input::values::FieldValue;
-use leo_input::values::GroupValue as InputGroupValue;
-use leo_input::values::NumberValue;
-use leo_input::values::Value;
+use crate::{ArrayDimensions, GroupValue};
+use leo_input::{
+    errors::InputParserError,
+    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, TupleExpression},
+    types::{ArrayType, DataType, IntegerType, TupleType, Type},
+    values::{Address, AddressValue, BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
+};
 use pest::Span;
 
 use std::fmt;

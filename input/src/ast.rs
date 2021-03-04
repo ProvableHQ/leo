@@ -15,10 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! Abstract syntax tree (ast) representation from leo-input.pest.
-use pest::error::Error;
-use pest::iterators::Pairs;
-use pest::Parser;
-use pest::Span;
+use pest::{error::Error, iterators::Pairs, Parser, Span};
 
 #[derive(Parser)]
 #[grammar = "leo-input.pest"]

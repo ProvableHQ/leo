@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::Error as FormattedError;
-use leo_ast::Span;
+use leo_ast::{Error as FormattedError, Span};
 
 use snarkvm_dpc::AccountError;
 use snarkvm_r1cs::SynthesisError;

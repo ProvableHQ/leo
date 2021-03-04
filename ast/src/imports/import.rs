@@ -14,12 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::PackageOrPackages;
-use crate::Span;
+use crate::{PackageOrPackages, Span};
 use leo_grammar::imports::Import as GrammarImport;
 
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Represents an import statement in a Leo program.

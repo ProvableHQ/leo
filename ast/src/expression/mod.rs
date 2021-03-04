@@ -14,43 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::ArrayDimensions;
-use crate::CircuitImpliedVariableDefinition;
-use crate::GroupValue;
-use crate::Identifier;
-use crate::IntegerType;
-use crate::PositiveNumber;
-use crate::Span;
-use crate::SpreadOrExpression;
-use leo_grammar::access::Access;
-use leo_grammar::access::AssigneeAccess;
-use leo_grammar::access::SelfAccess;
-use leo_grammar::common::Assignee;
-use leo_grammar::common::Identifier as GrammarIdentifier;
-use leo_grammar::common::RangeOrExpression as GrammarRangeOrExpression;
-use leo_grammar::expressions::ArrayInitializerExpression;
-use leo_grammar::expressions::ArrayInlineExpression as GrammarArrayInlineExpression;
-use leo_grammar::expressions::BinaryExpression as GrammarBinaryExpression;
-use leo_grammar::expressions::CircuitInlineExpression;
-use leo_grammar::expressions::Expression as GrammarExpression;
-use leo_grammar::expressions::PostfixExpression;
-use leo_grammar::expressions::SelfPostfixExpression;
-use leo_grammar::expressions::TernaryExpression as GrammarTernaryExpression;
-use leo_grammar::expressions::UnaryExpression as GrammarUnaryExpression;
-use leo_grammar::operations::BinaryOperation as GrammarBinaryOperation;
-use leo_grammar::operations::UnaryOperation as GrammarUnaryOperation;
-use leo_grammar::values::AddressValue;
-use leo_grammar::values::BooleanValue;
-use leo_grammar::values::FieldValue;
-use leo_grammar::values::GroupValue as GrammarGroupValue;
-use leo_grammar::values::IntegerValue;
-use leo_grammar::values::NumberValue as GrammarNumber;
-use leo_grammar::values::Value;
+use crate::{
+    ArrayDimensions,
+    CircuitImpliedVariableDefinition,
+    GroupValue,
+    Identifier,
+    IntegerType,
+    PositiveNumber,
+    Span,
+    SpreadOrExpression,
+};
+use leo_grammar::{
+    access::{Access, AssigneeAccess, SelfAccess},
+    common::{Assignee, Identifier as GrammarIdentifier, RangeOrExpression as GrammarRangeOrExpression},
+    expressions::{
+        ArrayInitializerExpression,
+        ArrayInlineExpression as GrammarArrayInlineExpression,
+        BinaryExpression as GrammarBinaryExpression,
+        CircuitInlineExpression,
+        Expression as GrammarExpression,
+        PostfixExpression,
+        SelfPostfixExpression,
+        TernaryExpression as GrammarTernaryExpression,
+        UnaryExpression as GrammarUnaryExpression,
+    },
+    operations::{BinaryOperation as GrammarBinaryOperation, UnaryOperation as GrammarUnaryOperation},
+    values::{
+        AddressValue,
+        BooleanValue,
+        FieldValue,
+        GroupValue as GrammarGroupValue,
+        IntegerValue,
+        NumberValue as GrammarNumber,
+        Value,
+    },
+};
 
-use leo_grammar::access::TupleAccess;
-use leo_grammar::expressions::TupleExpression;
-use serde::Deserialize;
-use serde::Serialize;
+use leo_grammar::{access::TupleAccess, expressions::TupleExpression};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 use crate::Node;

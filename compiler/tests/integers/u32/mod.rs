@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::assert_satisfied;
-use crate::expect_asg_error;
-use crate::expect_compiler_error;
-use crate::generate_main_input;
-use crate::integers::IntegerTester;
-use crate::parse_program;
+use crate::{
+    assert_satisfied,
+    expect_asg_error,
+    expect_compiler_error,
+    generate_main_input,
+    integers::IntegerTester,
+    parse_program,
+};
 use leo_ast::InputValue;
-use leo_input::types::IntegerType;
-use leo_input::types::U32Type;
-use leo_input::types::UnsignedIntegerType;
+use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
 
 test_uint!(
     TestU32,

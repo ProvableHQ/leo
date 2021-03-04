@@ -17,8 +17,7 @@
 use crate::ast::Rule;
 
 use pest_ast::FromPest;
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, FromPest, PartialEq, Serialize, Deserialize)]
 #[pest_ast(rule(Rule::EOI))]

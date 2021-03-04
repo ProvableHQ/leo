@@ -17,15 +17,14 @@
 // Tests for package manifest
 
 use crate::test_dir;
-use leo_package::root::Manifest;
-use leo_package::root::MANIFEST_FILENAME;
+use leo_package::root::{Manifest, MANIFEST_FILENAME};
 
-use std::convert::TryFrom;
-use std::fs::File;
-use std::io::Read;
-use std::io::Write;
-use std::path::Path;
-use std::path::PathBuf;
+use std::{
+    convert::TryFrom,
+    fs::File,
+    io::{Read, Write},
+    path::{Path, PathBuf},
+};
 
 const OLD_MANIFEST_FORMAT: &str = r#"[package]
 name = "test-package"

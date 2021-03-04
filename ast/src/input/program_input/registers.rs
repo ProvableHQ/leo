@@ -14,10 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::InputValue;
-use crate::Parameter;
-use leo_input::definitions::Definition;
-use leo_input::InputParserError;
+use crate::{InputValue, Parameter};
+use leo_input::{definitions::Definition, InputParserError};
 
 use indexmap::IndexMap;
 

@@ -14,18 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Int;
-use crate::Int128;
-use crate::Int16;
-use crate::Int32;
-use crate::Int64;
-use crate::Int8;
+use crate::{Int, Int128, Int16, Int32, Int64, Int8};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
-use snarkvm_gadgets::traits::utilities::eq::EvaluateEqGadget;
-use snarkvm_r1cs::ConstraintSystem;
-use snarkvm_r1cs::SynthesisError;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, eq::EvaluateEqGadget};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 macro_rules! eq_gadget_impl {
     ($($gadget: ident)*) => ($(

@@ -16,14 +16,9 @@
 
 //! Enforces constraints on a function in a compiled Leo program.
 
-use crate::errors::FunctionError;
-use crate::program::ConstrainedProgram;
-use crate::value::ConstrainedValue;
-use crate::GroupType;
+use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
-use leo_asg::Expression;
-use leo_asg::Function;
-use leo_asg::FunctionQualifier;
+use leo_asg::{Expression, Function, FunctionQualifier};
 use std::cell::Cell;
 
 use snarkvm_fields::PrimeField;
