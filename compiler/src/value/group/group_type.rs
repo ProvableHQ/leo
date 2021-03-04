@@ -21,6 +21,7 @@ use leo_asg::GroupValue;
 use leo_asg::Span;
 
 use snarkvm_fields::Field;
+use snarkvm_fields::One;
 use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
 use snarkvm_gadgets::traits::utilities::eq::ConditionalEqGadget;
 use snarkvm_gadgets::traits::utilities::eq::EqGadget;
@@ -28,7 +29,6 @@ use snarkvm_gadgets::traits::utilities::eq::EvaluateEqGadget;
 use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
 use snarkvm_gadgets::traits::utilities::ToBitsGadget;
 use snarkvm_gadgets::traits::utilities::ToBytesGadget;
-use snarkvm_models::curves::One;
 use snarkvm_r1cs::ConstraintSystem;
 use std::fmt::Debug;
 use std::fmt::Display;

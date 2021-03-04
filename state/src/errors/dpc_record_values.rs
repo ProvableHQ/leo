@@ -16,7 +16,7 @@
 
 use crate::InputValueError;
 
-use snarkos_objects::errors::AccountError;
+use snarkvm_dpc::AccountError;
 
 use std::num::ParseIntError;
 use std::str::ParseBoolError;
