@@ -53,6 +53,10 @@ version = "1.2.3"
 version = "0.2.0"
 default-features = false
 
+[dependencies.snarkvm-fields]
+version = "0.2.0"
+default-features = false
+
 [dependencies.snarkvm-dpc]
 version = "0.2.0"
 default-features = false
