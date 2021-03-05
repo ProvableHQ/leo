@@ -286,7 +286,7 @@ impl ParserContext {
     }
 
     ///
-    /// Returns a [`(Identifier, Circuit)`] tuple of AST nodes if the next tokens represent a
+    /// Returns an [`(Identifier, Circuit)`] tuple of AST nodes if the next tokens represent a
     /// circuit name and definition statement.
     ///
     pub fn parse_circuit(&mut self) -> SyntaxResult<(Identifier, Circuit)> {
