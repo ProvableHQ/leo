@@ -20,6 +20,10 @@ use serde::{Deserialize, Serialize};
 
 use std::fmt;
 
+///
+/// Returns a reference to bytes from the given input if the given string is equal to the bytes,
+/// otherwise returns [`None`].
+///
 fn eat<'a>(input: &'a [u8], wanted: &str) -> Option<&'a [u8]> {
     let wanted = wanted.as_bytes();
     if input.len() < wanted.len() {
@@ -31,6 +35,10 @@ fn eat<'a>(input: &'a [u8], wanted: &str) -> Option<&'a [u8]> {
     None
 }
 
+///
+/// Returns a reference to the bytes of an identifier and the remaining bytes from the given input.
+/// Returns [`None`] if the bytes do not represent an identifier.
+///
 fn eat_identifier(input: &[u8]) -> Option<(&[u8], &[u8])> {
     if input.is_empty() {
         return None;
@@ -49,6 +57,10 @@ fn eat_identifier(input: &[u8]) -> Option<(&[u8], &[u8])> {
 }
 
 impl Token {
+    ///
+    /// Returns a reference to the remaining bytes and the bytes of a number from the given input.
+    /// Returns [`None`] if the bytes do not represent a number.
+    ///
     fn gobble_int(input: &[u8]) -> (&[u8], Option<Token>) {
         if input.is_empty() {
             return (input, None);
@@ -80,6 +92,10 @@ impl Token {
         )
     }
 
+    ///
+    /// Returns a reference to the remaining bytes and the bytes of a [`Token`] from the given input.
+    /// Returns [`None`] if the bytes do not represent a token.
+    ///
     pub(crate) fn gobble(input: &[u8]) -> (&[u8], Option<Token>) {
         if input.is_empty() {
             return (input, None);
@@ -367,7 +383,11 @@ impl fmt::Debug for SpannedToken {
     }
 }
 
-pub(crate) fn validate_address(address: &str) -> bool {
+///
+/// Returns true if the given string looks like Aleo address.
+/// This method DOES NOT check if the address is valid on-chain.
+///
+pub(crate) fn check_address(address: &str) -> bool {
     // "aleo1" (LOWERCASE_LETTER | ASCII_DIGIT){58}
     if !address.starts_with("aleo1") || address.len() != 63 {
         return false;

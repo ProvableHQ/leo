@@ -17,6 +17,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// Parts of a formatted string for logging to the console.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FormattedStringPart {
     Const(String),
@@ -32,6 +33,7 @@ impl fmt::Display for FormattedStringPart {
     }
 }
 
+/// Represents all valid Leo syntax tokens.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Token {
     FormattedString(Vec<FormattedStringPart>),
@@ -129,6 +131,7 @@ pub enum Token {
     Question,
 }
 
+/// Represents all valid Leo keyword tokens.
 pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
     Token::As,
@@ -167,6 +170,9 @@ pub const KEYWORD_TOKENS: &[Token] = &[
 ];
 
 impl Token {
+    ///
+    /// Returns `true` if the `self` token equals a Leo keyword.
+    ///
     pub fn is_keyword(&self) -> bool {
         KEYWORD_TOKENS.iter().any(|x| x == self)
     }

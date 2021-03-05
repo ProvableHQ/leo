@@ -64,7 +64,7 @@ pub(crate) fn tokenize(path: &str, source: &str) -> Result<Vec<SpannedToken>, To
                         span.line_stop = line_no;
                     }
                     Token::AddressLit(address) => {
-                        if !validate_address(address) {
+                        if !check_address(address) {
                             return Err(TokenError::invalid_address_lit(address, &span));
                         }
                     }
