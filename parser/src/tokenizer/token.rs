@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FormattedStringPart {
     Const(String),
     Container,
@@ -31,7 +32,7 @@ impl fmt::Display for FormattedStringPart {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Token {
     FormattedString(Vec<FormattedStringPart>),
     AddressLit(String),
@@ -186,8 +187,8 @@ impl fmt::Display for Token {
             AddressLit(s) => write!(f, "{}", s),
             Ident(s) => write!(f, "{}", s),
             Int(s) => write!(f, "{}", s),
-            CommentLine(s) => writeln!(f, "//{}", s),
-            CommentBlock(s) => write!(f, "/*{}*/ ", s),
+            CommentLine(s) => writeln!(f, "{}", s),
+            CommentBlock(s) => write!(f, "{}", s),
             Not => write!(f, "!"),
             NotEq => write!(f, "!="),
             And => write!(f, "&&"),

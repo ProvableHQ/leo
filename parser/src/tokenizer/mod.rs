@@ -41,17 +41,34 @@ pub(crate) fn tokenize(path: &str, source: &str) -> Result<Vec<SpannedToken>, To
     while !input.is_empty() {
         match Token::gobble(input) {
             (output, Some(token)) => {
-                let span = Span {
+                let mut span = Span {
                     line_start: line_no,
                     line_stop: line_no,
                     col_start: index - line_start + 1,
                     col_stop: index - line_start + (input.len() - output.len()) + 1,
                     path: path.clone(),
                 };
-                if let Token::AddressLit(address) = &token {
-                    if !validate_address(address) {
-                        return Err(TokenError::invalid_address_lit(address, &span));
+                match &token {
+                    Token::CommentLine(_) => {
+                        line_no += 1;
+                        line_start = index + (input.len() - output.len());
                     }
+                    Token::CommentBlock(block) => {
+                        let line_ct = block.chars().filter(|x| *x == '\n').count();
+                        line_no += line_ct;
+                        if line_ct > 0 {
+                            let last_line_index = block.rfind('\n').unwrap();
+                            line_start = index + last_line_index + 1;
+                            span.col_stop = index + (input.len() - output.len()) - line_start + 1;
+                        }
+                        span.line_stop = line_no;
+                    }
+                    Token::AddressLit(address) => {
+                        if !validate_address(address) {
+                            return Err(TokenError::invalid_address_lit(address, &span));
+                        }
+                    }
+                    _ => (),
                 }
                 tokens.push(SpannedToken { token, span });
                 index += input.len() - output.len();
@@ -208,5 +225,34 @@ mod tests {
  /* test */  //
  "#
         );
+    }
+
+    #[test]
+    fn test_spans() {
+        let raw = r#"
+            test
+            // test
+            test
+            /* test */
+            test
+            /* test
+            test */
+            test
+            "#;
+        let tokens = tokenize("test_path", raw).unwrap();
+        let mut line_indicies = vec![0];
+        for (i, c) in raw.chars().enumerate() {
+            if c == '\n' {
+                line_indicies.push(i + 1);
+            }
+        }
+        for token in tokens.iter() {
+            let token_raw = token.token.to_string();
+            let start = line_indicies.get(token.span.line_start - 1).unwrap();
+            let stop = line_indicies.get(token.span.line_stop - 1).unwrap();
+            let original = &raw[*start + token.span.col_start - 1..*stop + token.span.col_stop - 1];
+            assert_eq!(original, &token_raw);
+        }
+        println!("{}", serde_json::to_string_pretty(&tokens).unwrap());
     }
 }

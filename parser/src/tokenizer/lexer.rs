@@ -16,6 +16,7 @@
 
 use crate::tokenizer::{FormattedStringPart, Token};
 use leo_ast::Span;
+use serde::{Deserialize, Serialize};
 
 use std::fmt;
 
@@ -192,7 +193,7 @@ impl Token {
                 return (&input[1..], Some(Token::Dot));
             }
             b'/' => {
-                if let Some(input) = eat(input, "//") {
+                if eat(input, "//").is_some() {
                     let eol = input.iter().position(|x| *x == b'\n');
                     let (input, comment) = if let Some(eol) = eol {
                         (&input[(eol + 1)..], &input[..eol])
@@ -203,13 +204,13 @@ impl Token {
                         input,
                         Some(Token::CommentLine(String::from_utf8_lossy(comment).to_string())),
                     );
-                } else if let Some(input) = eat(input, "/*") {
+                } else if eat(input, "/*").is_some() {
                     if input.is_empty() {
                         return (input, None);
                     }
-                    let eol = input.windows(2).position(|x| x[0] == b'*' && x[1] == b'/');
+                    let eol = input.windows(2).skip(2).position(|x| x[0] == b'*' && x[1] == b'/');
                     let (input, comment) = if let Some(eol) = eol {
-                        (&input[(eol + 2)..], &input[..eol])
+                        (&input[(eol + 4)..], &input[..eol + 4])
                     } else {
                         (&input[input.len()..input.len()], &input[..])
                     };
@@ -347,7 +348,7 @@ impl Token {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SpannedToken {
     pub token: Token,
     pub span: Span,
