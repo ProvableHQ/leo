@@ -37,7 +37,7 @@ pub type SyntaxResult<T> = Result<T, SyntaxError>;
 
 /// Creates a new program from a given file path and source code text.
 pub fn parse(path: &str, source: &str) -> SyntaxResult<Program> {
-    let mut tokens = ParserContext::new(crate::tokenize(source, path)?);
+    let mut tokens = ParserContext::new(crate::tokenize(path, source)?);
 
     match tokens.parse_program() {
         Ok(x) => Ok(x),

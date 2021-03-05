@@ -325,7 +325,7 @@ impl ParserContext {
                     }
                 }
                 Token::Dot => {
-                    if let Some(ident) = self.eat_ident() {
+                    if let Some(ident) = self.eat_identifier() {
                         expr = Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
                             span: expr.span() + &ident.span,
                             circuit: Box::new(expr),

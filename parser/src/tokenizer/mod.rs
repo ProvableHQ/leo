@@ -31,9 +31,9 @@ use leo_ast::Span;
 use std::rc::Rc;
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
-pub(crate) fn tokenize(input: &str, path: &str) -> Result<Vec<SpannedToken>, TokenError> {
+pub(crate) fn tokenize(path: &str, source: &str) -> Result<Vec<SpannedToken>, TokenError> {
     let path = Rc::new(path.to_string());
-    let mut input = input.as_bytes();
+    let mut input = source.as_bytes();
     let mut tokens = vec![];
     let mut index = 0usize;
     let mut line_no = 1usize;
@@ -91,6 +91,7 @@ mod tests {
     #[test]
     fn test_tokenizer() {
         let tokens = tokenize(
+            "test_path",
             r#"
         "test"
         "test{}test"
@@ -195,7 +196,6 @@ mod tests {
         // test
         /* test */
         //"#,
-            "test_path",
         )
         .unwrap();
         let mut output = String::new();

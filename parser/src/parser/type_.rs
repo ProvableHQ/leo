@@ -75,7 +75,7 @@ impl ParserContext {
     pub fn parse_type(&mut self) -> SyntaxResult<(Type, Span)> {
         Ok(if let Some(token) = self.eat(Token::BigSelf) {
             (Type::SelfType, token.span)
-        } else if let Some(ident) = self.eat_ident() {
+        } else if let Some(ident) = self.eat_identifier() {
             let span = ident.span.clone();
             (Type::Circuit(ident), span)
         } else if let Some(token) = self.eat(Token::LeftParen) {

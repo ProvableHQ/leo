@@ -90,7 +90,7 @@ impl ParserContext {
                     end_span = end.span;
                     break;
                 }
-                if let Some(ident) = self.eat_ident() {
+                if let Some(ident) = self.eat_identifier() {
                     args.push(ident.name);
                 } else if let Some((int, _)) = self.eat_int() {
                     args.push(int.value);
@@ -162,14 +162,14 @@ impl ParserContext {
 
     pub fn parse_package_name(&mut self) -> SyntaxResult<Identifier> {
         // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
-        let mut base = self.expect_loose_ident()?;
+        let mut base = self.expect_loose_identifier()?;
 
         // Build the rest of the package name including dashes.
         while let Some(token) = self.eat(Token::Minus) {
             if token.span.line_start == base.span.line_stop && token.span.col_start == base.span.col_stop {
                 base.name += "-";
                 base.span = base.span + token.span;
-                let next = self.expect_loose_ident()?;
+                let next = self.expect_loose_identifier()?;
                 base.name += &next.name;
                 base.span = base.span + next.span;
             } else {
