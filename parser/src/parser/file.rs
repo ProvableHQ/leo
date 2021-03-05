@@ -19,6 +19,9 @@ use crate::KEYWORD_TOKENS;
 use super::*;
 
 impl ParserContext {
+    ///
+    /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
+    ///
     pub fn parse_program(&mut self) -> SyntaxResult<Program> {
         let mut imports = vec![];
         let mut circuits = IndexMap::new();
@@ -74,6 +77,9 @@ impl ParserContext {
         })
     }
 
+    ///
+    /// Returns an [`Annotation`] AST node if the next tokens represent a supported annotation.
+    ///
     pub fn parse_annotation(&mut self) -> SyntaxResult<Annotation> {
         let start = self.expect(Token::At)?;
         let name = self.expect_ident()?;
@@ -115,6 +121,10 @@ impl ParserContext {
         })
     }
 
+    ///
+    /// Returns a vector of [`PackageAccess`] AST nodes if the next tokens represent package access
+    /// expressions within an import statement.
+    ///
     pub fn parse_package_accesses(&mut self) -> SyntaxResult<Vec<PackageAccess>> {
         let mut out = vec![];
         self.expect(Token::LeftParen)?;
@@ -129,6 +139,10 @@ impl ParserContext {
         Ok(out)
     }
 
+    ///
+    /// Returns a [`PackageAccess`] AST node if the next tokens represent a package access expression
+    /// within an import statement.
+    ///
     pub fn parse_package_access(&mut self) -> SyntaxResult<PackageAccess> {
         if let Some(SpannedToken { span, .. }) = self.eat(Token::Mul) {
             Ok(PackageAccess::Star(span))
@@ -160,6 +174,9 @@ impl ParserContext {
         }
     }
 
+    ///
+    /// Returns an [`Identifier`] AST node if the next tokens represent a valid package name.
+    ///
     pub fn parse_package_name(&mut self) -> SyntaxResult<Identifier> {
         // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
         let mut base = self.expect_loose_identifier()?;
@@ -212,6 +229,10 @@ impl ParserContext {
         Ok(base)
     }
 
+    ///
+    /// Returns a [`PackageOrPackages`] AST node if the next tokens represent a valid package import
+    /// with accesses.
+    ///
     pub fn parse_package_or_packages(&mut self) -> SyntaxResult<PackageOrPackages> {
         let package_name = self.parse_package_name()?;
         self.expect(Token::Dot)?;
@@ -232,6 +253,9 @@ impl ParserContext {
         }
     }
 
+    ///
+    /// Returns a [`ImportStatement`] AST node if the next tokens represent an import statement.
+    ///
     pub fn parse_import(&mut self) -> SyntaxResult<ImportStatement> {
         self.expect(Token::Import)?;
         let package_or_packages = self.parse_package_or_packages()?;
@@ -242,6 +266,10 @@ impl ParserContext {
         })
     }
 
+    ///
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
+    /// or circuit member function.
+    ///
     pub fn parse_circuit_member(&mut self) -> SyntaxResult<CircuitMember> {
         let peeked = &self.peek()?.token;
         if peeked == &Token::Function || peeked == &Token::At {
@@ -257,6 +285,10 @@ impl ParserContext {
         }
     }
 
+    ///
+    /// Returns a [`(Identifier, Circuit)`] tuple of AST nodes if the next tokens represent a
+    /// circuit name and definition statement.
+    ///
     pub fn parse_circuit(&mut self) -> SyntaxResult<(Identifier, Circuit)> {
         self.expect(Token::Circuit)?;
         let name = self.expect_ident()?;
@@ -272,6 +304,9 @@ impl ParserContext {
         }))
     }
 
+    ///
+    /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
+    ///
     pub fn parse_function_input(&mut self) -> SyntaxResult<FunctionInput> {
         if let Some(token) = self.eat(Token::Input) {
             return Ok(FunctionInput::InputKeyword(InputKeyword { span: token.span }));
@@ -308,6 +343,10 @@ impl ParserContext {
         }))
     }
 
+    ///
+    /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
+    /// and function definition.
+    ///
     pub fn parse_function(&mut self) -> SyntaxResult<(Identifier, Function)> {
         let mut annotations = vec![];
         while self.peek()?.token == Token::At {
