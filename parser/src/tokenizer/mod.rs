@@ -22,8 +22,8 @@
 pub(crate) mod token;
 pub(crate) use self::token::*;
 
-pub(crate) mod tokenizer;
-pub(crate) use self::tokenizer::*;
+pub(crate) mod lexer;
+pub(crate) use self::lexer::*;
 
 use crate::TokenError;
 use leo_ast::Span;

@@ -162,7 +162,7 @@ impl ParserContext {
 
     pub fn parse_package_name(&mut self) -> SyntaxResult<Identifier> {
         // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
-        let mut base = self.expect_loose_ident()?;
+        let mut base = self.expect_loose_identifier()?;
 
         // Build the rest of the package name including dashes.
         loop {
@@ -171,25 +171,25 @@ impl ParserContext {
                     let span = self.expect(Token::Minus)?;
                     base.name += "-";
                     base.span = base.span + span;
-                    let next = self.expect_loose_ident()?;
+                    let next = self.expect_loose_identifier()?;
                     base.name += &next.name;
-                    base.span = base.span + next.span;    
-                },
+                    base.span = base.span + next.span;
+                }
                 Token::Int(_) => {
                     let (num, span) = self.eat_int().unwrap();
                     base.name += &num.value;
                     base.span = base.span + span;
-                },
+                }
                 Token::Ident(_) => {
                     let next = self.expect_ident()?;
                     base.name += &next.name;
                     base.span = base.span + next.span;
-                },
+                }
                 x if KEYWORD_TOKENS.contains(&x) => {
-                    let next = self.expect_loose_ident()?;
+                    let next = self.expect_loose_identifier()?;
                     base.name += &next.name;
-                    base.span = base.span + next.span;    
-                },
+                    base.span = base.span + next.span;
+                }
                 _ => break,
             }
         }
