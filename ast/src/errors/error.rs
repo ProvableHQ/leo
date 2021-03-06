@@ -110,7 +110,7 @@ impl fmt::Display for FormattedError {
 
         write!(
             f,
-            "{indent     }--> {path}{line_start}:{start}\n\
+            "{indent     }--> {path} {line_start}:{start}\n\
              {indent     } |\n",
             indent = INDENT,
             path = path,
@@ -132,7 +132,7 @@ impl fmt::Display for FormattedError {
 
         write!(
             f,
-            "{indent     } | {underline}\n\
+            "{indent     } |  {underline}\n\
              {indent     } |\n\
              {indent     } = {message}",
             indent = INDENT,
