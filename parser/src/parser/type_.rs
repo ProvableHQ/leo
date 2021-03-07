@@ -34,6 +34,9 @@ const TYPE_TOKENS: &[Token] = &[
 ];
 
 impl ParserContext {
+    ///
+    /// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
+    ///
     pub fn token_to_int_type(token: Token) -> Option<IntegerType> {
         Some(match token {
             Token::I8 => IntegerType::I8,
@@ -50,6 +53,9 @@ impl ParserContext {
         })
     }
 
+    ///
+    /// Returns an [`ArrayDimensions`] AST node if the next tokens represent dimensions for an array type.
+    ///
     pub fn parse_array_dimensions(&mut self) -> SyntaxResult<ArrayDimensions> {
         Ok(if let Some((int, _)) = self.eat_int() {
             ArrayDimensions(vec![int])
@@ -72,6 +78,10 @@ impl ParserContext {
         })
     }
 
+    ///
+    /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type. Also
+    /// returns the span of the parsed token.
+    ///
     pub fn parse_type(&mut self) -> SyntaxResult<(Type, Span)> {
         Ok(if let Some(token) = self.eat(Token::BigSelf) {
             (Type::SelfType, token.span)

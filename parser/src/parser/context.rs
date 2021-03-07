@@ -163,7 +163,6 @@ impl ParserContext {
     /// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
     /// or [None] if the next token is not a [`GroupCoordinate`].
     ///
-    // kinda hacky, we're not LALR(1) for groups...
     pub fn eat_group_partial(&mut self) -> Option<(GroupCoordinate, GroupCoordinate, Span)> {
         let mut i = self.tokens.len() - 1;
         let start_span = self.tokens.get(i)?.span.clone();
