@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{cell::Cell};
+use std::cell::Cell;
 
 use leo_asg::*;
 
 pub struct ConstantFolding<'a, 'b> {
-    program: &'b Program<'a>
+    program: &'b Program<'a>,
 }
 
 impl<'a, 'b> ExpressionVisitor<'a> for ConstantFolding<'a, 'b> {
@@ -46,9 +46,7 @@ impl<'a, 'b> ProgramVisitor<'a> for ConstantFolding<'a, 'b> {}
 
 impl<'a, 'b> AsgPass<'a> for ConstantFolding<'a, 'b> {
     fn do_pass(asg: &Program<'a>) -> Result<(), FormattedError> {
-        let pass = ConstantFolding {
-            program: asg,
-        };
+        let pass = ConstantFolding { program: asg };
         let mut director = VisitorDirector::new(pass);
         director.visit_program(asg).ok();
         Ok(())

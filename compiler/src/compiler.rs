@@ -16,10 +16,17 @@
 
 //! Compiles a Leo program from a file path.
 
-use crate::{CompilerOptions, GroupType, OutputBytes, OutputFile, constraints::{generate_constraints, generate_test_constraints}, errors::CompilerError};
+use crate::{
+    constraints::{generate_constraints, generate_test_constraints},
+    errors::CompilerError,
+    CompilerOptions,
+    GroupType,
+    OutputBytes,
+    OutputFile,
+};
 use indexmap::IndexMap;
-use leo_asg::{Asg, AsgPass, FormattedError};
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
+use leo_asg::{Asg, AsgPass, FormattedError};
 use leo_ast::{Input, LeoError, MainInput, Program};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
@@ -265,7 +272,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
         self.do_asg_passes().map_err(CompilerError::AsgPassError)?;
-        
+
         generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input).map_err(|mut error| {
             if let Some(path) = error.get_path().map(|x| x.to_string()) {
                 let content = match self.resolve_content(&path) {
@@ -283,7 +290,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
         self.do_asg_passes().map_err(CompilerError::AsgPassError)?;
-        
+
         generate_test_constraints::<F, G>(
             &self.asg.as_ref().unwrap(),
             input_pairs,

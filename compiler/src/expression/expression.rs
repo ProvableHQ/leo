@@ -27,7 +27,7 @@ use crate::{
     FieldType,
     GroupType,
 };
-use leo_asg::{ConstValue, Expression, Node, Span, expression::*};
+use leo_asg::{expression::*, ConstValue, Expression, Node, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
@@ -46,18 +46,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), span)?),
             ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),
             ConstValue::Int(value) => ConstrainedValue::Integer(Integer::new(value)),
-            ConstValue::Tuple(values) =>
-                ConstrainedValue::Tuple(
-                    values.iter()
-                        .map(|x| self.enforce_const_value(cs, x, span))
-                        .collect::<Result<Vec<_>, _>>()?
-                ),
-            ConstValue::Array(values) =>
-                ConstrainedValue::Array(
-                    values.iter()
-                        .map(|x| self.enforce_const_value(cs, x, span))
-                        .collect::<Result<Vec<_>, _>>()?
-                ),
+            ConstValue::Tuple(values) => ConstrainedValue::Tuple(
+                values
+                    .iter()
+                    .map(|x| self.enforce_const_value(cs, x, span))
+                    .collect::<Result<Vec<_>, _>>()?,
+            ),
+            ConstValue::Array(values) => ConstrainedValue::Array(
+                values
+                    .iter()
+                    .map(|x| self.enforce_const_value(cs, x, span))
+                    .collect::<Result<Vec<_>, _>>()?,
+            ),
         })
     }
 
@@ -75,9 +75,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             Expression::VariableRef(variable_ref) => self.evaluate_ref(variable_ref),
 
             // Values
-            Expression::Constant(Constant { value, .. }) => {
-                self.enforce_const_value(cs, value, span)
-            }
+            Expression::Constant(Constant { value, .. }) => self.enforce_const_value(cs, value, span),
 
             // Binary operations
             Expression::Binary(BinaryExpression {
