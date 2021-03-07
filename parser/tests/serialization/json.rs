@@ -33,8 +33,7 @@ fn to_ast(program_filepath: &Path) -> Result<Ast, SyntaxError> {
 fn test_serialize() {
     // Construct an ast from the given test file.
     let ast = {
-        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        program_filepath.push("tests/serialization/main.leo");
+        let program_filepath = PathBuf::from("./tests/serialization/main.leo");
 
         to_ast(&program_filepath).unwrap()
     };
@@ -53,8 +52,7 @@ fn test_serialize() {
 fn test_deserialize() {
     // Load the expected ast.
     let expected_ast = {
-        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        program_filepath.push("tests/serialization/main.leo");
+        let program_filepath = PathBuf::from("./tests/serialization/main.leo");
 
         to_ast(&program_filepath).unwrap()
     };
@@ -70,8 +68,7 @@ fn test_deserialize() {
 fn test_serialize_deserialize_serialize() {
     // Construct an ast from the given test file.
     let ast = {
-        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        program_filepath.push("tests/serialization/main.leo");
+        let program_filepath = PathBuf::from("./tests/serialization/main.leo");
 
         to_ast(&program_filepath).unwrap()
     };
@@ -91,8 +88,7 @@ fn test_serialize_deserialize_serialize() {
 #[test]
 fn test_generic_parser_error() {
     let error_result = {
-        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        program_filepath.push("tests/serialization/parser_error.leo");
+        let program_filepath = PathBuf::from("./tests/serialization/parser_error.leo");
 
         to_ast(&program_filepath)
     }
