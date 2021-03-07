@@ -222,7 +222,7 @@ mod tests {
         assert_eq!(
             output,
             r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 test_ident 12345 address as bool circuit const else false field for function group i128 i64 i32 i16 i8 if import in input let mut return static string test true u128 u64 u32 u16 u8 self Self console ! != && ( ) * ** **= *= + += , - -= -> . .. ... / /= : :: ; < <= = == > >= @ [ ] { { } } || & &= | |= ^ ^= ~ << <<= >> >>= >>> >>>= % %= ||= &&= ? // test
- /* test */  //
+ /* test */ //
  "#
         );
     }

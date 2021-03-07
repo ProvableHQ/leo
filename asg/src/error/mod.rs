@@ -244,6 +244,14 @@ impl AsgConvertError {
         Self::new_from_span(format!("failed to parse int value '{}'", value), span)
     }
 
+    pub fn overflowed_const_int(value: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("const int value is overflowed for type '{}'", value), span)
+    }
+
+    pub fn unsigned_negation(span: &Span) -> Self {
+        Self::new_from_span("cannot negate unsigned integer".to_string(), span)
+    }
+
     pub fn immutable_assignment(name: &str, span: &Span) -> Self {
         Self::new_from_span(format!("illegal assignment to immutable variable '{}'", name), span)
     }

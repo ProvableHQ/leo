@@ -76,7 +76,7 @@ impl std::ops::Add for Span {
                 col_stop: self.col_stop.max(other.col_stop),
                 path: self.path,
             }
-        } else if self.line_start < other.line_start {
+        } else if self.line_start < other.line_stop {
             Span {
                 line_start: self.line_start,
                 line_stop: other.line_stop,

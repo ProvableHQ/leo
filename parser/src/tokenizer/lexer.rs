@@ -175,9 +175,7 @@ impl Token {
             }
             b',' => return (&input[1..], Some(Token::Comma)),
             b'-' => {
-                if let (followed_int, Some(Token::Int(token))) = Self::gobble_int(&input[1..]) {
-                    return (followed_int, Some(Token::Int(format!("-{}", token))));
-                } else if let Some(input) = eat(input, "->") {
+                if let Some(input) = eat(input, "->") {
                     return (input, Some(Token::Arrow));
                 } else if let Some(input) = eat(input, "-=") {
                     return (input, Some(Token::MinusEq));

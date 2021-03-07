@@ -186,7 +186,7 @@ macro_rules! const_int_bimap {
 impl ConstInt {
     const_int_op!(raw_value, String, x, format!("{}", x));
 
-    const_int_map!(value_negate, x, x.checked_neg()?);
+    const_int_map!(value_negate, x, x.overflowing_neg().0);
 
     const_int_map!(value_bit_negate, x, !x);
 
@@ -267,18 +267,61 @@ impl ConstInt {
         Type::Integer(self.get_int_type())
     }
 
+    fn parse_signed(int_type: &IntegerType, raw: u128) -> Option<ConstInt> {
+        Some(match int_type {
+            IntegerType::I8 => ConstInt::I8(raw.try_into().ok()?),
+            IntegerType::I16 => ConstInt::I16(raw.try_into().ok()?),
+            IntegerType::I32 => ConstInt::I32(raw.try_into().ok()?),
+            IntegerType::I64 => ConstInt::I64(raw.try_into().ok()?),
+            IntegerType::I128 => ConstInt::I128(raw.try_into().ok()?),
+            _ => panic!("illegal type passed to parse_signed"),
+        })
+    }
+
     pub fn parse(int_type: &IntegerType, value: &str, span: &Span) -> Result<ConstInt, AsgConvertError> {
+        let raw: u128 = value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?;
         Ok(match int_type {
-            IntegerType::I8 => ConstInt::I8(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::I16 => ConstInt::I16(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::I32 => ConstInt::I32(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::I64 => ConstInt::I64(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::I128 => ConstInt::I128(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U8 => ConstInt::U8(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U16 => ConstInt::U16(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U32 => ConstInt::U32(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U64 => ConstInt::U64(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U128 => ConstInt::U128(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
+            // IntegerType::I8 => ConstInt::I8(raw.try_into().map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?),
+            // IntegerType::I16 => ConstInt::I16(raw.try_into().map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?),
+            // IntegerType::I32 => ConstInt::I32(raw.try_into().map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?),
+            // IntegerType::I64 => ConstInt::I64(raw.try_into().map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?),
+            // IntegerType::I128 => ConstInt::I128(raw.try_into().map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?),
+            IntegerType::U8 => ConstInt::U8(
+                raw.try_into()
+                    .map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?,
+            ),
+            IntegerType::U16 => ConstInt::U16(
+                raw.try_into()
+                    .map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?,
+            ),
+            IntegerType::U32 => ConstInt::U32(
+                raw.try_into()
+                    .map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?,
+            ),
+            IntegerType::U64 => ConstInt::U64(
+                raw.try_into()
+                    .map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?,
+            ),
+            IntegerType::U128 => ConstInt::U128(
+                raw.try_into()
+                    .map_err(|_| AsgConvertError::overflowed_const_int(&value, span))?,
+            ),
+            signed_type => {
+                if let Some(parsed) = Self::parse_signed(signed_type, raw) {
+                    parsed
+                } else if let Some(_parsed) = Self::parse_signed(signed_type, raw - 1) {
+                    match int_type {
+                        IntegerType::I8 => ConstInt::I8(raw as i8),
+                        IntegerType::I16 => ConstInt::I16(raw as i16),
+                        IntegerType::I32 => ConstInt::I32(raw as i32),
+                        IntegerType::I64 => ConstInt::I64(raw as i64),
+                        IntegerType::I128 => ConstInt::I128(raw as i128),
+                        _ => panic!("illegal type passed to parse_signed"),
+                    }
+                } else {
+                    return Err(AsgConvertError::overflowed_const_int(&value, span));
+                }
+            }
         })
     }
 }

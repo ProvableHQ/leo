@@ -126,15 +126,25 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
                 }
             },
         };
+        let expr = <&Expression<'a>>::from_ast(scope, &*value.inner, expected_type.map(Into::into))?;
+
+        if matches!(value.op, UnaryOperation::Negate) {
+            let is_expr_unsigned = expr
+                .get_type()
+                .map(|x| match x {
+                    Type::Integer(x) => !x.is_signed(),
+                    _ => false,
+                })
+                .unwrap_or(false);
+            if is_expr_unsigned {
+                return Err(AsgConvertError::unsigned_negation(&value.span));
+            }
+        }
         Ok(UnaryExpression {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             operation: value.op.clone(),
-            inner: Cell::new(<&Expression<'a>>::from_ast(
-                scope,
-                &*value.inner,
-                expected_type.map(Into::into),
-            )?),
+            inner: Cell::new(expr),
         })
     }
 }

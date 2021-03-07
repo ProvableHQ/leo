@@ -34,23 +34,6 @@ fn test_let_mut() {
 }
 
 #[test]
-fn test_cond_mut() {
-    let program_string = r#"
-    function main() {
-        let mut x = 100i8;
-        if false {
-            x = 1i8;
-            x *= 100i8;
-        }
-        console.assert(x == 100);
-    }
-    "#;
-    let program = parse_program(program_string).unwrap();
-
-    assert_satisfied(program);
-}
-
-#[test]
 fn test_let_mut_nested() {
     let program_string = include_str!("let_mut_nested.leo");
     let program = parse_program(program_string).unwrap();

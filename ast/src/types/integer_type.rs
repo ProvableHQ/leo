@@ -39,6 +39,16 @@ pub enum IntegerType {
     I128,
 }
 
+impl IntegerType {
+    pub fn is_signed(&self) -> bool {
+        use IntegerType::*;
+        match self {
+            I8 | I16 | I32 | I64 | I128 => true,
+            _ => false,
+        }
+    }
+}
+
 impl From<InputIntegerType> for IntegerType {
     fn from(integer_type: InputIntegerType) -> Self {
         match integer_type {
