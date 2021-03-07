@@ -365,14 +365,25 @@ impl ParserContext {
         }
         let mut inner = self.parse_access_expression()?;
         for op in ops.into_iter().rev() {
+            let operation = match op.token {
+                Token::Not => UnaryOperation::Not,
+                Token::Minus => UnaryOperation::Negate,
+                Token::BitNot => UnaryOperation::BitNot,
+                _ => unimplemented!(),
+            };
+            // hack for const signed integer overflow issues
+            if matches!(operation, UnaryOperation::Negate) {
+                if let Expression::Value(ValueExpression::Integer(type_, value, span)) = inner {
+                    inner = Expression::Value(ValueExpression::Integer(type_, format!("-{}", value), &op.span + &span));
+                    continue;
+                } else if let Expression::Value(ValueExpression::Implicit(value, span)) = inner {
+                    inner = Expression::Value(ValueExpression::Implicit(format!("-{}", value), &op.span + &span));
+                    continue;
+                }
+            }
             inner = Expression::Unary(UnaryExpression {
                 span: &op.span + inner.span(),
-                op: match op.token {
-                    Token::Not => UnaryOperation::Not,
-                    Token::Minus => UnaryOperation::Negate,
-                    Token::BitNot => UnaryOperation::BitNot,
-                    _ => unimplemented!(),
-                },
+                op: operation,
                 inner: Box::new(inner),
             });
         }

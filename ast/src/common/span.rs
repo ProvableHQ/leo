@@ -67,6 +67,7 @@ impl std::ops::Add for &Span {
 impl std::ops::Add for Span {
     type Output = Self;
 
+    #[allow(clippy::comparison_chain)]
     fn add(self, other: Self) -> Self {
         if self.line_start == other.line_stop {
             Span {

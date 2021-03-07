@@ -42,10 +42,7 @@ pub enum IntegerType {
 impl IntegerType {
     pub fn is_signed(&self) -> bool {
         use IntegerType::*;
-        match self {
-            I8 | I16 | I32 | I64 | I128 => true,
-            _ => false,
-        }
+        matches!(self, I8 | I16 | I32 | I64 | I128)
     }
 }
 
