@@ -17,12 +17,14 @@
 #[derive(Clone)]
 pub struct CompilerOptions {
     pub constant_folding_enabled: bool,
+    pub dead_code_elimination_enabled: bool,
 }
 
 impl Default for CompilerOptions {
     fn default() -> Self {
         CompilerOptions {
             constant_folding_enabled: true,
+            dead_code_elimination_enabled: true,
         }
     }
 }

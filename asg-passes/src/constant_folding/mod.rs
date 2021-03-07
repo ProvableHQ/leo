@@ -31,7 +31,7 @@ impl<'a, 'b> ExpressionVisitor<'a> for ConstantFolding<'a, 'b> {
                 span: expr.span().cloned(),
                 value: const_value,
             });
-            let folded_expr = self.program.scope.alloc_expression(folded_expr);
+            let folded_expr = self.program.context.alloc_expression(folded_expr);
             input.set(folded_expr);
             VisitResult::SkipChildren
         } else {
@@ -45,10 +45,10 @@ impl<'a, 'b> StatementVisitor<'a> for ConstantFolding<'a, 'b> {}
 impl<'a, 'b> ProgramVisitor<'a> for ConstantFolding<'a, 'b> {}
 
 impl<'a, 'b> AsgPass<'a> for ConstantFolding<'a, 'b> {
-    fn do_pass(asg: &Program<'a>) -> Result<(), FormattedError> {
-        let pass = ConstantFolding { program: asg };
+    fn do_pass(asg: Program<'a>) -> Result<Program<'a>, FormattedError> {
+        let pass = ConstantFolding { program: &asg };
         let mut director = VisitorDirector::new(pass);
-        director.visit_program(asg).ok();
-        Ok(())
+        director.visit_program(&asg).ok();
+        Ok(asg)
     }
 }

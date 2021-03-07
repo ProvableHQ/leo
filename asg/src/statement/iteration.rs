@@ -57,7 +57,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
         let expected_index_type = Some(PartialType::Integer(None, Some(IntegerType::U32)));
         let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone())?;
         let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type)?;
-        let variable = scope.alloc_variable(RefCell::new(InnerVariable {
+        let variable = scope.context.alloc_variable(RefCell::new(InnerVariable {
             id: scope.context.get_id(),
             name: statement.variable.clone(),
             type_: start
@@ -74,17 +74,21 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
             .borrow_mut()
             .insert(statement.variable.name.clone(), variable);
 
-        let statement = scope.alloc_statement(Statement::Iteration(IterationStatement {
+        let statement = scope.context.alloc_statement(Statement::Iteration(IterationStatement {
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             variable,
             stop: Cell::new(stop),
             start: Cell::new(start),
-            body: Cell::new(scope.alloc_statement(Statement::Block(crate::BlockStatement::from_ast(
-                scope,
-                &statement.block,
-                None,
-            )?))),
+            body: Cell::new(
+                scope
+                    .context
+                    .alloc_statement(Statement::Block(crate::BlockStatement::from_ast(
+                        scope,
+                        &statement.block,
+                        None,
+                    )?)),
+            ),
         }));
         variable.borrow_mut().assignments.push(statement);
         Ok(statement)

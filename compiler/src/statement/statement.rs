@@ -92,6 +92,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
                 results.extend(result);
             }
+            Statement::Empty(_) => (),
         };
 
         Ok(results)

@@ -89,7 +89,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         }
 
         for (variable, type_) in statement.variable_names.iter().zip(output_types.into_iter()) {
-            variables.push(&*scope.alloc_variable(RefCell::new(InnerVariable {
+            variables.push(&*scope.context.alloc_variable(RefCell::new(InnerVariable {
                 id: scope.context.get_id(),
                 name: variable.identifier.clone(),
                 type_:
@@ -109,12 +109,14 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                 .insert(variable.borrow().name.name.clone(), *variable);
         }
 
-        let statement = scope.alloc_statement(Statement::Definition(DefinitionStatement {
-            parent: Cell::new(None),
-            span: Some(statement.span.clone()),
-            variables: variables.clone(),
-            value: Cell::new(value),
-        }));
+        let statement = scope
+            .context
+            .alloc_statement(Statement::Definition(DefinitionStatement {
+                parent: Cell::new(None),
+                span: Some(statement.span.clone()),
+                variables: variables.clone(),
+                value: Cell::new(value),
+            }));
 
         for variable in variables {
             variable.borrow_mut().assignments.push(statement);
