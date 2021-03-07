@@ -388,9 +388,8 @@ impl<'a, R: StatementVisitor<'a>> VisitorDirector<'a, R> {
     }
 }
 
-#[allow(dead_code)]
 impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
-    fn visit_function(&mut self, input: &'a Function<'a>) -> ConcreteVisitResult {
+    pub fn visit_function(&mut self, input: &'a Function<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_function(input) {
             VisitResult::VisitChildren => {
                 self.visit_opt_statement(&input.body)?;
@@ -400,7 +399,7 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    fn visit_circuit_member(&mut self, input: &CircuitMember<'a>) -> ConcreteVisitResult {
+    pub fn visit_circuit_member(&mut self, input: &CircuitMember<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_circuit_member(input) {
             VisitResult::VisitChildren => {
                 if let CircuitMember::Function(f) = input {
@@ -412,7 +411,7 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    fn visit_circuit(&mut self, input: &'a Circuit<'a>) -> ConcreteVisitResult {
+    pub fn visit_circuit(&mut self, input: &'a Circuit<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_circuit(input) {
             VisitResult::VisitChildren => {
                 for (_, member) in input.members.borrow().iter() {
@@ -424,7 +423,7 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    fn visit_program(&mut self, input: &Program<'a>) -> ConcreteVisitResult {
+    pub fn visit_program(&mut self, input: &Program<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_program(input) {
             VisitResult::VisitChildren => {
                 for (_, import) in input.imported_modules.iter() {

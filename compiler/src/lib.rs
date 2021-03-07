@@ -58,3 +58,6 @@ pub use self::value::*;
 
 pub mod stage;
 pub use self::stage::*;
+
+pub mod option;
+pub use self::option::*;

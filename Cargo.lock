@@ -1226,6 +1226,7 @@ dependencies = [
  "indexmap",
  "leo-asg",
  "leo-ast",
+ "leo-constant-folding",
  "leo-gadgets",
  "leo-imports",
  "leo-input",
@@ -1248,6 +1249,13 @@ dependencies = [
  "snarkvm-utilities",
  "thiserror",
  "tracing",
+]
+
+[[package]]
+name = "leo-constant-folding"
+version = "1.2.3"
+dependencies = [
+ "leo-asg",
 ]
 
 [[package]]

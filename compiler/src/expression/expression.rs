@@ -27,13 +27,40 @@ use crate::{
     FieldType,
     GroupType,
 };
-use leo_asg::{expression::*, ConstValue, Expression, Node};
+use leo_asg::{ConstValue, Expression, Node, Span, expression::*};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+    pub(crate) fn enforce_const_value<CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        value: &ConstValue,
+        span: &Span,
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+        Ok(match value {
+            ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.clone(), span)?),
+            ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
+            ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), span)?),
+            ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),
+            ConstValue::Int(value) => ConstrainedValue::Integer(Integer::new(value)),
+            ConstValue::Tuple(values) =>
+                ConstrainedValue::Tuple(
+                    values.iter()
+                        .map(|x| self.enforce_const_value(cs, x, span))
+                        .collect::<Result<Vec<_>, _>>()?
+                ),
+            ConstValue::Array(values) =>
+                ConstrainedValue::Array(
+                    values.iter()
+                        .map(|x| self.enforce_const_value(cs, x, span))
+                        .collect::<Result<Vec<_>, _>>()?
+                ),
+        })
+    }
+
     pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -49,14 +76,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
             // Values
             Expression::Constant(Constant { value, .. }) => {
-                Ok(match value {
-                    ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.clone(), span)?),
-                    ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
-                    ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), span)?),
-                    ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),
-                    ConstValue::Int(value) => ConstrainedValue::Integer(Integer::new(value)),
-                    ConstValue::Tuple(_) | ConstValue::Array(_) => unimplemented!(), // shouldnt be in the asg here
-                })
+                self.enforce_const_value(cs, value, span)
             }
 
             // Binary operations
