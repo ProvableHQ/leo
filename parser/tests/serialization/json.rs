@@ -25,7 +25,7 @@ fn to_ast(program_filepath: &Path) -> Result<Ast, SyntaxError> {
     let program_string = std::fs::read_to_string(program_filepath).expect("failed to open test");
 
     // Parses the Leo file and constructs a leo ast.
-    leo_parser::parse_ast(&program_filepath.to_str().unwrap(), &program_string)
+    leo_parser::parse_ast("test", &program_string)
 }
 
 #[test]
@@ -33,7 +33,8 @@ fn to_ast(program_filepath: &Path) -> Result<Ast, SyntaxError> {
 fn test_serialize() {
     // Construct an ast from the given test file.
     let ast = {
-        let program_filepath = PathBuf::from("./tests/serialization/main.leo");
+        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        program_filepath.push("tests/serialization/main.leo");
 
         to_ast(&program_filepath).unwrap()
     };
@@ -52,7 +53,8 @@ fn test_serialize() {
 fn test_deserialize() {
     // Load the expected ast.
     let expected_ast = {
-        let program_filepath = PathBuf::from("./tests/serialization/main.leo");
+        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        program_filepath.push("tests/serialization/main.leo");
 
         to_ast(&program_filepath).unwrap()
     };
@@ -68,7 +70,8 @@ fn test_deserialize() {
 fn test_serialize_deserialize_serialize() {
     // Construct an ast from the given test file.
     let ast = {
-        let program_filepath = PathBuf::from("./tests/serialization/main.leo");
+        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        program_filepath.push("tests/serialization/main.leo");
 
         to_ast(&program_filepath).unwrap()
     };
@@ -88,7 +91,8 @@ fn test_serialize_deserialize_serialize() {
 #[test]
 fn test_generic_parser_error() {
     let error_result = {
-        let program_filepath = PathBuf::from("./tests/serialization/parser_error.leo");
+        let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        program_filepath.push("tests/serialization/parser_error.leo");
 
         to_ast(&program_filepath)
     }

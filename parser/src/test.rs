@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{fs, path::Path};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::SyntaxError;
 
@@ -42,7 +45,9 @@ pub fn parser_pass_tests() {
     let mut pass = 0;
     let mut fail = vec![];
     let mut tests = vec![];
-    find_tests("../tests/pass/parse/", &mut tests);
+    let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    test_dir.push("../tests/pass/parse/");
+    find_tests(&test_dir, &mut tests);
     for (path, content) in tests.into_iter() {
         match crate::parse(&path, &content) {
             Ok(_) => {
@@ -73,7 +78,9 @@ pub fn parser_fail_tests() {
     let mut pass = 0;
     let mut fail = vec![];
     let mut tests = vec![];
-    find_tests("../tests/fail/parse/", &mut tests);
+    let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    test_dir.push("../tests/fail/parse/");
+    find_tests(&test_dir, &mut tests);
     for (path, content) in tests.into_iter() {
         match crate::parse(&path, &content) {
             Ok(_) => {
