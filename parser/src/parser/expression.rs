@@ -59,9 +59,6 @@ impl ParserContext {
     /// Otherwise, tries to parse the next token using [`parse_or_expression`].
     ///
     pub fn parse_expression_fuzzy(&mut self) -> SyntaxResult<Expression> {
-        // Check if we are parsing a ternary expression.
-        let if_token = self.eat(Token::If);
-
         // Try to parse the next expression. Try BinaryOperation::Or.
         let mut expr = self.parse_or_expression()?;
 
@@ -76,9 +73,6 @@ impl ParserContext {
                 if_true: Box::new(if_true),
                 if_false: Box::new(if_false),
             });
-        } else if if_token.is_some() {
-            let peeked = self.peek()?;
-            return Err(SyntaxError::unexpected(&peeked.token, &[Token::Question], &peeked.span));
         }
         Ok(expr)
     }
