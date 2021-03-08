@@ -101,7 +101,7 @@ version = "1.0"
 version = "0.1"
 
 [dev-dependencies.num-bigint]
-version = "0.3"
+version = "0.4"
 
 [dev-dependencies.rand_core]
 version = "0.6.2"
