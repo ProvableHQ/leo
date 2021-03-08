@@ -17,14 +17,11 @@
 //! Errors encountered when attempting to convert to an asg from an ast.
 
 use crate::Span;
-use leo_ast::{AstError, Error as FormattedError};
-use leo_grammar::ParserError;
+use leo_ast::{FormattedError, LeoError};
+use leo_parser::SyntaxError;
 
 #[derive(Debug, Error)]
 pub enum AsgConvertError {
-    #[error("{}", _0)]
-    AstError(#[from] AstError),
-
     #[error("{}", _0)]
     Error(#[from] FormattedError),
 
@@ -35,12 +32,32 @@ pub enum AsgConvertError {
     InternalError(String),
 
     #[error("{}", _0)]
-    ParserError(#[from] ParserError),
+    SyntaxError(#[from] SyntaxError),
+}
+
+impl LeoError for AsgConvertError {
+    fn get_path(&self) -> Option<&str> {
+        match self {
+            AsgConvertError::Error(error) => error.get_path(),
+            AsgConvertError::SyntaxError(error) => error.get_path(),
+            AsgConvertError::ImportError(error) => error.get_path(),
+            AsgConvertError::InternalError(_) => None,
+        }
+    }
+
+    fn set_path(&mut self, path: &str, contents: &[String]) {
+        match self {
+            AsgConvertError::Error(error) => error.set_path(path, contents),
+            AsgConvertError::SyntaxError(error) => error.set_path(path, contents),
+            AsgConvertError::ImportError(error) => error.set_path(path, contents),
+            AsgConvertError::InternalError(_) => {}
+        }
+    }
 }
 
 impl AsgConvertError {
     fn new_from_span(message: String, span: &Span) -> Self {
-        AsgConvertError::Error(FormattedError::new_from_span(message, span.clone()))
+        AsgConvertError::Error(FormattedError::new_from_span(message, span))
     }
 
     pub fn unresolved_circuit(name: &str, span: &Span) -> Self {
@@ -227,6 +244,10 @@ impl AsgConvertError {
         Self::new_from_span(format!("failed to parse int value '{}'", value), span)
     }
 
+    pub fn unsigned_negation(span: &Span) -> Self {
+        Self::new_from_span("cannot negate unsigned integer".to_string(), span)
+    }
+
     pub fn immutable_assignment(name: &str, span: &Span) -> Self {
         Self::new_from_span(format!("illegal assignment to immutable variable '{}'", name), span)
     }
@@ -254,6 +275,14 @@ impl AsgConvertError {
             "cannot have `mut self` or `self` arguments in global functions".to_string(),
             span,
         )
+    }
+
+    pub fn call_test_function(span: &Span) -> Self {
+        Self::new_from_span("cannot call test function".to_string(), span)
+    }
+
+    pub fn circuit_test_function(span: &Span) -> Self {
+        Self::new_from_span("cannot have test function as member of circuit".to_string(), span)
     }
 
     pub fn parse_index_error() -> Self {

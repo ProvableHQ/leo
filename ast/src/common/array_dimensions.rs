@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::PositiveNumber;
-use leo_grammar::types::ArrayDimensions as GrammarArrayDimensions;
 use leo_input::types::ArrayDimensions as InputArrayDimensions;
 
 use serde::{Deserialize, Serialize};
@@ -101,18 +100,6 @@ impl ArrayDimensions {
     ///
     pub fn remove_last(&mut self) -> Option<PositiveNumber> {
         self.0.pop()
-    }
-}
-
-/// Create a new [`ArrayDimensions`] from a [`GrammarArrayDimensions`] in a Leo program file.
-impl<'ast> From<GrammarArrayDimensions<'ast>> for ArrayDimensions {
-    fn from(dimensions: GrammarArrayDimensions<'ast>) -> Self {
-        Self(match dimensions {
-            GrammarArrayDimensions::Single(single) => vec![PositiveNumber::from(single.number)],
-            GrammarArrayDimensions::Multiple(multiple) => {
-                multiple.numbers.into_iter().map(PositiveNumber::from).collect()
-            }
-        })
     }
 }
 

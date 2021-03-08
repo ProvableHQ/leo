@@ -30,11 +30,11 @@ members = [
   "ast",
   "compiler",
   "gadgets",
-  "grammar",
   "imports",
   "input",
   "linter",
   "package",
+  "parser",
   "state",
   "synthesizer",
 ]

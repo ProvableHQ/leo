@@ -15,27 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier};
-use leo_grammar::circuits::CircuitImpliedVariable;
 
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CircuitImpliedVariableDefinition {
     pub identifier: Identifier,
-    pub expression: Expression,
-}
-
-impl<'ast> From<CircuitImpliedVariable<'ast>> for CircuitImpliedVariableDefinition {
-    fn from(member: CircuitImpliedVariable<'ast>) -> Self {
-        match member {
-            CircuitImpliedVariable::CircuitVariable(circuit_variable) => Self {
-                identifier: Identifier::from(circuit_variable.identifier),
-                expression: Expression::from(circuit_variable.expression),
-            },
-            CircuitImpliedVariable::Identifier(identifier) => Self {
-                identifier: Identifier::from(identifier.clone()),
-                expression: Expression::from(identifier),
-            },
-        }
-    }
+    pub expression: Option<Expression>,
 }

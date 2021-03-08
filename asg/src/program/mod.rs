@@ -45,9 +45,6 @@ pub struct InternalProgram<'a> {
     /// these should generally not be accessed directly, but through scoped imports
     pub imported_modules: IndexMap<String, Program<'a>>,
 
-    /// Maps test name => test code block.
-    pub test_functions: IndexMap<String, (&'a Function<'a>, Option<Identifier>)>, // identifier = test input file
-
     /// Maps function name => function code block.
     pub functions: IndexMap<String, &'a Function<'a>>,
 
@@ -248,14 +245,6 @@ impl<'a> InternalProgram<'a> {
             scope.circuits.borrow_mut().insert(name.name.clone(), asg_circuit);
         }
 
-        let mut proto_test_functions = IndexMap::new();
-        for (name, test_function) in program.tests.iter() {
-            assert_eq!(name.name, test_function.function.identifier.name);
-            let function = Function::init(scope, &test_function.function)?;
-
-            proto_test_functions.insert(name.name.clone(), function);
-        }
-
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
             let function = Function::init(scope, function)?;
@@ -264,16 +253,6 @@ impl<'a> InternalProgram<'a> {
         }
 
         // Load concrete definitions.
-        let mut test_functions = IndexMap::new();
-        for (name, test_function) in program.tests.iter() {
-            assert_eq!(name.name, test_function.function.identifier.name);
-            let function = proto_test_functions.get(&name.name).unwrap();
-
-            function.fill_from_ast(&test_function.function)?;
-
-            test_functions.insert(name.name.clone(), (*function, test_function.input_file.clone()));
-        }
-
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
@@ -298,7 +277,6 @@ impl<'a> InternalProgram<'a> {
             context,
             id: context.get_id(),
             name: program.name.clone(),
-            test_functions,
             functions,
             circuits,
             imported_modules: resolved_packages
@@ -350,7 +328,6 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
 
     let mut all_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
     let mut all_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
-    let mut all_test_functions: IndexMap<String, (&'a Function<'a>, Option<Identifier>)> = IndexMap::new();
     let mut identifiers = InternalIdentifierGenerator { next: 0 };
     for (_, program) in all_programs.into_iter() {
         for (name, circuit) in program.circuits.iter() {
@@ -366,11 +343,6 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             };
             function.name.borrow_mut().name = identifier.clone();
             all_functions.insert(identifier, *function);
-        }
-        for (name, function) in program.test_functions.iter() {
-            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-            function.0.name.borrow_mut().name = identifier.clone();
-            all_test_functions.insert(identifier, function.clone());
         }
     }
 
@@ -388,15 +360,6 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             })
             .collect(),
         expected_input: vec![],
-        tests: all_test_functions
-            .into_iter()
-            .map(|(_, (function, ident))| {
-                (function.name.borrow().clone(), leo_ast::TestFunction {
-                    function: function.into(),
-                    input_file: ident,
-                })
-            })
-            .collect(),
         functions: all_functions
             .into_iter()
             .map(|(_, function)| (function.name.borrow().clone(), function.into()))
@@ -423,16 +386,6 @@ impl<'a> Into<leo_ast::Program> for &InternalProgram<'a> {
                 .functions
                 .iter()
                 .map(|(_, function)| (function.name.borrow().clone(), (*function).into()))
-                .collect(),
-            tests: self
-                .test_functions
-                .iter()
-                .map(|(_, function)| {
-                    (function.0.name.borrow().clone(), leo_ast::TestFunction {
-                        function: function.0.into(),
-                        input_file: function.1.clone(),
-                    })
-                })
                 .collect(),
         }
     }

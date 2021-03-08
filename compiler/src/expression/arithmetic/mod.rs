@@ -33,3 +33,6 @@ pub use self::div::*;
 
 pub mod pow;
 pub use self::pow::*;
+
+pub mod bit_not;
+pub use self::bit_not::*;

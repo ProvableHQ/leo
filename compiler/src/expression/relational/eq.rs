@@ -29,7 +29,7 @@ pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     right: ConstrainedValue<'a, F, G>,
     span: &Span,
 ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-    let namespace_string = format!("evaluate {} == {} {}:{}", left, right, span.line, span.start);
+    let namespace_string = format!("evaluate {} == {} {}:{}", left, right, span.line_start, span.col_start);
     let constraint_result = match (left, right) {
         (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => {
             let unique_namespace = cs.ns(|| namespace_string);
@@ -73,12 +73,12 @@ pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         (val_1, val_2) => {
             return Err(ExpressionError::incompatible_types(
                 format!("{} == {}", val_1, val_2,),
-                span.to_owned(),
+                span,
             ));
         }
     };
 
-    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate("==".to_string(), span.to_owned()))?;
+    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate("==".to_string(), span))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

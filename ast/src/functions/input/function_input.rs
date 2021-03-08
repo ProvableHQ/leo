@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Node, Span, Type};
-use leo_grammar::functions::FunctionInput as GrammarFunctionInput;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,18 +26,6 @@ pub struct FunctionInputVariable {
     pub mutable: bool,
     pub type_: Type,
     pub span: Span,
-}
-
-impl<'ast> From<GrammarFunctionInput<'ast>> for FunctionInputVariable {
-    fn from(parameter: GrammarFunctionInput<'ast>) -> Self {
-        FunctionInputVariable {
-            identifier: Identifier::from(parameter.identifier),
-            const_: parameter.const_.is_some(),
-            mutable: parameter.mutable.is_some(),
-            type_: Type::from(parameter.type_),
-            span: Span::from(parameter.span),
-        }
-    }
 }
 
 impl FunctionInputVariable {

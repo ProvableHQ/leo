@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Node, Span};
-use leo_grammar::functions::InputKeyword as GrammarInputKeyword;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -25,14 +24,6 @@ use std::fmt;
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub struct InputKeyword {
     pub span: Span,
-}
-
-impl<'ast> From<GrammarInputKeyword<'ast>> for InputKeyword {
-    fn from(grammar: GrammarInputKeyword<'ast>) -> Self {
-        Self {
-            span: Span::from(grammar.span),
-        }
-    }
 }
 
 impl fmt::Display for InputKeyword {

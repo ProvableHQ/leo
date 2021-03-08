@@ -188,7 +188,29 @@ impl ConstInt {
 
     const_int_map!(value_negate, x, x.checked_neg()?);
 
+    const_int_map!(value_bit_negate, x, !x);
+
     const_int_op!(to_usize, Option<usize>, x, (*x).try_into().ok());
+
+    const_int_op!(to_u128, u128, x, *x as u128);
+
+    const_int_op!(to_u64, u64, x, *x as u64);
+
+    const_int_op!(to_u32, u32, x, *x as u32);
+
+    const_int_op!(to_u16, u16, x, *x as u16);
+
+    const_int_op!(to_u8, u8, x, *x as u8);
+
+    const_int_op!(to_i128, i128, x, *x as i128);
+
+    const_int_op!(to_i64, i64, x, *x as i64);
+
+    const_int_op!(to_i32, i32, x, *x as i32);
+
+    const_int_op!(to_i16, i16, x, *x as i16);
+
+    const_int_op!(to_i8, i8, x, *x as i8);
 
     const_int_op!(to_string, String, x, (*x).to_string());
 
@@ -223,6 +245,21 @@ impl ConstInt {
             ConstInt::U32(_) => IntegerType::U32,
             ConstInt::U64(_) => IntegerType::U64,
             ConstInt::U128(_) => IntegerType::U128,
+        }
+    }
+
+    pub fn cast_to(&self, target: &IntegerType) -> ConstInt {
+        match target {
+            IntegerType::I8 => ConstInt::I8(self.to_i8()),
+            IntegerType::I16 => ConstInt::I16(self.to_i16()),
+            IntegerType::I32 => ConstInt::I32(self.to_i32()),
+            IntegerType::I64 => ConstInt::I64(self.to_i64()),
+            IntegerType::I128 => ConstInt::I128(self.to_i128()),
+            IntegerType::U8 => ConstInt::U8(self.to_u8()),
+            IntegerType::U16 => ConstInt::U16(self.to_u16()),
+            IntegerType::U32 => ConstInt::U32(self.to_u32()),
+            IntegerType::U64 => ConstInt::U64(self.to_u64()),
+            IntegerType::U128 => ConstInt::U128(self.to_u128()),
         }
     }
 

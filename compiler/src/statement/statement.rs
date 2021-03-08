@@ -78,17 +78,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         }
                     }
                     _ => {
-                        return Err(StatementError::unassigned(
-                            statement.span.as_ref().map(|x| x.text.clone()).unwrap_or_default(),
-                            statement.span.clone().unwrap_or_default(),
-                        ));
+                        return Err(StatementError::unassigned(&statement.span.clone().unwrap_or_default()));
                     }
                 }
             }
             Statement::Block(statement) => {
                 let span = statement.span.clone().unwrap_or_default();
                 let result = self.evaluate_block(
-                    &mut cs.ns(|| format!("block {}:{}", &span.line, &span.start)),
+                    &mut cs.ns(|| format!("block {}:{}", &span.line_start, &span.col_start)),
                     indicator,
                     statement,
                 )?;

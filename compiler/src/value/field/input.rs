@@ -35,19 +35,19 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
 
             match number_info {
                 (number, neg) if neg => FieldType::alloc(
-                    cs.ns(|| format!("`{}: field` {}:{}", name, span.line, span.start)),
+                    cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
                 .map(|value| value.negate(cs, span))
-                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned()))?,
+                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span))?,
                 (number, _) => FieldType::alloc(
-                    cs.ns(|| format!("`{}: field` {}:{}", name, span.line, span.start)),
+                    cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
-                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned())),
+                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span)),
             }
         }
-        None => Err(FieldError::missing_field(format!("{}: field", name), span.to_owned())),
+        None => Err(FieldError::missing_field(format!("{}: field", name), span)),
     }
 }
 
@@ -63,7 +63,7 @@ pub(crate) fn field_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
             if let InputValue::Field(string) = input {
                 Some(string)
             } else {
-                return Err(FieldError::invalid_field(input.to_string(), span.to_owned()));
+                return Err(FieldError::invalid_field(input.to_string(), span));
             }
         }
         None => None,

@@ -72,10 +72,10 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         let variable = if name == "input" {
             if let Some(function) = scope.resolve_current_function() {
                 if !function.has_input {
-                    return Err(AsgConvertError::unresolved_reference(name, span));
+                    return Err(AsgConvertError::unresolved_reference(name, &span));
                 }
             } else {
-                return Err(AsgConvertError::unresolved_reference(name, span));
+                return Err(AsgConvertError::unresolved_reference(name, &span));
             }
             if let Some(input) = scope.resolve_input() {
                 input.container
@@ -87,7 +87,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         } else {
             scope
                 .resolve_variable(&name)
-                .ok_or_else(|| AsgConvertError::unresolved_reference(name, span))?
+                .ok_or_else(|| AsgConvertError::unresolved_reference(name, &span))?
         };
 
         if !variable.borrow().mutable {

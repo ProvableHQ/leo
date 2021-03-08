@@ -14,11 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Error as FormattedError, Span};
-
+use leo_ast::{FormattedError, LeoError, Span};
 use snarkvm_dpc::AccountError;
 use snarkvm_r1cs::SynthesisError;
-use std::path::Path;
 
 #[derive(Debug, Error)]
 pub enum AddressError {
@@ -26,24 +24,32 @@ pub enum AddressError {
     Error(#[from] FormattedError),
 }
 
-impl AddressError {
-    pub fn set_path(&mut self, path: &Path) {
+impl LeoError for AddressError {
+    fn get_path(&self) -> Option<&str> {
         match self {
-            AddressError::Error(error) => error.set_path(path),
+            AddressError::Error(error) => error.get_path(),
         }
     }
 
-    fn new_from_span(message: String, span: Span) -> Self {
+    fn set_path(&mut self, path: &str, contents: &[String]) {
+        match self {
+            AddressError::Error(error) => error.set_path(path, contents),
+        }
+    }
+}
+
+impl AddressError {
+    fn new_from_span(message: String, span: &Span) -> Self {
         AddressError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn account_error(error: AccountError, span: Span) -> Self {
+    pub fn account_error(error: AccountError, span: &Span) -> Self {
         let message = format!("account creation failed due to `{}`", error);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn cannot_enforce(operation: String, error: SynthesisError, span: Span) -> Self {
+    pub fn cannot_enforce(operation: String, error: SynthesisError, span: &Span) -> Self {
         let message = format!(
             "the address operation `{:?}` failed due to the synthesis error `{}`",
             operation, error,
@@ -52,19 +58,19 @@ impl AddressError {
         Self::new_from_span(message, span)
     }
 
-    pub fn cannot_evaluate(operation: String, span: Span) -> Self {
+    pub fn cannot_evaluate(operation: String, span: &Span) -> Self {
         let message = format!("no implementation found for `{}`", operation);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_address(actual: String, span: Span) -> Self {
+    pub fn invalid_address(actual: String, span: &Span) -> Self {
         let message = format!("expected address input type, found `{}`", actual);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn missing_address(span: Span) -> Self {
+    pub fn missing_address(span: &Span) -> Self {
         let message = "expected address input not found".to_string();
 
         Self::new_from_span(message, span)

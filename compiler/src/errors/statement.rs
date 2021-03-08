@@ -16,9 +16,7 @@
 
 use crate::errors::{AddressError, BooleanError, ConsoleError, ExpressionError, IntegerError, ValueError};
 use leo_asg::Type;
-use leo_ast::{Error as FormattedError, Span};
-
-use std::path::Path;
+use leo_ast::{FormattedError, LeoError, Span};
 
 #[derive(Debug, Error)]
 pub enum StatementError {
@@ -44,48 +42,62 @@ pub enum StatementError {
     ValueError(#[from] ValueError),
 }
 
-impl StatementError {
-    pub fn set_path(&mut self, path: &Path) {
+impl LeoError for StatementError {
+    fn get_path(&self) -> Option<&str> {
         match self {
-            StatementError::AddressError(error) => error.set_path(path),
-            StatementError::BooleanError(error) => error.set_path(path),
-            StatementError::Error(error) => error.set_path(path),
-            StatementError::ExpressionError(error) => error.set_path(path),
-            StatementError::IntegerError(error) => error.set_path(path),
-            StatementError::MacroError(error) => error.set_path(path),
-            StatementError::ValueError(error) => error.set_path(path),
+            StatementError::AddressError(error) => error.get_path(),
+            StatementError::BooleanError(error) => error.get_path(),
+            StatementError::Error(error) => error.get_path(),
+            StatementError::ExpressionError(error) => error.get_path(),
+            StatementError::IntegerError(error) => error.get_path(),
+            StatementError::MacroError(error) => error.get_path(),
+            StatementError::ValueError(error) => error.get_path(),
         }
     }
 
-    fn new_from_span(message: String, span: Span) -> Self {
+    fn set_path(&mut self, path: &str, contents: &[String]) {
+        match self {
+            StatementError::AddressError(error) => error.set_path(path, contents),
+            StatementError::BooleanError(error) => error.set_path(path, contents),
+            StatementError::Error(error) => error.set_path(path, contents),
+            StatementError::ExpressionError(error) => error.set_path(path, contents),
+            StatementError::IntegerError(error) => error.set_path(path, contents),
+            StatementError::MacroError(error) => error.set_path(path, contents),
+            StatementError::ValueError(error) => error.set_path(path, contents),
+        }
+    }
+}
+
+impl StatementError {
+    fn new_from_span(message: String, span: &Span) -> Self {
         StatementError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn arguments_type(expected: &Type, actual: &Type, span: Span) -> Self {
+    pub fn arguments_type(expected: &Type, actual: &Type, span: &Span) -> Self {
         let message = format!("expected return argument type `{}`, found type `{}`", expected, actual);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn array_assign_index(span: Span) -> Self {
+    pub fn array_assign_index(span: &Span) -> Self {
         let message = "Cannot assign single index to array of values".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn array_assign_interior_index(span: Span) -> Self {
+    pub fn array_assign_interior_index(span: &Span) -> Self {
         let message = "Cannot assign single index to interior of array of values".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn array_assign_range(span: Span) -> Self {
+    pub fn array_assign_range(span: &Span) -> Self {
         let message = "Cannot assign range of array values to single value".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn array_assign_index_bounds(index: usize, length: usize, span: Span) -> Self {
+    pub fn array_assign_index_bounds(index: usize, length: usize, span: &Span) -> Self {
         let message = format!(
             "Array assign index `{}` out of range for array of length `{}`",
             index, length
@@ -94,7 +106,7 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn array_assign_range_order(start: usize, stop: usize, length: usize, span: Span) -> Self {
+    pub fn array_assign_range_order(start: usize, stop: usize, length: usize, span: &Span) -> Self {
         let message = format!(
             "Array assign range `{}`..`{}` out of range for array of length `{}`",
             start, stop, length
@@ -103,31 +115,31 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn conditional_boolean(actual: String, span: Span) -> Self {
+    pub fn conditional_boolean(actual: String, span: &Span) -> Self {
         let message = format!("If, else conditional must resolve to a boolean, found `{}`", actual);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn immutable_assign(name: String, span: Span) -> Self {
+    pub fn immutable_assign(name: String, span: &Span) -> Self {
         let message = format!("Cannot assign to immutable variable `{}`", name);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn immutable_circuit_function(name: String, span: Span) -> Self {
+    pub fn immutable_circuit_function(name: String, span: &Span) -> Self {
         let message = format!("Cannot mutate circuit function, `{}`", name);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn immutable_circuit_variable(name: String, span: Span) -> Self {
+    pub fn immutable_circuit_variable(name: String, span: &Span) -> Self {
         let message = format!("Circuit member variable `{}` is immutable", name);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn indicator_calculation(name: String, span: Span) -> Self {
+    pub fn indicator_calculation(name: String, span: &Span) -> Self {
         let message = format!(
             "Constraint system failed to evaluate branch selection indicator `{}`",
             name
@@ -136,7 +148,7 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_number_of_definitions(expected: usize, actual: usize, span: Span) -> Self {
+    pub fn invalid_number_of_definitions(expected: usize, actual: usize, span: &Span) -> Self {
         let message = format!(
             "Multiple definition statement expected {} return values, found {} values",
             expected, actual
@@ -145,7 +157,7 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_number_of_returns(expected: usize, actual: usize, span: Span) -> Self {
+    pub fn invalid_number_of_returns(expected: usize, actual: usize, span: &Span) -> Self {
         let message = format!(
             "Function return statement expected {} return values, found {} values",
             expected, actual
@@ -154,20 +166,20 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn multiple_definition(value: String, span: Span) -> Self {
+    pub fn multiple_definition(value: String, span: &Span) -> Self {
         let message = format!("cannot assign multiple variables to a single value: {}", value,);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn multiple_returns(span: Span) -> Self {
+    pub fn multiple_returns(span: &Span) -> Self {
         let message = "This function returns multiple times and produces unreachable circuits with undefined behavior."
             .to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn no_returns(expected: &Type, span: Span) -> Self {
+    pub fn no_returns(expected: &Type, span: &Span) -> Self {
         let message = format!(
             "function expected `{}` return type but no valid branches returned a result",
             expected
@@ -176,7 +188,7 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn select_fail(first: String, second: String, span: Span) -> Self {
+    pub fn select_fail(first: String, second: String, span: &Span) -> Self {
         let message = format!(
             "Conditional select gadget failed to select between `{}` or `{}`",
             first, second
@@ -185,13 +197,13 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn tuple_assign_index(span: Span) -> Self {
+    pub fn tuple_assign_index(span: &Span) -> Self {
         let message = "Cannot assign single index to tuple of values".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn tuple_assign_index_bounds(index: usize, length: usize, span: Span) -> Self {
+    pub fn tuple_assign_index_bounds(index: usize, length: usize, span: &Span) -> Self {
         let message = format!(
             "Tuple assign index `{}` out of range for tuple of length `{}`",
             index, length
@@ -200,31 +212,31 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn tuple_type(type_: String, span: Span) -> Self {
+    pub fn tuple_type(type_: String, span: &Span) -> Self {
         let message = format!("Expected tuple type, found type `{}`", type_);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn unassigned(name: String, span: Span) -> Self {
-        let message = format!("Expected assignment of return values for expression `{}`", name);
+    pub fn unassigned(span: &Span) -> Self {
+        let message = "Expected assignment of return values for expression".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn undefined_variable(name: String, span: Span) -> Self {
+    pub fn undefined_variable(name: String, span: &Span) -> Self {
         let message = format!("Attempted to assign to unknown variable `{}`", name);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn undefined_circuit(name: String, span: Span) -> Self {
+    pub fn undefined_circuit(name: String, span: &Span) -> Self {
         let message = format!("Attempted to assign to unknown circuit `{}`", name);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn undefined_circuit_variable(name: String, span: Span) -> Self {
+    pub fn undefined_circuit_variable(name: String, span: &Span) -> Self {
         let message = format!("Attempted to assign to unknown circuit member variable `{}`", name);
 
         Self::new_from_span(message, span)

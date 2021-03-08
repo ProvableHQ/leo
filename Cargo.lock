@@ -1196,7 +1196,7 @@ dependencies = [
  "criterion",
  "indexmap",
  "leo-ast",
- "leo-grammar",
+ "leo-parser",
  "num-bigint",
  "serde",
  "serde_json",
@@ -1210,7 +1210,6 @@ version = "1.2.3"
 dependencies = [
  "criterion",
  "indexmap",
- "leo-grammar",
  "leo-input",
  "pest",
  "serde",
@@ -1228,10 +1227,10 @@ dependencies = [
  "leo-asg",
  "leo-ast",
  "leo-gadgets",
- "leo-grammar",
  "leo-imports",
  "leo-input",
  "leo-package",
+ "leo-parser",
  "leo-state",
  "num-bigint",
  "pest",
@@ -1267,29 +1266,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-grammar"
-version = "1.2.3"
-dependencies = [
- "criterion",
- "from-pest",
- "lazy_static",
- "pest",
- "pest-ast",
- "pest_derive",
- "serde",
- "serde_json",
- "thiserror",
- "tracing",
-]
-
-[[package]]
 name = "leo-imports"
 version = "1.2.3"
 dependencies = [
  "indexmap",
  "leo-asg",
  "leo-ast",
- "leo-grammar",
+ "leo-parser",
  "thiserror",
  "tracing",
 ]
@@ -1361,6 +1344,20 @@ dependencies = [
  "tracing",
  "walkdir",
  "zip",
+]
+
+[[package]]
+name = "leo-parser"
+version = "1.2.3"
+dependencies = [
+ "criterion",
+ "indexmap",
+ "lazy_static",
+ "leo-ast",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tracing",
 ]
 
 [[package]]
