@@ -37,6 +37,7 @@ members = [
   "parser",
   "state",
   "synthesizer",
+  "wasm",
 ]
 
 [dependencies.leo-ast]
