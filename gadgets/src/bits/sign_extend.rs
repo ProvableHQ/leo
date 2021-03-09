@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_models::gadgets::utilities::boolean::Boolean;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 
 use std::iter;
 

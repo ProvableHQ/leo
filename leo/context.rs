@@ -49,10 +49,7 @@ impl Context {
 
 /// Create a new context for the current directory.
 pub fn create_context(path: PathBuf) -> Result<Context> {
-    let token = match config::read_token() {
-        Ok(token) => Some(token),
-        Err(_) => None,
-    };
+    let token = config::read_token().ok();
 
     let api = Api::new(PACKAGE_MANAGER_URL.to_string(), token);
 
@@ -61,10 +58,7 @@ pub fn create_context(path: PathBuf) -> Result<Context> {
 
 /// Returns project context.
 pub fn get_context() -> Result<Context> {
-    let token = match config::read_token() {
-        Ok(token) => Some(token),
-        Err(_) => None,
-    };
+    let token = config::read_token().ok();
 
     let api = Api::new(PACKAGE_MANAGER_URL.to_string(), token);
 

@@ -19,14 +19,9 @@
 use crate::{errors::ValueError, Address, FieldType, GroupType, Integer};
 use leo_asg::{Circuit, Identifier, Span, Type};
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget},
-    },
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq)]

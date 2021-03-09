@@ -16,7 +16,6 @@
 
 use crate::{errors::ImportParserError, ImportParser};
 use leo_ast::{Program, Span};
-use leo_grammar::Grammar;
 
 use std::fs::DirEntry;
 
@@ -32,11 +31,11 @@ impl<'a> ImportParser<'a> {
         // Get the package file type.
         let file_type = package
             .file_type()
-            .map_err(|error| ImportParserError::directory_error(error, span.clone(), &package.path()))?;
+            .map_err(|error| ImportParserError::directory_error(error, span, &package.path()))?;
         let file_name = package
             .file_name()
             .into_string()
-            .map_err(|_| ImportParserError::convert_os_string(span.clone()))?;
+            .map_err(|_| ImportParserError::convert_os_string(span))?;
 
         let mut file_path = package.path();
         if file_type.is_dir() {
@@ -45,16 +44,18 @@ impl<'a> ImportParser<'a> {
             if !file_path.exists() {
                 return Err(ImportParserError::expected_lib_file(
                     format!("{:?}", file_path.as_path()),
-                    span.clone(),
+                    span,
                 ));
             }
         }
 
-        // Build the package abstract syntax tree.
-        let program_string = &Grammar::load_file(&file_path)?;
-        let ast = &Grammar::new(&file_path, &program_string)?;
+        let file_path_str = file_path.to_str().unwrap_or_default();
 
-        // Build the package Leo syntax tree from the package abstract syntax tree.
-        Ok(Program::from(&file_name, ast.as_repr())?)
+        // Build the package abstract syntax tree.
+        let program_string =
+            &std::fs::read_to_string(&file_path).map_err(|x| ImportParserError::io_error(span, file_path_str, x))?;
+        let mut ast = leo_parser::parse(&file_path_str, &program_string)?;
+        ast.name = file_name;
+        Ok(ast)
     }
 }

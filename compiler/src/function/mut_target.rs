@@ -34,7 +34,8 @@ use leo_asg::{
     Variable,
 };
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     fn prepare_mut_access<CS: ConstraintSystem<F>>(
@@ -49,19 +50,16 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let inner = self.prepare_mut_access(cs, array.get(), span, output)?;
                 let start_index = left
                     .get()
-                    .map(|start| self.enforce_index(cs, start, &span))
+                    .map(|start| self.enforce_index(cs, start, span))
                     .transpose()?;
-                let stop_index = right
-                    .get()
-                    .map(|stop| self.enforce_index(cs, stop, &span))
-                    .transpose()?;
+                let stop_index = right.get().map(|stop| self.enforce_index(cs, stop, span)).transpose()?;
 
                 output.push(ResolvedAssigneeAccess::ArrayRange(start_index, stop_index));
                 Ok(inner)
             }
             Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
                 let inner = self.prepare_mut_access(cs, array.get(), span, output)?;
-                let index = self.enforce_index(cs, index.get(), &span)?;
+                let index = self.enforce_index(cs, index.get(), span)?;
 
                 output.push(ResolvedAssigneeAccess::ArrayIndex(index));
                 Ok(inner)
@@ -94,10 +92,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         assignee: &'a Expression<'a>,
     ) -> Result<Option<Vec<&mut ConstrainedValue<'a, F, G>>>, StatementError> {
-        let span = assignee.span().cloned().unwrap_or_default();
+        let span = &assignee.span().cloned().unwrap_or_default();
 
         let mut accesses = vec![];
-        let target = self.prepare_mut_access(cs, assignee, &span, &mut accesses)?;
+        let target = self.prepare_mut_access(cs, assignee, span, &mut accesses)?;
         if target.is_none() {
             return Ok(None);
         }
@@ -110,7 +108,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         }];
 
         for access in accesses {
-            result = Self::resolve_assignee_access(access, &span, result)?;
+            result = Self::resolve_assignee_access(access, span, result)?;
         }
         Ok(Some(result))
     }

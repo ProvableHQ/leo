@@ -81,9 +81,9 @@ impl<'a> ImportParser<'a> {
 
         // Get a vector of all packages in the source directory.
         let entries = fs::read_dir(path)
-            .map_err(|error| ImportParserError::directory_error(error, span.clone(), &error_path))?
+            .map_err(|error| ImportParserError::directory_error(error, span, &error_path))?
             .collect::<Result<Vec<_>, std::io::Error>>()
-            .map_err(|error| ImportParserError::directory_error(error, span.clone(), &error_path))?;
+            .map_err(|error| ImportParserError::directory_error(error, span, &error_path))?;
 
         // Check if the imported package name is in the source directory.
         let matched_source_entry = entries.into_iter().find(|entry| {
@@ -98,9 +98,9 @@ impl<'a> ImportParser<'a> {
         if imports_directory.exists() {
             // Get a vector of all packages in the imports directory.
             let entries = fs::read_dir(imports_directory)
-                .map_err(|error| ImportParserError::directory_error(error, span.clone(), &error_path))?
+                .map_err(|error| ImportParserError::directory_error(error, span, &error_path))?
                 .collect::<Result<Vec<_>, std::io::Error>>()
-                .map_err(|error| ImportParserError::directory_error(error, span.clone(), &error_path))?;
+                .map_err(|error| ImportParserError::directory_error(error, span, &error_path))?;
 
             // Check if the imported package name is in the imports directory.
             let matched_import_entry = entries
@@ -111,13 +111,13 @@ impl<'a> ImportParser<'a> {
             match (matched_source_entry, matched_import_entry) {
                 (Some(_), Some(_)) => Err(ImportParserError::conflicting_imports(Identifier::new_with_span(
                     package_name,
-                    span,
+                    span.clone(),
                 ))),
                 (Some(source_entry), None) => self.parse_package_access(context, &source_entry, &segments[1..], span),
                 (None, Some(import_entry)) => self.parse_package_access(context, &import_entry, &segments[1..], span),
                 (None, None) => Err(ImportParserError::unknown_package(Identifier::new_with_span(
                     package_name,
-                    span,
+                    span.clone(),
                 ))),
             }
         } else {
@@ -126,7 +126,7 @@ impl<'a> ImportParser<'a> {
                 Some(source_entry) => self.parse_package_access(context, &source_entry, &segments[1..], span),
                 None => Err(ImportParserError::unknown_package(Identifier::new_with_span(
                     package_name,
-                    span,
+                    span.clone(),
                 ))),
             }
         }

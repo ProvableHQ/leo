@@ -16,14 +16,9 @@
 
 use crate::{Int, Int128, Int16, Int32, Int64, Int8};
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, eq::EvaluateEqGadget},
-    },
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, eq::EvaluateEqGadget};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 macro_rules! eq_gadget_impl {
     ($($gadget: ident)*) => ($(

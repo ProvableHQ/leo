@@ -19,19 +19,15 @@
 use crate::errors::GroupError;
 use leo_asg::{GroupValue, Span};
 
-use snarkvm_models::{
-    curves::{Field, One},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            ToBitsGadget,
-            ToBytesGadget,
-        },
-    },
+use snarkvm_fields::{Field, One};
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+    select::CondSelectGadget,
+    ToBitsGadget,
+    ToBytesGadget,
 };
+use snarkvm_r1cs::ConstraintSystem;
 use std::fmt::{Debug, Display};
 
 pub trait GroupType<F: Field>:

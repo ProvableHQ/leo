@@ -20,7 +20,10 @@ use crate::errors::OutputFileError;
 
 use std::{
     borrow::Cow,
-    fs::{self, File},
+    fs::{
+        File,
+        {self},
+    },
     io::Write,
     path::Path,
 };

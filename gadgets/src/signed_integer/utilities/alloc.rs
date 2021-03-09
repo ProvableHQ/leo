@@ -17,17 +17,12 @@
 use crate::{Int, Int128, Int16, Int32, Int64, Int8};
 
 use core::{borrow::Borrow, iter};
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::Field,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::{AllocatedBit, Boolean},
-        },
-    },
+use snarkvm_fields::Field;
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::{AllocatedBit, Boolean},
 };
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 fn create_value<T: Borrow<bool>, I: IntoIterator<Item = Option<T>>, F: Field, CS: ConstraintSystem<F>>(
     cs: &mut CS,

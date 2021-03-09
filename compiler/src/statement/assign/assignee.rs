@@ -19,7 +19,8 @@
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{AssignAccess, AssignStatement, Identifier, Span};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub(crate) enum ResolvedAssigneeAccess {
     ArrayRange(Option<usize>, Option<usize>),
@@ -62,7 +63,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         let mut result = vec![match self.get_mut(variable.id) {
             Some(value) => value,
-            None => return Err(StatementError::undefined_variable(variable.name.to_string(), span)),
+            None => return Err(StatementError::undefined_variable(variable.name.to_string(), &span)),
         }];
 
         for access in resolved_accesses {
@@ -77,16 +78,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 start_index,
                 stop_index,
                 len,
-                span.clone(),
+                span,
             ))
         } else if start_index > len {
-            Err(StatementError::array_assign_index_bounds(
-                start_index,
-                len,
-                span.clone(),
-            ))
+            Err(StatementError::array_assign_index_bounds(start_index, len, span))
         } else if stop_index > len {
-            Err(StatementError::array_assign_index_bounds(stop_index, len, span.clone()))
+            Err(StatementError::array_assign_index_bounds(stop_index, len, span))
         } else {
             Ok(())
         }
@@ -101,21 +98,17 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         match access {
             ResolvedAssigneeAccess::ArrayIndex(index) => {
                 if value.len() != 1 {
-                    return Err(StatementError::array_assign_interior_index(span.clone()));
+                    return Err(StatementError::array_assign_interior_index(span));
                 }
                 match value.remove(0) {
                     ConstrainedValue::Array(old) => {
                         if index > old.len() {
-                            Err(StatementError::array_assign_index_bounds(
-                                index,
-                                old.len(),
-                                span.clone(),
-                            ))
+                            Err(StatementError::array_assign_index_bounds(index, old.len(), span))
                         } else {
                             Ok(vec![old.get_mut(index).unwrap()])
                         }
                     }
-                    _ => Err(StatementError::array_assign_index(span.clone())),
+                    _ => Err(StatementError::array_assign_index(span)),
                 }
             }
             ResolvedAssigneeAccess::ArrayRange(start_index, stop_index) => {
@@ -126,38 +119,38 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     match value.remove(0) {
                         ConstrainedValue::Array(old) => {
                             let stop_index = stop_index.unwrap_or(old.len());
-                            Self::check_range_index(start_index, stop_index, old.len(), &span)?;
+                            Self::check_range_index(start_index, stop_index, old.len(), span)?;
 
                             Ok(old[start_index..stop_index].iter_mut().collect())
                         }
-                        _ => Err(StatementError::array_assign_index(span.clone())),
+                        _ => Err(StatementError::array_assign_index(span)),
                     }
                 } else {
                     // range of a range
                     let stop_index = stop_index.unwrap_or(value.len());
-                    Self::check_range_index(start_index, stop_index, value.len(), &span)?;
+                    Self::check_range_index(start_index, stop_index, value.len(), span)?;
 
                     Ok(value.drain(start_index..stop_index).collect())
                 }
             }
             ResolvedAssigneeAccess::Tuple(index, span) => {
                 if value.len() != 1 {
-                    return Err(StatementError::array_assign_interior_index(span));
+                    return Err(StatementError::array_assign_interior_index(&span));
                 }
                 match value.remove(0) {
                     ConstrainedValue::Tuple(old) => {
                         if index > old.len() {
-                            Err(StatementError::tuple_assign_index_bounds(index, old.len(), span))
+                            Err(StatementError::tuple_assign_index_bounds(index, old.len(), &span))
                         } else {
                             Ok(vec![&mut old[index]])
                         }
                     }
-                    _ => Err(StatementError::tuple_assign_index(span)),
+                    _ => Err(StatementError::tuple_assign_index(&span)),
                 }
             }
             ResolvedAssigneeAccess::Member(name) => {
                 if value.len() != 1 {
-                    return Err(StatementError::array_assign_interior_index(span.clone()));
+                    return Err(StatementError::array_assign_interior_index(span));
                 }
                 match value.remove(0) {
                     ConstrainedValue::CircuitExpression(_variable, members) => {
@@ -168,15 +161,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                             Some(member) => Ok(vec![&mut member.1]),
                             None => {
                                 // Throw an error if the circuit variable does not exist in the circuit
-                                Err(StatementError::undefined_circuit_variable(
-                                    name.to_string(),
-                                    span.to_owned(),
-                                ))
+                                Err(StatementError::undefined_circuit_variable(name.to_string(), span))
                             }
                         }
                     }
                     // Throw an error if the circuit definition does not exist in the file
-                    x => Err(StatementError::undefined_circuit(x.to_string(), span.to_owned())),
+                    x => Err(StatementError::undefined_circuit(x.to_string(), span)),
                 }
             }
         }

@@ -93,10 +93,10 @@ impl Command for Publish {
         // Client for make POST request
         let client = Client::new();
 
-        let token = match context.api.auth_token() {
-            Some(token) => token,
-            None => return Err(anyhow!("Login before publishing package: try leo login --help")),
-        };
+        let token = context
+            .api
+            .auth_token()
+            .ok_or_else(|| anyhow!("Login before publishing package: try leo login --help"))?;
 
         // Headers for request to publish package
         let mut headers = HeaderMap::new();

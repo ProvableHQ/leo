@@ -21,7 +21,8 @@ use crate::{errors::FunctionError, program::ConstrainedProgram, value::Constrain
 use leo_asg::Type;
 use leo_ast::{InputValue, Span};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_array<CS: ConstraintSystem<F>>(
@@ -42,7 +43,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     return Err(FunctionError::invalid_input_array_dimensions(
                         arr.len(),
                         array_len,
-                        span.clone(),
+                        span,
                     ));
                 }
 
@@ -68,10 +69,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(FunctionError::invalid_array(
-                    input_value.unwrap().to_string(),
-                    span.to_owned(),
-                ));
+                return Err(FunctionError::invalid_array(input_value.unwrap().to_string(), span));
             }
         }
 

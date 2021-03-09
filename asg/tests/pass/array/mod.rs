@@ -105,6 +105,12 @@ fn test_slice_lower() {
 }
 
 #[test]
+fn test_implicit() {
+    let program_string = include_str!("implicit.leo");
+    load_asg(program_string).unwrap();
+}
+
+#[test]
 fn test_type_nested_value_nested_3x2() {
     let program_string = include_str!("type_nested_value_nested_3x2.leo");
     load_asg(program_string).unwrap();

@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{PackageOrPackages, Span};
-use leo_grammar::imports::Import as GrammarImport;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -35,15 +34,6 @@ impl ImportStatement {
         match self.package_or_packages {
             PackageOrPackages::Package(ref package) => &package.name.name,
             PackageOrPackages::Packages(ref packages) => &packages.name.name,
-        }
-    }
-}
-
-impl<'ast> From<GrammarImport<'ast>> for ImportStatement {
-    fn from(import: GrammarImport<'ast>) -> Self {
-        ImportStatement {
-            package_or_packages: PackageOrPackages::from(import.package_or_packages),
-            span: Span::from(import.span),
         }
     }
 }

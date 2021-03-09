@@ -21,7 +21,10 @@ use crate::{errors::InputFileError, inputs::INPUTS_DIRECTORY_NAME};
 use serde::Deserialize;
 use std::{
     borrow::Cow,
-    fs::{self, File},
+    fs::{
+        File,
+        {self},
+    },
     io::Write,
     path::Path,
 };

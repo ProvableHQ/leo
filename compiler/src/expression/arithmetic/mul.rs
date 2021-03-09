@@ -19,7 +19,8 @@
 use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_ast::Span;
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub fn enforce_mul<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
@@ -36,7 +37,7 @@ pub fn enforce_mul<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         }
         (val_1, val_2) => Err(ExpressionError::incompatible_types(
             format!("{} * {}", val_1, val_2),
-            span.to_owned(),
+            span,
         )),
     }
 }

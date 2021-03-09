@@ -23,14 +23,9 @@ use crate::{
     Int8,
 };
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, select::CondSelectGadget},
-    },
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, select::CondSelectGadget};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::cmp::Ordering;
 
 macro_rules! cmp_gadget_impl {

@@ -47,6 +47,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
             Expression::CircuitAccess(e) => self.reduce_circuit_access(e),
             Expression::CircuitInit(e) => self.reduce_circuit_init(e),
             Expression::Ternary(e) => self.reduce_ternary_expression(e),
+            Expression::Cast(e) => self.reduce_cast_expression(e),
             Expression::Constant(e) => self.reduce_constant(e),
             Expression::TupleAccess(e) => self.reduce_tuple_access(e),
             Expression::TupleInit(e) => self.reduce_tuple_init(e),
@@ -129,6 +130,12 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
 
         self.reducer
             .reduce_ternary_expression(input, condition, if_true, if_false)
+    }
+
+    pub fn reduce_cast_expression(&mut self, input: &CastExpression<'a>) -> T {
+        let inner = self.reduce_expression(input.inner.get());
+
+        self.reducer.reduce_cast_expression(input, inner)
     }
 
     pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
@@ -299,15 +306,10 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
             .iter()
             .map(|(_, import)| self.reduce_program(import))
             .collect();
-        let test_functions = input
-            .test_functions
-            .iter()
-            .map(|(_, (f, _))| self.reduce_function(f))
-            .collect();
         let functions = input.functions.iter().map(|(_, f)| self.reduce_function(f)).collect();
         let circuits = input.circuits.iter().map(|(_, c)| self.reduce_circuit(c)).collect();
 
         self.reducer
-            .reduce_program(&input, imported_modules, test_functions, functions, circuits)
+            .reduce_program(&input, imported_modules, functions, circuits)
     }
 }

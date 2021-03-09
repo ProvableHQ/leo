@@ -20,6 +20,7 @@ use super::*;
 pub enum UnaryOperation {
     Not,
     Negate,
+    BitNot,
 }
 
 impl AsRef<str> for UnaryOperation {
@@ -27,6 +28,7 @@ impl AsRef<str> for UnaryOperation {
         match self {
             UnaryOperation::Not => "!",
             UnaryOperation::Negate => "-",
+            UnaryOperation::BitNot => "~",
         }
     }
 }

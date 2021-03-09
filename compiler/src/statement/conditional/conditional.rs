@@ -26,10 +26,9 @@ use crate::{
 };
 use leo_asg::ConditionalStatement;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 fn indicator_to_string(indicator: &Boolean) -> String {
     indicator
@@ -58,7 +57,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let inner_indicator = match self.enforce_expression(cs, statement.condition.get())? {
             ConstrainedValue::Boolean(resolved) => resolved,
             value => {
-                return Err(StatementError::conditional_boolean(value.to_string(), span));
+                return Err(StatementError::conditional_boolean(value.to_string(), &span));
             }
         };
 
@@ -70,11 +69,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             outer_indicator_string, inner_indicator_string
         );
         let branch_1_indicator = Boolean::and(
-            &mut cs.ns(|| format!("branch 1 {} {}:{}", span.text, &span.line, &span.start)),
+            &mut cs.ns(|| format!("branch 1 {}:{}", &span.line_start, &span.col_start)),
             outer_indicator,
             &inner_indicator,
         )
-        .map_err(|_| StatementError::indicator_calculation(branch_1_name, span.clone()))?;
+        .map_err(|_| StatementError::indicator_calculation(branch_1_name, &span))?;
 
         let mut results = vec![];
 
@@ -91,11 +90,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             outer_indicator_string, inner_indicator_string
         );
         let branch_2_indicator = Boolean::and(
-            &mut cs.ns(|| format!("branch 2 {} {}:{}", span.text, &span.line, &span.start)),
+            &mut cs.ns(|| format!("branch 2 {}:{}", &span.line_start, &span.col_start)),
             &outer_indicator,
             &inner_indicator,
         )
-        .map_err(|_| StatementError::indicator_calculation(branch_2_name, span.clone()))?;
+        .map_err(|_| StatementError::indicator_calculation(branch_2_name, &span))?;
 
         // Evaluate branch 2
         let mut branch_2_result = match statement.next.get() {

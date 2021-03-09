@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_grammar::common::Declare as GrammarDeclare;
-
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -23,15 +21,6 @@ use std::fmt;
 pub enum Declare {
     Const,
     Let,
-}
-
-impl<'ast> From<GrammarDeclare> for Declare {
-    fn from(declare: GrammarDeclare) -> Self {
-        match declare {
-            GrammarDeclare::Const(_) => Declare::Const,
-            GrammarDeclare::Let(_) => Declare::Let,
-        }
-    }
 }
 
 impl fmt::Display for Declare {
