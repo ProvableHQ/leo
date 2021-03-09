@@ -50,16 +50,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let result_option = match assert_expression {
             ConstrainedValue::Boolean(boolean) => boolean.get_value(),
             _ => {
-                return Err(ConsoleError::assertion_must_be_boolean(
-                    span.text.clone(),
-                    span.to_owned(),
-                ));
+                return Err(ConsoleError::assertion_must_be_boolean(span));
             }
         };
-        let result_bool = result_option.ok_or_else(|| ConsoleError::assertion_depends_on_input(span.to_owned()))?;
+        let result_bool = result_option.ok_or_else(|| ConsoleError::assertion_depends_on_input(span))?;
 
         if !result_bool {
-            return Err(ConsoleError::assertion_failed(span.text.clone(), span.to_owned()));
+            return Err(ConsoleError::assertion_failed(span));
         }
 
         Ok(())

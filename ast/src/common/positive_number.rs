@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_grammar::values::PositiveNumber as GrammarPositiveNumber;
 use leo_input::values::PositiveNumber as InputPositiveNumber;
 
 use serde::{Deserialize, Serialize};
@@ -32,13 +31,6 @@ impl PositiveNumber {
     ///
     pub fn is_zero(&self) -> bool {
         self.value.eq("0")
-    }
-}
-
-/// Create a new [`PositiveNumber`] from a [`GrammarPositiveNumber`] in a Leo program file.
-impl<'ast> From<GrammarPositiveNumber<'ast>> for PositiveNumber {
-    fn from(array: GrammarPositiveNumber<'ast>) -> Self {
-        Self { value: array.value }
     }
 }
 

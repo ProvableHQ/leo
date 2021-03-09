@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Node, Span};
-use leo_grammar::console::FormattedContainer as GrammarFormattedContainer;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -23,14 +22,6 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct FormattedContainer {
     pub span: Span,
-}
-
-impl<'ast> From<GrammarFormattedContainer<'ast>> for FormattedContainer {
-    fn from(container: GrammarFormattedContainer<'ast>) -> Self {
-        Self {
-            span: Span::from(container.span),
-        }
-    }
 }
 
 impl fmt::Display for FormattedContainer {

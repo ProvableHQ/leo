@@ -33,7 +33,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             return Err(StatementError::invalid_number_of_definitions(
                 values.len(),
                 variable_names.len(),
-                span.to_owned(),
+                span,
             ));
         }
 
@@ -63,7 +63,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             let values = match expression {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
-                value => return Err(StatementError::multiple_definition(value.to_string(), span)),
+                value => return Err(StatementError::multiple_definition(value.to_string(), &span)),
             };
 
             self.enforce_multiple_definition(&statement.variables[..], values, &span)

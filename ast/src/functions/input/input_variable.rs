@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FunctionInputVariable, InputKeyword, MutSelfKeyword, Node, SelfKeyword, Span};
-use leo_grammar::functions::input::Input as GrammarInput;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,19 +26,6 @@ pub enum FunctionInput {
     SelfKeyword(SelfKeyword),
     MutSelfKeyword(MutSelfKeyword),
     Variable(FunctionInputVariable),
-}
-
-impl<'ast> From<GrammarInput<'ast>> for FunctionInput {
-    fn from(input: GrammarInput<'ast>) -> Self {
-        match input {
-            GrammarInput::InputKeyword(keyword) => FunctionInput::InputKeyword(InputKeyword::from(keyword)),
-            GrammarInput::SelfKeyword(keyword) => FunctionInput::SelfKeyword(SelfKeyword::from(keyword)),
-            GrammarInput::MutSelfKeyword(keyword) => FunctionInput::MutSelfKeyword(MutSelfKeyword::from(keyword)),
-            GrammarInput::FunctionInput(function_input) => {
-                FunctionInput::Variable(FunctionInputVariable::from(function_input))
-            }
-        }
-    }
 }
 
 impl FunctionInput {

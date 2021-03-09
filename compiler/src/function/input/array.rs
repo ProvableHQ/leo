@@ -43,7 +43,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     return Err(FunctionError::invalid_input_array_dimensions(
                         arr.len(),
                         array_len,
-                        span.clone(),
+                        span,
                     ));
                 }
 
@@ -69,10 +69,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(FunctionError::invalid_array(
-                    input_value.unwrap().to_string(),
-                    span.to_owned(),
-                ));
+                return Err(FunctionError::invalid_array(input_value.unwrap().to_string(), span));
             }
         }
 

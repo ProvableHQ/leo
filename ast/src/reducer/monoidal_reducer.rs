@@ -35,7 +35,6 @@ use crate::{
     Packages,
     Program,
     Statement,
-    TestFunction,
     Type,
     ValueExpression,
     VariableName,
@@ -96,7 +95,7 @@ pub enum ExpressionMonoidItems<T: Monoid> {
     Triary(T, T, T),
     FunctionCall(T, Vec<T>),
     ArrayAccess(T, T),
-    Circuit(T, Vec<(T, T)>),
+    Circuit(T, Vec<(T, Option<T>)>),
     Var(Vec<T>),
     Value(T),
 }
@@ -132,7 +131,6 @@ pub trait MonoidalReducer<T: Monoid> {
         imports: Vec<T>,
         circuits: IndexMap<String, (T, T)>,
         functions: IndexMap<String, (T, T)>,
-        tests: IndexMap<String, (T, T)>,
     ) -> T {
         let mut items = T::default()
             .append_all(expected_input.into_iter())
@@ -142,9 +140,6 @@ pub trait MonoidalReducer<T: Monoid> {
             items = items.append(identifier).append(value);
         }
         for (_, (identifier, value)) in functions.into_iter() {
-            items = items.append(identifier).append(value);
-        }
-        for (_, (identifier, value)) in tests.into_iter() {
             items = items.append(identifier).append(value);
         }
         items
@@ -179,10 +174,6 @@ pub trait MonoidalReducer<T: Monoid> {
             .append_all(input.into_iter())
             .append_option(output)
             .append_all(statements.into_iter())
-    }
-
-    fn reduce_test_function(&mut self, test_function: &TestFunction, function: T, input_file: Option<T>) -> T {
-        function.append_option(input_file)
     }
 
     fn reduce_identifier(&mut self, identifier: &Identifier) -> T {
@@ -306,7 +297,15 @@ pub trait MonoidalReducer<T: Monoid> {
             ExpressionMonoidItems::Circuit(identifier, arguments) => {
                 let mut out = identifier;
                 for (key, value) in arguments.into_iter() {
-                    out = out.append(key).append(value);
+                    match value {
+                        Some(val) => {
+                            out = out.append(key).append(val);
+                        },
+                        None => {
+                            out = out.append(key);
+                        }
+                    }
+                   
                 }
                 out
             }

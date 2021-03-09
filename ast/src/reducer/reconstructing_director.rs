@@ -54,7 +54,6 @@ use crate::{
     SpreadOrExpression,
     Statement,
     TernaryExpression,
-    TestFunction,
     TupleAccessExpression,
     TupleInitExpression,
     Type,
@@ -96,19 +95,9 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                 Some((self.reduce_identifier(identifier), self.reduce_function(function)?))
             })
             .collect();
-        let test_functions = program
-            .tests
-            .iter()
-            .filter_map(|(identifier, test_function)| {
-                Some((
-                    self.reduce_identifier(identifier),
-                    self.reduce_test_function(test_function)?,
-                ))
-            })
-            .collect();
 
         self.reducer
-            .reduce_program(program, inputs, imports, circuits, functions, test_functions)
+            .reduce_program(program, inputs, imports, circuits, functions)
     }
 
     pub fn reduce_function_input(&mut self, input: &FunctionInput) -> Option<FunctionInput> {
@@ -143,6 +132,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_function(&mut self, function: &Function) -> Option<Function> {
         let identifier = self.reduce_identifier(&function.identifier);
+        let annotations = function.annotations.clone(); // TODO reduce
         let input = function
             .input
             .iter()
@@ -159,14 +149,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             span: function.block.span.clone(),
         };
 
-        self.reducer.reduce_function(function, identifier, input, output, block)
-    }
-
-    pub fn reduce_test_function(&mut self, test_function: &TestFunction) -> Option<TestFunction> {
-        let function = self.reduce_function(&test_function.function);
-        let input_file = test_function.input_file.as_ref().map(|x| self.reduce_identifier(x));
-
-        self.reducer.reduce_test_function(test_function, function?, input_file)
+        self.reducer.reduce_function(function, annotations, identifier, input, output, block)
     }
 
     pub fn reduce_identifier(&mut self, identifier: &Identifier) -> Identifier {
@@ -270,8 +253,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                     ConsoleFunction::Assert(expression) => ConsoleFunction::Assert(self.reduce_expression(expression)),
                     ConsoleFunction::Debug(format) | ConsoleFunction::Error(format) | ConsoleFunction::Log(format) => {
                         let formatted = FormattedString {
-                            string: format.string.clone(),
-                            containers: format.containers.clone(),
+                            parts: format.parts.clone(),
                             parameters: format
                                 .parameters
                                 .iter()
@@ -467,7 +449,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                     .iter()
                     .map(|definition| {
                         let identifier = self.reduce_identifier(&definition.identifier);
-                        let expression = self.reduce_expression(&definition.expression);
+                        let expression = definition.expression.as_ref().map(|expr| self.reduce_expression(&expr));
 
                         CircuitImpliedVariableDefinition { identifier, expression }
                     })

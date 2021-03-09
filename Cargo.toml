@@ -30,11 +30,11 @@ members = [
   "ast",
   "compiler",
   "gadgets",
-  "grammar",
   "imports",
   "input",
   "linter",
   "package",
+  "parser",
   "state",
   "synthesizer",
 ]
@@ -128,7 +128,7 @@ version = "0.11.1"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
-version = "0.25.0"
+version = "0.26.0"
 features = [ "archive-zip" ]
 
 [dependencies.serde]

@@ -92,6 +92,9 @@ impl<'a> Circuit<'a> {
                     }
                     let asg_function = Function::init(new_scope, function)?;
                     asg_function.circuit.replace(Some(circuit));
+                    if asg_function.is_test() {
+                        return Err(AsgConvertError::circuit_test_function(&function.identifier.span));
+                    }
                     members.insert(function.identifier.name.clone(), CircuitMember::Function(asg_function));
                 }
             }

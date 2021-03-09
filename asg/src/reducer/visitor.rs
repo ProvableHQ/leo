@@ -72,6 +72,10 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
+    fn visit_cast_expression(&mut self, input: &CastExpression<'a>) -> VisitResult {
+        Default::default()
+    }
+
     fn visit_constant(&mut self, input: &Constant<'a>) -> VisitResult {
         Default::default()
     }

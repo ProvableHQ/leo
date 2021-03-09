@@ -1052,9 +1052,9 @@ dependencies = [
 
 [[package]]
 name = "indexmap"
-version = "1.6.1"
+version = "1.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fb1fa934250de4de8aef298d81c729a7d33d8c239daa3a7575e6b92bfc7313b"
+checksum = "824845a0bf897a9042383849b02c1bc219c2383772efcd5c6f9766fa4b81aef3"
 dependencies = [
  "autocfg",
  "hashbrown",
@@ -1197,7 +1197,7 @@ dependencies = [
  "criterion",
  "indexmap",
  "leo-ast",
- "leo-grammar",
+ "leo-parser",
  "num-bigint",
  "serde",
  "serde_json",
@@ -1211,7 +1211,6 @@ version = "1.2.3"
 dependencies = [
  "criterion",
  "indexmap",
- "leo-grammar",
  "leo-input",
  "pest",
  "serde",
@@ -1229,10 +1228,10 @@ dependencies = [
  "leo-asg",
  "leo-ast",
  "leo-gadgets",
- "leo-grammar",
  "leo-imports",
  "leo-input",
  "leo-package",
+ "leo-parser",
  "leo-state",
  "num-bigint",
  "pest",
@@ -1268,29 +1267,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-grammar"
-version = "1.2.3"
-dependencies = [
- "criterion",
- "from-pest",
- "lazy_static",
- "pest",
- "pest-ast",
- "pest_derive",
- "serde",
- "serde_json",
- "thiserror",
- "tracing",
-]
-
-[[package]]
 name = "leo-imports"
 version = "1.2.3"
 dependencies = [
  "indexmap",
  "leo-asg",
  "leo-ast",
- "leo-grammar",
+ "leo-parser",
  "thiserror",
  "tracing",
 ]
@@ -1362,6 +1345,20 @@ dependencies = [
  "tracing",
  "walkdir",
  "zip",
+]
+
+[[package]]
+name = "leo-parser"
+version = "1.2.3"
+dependencies = [
+ "criterion",
+ "indexmap",
+ "lazy_static",
+ "leo-ast",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tracing",
 ]
 
 [[package]]
@@ -1664,9 +1661,9 @@ dependencies = [
 
 [[package]]
 name = "num-bigint"
-version = "0.3.1"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e9a41747ae4633fce5adffb4d2e81ffc5e89593cb19917f8fb2cc5ff76507bf"
+checksum = "4e0d047c1062aa51e256408c560894e5251f08925980e53cf1aa5bd00eec6512"
 dependencies = [
  "autocfg",
  "num-integer",
@@ -2313,9 +2310,9 @@ dependencies = [
 
 [[package]]
 name = "self_update"
-version = "0.25.0"
+version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5abe13436707b8fd0044592de0b8d9565ab700fbb06611d6e4d89384687da195"
+checksum = "9031099ba3962ce8faaff991066bcbe6ec1f7ccb0be12a4b56733028ae090054"
 dependencies = [
  "hyper",
  "indicatif",
@@ -2364,9 +2361,9 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.123"
+version = "1.0.124"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92d5161132722baa40d802cc70b15262b98258453e85e5d1d365c757c73869ae"
+checksum = "bd761ff957cb2a45fbb9ab3da6512de9de55872866160b23c25f1a841e99d29f"
 dependencies = [
  "serde_derive",
 ]
@@ -2383,9 +2380,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.123"
+version = "1.0.124"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9391c295d64fc0abb2c556bad848f33cb8296276b1ad2677d1ae1ace4f258f31"
+checksum = "1800f7693e94e186f5e25a28291ae1570da908aff7d97a095dec1e56ff99069b"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",

@@ -16,7 +16,6 @@
 
 use crate::{expect_asg_error, parse_input, parse_program};
 use leo_compiler::errors::CompilerError;
-use leo_grammar::ParserError;
 use leo_input::InputParserError;
 
 pub mod identifiers;
@@ -28,7 +27,7 @@ fn test_semicolon() {
     let error = parse_program(program_string).err().unwrap();
 
     match error {
-        CompilerError::ParserError(ParserError::SyntaxError(_)) => {}
+        CompilerError::SyntaxError(_) => {}
         _ => panic!("test_semicolon failed the wrong expected error, should be a ParserError"),
     }
 }

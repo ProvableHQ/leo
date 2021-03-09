@@ -99,10 +99,10 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
                 ));
             }
         }
-        let members: IndexMap<&String, (&Identifier, &leo_ast::Expression)> = value
+        let members: IndexMap<&String, (&Identifier, Option<&leo_ast::Expression>)> = value
             .members
             .iter()
-            .map(|x| (&x.identifier.name, (&x.identifier, &x.expression)))
+            .map(|x| (&x.identifier.name, (&x.identifier, x.expression.as_ref())))
             .collect();
 
         let mut values: Vec<(Identifier, Cell<&'a Expression<'a>>)> = vec![];
@@ -125,7 +125,15 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
                     continue;
                 };
                 if let Some((identifier, receiver)) = members.get(&name) {
-                    let received = <&Expression<'a>>::from_ast(scope, *receiver, Some(type_.partial()))?;
+                    let received = if let Some(receiver) = *receiver {
+                        <&Expression<'a>>::from_ast(scope, receiver, Some(type_.partial()))?
+                    } else {
+                        <&Expression<'a>>::from_ast(
+                            scope,
+                            &leo_ast::Expression::Identifier((*identifier).clone()),
+                            Some(type_.partial()),
+                        )?
+                    };
                     values.push(((*identifier).clone(), Cell::new(received)));
                 } else {
                     return Err(AsgConvertError::missing_circuit_member(
@@ -165,7 +173,7 @@ impl<'a> Into<leo_ast::CircuitInitExpression> for &CircuitInitExpression<'a> {
                 .iter()
                 .map(|(name, value)| leo_ast::CircuitImpliedVariableDefinition {
                     identifier: name.clone(),
-                    expression: value.get().into(),
+                    expression: Some(value.get().into()),
                 })
                 .collect(),
             span: self.span.clone().unwrap_or_default(),

@@ -39,8 +39,7 @@ pub struct Address {
 
 impl Address {
     pub(crate) fn constant(address: String, span: &Span) -> Result<Self, AddressError> {
-        let address =
-            AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span.to_owned()))?;
+        let address = AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
 
         let mut address_bytes = vec![];
         address.write(&mut address_bytes).unwrap();
@@ -69,17 +68,17 @@ impl Address {
                 if let InputValue::Address(string) = input {
                     Some(string)
                 } else {
-                    return Err(AddressError::invalid_address(name.to_owned(), span.to_owned()));
+                    return Err(AddressError::invalid_address(name.to_owned(), span));
                 }
             }
             None => None,
         };
 
         let address = Address::alloc(
-            cs.ns(|| format!("`{}: address` {}:{}", name, span.line, span.start)),
+            cs.ns(|| format!("`{}: address` {}:{}", name, span.line_start, span.col_start)),
             || address_value.ok_or(SynthesisError::AssignmentMissing),
         )
-        .map_err(|_| AddressError::missing_address(span.to_owned()))?;
+        .map_err(|_| AddressError::missing_address(span))?;
 
         Ok(ConstrainedValue::Address(address))
     }

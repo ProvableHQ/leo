@@ -39,18 +39,21 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         expression: &'a Expression<'a>,
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-        let span = expression.span().cloned().unwrap_or_default();
+        let span = &expression.span().cloned().unwrap_or_default();
         match expression {
+            // Cast
+            Expression::Cast(_) => unimplemented!("casts not implemented"),
+
             // Variables
             Expression::VariableRef(variable_ref) => self.evaluate_ref(variable_ref),
 
             // Values
             Expression::Constant(Constant { value, .. }) => {
                 Ok(match value {
-                    ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.clone(), &span)?),
+                    ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.clone(), span)?),
                     ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
-                    ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), &span)?),
-                    ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, &span)?),
+                    ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), span)?),
+                    ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),
                     ConstValue::Int(value) => ConstrainedValue::Integer(Integer::new(value)),
                     ConstValue::Tuple(_) | ConstValue::Array(_) => unimplemented!(), // shouldnt be in the asg here
                 })
@@ -63,24 +66,25 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let (resolved_left, resolved_right) = self.enforce_binary_expression(cs, left.get(), right.get())?;
 
                 match operation {
-                    BinaryOperation::Add => enforce_add(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Sub => enforce_sub(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Mul => enforce_mul(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Div => enforce_div(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Pow => enforce_pow(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Add => enforce_add(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Sub => enforce_sub(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Mul => enforce_mul(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Div => enforce_div(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Pow => enforce_pow(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Or => {
-                        enforce_or(cs, resolved_left, resolved_right, &span).map_err(ExpressionError::BooleanError)
+                        enforce_or(cs, resolved_left, resolved_right, span).map_err(ExpressionError::BooleanError)
                     }
                     BinaryOperation::And => {
-                        enforce_and(cs, resolved_left, resolved_right, &span).map_err(ExpressionError::BooleanError)
+                        enforce_and(cs, resolved_left, resolved_right, span).map_err(ExpressionError::BooleanError)
                     }
-                    BinaryOperation::Eq => evaluate_eq(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, &span)?, &span)
+                    BinaryOperation::Eq => evaluate_eq(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, span)?, span)
                         .map_err(ExpressionError::BooleanError),
-                    BinaryOperation::Ge => evaluate_ge(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Gt => evaluate_gt(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Le => evaluate_le(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Lt => evaluate_lt(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Ge => evaluate_ge(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Gt => evaluate_gt(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Le => evaluate_le(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Lt => evaluate_lt(cs, resolved_left, resolved_right, span),
+                    _ => unimplemented!("unimplemented binary operator"),
                 }
             }
 
@@ -88,9 +92,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             Expression::Unary(UnaryExpression { inner, operation, .. }) => match operation {
                 UnaryOperation::Negate => {
                     let resolved_inner = self.enforce_expression(cs, inner.get())?;
-                    enforce_negate(cs, resolved_inner, &span)
+                    enforce_negate(cs, resolved_inner, span)
                 }
-                UnaryOperation::Not => Ok(evaluate_not(self.enforce_expression(cs, inner.get())?, &span)?),
+                UnaryOperation::Not => Ok(evaluate_not(self.enforce_expression(cs, inner.get())?, span)?),
+                _ => unimplemented!("unimplemented unary operator"),
             },
 
             Expression::Ternary(TernaryExpression {
@@ -98,7 +103,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 if_true,
                 if_false,
                 ..
-            }) => self.enforce_conditional_expression(cs, condition.get(), if_true.get(), if_false.get(), &span),
+            }) => self.enforce_conditional_expression(cs, condition.get(), if_true.get(), if_false.get(), span),
 
             // Arrays
             Expression::ArrayInline(ArrayInlineExpression { elements, .. }) => {
@@ -108,20 +113,20 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 self.enforce_array_initializer(cs, element.get(), *len)
             }
             Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
-                self.enforce_array_access(cs, array.get(), index.get(), &span)
+                self.enforce_array_access(cs, array.get(), index.get(), span)
             }
             Expression::ArrayRangeAccess(ArrayRangeAccessExpression { array, left, right, .. }) => {
-                self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), &span)
+                self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), span)
             }
 
             // Tuples
             Expression::TupleInit(TupleInitExpression { elements, .. }) => self.enforce_tuple(cs, &elements[..]),
             Expression::TupleAccess(TupleAccessExpression { tuple_ref, index, .. }) => {
-                self.enforce_tuple_access(cs, tuple_ref.get(), *index, &span)
+                self.enforce_tuple_access(cs, tuple_ref.get(), *index, span)
             }
 
             // Circuits
-            Expression::CircuitInit(expr) => self.enforce_circuit(cs, expr, &span),
+            Expression::CircuitInit(expr) => self.enforce_circuit(cs, expr, span),
             Expression::CircuitAccess(expr) => self.enforce_circuit_access(cs, expr),
 
             // Functions
@@ -141,11 +146,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                             function.get(),
                             target.get(),
                             &arguments[..],
-                            &span,
+                            span,
                         );
                     }
                 }
-                self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], &span)
+                self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], span)
             }
         }
     }

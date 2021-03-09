@@ -8,7 +8,7 @@ circuit PedersenHash {
     function hash(self, bits: [bool; 512]) -> u32 {
         let mut digest: u32 = 0;
         for i in 0..512 {
-            let base = if bits[i] ? self.parameters[i] : 0u32;
+            let base = bits[i] ? self.parameters[i] : 0u32;
             digest += base;
         }
         return digest

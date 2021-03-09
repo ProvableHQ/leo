@@ -18,6 +18,7 @@
 //! asg nodes and saving relevant information.
 
 use crate::{
+    Annotation,
     AssigneeAccess,
     Block,
     Circuit,
@@ -34,7 +35,6 @@ use crate::{
     Packages,
     Program,
     Statement,
-    TestFunction,
     Type,
     VariableName,
 };
@@ -51,7 +51,6 @@ pub trait ReconstructingReducer {
         imports: Vec<ImportStatement>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
-        tests: IndexMap<Identifier, TestFunction>,
     ) -> Program {
         Program {
             name: program.name.clone(),
@@ -59,7 +58,6 @@ pub trait ReconstructingReducer {
             imports,
             circuits,
             functions,
-            tests,
         }
     }
 
@@ -90,27 +88,20 @@ pub trait ReconstructingReducer {
     fn reduce_function(
         &mut self,
         function: &Function,
+        annotations: Vec<Annotation>,
         identifier: Identifier,
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
     ) -> Option<Function> {
         Some(Function {
+            annotations,
             identifier,
             input,
             output,
             block,
             span: function.span.clone(),
         })
-    }
-
-    fn reduce_test_function(
-        &mut self,
-        test_function: &TestFunction,
-        function: Function,
-        input_file: Option<Identifier>,
-    ) -> Option<TestFunction> {
-        Some(TestFunction { function, input_file })
     }
 
     fn reduce_identifier(&mut self, identifier: &Identifier) -> Identifier {

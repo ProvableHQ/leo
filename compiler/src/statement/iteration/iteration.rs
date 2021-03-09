@@ -58,7 +58,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
             // Evaluate statements and possibly return early
             let result = self.enforce_statement(
-                &mut cs.ns(|| format!("for loop iteration {} {}:{}", i, &span.line, &span.start)),
+                &mut cs.ns(|| format!("for loop iteration {} {}:{}", i, &span.line_start, &span.col_start)),
                 indicator,
                 statement.body.get(),
             )?;

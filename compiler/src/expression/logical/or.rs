@@ -33,14 +33,14 @@ pub fn enforce_or<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
 
     if let (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) = (left, right) {
         let result = Boolean::or(
-            cs.ns(|| format!("{} {}:{}", name, span.line, span.start)),
+            cs.ns(|| format!("{} {}:{}", name, span.line_start, span.col_start)),
             &left_bool,
             &right_bool,
         )
-        .map_err(|e| BooleanError::cannot_enforce("||".to_string(), e, span.to_owned()))?;
+        .map_err(|e| BooleanError::cannot_enforce("||".to_string(), e, span))?;
 
         return Ok(ConstrainedValue::Boolean(result));
     }
 
-    Err(BooleanError::cannot_evaluate(name, span.to_owned()))
+    Err(BooleanError::cannot_evaluate(name, span))
 }

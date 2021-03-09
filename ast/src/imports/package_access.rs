@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ImportSymbol, Package, Packages, Span};
-use leo_grammar::imports::PackageAccess as GrammarPackageAccess;
+use crate::{ImportSymbol, Node, Package, Packages, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -28,13 +27,22 @@ pub enum PackageAccess {
     Multiple(Packages),
 }
 
-impl<'ast> From<GrammarPackageAccess<'ast>> for PackageAccess {
-    fn from(access: GrammarPackageAccess<'ast>) -> Self {
-        match access {
-            GrammarPackageAccess::Star(star) => PackageAccess::Star(Span::from(star.span)),
-            GrammarPackageAccess::SubPackage(package) => PackageAccess::SubPackage(Box::new(Package::from(*package))),
-            GrammarPackageAccess::Symbol(symbol) => PackageAccess::Symbol(ImportSymbol::from(symbol)),
-            GrammarPackageAccess::Multiple(packages) => PackageAccess::Multiple(Packages::from(packages)),
+impl Node for PackageAccess {
+    fn span(&self) -> &Span {
+        match self {
+            PackageAccess::Star(span) => span,
+            PackageAccess::SubPackage(package) => &package.span,
+            PackageAccess::Symbol(package) => &package.span,
+            PackageAccess::Multiple(package) => &package.span,
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        match self {
+            PackageAccess::Star(package) => *package = span,
+            PackageAccess::SubPackage(package) => package.span = span,
+            PackageAccess::Symbol(package) => package.span = span,
+            PackageAccess::Multiple(package) => package.span = span,
         }
     }
 }

@@ -64,6 +64,10 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         condition.append(if_true).append(if_false)
     }
 
+    fn reduce_cast_expression(&mut self, input: &CastExpression<'a>, inner: T) -> T {
+        inner
+    }
+
     fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
         T::default()
     }
@@ -157,13 +161,11 @@ pub trait MonoidalReducerProgram<'a, T: Monoid>: MonoidalReducerStatement<'a, T>
         &mut self,
         input: &InternalProgram,
         imported_modules: Vec<T>,
-        test_functions: Vec<T>,
         functions: Vec<T>,
         circuits: Vec<T>,
     ) -> T {
         T::default()
             .append_all(imported_modules.into_iter())
-            .append_all(test_functions.into_iter())
             .append_all(functions.into_iter())
             .append_all(circuits.into_iter())
     }

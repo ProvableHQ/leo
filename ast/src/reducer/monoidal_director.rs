@@ -38,7 +38,6 @@ use crate::{
     Program,
     SpreadOrExpression,
     Statement,
-    TestFunction,
     Type,
     ValueExpression,
     VariableName,
@@ -89,22 +88,9 @@ impl<T: Monoid, R: MonoidalReducer<T>> MonoidalDirector<T, R> {
                 )
             })
             .collect();
-        let test_functions = program
-            .tests
-            .iter()
-            .map(|(identifier, test_function)| {
-                (
-                    identifier.name.clone(),
-                    (
-                        self.reduce_identifier(identifier),
-                        self.reduce_test_function(test_function),
-                    ),
-                )
-            })
-            .collect();
 
         self.reducer
-            .reduce_program(program, inputs, imports, circuits, functions, test_functions)
+            .reduce_program(program, inputs, imports, circuits, functions)
     }
 
     pub fn reduce_function_input(&mut self, input: &FunctionInput) -> T {
@@ -146,13 +132,6 @@ impl<T: Monoid, R: MonoidalReducer<T>> MonoidalDirector<T, R> {
 
         self.reducer
             .reduce_function(function, identifier, input, output, statements)
-    }
-
-    pub fn reduce_test_function(&mut self, test_function: &TestFunction) -> T {
-        let function = self.reduce_function(&test_function.function);
-        let input_file = test_function.input_file.as_ref().map(|x| self.reduce_identifier(x));
-
-        self.reducer.reduce_test_function(test_function, function, input_file)
     }
 
     pub fn reduce_identifier(&mut self, identifier: &Identifier) -> T {
@@ -418,7 +397,7 @@ impl<T: Monoid, R: MonoidalReducer<T>> MonoidalDirector<T, R> {
                     .iter()
                     .map(|definition| {
                         let definition_identifier = self.reduce_identifier(&definition.identifier);
-                        let definition_expression = self.reduce_expression(&definition.expression);
+                        let definition_expression = definition.expression.as_ref().map(|expr| self.reduce_expression(&expr));
                         (definition_identifier, definition_expression)
                     })
                     .collect();
@@ -443,7 +422,11 @@ impl<T: Monoid, R: MonoidalReducer<T>> MonoidalDirector<T, R> {
                 let function_arguments = call.arguments.iter().map(|x| self.reduce_expression(x)).collect();
 
                 ExpressionMonoidItems::FunctionCall(function, function_arguments)
-            }
+            },
+
+            // TODO casts?
+
+            _ => ExpressionMonoidItems::Empty,
         };
         self.reducer.reduce_expression(expression, items)
     }

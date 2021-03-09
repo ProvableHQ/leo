@@ -29,6 +29,7 @@ use crate::{
     Variable,
 };
 use indexmap::IndexMap;
+pub use leo_ast::Annotation;
 use leo_ast::FunctionInput;
 
 use std::cell::{Cell, RefCell};
@@ -52,6 +53,7 @@ pub struct Function<'a> {
     pub body: Cell<Option<&'a Statement<'a>>>,
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
+    pub annotations: Vec<Annotation>,
 }
 
 impl<'a> PartialEq for Function<'a> {
@@ -126,6 +128,7 @@ impl<'a> Function<'a> {
             qualifier,
             scope: new_scope,
             span: Some(value.span.clone()),
+            annotations: value.annotations.clone(),
         });
         function.scope.function.replace(Some(function));
 
@@ -177,6 +180,10 @@ impl<'a> Function<'a> {
 
         Ok(())
     }
+
+    pub fn is_test(&self) -> bool {
+        self.annotations.iter().any(|x| x.name.name == "test")
+    }
 }
 
 impl<'a> Into<leo_ast::Function> for &Function<'a> {
@@ -213,6 +220,7 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
             block: body,
             output: Some((&output).into()),
             span,
+            annotations: self.annotations.clone(),
         }
     }
 }
