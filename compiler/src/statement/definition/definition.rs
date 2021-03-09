@@ -19,7 +19,8 @@
 use crate::{errors::StatementError, program::ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_asg::{DefinitionStatement, Span, Variable};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     fn enforce_multiple_definition(
@@ -32,7 +33,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             return Err(StatementError::invalid_number_of_definitions(
                 values.len(),
                 variable_names.len(),
-                span.to_owned(),
+                span,
             ));
         }
 
@@ -62,7 +63,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             let values = match expression {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
-                value => return Err(StatementError::multiple_definition(value.to_string(), span)),
+                value => return Err(StatementError::multiple_definition(value.to_string(), &span)),
             };
 
             self.enforce_multiple_definition(&statement.variables[..], values, &span)

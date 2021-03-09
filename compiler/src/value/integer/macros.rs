@@ -16,7 +16,7 @@
 
 use leo_gadgets::signed_integer::*;
 
-use snarkvm_models::gadgets::utilities::{
+use snarkvm_gadgets::traits::utilities::{
     boolean::Boolean,
     uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
 };
@@ -84,21 +84,11 @@ macro_rules! match_unsigned_integer {
 macro_rules! match_signed_integer {
     ($integer: ident, $span: ident => $expression: expr) => {
         match $integer {
-            Integer::I8($integer) => Some(Integer::I8(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
-            Integer::I16($integer) => Some(Integer::I16(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
-            Integer::I32($integer) => Some(Integer::I32(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
-            Integer::I64($integer) => Some(Integer::I64(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
-            Integer::I128($integer) => Some(Integer::I128(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
+            Integer::I8($integer) => Some(Integer::I8($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+            Integer::I16($integer) => Some(Integer::I16($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+            Integer::I32($integer) => Some(Integer::I32($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+            Integer::I64($integer) => Some(Integer::I64($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+            Integer::I128($integer) => Some(Integer::I128($expression.map_err(|e| IntegerError::signed(e, $span))?)),
 
             _ => None,
         }
@@ -129,37 +119,37 @@ macro_rules! match_integers {
 macro_rules! match_integers_span {
     (($a: ident, $b: ident), $span: ident => $expression:expr) => {
         match ($a, $b) {
-            (Integer::U8($a), Integer::U8($b)) => Some(Integer::U8(
-                $expression.map_err(|e| IntegerError::synthesis(e, $span.to_owned()))?,
-            )),
+            (Integer::U8($a), Integer::U8($b)) => {
+                Some(Integer::U8($expression.map_err(|e| IntegerError::synthesis(e, $span))?))
+            }
             (Integer::U16($a), Integer::U16($b)) => Some(Integer::U16(
-                $expression.map_err(|e| IntegerError::synthesis(e, $span.to_owned()))?,
+                $expression.map_err(|e| IntegerError::synthesis(e, $span))?,
             )),
             (Integer::U32($a), Integer::U32($b)) => Some(Integer::U32(
-                $expression.map_err(|e| IntegerError::synthesis(e, $span.to_owned()))?,
+                $expression.map_err(|e| IntegerError::synthesis(e, $span))?,
             )),
             (Integer::U64($a), Integer::U64($b)) => Some(Integer::U64(
-                $expression.map_err(|e| IntegerError::synthesis(e, $span.to_owned()))?,
+                $expression.map_err(|e| IntegerError::synthesis(e, $span))?,
             )),
             (Integer::U128($a), Integer::U128($b)) => Some(Integer::U128(
-                $expression.map_err(|e| IntegerError::synthesis(e, $span.to_owned()))?,
+                $expression.map_err(|e| IntegerError::synthesis(e, $span))?,
             )),
 
-            (Integer::I8($a), Integer::I8($b)) => Some(Integer::I8(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
-            (Integer::I16($a), Integer::I16($b)) => Some(Integer::I16(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
-            (Integer::I32($a), Integer::I32($b)) => Some(Integer::I32(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
-            (Integer::I64($a), Integer::I64($b)) => Some(Integer::I64(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
-            (Integer::I128($a), Integer::I128($b)) => Some(Integer::I128(
-                $expression.map_err(|e| IntegerError::signed(e, $span.to_owned()))?,
-            )),
+            (Integer::I8($a), Integer::I8($b)) => {
+                Some(Integer::I8($expression.map_err(|e| IntegerError::signed(e, $span))?))
+            }
+            (Integer::I16($a), Integer::I16($b)) => {
+                Some(Integer::I16($expression.map_err(|e| IntegerError::signed(e, $span))?))
+            }
+            (Integer::I32($a), Integer::I32($b)) => {
+                Some(Integer::I32($expression.map_err(|e| IntegerError::signed(e, $span))?))
+            }
+            (Integer::I64($a), Integer::I64($b)) => {
+                Some(Integer::I64($expression.map_err(|e| IntegerError::signed(e, $span))?))
+            }
+            (Integer::I128($a), Integer::I128($b)) => {
+                Some(Integer::I128($expression.map_err(|e| IntegerError::signed(e, $span))?))
+            }
             (_, _) => None,
         }
     };

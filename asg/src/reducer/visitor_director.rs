@@ -60,6 +60,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
                 Expression::CircuitAccess(e) => self.visit_circuit_access(e),
                 Expression::CircuitInit(e) => self.visit_circuit_init(e),
                 Expression::Ternary(e) => self.visit_ternary_expression(e),
+                Expression::Cast(e) => self.visit_cast_expression(e),
                 Expression::Constant(e) => self.visit_constant(e),
                 Expression::TupleAccess(e) => self.visit_tuple_access(e),
                 Expression::TupleInit(e) => self.visit_tuple_init(e),
@@ -71,10 +72,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
     }
 
     fn visit_opt_expression(&mut self, input: &Cell<Option<&'a Expression<'a>>>) -> ConcreteVisitResult {
-        let interior = match input.get() {
-            Some(expr) => Some(Cell::new(expr)),
-            None => None,
-        };
+        let interior = input.get().map(Cell::new);
         if let Some(interior) = interior.as_ref() {
             let result = self.visit_expression(interior);
             input.replace(Some(interior.get()));
@@ -187,6 +185,16 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
+    pub fn visit_cast_expression(&mut self, input: &CastExpression<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_cast_expression(input) {
+            VisitResult::VisitChildren => {
+                self.visit_expression(&input.inner)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
+    }
+
     pub fn visit_constant(&mut self, input: &Constant<'a>) -> ConcreteVisitResult {
         self.visitor.visit_constant(input).into()
     }
@@ -246,10 +254,7 @@ impl<'a, R: StatementVisitor<'a>> VisitorDirector<'a, R> {
     }
 
     fn visit_opt_statement(&mut self, input: &Cell<Option<&'a Statement<'a>>>) -> ConcreteVisitResult {
-        let interior = match input.get() {
-            Some(expr) => Some(Cell::new(expr)),
-            None => None,
-        };
+        let interior = input.get().map(Cell::new);
         if let Some(interior) = interior.as_ref() {
             let result = self.visit_statement(interior);
             input.replace(Some(interior.get()));
@@ -424,9 +429,6 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
             VisitResult::VisitChildren => {
                 for (_, import) in input.imported_modules.iter() {
                     self.visit_program(import)?;
-                }
-                for (_, (function, _)) in input.test_functions.iter() {
-                    self.visit_function(function)?;
                 }
                 for (_, function) in input.functions.iter() {
                     self.visit_function(function)?;

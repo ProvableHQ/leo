@@ -21,7 +21,8 @@ use std::cell::Cell;
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Function, Span};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
@@ -37,8 +38,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             format!(
                 "function call {} {}:{}",
                 function.name.borrow().clone(),
-                span.line,
-                span.start,
+                span.line_start,
+                span.col_start,
             )
         };
 

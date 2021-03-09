@@ -22,7 +22,8 @@ use leo_asg::{Expression, Function, FunctionQualifier};
 use leo_ast::Input;
 use std::cell::Cell;
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn enforce_main_function<CS: ConstraintSystem<F>>(
@@ -41,12 +42,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 .resolve_input()
                 .expect("no input variable in scope when function is qualified");
 
-            let value = self.allocate_input_keyword(
-                cs,
-                function.name.borrow().span.clone(),
-                &asg_input.container_circuit,
-                input,
-            )?;
+            let value =
+                self.allocate_input_keyword(cs, &function.name.borrow().span, &asg_input.container_circuit, input)?;
 
             self.store(asg_input.container.borrow().id, value);
         }
@@ -65,7 +62,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let input_variable = input_variable.get().borrow();
                 let name = input_variable.name.name.clone();
                 let input_option = input.get(&name).ok_or_else(|| {
-                    FunctionError::input_not_found(name.clone(), function.span.clone().unwrap_or_default())
+                    FunctionError::input_not_found(name.clone(), &function.span.clone().unwrap_or_default())
                 })?;
                 let input_value = self.allocate_main_function_input(
                     cs,
@@ -89,7 +86,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         let span = function.span.clone().unwrap_or_default();
         let result_value = self.enforce_function(cs, function, None, &arguments)?;
-        let output_bytes = OutputBytes::new_from_constrained_value(&self.asg, registers, result_value, span)?;
+        let output_bytes = OutputBytes::new_from_constrained_value(&self.asg, registers, result_value, &span)?;
 
         Ok(output_bytes)
     }

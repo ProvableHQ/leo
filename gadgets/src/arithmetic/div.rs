@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_models::{curves::Field, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::Field;
+use snarkvm_r1cs::ConstraintSystem;
 
 /// Returns division of `self` / `other` in the constraint system.
 pub trait Div<F: Field, Rhs = Self>

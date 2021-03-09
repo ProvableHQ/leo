@@ -16,15 +16,12 @@
 
 use leo_gadgets::{arithmetic::*, Int128};
 
-use snarkvm_models::{
-    curves::{One, Zero},
-    gadgets::{
-        r1cs::{ConstraintSystem, Fr, TestConstraintSystem},
-        utilities::{alloc::AllocGadget, boolean::Boolean},
-    },
-};
+use snarkvm_fields::{One, Zero};
+use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, boolean::Boolean};
+use snarkvm_r1cs::{ConstraintSystem, Fr, TestConstraintSystem};
 
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::i128;
 
@@ -238,8 +235,8 @@ fn test_int128_mul_constants() {
         let max = i64::MAX as i128;
         let min = i64::MIN as i128;
 
-        let a: i128 = rng.gen_range(min, max);
-        let b: i128 = rng.gen_range(min, max);
+        let a: i128 = rng.gen_range(min..max);
+        let b: i128 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
@@ -267,8 +264,8 @@ fn test_int128_mul() {
         let max = i64::MAX as i128;
         let min = i64::MIN as i128;
 
-        let a: i128 = rng.gen_range(min, max);
-        let b: i128 = rng.gen_range(min, max);
+        let a: i128 = rng.gen_range(min..max);
+        let b: i128 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,

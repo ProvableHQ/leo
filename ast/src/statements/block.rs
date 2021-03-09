@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Node, Span, Statement};
-use leo_grammar::statements::Block as GrammarBlock;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,15 +23,6 @@ use std::fmt;
 pub struct Block {
     pub statements: Vec<Statement>,
     pub span: Span,
-}
-
-impl<'ast> From<GrammarBlock<'ast>> for Block {
-    fn from(block: GrammarBlock<'ast>) -> Self {
-        Block {
-            statements: block.statements.into_iter().map(Statement::from).collect(),
-            span: Span::from(block.span),
-        }
-    }
 }
 
 impl fmt::Display for Block {

@@ -16,15 +16,12 @@
 
 use leo_gadgets::{arithmetic::*, Int8};
 
-use snarkvm_models::{
-    curves::{One, Zero},
-    gadgets::{
-        r1cs::{ConstraintSystem, Fr, TestConstraintSystem},
-        utilities::{alloc::AllocGadget, boolean::Boolean},
-    },
-};
+use snarkvm_fields::{One, Zero};
+use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, boolean::Boolean};
+use snarkvm_r1cs::{ConstraintSystem, Fr, TestConstraintSystem};
 
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::i8;
 
@@ -360,8 +357,8 @@ fn test_int8_pow_constants() {
     for _ in 0..100 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen_range(-4, 4);
-        let b: i8 = rng.gen_range(-4, 4);
+        let a: i8 = rng.gen_range(-4..4);
+        let b: i8 = rng.gen_range(-4..4);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,
@@ -386,8 +383,8 @@ fn test_int8_pow() {
     for _ in 0..10 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i8 = rng.gen_range(-4, 4);
-        let b: i8 = rng.gen_range(-4, 4);
+        let a: i8 = rng.gen_range(-4..4);
+        let b: i8 = rng.gen_range(-4..4);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,

@@ -20,7 +20,8 @@ use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_asg::Span;
 use leo_gadgets::bits::ComparatorGadget;
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub fn evaluate_le<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
@@ -28,7 +29,7 @@ pub fn evaluate_le<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     right: ConstrainedValue<'a, F, G>,
     span: &Span,
 ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-    let unique_namespace = cs.ns(|| format!("evaluate {} <= {} {}:{}", left, right, span.line, span.start));
+    let unique_namespace = cs.ns(|| format!("evaluate {} <= {} {}:{}", left, right, span.line_start, span.col_start));
     let constraint_result = match (left, right) {
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             num_1.less_than_or_equal(unique_namespace, &num_2)
@@ -36,12 +37,12 @@ pub fn evaluate_le<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         (val_1, val_2) => {
             return Err(ExpressionError::incompatible_types(
                 format!("{} <= {}", val_1, val_2),
-                span.to_owned(),
+                span,
             ));
         }
     };
 
-    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate("<=".to_string(), span.to_owned()))?;
+    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate("<=".to_string(), span))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

@@ -14,14 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::uint::{UInt, UInt128, UInt16, UInt32, UInt64, UInt8},
-    },
-};
+use snarkvm_fields::{Field, PrimeField};
+use snarkvm_gadgets::traits::utilities::uint::{UInt, UInt128, UInt16, UInt32, UInt64, UInt8};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 /// Returns addition of `self` + `other` in the constraint system.
 pub trait Add<F: Field, Rhs = Self>

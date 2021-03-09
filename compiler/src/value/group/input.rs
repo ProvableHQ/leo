@@ -20,8 +20,8 @@ use crate::{errors::GroupError, ConstrainedValue, GroupType};
 use leo_asg::{GroupValue, Span};
 use leo_ast::InputValue;
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 pub(crate) fn allocate_group<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
@@ -30,10 +30,10 @@ pub(crate) fn allocate_group<F: PrimeField, G: GroupType<F>, CS: ConstraintSyste
     span: &Span,
 ) -> Result<G, GroupError> {
     G::alloc(
-        cs.ns(|| format!("`{}: group` {}:{}", name, span.line, span.start)),
+        cs.ns(|| format!("`{}: group` {}:{}", name, span.line_start, span.col_start)),
         || option.ok_or(SynthesisError::AssignmentMissing),
     )
-    .map_err(|_| GroupError::missing_group(format!("{}: group", name), span.to_owned()))
+    .map_err(|_| GroupError::missing_group(format!("{}: group", name), span))
 }
 
 pub(crate) fn group_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -48,7 +48,7 @@ pub(crate) fn group_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
             if let InputValue::Group(string) = input {
                 Some(string)
             } else {
-                return Err(GroupError::invalid_group(input.to_string(), span.to_owned()));
+                return Err(GroupError::invalid_group(input.to_string(), span));
             }
         }
         None => None,

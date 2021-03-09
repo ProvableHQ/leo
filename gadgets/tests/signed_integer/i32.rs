@@ -16,15 +16,12 @@
 
 use leo_gadgets::{arithmetic::*, Int32};
 
-use snarkvm_models::{
-    curves::{One, Zero},
-    gadgets::{
-        r1cs::{ConstraintSystem, Fr, TestConstraintSystem},
-        utilities::{alloc::AllocGadget, boolean::Boolean},
-    },
-};
+use snarkvm_fields::{One, Zero};
+use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, boolean::Boolean};
+use snarkvm_r1cs::{ConstraintSystem, Fr, TestConstraintSystem};
 
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use std::i32;
 
@@ -238,8 +235,8 @@ fn test_int32_mul_constants() {
         let max = i16::MAX as i32;
         let min = i16::MIN as i32;
 
-        let a: i32 = rng.gen_range(min, max);
-        let b: i32 = rng.gen_range(min, max);
+        let a: i32 = rng.gen_range(min..max);
+        let b: i32 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
@@ -267,8 +264,8 @@ fn test_int32_mul() {
         let max = i16::MAX as i32;
         let min = i16::MIN as i32;
 
-        let a: i32 = rng.gen_range(min, max);
-        let b: i32 = rng.gen_range(min, max);
+        let a: i32 = rng.gen_range(min..max);
+        let b: i32 = rng.gen_range(min..max);
 
         let expected = match a.checked_mul(b) {
             Some(valid) => valid,
@@ -367,8 +364,8 @@ fn test_int32_pow_constants() {
     for _ in 0..3 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i32 = rng.gen_range(-16, 16);
-        let b: i32 = rng.gen_range(-8, 8);
+        let a: i32 = rng.gen_range(-16..16);
+        let b: i32 = rng.gen_range(-8..8);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,
@@ -394,8 +391,8 @@ fn test_int32_pow() {
     for _ in 0..3 {
         let mut cs = TestConstraintSystem::<Fr>::new();
 
-        let a: i32 = rng.gen_range(-16, 16);
-        let b: i32 = rng.gen_range(-8, 8);
+        let a: i32 = rng.gen_range(-16..16);
+        let b: i32 = rng.gen_range(-8..8);
 
         let expected = match a.checked_pow(b as u32) {
             Some(valid) => valid,

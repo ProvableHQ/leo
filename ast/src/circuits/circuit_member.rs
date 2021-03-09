@@ -15,10 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Function, Identifier, Type};
-use leo_grammar::{
-    circuits::{CircuitMember as GrammarCircuitMember, CircuitVariableDefinition as GrammarCircuitVariableDefinition},
-    functions::Function as GrammarFunction,
-};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -29,30 +25,6 @@ pub enum CircuitMember {
     CircuitVariable(Identifier, Type),
     // (function)
     CircuitFunction(Function),
-}
-
-impl<'ast> From<GrammarCircuitVariableDefinition<'ast>> for CircuitMember {
-    fn from(circuit_value: GrammarCircuitVariableDefinition<'ast>) -> Self {
-        CircuitMember::CircuitVariable(
-            Identifier::from(circuit_value.identifier),
-            Type::from(circuit_value.type_),
-        )
-    }
-}
-
-impl<'ast> From<GrammarFunction<'ast>> for CircuitMember {
-    fn from(circuit_function: GrammarFunction<'ast>) -> Self {
-        CircuitMember::CircuitFunction(Function::from(circuit_function))
-    }
-}
-
-impl<'ast> From<GrammarCircuitMember<'ast>> for CircuitMember {
-    fn from(object: GrammarCircuitMember<'ast>) -> Self {
-        match object {
-            GrammarCircuitMember::CircuitVariableDefinition(circuit_value) => CircuitMember::from(circuit_value),
-            GrammarCircuitMember::CircuitFunction(circuit_function) => CircuitMember::from(circuit_function),
-        }
-    }
 }
 
 impl fmt::Display for CircuitMember {

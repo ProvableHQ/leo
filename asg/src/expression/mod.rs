@@ -62,6 +62,9 @@ pub use unary::*;
 mod variable_ref;
 pub use variable_ref::*;
 
+mod cast;
+pub use cast::*;
+
 use crate::{AsgConvertError, ConstValue, FromAst, Node, PartialType, Scope, Span, Type};
 
 #[derive(Clone)]
@@ -71,6 +74,7 @@ pub enum Expression<'a> {
     Binary(BinaryExpression<'a>),
     Unary(UnaryExpression<'a>),
     Ternary(TernaryExpression<'a>),
+    Cast(CastExpression<'a>),
 
     ArrayInline(ArrayInlineExpression<'a>),
     ArrayInit(ArrayInitExpression<'a>),
@@ -95,6 +99,7 @@ impl<'a> Node for Expression<'a> {
             Binary(x) => x.span(),
             Unary(x) => x.span(),
             Ternary(x) => x.span(),
+            Cast(x) => x.span(),
             ArrayInline(x) => x.span(),
             ArrayInit(x) => x.span(),
             ArrayAccess(x) => x.span(),
@@ -128,6 +133,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Binary(x) => x.set_parent(parent),
             Unary(x) => x.set_parent(parent),
             Ternary(x) => x.set_parent(parent),
+            Cast(x) => x.set_parent(parent),
             ArrayInline(x) => x.set_parent(parent),
             ArrayInit(x) => x.set_parent(parent),
             ArrayAccess(x) => x.set_parent(parent),
@@ -148,6 +154,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Binary(x) => x.get_parent(),
             Unary(x) => x.get_parent(),
             Ternary(x) => x.get_parent(),
+            Cast(x) => x.get_parent(),
             ArrayInline(x) => x.get_parent(),
             ArrayInit(x) => x.get_parent(),
             ArrayAccess(x) => x.get_parent(),
@@ -168,6 +175,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Binary(x) => x.enforce_parents(expr),
             Unary(x) => x.enforce_parents(expr),
             Ternary(x) => x.enforce_parents(expr),
+            Cast(x) => x.enforce_parents(expr),
             ArrayInline(x) => x.enforce_parents(expr),
             ArrayInit(x) => x.enforce_parents(expr),
             ArrayAccess(x) => x.enforce_parents(expr),
@@ -188,6 +196,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Binary(x) => x.get_type(),
             Unary(x) => x.get_type(),
             Ternary(x) => x.get_type(),
+            Cast(x) => x.get_type(),
             ArrayInline(x) => x.get_type(),
             ArrayInit(x) => x.get_type(),
             ArrayAccess(x) => x.get_type(),
@@ -208,6 +217,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Binary(x) => x.is_mut_ref(),
             Unary(x) => x.is_mut_ref(),
             Ternary(x) => x.is_mut_ref(),
+            Cast(x) => x.is_mut_ref(),
             ArrayInline(x) => x.is_mut_ref(),
             ArrayInit(x) => x.is_mut_ref(),
             ArrayAccess(x) => x.is_mut_ref(),
@@ -228,6 +238,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Binary(x) => x.const_value(),
             Unary(x) => x.const_value(),
             Ternary(x) => x.const_value(),
+            Cast(x) => x.const_value(),
             ArrayInline(x) => x.const_value(),
             ArrayInit(x) => x.const_value(),
             ArrayAccess(x) => x.const_value(),
@@ -248,6 +259,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Binary(x) => x.is_consty(),
             Unary(x) => x.is_consty(),
             Ternary(x) => x.is_consty(),
+            Cast(x) => x.is_consty(),
             ArrayInline(x) => x.is_consty(),
             ArrayInit(x) => x.is_consty(),
             ArrayAccess(x) => x.is_consty(),
@@ -281,6 +293,9 @@ impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
             Ternary(conditional) => scope.alloc_expression(
                 TernaryExpression::from_ast(scope, conditional, expected_type).map(Expression::Ternary)?,
             ),
+            Cast(cast) => {
+                scope.alloc_expression(CastExpression::from_ast(scope, cast, expected_type).map(Expression::Cast)?)
+            }
 
             ArrayInline(array_inline) => scope.alloc_expression(
                 ArrayInlineExpression::from_ast(scope, array_inline, expected_type).map(Expression::ArrayInline)?,
@@ -333,6 +348,7 @@ impl<'a> Into<leo_ast::Expression> for &Expression<'a> {
             Binary(x) => leo_ast::Expression::Binary(x.into()),
             Unary(x) => leo_ast::Expression::Unary(x.into()),
             Ternary(x) => leo_ast::Expression::Ternary(x.into()),
+            Cast(x) => leo_ast::Expression::Cast(x.into()),
             ArrayInline(x) => leo_ast::Expression::ArrayInline(x.into()),
             ArrayInit(x) => leo_ast::Expression::ArrayInit(x.into()),
             ArrayAccess(x) => leo_ast::Expression::ArrayAccess(x.into()),

@@ -19,7 +19,8 @@
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Span};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
@@ -32,7 +33,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
+            value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
         };
 
         let index_resolved = self.enforce_index(cs, index, span)?;
@@ -50,7 +51,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
+            value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
         };
 
         let from_resolved = match left {

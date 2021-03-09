@@ -17,14 +17,16 @@
 use crate::{verify_record_commitment, LocalDataVerificationError, StateLeafValues, StateValues};
 use leo_ast::Input as AstInput;
 
-use snarkvm_algorithms::commitment_tree::CommitmentMerklePath;
-use snarkvm_dpc::base_dpc::{
-    instantiated::{Components, LocalDataCRH, LocalDataCommitment},
-    parameters::SystemParameters,
+use snarkvm_algorithms::{
+    commitment_tree::CommitmentMerklePath,
+    traits::{CommitmentScheme, CRH},
 };
-use snarkvm_models::{
-    algorithms::{CommitmentScheme, CRH},
-    dpc::DPCComponents,
+use snarkvm_dpc::{
+    base_dpc::{
+        instantiated::{Components, LocalDataCRH, LocalDataCommitment},
+        parameters::SystemParameters,
+    },
+    traits::DPCComponents,
 };
 use snarkvm_utilities::{bytes::ToBytes, to_bytes, FromBytes};
 
