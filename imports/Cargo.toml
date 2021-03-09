@@ -30,7 +30,7 @@ path = "../parser"
 version = "1.2.3"
 
 [dependencies.indexmap]
-version = "1.6.1"
+version = "1.6.2"
 features = [ "serde-1" ]
 
 [dependencies.thiserror]
