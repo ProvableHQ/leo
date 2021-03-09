@@ -57,8 +57,9 @@ impl ConsoleError {
     }
 
     pub fn assertion_depends_on_input(span: &Span) -> Self {
-        let message =
-            "console.assert() failed to evaluate. This error is caused by empty input file values".to_string();
+        let message = "console.assert() does not produce constraints and cannot use inputs. \
+        Assertions should only be used in @test functions"
+            .to_string();
 
         Self::new_from_span(message, span)
     }
