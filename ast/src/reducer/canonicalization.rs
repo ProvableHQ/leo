@@ -17,20 +17,20 @@
 //! This module contains the reducer which iterates through ast nodes - converting them into
 //! asg nodes and saving relevant information.
 
-mod canonicalization;
-pub use canonicalization::*;
+use crate::{reducer::ReconstructingReducer, Identifier};
 
-mod monoid;
-pub use monoid::*;
+pub struct Canonicalizer;
 
-mod monoidal_director;
-pub use monoidal_director::*;
+impl Canonicalizer {
+    fn is_self(&self, identifier: &Identifier) -> bool {
+        match identifier.name.as_str() {
+            "Self" | "self" => true,
+            _ => false,
+        }
+    }
+}
 
-mod monoidal_reducer;
-pub use monoidal_reducer::*;
-
-mod reconstructing_reducer;
-pub use reconstructing_reducer::*;
-
-mod reconstructing_director;
-pub use reconstructing_director::*;
+impl ReconstructingReducer for Canonicalizer {
+    // TODO in reduce_circuit -> turn SelfKeyword and SelfType to Circuit Name
+    // and replace self with Circuit Name
+}

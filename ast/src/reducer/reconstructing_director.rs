@@ -149,7 +149,8 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             span: function.block.span.clone(),
         };
 
-        self.reducer.reduce_function(function, annotations, identifier, input, output, block)
+        self.reducer
+            .reduce_function(function, annotations, identifier, input, output, block)
     }
 
     pub fn reduce_identifier(&mut self, identifier: &Identifier) -> Identifier {
@@ -200,19 +201,17 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                 expression: self.reduce_expression(&return_statement.expression),
                 span: return_statement.span.clone(),
             }),
-            Statement::Definition(definition) => {
-                Statement::Definition(DefinitionStatement {
-                    declaration_type: definition.declaration_type.clone(),
-                    variable_names: definition
-                        .variable_names
-                        .iter()
-                        .map(|variable_name| self.reduce_variable_name(variable_name))
-                        .collect(),
-                    type_: Some(self.reduce_type(&definition.type_.as_ref().unwrap())), // TODO fix
-                    value: self.reduce_expression(&definition.value),
-                    span: definition.span.clone(),
-                })
-            }
+            Statement::Definition(definition) => Statement::Definition(DefinitionStatement {
+                declaration_type: definition.declaration_type.clone(),
+                variable_names: definition
+                    .variable_names
+                    .iter()
+                    .map(|variable_name| self.reduce_variable_name(variable_name))
+                    .collect(),
+                type_: definition.type_.as_ref().map(|inner| self.reduce_type(&inner)),
+                value: self.reduce_expression(&definition.value),
+                span: definition.span.clone(),
+            }),
             Statement::Assign(assign) => Statement::Assign(AssignStatement {
                 operation: assign.operation.clone(),
                 assignee: Assignee {

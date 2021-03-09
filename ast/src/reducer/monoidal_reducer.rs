@@ -300,12 +300,11 @@ pub trait MonoidalReducer<T: Monoid> {
                     match value {
                         Some(val) => {
                             out = out.append(key).append(val);
-                        },
+                        }
                         None => {
                             out = out.append(key);
                         }
                     }
-                   
                 }
                 out
             }

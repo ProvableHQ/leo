@@ -397,7 +397,8 @@ impl<T: Monoid, R: MonoidalReducer<T>> MonoidalDirector<T, R> {
                     .iter()
                     .map(|definition| {
                         let definition_identifier = self.reduce_identifier(&definition.identifier);
-                        let definition_expression = definition.expression.as_ref().map(|expr| self.reduce_expression(&expr));
+                        let definition_expression =
+                            definition.expression.as_ref().map(|expr| self.reduce_expression(&expr));
                         (definition_identifier, definition_expression)
                     })
                     .collect();
@@ -422,10 +423,9 @@ impl<T: Monoid, R: MonoidalReducer<T>> MonoidalDirector<T, R> {
                 let function_arguments = call.arguments.iter().map(|x| self.reduce_expression(x)).collect();
 
                 ExpressionMonoidItems::FunctionCall(function, function_arguments)
-            },
+            }
 
             // TODO casts?
-
             _ => ExpressionMonoidItems::Empty,
         };
         self.reducer.reduce_expression(expression, items)
