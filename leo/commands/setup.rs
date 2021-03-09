@@ -56,7 +56,8 @@ impl Command for Setup {
         let package_name = context.manifest()?.get_package_name();
 
         // Check if leo build failed
-        let (program, checksum_differs) = input.ok_or(anyhow!("Unable to build, check that main file exists"))?;
+        let (program, checksum_differs) =
+            input.ok_or_else(|| anyhow!("Unable to build, check that main file exists"))?;
 
         // Check if a proving key and verification key already exists
         let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
