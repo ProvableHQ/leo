@@ -89,15 +89,16 @@ impl Canonicalizer {
         match circuit_member {
             CircuitMember::CircuitVariable(_, _) => {}
             CircuitMember::CircuitFunction(function) => {
-                let mut input = function.input.clone();
+                let input = function.input.clone();
                 let mut output = function.output.clone();
 
-                if self.is_self_keyword(&input) {
-                    input = input
-                        .iter()
-                        .map(|function_input| self.canonicalize_function_input(function_input, circuit_name))
-                        .collect();
-                }
+                // probably shouldn't do this its self not Self
+                // if self.is_self_keyword(&input) {
+                //     input = input
+                //         .iter()
+                //         .map(|function_input| self.canonicalize_function_input(function_input, circuit_name))
+                //         .collect();
+                // }
 
                 if self.is_self_type(output.as_ref()) {
                     output = Some(Type::Circuit(circuit_name.clone()));
