@@ -49,8 +49,8 @@ version = "1.2.3"
 path = "../parser"
 version = "1.2.3"
 
-[dependencies.leo-constant-folding]
-path = "../asg-passes/constant-folding"
+[dependencies.leo-asg-passes]
+path = "../asg-passes"
 version = "1.2.3"
 
 [dependencies.snarkvm-curves]

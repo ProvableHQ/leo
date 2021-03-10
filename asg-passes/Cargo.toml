@@ -1,5 +1,5 @@
 [package]
-name = "leo-constant-folding"
+name = "leo-asg-passes"
 version = "1.2.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
@@ -21,5 +21,5 @@ edition = "2018"
 path = "src/lib.rs"
 
 [dependencies.leo-asg]
-path = "../../asg"
+path = "../asg"
 version = "1.2.3"

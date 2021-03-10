@@ -1205,6 +1205,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-asg-passes"
+version = "1.2.3"
+dependencies = [
+ "leo-asg",
+]
+
+[[package]]
 name = "leo-ast"
 version = "1.2.3"
 dependencies = [
@@ -1225,8 +1232,8 @@ dependencies = [
  "hex",
  "indexmap",
  "leo-asg",
+ "leo-asg-passes",
  "leo-ast",
- "leo-constant-folding",
  "leo-gadgets",
  "leo-imports",
  "leo-input",
@@ -1249,13 +1256,6 @@ dependencies = [
  "snarkvm-utilities",
  "thiserror",
  "tracing",
-]
-
-[[package]]
-name = "leo-constant-folding"
-version = "1.2.3"
-dependencies = [
- "leo-asg",
 ]
 
 [[package]]

@@ -261,7 +261,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     fn do_asg_passes(&self) -> Result<(), FormattedError> {
         assert!(self.asg.is_some());
         if self.options.constant_folding_enabled {
-            leo_constant_folding::ConstantFolding::do_pass(self.asg.as_ref().unwrap().as_repr())?;
+            leo_asg_passes::ConstantFolding::do_pass(self.asg.as_ref().unwrap().as_repr())?;
         }
 
         Ok(())
