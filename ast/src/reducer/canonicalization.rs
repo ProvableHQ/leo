@@ -17,20 +17,124 @@
 //! This module contains the reducer which iterates through ast nodes - converting them into
 //! asg nodes and saving relevant information.
 
-use crate::{reducer::ReconstructingReducer, Identifier};
+use crate::{
+    reducer::ReconstructingReducer,
+    Circuit,
+    CircuitMember,
+    Function,
+    FunctionInput,
+    FunctionInputVariable,
+    Identifier,
+    Type,
+};
 
 pub struct Canonicalizer;
 
 impl Canonicalizer {
     fn is_self(&self, identifier: &Identifier) -> bool {
         match identifier.name.as_str() {
-            "Self" | "self" => true,
+            "Self" => true,
             _ => false,
         }
+    }
+
+    fn is_self_keyword(&self, function_inputs: &Vec<FunctionInput>) -> bool {
+        for function_input in function_inputs {
+            match function_input {
+                FunctionInput::SelfKeyword(_) => return true,
+                _ => {}
+            }
+        }
+
+        false
+    }
+
+    fn is_self_type(&self, type_option: Option<&Type>) -> bool {
+        match type_option {
+            Some(type_) => match type_ {
+                Type::SelfType => true,
+                _ => false,
+            },
+            None => false,
+        }
+    }
+
+    fn canonicalize_function_input(&self, function_input: &FunctionInput, circuit_name: &Identifier) -> FunctionInput {
+        match function_input {
+            FunctionInput::SelfKeyword(self_keyword) => {
+                return FunctionInput::Variable(FunctionInputVariable {
+                    identifier: circuit_name.clone(),
+                    const_: false,
+                    mutable: false,
+                    type_: Type::Circuit(circuit_name.clone()),
+                    span: self_keyword.span.clone(),
+                });
+            }
+            FunctionInput::MutSelfKeyword(mut_self_keyword) => {
+                return FunctionInput::Variable(FunctionInputVariable {
+                    identifier: circuit_name.clone(),
+                    const_: false,
+                    mutable: true,
+                    type_: Type::Circuit(circuit_name.clone()),
+                    span: mut_self_keyword.span.clone(),
+                });
+            }
+            _ => {}
+        }
+
+        function_input.clone()
+    }
+
+    fn canonicalize_circuit_member(&self, circuit_member: &CircuitMember, circuit_name: &Identifier) -> CircuitMember {
+        match circuit_member {
+            CircuitMember::CircuitVariable(_, _) => {}
+            CircuitMember::CircuitFunction(function) => {
+                let mut input = function.input.clone();
+                let mut output = function.output.clone();
+
+                if self.is_self_keyword(&input) {
+                    input = input
+                        .iter()
+                        .map(|function_input| self.canonicalize_function_input(function_input, circuit_name))
+                        .collect();
+                }
+
+                if self.is_self_type(output.as_ref()) {
+                    output = Some(Type::Circuit(circuit_name.clone()));
+                }
+
+                return CircuitMember::CircuitFunction(Function {
+                    annotations: function.annotations.clone(),
+                    identifier: function.identifier.clone(),
+                    input,
+                    output,
+                    block: function.block.clone(),
+                    span: function.span.clone(),
+                });
+            }
+        }
+
+        circuit_member.clone()
     }
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    // TODO in reduce_circuit -> turn SelfKeyword and SelfType to Circuit Name
-    // and replace self with Circuit Name
+    fn reduce_circuit(
+        &mut self,
+        _: &Circuit,
+        circuit_name: Identifier,
+        members: Vec<CircuitMember>,
+    ) -> Option<Circuit> {
+        let new_circuit = Circuit {
+            circuit_name: circuit_name.clone(),
+            members: members
+                .iter()
+                .map(|member| self.canonicalize_circuit_member(member, &circuit_name))
+                .collect(),
+        };
+
+        Some(new_circuit)
+    }
+
+    // TODO make all self/Self outside of circuit error out
 }
