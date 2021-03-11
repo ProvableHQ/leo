@@ -30,9 +30,9 @@ use crate::{
     GroupType,
     Integer,
 };
-
 use leo_asg::{ConstInt, Type};
 use leo_ast::{InputValue, IntegerType, Span};
+
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
