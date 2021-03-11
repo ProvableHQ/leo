@@ -1,4 +1,12 @@
+// syntax 1
 [main]
+const parameters: [group; 256] = [1; 256];
+
+
+// syntax 2
+[const]
+parameters: [group; 256] = [1; 256];
+
 
 [registers]
 r0: group = (1, 0)group;

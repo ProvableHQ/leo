@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    arithmetic::{Add, Neg, Sub},
+    arithmetic::{Neg, Sub},
     errors::SignedIntegerError,
     Int128,
     Int16,
@@ -24,6 +24,7 @@ use crate::{
     Int8,
 };
 use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::arithmetic::Add;
 use snarkvm_r1cs::ConstraintSystem;
 
 macro_rules! sub_int_impl {
