@@ -16,7 +16,7 @@
 
 use leo_gadgets::{arithmetic::*, Int128, Int16, Int32, Int64, Int8};
 
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
+use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, arithmetic::Add};
 use snarkvm_r1cs::{ConstraintSystem, Fr, TestConstraintSystem};
 
 use rand::{Rng, SeedableRng};
