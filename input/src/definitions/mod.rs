@@ -16,6 +16,3 @@
 
 pub mod definition;
 pub use definition::*;
-
-pub mod const_;
-pub use const_::*;

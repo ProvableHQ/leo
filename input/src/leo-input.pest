@@ -210,19 +210,19 @@ registers = { "registers" }
 // Declared in sections/state.rs
 state = { "state" }
 
+// Declared in sections/constants.rs
+constants = { "constants" }
+
 // Declared in sections/state_leaf.rs
 state_leaf = { "state_leaf" }
 
 // Declared in sections/header.rs
-header = { main | record | registers | state_leaf | state | identifier }
+header = { main | constants | record | registers | state_leaf | state | identifier }
 
 /// Definitions
 
-// Declared in definition/const_modifier.rs
-const_ = { "const" }
-
 // Declared in definition/definition.rs
-definition = { const_? ~ parameter ~ "=" ~ expression ~ LINE_END }
+definition = {  parameter ~ "=" ~ expression ~ LINE_END }
 
 /// Table
 

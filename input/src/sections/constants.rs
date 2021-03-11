@@ -20,8 +20,8 @@ use pest::Span;
 use pest_ast::FromPest;
 
 #[derive(Clone, Debug, FromPest, PartialEq)]
-#[pest_ast(rule(Rule::const_))]
-pub struct Const<'ast> {
+#[pest_ast(rule(Rule::constants))]
+pub struct Constants<'ast> {
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }

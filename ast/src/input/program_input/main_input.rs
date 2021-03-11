@@ -56,18 +56,29 @@ impl MainInput {
         self.input.insert(key, value);
     }
 
+    pub fn insert_constant(&mut self, key: String, value: Option<InputValue>) {
+        self.constants.insert(key, value);
+    }
+
     /// Parses main input definitions and stores them in `self`.
     pub fn parse(&mut self, definitions: Vec<Definition>) -> Result<(), InputParserError> {
         for definition in definitions {
             let name = definition.parameter.variable.value;
-            let is_const = definition.const_.is_some();
             let value = InputValue::from_expression(definition.parameter.type_, definition.expression)?;
 
-            if is_const {
-                self.constants.insert(name, Some(value));
-            } else {
-                self.input.insert(name, Some(value));
-            }
+            self.insert(name, Some(value));
+        }
+
+        Ok(())
+    }
+
+    /// Parses constants input definitions and stores them in `self`.
+    pub fn parse_constants(&mut self, definitions: Vec<Definition>) -> Result<(), InputParserError> {
+        for definition in definitions {
+            let name = definition.parameter.variable.value;
+            let value = InputValue::from_expression(definition.parameter.type_, definition.expression)?;
+
+            self.insert_constant(name, Some(value));
         }
 
         Ok(())

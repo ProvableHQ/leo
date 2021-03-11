@@ -58,6 +58,7 @@ impl ProgramInput {
     /// Parse each input included in a file and store them in `self`.
     pub fn parse(&mut self, section: Section) -> Result<(), InputParserError> {
         match section.header {
+            Header::Constants(_constants) => self.main.parse_constants(section.definitions),
             Header::Main(_main) => self.main.parse(section.definitions),
             Header::Registers(_registers) => self.registers.parse(section.definitions),
             header => Err(InputParserError::input_section_header(header)),

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::Const;
 use crate::{ast::Rule, common::LineEnd, expressions::Expression, parameters::Parameter};
 
 use pest::Span;
@@ -23,17 +22,9 @@ use pest_ast::FromPest;
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::definition))]
 pub struct Definition<'ast> {
-    pub const_: Option<Const<'ast>>,
     pub parameter: Parameter<'ast>,
     pub expression: Expression<'ast>,
     pub line_end: LineEnd,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
-}
-
-impl<'ast> Definition<'ast> {
-    /// Check whether `const` keyword is placed before definition.
-    pub fn is_const(&self) -> bool {
-        self.const_.is_some()
-    }
 }
