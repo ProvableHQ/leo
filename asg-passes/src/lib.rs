@@ -14,9 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Program;
-pub use leo_ast::FormattedError;
-
-pub trait AsgPass<'a> {
-    fn do_pass(asg: &Program<'a>) -> Result<(), FormattedError>;
-}
+pub mod constant_folding;
+pub use constant_folding::*;

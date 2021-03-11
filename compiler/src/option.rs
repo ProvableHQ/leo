@@ -14,9 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Program;
-pub use leo_ast::FormattedError;
+#[derive(Clone)]
+pub struct CompilerOptions {
+    pub constant_folding_enabled: bool,
+}
 
-pub trait AsgPass<'a> {
-    fn do_pass(asg: &Program<'a>) -> Result<(), FormattedError>;
+impl Default for CompilerOptions {
+    fn default() -> Self {
+        CompilerOptions {
+            constant_folding_enabled: true,
+        }
+    }
 }

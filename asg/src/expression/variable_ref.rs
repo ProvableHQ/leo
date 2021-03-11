@@ -80,10 +80,14 @@ impl<'a> ExpressionNode<'a> for VariableRef<'a> {
 
                     value.get().const_value()
                 } else {
-                    for defined_variable in variables.iter() {
+                    for (i, defined_variable) in variables.iter().enumerate() {
                         let defined_variable = defined_variable.borrow();
                         if defined_variable.id == variable.id {
-                            return value.get().const_value();
+                            match value.get().const_value() {
+                                Some(ConstValue::Tuple(values)) => return values.get(i).cloned(),
+                                None => return None,
+                                _ => (),
+                            }
                         }
                     }
                     panic!("no corresponding tuple variable found during const destructuring (corrupt asg?)");

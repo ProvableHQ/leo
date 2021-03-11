@@ -19,13 +19,14 @@
 use crate::{
     constraints::{generate_constraints, generate_test_constraints},
     errors::CompilerError,
+    CompilerOptions,
     GroupType,
     OutputBytes,
     OutputFile,
 };
 use indexmap::IndexMap;
-use leo_asg::Asg;
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
+use leo_asg::{Asg, AsgPass, FormattedError};
 use leo_ast::{Input, LeoError, MainInput, Program};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
@@ -68,6 +69,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     context: AsgContext<'a>,
     asg: Option<Asg<'a>>,
     file_contents: RefCell<IndexMap<String, Rc<Vec<String>>>>,
+    options: CompilerOptions,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
 }
@@ -90,6 +92,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             program_input: Input::new(),
             asg: None,
             context,
+            options: CompilerOptions::default(),
             file_contents: RefCell::new(IndexMap::new()),
             _engine: PhantomData,
             _group: PhantomData,
@@ -114,6 +117,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         compiler.parse_program()?;
 
         Ok(compiler)
+    }
+
+    pub fn set_options(&mut self, options: CompilerOptions) {
+        self.options = options;
     }
 
     ///
@@ -251,10 +258,21 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         Ok(())
     }
 
+    fn do_asg_passes(&self) -> Result<(), FormattedError> {
+        assert!(self.asg.is_some());
+        if self.options.constant_folding_enabled {
+            leo_asg_passes::ConstantFolding::do_pass(self.asg.as_ref().unwrap().as_repr())?;
+        }
+
+        Ok(())
+    }
+
     ///
     /// Synthesizes the circuit with program input to verify correctness.
     ///
     pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
+        self.do_asg_passes().map_err(CompilerError::AsgPassError)?;
+
         generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input).map_err(|mut error| {
             if let Some(path) = error.get_path().map(|x| x.to_string()) {
                 let content = match self.resolve_content(&path) {
@@ -271,6 +289,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     /// Synthesizes the circuit for test functions with program input.
     ///
     pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
+        self.do_asg_passes().map_err(CompilerError::AsgPassError)?;
+
         generate_test_constraints::<F, G>(
             &self.asg.as_ref().unwrap(),
             input_pairs,
