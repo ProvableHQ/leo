@@ -14,35 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_fields::{Field, PrimeField};
-use snarkvm_gadgets::traits::utilities::uint::{UInt, UInt128, UInt16, UInt32, UInt64, UInt8};
-use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
+// use snarkvm_fields::{Field, PrimeField};
+// use snarkvm_gadgets::traits::utilities::uint::{UInt, UInt128, UInt16, UInt32, UInt64, UInt8};
+// use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
+//
+// /// Returns addition of `self` + `other` in the constraint system.
+// pub trait Add<F: Field, Rhs = Self>
+// where
+//     Self: std::marker::Sized,
+// {
+//     type ErrorType;
+//
+//     fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, Self::ErrorType>;
+// }
 
-/// Returns addition of `self` + `other` in the constraint system.
-pub trait Add<F: Field, Rhs = Self>
-where
-    Self: std::marker::Sized,
-{
-    type ErrorType;
-
-    fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Self, Self::ErrorType>;
-}
-
-// Implement unsigned integers
-macro_rules! add_uint_impl {
-    ($($gadget: ident),*) => ($(
-        impl<F: PrimeField> Add<F> for $gadget {
-            type ErrorType = SynthesisError;
-
-            fn add<CS: ConstraintSystem<F>>(
-                &self,
-                cs: CS,
-                other: &Self
-            ) -> Result<Self, Self::ErrorType> {
-                <$gadget as UInt>::addmany(cs, &[self.clone(), other.clone()])
-            }
-        }
-    )*)
-}
-
-add_uint_impl!(UInt8, UInt16, UInt32, UInt64, UInt128);
+// // Implement unsigned integers
+// macro_rules! add_uint_impl {
+//     ($($gadget: ident),*) => ($(
+//         impl<F: PrimeField> Add<F> for $gadget {
+//             type ErrorType = SynthesisError;
+//
+//             fn add<CS: ConstraintSystem<F>>(
+//                 &self,
+//                 cs: CS,
+//                 other: &Self
+//             ) -> Result<Self, Self::ErrorType> {
+//                 <$gadget as UInt>::addmany(cs, &[self.clone(), other.clone()])
+//             }
+//         }
+//     )*)
+// }
+//
+// add_uint_impl!(UInt8, UInt16, UInt32, UInt64, UInt128);

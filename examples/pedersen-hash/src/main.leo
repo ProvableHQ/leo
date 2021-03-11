@@ -17,10 +17,13 @@ circuit PedersenHash {
     }
 }
 
-// The 'pedersen-hash' main function.
-function main() -> group {
-    let parameters = [1group; 256];
+// syntax 1: const main function input
+function main(const parameters: [group; 256]) -> group {
     let pedersen = PedersenHash::new(parameters);
     let hash_input: [bool; 256] = [true; 256];
     return pedersen.hash(hash_input)
 }
+
+// syntax 2: main file global constant
+@parameter
+const parameters: [group; 256];
