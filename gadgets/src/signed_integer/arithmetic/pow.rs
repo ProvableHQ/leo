@@ -60,10 +60,10 @@ macro_rules! pow_int_impl {
                 )?;
 
                 for (i, bit) in other.bits.iter().rev().enumerate() {
-                    result = result.mul(cs.ns(|| format!("square_{}", i)), &result).unwrap();
+                    result = result.mul(cs.ns(|| format!("square_{}", i)), &result)?;
 
                     let mul_by_self = result
-                        .mul(cs.ns(|| format!("multiply_by_self_{}", i)), &self);
+                        .wrapping_mul(cs.ns(|| format!("multiply_by_self_{}", i)), &self);
 
                     result = Self::conditionally_select(
                         &mut cs.ns(|| format!("mul_by_self_or_result_{}", i)),
