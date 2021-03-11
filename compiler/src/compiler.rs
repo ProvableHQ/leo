@@ -172,7 +172,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
 
             e
         })?;
-
         self.program_input.parse_input(input_syntax_tree).map_err(|mut e| {
             e.set_path(
                 input_path.to_str().unwrap_or_default(),

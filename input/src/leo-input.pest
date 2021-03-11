@@ -218,8 +218,11 @@ header = { main | record | registers | state_leaf | state | identifier }
 
 /// Definitions
 
+// Declared in definition/const_modifier.rs
+const_ = { "const" }
+
 // Declared in definition/definition.rs
-definition = { parameter ~ "=" ~ expression ~ LINE_END }
+definition = { const_? ~ parameter ~ "=" ~ expression ~ LINE_END }
 
 /// Table
 

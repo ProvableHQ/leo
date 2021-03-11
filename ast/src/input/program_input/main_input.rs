@@ -22,6 +22,7 @@ use indexmap::IndexMap;
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct MainInput {
     input: IndexMap<String, Option<InputValue>>,
+    constants: IndexMap<String, Option<InputValue>>,
 }
 
 #[allow(clippy::len_without_is_empty)]
@@ -34,16 +35,21 @@ impl MainInput {
     /// Called during constraint synthesis to provide private input variables.
     pub fn empty(&self) -> Self {
         let mut input = self.input.clone();
+        let mut constants = self.constants.clone();
 
         input.iter_mut().for_each(|(_name, value)| {
             *value = None;
         });
 
-        Self { input }
+        constants.iter_mut().for_each(|(_name, value)| {
+            *value = None;
+        });
+
+        Self { input, constants }
     }
 
     pub fn len(&self) -> usize {
-        self.input.len()
+        self.input.len() + self.constants.len()
     }
 
     pub fn insert(&mut self, key: String, value: Option<InputValue>) {
@@ -54,16 +60,27 @@ impl MainInput {
     pub fn parse(&mut self, definitions: Vec<Definition>) -> Result<(), InputParserError> {
         for definition in definitions {
             let name = definition.parameter.variable.value;
+            let is_const = definition.const_.is_some();
             let value = InputValue::from_expression(definition.parameter.type_, definition.expression)?;
 
-            self.insert(name, Some(value));
+            if is_const {
+                self.constants.insert(name, Some(value));
+            } else {
+                self.input.insert(name, Some(value));
+            }
         }
 
         Ok(())
     }
 
-    /// Returns an `Option` of the main function input at `name`
-    pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
-        self.input.get(name).cloned()
+    /// Returns an `Option` of the main function input at `name`. As a second
+    /// value in a tuple returns flag whether input is defined as a constant in input file.
+    pub fn get(&self, name: &str) -> Option<(Option<InputValue>, bool)> {
+        // As we check key presence in IndexMap unwraps below can be considered secure.
+        match (self.input.contains_key(name), self.constants.contains_key(name)) {
+            (true, _) => Some((self.input.get(name).cloned().unwrap(), false)),
+            (_, true) => Some((self.constants.get(name).cloned().unwrap(), true)),
+            (_, _) => None,
+        }
     }
 }

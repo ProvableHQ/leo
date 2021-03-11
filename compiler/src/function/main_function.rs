@@ -61,16 +61,28 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             {
                 let input_variable = input_variable.get().borrow();
                 let name = input_variable.name.name.clone();
-                let input_option = input.get(&name).ok_or_else(|| {
+
+                let (input_option, is_const) = input.get(&name).ok_or_else(|| {
                     FunctionError::input_not_found(name.clone(), &function.span.clone().unwrap_or_default())
                 })?;
-                let input_value = self.allocate_main_function_input(
-                    cs,
-                    &input_variable.type_.clone(),
-                    &name,
-                    input_option,
-                    &function.span.clone().unwrap_or_default(),
-                )?;
+
+                let input_value = if is_const {
+                    self.parse_constant_main_function_input(
+                        cs,
+                        &input_variable.type_.clone(),
+                        &name,
+                        input_option,
+                        &function.span.clone().unwrap_or_default(),
+                    )?
+                } else {
+                    self.allocate_main_function_input(
+                        cs,
+                        &input_variable.type_.clone(),
+                        &name,
+                        input_option,
+                        &function.span.clone().unwrap_or_default(),
+                    )?
+                };
 
                 // Store a new variable for every allocated main function input
                 self.store(input_variable.id, input_value);

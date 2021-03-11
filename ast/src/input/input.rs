@@ -94,9 +94,10 @@ impl Input {
         Ok(())
     }
 
-    /// Returns the main function input value with the given `name`
+    /// Returns the main function input value with the given `name`, second parameter
+    /// is a boolean indicating whether parameter is const.
     #[allow(clippy::ptr_arg)]
-    pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
+    pub fn get(&self, name: &String) -> Option<(Option<InputValue>, bool)> {
         self.program_input.get(name)
     }
 
