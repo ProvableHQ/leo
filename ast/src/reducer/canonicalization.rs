@@ -280,6 +280,30 @@ impl ReconstructingReducer for Canonicalizer {
         }
     }
 
+    fn reduce_function(
+        &mut self,
+        function: &Function,
+        identifier: Identifier,
+        annotations: Vec<Annotation>,
+        input: Vec<FunctionInput>,
+        output: Option<Type>,
+        block: Block,
+    ) -> Function {
+        let new_output = match output {
+            None => Some(Type::Tuple(vec![])),
+            _ => output.clone(),
+        };
+
+        Function {
+            identifier,
+            annotations,
+            input,
+            output: new_output,
+            block,
+            span: function.span.clone(),
+        }
+    }
+
     // fn reduce_circuit(&mut self, _circuit: &Circuit, circuit_name: Identifier, members: Vec<CircuitMember>) -> Circuit {
     //     Circuit {
     //         circuit_name: circuit_name.clone(),
