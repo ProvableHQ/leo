@@ -222,7 +222,7 @@ header = { main | constants | record | registers | state_leaf | state | identifi
 /// Definitions
 
 // Declared in definition/definition.rs
-definition = {  parameter ~ "=" ~ expression ~ LINE_END }
+definition = { parameter ~ "=" ~ expression ~ LINE_END }
 
 /// Table
 

@@ -37,8 +37,6 @@ use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
-// use crate::value::{Address, ConstrainedValue, Integer};
-
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_main_function_input<CS: ConstraintSystem<F>>(
         &mut self,
