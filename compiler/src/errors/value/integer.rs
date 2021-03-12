@@ -15,9 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{FormattedError, IntegerType, LeoError, Span, Type};
-use leo_gadgets::errors::SignedIntegerError;
 
-use snarkvm_gadgets::errors::SignedIntegerError as SnarkVMSignedIntegerError;
+use snarkvm_gadgets::errors::SignedIntegerError;
 use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
@@ -64,15 +63,6 @@ impl IntegerError {
         let message = format!(
             "the integer operation `{}` failed due to the signed integer error `{:?}`",
             operation, error
-        );
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn snarkvm_error(error: SnarkVMSignedIntegerError, span: &Span) -> Self {
-        let message = format!(
-            "the integer operation failed due to the signed integer error `{:?}`",
-            error
         );
 
         Self::new_from_span(message, span)

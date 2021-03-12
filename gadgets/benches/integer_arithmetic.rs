@@ -14,12 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_gadgets::{Int128, Int16, Int32, Int64};
-
 use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
     arithmetic::{Add, Div, Mul, Sub},
-    int::Int8,
+    int::{Int128, Int16, Int32, Int64, Int8},
 };
 use snarkvm_r1cs::{ConstraintSystem, Fr, TestConstraintSystem};
 
@@ -29,6 +27,7 @@ use std::i128;
 
 use criterion::{criterion_group, criterion_main, Criterion};
 
+// TODO: move these benchmarks to snarkvm?
 macro_rules! create_add_bench {
     ($bench_name:ident, $bench_id:expr, $foo_name:ident, $std_type:ty, $bit_type:ty) => {
         fn $bench_name(c: &mut Criterion) {

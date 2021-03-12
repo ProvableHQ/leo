@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#[macro_use]
-extern crate thiserror;
+// #[macro_use]
+// extern crate thiserror;
 
-pub mod bits;
+// pub mod bits;
 
-pub mod errors;
+// pub mod errors;
 
-pub mod signed_integer;
-pub use self::signed_integer::*;
+// pub mod signed_integer;
+// pub use self::signed_integer::*;

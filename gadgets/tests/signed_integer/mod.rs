@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod i128;
-pub mod i16;
-pub mod i32;
-pub mod i64;
+// Todo: move these tests to snarkvm.
+// pub mod i128;
+// pub mod i16;
+// pub mod i32;
+// pub mod i64;
 // pub mod i8;
