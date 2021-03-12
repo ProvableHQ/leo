@@ -15,43 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
-use indexmap::IndexMap;
+// use indexmap::IndexMap;
 
 pub struct Canonicalizer;
 
 impl Canonicalizer {
-    fn _is_self(&self, identifier: &Identifier) -> bool {
-        matches!(identifier.name.as_str(), "Self")
-    }
-
     fn is_self_type(&self, type_option: Option<&Type>) -> bool {
         matches!(type_option, Some(Type::SelfType))
-    }
-
-    fn _canonicalize_function_input(&self, function_input: &FunctionInput, circuit_name: &Identifier) -> FunctionInput {
-        match function_input {
-            FunctionInput::SelfKeyword(self_keyword) => {
-                return FunctionInput::Variable(FunctionInputVariable {
-                    identifier: circuit_name.clone(),
-                    const_: false,
-                    mutable: false,
-                    type_: Type::Circuit(circuit_name.clone()),
-                    span: self_keyword.span.clone(),
-                });
-            }
-            FunctionInput::MutSelfKeyword(mut_self_keyword) => {
-                return FunctionInput::Variable(FunctionInputVariable {
-                    identifier: circuit_name.clone(),
-                    const_: false,
-                    mutable: true,
-                    type_: Type::Circuit(circuit_name.clone()),
-                    span: mut_self_keyword.span.clone(),
-                });
-            }
-            _ => {}
-        }
-
-        function_input.clone()
     }
 
     fn canonicalize_expression(&self, expression: &Expression, circuit_name: &Identifier) -> Expression {
@@ -173,11 +143,15 @@ impl Canonicalizer {
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    fn reduce_type(&mut self, _type_: &Type, new: Type) -> Type {
+    fn reduce_type(&mut self, _type_: &Type, new: Type, in_circuit: bool) -> Type {
         match new {
             Type::Array(_, mut dimensions) => {
                 // TODO need to throw errors in all these.
                 // Throw error if dimensions is empty.
+                // if array_init.dimensions.0.len() == 0 {
+
+                // }
+
                 let mut next = Type::Array(
                     Box::new(Type::Group),
                     ArrayDimensions(vec![dimensions.remove_last().unwrap()]),
@@ -194,12 +168,20 @@ impl ReconstructingReducer for Canonicalizer {
 
                 array
             }
+            Type::SelfType if !in_circuit => {
+                println!("Brrr bad Self");
+                new.clone()
+            }
             _ => new.clone(),
         }
     }
 
     fn reduce_array_init(&mut self, array_init: &ArrayInitExpression, element: Expression) -> ArrayInitExpression {
         // TODO ERROR HERE if len is 0
+        // if array_init.dimensions.0.len() == 0 {
+
+        // }
+
         let element = Box::new(element);
 
         if array_init.dimensions.0.len() == 1 {
@@ -288,10 +270,11 @@ impl ReconstructingReducer for Canonicalizer {
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
+        _in_circuit: bool,
     ) -> Function {
         let new_output = match output {
             None => Some(Type::Tuple(vec![])),
-            _ => output.clone(),
+            _ => output,
         };
 
         Function {
@@ -304,13 +287,13 @@ impl ReconstructingReducer for Canonicalizer {
         }
     }
 
-    // fn reduce_circuit(&mut self, _circuit: &Circuit, circuit_name: Identifier, members: Vec<CircuitMember>) -> Circuit {
-    //     Circuit {
-    //         circuit_name: circuit_name.clone(),
-    //         members: members
-    //             .iter()
-    //             .map(|member| self.canonicalize_circuit_member(member, &circuit_name))
-    //             .collect(),
-    //     }
-    // }
+    fn reduce_circuit(&mut self, _circuit: &Circuit, circuit_name: Identifier, members: Vec<CircuitMember>) -> Circuit {
+        Circuit {
+            circuit_name: circuit_name.clone(),
+            members: members
+                .iter()
+                .map(|member| self.canonicalize_circuit_member(member, &circuit_name))
+                .collect(),
+        }
+    }
 }

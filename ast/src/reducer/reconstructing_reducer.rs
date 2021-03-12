@@ -20,7 +20,7 @@ use indexmap::IndexMap;
 // Needed to fix clippy bug.
 #[allow(clippy::redundant_closure)]
 pub trait ReconstructingReducer {
-    fn reduce_type(&mut self, _type_: &Type, new: Type) -> Type {
+    fn reduce_type(&mut self, _type_: &Type, new: Type, _in_circuit: bool) -> Type {
         new
     }
 
@@ -221,7 +221,7 @@ pub trait ReconstructingReducer {
     }
 
     // Statements
-    fn reduce_statement(&mut self, _statement: &Statement, new: Statement) -> Statement {
+    fn reduce_statement(&mut self, _statement: &Statement, new: Statement, _in_circuit: bool) -> Statement {
         new
     }
 
@@ -246,6 +246,7 @@ pub trait ReconstructingReducer {
         variable_names: Vec<VariableName>,
         type_: Option<Type>,
         value: Expression,
+        _in_circuit: bool,
     ) -> DefinitionStatement {
         DefinitionStatement {
             declaration_type: definition.declaration_type.clone(),
@@ -288,6 +289,7 @@ pub trait ReconstructingReducer {
         condition: Expression,
         block: Block,
         statement: Option<Statement>,
+        _in_circuit: bool,
     ) -> ConditionalStatement {
         ConditionalStatement {
             condition,
@@ -304,6 +306,7 @@ pub trait ReconstructingReducer {
         start: Expression,
         stop: Expression,
         block: Block,
+        _in_circuit: bool,
     ) -> IterationStatement {
         IterationStatement {
             variable,
@@ -332,7 +335,7 @@ pub trait ReconstructingReducer {
         }
     }
 
-    fn reduce_block(&mut self, block: &Block, statements: Vec<Statement>) -> Block {
+    fn reduce_block(&mut self, block: &Block, statements: Vec<Statement>, _in_circuit: bool) -> Block {
         Block {
             statements,
             span: block.span.clone(),
@@ -362,6 +365,7 @@ pub trait ReconstructingReducer {
         variable: &FunctionInputVariable,
         identifier: Identifier,
         type_: Type,
+        _in_circuit: bool,
     ) -> FunctionInputVariable {
         FunctionInputVariable {
             identifier,
@@ -372,7 +376,12 @@ pub trait ReconstructingReducer {
         }
     }
 
-    fn reduce_function_input(&mut self, _input: &FunctionInput, new: FunctionInput) -> FunctionInput {
+    fn reduce_function_input(
+        &mut self,
+        _input: &FunctionInput,
+        new: FunctionInput,
+        _in_circuit: bool,
+    ) -> FunctionInput {
         new
     }
 
@@ -407,6 +416,7 @@ pub trait ReconstructingReducer {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn reduce_function(
         &mut self,
         function: &Function,
@@ -415,6 +425,7 @@ pub trait ReconstructingReducer {
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
+        _in_circuit: bool,
     ) -> Function {
         Function {
             identifier,

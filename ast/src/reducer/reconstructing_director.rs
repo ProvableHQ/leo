@@ -28,16 +28,18 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         Self { reducer }
     }
 
-    pub fn reduce_type(&mut self, type_: &Type) -> Type {
+    pub fn reduce_type(&mut self, type_: &Type, in_circuit: bool) -> Type {
         let new = match type_ {
             // Data type wrappers
-            Type::Array(type_, dimensions) => Type::Array(Box::new(self.reduce_type(type_)), dimensions.clone()),
-            Type::Tuple(types) => Type::Tuple(types.iter().map(|type_| self.reduce_type(type_)).collect()),
+            Type::Array(type_, dimensions) => {
+                Type::Array(Box::new(self.reduce_type(type_, in_circuit)), dimensions.clone())
+            }
+            Type::Tuple(types) => Type::Tuple(types.iter().map(|type_| self.reduce_type(type_, in_circuit)).collect()),
             Type::Circuit(identifier) => Type::Circuit(self.reduce_identifier(identifier)),
             _ => type_.clone(),
         };
 
-        self.reducer.reduce_type(type_, new)
+        self.reducer.reduce_type(type_, new, in_circuit)
     }
 
     // Expressions
@@ -240,19 +242,21 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     // Statements
-    pub fn reduce_statement(&mut self, statement: &Statement) -> Statement {
+    pub fn reduce_statement(&mut self, statement: &Statement, in_circuit: bool) -> Statement {
         let new = match statement {
             Statement::Return(return_statement) => Statement::Return(self.reduce_return(&return_statement)),
-            Statement::Definition(definition) => Statement::Definition(self.reduce_definition(&definition)),
+            Statement::Definition(definition) => Statement::Definition(self.reduce_definition(&definition, in_circuit)),
             Statement::Assign(assign) => Statement::Assign(self.reduce_assign(&assign)),
-            Statement::Conditional(conditional) => Statement::Conditional(self.reduce_conditional(&conditional)),
-            Statement::Iteration(iteration) => Statement::Iteration(self.reduce_iteration(&iteration)),
+            Statement::Conditional(conditional) => {
+                Statement::Conditional(self.reduce_conditional(&conditional, in_circuit))
+            }
+            Statement::Iteration(iteration) => Statement::Iteration(self.reduce_iteration(&iteration, in_circuit)),
             Statement::Console(console) => Statement::Console(self.reduce_console(&console)),
             Statement::Expression(expression) => Statement::Expression(self.reduce_expression_statement(&expression)),
-            Statement::Block(block) => Statement::Block(self.reduce_block(&block)),
+            Statement::Block(block) => Statement::Block(self.reduce_block(&block, in_circuit)),
         };
 
-        self.reducer.reduce_statement(statement, new)
+        self.reducer.reduce_statement(statement, new, in_circuit)
     }
 
     pub fn reduce_return(&mut self, return_statement: &ReturnStatement) -> ReturnStatement {
@@ -267,16 +271,20 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_variable_name(variable_name, identifier)
     }
 
-    pub fn reduce_definition(&mut self, definition: &DefinitionStatement) -> DefinitionStatement {
+    pub fn reduce_definition(&mut self, definition: &DefinitionStatement, in_circuit: bool) -> DefinitionStatement {
         let variable_names = definition
             .variable_names
             .iter()
             .map(|variable_name| self.reduce_variable_name(variable_name))
             .collect();
-        let type_ = definition.type_.as_ref().map(|inner| self.reduce_type(inner));
+        let type_ = definition
+            .type_
+            .as_ref()
+            .map(|inner| self.reduce_type(inner, in_circuit));
         let value = self.reduce_expression(&definition.value);
 
-        self.reducer.reduce_definition(definition, variable_names, type_, value)
+        self.reducer
+            .reduce_definition(definition, variable_names, type_, value, in_circuit)
     }
 
     pub fn reduce_assignee_access(&mut self, access: &AssigneeAccess) -> AssigneeAccess {
@@ -311,24 +319,26 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_assign(assign, assignee, value)
     }
 
-    pub fn reduce_conditional(&mut self, conditional: &ConditionalStatement) -> ConditionalStatement {
+    pub fn reduce_conditional(&mut self, conditional: &ConditionalStatement, in_circuit: bool) -> ConditionalStatement {
         let condition = self.reduce_expression(&conditional.condition);
-        let block = self.reduce_block(&conditional.block);
+        let block = self.reduce_block(&conditional.block, in_circuit);
         let next = conditional
             .next
             .as_ref()
-            .map(|condition| self.reduce_statement(condition));
+            .map(|condition| self.reduce_statement(condition, in_circuit));
 
-        self.reducer.reduce_conditional(conditional, condition, block, next)
+        self.reducer
+            .reduce_conditional(conditional, condition, block, next, in_circuit)
     }
 
-    pub fn reduce_iteration(&mut self, iteration: &IterationStatement) -> IterationStatement {
+    pub fn reduce_iteration(&mut self, iteration: &IterationStatement, in_circuit: bool) -> IterationStatement {
         let variable = self.reduce_identifier(&iteration.variable);
         let start = self.reduce_expression(&iteration.start);
         let stop = self.reduce_expression(&iteration.stop);
-        let block = self.reduce_block(&iteration.block);
+        let block = self.reduce_block(&iteration.block, in_circuit);
 
-        self.reducer.reduce_iteration(iteration, variable, start, stop, block)
+        self.reducer
+            .reduce_iteration(iteration, variable, start, stop, block, in_circuit)
     }
 
     pub fn reduce_console(&mut self, console_function_call: &ConsoleStatement) -> ConsoleStatement {
@@ -361,14 +371,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_expression_statement(expression, inner_expression)
     }
 
-    pub fn reduce_block(&mut self, block: &Block) -> Block {
+    pub fn reduce_block(&mut self, block: &Block, in_circuit: bool) -> Block {
         let statements = block
             .statements
             .iter()
-            .map(|statement| self.reduce_statement(statement))
+            .map(|statement| self.reduce_statement(statement, in_circuit))
             .collect();
 
-        self.reducer.reduce_block(block, statements)
+        self.reducer.reduce_block(block, statements, in_circuit)
     }
 
     // Program
@@ -376,7 +386,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let inputs = program
             .expected_input
             .iter()
-            .map(|input| self.reduce_function_input(input))
+            .map(|input| self.reduce_function_input(input, false))
             .collect();
         let imports = program
             .imports
@@ -391,29 +401,39 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let functions = program
             .functions
             .iter()
-            .map(|(identifier, function)| (self.reduce_identifier(identifier), self.reduce_function(function)))
+            .map(|(identifier, function)| {
+                (
+                    self.reduce_identifier(identifier),
+                    self.reduce_function(function, false),
+                )
+            })
             .collect();
 
         self.reducer
             .reduce_program(program, inputs, imports, circuits, functions)
     }
 
-    pub fn reduce_function_input_variable(&mut self, variable: &FunctionInputVariable) -> FunctionInputVariable {
+    pub fn reduce_function_input_variable(
+        &mut self,
+        variable: &FunctionInputVariable,
+        in_circuit: bool,
+    ) -> FunctionInputVariable {
         let identifier = self.reduce_identifier(&variable.identifier);
-        let type_ = self.reduce_type(&variable.type_);
+        let type_ = self.reduce_type(&variable.type_, in_circuit);
 
-        self.reducer.reduce_function_input_variable(variable, identifier, type_)
+        self.reducer
+            .reduce_function_input_variable(variable, identifier, type_, in_circuit)
     }
 
-    pub fn reduce_function_input(&mut self, input: &FunctionInput) -> FunctionInput {
+    pub fn reduce_function_input(&mut self, input: &FunctionInput, in_circuit: bool) -> FunctionInput {
         let new = match input {
             FunctionInput::Variable(function_input_variable) => {
-                FunctionInput::Variable(self.reduce_function_input_variable(function_input_variable))
+                FunctionInput::Variable(self.reduce_function_input_variable(function_input_variable, in_circuit))
             }
             _ => input.clone(),
         };
 
-        self.reducer.reduce_function_input(input, new)
+        self.reducer.reduce_function_input(input, new, in_circuit)
     }
 
     pub fn reduce_package_or_packages(&mut self, package_or_packages: &PackageOrPackages) -> PackageOrPackages {
@@ -442,9 +462,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> CircuitMember {
         let new = match circuit_member {
             CircuitMember::CircuitVariable(identifier, type_) => {
-                CircuitMember::CircuitVariable(self.reduce_identifier(&identifier), self.reduce_type(&type_))
+                CircuitMember::CircuitVariable(self.reduce_identifier(&identifier), self.reduce_type(&type_, true))
             }
-            CircuitMember::CircuitFunction(function) => CircuitMember::CircuitFunction(self.reduce_function(&function)),
+            CircuitMember::CircuitFunction(function) => {
+                CircuitMember::CircuitFunction(self.reduce_function(&function, true))
+            }
         };
 
         self.reducer.reduce_circuit_member(circuit_member, new)
@@ -467,7 +489,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_annotation(annotation, name)
     }
 
-    pub fn reduce_function(&mut self, function: &Function) -> Function {
+    pub fn reduce_function(&mut self, function: &Function, in_circuit: bool) -> Function {
         let identifier = self.reduce_identifier(&function.identifier);
         let annotations = function
             .annotations
@@ -477,12 +499,15 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let input = function
             .input
             .iter()
-            .map(|input| self.reduce_function_input(input))
+            .map(|input| self.reduce_function_input(input, false))
             .collect();
-        let output = function.output.as_ref().map(|output| self.reduce_type(output));
-        let block = self.reduce_block(&function.block);
+        let output = function
+            .output
+            .as_ref()
+            .map(|output| self.reduce_type(output, in_circuit));
+        let block = self.reduce_block(&function.block, false);
 
         self.reducer
-            .reduce_function(function, identifier, annotations, input, output, block)
+            .reduce_function(function, identifier, annotations, input, output, block, in_circuit)
     }
 }
