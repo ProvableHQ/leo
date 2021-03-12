@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    arithmetic::{Div, Neg, Sub},
+    arithmetic::{Neg, Sub},
     bits::ComparatorGadget,
     errors::SignedIntegerError,
     Int,
@@ -28,7 +28,7 @@ use crate::{
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
-    arithmetic::Add,
+    arithmetic::{Add, Div},
     boolean::{AllocatedBit, Boolean},
     eq::EvaluateEqGadget,
     select::CondSelectGadget,
