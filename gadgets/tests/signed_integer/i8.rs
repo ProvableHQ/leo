@@ -19,7 +19,7 @@ use leo_gadgets::{arithmetic::*, Int8};
 use snarkvm_fields::{One, Zero};
 use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
-    arithmetic::{Add, Div, Mul, Neg, Pow},
+    arithmetic::{Add, Div, Mul, Neg, Pow, Sub},
     boolean::Boolean,
 };
 use snarkvm_r1cs::{ConstraintSystem, Fr, TestConstraintSystem};

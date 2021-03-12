@@ -17,7 +17,7 @@
 #[macro_use]
 extern crate thiserror;
 
-pub mod arithmetic;
+// pub mod arithmetic;
 
 pub mod bits;
 
