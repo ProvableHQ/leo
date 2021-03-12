@@ -21,5 +21,5 @@ pub use self::adder::*;
 pub mod rca;
 pub use self::rca::*;
 
-pub mod sign_extend;
-pub use self::sign_extend::*;
+// pub mod sign_extend;
+// pub use self::sign_extend::*;
