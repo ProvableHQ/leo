@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::SignedIntegerError, Int128, Int16, Int32, Int64, Int8};
+use crate::{errors::SignedIntegerError, Int128, Int16, Int32, Int64};
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::arithmetic::{Add, Neg, Sub};
 use snarkvm_r1cs::ConstraintSystem;
@@ -35,4 +35,4 @@ macro_rules! sub_int_impl {
     )*)
 }
 
-sub_int_impl!(Int8 Int16 Int32 Int64 Int128);
+sub_int_impl!(Int16 Int32 Int64 Int128);

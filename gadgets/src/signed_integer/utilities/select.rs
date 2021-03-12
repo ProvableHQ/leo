@@ -73,4 +73,4 @@ macro_rules! select_int_impl {
     )*)
 }
 
-select_int_impl!(Int8 Int16 Int32 Int64 Int128);
+select_int_impl!(Int16 Int32 Int64 Int128);

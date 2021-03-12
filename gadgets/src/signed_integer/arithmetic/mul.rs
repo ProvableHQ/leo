@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{bits::RippleCarryAdder, errors::SignedIntegerError, Int, Int128, Int16, Int32, Int64, Int8};
+use crate::{bits::RippleCarryAdder, errors::SignedIntegerError, Int, Int128, Int16, Int32, Int64};
 use snarkvm_fields::{FpParameters, PrimeField};
 use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
@@ -208,4 +208,4 @@ macro_rules! mul_int_impl {
     )*)
 }
 
-mul_int_impl!(Int8 Int16 Int32 Int64 Int128);
+mul_int_impl!(Int16 Int32 Int64 Int128);

@@ -27,6 +27,7 @@ use snarkvm_gadgets::traits::utilities::{
     bits::comparator::{ComparatorGadget, EvaluateLtGadget},
     boolean::Boolean,
     eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+    int::Int8,
     select::CondSelectGadget,
     uint::*,
 };

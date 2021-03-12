@@ -16,6 +16,8 @@
 
 use leo_ast::{FormattedError, IntegerType, LeoError, Span, Type};
 use leo_gadgets::errors::SignedIntegerError;
+
+use snarkvm_gadgets::errors::SignedIntegerError as SnarkVMSignedIntegerError;
 use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
@@ -53,13 +55,7 @@ impl IntegerError {
     }
 
     pub fn signed(error: SignedIntegerError, span: &Span) -> Self {
-        let message = format!("integer operation failed due to the signed integer error `{:?}`", error,);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn synthesis(error: SynthesisError, span: &Span) -> Self {
-        let message = format!("integer operation failed due to the synthesis error `{}`", error,);
+        let message = format!("integer operation failed due to the signed integer error `{:?}`", error);
 
         Self::new_from_span(message, span)
     }
@@ -69,6 +65,21 @@ impl IntegerError {
             "the integer operation `{}` failed due to the signed integer error `{:?}`",
             operation, error
         );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn snarkvm_error(error: SnarkVMSignedIntegerError, span: &Span) -> Self {
+        let message = format!(
+            "the integer operation failed due to the signed integer error `{:?}`",
+            error
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn synthesis(error: SynthesisError, span: &Span) -> Self {
+        let message = format!("integer operation failed due to the synthesis error `{}`", error);
 
         Self::new_from_span(message, span)
     }

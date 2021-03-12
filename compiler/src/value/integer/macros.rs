@@ -18,6 +18,7 @@ use leo_gadgets::signed_integer::*;
 
 use snarkvm_gadgets::traits::utilities::{
     boolean::Boolean,
+    int::Int8,
     uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
 };
 use std::fmt::Debug;
@@ -84,7 +85,9 @@ macro_rules! match_unsigned_integer {
 macro_rules! match_signed_integer {
     ($integer: ident, $span: ident => $expression: expr) => {
         match $integer {
-            Integer::I8($integer) => Some(Integer::I8($expression.map_err(|e| IntegerError::signed(e, $span))?)),
+            Integer::I8($integer) => Some(Integer::I8(
+                $expression.map_err(|e| IntegerError::snarkvm_error(e, $span))?,
+            )),
             Integer::I16($integer) => Some(Integer::I16($expression.map_err(|e| IntegerError::signed(e, $span))?)),
             Integer::I32($integer) => Some(Integer::I32($expression.map_err(|e| IntegerError::signed(e, $span))?)),
             Integer::I64($integer) => Some(Integer::I64($expression.map_err(|e| IntegerError::signed(e, $span))?)),
@@ -135,9 +138,9 @@ macro_rules! match_integers_span {
                 $expression.map_err(|e| IntegerError::synthesis(e, $span))?,
             )),
 
-            (Integer::I8($a), Integer::I8($b)) => {
-                Some(Integer::I8($expression.map_err(|e| IntegerError::signed(e, $span))?))
-            }
+            (Integer::I8($a), Integer::I8($b)) => Some(Integer::I8(
+                $expression.map_err(|e| IntegerError::snarkvm_error(e, $span))?,
+            )),
             (Integer::I16($a), Integer::I16($b)) => {
                 Some(Integer::I16($expression.map_err(|e| IntegerError::signed(e, $span))?))
             }

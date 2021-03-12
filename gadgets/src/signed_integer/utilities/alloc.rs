@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Int, Int128, Int16, Int32, Int64, Int8};
+use crate::{Int, Int128, Int16, Int32, Int64};
 
 use core::{borrow::Borrow, iter};
 use snarkvm_fields::Field;
@@ -107,4 +107,4 @@ macro_rules! alloc_int_impl {
     )*)
 }
 
-alloc_int_impl!(Int8 Int16 Int32 Int64 Int128);
+alloc_int_impl!(Int16 Int32 Int64 Int128);

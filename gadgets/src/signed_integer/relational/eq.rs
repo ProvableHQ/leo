@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Int, Int128, Int16, Int32, Int64, Int8};
+use crate::{Int, Int128, Int16, Int32, Int64};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::{boolean::Boolean, eq::EvaluateEqGadget};
@@ -57,4 +57,4 @@ macro_rules! eq_gadget_impl {
     )*)
 }
 
-eq_gadget_impl!(Int8 Int16 Int32 Int64 Int128);
+eq_gadget_impl!(Int16 Int32 Int64 Int128);
