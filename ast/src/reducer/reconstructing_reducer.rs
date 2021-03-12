@@ -18,7 +18,7 @@ use crate::*;
 use indexmap::IndexMap;
 
 // Needed to fix clippy bug.
-#[allow(clippy::redudant_closure)]
+#[allow(clippy::redundant_closure)]
 pub trait ReconstructingReducer {
     fn reduce_type(&mut self, _type_: &Type, new: Type) -> Type {
         new
@@ -259,7 +259,7 @@ pub trait ReconstructingReducer {
         span: Span,
     ) -> VariableName {
         VariableName {
-            mutable: variable_name.mutable.clone(),
+            mutable: variable_name.mutable,
             identifier,
             span,
         }
@@ -398,7 +398,7 @@ pub trait ReconstructingReducer {
     ) -> FunctionInputVariable {
         FunctionInputVariable {
             identifier,
-            const_: variable.const_.clone(),
+            const_: variable.const_,
             mutable: variable.mutable,
             type_,
             span,
