@@ -239,6 +239,47 @@ impl ReconstructingReducer for Canonicalizer {
         }
     }
 
+    fn reduce_assign(&mut self, assign: &AssignStatement, assignee: Assignee, value: Expression) -> AssignStatement {
+        match value {
+            Expression::Value(value) => {
+                let left = Box::new(Expression::Identifier(assignee.identifier.clone()));
+                let right = Box::new(Expression::Value(value));
+                let op = match assign.operation {
+                    AssignOperation::Assign => BinaryOperation::Eq,
+                    AssignOperation::Add => BinaryOperation::Add,
+                    AssignOperation::Sub => BinaryOperation::Sub,
+                    AssignOperation::Mul => BinaryOperation::Mul,
+                    AssignOperation::Div => BinaryOperation::Div,
+                    AssignOperation::Pow => BinaryOperation::Pow,
+                    AssignOperation::Or => BinaryOperation::Or,
+                    AssignOperation::And => BinaryOperation::And,
+                    AssignOperation::BitOr => BinaryOperation::BitOr,
+                    AssignOperation::BitAnd => BinaryOperation::BitAnd,
+                    AssignOperation::BitXor => BinaryOperation::BitXor,
+                    AssignOperation::Shr => BinaryOperation::Shr,
+                    AssignOperation::ShrSigned => BinaryOperation::ShrSigned,
+                    AssignOperation::Shl => BinaryOperation::Shl,
+                    AssignOperation::Mod => BinaryOperation::Mod,
+                };
+
+                let value = Expression::Binary(BinaryExpression {
+                    left,
+                    right,
+                    op,
+                    span: assign.span.clone(),
+                });
+
+                AssignStatement {
+                    operation: assign.operation.clone(),
+                    assignee,
+                    value,
+                    span: assign.span.clone(),
+                }
+            }
+            _ => assign.clone(),
+        }
+    }
+
     // fn reduce_circuit(&mut self, _circuit: &Circuit, circuit_name: Identifier, members: Vec<CircuitMember>) -> Circuit {
     //     Circuit {
     //         circuit_name: circuit_name.clone(),
