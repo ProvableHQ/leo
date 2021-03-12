@@ -17,49 +17,7 @@
 //! This module contains the reducer which iterates through ast nodes - converting them into
 //! asg nodes and saving relevant information.
 
-use crate::{
-    ArrayAccessExpression,
-    ArrayInitExpression,
-    ArrayInlineExpression,
-    ArrayRangeAccessExpression,
-    AssignStatement,
-    Assignee,
-    AssigneeAccess,
-    BinaryExpression,
-    Block,
-    CallExpression,
-    Circuit,
-    CircuitImpliedVariableDefinition,
-    CircuitInitExpression,
-    CircuitMember,
-    CircuitMemberAccessExpression,
-    CircuitStaticFunctionAccessExpression,
-    ConditionalStatement,
-    ConsoleFunction,
-    ConsoleStatement,
-    DefinitionStatement,
-    Expression,
-    ExpressionStatement,
-    FormattedString,
-    Function,
-    FunctionInput,
-    FunctionInputVariable,
-    Identifier,
-    ImportStatement,
-    IterationStatement,
-    PackageOrPackages,
-    Program,
-    ReconstructingReducer,
-    ReturnStatement,
-    SpreadOrExpression,
-    Statement,
-    TernaryExpression,
-    TupleAccessExpression,
-    TupleInitExpression,
-    Type,
-    UnaryExpression,
-    VariableName,
-};
+use crate::*;
 
 pub struct ReconstructingDirector<R: ReconstructingReducer> {
     reducer: R,
@@ -70,430 +28,496 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         Self { reducer }
     }
 
+    pub fn reduce_type(&mut self, type_: &Type) -> Type {
+        let new = match type_ {
+            // Data type wrappers
+            Type::Array(type_, dimensions) => Type::Array(Box::new(self.reduce_type(type_)), dimensions.clone()),
+            Type::Tuple(types) => Type::Tuple(types.iter().map(|type_| self.reduce_type(type_)).collect()),
+            Type::Circuit(identifier) => Type::Circuit(self.reduce_identifier(identifier)),
+            _ => type_.clone(),
+        };
+
+        self.reducer.reduce_type(type_, new)
+    }
+
+    // Expressions
+    pub fn reduce_expression(&mut self, expression: &Expression) -> Expression {
+        let new = match expression {
+            Expression::Identifier(identifier) => Expression::Identifier(self.reduce_identifier(&identifier)),
+            Expression::Value(value) => Expression::Value(self.reduce_value(&value)),
+            Expression::Binary(binary) => Expression::Binary(self.reduce_binary(&binary)),
+            Expression::Unary(unary) => Expression::Unary(self.reduce_unary(&unary)),
+            Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(&ternary)),
+            Expression::Cast(cast) => Expression::Cast(self.reduce_cast(&cast)),
+
+            Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(&array_inline)),
+            Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(&array_init)),
+            Expression::ArrayAccess(array_access) => Expression::ArrayAccess(self.reduce_array_access(&array_access)),
+            Expression::ArrayRangeAccess(array_range_access) => {
+                Expression::ArrayRangeAccess(self.reduce_array_range_access(&array_range_access))
+            }
+
+            Expression::TupleInit(tuple_init) => Expression::TupleInit(self.reduce_tuple_init(&tuple_init)),
+            Expression::TupleAccess(tuple_access) => Expression::TupleAccess(self.reduce_tuple_access(&tuple_access)),
+
+            Expression::CircuitInit(circuit_init) => Expression::CircuitInit(self.reduce_circuit_init(&circuit_init)),
+            Expression::CircuitMemberAccess(circuit_member_access) => {
+                Expression::CircuitMemberAccess(self.reduce_circuit_member_access(&circuit_member_access))
+            }
+            Expression::CircuitStaticFunctionAccess(circuit_static_fn_access) => {
+                Expression::CircuitStaticFunctionAccess(self.reduce_circuit_static_fn_access(&circuit_static_fn_access))
+            }
+
+            Expression::Call(call) => Expression::Call(self.reduce_call(&call)),
+        };
+
+        self.reducer.reduce_expression(expression, new)
+    }
+
+    pub fn reduce_identifier(&mut self, identifier: &Identifier) -> Identifier {
+        self.reducer.reduce_identifier(identifier, identifier.span.clone())
+    }
+
+    pub fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> GroupTuple {
+        self.reducer.reduce_group_tuple(group_tuple, group_tuple.span.clone())
+    }
+
+    pub fn reduce_group_value(&mut self, group_value: &GroupValue) -> GroupValue {
+        let new = match group_value {
+            GroupValue::Tuple(group_tuple) => GroupValue::Tuple(self.reduce_group_tuple(&group_tuple)),
+            _ => group_value.clone(),
+        };
+
+        self.reducer.reduce_group_value(group_value, new)
+    }
+
+    pub fn reduce_value(&mut self, value: &ValueExpression) -> ValueExpression {
+        let new = match value {
+            ValueExpression::Group(group_value) => {
+                ValueExpression::Group(Box::new(self.reduce_group_value(&group_value)))
+            }
+            _ => value.clone(),
+        };
+
+        self.reducer.reduce_value(value, new)
+    }
+
+    pub fn reduce_binary(&mut self, binary: &BinaryExpression) -> BinaryExpression {
+        let left = self.reduce_expression(&binary.left);
+        let right = self.reduce_expression(&binary.right);
+
+        self.reducer
+            .reduce_binary(binary, left, right, binary.op.clone(), binary.span.clone())
+    }
+
+    pub fn reduce_unary(&mut self, unary: &UnaryExpression) -> UnaryExpression {
+        let inner = self.reduce_expression(&unary.inner);
+
+        self.reducer
+            .reduce_unary(unary, inner, unary.op.clone(), unary.span.clone())
+    }
+
+    pub fn reduce_ternary(&mut self, ternary: &TernaryExpression) -> TernaryExpression {
+        let condition = self.reduce_expression(&ternary.condition);
+        let if_true = self.reduce_expression(&ternary.if_true);
+        let if_false = self.reduce_expression(&ternary.if_false);
+
+        self.reducer
+            .reduce_ternary(ternary, condition, if_true, if_false, ternary.span.clone())
+    }
+
+    pub fn reduce_cast(&mut self, cast: &CastExpression) -> CastExpression {
+        let inner = self.reduce_expression(&cast.inner);
+        let target_type = cast.target_type.clone(); // TODO reduce
+
+        self.reducer.reduce_cast(cast, inner, target_type, cast.span.clone())
+    }
+
+    pub fn reduce_array_inline(&mut self, array_inline: &ArrayInlineExpression) -> ArrayInlineExpression {
+        let elements = array_inline
+            .elements
+            .iter()
+            .map(|element| match element {
+                SpreadOrExpression::Expression(expression) => {
+                    SpreadOrExpression::Expression(self.reduce_expression(expression))
+                }
+                SpreadOrExpression::Spread(expression) => {
+                    SpreadOrExpression::Spread(self.reduce_expression(expression))
+                }
+            })
+            .collect();
+
+        self.reducer
+            .reduce_array_inline(array_inline, elements, array_inline.span.clone())
+    }
+
+    pub fn reduce_array_init(&mut self, array_init: &ArrayInitExpression) -> ArrayInitExpression {
+        let element = self.reduce_expression(&array_init.element);
+
+        self.reducer
+            .reduce_array_init(array_init, element, array_init.span.clone())
+    }
+
+    pub fn reduce_array_access(&mut self, array_access: &ArrayAccessExpression) -> ArrayAccessExpression {
+        let array = self.reduce_expression(&array_access.array);
+        let index = self.reduce_expression(&array_access.index);
+
+        self.reducer
+            .reduce_array_access(array_access, array, index, array_access.span.clone())
+    }
+
+    pub fn reduce_array_range_access(
+        &mut self,
+        array_range_access: &ArrayRangeAccessExpression,
+    ) -> ArrayRangeAccessExpression {
+        let array = self.reduce_expression(&array_range_access.array);
+        let left = array_range_access
+            .left
+            .as_ref()
+            .map(|left| self.reduce_expression(left));
+        let right = array_range_access
+            .right
+            .as_ref()
+            .map(|right| self.reduce_expression(right));
+
+        self.reducer
+            .reduce_array_range_access(array_range_access, array, left, right, array_range_access.span.clone())
+    }
+
+    pub fn reduce_tuple_init(&mut self, tuple_init: &TupleInitExpression) -> TupleInitExpression {
+        let elements = tuple_init
+            .elements
+            .iter()
+            .map(|expr| self.reduce_expression(expr))
+            .collect();
+
+        self.reducer
+            .reduce_tuple_init(tuple_init, elements, tuple_init.span.clone())
+    }
+
+    pub fn reduce_tuple_access(&mut self, tuple_access: &TupleAccessExpression) -> TupleAccessExpression {
+        let tuple = self.reduce_expression(&tuple_access.tuple);
+
+        self.reducer
+            .reduce_tuple_access(tuple_access, tuple, tuple_access.span.clone())
+    }
+
+    pub fn reduce_circuit_init(&mut self, circuit_init: &CircuitInitExpression) -> CircuitInitExpression {
+        let name = self.reduce_identifier(&circuit_init.name);
+        let members = circuit_init
+            .members
+            .iter()
+            .map(|definition| {
+                let identifier = self.reduce_identifier(&definition.identifier);
+                let expression = definition.expression.as_ref().map(|expr| self.reduce_expression(expr));
+
+                CircuitImpliedVariableDefinition { identifier, expression }
+            })
+            .collect();
+
+        self.reducer
+            .reduce_circuit_init(circuit_init, name, members, circuit_init.span.clone())
+    }
+
+    pub fn reduce_circuit_member_access(
+        &mut self,
+        circuit_member_access: &CircuitMemberAccessExpression,
+    ) -> CircuitMemberAccessExpression {
+        let circuit = self.reduce_expression(&circuit_member_access.circuit);
+        let name = self.reduce_identifier(&circuit_member_access.name);
+
+        self.reducer.reduce_circuit_member_access(
+            circuit_member_access,
+            circuit,
+            name,
+            circuit_member_access.span.clone(),
+        )
+    }
+
+    pub fn reduce_circuit_static_fn_access(
+        &mut self,
+        circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
+    ) -> CircuitStaticFunctionAccessExpression {
+        let circuit = self.reduce_expression(&circuit_static_fn_access.circuit);
+        let name = self.reduce_identifier(&circuit_static_fn_access.name);
+
+        self.reducer.reduce_circuit_static_fn_access(
+            circuit_static_fn_access,
+            circuit,
+            name,
+            circuit_static_fn_access.span.clone(),
+        )
+    }
+
+    pub fn reduce_call(&mut self, call: &CallExpression) -> CallExpression {
+        let function = self.reduce_expression(&call.function);
+        let arguments = call.arguments.iter().map(|expr| self.reduce_expression(expr)).collect();
+
+        self.reducer.reduce_call(call, function, arguments, call.span.clone())
+    }
+
+    // Statements
+    pub fn reduce_statement(&mut self, statement: &Statement) -> Statement {
+        let new = match statement {
+            Statement::Return(return_statement) => Statement::Return(self.reduce_return(&return_statement)),
+            Statement::Definition(definition) => Statement::Definition(self.reduce_definition(&definition)),
+            Statement::Assign(assign) => Statement::Assign(self.reduce_assign(&assign)),
+            Statement::Conditional(conditional) => Statement::Conditional(self.reduce_conditional(&conditional)),
+            Statement::Iteration(iteration) => Statement::Iteration(self.reduce_iteration(&iteration)),
+            Statement::Console(console) => Statement::Console(self.reduce_console(&console)),
+            Statement::Expression(expression) => Statement::Expression(self.reduce_expression_statement(&expression)),
+            Statement::Block(block) => Statement::Block(self.reduce_block(&block)),
+        };
+
+        self.reducer.reduce_statement(statement, new)
+    }
+
+    pub fn reduce_return(&mut self, return_statement: &ReturnStatement) -> ReturnStatement {
+        let expression = self.reduce_expression(&return_statement.expression);
+
+        self.reducer
+            .reduce_return(return_statement, expression, return_statement.span.clone())
+    }
+
+    pub fn reduce_variable_name(&mut self, variable_name: &VariableName) -> VariableName {
+        let identifier = self.reduce_identifier(&variable_name.identifier);
+
+        self.reducer
+            .reduce_variable_name(variable_name, identifier, variable_name.span.clone())
+    }
+
+    pub fn reduce_definition(&mut self, definition: &DefinitionStatement) -> DefinitionStatement {
+        let variable_names = definition
+            .variable_names
+            .iter()
+            .map(|variable_name| self.reduce_variable_name(variable_name))
+            .collect();
+        let type_ = definition.type_.as_ref().map(|inner| self.reduce_type(inner));
+        let value = self.reduce_expression(&definition.value);
+
+        self.reducer
+            .reduce_definition(definition, variable_names, type_, value, definition.span.clone())
+    }
+
+    pub fn reduce_assignee_access(&mut self, access: &AssigneeAccess) -> AssigneeAccess {
+        let new = match access {
+            AssigneeAccess::ArrayRange(left, right) => AssigneeAccess::ArrayRange(
+                left.as_ref().map(|expr| self.reduce_expression(expr)),
+                right.as_ref().map(|expr| self.reduce_expression(expr)),
+            ),
+            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.reduce_expression(&index)),
+            AssigneeAccess::Member(identifier) => AssigneeAccess::Member(self.reduce_identifier(&identifier)),
+            _ => access.clone(),
+        };
+
+        self.reducer.reduce_assignee_access(access, new)
+    }
+
+    pub fn reduce_assignee(&mut self, assignee: &Assignee) -> Assignee {
+        let identifier = self.reduce_identifier(&assignee.identifier);
+        let accesses = assignee
+            .accesses
+            .iter()
+            .map(|access| self.reduce_assignee_access(access))
+            .collect();
+
+        self.reducer
+            .reduce_assignee(assignee, identifier, accesses, assignee.span.clone())
+    }
+
+    pub fn reduce_assign(&mut self, assign: &AssignStatement) -> AssignStatement {
+        let assignee = self.reduce_assignee(&assign.assignee);
+        let value = self.reduce_expression(&assign.value);
+
+        self.reducer.reduce_assign(assign, assignee, value, assign.span.clone())
+    }
+
+    pub fn reduce_conditional(&mut self, conditional: &ConditionalStatement) -> ConditionalStatement {
+        let condition = self.reduce_expression(&conditional.condition);
+        let block = self.reduce_block(&conditional.block);
+        let next = conditional
+            .next
+            .as_ref()
+            .map(|condition| self.reduce_statement(condition));
+
+        self.reducer
+            .reduce_conditional(conditional, condition, block, next, conditional.span.clone())
+    }
+
+    pub fn reduce_iteration(&mut self, iteration: &IterationStatement) -> IterationStatement {
+        let variable = self.reduce_identifier(&iteration.variable);
+        let start = self.reduce_expression(&iteration.start);
+        let stop = self.reduce_expression(&iteration.stop);
+        let block = self.reduce_block(&iteration.block);
+
+        self.reducer
+            .reduce_iteration(iteration, variable, start, stop, block, iteration.span.clone())
+    }
+
+    pub fn reduce_console(&mut self, console_function_call: &ConsoleStatement) -> ConsoleStatement {
+        let function = match &console_function_call.function {
+            ConsoleFunction::Assert(expression) => ConsoleFunction::Assert(self.reduce_expression(expression)),
+            ConsoleFunction::Debug(format) | ConsoleFunction::Error(format) | ConsoleFunction::Log(format) => {
+                let formatted = FormattedString {
+                    parts: format.parts.clone(),
+                    parameters: format
+                        .parameters
+                        .iter()
+                        .map(|parameter| self.reduce_expression(parameter))
+                        .collect(),
+                    span: format.span.clone(),
+                };
+                match &console_function_call.function {
+                    ConsoleFunction::Debug(_) => ConsoleFunction::Debug(formatted),
+                    ConsoleFunction::Error(_) => ConsoleFunction::Error(formatted),
+                    ConsoleFunction::Log(_) => ConsoleFunction::Log(formatted),
+                    _ => unimplemented!(), // impossible
+                }
+            }
+        };
+
+        self.reducer
+            .reduce_console(console_function_call, function, console_function_call.span.clone())
+    }
+
+    pub fn reduce_expression_statement(&mut self, expression: &ExpressionStatement) -> ExpressionStatement {
+        let inner_expression = self.reduce_expression(&expression.expression);
+        self.reducer
+            .reduce_expression_statement(expression, inner_expression, expression.span.clone())
+    }
+
+    pub fn reduce_block(&mut self, block: &Block) -> Block {
+        let statements = block
+            .statements
+            .iter()
+            .map(|statement| self.reduce_statement(statement))
+            .collect();
+
+        self.reducer.reduce_block(block, statements, block.span.clone())
+    }
+
+    // Program
     pub fn reduce_program(&mut self, program: &Program) -> Program {
         let inputs = program
             .expected_input
             .iter()
-            .filter_map(|x| self.reduce_function_input(x))
+            .map(|input| self.reduce_function_input(input))
             .collect();
         let imports = program
             .imports
             .iter()
-            .filter_map(|x| self.reduce_import_statement(x))
+            .map(|import| self.reduce_import(import))
             .collect();
         let circuits = program
             .circuits
             .iter()
-            .filter_map(|(identifier, circuit)| {
-                Some((self.reduce_identifier(identifier), self.reduce_circuit(circuit)?))
-            })
+            .map(|(identifier, circuit)| (self.reduce_identifier(identifier), self.reduce_circuit(circuit)))
             .collect();
         let functions = program
             .functions
             .iter()
-            .filter_map(|(identifier, function)| {
-                Some((self.reduce_identifier(identifier), self.reduce_function(function)?))
-            })
+            .map(|(identifier, function)| (self.reduce_identifier(identifier), self.reduce_function(function)))
             .collect();
 
         self.reducer
             .reduce_program(program, inputs, imports, circuits, functions)
     }
 
-    pub fn reduce_function_input(&mut self, input: &FunctionInput) -> Option<FunctionInput> {
-        let item = match input {
-            FunctionInput::InputKeyword(input_keyword) => FunctionInput::InputKeyword(input_keyword.clone()),
-            FunctionInput::SelfKeyword(self_keyword) => FunctionInput::SelfKeyword(self_keyword.clone()),
-            FunctionInput::MutSelfKeyword(mut_self_keyword) => FunctionInput::MutSelfKeyword(mut_self_keyword.clone()),
+    pub fn reduce_function_input_variable(&mut self, variable: &FunctionInputVariable) -> FunctionInputVariable {
+        let identifier = self.reduce_identifier(&variable.identifier);
+        let type_ = self.reduce_type(&variable.type_);
+
+        self.reducer
+            .reduce_function_input_variable(variable, identifier, type_, variable.span.clone())
+    }
+
+    pub fn reduce_function_input(&mut self, input: &FunctionInput) -> FunctionInput {
+        let new = match input {
             FunctionInput::Variable(function_input_variable) => {
                 FunctionInput::Variable(self.reduce_function_input_variable(function_input_variable))
             }
+            _ => input.clone(),
         };
 
-        self.reducer.reduce_function_input(input, item)
+        self.reducer.reduce_function_input(input, new)
     }
 
-    pub fn reduce_import_statement(&mut self, import: &ImportStatement) -> Option<ImportStatement> {
-        let package = self.reduce_package(&import.package_or_packages);
+    pub fn reduce_package_or_packages(&mut self, package_or_packages: &PackageOrPackages) -> PackageOrPackages {
+        let new = match package_or_packages {
+            PackageOrPackages::Package(package) => PackageOrPackages::Package(Package {
+                name: self.reduce_identifier(&package.name),
+                access: package.access.clone(),
+                span: package.span.clone(),
+            }),
+            PackageOrPackages::Packages(packages) => PackageOrPackages::Packages(Packages {
+                name: self.reduce_identifier(&packages.name),
+                accesses: packages.accesses.clone(),
+                span: packages.span.clone(),
+            }),
+        };
 
-        self.reducer.reduce_import_statement(import, package)
+        self.reducer.reduce_package_or_packages(package_or_packages, new)
     }
 
-    pub fn reduce_circuit(&mut self, circuit: &Circuit) -> Option<Circuit> {
+    pub fn reduce_import(&mut self, import: &ImportStatement) -> ImportStatement {
+        let package_or_packages = self.reduce_package_or_packages(&import.package_or_packages);
+
+        self.reducer
+            .reduce_import(import, package_or_packages, import.span.clone())
+    }
+
+    pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> CircuitMember {
+        let new = match circuit_member {
+            CircuitMember::CircuitVariable(identifier, type_) => {
+                CircuitMember::CircuitVariable(self.reduce_identifier(&identifier), self.reduce_type(&type_))
+            }
+            CircuitMember::CircuitFunction(function) => CircuitMember::CircuitFunction(self.reduce_function(&function)),
+        };
+
+        self.reducer.reduce_circuit_member(circuit_member, new)
+    }
+
+    pub fn reduce_circuit(&mut self, circuit: &Circuit) -> Circuit {
         let circuit_name = self.reduce_identifier(&circuit.circuit_name);
         let members = circuit
             .members
             .iter()
-            .filter_map(|x| self.reduce_circuit_member(x))
+            .map(|member| self.reduce_circuit_member(member))
             .collect();
 
         self.reducer.reduce_circuit(circuit, circuit_name, members)
     }
 
-    pub fn reduce_function(&mut self, function: &Function) -> Option<Function> {
+    fn reduce_annotation(&mut self, annotation: &Annotation) -> Annotation {
+        let name = self.reduce_identifier(&annotation.name);
+
+        self.reducer
+            .reduce_annotation(annotation, annotation.span.clone(), name)
+    }
+
+    pub fn reduce_function(&mut self, function: &Function) -> Function {
         let identifier = self.reduce_identifier(&function.identifier);
-        let annotations = function.annotations.clone(); // TODO reduce
+        let annotations = function
+            .annotations
+            .iter()
+            .map(|annotation| self.reduce_annotation(annotation))
+            .collect();
         let input = function
             .input
             .iter()
-            .filter_map(|x| self.reduce_function_input(x))
+            .map(|input| self.reduce_function_input(input))
             .collect();
-        let output = function.output.as_ref().map(|x| self.reduce_type(x));
-        let block = Block {
-            statements: function
-                .block
-                .statements
-                .iter()
-                .map(|x| self.reduce_statement(x))
-                .collect(),
-            span: function.block.span.clone(),
-        };
+        let output = function.output.as_ref().map(|output| self.reduce_type(output));
+        let block = self.reduce_block(&function.block);
 
-        self.reducer
-            .reduce_function(function, annotations, identifier, input, output, block)
-    }
-
-    pub fn reduce_identifier(&mut self, identifier: &Identifier) -> Identifier {
-        self.reducer.reduce_identifier(identifier)
-    }
-
-    pub fn reduce_function_input_variable(
-        &mut self,
-        function_input_variable: &FunctionInputVariable,
-    ) -> FunctionInputVariable {
-        let identifier = self.reduce_identifier(&function_input_variable.identifier);
-        let type_ = self.reduce_type(&function_input_variable.type_);
-
-        self.reducer
-            .reduce_function_input_variable(function_input_variable, identifier, type_)
-    }
-
-    pub fn reduce_type(&mut self, type_: &Type) -> Type {
-        let items = match type_ {
-            // Data type wrappers
-            Type::Array(type_, dimensions) => Type::Array(Box::new(self.reduce_type(type_)), dimensions.clone()),
-            Type::Tuple(types) => Type::Tuple(types.iter().map(|x| self.reduce_type(x)).collect()),
-            Type::Circuit(identifier) => Type::Circuit(self.reduce_identifier(identifier)),
-            _ => type_.clone(),
-        };
-
-        self.reducer.reduce_type(type_, items)
-    }
-
-    pub fn reduce_package(&mut self, package_or_packages: &PackageOrPackages) -> PackageOrPackages {
-        self.reducer.reduce_package(package_or_packages)
-    }
-
-    pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> Option<CircuitMember> {
-        let items = match circuit_member {
-            CircuitMember::CircuitVariable(identifier, type_) => {
-                CircuitMember::CircuitVariable(self.reduce_identifier(identifier), self.reduce_type(type_))
-            }
-            CircuitMember::CircuitFunction(function) => CircuitMember::CircuitFunction(self.reduce_function(function)?),
-        };
-
-        self.reducer.reduce_circuit_member(circuit_member, items)
-    }
-
-    pub fn reduce_statement(&mut self, statement: &Statement) -> Statement {
-        let items = match statement {
-            Statement::Return(return_statement) => Statement::Return(ReturnStatement {
-                expression: self.reduce_expression(&return_statement.expression),
-                span: return_statement.span.clone(),
-            }),
-            Statement::Definition(definition) => Statement::Definition(DefinitionStatement {
-                declaration_type: definition.declaration_type.clone(),
-                variable_names: definition
-                    .variable_names
-                    .iter()
-                    .map(|variable_name| self.reduce_variable_name(variable_name))
-                    .collect(),
-                type_: definition.type_.as_ref().map(|inner| self.reduce_type(&inner)),
-                value: self.reduce_expression(&definition.value),
-                span: definition.span.clone(),
-            }),
-            Statement::Assign(assign) => Statement::Assign(AssignStatement {
-                operation: assign.operation.clone(),
-                assignee: Assignee {
-                    identifier: self.reduce_identifier(&assign.assignee.identifier),
-                    accesses: assign
-                        .assignee
-                        .accesses
-                        .iter()
-                        .filter_map(|x| self.reduce_assignee_access(x))
-                        .collect(),
-                    span: assign.assignee.span.clone(),
-                },
-                value: self.reduce_expression(&assign.value),
-                span: assign.span.clone(),
-            }),
-            Statement::Conditional(conditional) => {
-                Statement::Conditional(self.reduce_conditional_statement(conditional))
-            }
-            Statement::Iteration(iteration) => {
-                Statement::Iteration(IterationStatement {
-                    variable: self.reduce_identifier(&iteration.variable),
-                    start: self.reduce_expression(&iteration.start),
-                    stop: self.reduce_expression(&iteration.stop),
-                    block: Block {
-                        statements: iteration
-                            .block
-                            .statements
-                            .iter()
-                            .map(|statement| self.reduce_statement(statement))
-                            .collect(),
-                        span: iteration.block.span.clone(),
-                    }, // TODO reduce block that isn't in a statement
-                    span: iteration.span.clone(),
-                })
-            }
-            Statement::Console(console_function_call) => {
-                let function = match &console_function_call.function {
-                    ConsoleFunction::Assert(expression) => ConsoleFunction::Assert(self.reduce_expression(expression)),
-                    ConsoleFunction::Debug(format) | ConsoleFunction::Error(format) | ConsoleFunction::Log(format) => {
-                        let formatted = FormattedString {
-                            parts: format.parts.clone(),
-                            parameters: format
-                                .parameters
-                                .iter()
-                                .map(|parameter| self.reduce_expression(&parameter))
-                                .collect(),
-                            span: format.span.clone(),
-                        };
-                        match &console_function_call.function {
-                            ConsoleFunction::Debug(_) => ConsoleFunction::Debug(formatted),
-                            ConsoleFunction::Error(_) => ConsoleFunction::Error(formatted),
-                            ConsoleFunction::Log(_) => ConsoleFunction::Log(formatted),
-                            _ => unimplemented!(), // impossible
-                        }
-                    }
-                };
-                Statement::Console(ConsoleStatement {
-                    function,
-                    span: console_function_call.span.clone(),
-                })
-            }
-            Statement::Expression(expression) => Statement::Expression(ExpressionStatement {
-                expression: self.reduce_expression(&expression.expression),
-                span: expression.span.clone(),
-            }),
-            Statement::Block(block) => Statement::Block(Block {
-                statements: block
-                    .statements
-                    .iter()
-                    .map(|statement| self.reduce_statement(statement))
-                    .collect(),
-                span: block.span.clone(),
-            }),
-        };
-
-        self.reducer.reduce_statement(statement, items)
-    }
-
-    pub fn reduce_assignee_access(&mut self, assignee_access: &AssigneeAccess) -> Option<AssigneeAccess> {
-        let item = match assignee_access {
-            AssigneeAccess::ArrayRange(start, stop) => {
-                let start_item = start.as_ref().map(|x| self.reduce_expression(x));
-                let stop_item = stop.as_ref().map(|x| self.reduce_expression(x));
-                AssigneeAccess::ArrayRange(start_item, stop_item)
-            }
-            AssigneeAccess::ArrayIndex(expression) => AssigneeAccess::ArrayIndex(self.reduce_expression(&expression)),
-            AssigneeAccess::Tuple(number, span) => AssigneeAccess::Tuple(number.clone(), span.clone()),
-            AssigneeAccess::Member(identifier) => {
-                let identifier = self.reduce_identifier(identifier);
-                AssigneeAccess::Member(identifier)
-            }
-        };
-
-        self.reducer.reduce_assignee_access(assignee_access, item)
-    }
-
-    pub fn reduce_conditional_statement(&mut self, statement: &ConditionalStatement) -> ConditionalStatement {
-        let condition = self.reduce_expression(&statement.condition);
-        let statements = Block {
-            statements: statement
-                .block
-                .statements
-                .iter()
-                .map(|x| self.reduce_statement(x))
-                .collect(),
-            span: statement.block.span.clone(),
-        };
-        let next = statement.next.as_ref().map(|x| self.reduce_statement(x));
-
-        self.reducer
-            .reduce_conditional_statement(statement, condition, statements, next)
-    }
-
-    pub fn reduce_variable_name(&mut self, variable_name: &VariableName) -> VariableName {
-        let identifier = self.reduce_identifier(&variable_name.identifier);
-
-        self.reducer.reduce_variable_name(variable_name, identifier)
-    }
-
-    pub fn reduce_expression(&mut self, expression: &Expression) -> Expression {
-        let items = match expression {
-            Expression::Identifier(identifier) => Expression::Identifier(self.reduce_identifier(identifier)),
-            // Expression::Value(value) => Expression::Value(self.reduce_expression(value.))
-            Expression::Binary(binary) => {
-                let left = Box::new(self.reduce_expression(&binary.left));
-                let right = Box::new(self.reduce_expression(&binary.right));
-
-                Expression::Binary(BinaryExpression {
-                    left,
-                    right,
-                    op: binary.op.clone(),
-                    span: binary.span.clone(),
-                })
-            }
-            Expression::Unary(unary) => {
-                let inner = Box::new(self.reduce_expression(&unary.inner));
-
-                Expression::Unary(UnaryExpression {
-                    inner,
-                    op: unary.op.clone(),
-                    span: unary.span.clone(),
-                })
-            }
-            Expression::Ternary(ternary) => {
-                let condition = Box::new(self.reduce_expression(&ternary.condition));
-                let if_true = Box::new(self.reduce_expression(&ternary.if_true));
-                let if_false = Box::new(self.reduce_expression(&ternary.if_false));
-
-                Expression::Ternary(TernaryExpression {
-                    condition,
-                    if_true,
-                    if_false,
-                    span: ternary.span.clone(),
-                })
-            }
-
-            Expression::ArrayInline(array_inline) => {
-                let elements = array_inline
-                    .elements
-                    .iter()
-                    .map(|x| match x {
-                        SpreadOrExpression::Expression(expression) => {
-                            SpreadOrExpression::Expression(self.reduce_expression(expression))
-                        }
-                        SpreadOrExpression::Spread(expression) => {
-                            SpreadOrExpression::Spread(self.reduce_expression(expression))
-                        }
-                    })
-                    .collect();
-
-                Expression::ArrayInline(ArrayInlineExpression {
-                    elements,
-                    span: array_inline.span.clone(),
-                })
-            }
-            Expression::ArrayInit(array_init) => {
-                let element = Box::new(self.reduce_expression(&array_init.element));
-
-                Expression::ArrayInit(ArrayInitExpression {
-                    element,
-                    dimensions: array_init.dimensions.clone(),
-                    span: array_init.span.clone(),
-                })
-            }
-            Expression::ArrayAccess(array_access) => {
-                let array = Box::new(self.reduce_expression(&array_access.array));
-                let index = Box::new(self.reduce_expression(&array_access.index));
-                Expression::ArrayAccess(ArrayAccessExpression {
-                    array,
-                    index,
-                    span: array_access.span.clone(),
-                })
-            }
-            Expression::ArrayRangeAccess(array_range_access) => {
-                let array = Box::new(self.reduce_expression(&array_range_access.array));
-                let left = array_range_access
-                    .left
-                    .as_ref()
-                    .map(|left| Box::new(self.reduce_expression(&left)));
-                let right = array_range_access
-                    .right
-                    .as_ref()
-                    .map(|right| Box::new(self.reduce_expression(&right)));
-
-                Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
-                    array,
-                    left,
-                    right,
-                    span: array_range_access.span.clone(),
-                })
-            }
-
-            Expression::TupleInit(tuple_init) => {
-                let elements = tuple_init.elements.iter().map(|x| self.reduce_expression(x)).collect();
-
-                Expression::TupleInit(TupleInitExpression {
-                    elements,
-                    span: tuple_init.span.clone(),
-                })
-            }
-            Expression::TupleAccess(tuple_access) => {
-                let tuple = Box::new(self.reduce_expression(&tuple_access.tuple));
-
-                Expression::TupleAccess(TupleAccessExpression {
-                    tuple,
-                    index: tuple_access.index.clone(),
-                    span: tuple_access.span.clone(),
-                })
-            }
-            Expression::CircuitInit(circuit_init) => {
-                let name = self.reduce_identifier(&circuit_init.name);
-                let members = circuit_init
-                    .members
-                    .iter()
-                    .map(|definition| {
-                        let identifier = self.reduce_identifier(&definition.identifier);
-                        let expression = definition.expression.as_ref().map(|expr| self.reduce_expression(&expr));
-
-                        CircuitImpliedVariableDefinition { identifier, expression }
-                    })
-                    .collect();
-
-                Expression::CircuitInit(CircuitInitExpression {
-                    name,
-                    members,
-                    span: circuit_init.span.clone(),
-                })
-            }
-            Expression::CircuitMemberAccess(circuit_member_access) => {
-                let circuit = Box::new(self.reduce_expression(&circuit_member_access.circuit));
-                let name = self.reduce_identifier(&circuit_member_access.name);
-
-                Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
-                    circuit,
-                    name,
-                    span: circuit_member_access.span.clone(),
-                })
-            }
-            Expression::CircuitStaticFunctionAccess(circuit_static_func_access) => {
-                let circuit = Box::new(self.reduce_expression(&circuit_static_func_access.circuit));
-                let name = self.reduce_identifier(&circuit_static_func_access.name);
-
-                Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression {
-                    circuit,
-                    name,
-                    span: circuit_static_func_access.span.clone(),
-                })
-            }
-            Expression::Call(call) => {
-                let function = Box::new(self.reduce_expression(&call.function));
-                let arguments = call.arguments.iter().map(|x| self.reduce_expression(x)).collect();
-
-                Expression::Call(CallExpression {
-                    function,
-                    arguments,
-                    span: call.span.clone(),
-                })
-            }
-
-            x => x.clone(), // leaf nodes we dont reconstruct
-        };
-
-        self.reducer.reduce_expression(expression, items)
+        self.reducer.reduce_function(
+            function,
+            identifier,
+            annotations,
+            input,
+            output,
+            block,
+            function.span.clone(),
+        )
     }
 }

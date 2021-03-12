@@ -14,45 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains the reducer which iterates through ast nodes - converting them into
-//! asg nodes and saving relevant information.
-
-use crate::{
-    reducer::ReconstructingReducer,
-    Block,
-    CallExpression,
-    Circuit,
-    CircuitInitExpression,
-    CircuitMember,
-    CircuitMemberAccessExpression,
-    CircuitStaticFunctionAccessExpression,
-    DefinitionStatement,
-    Expression,
-    ExpressionStatement,
-    Function,
-    FunctionInput,
-    FunctionInputVariable,
-    Identifier,
-    ReturnStatement,
-    Statement,
-    Type,
-};
+use crate::*;
 
 pub struct Canonicalizer;
 
 impl Canonicalizer {
     fn _is_self(&self, identifier: &Identifier) -> bool {
         matches!(identifier.name.as_str(), "Self")
-    }
-
-    fn _is_self_keyword(&self, function_inputs: &[FunctionInput]) -> bool {
-        for function_input in function_inputs {
-            if let FunctionInput::SelfKeyword(_) = function_input {
-                return true;
-            }
-        }
-
-        false
     }
 
     fn is_self_type(&self, type_option: Option<&Type>) -> bool {
@@ -184,14 +152,6 @@ impl Canonicalizer {
                     span: function.block.span.clone(),
                 };
 
-                // probably shouldn't do this its self not Self
-                // if self.is_self_keyword(&input) {
-                //     input = input
-                //         .iter()
-                //         .map(|function_input| self.canonicalize_function_input(function_input, circuit_name))
-                //         .collect();
-                // }
-
                 if self.is_self_type(output.as_ref()) {
                     output = Some(Type::Circuit(circuit_name.clone()));
                 }
@@ -212,22 +172,15 @@ impl Canonicalizer {
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    fn reduce_circuit(
-        &mut self,
-        _: &Circuit,
-        circuit_name: Identifier,
-        members: Vec<CircuitMember>,
-    ) -> Option<Circuit> {
-        let new_circuit = Circuit {
+    fn reduce_circuit(&mut self, _circuit: &Circuit, circuit_name: Identifier, members: Vec<CircuitMember>) -> Circuit {
+        Circuit {
             circuit_name: circuit_name.clone(),
             members: members
                 .iter()
                 .map(|member| self.canonicalize_circuit_member(member, &circuit_name))
                 .collect(),
-        };
-
-        Some(new_circuit)
+        }
     }
 
-    // TODO make all self/Self outside of circuit error out
+    // fn reduce_program(program: &Program, expected_input: Vec<FunctionInput>, imports: Vec<ImportStatement>, circuits: IndexMap<Identifier, Circuit>, functions: IndexMap<Identifier, Function>)
 }

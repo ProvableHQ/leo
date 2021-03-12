@@ -14,20 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! This module contains the reducer which iterates through ast nodes - converting them into
-//! asg nodes and saving relevant information.
-
 mod canonicalization;
 pub use canonicalization::*;
-
-mod monoid;
-pub use monoid::*;
-
-mod monoidal_director;
-pub use monoidal_director::*;
-
-mod monoidal_reducer;
-pub use monoidal_reducer::*;
 
 mod reconstructing_reducer;
 pub use reconstructing_reducer::*;
