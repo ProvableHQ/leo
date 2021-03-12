@@ -18,15 +18,13 @@
 use crate::{errors::IntegerError, IntegerTrait};
 use leo_asg::{ConstInt, IntegerType, Span};
 use leo_ast::InputValue;
-use leo_gadgets::{
-    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
-    signed_integer::*,
-};
+use leo_gadgets::signed_integer::*;
 
 use snarkvm_fields::{Field, PrimeField};
 use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
     arithmetic::{Add, Div, Mul, Neg, Pow, Sub},
+    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
     boolean::Boolean,
     eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
     select::CondSelectGadget,
