@@ -103,11 +103,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
                 ConstrainedValue::Integer(Integer::new(&const_int))
             }
-            // TODO: array and tuple values.
-            // InputValue::Array(Vec<InputValue>) => ,
-            // InputValue::Tuple(Vec<InputValue>),
-            // TODO: rework this error to something better fitting into context.
-            _ => return Err(FunctionError::input_not_found(name.to_string(), span)),
+            InputValue::Array(values) => ConstrainedValue::Array(
+                values
+                    .iter()
+                    .map(|x| self.parse_constant_main_function_input(_cs, _type_, name, Some(x.clone()), span))
+                    .collect::<Result<Vec<_>, _>>()?,
+            ),
+            InputValue::Tuple(values) => ConstrainedValue::Tuple(
+                values
+                    .iter()
+                    .map(|x| self.parse_constant_main_function_input(_cs, _type_, name, Some(x.clone()), span))
+                    .collect::<Result<Vec<_>, _>>()?,
+            ),
         })
     }
 }
