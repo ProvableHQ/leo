@@ -27,7 +27,7 @@ use leo_gadgets::{
 use snarkvm_fields::{Field, PrimeField};
 use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
-    arithmetic::{Add, Div, Mul, Neg},
+    arithmetic::{Add, Div, Mul, Neg, Pow},
     boolean::Boolean,
     eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
     select::CondSelectGadget,
