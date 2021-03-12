@@ -24,7 +24,7 @@ use std::fmt;
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct InputKeyword {
-    pub ident: Identifier,
+    pub identifier: Identifier,
 }
 
 impl fmt::Display for InputKeyword {
@@ -35,10 +35,10 @@ impl fmt::Display for InputKeyword {
 
 impl Node for InputKeyword {
     fn span(&self) -> &Span {
-        &self.ident.span
+        &self.identifier.span
     }
 
     fn set_span(&mut self, span: Span) {
-        self.ident.span = span;
+        self.identifier.span = span;
     }
 }

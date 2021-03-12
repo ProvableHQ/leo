@@ -23,7 +23,7 @@ use std::fmt;
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct MutSelfKeyword {
-    pub ident: Identifier,
+    pub identifier: Identifier,
 }
 
 impl fmt::Display for MutSelfKeyword {
@@ -34,10 +34,10 @@ impl fmt::Display for MutSelfKeyword {
 
 impl Node for MutSelfKeyword {
     fn span(&self) -> &Span {
-        &self.ident.span
+        &self.identifier.span
     }
 
     fn set_span(&mut self, span: Span) {
-        self.ident.span = span;
+        self.identifier.span = span;
     }
 }

@@ -310,7 +310,7 @@ impl ParserContext {
     pub fn parse_function_input(&mut self) -> SyntaxResult<FunctionInput> {
         if let Some(token) = self.eat(Token::Input) {
             return Ok(FunctionInput::InputKeyword(InputKeyword {
-                ident: Identifier {
+                identifier: Identifier {
                     name: token.token.to_string(),
                     span: token.span,
                 },
@@ -333,9 +333,9 @@ impl ParserContext {
             if let Some(mutable) = &mutable {
                 name.span = &mutable.span + &name.span;
                 name.name = "mut self".to_string();
-                return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { ident: name }));
+                return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
             }
-            return Ok(FunctionInput::SelfKeyword(SelfKeyword { ident: name }));
+            return Ok(FunctionInput::SelfKeyword(SelfKeyword { identifier: name }));
         }
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
