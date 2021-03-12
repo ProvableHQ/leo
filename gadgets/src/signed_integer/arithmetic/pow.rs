@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{arithmetic::Pow, errors::SignedIntegerError, Int, Int128, Int16, Int32, Int64, Int8};
+use crate::{errors::SignedIntegerError, Int, Int128, Int16, Int32, Int64, Int8};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
-    arithmetic::Mul,
+    arithmetic::{Mul, Pow},
     boolean::Boolean,
     select::CondSelectGadget,
 };
