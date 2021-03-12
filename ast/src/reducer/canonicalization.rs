@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
+use indexmap::IndexMap;
 
 pub struct Canonicalizer;
 
@@ -172,15 +173,79 @@ impl Canonicalizer {
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    fn reduce_circuit(&mut self, _circuit: &Circuit, circuit_name: Identifier, members: Vec<CircuitMember>) -> Circuit {
-        Circuit {
-            circuit_name: circuit_name.clone(),
-            members: members
-                .iter()
-                .map(|member| self.canonicalize_circuit_member(member, &circuit_name))
-                .collect(),
+    fn reduce_type(&mut self, _type_: &Type, new: Type) -> Type {
+        match new {
+            Type::Array(_, mut dimensions) => {
+                // TODO need to throw errors in all these.
+                // Throw error if dimensions is empty.
+                let mut next = Type::Array(
+                    Box::new(Type::Group),
+                    ArrayDimensions(vec![dimensions.remove_last().unwrap()]),
+                );
+                let mut array = next.clone();
+                loop {
+                    if dimensions.is_empty() {
+                        break;
+                    }
+
+                    array = Type::Array(Box::new(next), ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
+                    next = array.clone();
+                }
+
+                array
+            }
+            _ => new.clone(),
         }
     }
 
-    // fn reduce_program(program: &Program, expected_input: Vec<FunctionInput>, imports: Vec<ImportStatement>, circuits: IndexMap<Identifier, Circuit>, functions: IndexMap<Identifier, Function>)
+    fn reduce_array_init(&mut self, array_init: &ArrayInitExpression, element: Expression) -> ArrayInitExpression {
+        // TODO ERROR HERE if len is 0
+        let element = Box::new(element);
+
+        if array_init.dimensions.0.len() == 1 {
+            return ArrayInitExpression {
+                element,
+                dimensions: array_init.dimensions.clone(),
+                span: array_init.span.clone(),
+            };
+        }
+
+        let mut dimensions = array_init.dimensions.clone();
+
+        let mut next = Expression::ArrayInit(ArrayInitExpression {
+            element,
+            dimensions: ArrayDimensions(vec![dimensions.remove_last().unwrap()]),
+            span: array_init.span.clone(),
+        });
+
+        let mut outer_element = Box::new(next.clone());
+        for (index, dimension) in dimensions.0.iter().rev().enumerate() {
+            if index == dimensions.0.len() - 1 {
+                break;
+            }
+
+            next = Expression::ArrayInit(ArrayInitExpression {
+                element: outer_element,
+                dimensions: ArrayDimensions(vec![dimension.clone()]),
+                span: array_init.span.clone(),
+            });
+            outer_element = Box::new(next.clone());
+        }
+
+        ArrayInitExpression {
+            element: outer_element,
+            dimensions: ArrayDimensions(vec![dimensions.remove_first().unwrap()]),
+            span: array_init.span.clone(),
+        }
+    }
+
+    // fn reduce_circuit(&mut self, _circuit: &Circuit, circuit_name: Identifier, members: Vec<CircuitMember>) -> Circuit {
+    //     Circuit {
+    //         circuit_name: circuit_name.clone(),
+    //         members: members
+    //             .iter()
+    //             .map(|member| self.canonicalize_circuit_member(member, &circuit_name))
+    //             .collect(),
+    //     }
+    // }
 }

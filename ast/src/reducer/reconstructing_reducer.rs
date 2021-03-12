@@ -29,18 +29,18 @@ pub trait ReconstructingReducer {
         new
     }
 
-    fn reduce_identifier(&mut self, identifier: &Identifier, span: Span) -> Identifier {
+    fn reduce_identifier(&mut self, identifier: &Identifier) -> Identifier {
         Identifier {
             name: identifier.name.clone(),
-            span,
+            span: identifier.span.clone(),
         }
     }
 
-    fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple, span: Span) -> GroupTuple {
+    fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> GroupTuple {
         GroupTuple {
             x: group_tuple.x.clone(),
             y: group_tuple.y.clone(),
-            span,
+            span: group_tuple.span.clone(),
         }
     }
 
@@ -54,187 +54,169 @@ pub trait ReconstructingReducer {
 
     fn reduce_binary(
         &mut self,
-        _binary: &BinaryExpression,
+        binary: &BinaryExpression,
         left: Expression,
         right: Expression,
         op: BinaryOperation,
-        span: Span,
     ) -> BinaryExpression {
         BinaryExpression {
             left: Box::new(left),
             right: Box::new(right),
             op,
-            span,
+            span: binary.span.clone(),
         }
     }
 
-    fn reduce_unary(
-        &mut self,
-        _unary: &UnaryExpression,
-        inner: Expression,
-        op: UnaryOperation,
-        span: Span,
-    ) -> UnaryExpression {
+    fn reduce_unary(&mut self, unary: &UnaryExpression, inner: Expression, op: UnaryOperation) -> UnaryExpression {
         UnaryExpression {
             inner: Box::new(inner),
             op,
-            span,
+            span: unary.span.clone(),
         }
     }
 
     fn reduce_ternary(
         &mut self,
-        _ternary: &TernaryExpression,
+        ternary: &TernaryExpression,
         condition: Expression,
         if_true: Expression,
         if_false: Expression,
-        span: Span,
     ) -> TernaryExpression {
         TernaryExpression {
             condition: Box::new(condition),
             if_true: Box::new(if_true),
             if_false: Box::new(if_false),
-            span,
+            span: ternary.span.clone(),
         }
     }
 
-    fn reduce_cast(
-        &mut self,
-        _cast: &CastExpression,
-        inner: Expression,
-        target_type: Type,
-        span: Span,
-    ) -> CastExpression {
+    fn reduce_cast(&mut self, cast: &CastExpression, inner: Expression, target_type: Type) -> CastExpression {
         CastExpression {
             inner: Box::new(inner),
             target_type,
-            span,
+            span: cast.span.clone(),
         }
     }
 
     fn reduce_array_inline(
         &mut self,
-        _array_inline: &ArrayInlineExpression,
+        array_inline: &ArrayInlineExpression,
         elements: Vec<SpreadOrExpression>,
-        span: Span,
     ) -> ArrayInlineExpression {
-        ArrayInlineExpression { elements, span }
+        ArrayInlineExpression {
+            elements,
+            span: array_inline.span.clone(),
+        }
     }
 
-    fn reduce_array_init(
-        &mut self,
-        array_init: &ArrayInitExpression,
-        element: Expression,
-        span: Span,
-    ) -> ArrayInitExpression {
+    fn reduce_array_init(&mut self, array_init: &ArrayInitExpression, element: Expression) -> ArrayInitExpression {
         ArrayInitExpression {
             element: Box::new(element),
             dimensions: array_init.dimensions.clone(),
-            span,
+            span: array_init.span.clone(),
         }
     }
 
     fn reduce_array_access(
         &mut self,
-        _array_access: &ArrayAccessExpression,
+        array_access: &ArrayAccessExpression,
         array: Expression,
         index: Expression,
-        span: Span,
     ) -> ArrayAccessExpression {
         ArrayAccessExpression {
             array: Box::new(array),
             index: Box::new(index),
-            span,
+            span: array_access.span.clone(),
         }
     }
 
     fn reduce_array_range_access(
         &mut self,
-        _array_rage_access: &ArrayRangeAccessExpression,
+        array_rage_access: &ArrayRangeAccessExpression,
         array: Expression,
         left: Option<Expression>,
         right: Option<Expression>,
-        span: Span,
     ) -> ArrayRangeAccessExpression {
         ArrayRangeAccessExpression {
             array: Box::new(array),
             left: left.map(|expr| Box::new(expr)),
             right: right.map(|expr| Box::new(expr)),
-            span,
+            span: array_rage_access.span.clone(),
         }
     }
 
     fn reduce_tuple_init(
         &mut self,
-        _tuple_init: &TupleInitExpression,
+        tuple_init: &TupleInitExpression,
         elements: Vec<Expression>,
-        span: Span,
     ) -> TupleInitExpression {
-        TupleInitExpression { elements, span }
+        TupleInitExpression {
+            elements,
+            span: tuple_init.span.clone(),
+        }
     }
 
     fn reduce_tuple_access(
         &mut self,
         tuple_access: &TupleAccessExpression,
         tuple: Expression,
-        span: Span,
     ) -> TupleAccessExpression {
         TupleAccessExpression {
             tuple: Box::new(tuple),
             index: tuple_access.index.clone(),
-            span,
+            span: tuple_access.span.clone(),
         }
     }
 
     fn reduce_circuit_init(
         &mut self,
-        _circuit_init: &CircuitInitExpression,
+        circuit_init: &CircuitInitExpression,
         name: Identifier,
         members: Vec<CircuitImpliedVariableDefinition>,
-        span: Span,
     ) -> CircuitInitExpression {
-        CircuitInitExpression { name, members, span }
+        CircuitInitExpression {
+            name,
+            members,
+            span: circuit_init.span.clone(),
+        }
     }
 
     fn reduce_circuit_member_access(
         &mut self,
-        _circuit_member_access: &CircuitMemberAccessExpression,
+        circuit_member_access: &CircuitMemberAccessExpression,
         circuit: Expression,
         name: Identifier,
-        span: Span,
     ) -> CircuitMemberAccessExpression {
         CircuitMemberAccessExpression {
             circuit: Box::new(circuit),
             name,
-            span,
+            span: circuit_member_access.span.clone(),
         }
     }
 
     fn reduce_circuit_static_fn_access(
         &mut self,
-        _circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
+        circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
         circuit: Expression,
         name: Identifier,
-        span: Span,
     ) -> CircuitStaticFunctionAccessExpression {
         CircuitStaticFunctionAccessExpression {
             circuit: Box::new(circuit),
             name,
-            span,
+            span: circuit_static_fn_access.span.clone(),
         }
     }
 
     fn reduce_call(
         &mut self,
-        _call: &CallExpression,
+        call: &CallExpression,
         function: Expression,
         arguments: Vec<Expression>,
-        span: Span,
     ) -> CallExpression {
         CallExpression {
             function: Box::new(function),
             arguments,
-            span,
+            span: call.span.clone(),
         }
     }
 
@@ -243,25 +225,18 @@ pub trait ReconstructingReducer {
         new
     }
 
-    fn reduce_return(
-        &mut self,
-        _return_statement: &ReturnStatement,
-        expression: Expression,
-        span: Span,
-    ) -> ReturnStatement {
-        ReturnStatement { expression, span }
+    fn reduce_return(&mut self, return_statement: &ReturnStatement, expression: Expression) -> ReturnStatement {
+        ReturnStatement {
+            expression,
+            span: return_statement.span.clone(),
+        }
     }
 
-    fn reduce_variable_name(
-        &mut self,
-        variable_name: &VariableName,
-        identifier: Identifier,
-        span: Span,
-    ) -> VariableName {
+    fn reduce_variable_name(&mut self, variable_name: &VariableName, identifier: Identifier) -> VariableName {
         VariableName {
             mutable: variable_name.mutable,
             identifier,
-            span,
+            span: variable_name.span.clone(),
         }
     }
 
@@ -271,14 +246,13 @@ pub trait ReconstructingReducer {
         variable_names: Vec<VariableName>,
         type_: Option<Type>,
         value: Expression,
-        span: Span,
     ) -> DefinitionStatement {
         DefinitionStatement {
             declaration_type: definition.declaration_type.clone(),
             variable_names,
             type_,
             value,
-            span,
+            span: definition.span.clone(),
         }
     }
 
@@ -288,87 +262,81 @@ pub trait ReconstructingReducer {
 
     fn reduce_assignee(
         &mut self,
-        _assignee: &Assignee,
+        assignee: &Assignee,
         identifier: Identifier,
         accesses: Vec<AssigneeAccess>,
-        span: Span,
     ) -> Assignee {
         Assignee {
             identifier,
             accesses,
-            span,
+            span: assignee.span.clone(),
         }
     }
 
-    fn reduce_assign(
-        &mut self,
-        assign: &AssignStatement,
-        assignee: Assignee,
-        value: Expression,
-        span: Span,
-    ) -> AssignStatement {
+    fn reduce_assign(&mut self, assign: &AssignStatement, assignee: Assignee, value: Expression) -> AssignStatement {
         AssignStatement {
             operation: assign.operation.clone(),
             assignee,
             value,
-            span,
+            span: assign.span.clone(),
         }
     }
 
     fn reduce_conditional(
         &mut self,
-        _conditional: &ConditionalStatement,
+        conditional: &ConditionalStatement,
         condition: Expression,
         block: Block,
         statement: Option<Statement>,
-        span: Span,
     ) -> ConditionalStatement {
         ConditionalStatement {
             condition,
             block,
             next: statement.map(|statement| Box::new(statement)),
-            span,
+            span: conditional.span.clone(),
         }
     }
 
     fn reduce_iteration(
         &mut self,
-        _iteration: &IterationStatement,
+        iteration: &IterationStatement,
         variable: Identifier,
         start: Expression,
         stop: Expression,
         block: Block,
-        span: Span,
     ) -> IterationStatement {
         IterationStatement {
             variable,
             start,
             stop,
             block,
-            span,
+            span: iteration.span.clone(),
         }
     }
 
-    fn reduce_console(
-        &mut self,
-        _console: &ConsoleStatement,
-        function: ConsoleFunction,
-        span: Span,
-    ) -> ConsoleStatement {
-        ConsoleStatement { function, span }
+    fn reduce_console(&mut self, console: &ConsoleStatement, function: ConsoleFunction) -> ConsoleStatement {
+        ConsoleStatement {
+            function,
+            span: console.span.clone(),
+        }
     }
 
     fn reduce_expression_statement(
         &mut self,
-        _expression_statement: &ExpressionStatement,
+        expression_statement: &ExpressionStatement,
         expression: Expression,
-        span: Span,
     ) -> ExpressionStatement {
-        ExpressionStatement { expression, span }
+        ExpressionStatement {
+            expression,
+            span: expression_statement.span.clone(),
+        }
     }
 
-    fn reduce_block(&mut self, _block: &Block, statements: Vec<Statement>, span: Span) -> Block {
-        Block { statements, span }
+    fn reduce_block(&mut self, block: &Block, statements: Vec<Statement>) -> Block {
+        Block {
+            statements,
+            span: block.span.clone(),
+        }
     }
 
     // Program
@@ -394,14 +362,13 @@ pub trait ReconstructingReducer {
         variable: &FunctionInputVariable,
         identifier: Identifier,
         type_: Type,
-        span: Span,
     ) -> FunctionInputVariable {
         FunctionInputVariable {
             identifier,
             const_: variable.const_,
             mutable: variable.mutable,
             type_,
-            span,
+            span: variable.span.clone(),
         }
     }
 
@@ -417,15 +384,10 @@ pub trait ReconstructingReducer {
         new
     }
 
-    fn reduce_import(
-        &mut self,
-        _import: &ImportStatement,
-        package_or_packages: PackageOrPackages,
-        span: Span,
-    ) -> ImportStatement {
+    fn reduce_import(&mut self, import: &ImportStatement, package_or_packages: PackageOrPackages) -> ImportStatement {
         ImportStatement {
             package_or_packages,
-            span,
+            span: import.span.clone(),
         }
     }
 
@@ -437,24 +399,22 @@ pub trait ReconstructingReducer {
         Circuit { circuit_name, members }
     }
 
-    fn reduce_annotation(&mut self, annotation: &Annotation, span: Span, name: Identifier) -> Annotation {
+    fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Annotation {
         Annotation {
-            span,
+            span: annotation.span.clone(),
             name,
             arguments: annotation.arguments.clone(),
         }
     }
 
-    #[allow(clippy::too_many_arguments)]
     fn reduce_function(
         &mut self,
-        _function: &Function,
+        function: &Function,
         identifier: Identifier,
         annotations: Vec<Annotation>,
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
-        span: Span,
     ) -> Function {
         Function {
             identifier,
@@ -462,7 +422,7 @@ pub trait ReconstructingReducer {
             input,
             output,
             block,
-            span,
+            span: function.span.clone(),
         }
     }
 }

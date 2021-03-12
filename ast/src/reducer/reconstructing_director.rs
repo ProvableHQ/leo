@@ -75,11 +75,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_identifier(&mut self, identifier: &Identifier) -> Identifier {
-        self.reducer.reduce_identifier(identifier, identifier.span.clone())
+        self.reducer.reduce_identifier(identifier)
     }
 
     pub fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> GroupTuple {
-        self.reducer.reduce_group_tuple(group_tuple, group_tuple.span.clone())
+        self.reducer.reduce_group_tuple(group_tuple)
     }
 
     pub fn reduce_group_value(&mut self, group_value: &GroupValue) -> GroupValue {
@@ -106,15 +106,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let left = self.reduce_expression(&binary.left);
         let right = self.reduce_expression(&binary.right);
 
-        self.reducer
-            .reduce_binary(binary, left, right, binary.op.clone(), binary.span.clone())
+        self.reducer.reduce_binary(binary, left, right, binary.op.clone())
     }
 
     pub fn reduce_unary(&mut self, unary: &UnaryExpression) -> UnaryExpression {
         let inner = self.reduce_expression(&unary.inner);
 
-        self.reducer
-            .reduce_unary(unary, inner, unary.op.clone(), unary.span.clone())
+        self.reducer.reduce_unary(unary, inner, unary.op.clone())
     }
 
     pub fn reduce_ternary(&mut self, ternary: &TernaryExpression) -> TernaryExpression {
@@ -122,15 +120,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let if_true = self.reduce_expression(&ternary.if_true);
         let if_false = self.reduce_expression(&ternary.if_false);
 
-        self.reducer
-            .reduce_ternary(ternary, condition, if_true, if_false, ternary.span.clone())
+        self.reducer.reduce_ternary(ternary, condition, if_true, if_false)
     }
 
     pub fn reduce_cast(&mut self, cast: &CastExpression) -> CastExpression {
         let inner = self.reduce_expression(&cast.inner);
         let target_type = cast.target_type.clone(); // TODO reduce
 
-        self.reducer.reduce_cast(cast, inner, target_type, cast.span.clone())
+        self.reducer.reduce_cast(cast, inner, target_type)
     }
 
     pub fn reduce_array_inline(&mut self, array_inline: &ArrayInlineExpression) -> ArrayInlineExpression {
@@ -147,23 +144,20 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             })
             .collect();
 
-        self.reducer
-            .reduce_array_inline(array_inline, elements, array_inline.span.clone())
+        self.reducer.reduce_array_inline(array_inline, elements)
     }
 
     pub fn reduce_array_init(&mut self, array_init: &ArrayInitExpression) -> ArrayInitExpression {
         let element = self.reduce_expression(&array_init.element);
 
-        self.reducer
-            .reduce_array_init(array_init, element, array_init.span.clone())
+        self.reducer.reduce_array_init(array_init, element)
     }
 
     pub fn reduce_array_access(&mut self, array_access: &ArrayAccessExpression) -> ArrayAccessExpression {
         let array = self.reduce_expression(&array_access.array);
         let index = self.reduce_expression(&array_access.index);
 
-        self.reducer
-            .reduce_array_access(array_access, array, index, array_access.span.clone())
+        self.reducer.reduce_array_access(array_access, array, index)
     }
 
     pub fn reduce_array_range_access(
@@ -181,7 +175,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .map(|right| self.reduce_expression(right));
 
         self.reducer
-            .reduce_array_range_access(array_range_access, array, left, right, array_range_access.span.clone())
+            .reduce_array_range_access(array_range_access, array, left, right)
     }
 
     pub fn reduce_tuple_init(&mut self, tuple_init: &TupleInitExpression) -> TupleInitExpression {
@@ -191,15 +185,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .map(|expr| self.reduce_expression(expr))
             .collect();
 
-        self.reducer
-            .reduce_tuple_init(tuple_init, elements, tuple_init.span.clone())
+        self.reducer.reduce_tuple_init(tuple_init, elements)
     }
 
     pub fn reduce_tuple_access(&mut self, tuple_access: &TupleAccessExpression) -> TupleAccessExpression {
         let tuple = self.reduce_expression(&tuple_access.tuple);
 
-        self.reducer
-            .reduce_tuple_access(tuple_access, tuple, tuple_access.span.clone())
+        self.reducer.reduce_tuple_access(tuple_access, tuple)
     }
 
     pub fn reduce_circuit_init(&mut self, circuit_init: &CircuitInitExpression) -> CircuitInitExpression {
@@ -215,8 +207,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             })
             .collect();
 
-        self.reducer
-            .reduce_circuit_init(circuit_init, name, members, circuit_init.span.clone())
+        self.reducer.reduce_circuit_init(circuit_init, name, members)
     }
 
     pub fn reduce_circuit_member_access(
@@ -226,12 +217,8 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let circuit = self.reduce_expression(&circuit_member_access.circuit);
         let name = self.reduce_identifier(&circuit_member_access.name);
 
-        self.reducer.reduce_circuit_member_access(
-            circuit_member_access,
-            circuit,
-            name,
-            circuit_member_access.span.clone(),
-        )
+        self.reducer
+            .reduce_circuit_member_access(circuit_member_access, circuit, name)
     }
 
     pub fn reduce_circuit_static_fn_access(
@@ -241,19 +228,15 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let circuit = self.reduce_expression(&circuit_static_fn_access.circuit);
         let name = self.reduce_identifier(&circuit_static_fn_access.name);
 
-        self.reducer.reduce_circuit_static_fn_access(
-            circuit_static_fn_access,
-            circuit,
-            name,
-            circuit_static_fn_access.span.clone(),
-        )
+        self.reducer
+            .reduce_circuit_static_fn_access(circuit_static_fn_access, circuit, name)
     }
 
     pub fn reduce_call(&mut self, call: &CallExpression) -> CallExpression {
         let function = self.reduce_expression(&call.function);
         let arguments = call.arguments.iter().map(|expr| self.reduce_expression(expr)).collect();
 
-        self.reducer.reduce_call(call, function, arguments, call.span.clone())
+        self.reducer.reduce_call(call, function, arguments)
     }
 
     // Statements
@@ -275,15 +258,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_return(&mut self, return_statement: &ReturnStatement) -> ReturnStatement {
         let expression = self.reduce_expression(&return_statement.expression);
 
-        self.reducer
-            .reduce_return(return_statement, expression, return_statement.span.clone())
+        self.reducer.reduce_return(return_statement, expression)
     }
 
     pub fn reduce_variable_name(&mut self, variable_name: &VariableName) -> VariableName {
         let identifier = self.reduce_identifier(&variable_name.identifier);
 
-        self.reducer
-            .reduce_variable_name(variable_name, identifier, variable_name.span.clone())
+        self.reducer.reduce_variable_name(variable_name, identifier)
     }
 
     pub fn reduce_definition(&mut self, definition: &DefinitionStatement) -> DefinitionStatement {
@@ -295,8 +276,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let type_ = definition.type_.as_ref().map(|inner| self.reduce_type(inner));
         let value = self.reduce_expression(&definition.value);
 
-        self.reducer
-            .reduce_definition(definition, variable_names, type_, value, definition.span.clone())
+        self.reducer.reduce_definition(definition, variable_names, type_, value)
     }
 
     pub fn reduce_assignee_access(&mut self, access: &AssigneeAccess) -> AssigneeAccess {
@@ -321,15 +301,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .map(|access| self.reduce_assignee_access(access))
             .collect();
 
-        self.reducer
-            .reduce_assignee(assignee, identifier, accesses, assignee.span.clone())
+        self.reducer.reduce_assignee(assignee, identifier, accesses)
     }
 
     pub fn reduce_assign(&mut self, assign: &AssignStatement) -> AssignStatement {
         let assignee = self.reduce_assignee(&assign.assignee);
         let value = self.reduce_expression(&assign.value);
 
-        self.reducer.reduce_assign(assign, assignee, value, assign.span.clone())
+        self.reducer.reduce_assign(assign, assignee, value)
     }
 
     pub fn reduce_conditional(&mut self, conditional: &ConditionalStatement) -> ConditionalStatement {
@@ -340,8 +319,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .as_ref()
             .map(|condition| self.reduce_statement(condition));
 
-        self.reducer
-            .reduce_conditional(conditional, condition, block, next, conditional.span.clone())
+        self.reducer.reduce_conditional(conditional, condition, block, next)
     }
 
     pub fn reduce_iteration(&mut self, iteration: &IterationStatement) -> IterationStatement {
@@ -350,8 +328,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let stop = self.reduce_expression(&iteration.stop);
         let block = self.reduce_block(&iteration.block);
 
-        self.reducer
-            .reduce_iteration(iteration, variable, start, stop, block, iteration.span.clone())
+        self.reducer.reduce_iteration(iteration, variable, start, stop, block)
     }
 
     pub fn reduce_console(&mut self, console_function_call: &ConsoleStatement) -> ConsoleStatement {
@@ -376,14 +353,12 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             }
         };
 
-        self.reducer
-            .reduce_console(console_function_call, function, console_function_call.span.clone())
+        self.reducer.reduce_console(console_function_call, function)
     }
 
     pub fn reduce_expression_statement(&mut self, expression: &ExpressionStatement) -> ExpressionStatement {
         let inner_expression = self.reduce_expression(&expression.expression);
-        self.reducer
-            .reduce_expression_statement(expression, inner_expression, expression.span.clone())
+        self.reducer.reduce_expression_statement(expression, inner_expression)
     }
 
     pub fn reduce_block(&mut self, block: &Block) -> Block {
@@ -393,7 +368,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .map(|statement| self.reduce_statement(statement))
             .collect();
 
-        self.reducer.reduce_block(block, statements, block.span.clone())
+        self.reducer.reduce_block(block, statements)
     }
 
     // Program
@@ -427,8 +402,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let identifier = self.reduce_identifier(&variable.identifier);
         let type_ = self.reduce_type(&variable.type_);
 
-        self.reducer
-            .reduce_function_input_variable(variable, identifier, type_, variable.span.clone())
+        self.reducer.reduce_function_input_variable(variable, identifier, type_)
     }
 
     pub fn reduce_function_input(&mut self, input: &FunctionInput) -> FunctionInput {
@@ -462,8 +436,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_import(&mut self, import: &ImportStatement) -> ImportStatement {
         let package_or_packages = self.reduce_package_or_packages(&import.package_or_packages);
 
-        self.reducer
-            .reduce_import(import, package_or_packages, import.span.clone())
+        self.reducer.reduce_import(import, package_or_packages)
     }
 
     pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> CircuitMember {
@@ -491,8 +464,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     fn reduce_annotation(&mut self, annotation: &Annotation) -> Annotation {
         let name = self.reduce_identifier(&annotation.name);
 
-        self.reducer
-            .reduce_annotation(annotation, annotation.span.clone(), name)
+        self.reducer.reduce_annotation(annotation, name)
     }
 
     pub fn reduce_function(&mut self, function: &Function) -> Function {
@@ -510,14 +482,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let output = function.output.as_ref().map(|output| self.reduce_type(output));
         let block = self.reduce_block(&function.block);
 
-        self.reducer.reduce_function(
-            function,
-            identifier,
-            annotations,
-            input,
-            output,
-            block,
-            function.span.clone(),
-        )
+        self.reducer
+            .reduce_function(function, identifier, annotations, input, output, block)
     }
 }
