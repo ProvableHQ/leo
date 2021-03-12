@@ -65,7 +65,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     main_file_path: PathBuf,
     output_directory: PathBuf,
     program: Program,
-    program_input: Input,
+    pub program_input: Input,
     context: AsgContext<'a>,
     asg: Option<Asg<'a>>,
     file_contents: RefCell<IndexMap<String, Rc<Vec<String>>>>,

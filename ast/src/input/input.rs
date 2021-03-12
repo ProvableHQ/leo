@@ -23,7 +23,7 @@ use leo_input::{
 #[derive(Clone, PartialEq, Eq)]
 pub struct Input {
     name: String,
-    program_input: ProgramInput,
+    pub program_input: ProgramInput,
     program_state: ProgramState,
 }
 
