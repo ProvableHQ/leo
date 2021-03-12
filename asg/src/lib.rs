@@ -102,8 +102,8 @@ impl<'a> Asg<'a> {
     }
 
     /// Returns the internal program ASG representation.
-    pub fn as_repr(&self) -> Program<'a> {
-        self.asg.clone()
+    pub fn as_repr(&self) -> &Program<'a> {
+        &self.asg
     }
 
     // /// Serializes the ast into a JSON string.

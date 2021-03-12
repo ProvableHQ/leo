@@ -72,7 +72,7 @@ fn new_compiler() -> EdwardsTestCompiler {
     EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context())
 }
 
-pub(crate) fn parse_program<'a>(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
 
     compiler.parse_program_from_string(program_string)?;
@@ -80,7 +80,7 @@ pub(crate) fn parse_program<'a>(program_string: &str) -> Result<EdwardsTestCompi
     Ok(compiler)
 }
 
-pub(crate) fn parse_input<'a>(input_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_input(input_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
     let path = PathBuf::new();
 
@@ -89,7 +89,7 @@ pub(crate) fn parse_input<'a>(input_string: &str) -> Result<EdwardsTestCompiler,
     Ok(compiler)
 }
 
-pub(crate) fn parse_state<'a>(state_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_state(state_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
     let path = PathBuf::new();
 
@@ -98,7 +98,7 @@ pub(crate) fn parse_state<'a>(state_string: &str) -> Result<EdwardsTestCompiler,
     Ok(compiler)
 }
 
-pub(crate) fn parse_input_and_state<'a>(
+pub(crate) fn parse_input_and_state(
     input_string: &str,
     state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -110,7 +110,7 @@ pub(crate) fn parse_input_and_state<'a>(
     Ok(compiler)
 }
 
-pub fn parse_program_with_input<'a>(
+pub fn parse_program_with_input(
     program_string: &str,
     input_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -123,7 +123,7 @@ pub fn parse_program_with_input<'a>(
     Ok(compiler)
 }
 
-pub fn parse_program_with_state<'a>(
+pub fn parse_program_with_state(
     program_string: &str,
     state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -188,6 +188,7 @@ pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> Mai
     main_input
 }
 
+#[allow(clippy::unnecessary_wraps)] // consumers expect an optional value
 pub(crate) fn generate_test_input_u32(number: u32) -> Option<InputValue> {
     Some(InputValue::Integer(
         IntegerType::Unsigned(UnsignedIntegerType::U32Type(U32Type {})),

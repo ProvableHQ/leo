@@ -25,11 +25,25 @@ pub struct Namespace {
     private_var_indices: Vec<usize>,
 }
 
+pub struct ConstraintSet<E: PairingEngine> {
+    pub at: Vec<(E::Fr, Index)>,
+    pub bt: Vec<(E::Fr, Index)>,
+    pub ct: Vec<(E::Fr, Index)>,
+}
+
+impl<E: PairingEngine> Default for ConstraintSet<E> {
+    fn default() -> Self {
+        ConstraintSet {
+            at: Default::default(),
+            bt: Default::default(),
+            ct: Default::default(),
+        }
+    }
+}
+
 pub struct CircuitSynthesizer<E: PairingEngine> {
     // Constraints
-    pub at: OptionalVec<Vec<(E::Fr, Index)>>,
-    pub bt: OptionalVec<Vec<(E::Fr, Index)>>,
-    pub ct: OptionalVec<Vec<(E::Fr, Index)>>,
+    pub constraints: OptionalVec<ConstraintSet<E>>,
 
     // Assignments of variables
     pub public_variables: OptionalVec<E::Fr>,
@@ -79,13 +93,11 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
         LB: FnOnce(LinearCombination<E::Fr>) -> LinearCombination<E::Fr>,
         LC: FnOnce(LinearCombination<E::Fr>) -> LinearCombination<E::Fr>,
     {
-        let index = self.at.insert(Vec::new());
-        self.bt.insert(Vec::new());
-        self.ct.insert(Vec::new());
+        let index = self.constraints.insert(Default::default());
 
-        push_constraints(a(LinearCombination::zero()), &mut self.at, index);
-        push_constraints(b(LinearCombination::zero()), &mut self.bt, index);
-        push_constraints(c(LinearCombination::zero()), &mut self.ct, index);
+        push_constraints(a(LinearCombination::zero()), &mut self.constraints[index].at);
+        push_constraints(b(LinearCombination::zero()), &mut self.constraints[index].bt);
+        push_constraints(c(LinearCombination::zero()), &mut self.constraints[index].ct);
 
         if let Some(ref mut ns) = self.namespaces.last_mut() {
             ns.constraint_indices.push(index);
@@ -103,9 +115,7 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     fn pop_namespace(&mut self) {
         if let Some(ns) = self.namespaces.pop() {
             for idx in ns.constraint_indices {
-                self.at.remove(idx);
-                self.bt.remove(idx);
-                self.ct.remove(idx);
+                self.constraints.remove(idx);
             }
 
             for idx in ns.private_var_indices {
@@ -123,7 +133,7 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     }
 
     fn num_constraints(&self) -> usize {
-        self.at.len()
+        self.constraints.len()
     }
 
     fn num_public_variables(&self) -> usize {
@@ -135,15 +145,11 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     }
 }
 
-fn push_constraints<F: Field>(
-    l: LinearCombination<F>,
-    constraints: &mut OptionalVec<Vec<(F, Index)>>,
-    this_constraint: usize,
-) {
+fn push_constraints<F: Field>(l: LinearCombination<F>, constraint: &mut Vec<(F, Index)>) {
     for (var, coeff) in l.as_ref() {
         match var.get_unchecked() {
-            Index::Public(i) => constraints[this_constraint].push((*coeff, Index::Public(i))),
-            Index::Private(i) => constraints[this_constraint].push((*coeff, Index::Private(i))),
+            Index::Public(i) => constraint.push((*coeff, Index::Public(i))),
+            Index::Private(i) => constraint.push((*coeff, Index::Private(i))),
         }
     }
 }

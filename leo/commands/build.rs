@@ -122,9 +122,7 @@ impl Command for Build {
             // Generate the program on the constraint system and verify correctness
             {
                 let mut cs = CircuitSynthesizer::<Bls12_377> {
-                    at: Default::default(),
-                    bt: Default::default(),
-                    ct: Default::default(),
+                    constraints: Default::default(),
                     public_variables: Default::default(),
                     private_variables: Default::default(),
                     namespaces: Default::default(),

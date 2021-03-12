@@ -37,6 +37,7 @@ members = [
   "parser",
   "state",
   "synthesizer",
+  "asg-passes",
 ]
 
 [dependencies.leo-ast]

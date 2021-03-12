@@ -21,7 +21,7 @@ use snarkvm_curves::{bls12_377::Bls12_377, traits::PairingEngine};
 use snarkvm_fields::FieldError;
 use snarkvm_r1cs::{ConstraintSystem, Index, OptionalVec};
 
-use crate::{CircuitSynthesizer, SerializedField, SerializedIndex};
+use crate::{CircuitSynthesizer, ConstraintSet, SerializedField, SerializedIndex};
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedCircuit {
@@ -86,17 +86,17 @@ impl<E: PairingEngine> From<CircuitSynthesizer<E>> for SerializedCircuit {
         for i in 0..num_constraints {
             // Serialize at[i]
 
-            let a_constraints = get_serialized_constraints::<E>(&synthesizer.at[i]);
+            let a_constraints = get_serialized_constraints::<E>(&synthesizer.constraints[i].at);
             at.push(a_constraints);
 
             // Serialize bt[i]
 
-            let b_constraints = get_serialized_constraints::<E>(&synthesizer.bt[i]);
+            let b_constraints = get_serialized_constraints::<E>(&synthesizer.constraints[i].bt);
             bt.push(b_constraints);
 
             // Serialize ct[i]
 
-            let c_constraints = get_serialized_constraints::<E>(&synthesizer.ct[i]);
+            let c_constraints = get_serialized_constraints::<E>(&synthesizer.constraints[i].ct);
             ct.push(c_constraints);
         }
 
@@ -151,31 +151,27 @@ impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
             Ok(deserialized)
         }
 
-        let mut at = OptionalVec::with_capacity(serialized.num_constraints);
-        let mut bt = OptionalVec::with_capacity(serialized.num_constraints);
-        let mut ct = OptionalVec::with_capacity(serialized.num_constraints);
+        let mut constraints = OptionalVec::with_capacity(serialized.num_constraints);
 
         for i in 0..serialized.num_constraints {
             // Deserialize at[i]
-
             let a_constraints = get_deserialized_constraints(&serialized.at[i])?;
-            at.insert(a_constraints);
 
             // Deserialize bt[i]
-
             let b_constraints = get_deserialized_constraints(&serialized.bt[i])?;
-            bt.insert(b_constraints);
 
             // Deserialize ct[i]
-
             let c_constraints = get_deserialized_constraints(&serialized.ct[i])?;
-            ct.insert(c_constraints);
+
+            constraints.insert(ConstraintSet {
+                at: a_constraints,
+                bt: b_constraints,
+                ct: c_constraints,
+            });
         }
 
         Ok(CircuitSynthesizer::<Bls12_377> {
-            at,
-            bt,
-            ct,
+            constraints,
             public_variables,
             private_variables,
             namespaces: Default::default(),
