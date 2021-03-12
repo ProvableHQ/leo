@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    arithmetic::Mul,
     bits::{RippleCarryAdder, SignExtend},
     errors::SignedIntegerError,
     Int,
@@ -28,6 +27,7 @@ use crate::{
 use snarkvm_fields::{FpParameters, PrimeField};
 use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
+    arithmetic::Mul,
     boolean::{AllocatedBit, Boolean},
     select::CondSelectGadget,
 };
