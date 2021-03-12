@@ -1236,7 +1236,6 @@ dependencies = [
  "leo-asg",
  "leo-asg-passes",
  "leo-ast",
- "leo-gadgets",
  "leo-imports",
  "leo-input",
  "leo-package",
@@ -1258,21 +1257,6 @@ dependencies = [
  "snarkvm-utilities",
  "thiserror",
  "tracing",
-]
-
-[[package]]
-name = "leo-gadgets"
-version = "1.2.3"
-dependencies = [
- "criterion",
- "rand",
- "rand_core",
- "rand_xorshift",
- "snarkvm-fields",
- "snarkvm-gadgets",
- "snarkvm-r1cs",
- "snarkvm-utilities",
- "thiserror",
 ]
 
 [[package]]
@@ -1312,7 +1296,6 @@ dependencies = [
  "lazy_static",
  "leo-ast",
  "leo-compiler",
- "leo-gadgets",
  "leo-imports",
  "leo-input",
  "leo-package",
