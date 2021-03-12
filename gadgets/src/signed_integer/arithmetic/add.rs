@@ -14,21 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    arithmetic::Add,
-    bits::RippleCarryAdder,
-    errors::SignedIntegerError,
-    Int,
-    Int128,
-    Int16,
-    Int32,
-    Int64,
-    Int8,
-};
+use crate::{bits::RippleCarryAdder, errors::SignedIntegerError, Int, Int128, Int16, Int32, Int64, Int8};
 
 use snarkvm_fields::{fp_parameters::FpParameters, PrimeField};
 use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
+    arithmetic::Add,
     boolean::{AllocatedBit, Boolean},
 };
 use snarkvm_r1cs::{Assignment, ConstraintSystem, LinearCombination};

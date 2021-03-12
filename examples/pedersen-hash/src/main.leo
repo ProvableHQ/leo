@@ -24,3 +24,4 @@ function main() -> group {
     let hash_input: [bool; 256] = [true; 256];
     return pedersen.hash(hash_input)
 }
+
