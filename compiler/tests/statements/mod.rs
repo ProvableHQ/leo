@@ -79,5 +79,5 @@ fn test_iteration_input() {
     let program_string = include_str!("iteration_input.leo");
     let error = parse_program_with_input(program_string, input_string).err().unwrap();
 
-    expect_asg_error(error)
+    expect_asg_error(error);
 }

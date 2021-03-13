@@ -23,8 +23,7 @@ use leo_parser::SyntaxError;
 use leo_state::LocalDataVerificationError;
 
 use bincode::Error as SerdeError;
-use std::path::PathBuf;
-use std::ffi::OsString;
+use std::{ffi::OsString, path::PathBuf};
 
 #[derive(Debug, Error)]
 pub enum CompilerError {

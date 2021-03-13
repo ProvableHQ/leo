@@ -19,10 +19,7 @@
 use crate::{
     constraints::{generate_constraints, generate_test_constraints},
     errors::CompilerError,
-    CompilerOptions,
-    GroupType,
-    OutputBytes,
-    OutputFile,
+    CompilerOptions, GroupType, OutputBytes, OutputFile,
 };
 use indexmap::IndexMap;
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
@@ -235,7 +232,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
                 None => match self.main_file_path.clone().into_os_string().into_string() {
                     Err(e) => return CompilerError::FileStringError(e),
                     Ok(path) => path,
-                }
+                },
             };
 
             // Resolve the code text using the file path.
