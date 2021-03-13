@@ -61,6 +61,8 @@ pub use self::types::*;
 mod node;
 pub use node::*;
 
+use anyhow::Result;
+
 /// The abstract syntax tree (AST) for a Leo program.
 ///
 /// The [`Ast`] type represents a Leo program as a series of recursive data types.
@@ -76,6 +78,11 @@ impl Ast {
     /// Creates a new AST from a given program tree.
     pub fn new(program: Program) -> Self {
         Self { ast: program }
+    }
+
+    pub fn canonicalize(&mut self) -> Result<()> {
+        self.ast = ReconstructingDirector::new(Canonicalizer).reduce_program(self.as_repr())?;
+        Ok(())
     }
 
     /// Returns a reference to the inner program AST representation.

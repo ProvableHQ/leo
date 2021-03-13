@@ -1209,6 +1209,7 @@ dependencies = [
 name = "leo-ast"
 version = "1.2.3"
 dependencies = [
+ "anyhow",
  "criterion",
  "indexmap",
  "leo-input",

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
-// use indexmap::IndexMap;
+use anyhow::Result;
 
 pub struct Canonicalizer;
 
@@ -143,7 +143,7 @@ impl Canonicalizer {
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    fn reduce_type(&mut self, _type_: &Type, new: Type, in_circuit: bool) -> Type {
+    fn reduce_type(&mut self, _type_: &Type, new: Type, in_circuit: bool) -> Result<Type> {
         match new {
             Type::Array(_, mut dimensions) => {
                 // TODO need to throw errors in all these.
@@ -166,17 +166,22 @@ impl ReconstructingReducer for Canonicalizer {
                     next = array.clone();
                 }
 
-                array
+                Ok(array)
             }
             Type::SelfType if !in_circuit => {
                 println!("Brrr bad Self");
-                new.clone()
+                Ok(new.clone())
             }
-            _ => new.clone(),
+            _ => Ok(new.clone()),
         }
     }
 
-    fn reduce_array_init(&mut self, array_init: &ArrayInitExpression, element: Expression) -> ArrayInitExpression {
+    fn reduce_array_init(
+        &mut self,
+        array_init: &ArrayInitExpression,
+        element: Expression,
+        _in_circuit: bool,
+    ) -> Result<ArrayInitExpression> {
         // TODO ERROR HERE if len is 0
         // if array_init.dimensions.0.len() == 0 {
 
@@ -185,11 +190,11 @@ impl ReconstructingReducer for Canonicalizer {
         let element = Box::new(element);
 
         if array_init.dimensions.0.len() == 1 {
-            return ArrayInitExpression {
+            return Ok(ArrayInitExpression {
                 element,
                 dimensions: array_init.dimensions.clone(),
                 span: array_init.span.clone(),
-            };
+            });
         }
 
         let mut dimensions = array_init.dimensions.clone();
@@ -214,14 +219,20 @@ impl ReconstructingReducer for Canonicalizer {
             outer_element = Box::new(next.clone());
         }
 
-        ArrayInitExpression {
+        Ok(ArrayInitExpression {
             element: outer_element,
             dimensions: ArrayDimensions(vec![dimensions.remove_first().unwrap()]),
             span: array_init.span.clone(),
-        }
+        })
     }
 
-    fn reduce_assign(&mut self, assign: &AssignStatement, assignee: Assignee, value: Expression) -> AssignStatement {
+    fn reduce_assign(
+        &mut self,
+        assign: &AssignStatement,
+        assignee: Assignee,
+        value: Expression,
+        _in_circuit: bool,
+    ) -> Result<AssignStatement> {
         match value {
             Expression::Value(value) => {
                 let left = Box::new(Expression::Identifier(assignee.identifier.clone()));
@@ -251,14 +262,14 @@ impl ReconstructingReducer for Canonicalizer {
                     span: assign.span.clone(),
                 });
 
-                AssignStatement {
+                Ok(AssignStatement {
                     operation: assign.operation.clone(),
                     assignee,
                     value,
                     span: assign.span.clone(),
-                }
+                })
             }
-            _ => assign.clone(),
+            _ => Ok(assign.clone()),
         }
     }
 
@@ -271,29 +282,34 @@ impl ReconstructingReducer for Canonicalizer {
         output: Option<Type>,
         block: Block,
         _in_circuit: bool,
-    ) -> Function {
+    ) -> Result<Function> {
         let new_output = match output {
             None => Some(Type::Tuple(vec![])),
             _ => output,
         };
 
-        Function {
+        Ok(Function {
             identifier,
             annotations,
             input,
             output: new_output,
             block,
             span: function.span.clone(),
-        }
+        })
     }
 
-    fn reduce_circuit(&mut self, _circuit: &Circuit, circuit_name: Identifier, members: Vec<CircuitMember>) -> Circuit {
-        Circuit {
+    fn reduce_circuit(
+        &mut self,
+        _circuit: &Circuit,
+        circuit_name: Identifier,
+        members: Vec<CircuitMember>,
+    ) -> Result<Circuit> {
+        Ok(Circuit {
             circuit_name: circuit_name.clone(),
             members: members
                 .iter()
                 .map(|member| self.canonicalize_circuit_member(member, &circuit_name))
                 .collect(),
-        }
+        })
     }
 }
