@@ -19,7 +19,10 @@
 use crate::{
     constraints::{generate_constraints, generate_test_constraints},
     errors::CompilerError,
-    CompilerOptions, GroupType, OutputBytes, OutputFile,
+    CompilerOptions,
+    GroupType,
+    OutputBytes,
+    OutputFile,
 };
 use indexmap::IndexMap;
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
