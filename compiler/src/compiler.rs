@@ -224,7 +224,31 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         let content = fs::read_to_string(&self.main_file_path)
             .map_err(|e| CompilerError::FileReadError(self.main_file_path.clone(), e))?;
 
-        self.parse_program_from_string(&content)
+        self.parse_program_from_string(&content).map_err(|mut error| {
+            // Return a formatted error with file path and code text.
+
+            let path = match error.get_path().map(|x| x.to_string()) {
+                // Get the file path if it exists
+                Some(path) => path,
+
+                // If a file path does not exist, then insert the main file path.
+                None => match self.main_file_path.clone().into_os_string().into_string() {
+                    Err(e) => return CompilerError::FileStringError(e),
+                    Ok(path) => path,
+                }
+            };
+
+            // Resolve the code text using the file path.
+            let content = match self.resolve_content(&path) {
+                Err(e) => return e,
+                Ok(x) => x,
+            };
+
+            // Update the formatted error.
+            error.set_path(&path, &content[..]);
+
+            error
+        })
     }
 
     ///
