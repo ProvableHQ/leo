@@ -14,10 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_gadgets::{arithmetic::*, Int8};
+use leo_gadgets::Int8;
 
 use snarkvm_fields::{One, Zero};
-use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, boolean::Boolean};
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    arithmetic::{Add, Div, Mul, Pow, Sub},
+    boolean::Boolean,
+};
 use snarkvm_r1cs::{ConstraintSystem, Fr, TestConstraintSystem};
 
 use rand::Rng;
