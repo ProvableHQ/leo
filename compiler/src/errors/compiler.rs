@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
-use leo_asg::AsgConvertError;
+use leo_asg::{AsgConvertError, FormattedError};
 use leo_ast::{CanonicalizeError, LeoError};
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
@@ -29,6 +29,9 @@ use std::path::PathBuf;
 pub enum CompilerError {
     #[error("{}", _0)]
     SyntaxError(#[from] SyntaxError),
+
+    #[error("{}", _0)]
+    AsgPassError(FormattedError),
 
     #[error("{}", _0)]
     ImportError(#[from] ImportError),

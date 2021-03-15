@@ -151,8 +151,8 @@ impl ReconstructingReducer for Canonicalizer {
     ) -> Result<Type, CanonicalizeError> {
         match new {
             Type::Array(_, mut dimensions) => {
-                if dimensions.0.len() == 0 {
-                    return Err(CanonicalizeError::invalid_array_dimension_size(span).into());
+                if dimensions.0.is_empty() {
+                    return Err(CanonicalizeError::invalid_array_dimension_size(span));
                 }
 
                 let mut next = Type::Array(
@@ -182,7 +182,7 @@ impl ReconstructingReducer for Canonicalizer {
         element: Expression,
         _in_circuit: bool,
     ) -> Result<ArrayInitExpression, CanonicalizeError> {
-        if array_init.dimensions.0.len() == 0 {
+        if array_init.dimensions.0.is_empty() {
             return Err(CanonicalizeError::invalid_array_dimension_size(&array_init.span));
         }
 

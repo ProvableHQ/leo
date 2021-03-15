@@ -49,6 +49,10 @@ version = "1.2.3"
 path = "../parser"
 version = "1.2.3"
 
+[dependencies.leo-asg-passes]
+path = "../asg-passes"
+version = "1.2.3"
+
 [dependencies.snarkvm-curves]
 version = "0.2.0"
 default-features = false

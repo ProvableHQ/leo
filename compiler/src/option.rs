@@ -14,20 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod add;
-pub use self::add::*;
+#[derive(Clone)]
+pub struct CompilerOptions {
+    pub constant_folding_enabled: bool,
+}
 
-pub mod div;
-pub use self::div::*;
-
-pub mod mul;
-pub use self::mul::*;
-
-pub mod neg;
-pub use self::neg::*;
-
-pub mod pow;
-pub use self::pow::*;
-
-pub mod sub;
-pub use self::sub::*;
+impl Default for CompilerOptions {
+    fn default() -> Self {
+        CompilerOptions {
+            constant_folding_enabled: true,
+        }
+    }
+}
