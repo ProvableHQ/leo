@@ -65,7 +65,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     main_file_path: PathBuf,
     output_directory: PathBuf,
     program: Program,
-    pub program_input: Input,
+    program_input: Input,
     context: AsgContext<'a>,
     asg: Option<Asg<'a>>,
     file_contents: RefCell<IndexMap<String, Rc<Vec<String>>>>,
@@ -179,6 +179,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
 
             e
         })?;
+
         self.program_input.parse_input(input_syntax_tree).map_err(|mut e| {
             e.set_path(
                 input_path.to_str().unwrap_or_default(),
