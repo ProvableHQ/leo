@@ -20,12 +20,12 @@ use leo_input::{definitions::Definition, InputParserError};
 use indexmap::IndexMap;
 
 #[derive(Clone, PartialEq, Eq, Default)]
-pub struct MainInput {
+pub struct ConstInput {
     input: IndexMap<String, Option<InputValue>>,
 }
 
 #[allow(clippy::len_without_is_empty)]
-impl MainInput {
+impl ConstInput {
     pub fn new() -> Self {
         Self::default()
     }

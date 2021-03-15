@@ -62,29 +62,33 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let input_variable = input_variable.get().borrow();
                 let name = input_variable.name.name.clone();
 
-                let (input_option, is_const) = input.get(&name).ok_or_else(|| {
-                    FunctionError::input_not_found(name.clone(), &function.span.clone().unwrap_or_default())
-                })?;
-
-                let input_value = if is_const {
-                    self.parse_constant_main_function_input(
+                let input_value = match (input.get(&name), input.get_constant(&name)) {
+                    // If input option is found in [main] section.
+                    (Some(input_option), _) => self.parse_constant_main_function_input(
                         cs,
                         &input_variable.type_.clone(),
                         &name,
                         input_option,
                         &function.span.clone().unwrap_or_default(),
-                    )?
-                } else {
-                    self.allocate_main_function_input(
+                    )?,
+                    // If input option is found in [constants] section.
+                    (_, Some(input_option)) => self.allocate_main_function_input(
                         cs,
                         &input_variable.type_.clone(),
                         &name,
                         input_option,
                         &function.span.clone().unwrap_or_default(),
-                    )?
+                    )?,
+                    // When not found - Error out.
+                    (_, _) => {
+                        return Err(FunctionError::input_not_found(
+                            name.clone(),
+                            &function.span.clone().unwrap_or_default(),
+                        ));
+                    }
                 };
 
-                // Store a new variable for every allocated main function input
+                // Store a new variable for every function input.
                 self.store(input_variable.id, input_value);
             }
             arguments.push(Cell::new(&*function.scope.alloc_expression(Expression::VariableRef(

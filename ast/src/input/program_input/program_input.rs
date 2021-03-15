@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{InputValue, MainInput, Registers};
+use crate::{ConstInput, InputValue, MainInput, Registers};
 use leo_input::{
     sections::{Header, Section},
     InputParserError,
@@ -23,6 +23,7 @@ use leo_input::{
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct ProgramInput {
     pub main: MainInput,
+    pub constants: ConstInput,
     registers: Registers,
 }
 
@@ -36,18 +37,24 @@ impl ProgramInput {
     /// Called during constraint synthesis to provide private input values.
     pub fn empty(&self) -> Self {
         let main = self.main.empty();
+        let constants = self.constants.empty();
         let registers = self.registers.empty();
 
-        Self { main, registers }
+        Self {
+            main,
+            constants,
+            registers,
+        }
     }
 
     pub fn len(&self) -> usize {
         let mut len = 0;
 
-        // add main input variables
+        // Add main input variables and constants.
         len += self.main.len();
+        len += self.constants.len();
 
-        // add registers
+        // Add registers.
         if self.registers.is_present() {
             len += 1;
         }
@@ -58,7 +65,7 @@ impl ProgramInput {
     /// Parse each input included in a file and store them in `self`.
     pub fn parse(&mut self, section: Section) -> Result<(), InputParserError> {
         match section.header {
-            Header::Constants(_constants) => self.main.parse_constants(section.definitions),
+            Header::Constants(_constants) => self.constants.parse(section.definitions),
             Header::Main(_main) => self.main.parse(section.definitions),
             Header::Registers(_registers) => self.registers.parse(section.definitions),
             header => Err(InputParserError::input_section_header(header)),
@@ -67,8 +74,13 @@ impl ProgramInput {
 
     /// Returns the main function input value with the given `name`
     #[allow(clippy::ptr_arg)]
-    pub fn get(&self, name: &String) -> Option<(Option<InputValue>, bool)> {
+    pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
         self.main.get(name)
+    }
+
+    #[allow(clippy::ptr_arg)]
+    pub fn get_constant(&self, name: &String) -> Option<Option<InputValue>> {
+        self.constants.get(name)
     }
 
     /// Returns the runtime register input values
