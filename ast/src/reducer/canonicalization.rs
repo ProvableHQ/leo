@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
-use anyhow::Result;
 
 pub struct Canonicalizer;
 
@@ -143,14 +142,18 @@ impl Canonicalizer {
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    fn reduce_type(&mut self, _type_: &Type, new: Type, in_circuit: bool) -> Result<Type> {
+    fn reduce_type(
+        &mut self,
+        _type_: &Type,
+        new: Type,
+        in_circuit: bool,
+        span: &Span,
+    ) -> Result<Type, CanonicalizeError> {
         match new {
             Type::Array(_, mut dimensions) => {
-                // TODO need to throw errors in all these.
-                // Throw error if dimensions is empty.
-                // if array_init.dimensions.0.len() == 0 {
-
-                // }
+                if dimensions.0.len() == 0 {
+                    return Err(CanonicalizeError::invalid_array_dimension_size(span).into());
+                }
 
                 let mut next = Type::Array(
                     Box::new(Type::Group),
@@ -168,10 +171,7 @@ impl ReconstructingReducer for Canonicalizer {
 
                 Ok(array)
             }
-            Type::SelfType if !in_circuit => {
-                println!("Brrr bad Self");
-                Ok(new.clone())
-            }
+            Type::SelfType if !in_circuit => Err(CanonicalizeError::big_self_outside_of_circuit(span)),
             _ => Ok(new.clone()),
         }
     }
@@ -181,11 +181,10 @@ impl ReconstructingReducer for Canonicalizer {
         array_init: &ArrayInitExpression,
         element: Expression,
         _in_circuit: bool,
-    ) -> Result<ArrayInitExpression> {
-        // TODO ERROR HERE if len is 0
-        // if array_init.dimensions.0.len() == 0 {
-
-        // }
+    ) -> Result<ArrayInitExpression, CanonicalizeError> {
+        if array_init.dimensions.0.len() == 0 {
+            return Err(CanonicalizeError::invalid_array_dimension_size(&array_init.span));
+        }
 
         let element = Box::new(element);
 
@@ -232,7 +231,7 @@ impl ReconstructingReducer for Canonicalizer {
         assignee: Assignee,
         value: Expression,
         _in_circuit: bool,
-    ) -> Result<AssignStatement> {
+    ) -> Result<AssignStatement, CanonicalizeError> {
         match value {
             Expression::Value(value) => {
                 let left = Box::new(Expression::Identifier(assignee.identifier.clone()));
@@ -282,7 +281,7 @@ impl ReconstructingReducer for Canonicalizer {
         output: Option<Type>,
         block: Block,
         _in_circuit: bool,
-    ) -> Result<Function> {
+    ) -> Result<Function, CanonicalizeError> {
         let new_output = match output {
             None => Some(Type::Tuple(vec![])),
             _ => output,
@@ -303,7 +302,7 @@ impl ReconstructingReducer for Canonicalizer {
         _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
-    ) -> Result<Circuit> {
+    ) -> Result<Circuit, CanonicalizeError> {
         Ok(Circuit {
             circuit_name: circuit_name.clone(),
             members: members
