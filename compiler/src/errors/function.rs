@@ -118,6 +118,15 @@ impl FunctionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn tuple_size_mismatch(expected: usize, actual: usize, span: &Span) -> Self {
+        let message = format!(
+            "Input tuple size mismatch expected {}, found tuple with length {}",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn invalid_tuple(actual: String, span: &Span) -> Self {
         let message = format!("Expected function input tuple, found `{}`", actual);
 
@@ -138,6 +147,12 @@ impl FunctionError {
 
     pub fn input_not_found(expected: String, span: &Span) -> Self {
         let message = format!("main function input {} not found", expected);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn double_input_declaration(input_name: String, span: &Span) -> Self {
+        let message = format!("Input variable {} declared twice", input_name);
 
         Self::new_from_span(message, span)
     }

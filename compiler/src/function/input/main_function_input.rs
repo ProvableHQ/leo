@@ -60,18 +60,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             )?)),
             Type::Array(type_, len) => self.allocate_array(cs, name, &*type_, *len, input_option, span),
             Type::Tuple(types) => self.allocate_tuple(cs, &name, types, input_option, span),
-            _ => unimplemented!("main function input not implemented for type"),
+            _ => unimplemented!("main function input not implemented for type {}", type_),
         }
     }
 }
 
 /// Process constant inputs and return ConstrainedValue with constant value in it.
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn parse_constant_main_function_input<CS: ConstraintSystem<F>>(
+    pub fn constant_main_function_input<CS: ConstraintSystem<F>>(
         &mut self,
         // TODO: remove unnecessary arguments
         _cs: &mut CS,
-        _type_: &Type,
+        type_: &Type,
         name: &str,
         input_option: Option<InputValue>,
         span: &Span,
@@ -101,18 +101,48 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
                 ConstrainedValue::Integer(Integer::new(&const_int))
             }
-            InputValue::Array(values) => ConstrainedValue::Array(
-                values
-                    .iter()
-                    .map(|x| self.parse_constant_main_function_input(_cs, _type_, name, Some(x.clone()), span))
-                    .collect::<Result<Vec<_>, _>>()?,
-            ),
-            InputValue::Tuple(values) => ConstrainedValue::Tuple(
-                values
-                    .iter()
-                    .map(|x| self.parse_constant_main_function_input(_cs, _type_, name, Some(x.clone()), span))
-                    .collect::<Result<Vec<_>, _>>()?,
-            ),
+            InputValue::Array(values) => {
+                // Get ASG type and array length to compare with provided inputs.
+                let (type_, arr_len) = if let Type::Array(type_, len) = type_ {
+                    (type_, *len)
+                } else {
+                    return Err(FunctionError::input_not_found("expected".to_string(), &span));
+                };
+
+                if arr_len != values.len() {
+                    return Err(FunctionError::invalid_input_array_dimensions(
+                        arr_len,
+                        values.len(),
+                        span,
+                    ));
+                }
+
+                ConstrainedValue::Array(
+                    values
+                        .iter()
+                        .map(|x| self.constant_main_function_input(_cs, type_, name, Some(x.clone()), span))
+                        .collect::<Result<Vec<_>, _>>()?,
+                )
+            }
+            InputValue::Tuple(values) => {
+                // Get ASG tuple size and compare it to input tuple size.
+                let tuple_len = if let Type::Tuple(types) = type_ {
+                    types.len()
+                } else {
+                    return Err(FunctionError::tuple_size_mismatch(0, values.len(), span));
+                };
+
+                if values.len() != tuple_len {
+                    return Err(FunctionError::tuple_size_mismatch(tuple_len, values.len(), span));
+                }
+
+                ConstrainedValue::Tuple(
+                    values
+                        .iter()
+                        .map(|x| self.constant_main_function_input(_cs, type_, name, Some(x.clone()), span))
+                        .collect::<Result<Vec<_>, _>>()?,
+                )
+            }
         })
     }
 }
