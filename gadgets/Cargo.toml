@@ -30,7 +30,7 @@ version = "0.2.0"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.2.0"
+version = "0.2.1"
 
 [dependencies.rand]
 version = "0.8"
