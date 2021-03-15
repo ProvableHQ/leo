@@ -91,7 +91,7 @@ fn test_input_array_dimensions_mismatch() {
 
     let program = parse_program_with_input(program_string, input_string).unwrap();
 
-    assert_satisfied(program);
+    expect_fail(program);
 }
 
 #[test]
