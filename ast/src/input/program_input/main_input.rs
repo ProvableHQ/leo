@@ -62,8 +62,7 @@ impl MainInput {
         Ok(())
     }
 
-    /// Returns an `Option` of the main function input at `name`. As a second
-    /// value in a tuple returns flag whether input is defined as a constant in input file.
+    /// Returns an `Option` of the main function input at `name`.
     pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
         self.input.get(name).cloned()
     }

@@ -50,7 +50,7 @@ impl ConstInput {
         self.input.insert(key, value);
     }
 
-    /// Parses main input definitions and stores them in `self`.
+    /// Parses constant input definitions and stores them in `self`.
     pub fn parse(&mut self, definitions: Vec<Definition>) -> Result<(), InputParserError> {
         for definition in definitions {
             let name = definition.parameter.variable.value;
@@ -62,8 +62,7 @@ impl ConstInput {
         Ok(())
     }
 
-    /// Returns an `Option` of the main function input at `name`. As a second
-    /// value in a tuple returns flag whether input is defined as a constant in input file.
+    /// Returns an `Option` of the constant main function input at `name`.
     pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
         self.input.get(name).cloned()
     }
