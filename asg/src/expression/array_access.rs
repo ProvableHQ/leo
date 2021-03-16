@@ -83,11 +83,13 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayAccessExpression,
         expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<ArrayAccessExpression<'a>, AsgConvertError> {
         let array = <&Expression<'a>>::from_ast(
             scope,
             &*value.array,
             Some(PartialType::Array(expected_type.map(Box::new), None)),
+            circuit_name,
         )?;
         match array.get_type() {
             Some(Type::Array(..)) => (),
@@ -104,6 +106,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             scope,
             &*value.index,
             Some(PartialType::Integer(None, Some(IntegerType::U32))),
+            circuit_name,
         )?;
 
         if !index.is_consty() {

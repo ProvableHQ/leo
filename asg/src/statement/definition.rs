@@ -50,14 +50,15 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::DefinitionStatement,
         _expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError> {
         let type_ = statement
             .type_
             .as_ref()
-            .map(|x| scope.resolve_ast_type(&x))
+            .map(|x| scope.resolve_ast_type(&x, circuit_name))
             .transpose()?;
 
-        let value = <&Expression<'a>>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;
+        let value = <&Expression<'a>>::from_ast(scope, &statement.value, type_.clone().map(Into::into), circuit_name)?;
 
         let type_ = type_.or_else(|| value.get_type());
 

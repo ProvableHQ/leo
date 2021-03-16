@@ -39,6 +39,7 @@ pub(super) trait FromAst<'a, T: leo_ast::Node + 'static>: Sized {
         scope: &'a Scope<'a>,
         value: &T,
         expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError>;
 }
 

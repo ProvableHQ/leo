@@ -89,6 +89,7 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::UnaryExpression,
         expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<UnaryExpression<'a>, AsgConvertError> {
         let expected_type = match value.op {
             UnaryOperation::Not => match expected_type.map(|x| x.full()).flatten() {
@@ -126,7 +127,7 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
                 }
             },
         };
-        let expr = <&Expression<'a>>::from_ast(scope, &*value.inner, expected_type.map(Into::into))?;
+        let expr = <&Expression<'a>>::from_ast(scope, &*value.inner, expected_type.map(Into::into), circuit_name)?;
 
         if matches!(value.op, UnaryOperation::Negate) {
             let is_expr_unsigned = expr

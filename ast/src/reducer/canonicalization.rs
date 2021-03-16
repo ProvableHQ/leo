@@ -160,8 +160,13 @@ impl Canonicalizer {
             }
 
             Expression::CircuitInit(circuit_init) => {
+                let mut name = circuit_init.name.clone();
+                if circuit_name.name == String::from("Self") {
+                    name = circuit_name.clone();
+                }
+
                 return Expression::CircuitInit(CircuitInitExpression {
-                    name: circuit_name.clone(),
+                    name,
                     members: circuit_init.members.clone(),
                     span: circuit_init.span.clone(),
                 });
@@ -375,15 +380,12 @@ impl Canonicalizer {
 impl ReconstructingReducer for Canonicalizer {
     fn reduce_type(&self, _type_: &Type, new: Type, in_circuit: bool, span: &Span) -> Result<Type, CanonicalizeError> {
         match new {
-            Type::Array(_, mut dimensions) => {
+            Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
                     return Err(CanonicalizeError::invalid_array_dimension_size(span));
                 }
 
-                let mut next = Type::Array(
-                    Box::new(Type::Group),
-                    ArrayDimensions(vec![dimensions.remove_last().unwrap()]),
-                );
+                let mut next = Type::Array(type_, ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
                 let mut array = next.clone();
 
                 loop {
@@ -488,7 +490,7 @@ impl ReconstructingReducer for Canonicalizer {
                 });
 
                 Ok(AssignStatement {
-                    operation: assign.operation.clone(),
+                    operation: AssignOperation::Assign,
                     assignee,
                     value,
                     span: assign.span.clone(),

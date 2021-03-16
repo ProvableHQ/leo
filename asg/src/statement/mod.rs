@@ -77,27 +77,43 @@ impl<'a> FromAst<'a, leo_ast::Statement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::Statement,
         _expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<&'a Statement<'a>, AsgConvertError> {
         use leo_ast::Statement::*;
         Ok(match value {
-            Return(statement) => {
-                scope.alloc_statement(Statement::Return(ReturnStatement::from_ast(scope, statement, None)?))
-            }
-            Definition(statement) => Self::from_ast(scope, statement, None)?,
-            Assign(statement) => Self::from_ast(scope, statement, None)?,
+            Return(statement) => scope.alloc_statement(Statement::Return(ReturnStatement::from_ast(
+                scope,
+                statement,
+                None,
+                circuit_name,
+            )?)),
+            Definition(statement) => Self::from_ast(scope, statement, None, circuit_name)?,
+            Assign(statement) => Self::from_ast(scope, statement, None, circuit_name)?,
             Conditional(statement) => scope.alloc_statement(Statement::Conditional(ConditionalStatement::from_ast(
-                scope, statement, None,
+                scope,
+                statement,
+                None,
+                circuit_name,
             )?)),
-            Iteration(statement) => Self::from_ast(scope, statement, None)?,
-            Console(statement) => {
-                scope.alloc_statement(Statement::Console(ConsoleStatement::from_ast(scope, statement, None)?))
-            }
+            Iteration(statement) => Self::from_ast(scope, statement, None, circuit_name)?,
+            Console(statement) => scope.alloc_statement(Statement::Console(ConsoleStatement::from_ast(
+                scope,
+                statement,
+                None,
+                circuit_name,
+            )?)),
             Expression(statement) => scope.alloc_statement(Statement::Expression(ExpressionStatement::from_ast(
-                scope, statement, None,
+                scope,
+                statement,
+                None,
+                circuit_name,
             )?)),
-            Block(statement) => {
-                scope.alloc_statement(Statement::Block(BlockStatement::from_ast(scope, statement, None)?))
-            }
+            Block(statement) => scope.alloc_statement(Statement::Block(BlockStatement::from_ast(
+                scope,
+                statement,
+                None,
+                circuit_name,
+            )?)),
         })
     }
 }

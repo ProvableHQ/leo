@@ -77,6 +77,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
         _scope: &'a Scope<'a>,
         value: &leo_ast::ValueExpression,
         expected_type: Option<PartialType<'a>>,
+        _circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Constant<'a>, AsgConvertError> {
         use leo_ast::ValueExpression::*;
         Ok(match value {

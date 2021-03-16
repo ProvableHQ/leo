@@ -35,6 +35,7 @@ impl<'a> FromAst<'a, leo_ast::ReturnStatement> for ReturnStatement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::ReturnStatement,
         _expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError> {
         let return_type: Option<Type> = scope
             .resolve_current_function()
@@ -47,6 +48,7 @@ impl<'a> FromAst<'a, leo_ast::ReturnStatement> for ReturnStatement<'a> {
                 scope,
                 &statement.expression,
                 return_type.map(Into::into),
+                circuit_name,
             )?),
         })
     }

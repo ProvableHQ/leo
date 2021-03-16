@@ -211,7 +211,11 @@ impl<'a> Scope<'a> {
     ///
     /// Returns the type returned by the current scope.
     ///
-    pub fn resolve_ast_type(&self, type_: &leo_ast::Type) -> Result<Type<'a>, AsgConvertError> {
+    pub fn resolve_ast_type(
+        &self,
+        type_: &leo_ast::Type,
+        circuit_name: Option<&leo_ast::Identifier>,
+    ) -> Result<Type<'a>, AsgConvertError> {
         use leo_ast::Type::*;
         Ok(match type_ {
             Address => Type::Address,
@@ -220,7 +224,7 @@ impl<'a> Scope<'a> {
             Group => Type::Group,
             IntegerType(int_type) => Type::Integer(int_type.clone()),
             Array(sub_type, dimensions) => {
-                let mut item = Box::new(self.resolve_ast_type(&*sub_type)?);
+                let mut item = Box::new(self.resolve_ast_type(&*sub_type, circuit_name)?);
                 for dimension in dimensions.0.iter().rev() {
                     let dimension = dimension
                         .value
@@ -233,21 +237,29 @@ impl<'a> Scope<'a> {
             Tuple(sub_types) => Type::Tuple(
                 sub_types
                     .iter()
-                    .map(|x| self.resolve_ast_type(x))
+                    .map(|x| self.resolve_ast_type(x, circuit_name))
                     .collect::<Result<Vec<_>, AsgConvertError>>()?,
-            ),
-            Circuit(name) if name.name == "Self" => Type::Circuit(
-                self.resolve_circuit_self()
-                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
             ),
             SelfType => Type::Circuit(
                 self.resolve_circuit_self()
                     .ok_or_else(AsgConvertError::reference_self_outside_circuit)?,
             ),
-            Circuit(name) => Type::Circuit(
-                self.resolve_circuit(&name.name)
-                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
-            ),
+            Circuit(name) => {
+                match circuit_name {
+                    Some(cname) if name.name == cname.name => {
+                        return Ok(Type::Circuit(
+                            self.resolve_circuit_self()
+                                .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
+                        ));
+                    }
+                    _ => {}
+                }
+
+                Type::Circuit(
+                    self.resolve_circuit(&name.name)
+                        .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
+                )
+            }
         })
     }
 }

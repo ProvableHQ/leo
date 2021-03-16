@@ -38,18 +38,21 @@ impl<'a> FromAst<'a, leo_ast::ConditionalStatement> for ConditionalStatement<'a>
         scope: &'a Scope<'a>,
         statement: &leo_ast::ConditionalStatement,
         _expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError> {
-        let condition = <&Expression<'a>>::from_ast(scope, &statement.condition, Some(Type::Boolean.into()))?;
+        let condition =
+            <&Expression<'a>>::from_ast(scope, &statement.condition, Some(Type::Boolean.into()), circuit_name)?;
         let result = scope.alloc_statement(Statement::Block(BlockStatement::from_ast(
             scope,
             &statement.block,
             None,
+            circuit_name,
         )?));
         let next = statement
             .next
             .as_deref()
             .map(|next| -> Result<&'a Statement<'a>, AsgConvertError> {
-                <&'a Statement<'a>>::from_ast(scope, next, None)
+                <&'a Statement<'a>>::from_ast(scope, next, None, circuit_name)
             })
             .transpose()?;
 

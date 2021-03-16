@@ -135,6 +135,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::Identifier,
         expected_type: Option<PartialType<'a>>,
+        _circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<&'a Expression<'a>, AsgConvertError> {
         let variable = if value.name == "input" {
             if let Some(function) = scope.resolve_current_function() {

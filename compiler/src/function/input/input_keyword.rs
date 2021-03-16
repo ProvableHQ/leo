@@ -78,7 +78,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             };
 
             let member_name = name.clone();
-            let member_value = self.allocate_input_section(cs, name, sub_circuit, values)?;
+            let member_value = self.allocate_input_section(cs, name, sub_circuit, values, None)?;
 
             let member = ConstrainedCircuitMember(member_name, member_value);
 

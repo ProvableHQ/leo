@@ -23,7 +23,7 @@ use leo_parser::SyntaxError;
 use leo_state::LocalDataVerificationError;
 
 use bincode::Error as SerdeError;
-use std::path::PathBuf;
+use std::{ffi::OsString, path::PathBuf};
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
@@ -50,6 +50,9 @@ pub enum CompilerError {
 
     #[error("Cannot read from the provided file path '{:?}': {}", _0, _1)]
     FileReadError(PathBuf, std::io::Error),
+
+    #[error("Cannot parse file string `{:?}`", _0)]
+    FileStringError(OsString),
 
     #[error("{}", _0)]
     LocalDataVerificationError(#[from] LocalDataVerificationError),

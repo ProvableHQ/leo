@@ -80,6 +80,7 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::TupleInitExpression,
         expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<TupleInitExpression<'a>, AsgConvertError> {
         let tuple_types = match expected_type {
             Some(PartialType::Tuple(sub_types)) => Some(sub_types),
@@ -112,6 +113,7 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
                     scope,
                     e,
                     tuple_types.as_ref().map(|x| x.get(i)).flatten().cloned().flatten(),
+                    circuit_name,
                 )
                 .map(Cell::new)
             })

@@ -74,6 +74,7 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::TupleAccessExpression,
         expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<TupleAccessExpression<'a>, AsgConvertError> {
         let index = value
             .index
@@ -84,7 +85,12 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
         let mut expected_tuple = vec![None; index + 1];
         expected_tuple[index] = expected_type;
 
-        let tuple = <&Expression<'a>>::from_ast(scope, &*value.tuple, Some(PartialType::Tuple(expected_tuple)))?;
+        let tuple = <&Expression<'a>>::from_ast(
+            scope,
+            &*value.tuple,
+            Some(PartialType::Tuple(expected_tuple)),
+            circuit_name,
+        )?;
         let tuple_type = tuple.get_type();
         if let Some(Type::Tuple(_items)) = tuple_type {
         } else {

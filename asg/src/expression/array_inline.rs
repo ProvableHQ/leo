@@ -101,6 +101,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayInlineExpression,
         expected_type: Option<PartialType<'a>>,
+        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<ArrayInlineExpression<'a>, AsgConvertError> {
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
@@ -120,7 +121,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
             for expr in value.elements.iter() {
                 expected_item = match expr {
                     SpreadOrExpression::Expression(e) => {
-                        match <&Expression<'a>>::from_ast(scope, e, expected_item.clone()) {
+                        match <&Expression<'a>>::from_ast(scope, e, expected_item.clone(), circuit_name) {
                             Ok(expr) => expr.get_type().map(Type::partial),
                             Err(_) => continue,
                         }
@@ -144,7 +145,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                 .iter()
                 .map(|e| match e {
                     SpreadOrExpression::Expression(e) => {
-                        let expr = <&Expression<'a>>::from_ast(scope, e, expected_item.clone())?;
+                        let expr = <&Expression<'a>>::from_ast(scope, e, expected_item.clone(), circuit_name)?;
                         if expected_item.is_none() {
                             expected_item = expr.get_type().map(Type::partial);
                         }
@@ -156,6 +157,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                             scope,
                             e,
                             Some(PartialType::Array(expected_item.clone().map(Box::new), None)),
+                            circuit_name,
                         )?;
 
                         match expr.get_type() {

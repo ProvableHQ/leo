@@ -79,7 +79,7 @@ impl<'a> Circuit<'a> {
                     }
                     members.insert(
                         name.name.clone(),
-                        CircuitMember::Variable(new_scope.resolve_ast_type(type_)?),
+                        CircuitMember::Variable(new_scope.resolve_ast_type(type_, Some(&value.circuit_name))?),
                     );
                 }
                 leo_ast::CircuitMember::CircuitFunction(function) => {
@@ -90,7 +90,7 @@ impl<'a> Circuit<'a> {
                             &function.identifier.span,
                         ));
                     }
-                    let asg_function = Function::init(new_scope, function)?;
+                    let asg_function = Function::init(new_scope, function, Some(&value.circuit_name))?;
                     asg_function.circuit.replace(Some(circuit));
                     if asg_function.is_test() {
                         return Err(AsgConvertError::circuit_test_function(&function.identifier.span));
@@ -117,7 +117,7 @@ impl<'a> Circuit<'a> {
                         CircuitMember::Function(f) => f,
                         _ => unimplemented!(),
                     };
-                    Function::fill_from_ast(asg_function, function)?;
+                    Function::fill_from_ast(asg_function, function, Some(&value.circuit_name))?;
                 }
             }
         }
