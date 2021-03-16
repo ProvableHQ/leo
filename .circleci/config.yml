@@ -75,21 +75,21 @@ jobs:
       - clear_environment:
           cache_key: leo-nightly-cache
 
-  codecov:
-    machine:
-      image: ubuntu-1604:202004-01
-      docker_layer_caching: true
-    resource_class: xlarge
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project/
-      - run:
-          name: Run kcov
-          command: >
-            cd ~/project/project/ &&
-            docker run --security-opt seccomp=unconfined -v ~/project/project/:/home/circleci/project/
-            howardwu/snarkos-codecov:2021-01-31 bash /home/circleci/project/.resources/kcov.sh
-      - run: cd ./project/ && bash <(curl -s https://codecov.io/bash)
+#  codecov:
+#    machine:
+#      image: ubuntu-1604:202004-01
+#      docker_layer_caching: true
+#    resource_class: xlarge
+#    steps:
+#      - attach_workspace:
+#          at: /home/circleci/project/
+#      - run:
+#          name: Run kcov
+#          command: >
+#            cd ~/project/project/ &&
+#            docker run --security-opt seccomp=unconfined -v ~/project/project/:/home/circleci/project/
+#            howardwu/snarkos-codecov:2021-01-31 bash /home/circleci/project/.resources/kcov.sh
+#      - run: cd ./project/ && bash <(curl -s https://codecov.io/bash)
 
   leo-executable:
     docker:
@@ -219,9 +219,9 @@ workflows:
     jobs:
       - rust-stable
       - rust-nightly
-      - codecov:
-          requires:
-            - rust-stable
+#      - codecov:
+#          requires:
+#            - rust-stable
       - leo-executable
       - leo-new:
           requires:
