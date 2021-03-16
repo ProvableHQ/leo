@@ -24,7 +24,7 @@ use snarkvm_gadgets::traits::utilities::{
     alloc::AllocGadget,
     eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
     select::CondSelectGadget,
-    ToBitsGadget,
+    ToBitsBEGadget,
     ToBytesGadget,
 };
 use snarkvm_r1cs::ConstraintSystem;
@@ -41,7 +41,7 @@ pub trait GroupType<F: Field>:
     + ConditionalEqGadget<F>
     + AllocGadget<GroupValue, F>
     + CondSelectGadget<F>
-    + ToBitsGadget<F>
+    + ToBitsBEGadget<F>
     + ToBytesGadget<F>
 {
     fn constant(value: &GroupValue, span: &Span) -> Result<Self, GroupError>;

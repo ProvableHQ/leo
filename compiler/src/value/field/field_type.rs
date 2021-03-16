@@ -30,7 +30,7 @@ use snarkvm_gadgets::{
             eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
             uint::UInt8,
-            ToBitsGadget,
+            ToBitsBEGadget,
             ToBytesGadget,
         },
     },
@@ -304,15 +304,15 @@ impl<F: PrimeField> CondSelectGadget<F> for FieldType<F> {
     }
 }
 
-impl<F: PrimeField> ToBitsGadget<F> for FieldType<F> {
-    fn to_bits<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
+impl<F: PrimeField> ToBitsBEGadget<F> for FieldType<F> {
+    fn to_bits_be<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
-        self_gadget.to_bits(cs)
+        self_gadget.to_bits_be(cs)
     }
 
-    fn to_bits_strict<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
+    fn to_bits_be_strict<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
-        self_gadget.to_bits_strict(cs)
+        self_gadget.to_bits_be_strict(cs)
     }
 }
 

@@ -29,7 +29,6 @@ members = [
   "asg",
   "ast",
   "compiler",
-  "gadgets",
   "imports",
   "input",
   "linter",
@@ -46,10 +45,6 @@ version = "1.2.3"
 
 [dependencies.leo-compiler]
 path = "./compiler"
-version = "1.2.3"
-
-[dependencies.leo-gadgets]
-path = "./gadgets"
 version = "1.2.3"
 
 [dependencies.leo-imports]
@@ -73,23 +68,23 @@ path = "./synthesizer"
 version = "1.2.3"
 
 [dependencies.snarkvm-algorithms]
-version = "0.2.0"
+version = "0.2.1"
 #default-features = false
 
 [dependencies.snarkvm-curves]
-version = "0.2.0"
+version = "0.2.1"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.2.0"
+version = "0.2.1"
 default-features = false
 
 [dependencies.snarkvm-r1cs]
-version = "0.2.0"
+version = "0.2.1"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.2.0"
+version = "0.2.1"
 
 [dependencies.anyhow]
 version = "1.0"
