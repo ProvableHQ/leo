@@ -14,10 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_gadgets::signed_integer::*;
-
 use snarkvm_gadgets::traits::utilities::{
     boolean::Boolean,
+    int::{Int128, Int16, Int32, Int64, Int8},
     uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
 };
 use std::fmt::Debug;

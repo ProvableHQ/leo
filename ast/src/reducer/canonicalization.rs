@@ -161,7 +161,7 @@ impl Canonicalizer {
 
             Expression::CircuitInit(circuit_init) => {
                 let mut name = circuit_init.name.clone();
-                if circuit_name.name == String::from("Self") {
+                if circuit_name.name == *"Self" {
                     name = circuit_name.clone();
                 }
 
@@ -461,11 +461,12 @@ impl ReconstructingReducer for Canonicalizer {
         _in_circuit: bool,
     ) -> Result<AssignStatement, CanonicalizeError> {
         match value {
-            Expression::Value(value) => {
+            Expression::Value(value_expr) if assign.operation != AssignOperation::Assign => {
                 let left = Box::new(Expression::Identifier(assignee.identifier.clone()));
-                let right = Box::new(Expression::Value(value));
+                let right = Box::new(Expression::Value(value_expr));
+
                 let op = match assign.operation {
-                    AssignOperation::Assign => BinaryOperation::Eq,
+                    AssignOperation::Assign => unimplemented!(), // Imposible
                     AssignOperation::Add => BinaryOperation::Add,
                     AssignOperation::Sub => BinaryOperation::Sub,
                     AssignOperation::Mul => BinaryOperation::Mul,
@@ -482,7 +483,7 @@ impl ReconstructingReducer for Canonicalizer {
                     AssignOperation::Mod => BinaryOperation::Mod,
                 };
 
-                let value = Expression::Binary(BinaryExpression {
+                let new_value = Expression::Binary(BinaryExpression {
                     left,
                     right,
                     op,
@@ -492,7 +493,7 @@ impl ReconstructingReducer for Canonicalizer {
                 Ok(AssignStatement {
                     operation: AssignOperation::Assign,
                     assignee,
-                    value,
+                    value: new_value,
                     span: assign.span.clone(),
                 })
             }
