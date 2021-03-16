@@ -91,14 +91,14 @@ jobs:
             howardwu/snarkos-codecov:2021-01-31 bash /home/circleci/project/.resources/kcov.sh
       - run: cd ./project/ && bash <(curl -s https://codecov.io/bash)
 
-  leo-stable:
+  leo-executable:
     docker:
       - image: cimg/rust:1.50.0
     resource_class: xlarge
     steps:
       - checkout
       - setup_environment:
-          cache_key: leo-stable-cache
+          cache_key: leo-executable-cache
       - run:
           name: Build and install Leo
           no_output_timeout: 30m
@@ -107,7 +107,7 @@ jobs:
           root: ~/
           paths: project/
       - clear_environment:
-          cache_key: leo-stable-cache
+          cache_key: leo-executable-cache
 
   leo-new:
     docker:
@@ -222,28 +222,28 @@ workflows:
       - codecov:
           requires:
             - rust-stable
-      - leo-stable
+      - leo-executable
       - leo-new:
           requires:
-            - leo-stable
+            - leo-executable
       - leo-init:
           requires:
-            - leo-stable
+            - leo-executable
       - leo-clean:
           requires:
-            - leo-stable
+            - leo-executable
       - leo-setup:
           requires:
-            - leo-stable
+            - leo-executable
       - leo-add-remove:
           requires:
-            - leo-stable
+            - leo-executable
       - leo-login-logout:
           requires:
-            - leo-stable
+            - leo-executable
       - leo-clone:
           requires:
-            - leo-stable
+            - leo-executable
       - leo-publish:
           requires:
-            - leo-stable
+            - leo-executable
