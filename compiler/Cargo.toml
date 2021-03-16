@@ -21,10 +21,6 @@ edition = "2018"
 path = "../ast"
 version = "1.2.3"
 
-[dependencies.leo-gadgets]
-path = "../gadgets"
-version = "1.2.3"
-
 [dependencies.leo-imports]
 path = "../imports"
 version = "1.2.3"
