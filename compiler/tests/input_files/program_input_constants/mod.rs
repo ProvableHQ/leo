@@ -105,6 +105,16 @@ fn test_input_double_declaration() {
 }
 
 #[test]
+fn test_non_constant_input() {
+    let program_string = include_str!("main.leo");
+    let input_string = include_str!("input/main_not_const_input_fail.in");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    expect_fail(program);
+}
+
+#[test]
 fn test_tuple_size_mismatch() {
     let program_string = include_str!("main_tuple_fail.leo");
     let input_string = include_str!("input/main_tuple_fail.in");
