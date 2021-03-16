@@ -21,7 +21,7 @@ use indexmap::IndexMap;
 #[allow(clippy::redundant_closure)]
 pub trait ReconstructingReducer {
     fn reduce_type(
-        &mut self,
+        &self,
         _type_: &Type,
         new: Type,
         _in_circuit: bool,
@@ -32,7 +32,7 @@ pub trait ReconstructingReducer {
 
     // Expressions
     fn reduce_expression(
-        &mut self,
+        &self,
         _expression: &Expression,
         new: Expression,
         _in_circuit: bool,
@@ -40,14 +40,14 @@ pub trait ReconstructingReducer {
         Ok(new)
     }
 
-    fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier, CanonicalizeError> {
+    fn reduce_identifier(&self, identifier: &Identifier) -> Result<Identifier, CanonicalizeError> {
         Ok(Identifier {
             name: identifier.name.clone(),
             span: identifier.span.clone(),
         })
     }
 
-    fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> Result<GroupTuple, CanonicalizeError> {
+    fn reduce_group_tuple(&self, group_tuple: &GroupTuple) -> Result<GroupTuple, CanonicalizeError> {
         Ok(GroupTuple {
             x: group_tuple.x.clone(),
             y: group_tuple.y.clone(),
@@ -55,16 +55,12 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_group_value(
-        &mut self,
-        _group_value: &GroupValue,
-        new: GroupValue,
-    ) -> Result<GroupValue, CanonicalizeError> {
+    fn reduce_group_value(&self, _group_value: &GroupValue, new: GroupValue) -> Result<GroupValue, CanonicalizeError> {
         Ok(new)
     }
 
     fn reduce_value(
-        &mut self,
+        &self,
         _value: &ValueExpression,
         new: ValueExpression,
     ) -> Result<ValueExpression, CanonicalizeError> {
@@ -72,7 +68,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_binary(
-        &mut self,
+        &self,
         binary: &BinaryExpression,
         left: Expression,
         right: Expression,
@@ -88,7 +84,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_unary(
-        &mut self,
+        &self,
         unary: &UnaryExpression,
         inner: Expression,
         op: UnaryOperation,
@@ -102,7 +98,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_ternary(
-        &mut self,
+        &self,
         ternary: &TernaryExpression,
         condition: Expression,
         if_true: Expression,
@@ -118,7 +114,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_cast(
-        &mut self,
+        &self,
         cast: &CastExpression,
         inner: Expression,
         target_type: Type,
@@ -132,7 +128,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_array_inline(
-        &mut self,
+        &self,
         array_inline: &ArrayInlineExpression,
         elements: Vec<SpreadOrExpression>,
         _in_circuit: bool,
@@ -144,7 +140,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_array_init(
-        &mut self,
+        &self,
         array_init: &ArrayInitExpression,
         element: Expression,
         _in_circuit: bool,
@@ -157,7 +153,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_array_access(
-        &mut self,
+        &self,
         array_access: &ArrayAccessExpression,
         array: Expression,
         index: Expression,
@@ -171,7 +167,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_array_range_access(
-        &mut self,
+        &self,
         array_rage_access: &ArrayRangeAccessExpression,
         array: Expression,
         left: Option<Expression>,
@@ -187,7 +183,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_tuple_init(
-        &mut self,
+        &self,
         tuple_init: &TupleInitExpression,
         elements: Vec<Expression>,
         _in_circuit: bool,
@@ -199,7 +195,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_tuple_access(
-        &mut self,
+        &self,
         tuple_access: &TupleAccessExpression,
         tuple: Expression,
         _in_circuit: bool,
@@ -212,7 +208,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_circuit_implied_variable_definition(
-        &mut self,
+        &self,
         _variable: &CircuitImpliedVariableDefinition,
         identifier: Identifier,
         expression: Option<Expression>,
@@ -222,7 +218,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_circuit_init(
-        &mut self,
+        &self,
         circuit_init: &CircuitInitExpression,
         name: Identifier,
         members: Vec<CircuitImpliedVariableDefinition>,
@@ -236,7 +232,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_circuit_member_access(
-        &mut self,
+        &self,
         circuit_member_access: &CircuitMemberAccessExpression,
         circuit: Expression,
         name: Identifier,
@@ -250,7 +246,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_circuit_static_fn_access(
-        &mut self,
+        &self,
         circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
         circuit: Expression,
         name: Identifier,
@@ -264,7 +260,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_call(
-        &mut self,
+        &self,
         call: &CallExpression,
         function: Expression,
         arguments: Vec<Expression>,
@@ -279,7 +275,7 @@ pub trait ReconstructingReducer {
 
     // Statements
     fn reduce_statement(
-        &mut self,
+        &self,
         _statement: &Statement,
         new: Statement,
         _in_circuit: bool,
@@ -288,7 +284,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_return(
-        &mut self,
+        &self,
         return_statement: &ReturnStatement,
         expression: Expression,
         _in_circuit: bool,
@@ -300,7 +296,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_variable_name(
-        &mut self,
+        &self,
         variable_name: &VariableName,
         identifier: Identifier,
     ) -> Result<VariableName, CanonicalizeError> {
@@ -312,7 +308,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_definition(
-        &mut self,
+        &self,
         definition: &DefinitionStatement,
         variable_names: Vec<VariableName>,
         type_: Option<Type>,
@@ -329,7 +325,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_assignee_access(
-        &mut self,
+        &self,
         _access: &AssigneeAccess,
         new: AssigneeAccess,
         _in_circuit: bool,
@@ -338,7 +334,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_assignee(
-        &mut self,
+        &self,
         assignee: &Assignee,
         identifier: Identifier,
         accesses: Vec<AssigneeAccess>,
@@ -352,7 +348,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_assign(
-        &mut self,
+        &self,
         assign: &AssignStatement,
         assignee: Assignee,
         value: Expression,
@@ -367,7 +363,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_conditional(
-        &mut self,
+        &self,
         conditional: &ConditionalStatement,
         condition: Expression,
         block: Block,
@@ -383,7 +379,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_iteration(
-        &mut self,
+        &self,
         iteration: &IterationStatement,
         variable: Identifier,
         start: Expression,
@@ -401,7 +397,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_console(
-        &mut self,
+        &self,
         console: &ConsoleStatement,
         function: ConsoleFunction,
         _in_circuit: bool,
@@ -413,7 +409,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_expression_statement(
-        &mut self,
+        &self,
         expression_statement: &ExpressionStatement,
         expression: Expression,
         _in_circuit: bool,
@@ -425,7 +421,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_block(
-        &mut self,
+        &self,
         block: &Block,
         statements: Vec<Statement>,
         _in_circuit: bool,
@@ -438,7 +434,7 @@ pub trait ReconstructingReducer {
 
     // Program
     fn reduce_program(
-        &mut self,
+        &self,
         program: &Program,
         expected_input: Vec<FunctionInput>,
         imports: Vec<ImportStatement>,
@@ -455,7 +451,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_function_input_variable(
-        &mut self,
+        &self,
         variable: &FunctionInputVariable,
         identifier: Identifier,
         type_: Type,
@@ -471,7 +467,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_function_input(
-        &mut self,
+        &self,
         _input: &FunctionInput,
         new: FunctionInput,
         _in_circuit: bool,
@@ -480,7 +476,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_package_or_packages(
-        &mut self,
+        &self,
         _package_or_packages: &PackageOrPackages,
         new: PackageOrPackages,
     ) -> Result<PackageOrPackages, CanonicalizeError> {
@@ -488,7 +484,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_import(
-        &mut self,
+        &self,
         import: &ImportStatement,
         package_or_packages: PackageOrPackages,
     ) -> Result<ImportStatement, CanonicalizeError> {
@@ -499,7 +495,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_circuit_member(
-        &mut self,
+        &self,
         _circuit_member: &CircuitMember,
         new: CircuitMember,
     ) -> Result<CircuitMember, CanonicalizeError> {
@@ -507,7 +503,7 @@ pub trait ReconstructingReducer {
     }
 
     fn reduce_circuit(
-        &mut self,
+        &self,
         _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
@@ -515,11 +511,7 @@ pub trait ReconstructingReducer {
         Ok(Circuit { circuit_name, members })
     }
 
-    fn reduce_annotation(
-        &mut self,
-        annotation: &Annotation,
-        name: Identifier,
-    ) -> Result<Annotation, CanonicalizeError> {
+    fn reduce_annotation(&self, annotation: &Annotation, name: Identifier) -> Result<Annotation, CanonicalizeError> {
         Ok(Annotation {
             span: annotation.span.clone(),
             name,
@@ -529,7 +521,7 @@ pub trait ReconstructingReducer {
 
     #[allow(clippy::too_many_arguments)]
     fn reduce_function(
-        &mut self,
+        &self,
         function: &Function,
         identifier: Identifier,
         annotations: Vec<Annotation>,

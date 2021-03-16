@@ -29,7 +29,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         Self { reducer }
     }
 
-    pub fn reduce_type(&mut self, type_: &Type, in_circuit: bool, span: &Span) -> Result<Type, CanonicalizeError> {
+    pub fn reduce_type(&self, type_: &Type, in_circuit: bool, span: &Span) -> Result<Type, CanonicalizeError> {
         let new = match type_ {
             Type::Array(type_, dimensions) => {
                 Type::Array(Box::new(self.reduce_type(type_, in_circuit, span)?), dimensions.clone())
@@ -51,7 +51,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     // Expressions
     pub fn reduce_expression(
-        &mut self,
+        &self,
         expression: &Expression,
         in_circuit: bool,
     ) -> Result<Expression, CanonicalizeError> {
@@ -101,15 +101,15 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_expression(expression, new, in_circuit)
     }
 
-    pub fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier, CanonicalizeError> {
+    pub fn reduce_identifier(&self, identifier: &Identifier) -> Result<Identifier, CanonicalizeError> {
         self.reducer.reduce_identifier(identifier)
     }
 
-    pub fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> Result<GroupTuple, CanonicalizeError> {
+    pub fn reduce_group_tuple(&self, group_tuple: &GroupTuple) -> Result<GroupTuple, CanonicalizeError> {
         self.reducer.reduce_group_tuple(group_tuple)
     }
 
-    pub fn reduce_group_value(&mut self, group_value: &GroupValue) -> Result<GroupValue, CanonicalizeError> {
+    pub fn reduce_group_value(&self, group_value: &GroupValue) -> Result<GroupValue, CanonicalizeError> {
         let new = match group_value {
             GroupValue::Tuple(group_tuple) => GroupValue::Tuple(self.reduce_group_tuple(&group_tuple)?),
             _ => group_value.clone(),
@@ -118,7 +118,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_group_value(group_value, new)
     }
 
-    pub fn reduce_value(&mut self, value: &ValueExpression) -> Result<ValueExpression, CanonicalizeError> {
+    pub fn reduce_value(&self, value: &ValueExpression) -> Result<ValueExpression, CanonicalizeError> {
         let new = match value {
             ValueExpression::Group(group_value) => {
                 ValueExpression::Group(Box::new(self.reduce_group_value(&group_value)?))
@@ -130,7 +130,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_binary(
-        &mut self,
+        &self,
         binary: &BinaryExpression,
         in_circuit: bool,
     ) -> Result<BinaryExpression, CanonicalizeError> {
@@ -142,7 +142,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_unary(
-        &mut self,
+        &self,
         unary: &UnaryExpression,
         in_circuit: bool,
     ) -> Result<UnaryExpression, CanonicalizeError> {
@@ -152,7 +152,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_ternary(
-        &mut self,
+        &self,
         ternary: &TernaryExpression,
         in_circuit: bool,
     ) -> Result<TernaryExpression, CanonicalizeError> {
@@ -164,11 +164,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .reduce_ternary(ternary, condition, if_true, if_false, in_circuit)
     }
 
-    pub fn reduce_cast(
-        &mut self,
-        cast: &CastExpression,
-        in_circuit: bool,
-    ) -> Result<CastExpression, CanonicalizeError> {
+    pub fn reduce_cast(&self, cast: &CastExpression, in_circuit: bool) -> Result<CastExpression, CanonicalizeError> {
         let inner = self.reduce_expression(&cast.inner, in_circuit)?;
         let target_type = self.reduce_type(&cast.target_type, in_circuit, &cast.span)?;
 
@@ -176,7 +172,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_array_inline(
-        &mut self,
+        &self,
         array_inline: &ArrayInlineExpression,
         in_circuit: bool,
     ) -> Result<ArrayInlineExpression, CanonicalizeError> {
@@ -198,7 +194,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_array_init(
-        &mut self,
+        &self,
         array_init: &ArrayInitExpression,
         in_circuit: bool,
     ) -> Result<ArrayInitExpression, CanonicalizeError> {
@@ -208,7 +204,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_array_access(
-        &mut self,
+        &self,
         array_access: &ArrayAccessExpression,
         in_circuit: bool,
     ) -> Result<ArrayAccessExpression, CanonicalizeError> {
@@ -219,7 +215,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_array_range_access(
-        &mut self,
+        &self,
         array_range_access: &ArrayRangeAccessExpression,
         in_circuit: bool,
     ) -> Result<ArrayRangeAccessExpression, CanonicalizeError> {
@@ -238,7 +234,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_tuple_init(
-        &mut self,
+        &self,
         tuple_init: &TupleInitExpression,
         in_circuit: bool,
     ) -> Result<TupleInitExpression, CanonicalizeError> {
@@ -251,7 +247,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_tuple_access(
-        &mut self,
+        &self,
         tuple_access: &TupleAccessExpression,
         in_circuit: bool,
     ) -> Result<TupleAccessExpression, CanonicalizeError> {
@@ -261,7 +257,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_circuit_implied_variable_definition(
-        &mut self,
+        &self,
         variable: &CircuitImpliedVariableDefinition,
         in_circuit: bool,
     ) -> Result<CircuitImpliedVariableDefinition, CanonicalizeError> {
@@ -276,7 +272,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_circuit_init(
-        &mut self,
+        &self,
         circuit_init: &CircuitInitExpression,
         in_circuit: bool,
     ) -> Result<CircuitInitExpression, CanonicalizeError> {
@@ -292,7 +288,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_circuit_member_access(
-        &mut self,
+        &self,
         circuit_member_access: &CircuitMemberAccessExpression,
         in_circuit: bool,
     ) -> Result<CircuitMemberAccessExpression, CanonicalizeError> {
@@ -304,7 +300,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_circuit_static_fn_access(
-        &mut self,
+        &self,
         circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
         in_circuit: bool,
     ) -> Result<CircuitStaticFunctionAccessExpression, CanonicalizeError> {
@@ -315,11 +311,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .reduce_circuit_static_fn_access(circuit_static_fn_access, circuit, name, in_circuit)
     }
 
-    pub fn reduce_call(
-        &mut self,
-        call: &CallExpression,
-        in_circuit: bool,
-    ) -> Result<CallExpression, CanonicalizeError> {
+    pub fn reduce_call(&self, call: &CallExpression, in_circuit: bool) -> Result<CallExpression, CanonicalizeError> {
         let function = self.reduce_expression(&call.function, in_circuit)?;
 
         let mut arguments = vec![];
@@ -331,11 +323,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     // Statements
-    pub fn reduce_statement(
-        &mut self,
-        statement: &Statement,
-        in_circuit: bool,
-    ) -> Result<Statement, CanonicalizeError> {
+    pub fn reduce_statement(&self, statement: &Statement, in_circuit: bool) -> Result<Statement, CanonicalizeError> {
         let new = match statement {
             Statement::Return(return_statement) => {
                 Statement::Return(self.reduce_return(&return_statement, in_circuit)?)
@@ -359,7 +347,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_return(
-        &mut self,
+        &self,
         return_statement: &ReturnStatement,
         in_circuit: bool,
     ) -> Result<ReturnStatement, CanonicalizeError> {
@@ -368,14 +356,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_return(return_statement, expression, in_circuit)
     }
 
-    pub fn reduce_variable_name(&mut self, variable_name: &VariableName) -> Result<VariableName, CanonicalizeError> {
+    pub fn reduce_variable_name(&self, variable_name: &VariableName) -> Result<VariableName, CanonicalizeError> {
         let identifier = self.reduce_identifier(&variable_name.identifier)?;
 
         self.reducer.reduce_variable_name(variable_name, identifier)
     }
 
     pub fn reduce_definition(
-        &mut self,
+        &self,
         definition: &DefinitionStatement,
         in_circuit: bool,
     ) -> Result<DefinitionStatement, CanonicalizeError> {
@@ -396,7 +384,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_assignee_access(
-        &mut self,
+        &self,
         access: &AssigneeAccess,
         in_circuit: bool,
     ) -> Result<AssigneeAccess, CanonicalizeError> {
@@ -423,7 +411,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_assignee_access(access, new, in_circuit)
     }
 
-    pub fn reduce_assignee(&mut self, assignee: &Assignee, in_circuit: bool) -> Result<Assignee, CanonicalizeError> {
+    pub fn reduce_assignee(&self, assignee: &Assignee, in_circuit: bool) -> Result<Assignee, CanonicalizeError> {
         let identifier = self.reduce_identifier(&assignee.identifier)?;
 
         let mut accesses = vec![];
@@ -435,7 +423,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_assign(
-        &mut self,
+        &self,
         assign: &AssignStatement,
         in_circuit: bool,
     ) -> Result<AssignStatement, CanonicalizeError> {
@@ -446,7 +434,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_conditional(
-        &mut self,
+        &self,
         conditional: &ConditionalStatement,
         in_circuit: bool,
     ) -> Result<ConditionalStatement, CanonicalizeError> {
@@ -462,7 +450,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_iteration(
-        &mut self,
+        &self,
         iteration: &IterationStatement,
         in_circuit: bool,
     ) -> Result<IterationStatement, CanonicalizeError> {
@@ -476,7 +464,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_console(
-        &mut self,
+        &self,
         console_function_call: &ConsoleStatement,
         in_circuit: bool,
     ) -> Result<ConsoleStatement, CanonicalizeError> {
@@ -509,7 +497,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_expression_statement(
-        &mut self,
+        &self,
         expression: &ExpressionStatement,
         in_circuit: bool,
     ) -> Result<ExpressionStatement, CanonicalizeError> {
@@ -518,7 +506,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .reduce_expression_statement(expression, inner_expression, in_circuit)
     }
 
-    pub fn reduce_block(&mut self, block: &Block, in_circuit: bool) -> Result<Block, CanonicalizeError> {
+    pub fn reduce_block(&self, block: &Block, in_circuit: bool) -> Result<Block, CanonicalizeError> {
         let mut statements = vec![];
         for statement in block.statements.iter() {
             statements.push(self.reduce_statement(statement, in_circuit)?);
@@ -528,7 +516,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     // Program
-    pub fn reduce_program(&mut self, program: &Program) -> Result<Program, CanonicalizeError> {
+    pub fn reduce_program(&self, program: &Program) -> Result<Program, CanonicalizeError> {
         let mut inputs = vec![];
         for input in program.expected_input.iter() {
             inputs.push(self.reduce_function_input(input, false)?);
@@ -557,7 +545,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_function_input_variable(
-        &mut self,
+        &self,
         variable: &FunctionInputVariable,
         in_circuit: bool,
     ) -> Result<FunctionInputVariable, CanonicalizeError> {
@@ -569,7 +557,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_function_input(
-        &mut self,
+        &self,
         input: &FunctionInput,
         in_circuit: bool,
     ) -> Result<FunctionInput, CanonicalizeError> {
@@ -584,7 +572,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     pub fn reduce_package_or_packages(
-        &mut self,
+        &self,
         package_or_packages: &PackageOrPackages,
     ) -> Result<PackageOrPackages, CanonicalizeError> {
         let new = match package_or_packages {
@@ -603,16 +591,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_package_or_packages(package_or_packages, new)
     }
 
-    pub fn reduce_import(&mut self, import: &ImportStatement) -> Result<ImportStatement, CanonicalizeError> {
+    pub fn reduce_import(&self, import: &ImportStatement) -> Result<ImportStatement, CanonicalizeError> {
         let package_or_packages = self.reduce_package_or_packages(&import.package_or_packages)?;
 
         self.reducer.reduce_import(import, package_or_packages)
     }
 
-    pub fn reduce_circuit_member(
-        &mut self,
-        circuit_member: &CircuitMember,
-    ) -> Result<CircuitMember, CanonicalizeError> {
+    pub fn reduce_circuit_member(&self, circuit_member: &CircuitMember) -> Result<CircuitMember, CanonicalizeError> {
         let new = match circuit_member {
             CircuitMember::CircuitVariable(identifier, type_) => CircuitMember::CircuitVariable(
                 self.reduce_identifier(&identifier)?,
@@ -626,7 +611,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_circuit_member(circuit_member, new)
     }
 
-    pub fn reduce_circuit(&mut self, circuit: &Circuit) -> Result<Circuit, CanonicalizeError> {
+    pub fn reduce_circuit(&self, circuit: &Circuit) -> Result<Circuit, CanonicalizeError> {
         let circuit_name = self.reduce_identifier(&circuit.circuit_name)?;
 
         let mut members = vec![];
@@ -637,13 +622,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_circuit(circuit, circuit_name, members)
     }
 
-    fn reduce_annotation(&mut self, annotation: &Annotation) -> Result<Annotation, CanonicalizeError> {
+    fn reduce_annotation(&self, annotation: &Annotation) -> Result<Annotation, CanonicalizeError> {
         let name = self.reduce_identifier(&annotation.name)?;
 
         self.reducer.reduce_annotation(annotation, name)
     }
 
-    pub fn reduce_function(&mut self, function: &Function, in_circuit: bool) -> Result<Function, CanonicalizeError> {
+    pub fn reduce_function(&self, function: &Function, in_circuit: bool) -> Result<Function, CanonicalizeError> {
         let identifier = self.reduce_identifier(&function.identifier)?;
 
         let mut annotations = vec![];
