@@ -53,6 +53,55 @@ jobs:
       - run:
           name: Build and run tests
           no_output_timeout: 30m
+          command: cargo test --all
+      - persist_to_workspace:
+          root: ~/
+          paths: project/
+      - clear_environment:
+          cache_key: leo-stable-cache
+
+  rust-nightly:
+    docker:
+      - image: howardwu/snarkos-ci:2021-01-31
+    resource_class: xlarge
+    steps:
+      - checkout
+      - setup_environment:
+          cache_key: leo-nightly-cache
+      - run:
+          name: Build and test
+          no_output_timeout: 30m
+          command: cargo test --all
+      - clear_environment:
+          cache_key: leo-nightly-cache
+
+  codecov:
+    machine:
+      image: ubuntu-1604:202004-01
+      docker_layer_caching: true
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: Run kcov
+          command: >
+            cd ~/project/project/ &&
+            docker run --security-opt seccomp=unconfined -v ~/project/project/:/home/circleci/project/
+            howardwu/snarkos-codecov:2021-01-31 bash /home/circleci/project/.resources/kcov.sh
+      - run: cd ./project/ && bash <(curl -s https://codecov.io/bash)
+
+  leo-stable:
+    docker:
+      - image: cimg/rust:1.50.0
+    resource_class: xlarge
+    steps:
+      - checkout
+      - setup_environment:
+          cache_key: leo-stable-cache
+      - run:
+          name: Build and run tests
+          no_output_timeout: 30m
           command: cargo install --path . --root .
       - persist_to_workspace:
           root: ~/
@@ -169,27 +218,32 @@ workflows:
   main-workflow:
     jobs:
       - rust-stable
+      - rust-nightly
+      - codecov:
+          requires:
+            - rust-stable
+      - leo-stable
       - leo-new:
           requires:
-            - rust-stable
+            - leo-stable
       - leo-init:
           requires:
-            - rust-stable
+            - leo-stable
       - leo-clean:
           requires:
-            - rust-stable
+            - leo-stable
       - leo-setup:
           requires:
-            - rust-stable
+            - leo-stable
       - leo-add-remove:
           requires:
-            - rust-stable
+            - leo-stable
       - leo-login-logout:
           requires:
-            - rust-stable
+            - leo-stable
       - leo-clone:
           requires:
-            - rust-stable
+            - leo-stable
       - leo-publish:
           requires:
-            - rust-stable
+            - leo-stable

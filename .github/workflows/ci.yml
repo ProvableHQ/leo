@@ -71,62 +71,62 @@ jobs:
           command: clippy
           args: --all-features --examples --all --benches
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-#    env:
-#      RUSTFLAGS: -Dwarnings
-    strategy:
-      matrix:
-        rust:
-          - stable
-          - nightly
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install Rust (${{ matrix.rust }})
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          override: true
-
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-#      - name: Check examples
-#        uses: actions-rs/cargo@v1
-#        env:
-#          CARGO_NET_GIT_FETCH_WITH_CLI: true
-#        with:
-#          command: check
-#          args: --examples --all
+#  test:
+#    name: Test
+#    runs-on: ubuntu-latest
+##    env:
+##      RUSTFLAGS: -Dwarnings
+#    strategy:
+#      matrix:
+#        rust:
+#          - stable
+#          - nightly
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v2
 #
-#      - name: Check examples with all features on stable
-#        uses: actions-rs/cargo@v1
+#      - name: Install Rust (${{ matrix.rust }})
+#        uses: actions-rs/toolchain@v1
 #        with:
-#          command: check
-#          args: --examples --all-features --all
-#        if: matrix.rust == 'stable'
+#          profile: minimal
+#          toolchain: ${{ matrix.rust }}
+#          override: true
 #
-#      - name: Check benchmarks on nightly
+#      - uses: actions/cache@v2
+#        with:
+#          path: |
+#            ~/.cargo/registry
+#            ~/.cargo/git
+#            target
+#          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+#
+##      - name: Check examples
+##        uses: actions-rs/cargo@v1
+##        env:
+##          CARGO_NET_GIT_FETCH_WITH_CLI: true
+##        with:
+##          command: check
+##          args: --examples --all
+##
+##      - name: Check examples with all features on stable
+##        uses: actions-rs/cargo@v1
+##        with:
+##          command: check
+##          args: --examples --all-features --all
+##        if: matrix.rust == 'stable'
+##
+##      - name: Check benchmarks on nightly
+##        uses: actions-rs/cargo@v1
+##        with:
+##          command: check
+##          args: --all-features --examples --all --benches
+##        if: matrix.rust == 'nightly'
+#
+#      - name: Test
 #        uses: actions-rs/cargo@v1
 #        with:
-#          command: check
-#          args: --all-features --examples --all --benches
-#        if: matrix.rust == 'nightly'
-
-      - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all --features ci_skip --no-fail-fast
+#          command: test
+#          args: --all --features ci_skip --no-fail-fast
 
   test-package:
     name: Test Package
@@ -156,49 +156,49 @@ jobs:
           cd package
           cargo test-all-features
 
-  codecov:
-    name: Code Coverage
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt
-
-      - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all --features ci_skip
-        env:
-          CARGO_NET_GIT_FETCH_WITH_CLI: true
-          CARGO_INCREMENTAL: "0"
-
-      - name: Install dependencies for code coverage
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
-
-      - name: Generate coverage report
-        run: |
-          wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
-          tar xzf master.tar.gz
-          cd kcov-master
-          mkdir build && cd build
-          cmake .. && make
-          make install DESTDIR=../../kcov-build
-          cd ../..
-          rm -rf kcov-master
-          for file in target/debug/deps/*-*; do if [[ "$file" != *\.* ]]; then mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --exclude-region='@kcov_skip(start):@kcov_skip(end)' --verify "target/cov/$(basename $file)" "$file"; fi done
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          token: ${{ secrets.CODECOV_TOKEN }}
+#  codecov:
+#    name: Code Coverage
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v1
+#
+#      - name: Install Rust
+#        uses: actions-rs/toolchain@v1
+#        with:
+#          profile: minimal
+#          toolchain: nightly
+#          override: true
+#          components: rustfmt
+#
+#      - name: Test
+#        uses: actions-rs/cargo@v1
+#        with:
+#          command: test
+#          args: --all --features ci_skip
+#        env:
+#          CARGO_NET_GIT_FETCH_WITH_CLI: true
+#          CARGO_INCREMENTAL: "0"
+#
+#      - name: Install dependencies for code coverage
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get -y install binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
+#
+#      - name: Generate coverage report
+#        run: |
+#          wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
+#          tar xzf master.tar.gz
+#          cd kcov-master
+#          mkdir build && cd build
+#          cmake .. && make
+#          make install DESTDIR=../../kcov-build
+#          cd ../..
+#          rm -rf kcov-master
+#          for file in target/debug/deps/*-*; do if [[ "$file" != *\.* ]]; then mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --exclude-region='@kcov_skip(start):@kcov_skip(end)' --verify "target/cov/$(basename $file)" "$file"; fi done
+#
+#      - name: Upload coverage to Codecov
+#        uses: codecov/codecov-action@v1
+#        with:
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+#          token: ${{ secrets.CODECOV_TOKEN }}
