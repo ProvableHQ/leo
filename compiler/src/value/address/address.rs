@@ -127,7 +127,7 @@ impl<F: PrimeField> AllocGadget<String, F> for Address {
             .write(&mut address_bytes)
             .map_err(|_| SynthesisError::AssignmentMissing)?;
 
-        let bytes = UInt8::alloc_input_vec(cs, &address_bytes[..])?;
+        let bytes = UInt8::alloc_input_vec_le(cs, &address_bytes[..])?;
 
         Ok(Address {
             address: Some(address),
