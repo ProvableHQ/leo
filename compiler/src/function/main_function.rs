@@ -61,25 +61,26 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             {
                 let input_variable = input_variable.get().borrow();
                 let name = input_variable.name.name.clone();
+                let is_const = input_variable.const_;
 
-                let input_value = match (input.get(&name), input.get_constant(&name)) {
+                let input_value = match (is_const, input.get(&name), input.get_constant(&name)) {
                     // If variable is in both [main] and [constants] sections - error.
-                    (Some(_), Some(_)) => {
+                    (_, Some(_), Some(_)) => {
                         return Err(FunctionError::double_input_declaration(
                             name.clone(),
                             &function.span.clone().unwrap_or_default(),
                         ));
                     }
-                    // If input option is found in [main] section.
-                    (Some(input_option), _) => self.allocate_main_function_input(
+                    // If input option is found in [main] section and input is not const.
+                    (false, Some(input_option), _) => self.allocate_main_function_input(
                         cs,
                         &input_variable.type_.clone(),
                         &name,
                         input_option,
                         &function.span.clone().unwrap_or_default(),
                     )?,
-                    // If input option is found in [constants] section.
-                    (_, Some(input_option)) => self.constant_main_function_input(
+                    // If input option is found in [constants] section and function argument is const.
+                    (true, _, Some(input_option)) => self.constant_main_function_input(
                         cs,
                         &input_variable.type_.clone(),
                         &name,
@@ -87,7 +88,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         &function.span.clone().unwrap_or_default(),
                     )?,
                     // When not found - Error out.
-                    (_, _) => {
+                    (_, _, _) => {
                         return Err(FunctionError::input_not_found(
                             name.clone(),
                             &function.span.clone().unwrap_or_default(),

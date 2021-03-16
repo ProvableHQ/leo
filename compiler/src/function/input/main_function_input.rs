@@ -69,7 +69,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn constant_main_function_input<CS: ConstraintSystem<F>>(
         &mut self,
-        // TODO: remove unnecessary arguments
         _cs: &mut CS,
         type_: &Type,
         name: &str,
@@ -78,108 +77,65 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
         let input = input_option.ok_or_else(|| FunctionError::input_not_found(name.to_string(), span))?;
 
-        match type_ {
-            Type::Address => match input {
-                InputValue::Address(addr) => Ok(ConstrainedValue::Address(Address::constant(addr, span)?)),
-                _ => Err(FunctionError::input_type_mismatch(
-                    type_.to_string(),
-                    input.to_string(),
-                    name.to_string(),
-                    span,
-                )),
-            },
-            Type::Boolean => match input {
-                InputValue::Boolean(value) => Ok(ConstrainedValue::Boolean(Boolean::constant(value))),
-                _ => Err(FunctionError::input_not_found(name.to_string(), span)),
-            },
-            Type::Field => match input {
-                InputValue::Field(value) => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
-                _ => Err(FunctionError::input_type_mismatch(
-                    type_.to_string(),
-                    input.to_string(),
-                    name.to_string(),
-                    span,
-                )),
-            },
-            Type::Group => match input {
-                InputValue::Group(value) => Ok(ConstrainedValue::Group(G::constant(&value.into(), span)?)),
-                _ => Err(FunctionError::input_type_mismatch(
-                    type_.to_string(),
-                    input.to_string(),
-                    name.to_string(),
-                    span,
-                )),
-            },
-            Type::Integer(integer_type) => match input {
-                InputValue::Integer(_, value) => {
-                    let const_int = match integer_type {
-                        IntegerType::U8 => ConstInt::U8(value.parse::<u8>().unwrap()),
-                        IntegerType::U16 => ConstInt::U16(value.parse::<u16>().unwrap()),
-                        IntegerType::U32 => ConstInt::U32(value.parse::<u32>().unwrap()),
-                        IntegerType::U64 => ConstInt::U64(value.parse::<u64>().unwrap()),
-                        IntegerType::U128 => ConstInt::U128(value.parse::<u128>().unwrap()),
+        match (type_, input) {
+            (Type::Address, InputValue::Address(addr)) => Ok(ConstrainedValue::Address(Address::constant(addr, span)?)),
+            (Type::Boolean, InputValue::Boolean(value)) => Ok(ConstrainedValue::Boolean(Boolean::constant(value))),
+            (Type::Field, InputValue::Field(value)) => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
+            (Type::Group, InputValue::Group(value)) => Ok(ConstrainedValue::Group(G::constant(&value.into(), span)?)),
+            (Type::Integer(integer_type), InputValue::Integer(_, value)) => {
+                let const_int = match integer_type {
+                    IntegerType::U8 => ConstInt::U8(value.parse::<u8>().unwrap()),
+                    IntegerType::U16 => ConstInt::U16(value.parse::<u16>().unwrap()),
+                    IntegerType::U32 => ConstInt::U32(value.parse::<u32>().unwrap()),
+                    IntegerType::U64 => ConstInt::U64(value.parse::<u64>().unwrap()),
+                    IntegerType::U128 => ConstInt::U128(value.parse::<u128>().unwrap()),
 
-                        IntegerType::I8 => ConstInt::I8(value.parse::<i8>().unwrap()),
-                        IntegerType::I16 => ConstInt::I16(value.parse::<i16>().unwrap()),
-                        IntegerType::I32 => ConstInt::I32(value.parse::<i32>().unwrap()),
-                        IntegerType::I64 => ConstInt::I64(value.parse::<i64>().unwrap()),
-                        IntegerType::I128 => ConstInt::I128(value.parse::<i128>().unwrap()),
-                    };
+                    IntegerType::I8 => ConstInt::I8(value.parse::<i8>().unwrap()),
+                    IntegerType::I16 => ConstInt::I16(value.parse::<i16>().unwrap()),
+                    IntegerType::I32 => ConstInt::I32(value.parse::<i32>().unwrap()),
+                    IntegerType::I64 => ConstInt::I64(value.parse::<i64>().unwrap()),
+                    IntegerType::I128 => ConstInt::I128(value.parse::<i128>().unwrap()),
+                };
 
-                    Ok(ConstrainedValue::Integer(Integer::new(&const_int)))
+                Ok(ConstrainedValue::Integer(Integer::new(&const_int)))
+            }
+            (Type::Array(type_, arr_len), InputValue::Array(values)) => {
+                if *arr_len != values.len() {
+                    return Err(FunctionError::invalid_input_array_dimensions(
+                        *arr_len,
+                        values.len(),
+                        span,
+                    ));
                 }
-                _ => Err(FunctionError::input_type_mismatch(
-                    type_.to_string(),
-                    input.to_string(),
-                    name.to_string(),
-                    span,
-                )),
-            },
-            Type::Array(type_, arr_len) => match input {
-                InputValue::Array(values) => {
-                    if *arr_len != values.len() {
-                        return Err(FunctionError::invalid_input_array_dimensions(
-                            *arr_len,
-                            values.len(),
-                            span,
-                        ));
-                    }
 
-                    Ok(ConstrainedValue::Array(
-                        values
-                            .iter()
-                            .map(|x| self.constant_main_function_input(_cs, type_, name, Some(x.clone()), span))
-                            .collect::<Result<Vec<_>, _>>()?,
-                    ))
+                Ok(ConstrainedValue::Array(
+                    values
+                        .iter()
+                        .map(|x| self.constant_main_function_input(_cs, type_, name, Some(x.clone()), span))
+                        .collect::<Result<Vec<_>, _>>()?,
+                ))
+            }
+            (Type::Tuple(types), InputValue::Tuple(values)) => {
+                if values.len() != types.len() {
+                    return Err(FunctionError::tuple_size_mismatch(types.len(), values.len(), span));
                 }
-                _ => Err(FunctionError::input_type_mismatch(
-                    type_.to_string(),
-                    input.to_string(),
-                    name.to_string(),
-                    span,
-                )),
-            },
-            Type::Tuple(types) => match input {
-                InputValue::Tuple(values) => {
-                    if values.len() != types.len() {
-                        return Err(FunctionError::tuple_size_mismatch(types.len(), values.len(), span));
-                    }
 
-                    Ok(ConstrainedValue::Tuple(
-                        values
-                            .iter()
-                            .map(|x| self.constant_main_function_input(_cs, type_, name, Some(x.clone()), span))
-                            .collect::<Result<Vec<_>, _>>()?,
-                    ))
-                }
-                _ => Err(FunctionError::input_type_mismatch(
-                    type_.to_string(),
-                    input.to_string(),
-                    name.to_string(),
-                    span,
-                )),
-            },
-            _ => unimplemented!("main function input not implemented for type {}", type_),
+                Ok(ConstrainedValue::Tuple(
+                    values
+                        .iter()
+                        .map(|x| self.constant_main_function_input(_cs, type_, name, Some(x.clone()), span))
+                        .collect::<Result<Vec<_>, _>>()?,
+                ))
+            }
+            // The only unimplemented type in Type.
+            (Type::Circuit(_), _) => unimplemented!("main function input not implemented for type {}", type_),
+            // If Type => InputValue (type) match did not happen, error out.
+            (_, input) => Err(FunctionError::input_type_mismatch(
+                type_.to_string(),
+                input.to_string(),
+                name.to_string(),
+                span,
+            )),
         }
     }
 }
