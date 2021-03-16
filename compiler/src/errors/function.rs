@@ -103,6 +103,12 @@ impl FunctionError {
         FunctionError::Error(FormattedError::new_from_span(message, span))
     }
 
+    pub fn input_type_mismatch(expected: String, actual: String, variable: String, span: &Span) -> Self {
+        let message = format!("Expected {} to be {} not {}", variable, expected, actual);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn invalid_array(actual: String, span: &Span) -> Self {
         let message = format!("Expected function input array, found `{}`", actual);
 
