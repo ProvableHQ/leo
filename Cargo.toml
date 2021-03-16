@@ -29,7 +29,6 @@ members = [
   "asg",
   "ast",
   "compiler",
-  "gadgets",
   "imports",
   "input",
   "linter",
@@ -46,10 +45,6 @@ version = "1.2.3"
 
 [dependencies.leo-compiler]
 path = "./compiler"
-version = "1.2.3"
-
-[dependencies.leo-gadgets]
-path = "./gadgets"
 version = "1.2.3"
 
 [dependencies.leo-imports]
