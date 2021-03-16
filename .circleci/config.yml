@@ -100,7 +100,7 @@ jobs:
       - setup_environment:
           cache_key: leo-stable-cache
       - run:
-          name: Build and run tests
+          name: Build and install Leo
           no_output_timeout: 30m
           command: cargo install --path . --root .
       - persist_to_workspace:
