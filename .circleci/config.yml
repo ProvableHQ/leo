@@ -53,12 +53,45 @@ jobs:
       - run:
           name: Build and run tests
           no_output_timeout: 30m
-          command: cargo install --path . --root .
+          command: cargo test --all
       - persist_to_workspace:
           root: ~/
           paths: project/
       - clear_environment:
           cache_key: leo-stable-cache
+
+  rust-nightly:
+    docker:
+      - image: howardwu/snarkos-ci:2021-01-31
+    resource_class: xlarge
+    steps:
+      - checkout
+      - setup_environment:
+          cache_key: leo-nightly-cache
+      - run:
+          name: Build and test
+          no_output_timeout: 30m
+          command: cargo test --all
+      - clear_environment:
+          cache_key: leo-nightly-cache
+
+  leo-executable:
+    docker:
+      - image: cimg/rust:1.50.0
+    resource_class: xlarge
+    steps:
+      - checkout
+      - setup_environment:
+          cache_key: leo-executable-cache
+      - run:
+          name: Build and install Leo
+          no_output_timeout: 30m
+          command: cargo install --path . --root .
+      - persist_to_workspace:
+          root: ~/
+          paths: project/
+      - clear_environment:
+          cache_key: leo-executable-cache
 
   leo-new:
     docker:
@@ -169,27 +202,29 @@ workflows:
   main-workflow:
     jobs:
       - rust-stable
+      - rust-nightly
+      - leo-executable
       - leo-new:
           requires:
-            - rust-stable
+            - leo-executable
       - leo-init:
           requires:
-            - rust-stable
+            - leo-executable
       - leo-clean:
           requires:
-            - rust-stable
+            - leo-executable
       - leo-setup:
           requires:
-            - rust-stable
+            - leo-executable
       - leo-add-remove:
           requires:
-            - rust-stable
+            - leo-executable
       - leo-login-logout:
           requires:
-            - rust-stable
+            - leo-executable
       - leo-clone:
           requires:
-            - rust-stable
+            - leo-executable
       - leo-publish:
           requires:
-            - rust-stable
+            - leo-executable
