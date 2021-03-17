@@ -638,7 +638,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let mut inputs = vec![];
         for input in function.input.iter() {
-            inputs.push(self.reduce_function_input(input, false)?);
+            inputs.push(self.reduce_function_input(input, in_circuit)?);
         }
 
         let output = match function.output.as_ref() {
@@ -646,7 +646,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             None => None,
         };
 
-        let block = self.reduce_block(&function.block, false)?;
+        let block = self.reduce_block(&function.block, in_circuit)?;
 
         self.reducer
             .reduce_function(function, identifier, annotations, inputs, output, block, in_circuit)

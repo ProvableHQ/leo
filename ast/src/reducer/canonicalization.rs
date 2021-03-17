@@ -18,9 +18,6 @@ use crate::*;
 
 pub struct Canonicalizer;
 
-// TODO fix function input array.
-// TODO fix test 0 size array.
-
 impl Canonicalizer {
     fn is_self_type(&self, type_option: Option<&Type>) -> bool {
         matches!(type_option, Some(Type::SelfType))
@@ -161,7 +158,7 @@ impl Canonicalizer {
 
             Expression::CircuitInit(circuit_init) => {
                 let mut name = circuit_init.name.clone();
-                if circuit_name.name == *"Self" {
+                if name.name == *"Self" {
                     name = circuit_name.clone();
                 }
 
