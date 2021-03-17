@@ -61,9 +61,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             {
                 let input_variable = input_variable.get().borrow();
                 let name = input_variable.name.name.clone();
-                let is_const = input_variable.const_;
 
-                let input_value = match (is_const, input.get(&name), input.get_constant(&name)) {
+                let input_value = match (input_variable.const_, input.get(&name), input.get_constant(&name)) {
                     // If variable is in both [main] and [constants] sections - error.
                     (_, Some(_), Some(_)) => {
                         return Err(FunctionError::double_input_declaration(

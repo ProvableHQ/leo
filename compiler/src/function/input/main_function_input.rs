@@ -31,7 +31,7 @@ use crate::{
     Integer,
 };
 use leo_asg::{ConstInt, Type};
-use leo_ast::{InputValue, IntegerType, Span};
+use leo_ast::{InputValue, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
@@ -82,23 +82,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             (Type::Boolean, InputValue::Boolean(value)) => Ok(ConstrainedValue::Boolean(Boolean::constant(value))),
             (Type::Field, InputValue::Field(value)) => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
             (Type::Group, InputValue::Group(value)) => Ok(ConstrainedValue::Group(G::constant(&value.into(), span)?)),
-            (Type::Integer(integer_type), InputValue::Integer(_, value)) => {
-                let const_int = match integer_type {
-                    IntegerType::U8 => ConstInt::U8(value.parse::<u8>().unwrap()),
-                    IntegerType::U16 => ConstInt::U16(value.parse::<u16>().unwrap()),
-                    IntegerType::U32 => ConstInt::U32(value.parse::<u32>().unwrap()),
-                    IntegerType::U64 => ConstInt::U64(value.parse::<u64>().unwrap()),
-                    IntegerType::U128 => ConstInt::U128(value.parse::<u128>().unwrap()),
-
-                    IntegerType::I8 => ConstInt::I8(value.parse::<i8>().unwrap()),
-                    IntegerType::I16 => ConstInt::I16(value.parse::<i16>().unwrap()),
-                    IntegerType::I32 => ConstInt::I32(value.parse::<i32>().unwrap()),
-                    IntegerType::I64 => ConstInt::I64(value.parse::<i64>().unwrap()),
-                    IntegerType::I128 => ConstInt::I128(value.parse::<i128>().unwrap()),
-                };
-
-                Ok(ConstrainedValue::Integer(Integer::new(&const_int)))
-            }
+            (Type::Integer(integer_type), InputValue::Integer(_, value)) => Ok(ConstrainedValue::Integer(
+                Integer::new(&ConstInt::parse(integer_type, &value, span)?),
+            )),
             (Type::Array(type_, arr_len), InputValue::Array(values)) => {
                 if *arr_len != values.len() {
                     return Err(FunctionError::invalid_input_array_dimensions(
