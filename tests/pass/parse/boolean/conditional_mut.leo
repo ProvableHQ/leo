@@ -1,6 +1,6 @@
 function main () {
-    let mut x = true;
+    let x = true;
     if x {
-        let y = 0u8;
+        const y = 0u8;
     }
 }

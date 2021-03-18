@@ -5,6 +5,6 @@ circuit Foo {
 }
 
 function main() {
-    let a = Foo { };
-    let err = a.echoed(1u32);
+    const a = Foo { };
+    const err = a.echoed(1u32);
 }

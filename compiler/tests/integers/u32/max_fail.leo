@@ -1,3 +1,3 @@
 function main() {
-    let a: u32 = 4294967296;
+    const a: u32 = 4294967296;
 }

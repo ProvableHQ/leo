@@ -7,8 +7,8 @@ circuit Foo {
 }
 
 function main() {
-    let a = Foo { f: 1u32 };
-    let b = a.bar();
+    const a = Foo { f: 1u32 };
+    const b = a.bar();
 
     console.assert(b == 1u32);
 }

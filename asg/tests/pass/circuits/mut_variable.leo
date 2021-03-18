@@ -3,7 +3,7 @@ circuit Foo {
 }
 
 function main() {
-    let mut f  = Foo { a: 0u8 };
+    let f  = Foo { a: 0u8 };
 
     console.assert(f.a == 0u8);
 

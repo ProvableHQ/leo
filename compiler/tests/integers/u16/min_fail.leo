@@ -1,3 +1,3 @@
 function main() {
-    let a: u16 = -1;
+    const a: u16 = -1;
 }

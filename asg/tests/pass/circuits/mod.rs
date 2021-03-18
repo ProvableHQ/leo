@@ -54,7 +54,7 @@ fn test_mut_member_function() {
         }
         
         function main() {
-            let mut a = Foo { };
+            let a = Foo { };
         
             console.assert(a.echo(1u32) == 1u32);
         }"#;

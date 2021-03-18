@@ -1,4 +1,4 @@
 function main () {
-    let x = [false; (2, 2)];
-    let y: bool = x[0][0];
+    const x = [false; (2, 2)];
+    const y: bool = x[0][0];
 }

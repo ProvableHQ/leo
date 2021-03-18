@@ -1,3 +1,3 @@
 function main() {
-    let address = 0u32;
+    const address = 0u32;
 }

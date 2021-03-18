@@ -5,5 +5,5 @@ circuit Foo {
 }
 
 function main() {
-    let a = Foo::new();
+    const a = Foo::new();
 }

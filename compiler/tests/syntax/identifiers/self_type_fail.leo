@@ -1,3 +1,3 @@
 function main() {
-    let Self = 0u32;
+    const Self = 0u32;
 }

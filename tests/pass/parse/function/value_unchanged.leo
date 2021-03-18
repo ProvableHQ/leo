@@ -12,7 +12,7 @@ function bad_mutate(mut x: u32) {
 }
 
 function main() {
-    let a = 1u32;
+    const a = 1u32;
     bad_mutate(a);
 
     console.assert(a == 1u32); // <- value `a` is still `1u32`

@@ -1,3 +1,3 @@
 function main() {
-    let field = 0u32;
+    const field = 0u32;
 }

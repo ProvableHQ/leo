@@ -286,15 +286,17 @@ impl ParserContext {
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
     ///
-    pub fn parse_variable_name(&mut self) -> SyntaxResult<VariableName> {
-        let mutable = self.eat(Token::Mut);
+    pub fn parse_variable_name(&mut self, span: &SpannedToken) -> SyntaxResult<VariableName> {
+        if self.eat(Token::Mut).is_some() {
+            return Err(SyntaxError::DeprecatedError(DeprecatedError::let_mut_statement(
+                &span.span,
+            )));
+        }
+
         let name = self.expect_ident()?;
         Ok(VariableName {
-            span: mutable
-                .as_ref()
-                .map(|x| &x.span + &name.span)
-                .unwrap_or_else(|| name.span.clone()),
-            mutable: mutable.is_some(),
+            span: name.span.clone(),
+            mutable: matches!(span.token, Token::Let),
             identifier: name,
         })
     }
@@ -306,13 +308,13 @@ impl ParserContext {
         let declare = self.expect_oneof(&[Token::Let, Token::Const])?;
         let mut variable_names = vec![];
         if self.eat(Token::LeftParen).is_some() {
-            variable_names.push(self.parse_variable_name()?);
+            variable_names.push(self.parse_variable_name(&declare)?);
             while self.eat(Token::Comma).is_some() {
-                variable_names.push(self.parse_variable_name()?);
+                variable_names.push(self.parse_variable_name(&declare)?);
             }
             self.expect(Token::RightParen)?;
         } else {
-            variable_names.push(self.parse_variable_name()?);
+            variable_names.push(self.parse_variable_name(&declare)?);
         }
 
         let type_ = if self.eat(Token::Colon).is_some() {
@@ -329,12 +331,7 @@ impl ParserContext {
             span: &declare.span + expr.span(),
             declaration_type: match declare.token {
                 Token::Let => Declare::Let,
-                Token::Const => {
-                    return Err(SyntaxError::DeprecatedError(DeprecatedError::const_statement(
-                        &declare.span,
-                    )));
-                    //Declare::Const
-                }
+                Token::Const => Declare::Const,
                 _ => unimplemented!(),
             },
             variable_names,

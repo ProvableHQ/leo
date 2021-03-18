@@ -43,8 +43,8 @@ impl LeoError for DeprecatedError {
 }
 
 impl DeprecatedError {
-    pub fn const_statement(span: &Span) -> Self {
-        let message = "const _ = ... is deprecated. Did you mean let?".to_string();
+    pub fn let_mut_statement(span: &Span) -> Self {
+        let message = "let mut = ... is deprecated. `let` keyword implies mutabality by default.".to_string();
         Self::new_from_span(message, span)
     }
 

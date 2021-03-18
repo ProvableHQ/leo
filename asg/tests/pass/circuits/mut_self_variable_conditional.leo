@@ -1,5 +1,5 @@
 function main() {
-    let mut f = Foo { a: 0u32 };
+    let f = Foo { a: 0u32 };
 
     f.bar();
 }

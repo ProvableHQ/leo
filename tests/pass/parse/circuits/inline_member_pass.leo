@@ -7,7 +7,7 @@ circuit Foo {
 }
 
 function main() {
-    let x: u8 = 1;
-    let a = Foo { x };
-    let b = Foo::new(x);
+    const x: u8 = 1;
+    const a = Foo { x };
+    const b = Foo::new(x);
 }
