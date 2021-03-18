@@ -96,9 +96,9 @@ impl Node for FunctionInput {
     fn span(&self) -> &Span {
         use FunctionInput::*;
         match self {
-            InputKeyword(keyword) => &keyword.span,
-            SelfKeyword(keyword) => &keyword.span,
-            MutSelfKeyword(keyword) => &keyword.span,
+            InputKeyword(keyword) => &keyword.identifier.span,
+            SelfKeyword(keyword) => &keyword.identifier.span,
+            MutSelfKeyword(keyword) => &keyword.identifier.span,
             Variable(variable) => &variable.span,
         }
     }
@@ -106,9 +106,9 @@ impl Node for FunctionInput {
     fn set_span(&mut self, span: Span) {
         use FunctionInput::*;
         match self {
-            InputKeyword(keyword) => keyword.span = span,
-            SelfKeyword(keyword) => keyword.span = span,
-            MutSelfKeyword(keyword) => keyword.span = span,
+            InputKeyword(keyword) => keyword.identifier.span = span,
+            SelfKeyword(keyword) => keyword.identifier.span = span,
+            MutSelfKeyword(keyword) => keyword.identifier.span = span,
             Variable(variable) => variable.span = span,
         }
     }
