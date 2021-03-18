@@ -18,7 +18,7 @@
 macro_rules! input_section_impl {
     ($($name: ident), *) => ($(
 
-        /// An input section declared in an input file with `[$name]`
+        /// An input section declared in an input file with `[$name]`.
         #[derive(Clone, PartialEq, Eq, Default)]
         pub struct $name {
             is_present: bool,
@@ -63,9 +63,65 @@ macro_rules! input_section_impl {
                 Ok(())
             }
 
-            /// Returns this section's [IndexMap] of values
+            /// Returns this section's [IndexMap] of values.
             pub fn values(&self) -> IndexMap<Parameter, Option<InputValue>> {
                 self.values.clone()
+            }
+        }
+    )*)
+}
+
+#[macro_export]
+macro_rules! main_input_definitions {
+    ($($name: ident), *) => ($(
+
+        /// `[$name]` program input section.
+        #[derive(Clone, PartialEq, Eq, Default)]
+        pub struct $name {
+            input: IndexMap<String, Option<InputValue>>,
+        }
+
+        #[allow(clippy::len_without_is_empty)]
+        impl $name {
+            pub fn new() -> Self {
+                Self::default()
+            }
+
+            /// Returns an empty version of this struct with `None` values.
+            /// Called during constraint synthesis to provide private input variables.
+            pub fn empty(&self) -> Self {
+                let mut input = self.input.clone();
+
+                input.iter_mut().for_each(|(_name, value)| {
+                    *value = None;
+                });
+
+                Self { input }
+            }
+
+            pub fn len(&self) -> usize {
+                self.input.len()
+            }
+
+            pub fn insert(&mut self, key: String, value: Option<InputValue>) {
+                self.input.insert(key, value);
+            }
+
+            /// Parses main input definitions and stores them in `self`.
+            pub fn parse(&mut self, definitions: Vec<Definition>) -> Result<(), InputParserError> {
+                for definition in definitions {
+                    let name = definition.parameter.variable.value;
+                    let value = InputValue::from_expression(definition.parameter.type_, definition.expression)?;
+
+                    self.insert(name, Some(value));
+                }
+
+                Ok(())
+            }
+
+            /// Returns an `Option` of the main function input at `name`.
+            pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
+                self.input.get(name).cloned()
             }
         }
     )*)

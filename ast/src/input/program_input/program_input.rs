@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstInput, InputValue, MainInput, Registers};
+use crate::{ConstantInput, InputValue, MainInput, Registers};
 use leo_input::{
     sections::{Header, Section},
     InputParserError,
@@ -23,7 +23,7 @@ use leo_input::{
 #[derive(Clone, PartialEq, Eq, Default)]
 pub struct ProgramInput {
     pub main: MainInput,
-    pub constants: ConstInput,
+    pub constants: ConstantInput,
     registers: Registers,
 }
 
