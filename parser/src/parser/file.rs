@@ -332,11 +332,18 @@ impl ParserContext {
             }
             return Ok(FunctionInput::SelfKeyword(SelfKeyword { span: name.span }));
         }
+
+        if let Some(mutable) = &mutable {
+            return Err(SyntaxError::DeprecatedError(DeprecatedError::mut_function_input(
+                &mutable.span + &name.span,
+            )));
+        }
+
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable {
             const_: const_.is_some(),
-            mutable: mutable.is_some(),
+            mutable: const_.is_none(),
             type_,
             span: name.span.clone(),
             identifier: name,

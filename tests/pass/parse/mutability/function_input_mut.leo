@@ -1,5 +1,5 @@
-// Adding the `mut` keyword makes a function variable mutable.
-function main(mut a: bool) {
+// Function input are mutable by default.
+function main(a: bool) {
     a = true;
 
     console.assert(a == true);

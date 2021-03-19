@@ -287,9 +287,10 @@ impl ParserContext {
     /// valid keywords.
     ///
     pub fn parse_variable_name(&mut self, span: &SpannedToken) -> SyntaxResult<VariableName> {
-        if self.eat(Token::Mut).is_some() {
+        let mutable = self.eat(Token::Mut);
+        if let Some(mutable) = &mutable {
             return Err(SyntaxError::DeprecatedError(DeprecatedError::let_mut_statement(
-                &span.span,
+                &mutable.span + &span.span,
             )));
         }
 
