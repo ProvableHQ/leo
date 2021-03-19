@@ -86,6 +86,20 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         input_option,
                         &function.span.clone().unwrap_or_default(),
                     )?,
+                    // Function argument is const, input is not.
+                    (true, Some(_), None) => {
+                        return Err(FunctionError::expected_const_input(
+                            name.clone(),
+                            &function.span.clone().unwrap_or_default(),
+                        ));
+                    }
+                    // Input is const, function argument is not.
+                    (false, None, Some(_)) => {
+                        return Err(FunctionError::expected_non_const_input(
+                            name.clone(),
+                            &function.span.clone().unwrap_or_default(),
+                        ));
+                    }
                     // When not found - Error out.
                     (_, _, _) => {
                         return Err(FunctionError::input_not_found(

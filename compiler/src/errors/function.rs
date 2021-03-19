@@ -109,6 +109,24 @@ impl FunctionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn expected_const_input(variable: String, span: &Span) -> Self {
+        let message = format!(
+            "Expected {} input to be defined const. Move {} definition to [constants] section of input file",
+            variable, variable
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn expected_non_const_input(variable: String, span: &Span) -> Self {
+        let message = format!(
+            "Expected {} input to be non constant. Move {} definition to [main] section of input file",
+            variable, variable
+        );
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn invalid_array(actual: String, span: &Span) -> Self {
         let message = format!("Expected function input array, found `{}`", actual);
 
