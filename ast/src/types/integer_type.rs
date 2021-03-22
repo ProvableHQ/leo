@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_input::types::{
-    IntegerType as InputIntegerType,
-    SignedIntegerType as InputSignedIntegerType,
+    IntegerType as InputIntegerType, SignedIntegerType as InputSignedIntegerType,
     UnsignedIntegerType as InputUnsignedIntegerType,
 };
 

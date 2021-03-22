@@ -27,7 +27,7 @@ pub fn find_input(
 ) -> Result<InputValue, InputValueError> {
     let matched_parameter = parameters
         .iter()
-        .find(|(parameter, _value)| parameter.variable.name == name);
+        .find(|(parameter, _value)| parameter.variable.name.as_ref() == name);
 
     match matched_parameter {
         Some((_, Some(value))) => Ok(value.clone()),

@@ -15,19 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
-    Circuit,
-    CircuitMember,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Identifier,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Type,
+    AsgConvertError, Circuit, CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node,
+    PartialType, Scope, Span, Type,
 };
 
 use indexmap::{IndexMap, IndexSet};
@@ -99,10 +88,10 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
                 ));
             }
         }
-        let members: IndexMap<&String, (&Identifier, Option<&leo_ast::Expression>)> = value
+        let members: IndexMap<&str, (&Identifier, Option<&leo_ast::Expression>)> = value
             .members
             .iter()
-            .map(|x| (&x.identifier.name, (&x.identifier, x.expression.as_ref())))
+            .map(|x| (x.identifier.name.as_ref(), (&x.identifier, x.expression.as_ref())))
             .collect();
 
         let mut values: Vec<(Identifier, Cell<&'a Expression<'a>>)> = vec![];
@@ -124,7 +113,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
                 } else {
                     continue;
                 };
-                if let Some((identifier, receiver)) = members.get(&name) {
+                if let Some((identifier, receiver)) = members.get(&**name) {
                     let received = if let Some(receiver) = *receiver {
                         <&Expression<'a>>::from_ast(scope, receiver, Some(type_.partial()))?
                     } else {

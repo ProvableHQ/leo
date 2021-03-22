@@ -17,16 +17,7 @@
 use leo_ast::IntegerType;
 
 use crate::{
-    AsgConvertError,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    InnerVariable,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Statement,
+    AsgConvertError, Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Span, Statement,
     Variable,
 };
 
@@ -85,7 +76,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
         scope
             .variables
             .borrow_mut()
-            .insert(statement.variable.name.clone(), variable);
+            .insert(statement.variable.name.to_string(), variable);
 
         let statement = scope.context.alloc_statement(Statement::Iteration(IterationStatement {
             parent: Cell::new(None),

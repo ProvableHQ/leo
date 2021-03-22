@@ -19,10 +19,13 @@ use snarkvm_gadgets::traits::utilities::{
     int::{Int128, Int16, Int32, Int64, Int8},
     uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
 };
+use std::convert::TryInto;
 use std::fmt::Debug;
 
 pub trait IntegerTrait: Sized + Clone + Debug {
     fn get_value(&self) -> Option<String>;
+
+    fn get_index(&self) -> Option<usize>;
 
     fn get_bits(&self) -> Vec<Boolean>;
 }
@@ -32,6 +35,10 @@ macro_rules! integer_trait_impl {
         impl IntegerTrait for $gadget {
             fn get_value(&self) -> Option<String> {
                 self.value.map(|num| num.to_string())
+            }
+
+            fn get_index(&self) -> Option<usize> {
+                self.value.map(|num| num.try_into().ok()).flatten()
             }
 
             fn get_bits(&self) -> Vec<Boolean> {

@@ -16,17 +16,14 @@
 
 use crate::Span;
 use leo_input::common::Identifier as InputIdentifier;
+use tendril::StrTendril;
 
 use crate::Node;
 use serde::{
     de::{
-        Visitor,
-        {self},
+        Visitor, {self},
     },
-    Deserialize,
-    Deserializer,
-    Serialize,
-    Serializer,
+    Deserialize, Deserializer, Serialize, Serializer,
 };
 use std::{
     collections::BTreeMap,
@@ -41,7 +38,7 @@ use std::{
 /// to reflect the new struct instantiation.
 #[derive(Clone)]
 pub struct Identifier {
-    pub name: String,
+    pub name: StrTendril,
     pub span: Span,
 }
 
@@ -56,7 +53,7 @@ impl Node for Identifier {
 }
 
 impl Identifier {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: StrTendril) -> Self {
         Self {
             name,
             span: Span::default(),
@@ -65,24 +62,16 @@ impl Identifier {
 
     pub fn new_with_span(name: &str, span: Span) -> Self {
         Self {
-            name: name.to_owned(),
+            name: name.into(),
             span,
         }
-    }
-
-    pub fn is_self_type(&self) -> bool {
-        self.name == "Self"
-    }
-
-    pub fn is_self(&self) -> bool {
-        self.is_self_type() || self.name == "self"
     }
 }
 
 impl<'ast> From<InputIdentifier<'ast>> for Identifier {
     fn from(identifier: InputIdentifier<'ast>) -> Self {
         Self {
-            name: identifier.value,
+            name: identifier.value.into(),
             span: Span::from(identifier.span),
         }
     }
@@ -123,7 +112,7 @@ impl Serialize for Identifier {
 
         // Load the struct elements into a BTreeMap (to preserve serialized ordering of keys).
         let mut key: BTreeMap<String, String> = BTreeMap::new();
-        key.insert("name".to_string(), self.name.clone());
+        key.insert("name".to_string(), self.name.to_string());
         key.insert("span".to_string(), to_json_string(&self.span)?);
 
         // Convert the serialized object into a string for use as a key.
@@ -164,7 +153,10 @@ impl<'de> Deserialize<'de> for Identifier {
                     None => return Err(E::custom("missing 'span' in serialized Identifier struct")),
                 };
 
-                Ok(Identifier { name, span })
+                Ok(Identifier {
+                    name: name.into(),
+                    span,
+                })
             }
         }
 

@@ -62,11 +62,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let input_variable = input_variable.get().borrow();
                 let name = input_variable.name.name.clone();
 
-                let input_value = match (input_variable.const_, input.get(&name), input.get_constant(&name)) {
+                let input_value = match (input_variable.const_, input.get(&name), input.get_constant(name.as_ref())) {
                     // If variable is in both [main] and [constants] sections - error.
                     (_, Some(_), Some(_)) => {
                         return Err(FunctionError::double_input_declaration(
-                            name.clone(),
+                            name.to_string(),
                             &function.span.clone().unwrap_or_default(),
                         ));
                     }
@@ -89,21 +89,21 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     // Function argument is const, input is not.
                     (true, Some(_), None) => {
                         return Err(FunctionError::expected_const_input(
-                            name.clone(),
+                            name.to_string(),
                             &function.span.clone().unwrap_or_default(),
                         ));
                     }
                     // Input is const, function argument is not.
                     (false, None, Some(_)) => {
                         return Err(FunctionError::expected_non_const_input(
-                            name.clone(),
+                            name.to_string(),
                             &function.span.clone().unwrap_or_default(),
                         ));
                     }
                     // When not found - Error out.
                     (_, _, _) => {
                         return Err(FunctionError::input_not_found(
-                            name.clone(),
+                            name.to_string(),
                             &function.span.clone().unwrap_or_default(),
                         ));
                     }

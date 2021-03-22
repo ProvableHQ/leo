@@ -35,25 +35,7 @@ pub enum AsgConvertError {
     SyntaxError(#[from] SyntaxError),
 }
 
-impl LeoError for AsgConvertError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            AsgConvertError::Error(error) => error.get_path(),
-            AsgConvertError::SyntaxError(error) => error.get_path(),
-            AsgConvertError::ImportError(error) => error.get_path(),
-            AsgConvertError::InternalError(_) => None,
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            AsgConvertError::Error(error) => error.set_path(path, contents),
-            AsgConvertError::SyntaxError(error) => error.set_path(path, contents),
-            AsgConvertError::ImportError(error) => error.set_path(path, contents),
-            AsgConvertError::InternalError(_) => {}
-        }
-    }
-}
+impl LeoError for AsgConvertError {}
 
 impl AsgConvertError {
     fn new_from_span(message: String, span: &Span) -> Self {

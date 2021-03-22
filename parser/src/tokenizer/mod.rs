@@ -20,6 +20,8 @@
 //! separated by whitespace.
 
 pub(crate) mod token;
+use std::sync::Arc;
+
 pub(crate) use self::token::*;
 
 pub(crate) mod lexer;
@@ -27,31 +29,33 @@ pub(crate) use self::lexer::*;
 
 use crate::TokenError;
 use leo_ast::Span;
-
-use std::rc::Rc;
+use tendril::StrTendril;
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
-pub(crate) fn tokenize(path: &str, source: &str) -> Result<Vec<SpannedToken>, TokenError> {
-    let path = Rc::new(path.to_string());
-    let mut input = source.as_bytes();
-    let mut tokens = Vec::new();
+pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken>, TokenError> {
+    let path = Arc::new(path.to_string());
+    let mut tokens = vec![];
     let mut index = 0usize;
     let mut line_no = 1usize;
     let mut line_start = 0usize;
-    while !input.is_empty() {
-        match Token::gobble(input) {
-            (output, Some(token)) => {
+    while input.len() > index {
+        match Token::gobble(input.subtendril(index as u32, (input.len() - index) as u32)) {
+            (token_len, Some(token)) => {
                 let mut span = Span {
                     line_start: line_no,
                     line_stop: line_no,
                     col_start: index - line_start + 1,
-                    col_stop: index - line_start + (input.len() - output.len()) + 1,
+                    col_stop: index - line_start + token_len + 1,
                     path: path.clone(),
+                    content: input.subtendril(
+                        line_start as u32,
+                        input[line_start..].find('\n').unwrap_or(input.len() - line_start) as u32,
+                    ),
                 };
                 match &token {
                     Token::CommentLine(_) => {
                         line_no += 1;
-                        line_start = index + (input.len() - output.len());
+                        line_start = index + token_len;
                     }
                     Token::CommentBlock(block) => {
                         let line_ct = block.chars().filter(|x| *x == '\n').count();
@@ -59,7 +63,7 @@ pub(crate) fn tokenize(path: &str, source: &str) -> Result<Vec<SpannedToken>, To
                         if line_ct > 0 {
                             let last_line_index = block.rfind('\n').unwrap();
                             line_start = index + last_line_index + 1;
-                            span.col_stop = index + (input.len() - output.len()) - line_start + 1;
+                            span.col_stop = index + token_len - line_start + 1;
                         }
                         span.line_stop = line_no;
                     }
@@ -71,30 +75,32 @@ pub(crate) fn tokenize(path: &str, source: &str) -> Result<Vec<SpannedToken>, To
                     _ => (),
                 }
                 tokens.push(SpannedToken { token, span });
-                index += input.len() - output.len();
-                input = output;
+                index += token_len;
             }
-            (output, None) => {
-                if output.is_empty() {
+            (token_len, None) => {
+                if token_len == 0 && index == input.len() {
                     break;
-                } else if output.len() == input.len() {
+                } else if token_len == 0 {
                     return Err(TokenError::unexpected_token(
-                        &String::from_utf8_lossy(&[input[0]]),
+                        &input[index..index + 1],
                         &Span {
                             line_start: line_no,
                             line_stop: line_no,
                             col_start: index - line_start + 1,
                             col_stop: index - line_start + 2,
                             path,
+                            content: input.subtendril(
+                                line_start as u32,
+                                input[line_start..].find('\n').unwrap_or(input.len()) as u32,
+                            ),
                         },
                     ));
                 }
-                index += input.len() - output.len();
-                if input[0] == b'\n' {
+                if input.as_bytes()[index] == b'\n' {
                     line_no += 1;
-                    line_start = index;
+                    line_start = index + token_len;
                 }
-                input = output;
+                index += token_len;
             }
         }
     }
@@ -212,18 +218,18 @@ mod tests {
         ?
         // test
         /* test */
-        //"#,
+        //"#
+            .into(),
         )
         .unwrap();
         let mut output = String::new();
         for SpannedToken { token, .. } in tokens.iter() {
-            output += &format!("{} ", &token.to_string());
+            output += &format!("{} ", token.to_string());
         }
         assert_eq!(
             output,
             r#""test" "test{}test" "test{}" "{}test" "test{" "test}" "test{test" "test}test" "te{{}}" aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8 test_ident 12345 address as bool circuit const else false field for function group i128 i64 i32 i16 i8 if import in input let mut return static string test true u128 u64 u32 u16 u8 self Self console ! != && ( ) * ** **= *= + += , - -= -> . .. ... / /= : :: ; < <= = == > >= @ [ ] { { } } || & &= | |= ^ ^= ~ << <<= >> >>= >>> >>>= % %= ||= &&= ? // test
- /* test */ //
- "#
+ /* test */ // "#
         );
     }
 
@@ -239,7 +245,7 @@ mod tests {
             test */
             test
             "#;
-        let tokens = tokenize("test_path", raw).unwrap();
+        let tokens = tokenize("test_path", raw.into()).unwrap();
         let mut line_indicies = vec![0];
         for (i, c) in raw.chars().enumerate() {
             if c == '\n' {

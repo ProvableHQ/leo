@@ -40,7 +40,11 @@ impl PublicState {
     }
 
     pub fn len(&self) -> usize {
-        if self.state.is_present() { 1usize } else { 0usize }
+        if self.state.is_present() {
+            1usize
+        } else {
+            0usize
+        }
     }
 
     /// Parse all input variables included in a file and store them in `self`.

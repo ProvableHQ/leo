@@ -17,8 +17,7 @@
 use anyhow::{anyhow, Error, Result};
 use reqwest::{
     blocking::{Client, Response},
-    Method,
-    StatusCode,
+    Method, StatusCode,
 };
 use serde::Serialize;
 

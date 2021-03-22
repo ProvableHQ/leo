@@ -16,11 +16,12 @@
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use tendril::StrTendril;
 
 /// Parts of a formatted string for logging to the console.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FormattedStringPart {
-    Const(String),
+    Const(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Container,
 }
 
@@ -37,11 +38,11 @@ impl fmt::Display for FormattedStringPart {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Token {
     FormattedString(Vec<FormattedStringPart>),
-    AddressLit(String),
-    Ident(String),
-    Int(String),
-    CommentLine(String),
-    CommentBlock(String),
+    AddressLit(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
+    Ident(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
+    Int(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
+    CommentLine(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
+    CommentBlock(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Not,
     NotEq,
     And,
@@ -193,7 +194,7 @@ impl fmt::Display for Token {
             AddressLit(s) => write!(f, "{}", s),
             Ident(s) => write!(f, "{}", s),
             Int(s) => write!(f, "{}", s),
-            CommentLine(s) => writeln!(f, "{}", s),
+            CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
             Not => write!(f, "!"),
             NotEq => write!(f, "!="),

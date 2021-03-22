@@ -21,9 +21,7 @@ use crate::{
     errors::FunctionError,
     program::ConstrainedProgram,
     value::{
-        boolean::input::bool_from_input,
-        field::input::field_from_input,
-        group::input::group_from_input,
+        boolean::input::bool_from_input, field::input::field_from_input, group::input::group_from_input,
         ConstrainedValue,
     },
     FieldType,

@@ -26,21 +26,7 @@ pub enum ConsoleError {
     Expression(#[from] ExpressionError),
 }
 
-impl LeoError for ConsoleError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            ConsoleError::Error(error) => error.get_path(),
-            ConsoleError::Expression(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            ConsoleError::Error(error) => error.set_path(path, contents),
-            ConsoleError::Expression(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for ConsoleError {}
 
 impl ConsoleError {
     fn new_from_span(message: String, span: &Span) -> Self {

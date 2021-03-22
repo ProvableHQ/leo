@@ -15,12 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    assert_satisfied,
-    expect_asg_error,
-    expect_compiler_error,
-    get_output,
-    parse_program,
-    parse_program_with_input,
+    assert_satisfied, expect_asg_error, expect_compiler_error, get_output, parse_program, parse_program_with_input,
     EdwardsTestCompiler,
 };
 

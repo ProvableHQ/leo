@@ -69,7 +69,7 @@ impl<'a> Circuit<'a> {
         let mut members = circuit.members.borrow_mut();
         for member in value.members.iter() {
             if let leo_ast::CircuitMember::CircuitVariable(name, type_) = member {
-                if members.contains_key(&name.name) {
+                if members.contains_key(name.name.as_ref()) {
                     return Err(AsgConvertError::redefined_circuit_member(
                         &value.circuit_name.name,
                         &name.name,
@@ -77,7 +77,7 @@ impl<'a> Circuit<'a> {
                     ));
                 }
                 members.insert(
-                    name.name.clone(),
+                    name.name.to_string(),
                     CircuitMember::Variable(new_scope.resolve_ast_type(type_)?),
                 );
             }
@@ -93,13 +93,13 @@ impl<'a> Circuit<'a> {
         let new_scope = scope.make_subscope();
         let circuits = scope.circuits.borrow();
 
-        let circuit = circuits.get(&value.circuit_name.name).unwrap();
+        let circuit = circuits.get(value.circuit_name.name.as_ref()).unwrap();
         new_scope.circuit_self.replace(Some(circuit));
 
         let mut members = circuit.members.borrow_mut();
         for member in value.members.iter() {
             if let leo_ast::CircuitMember::CircuitFunction(function) = member {
-                if members.contains_key(&function.identifier.name) {
+                if members.contains_key(function.identifier.name.as_ref()) {
                     return Err(AsgConvertError::redefined_circuit_member(
                         &value.circuit_name.name,
                         &function.identifier.name,
@@ -111,7 +111,7 @@ impl<'a> Circuit<'a> {
                 if asg_function.is_test() {
                     return Err(AsgConvertError::circuit_test_function(&function.identifier.span));
                 }
-                members.insert(function.identifier.name.clone(), CircuitMember::Function(asg_function));
+                members.insert(function.identifier.name.to_string(), CircuitMember::Function(asg_function));
             }
         }
 
@@ -126,7 +126,7 @@ impl<'a> Circuit<'a> {
                     let asg_function = match *self
                         .members
                         .borrow()
-                        .get(&function.identifier.name)
+                        .get(function.identifier.name.as_ref())
                         .expect("missing header for defined circuit function")
                     {
                         CircuitMember::Function(f) => f,
@@ -148,7 +148,7 @@ impl<'a> Into<leo_ast::Circuit> for &Circuit<'a> {
             .iter()
             .map(|(name, member)| match &member {
                 CircuitMember::Variable(type_) => {
-                    leo_ast::CircuitMember::CircuitVariable(Identifier::new(name.clone()), type_.into())
+                    leo_ast::CircuitMember::CircuitVariable(Identifier::new((&**name).into()), type_.into())
                 }
                 CircuitMember::Function(func) => leo_ast::CircuitMember::CircuitFunction((*func).into()),
             })

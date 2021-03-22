@@ -17,10 +17,12 @@
 use crate::{Identifier, Span};
 
 use serde::{Deserialize, Serialize};
+use tendril::StrTendril;
 
 #[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Annotation {
     pub span: Span,
     pub name: Identifier,
-    pub arguments: Vec<String>,
+    #[serde(with = "crate::common::vec_tendril_json")]
+    pub arguments: Vec<StrTendril>,
 }

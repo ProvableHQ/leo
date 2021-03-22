@@ -41,10 +41,7 @@ pub mod tuples;
 use leo_asg::{new_alloc_context, new_context, AsgContext};
 use leo_ast::{InputValue, MainInput};
 use leo_compiler::{
-    compiler::Compiler,
-    errors::CompilerError,
-    group::targets::edwards_bls12::EdwardsGroupType,
-    ConstrainedValue,
+    compiler::Compiler, errors::CompilerError, group::targets::edwards_bls12::EdwardsGroupType, ConstrainedValue,
     OutputBytes,
 };
 use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};

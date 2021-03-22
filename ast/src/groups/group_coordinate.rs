@@ -16,19 +16,17 @@
 
 use crate::common::span::Span;
 use leo_input::values::{
-    GroupCoordinate as InputGroupCoordinate,
-    Inferred as InputInferred,
-    NumberValue as InputNumberValue,
-    SignHigh as InputSignHigh,
-    SignLow as InputSignLow,
+    GroupCoordinate as InputGroupCoordinate, Inferred as InputInferred, NumberValue as InputNumberValue,
+    SignHigh as InputSignHigh, SignLow as InputSignLow,
 };
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use tendril::StrTendril;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupCoordinate {
-    Number(String, Span),
+    Number(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
     SignHigh,
     SignLow,
     Inferred,
@@ -61,7 +59,7 @@ impl<'ast> From<InputNumberValue<'ast>> for GroupCoordinate {
         let value = number.to_string();
         let span = Span::from(number.span().clone());
 
-        GroupCoordinate::Number(value, span)
+        GroupCoordinate::Number(value.into(), span)
     }
 }
 

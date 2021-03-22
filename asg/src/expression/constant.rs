@@ -15,18 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
-    ConstInt,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    GroupValue,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Type,
+    AsgConvertError, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, GroupValue, Node, PartialType, Scope,
+    Span, Type,
 };
 
 use std::cell::Cell;
@@ -174,12 +164,12 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 Some(PartialType::Type(Type::Group)) => Constant {
                     parent: Cell::new(None),
                     span: Some(span.clone()),
-                    value: ConstValue::Group(GroupValue::Single(value.to_string())),
+                    value: ConstValue::Group(GroupValue::Single(value.clone())),
                 },
                 Some(PartialType::Type(Type::Address)) => Constant {
                     parent: Cell::new(None),
                     span: Some(span.clone()),
-                    value: ConstValue::Address(value.to_string()),
+                    value: ConstValue::Address(value.clone()),
                 },
                 Some(x) => return Err(AsgConvertError::unexpected_type(&x.to_string(), Some("unknown"), span)),
             },
@@ -213,10 +203,10 @@ impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
                 leo_ast::ValueExpression::Address(value.clone(), self.span.clone().unwrap_or_default())
             }
             ConstValue::Boolean(value) => {
-                leo_ast::ValueExpression::Boolean(value.to_string(), self.span.clone().unwrap_or_default())
+                leo_ast::ValueExpression::Boolean(value.to_string().into(), self.span.clone().unwrap_or_default())
             }
             ConstValue::Field(value) => {
-                leo_ast::ValueExpression::Field(value.to_string(), self.span.clone().unwrap_or_default())
+                leo_ast::ValueExpression::Field(value.to_string().into(), self.span.clone().unwrap_or_default())
             }
             ConstValue::Group(value) => leo_ast::ValueExpression::Group(Box::new(match value {
                 GroupValue::Single(single) => {
@@ -230,7 +220,7 @@ impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
             })),
             ConstValue::Int(int) => leo_ast::ValueExpression::Integer(
                 int.get_int_type(),
-                int.raw_value(),
+                int.raw_value().into(),
                 self.span.clone().unwrap_or_default(),
             ),
             ConstValue::Tuple(_) => unimplemented!(),

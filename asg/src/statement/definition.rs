@@ -15,18 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    InnerVariable,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Statement,
-    Type,
-    Variable,
+    AsgConvertError, Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Span, Statement,
+    Type, Variable,
 };
 
 use std::cell::{Cell, RefCell};
@@ -106,7 +96,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             scope
                 .variables
                 .borrow_mut()
-                .insert(variable.borrow().name.name.clone(), *variable);
+                .insert(variable.borrow().name.name.to_string(), *variable);
         }
 
         let statement = scope
