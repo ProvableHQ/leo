@@ -539,3 +539,153 @@ fn test_variable_slice_fail() {
 
     expect_asg_error(error);
 }
+
+#[test]
+fn test_array_index() {
+    let program_string = r#"
+    function main(i: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert(2 == b[i]);
+        console.assert(3 == b[2]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 1;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_array_index_bounds_fail() {
+    let program_string = r#"
+    function main(i: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert(2 == b[i]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 4;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_array_range_index() {
+    let program_string = r#"
+    function main(i: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([1u8, 2] == b[0..i]);
+        console.assert([3u8, 4] == b[i..4]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 2;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_array_range_index_dyn() {
+    let program_string = r#"
+    function main(i: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([1u8, 2] == b[..i]);
+        console.assert([3u8, 4] == b[i..]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 2;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_array_range_index_full_dyn() {
+    let program_string = r#"
+    function main(i: u32, y: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([3u8, 4] == b[i..y]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 2;
+    y: u32 = 4;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_array_range_index_fail_bounds() {
+    let program_string = r#"
+    function main(i: u32, y: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([1, 2] == b[3..5]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 2;
+    "#;
+    let err = parse_program_with_input(program_string, input_string).is_err();
+
+    assert!(err);
+}
+
+#[test]
+fn test_array_range_index_full_dyn_resized_fail() {
+    let program_string = r#"
+    function main(i: u32, y: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([3u8, 4] == b[i..y]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 1;
+    y: u32 = 4;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_array_range_index_full_dyn_bounds_fail() {
+    let program_string = r#"
+    function main(i: u32, y: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([3u8, 4] == b[i..y]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 3;
+    y: u32 = 5;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    expect_compiler_error(program);
+}

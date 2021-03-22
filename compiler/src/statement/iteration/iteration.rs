@@ -17,6 +17,7 @@
 //! Enforces an iteration statement in a compiled Leo program.
 
 use crate::{
+    errors::StatementError,
     program::ConstrainedProgram,
     value::ConstrainedValue,
     GroupType,
@@ -42,8 +43,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         let span = statement.span.clone().unwrap_or_default();
 
-        let from = self.enforce_index(cs, statement.start.get(), &span)?;
-        let to = self.enforce_index(cs, statement.stop.get(), &span)?;
+        let from = self
+            .enforce_index(cs, statement.start.get(), &span)?
+            .to_usize()
+            .ok_or_else(|| StatementError::loop_index_const(&span))?;
+        let to = self
+            .enforce_index(cs, statement.stop.get(), &span)?
+            .to_usize()
+            .ok_or_else(|| StatementError::loop_index_const(&span))?;
 
         for i in from..to {
             // Store index in current function scope.

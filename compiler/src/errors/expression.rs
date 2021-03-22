@@ -85,8 +85,20 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn index_out_of_bounds(index: usize, span: &Span) -> Self {
+    pub fn tuple_index_out_of_bounds(index: usize, span: &Span) -> Self {
         let message = format!("cannot access index {} of tuple out of bounds", index);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_index_out_of_bounds(index: usize, span: &Span) -> Self {
+        let message = format!("cannot access index {} of array out of bounds", index);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_invalid_slice_length(span: &Span) -> Self {
+        let message = "illegal length of slice".to_string();
 
         Self::new_from_span(message, span)
     }

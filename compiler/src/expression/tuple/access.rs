@@ -40,7 +40,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         // Check for out of bounds access.
         if index > tuple.len() - 1 {
             // probably safe to be a panic here
-            return Err(ExpressionError::index_out_of_bounds(index, span));
+            return Err(ExpressionError::tuple_index_out_of_bounds(index, span));
         }
 
         Ok(tuple[index].to_owned())

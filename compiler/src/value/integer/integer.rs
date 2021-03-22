@@ -111,15 +111,9 @@ impl Integer {
         match_integer!(integer => integer.get_value())
     }
 
-    pub fn to_usize(&self, span: &Span) -> Result<usize, IntegerError> {
+    pub fn to_usize(&self) -> Option<usize> {
         let unsigned_integer = self;
-        let value_option: Option<String> = match_unsigned_integer!(unsigned_integer => unsigned_integer.get_value());
-
-        let value = value_option.ok_or_else(|| IntegerError::invalid_index(span))?;
-        let value_usize = value
-            .parse::<usize>()
-            .map_err(|_| IntegerError::invalid_integer(value, span))?;
-        Ok(value_usize)
+        match_unsigned_integer!(unsigned_integer => unsigned_integer.get_index())
     }
 
     pub fn get_type(&self) -> IntegerType {
