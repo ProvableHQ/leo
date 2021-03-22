@@ -23,6 +23,7 @@ use crate::{
     GroupType,
     IndicatorAndConstrainedValue,
     Integer,
+    IntegerTrait,
     StatementResult,
 };
 use leo_asg::IterationStatement;

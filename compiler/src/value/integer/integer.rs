@@ -28,7 +28,7 @@ use snarkvm_gadgets::traits::utilities::{
     eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
     int::{Int128, Int16, Int32, Int64, Int8},
     select::CondSelectGadget,
-    uint::*,
+    uint::{Sub as UIntSub, *},
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::fmt;
@@ -83,7 +83,7 @@ impl Integer {
 
     pub fn get_bits(&self) -> Vec<Boolean> {
         let integer = self;
-        match_integer!(integer => integer.get_bits())
+        match_integer!(integer => integer.to_bits_le())
     }
 
     // pub fn get_bits_typed(&self) -> (Vec<Boolean>, IntegerType) {
