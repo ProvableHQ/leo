@@ -57,6 +57,19 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
         let expected_index_type = Some(PartialType::Integer(None, Some(IntegerType::U32)));
         let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone())?;
         let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type)?;
+
+        // Return an error if start or stop is not constant.
+        if !start.is_consty() {
+            return Err(AsgConvertError::unexpected_nonconst(
+                &start.span().cloned().unwrap_or_default(),
+            ));
+        }
+        if !stop.is_consty() {
+            return Err(AsgConvertError::unexpected_nonconst(
+                &stop.span().cloned().unwrap_or_default(),
+            ));
+        }
+
         let variable = scope.context.alloc_variable(RefCell::new(InnerVariable {
             id: scope.context.get_id(),
             name: statement.variable.clone(),
