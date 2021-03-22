@@ -17,6 +17,7 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use tendril::StrTendril;
 
+#[allow(clippy::ptr_arg)]
 pub fn serialize<S: Serializer>(tendril: &Vec<StrTendril>, serializer: S) -> Result<S::Ok, S::Error> {
     tendril
         .iter()
