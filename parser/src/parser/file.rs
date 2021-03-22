@@ -309,11 +309,16 @@ impl ParserContext {
     ///
     pub fn parse_function_input(&mut self) -> SyntaxResult<FunctionInput> {
         if let Some(token) = self.eat(Token::Input) {
-            return Ok(FunctionInput::InputKeyword(InputKeyword { span: token.span }));
+            return Ok(FunctionInput::InputKeyword(InputKeyword {
+                identifier: Identifier {
+                    name: token.token.to_string(),
+                    span: token.span,
+                },
+            }));
         }
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
-        let name = if let Some(token) = self.eat(Token::LittleSelf) {
+        let mut name = if let Some(token) = self.eat(Token::LittleSelf) {
             Identifier {
                 name: token.token.to_string(),
                 span: token.span,
@@ -326,11 +331,11 @@ impl ParserContext {
                 //error
             }
             if let Some(mutable) = &mutable {
-                return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword {
-                    span: &mutable.span + &name.span,
-                }));
+                name.span = &mutable.span + &name.span;
+                name.name = "mut self".to_string();
+                return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
             }
-            return Ok(FunctionInput::SelfKeyword(SelfKeyword { span: name.span }));
+            return Ok(FunctionInput::SelfKeyword(SelfKeyword { identifier: name }));
         }
 
         if let Some(mutable) = &mutable {
