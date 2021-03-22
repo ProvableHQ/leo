@@ -60,7 +60,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             )?)),
             Type::Array(type_, len) => self.allocate_array(cs, name, &*type_, *len, input_option, span),
             Type::Tuple(types) => self.allocate_tuple(cs, &name, types, input_option, span),
-            _ => unimplemented!("main function input not implemented for type {}", type_),
+            _ => unimplemented!("main function input not implemented for type {}", type_), // Todo @damirka: add an error for this case
         }
     }
 }
