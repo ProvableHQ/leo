@@ -331,6 +331,9 @@ impl ParserContext {
             self.expect_ident()?
         };
         if name.name.as_ref() == "self" {
+            if let Some(const_) = const_.as_ref() {
+                return Err(SyntaxError::illegal_self_const(&(&name.span + &const_.span)))
+            }
             if let Some(mutable) = &mutable {
                 name.span = &mutable.span + &name.span;
                 name.name = "mut self".to_string().into();

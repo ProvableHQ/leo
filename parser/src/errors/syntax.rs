@@ -89,4 +89,11 @@ impl SyntaxError {
             span,
         )
     }
+
+    pub fn illegal_self_const(span: &Span) -> Self {
+        Self::new_from_span(
+            "cannot have const self".to_string(),
+            span,
+        )
+    }
 }
