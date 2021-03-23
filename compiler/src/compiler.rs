@@ -26,7 +26,7 @@ use crate::{
 };
 use indexmap::IndexMap;
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
-use leo_asg::{Asg, AsgPass, FormattedError, Program};
+use leo_asg::{Asg, AsgPass, FormattedError, Program as AsgProgram};
 use leo_ast::{Input, LeoError, MainInput, Program as AstProgram};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
@@ -67,7 +67,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     program: AstProgram,
     program_input: Input,
     context: AsgContext<'a>,
-    asg: Option<Program<'a>>,
+    asg: Option<AsgProgram<'a>>,
     file_contents: RefCell<IndexMap<String, Rc<Vec<String>>>>,
     options: CompilerOptions,
     _engine: PhantomData<F>,
@@ -284,12 +284,19 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         Ok(())
     }
 
+    ///
+    /// Run compiler optimization passes on the program in asg format.
+    ///
     fn do_asg_passes(&mut self) -> Result<(), FormattedError> {
         assert!(self.asg.is_some());
+
+        // Do constant folding.
         if self.options.constant_folding_enabled {
             let asg = self.asg.take().unwrap();
             self.asg = Some(leo_asg_passes::ConstantFolding::do_pass(asg)?);
         }
+
+        // Do dead code elimination.
         if self.options.dead_code_elimination_enabled {
             let asg = self.asg.take().unwrap();
             self.asg = Some(leo_asg_passes::DeadCodeElimination::do_pass(asg)?);
