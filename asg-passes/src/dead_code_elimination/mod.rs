@@ -25,7 +25,9 @@ impl<'a> ReconstructingReducerExpression<'a> for DeadCodeElimination {}
 impl<'a> ReconstructingReducerProgram<'a> for DeadCodeElimination {}
 
 impl<'a> ReconstructingReducerStatement<'a> for DeadCodeElimination {
-    // clobbers asg!!
+    ///
+    /// Removes dead code inside a false conditional statement block.
+    ///
     fn reduce_statement_alloc(
         &mut self,
         context: AsgContext<'a>,
