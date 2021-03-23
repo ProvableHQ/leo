@@ -47,7 +47,7 @@ fn eat_identifier(input: &[u8]) -> Option<(&[u8], &[u8])> {
         // Allow _ at start.
         return None;
     }
-    if input.len() > 1 && input[0] == b'_' {
+    if input.len() == 1 && input[0] == b'_' {
         // But only if it the length of the identifer is 1.
         return None;
     }
