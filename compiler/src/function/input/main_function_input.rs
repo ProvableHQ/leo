@@ -60,7 +60,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             )?)),
             Type::Array(type_, len) => self.allocate_array(cs, name, &*type_, *len, input_option, span),
             Type::Tuple(types) => self.allocate_tuple(cs, &name, types, input_option, span),
-            _ => unimplemented!("main function input not implemented for type {}", type_), // Todo @damirka: add an error for this case
+            _ => unimplemented!("main function input not implemented for type {}", type_), // Should not happen.
         }
     }
 }
@@ -113,9 +113,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         .collect::<Result<Vec<_>, _>>()?,
                 ))
             }
-            // The only unimplemented type in Type.
-            (Type::Circuit(_), _) => unimplemented!("main function input not implemented for type {}", type_),
-            // If Type => InputValue (type) match did not happen, error out.
+            (Type::Circuit(_), _) => unimplemented!("main function input not implemented for type {}", type_), // Should not happen.
+
+            // Return an error if the input type and input value do not match.
             (_, input) => Err(FunctionError::input_type_mismatch(
                 type_.to_string(),
                 input.to_string(),
