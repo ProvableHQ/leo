@@ -51,13 +51,7 @@ fn test_const_fail() {
 
 #[test]
 fn test_cond_mut() {
-    let program_string = r#"function main () {
-        let mut x = 100i8;
-        if false {
-            x = 1i8;
-            x *= 100i8;
-        }
-    }"#;
+    let program_string = include_str!("cond_mut.leo");
     let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);

@@ -221,3 +221,16 @@ fn test_multiple_returns() {
 
     output_zero(program);
 }
+
+#[test]
+fn test_cond_switch() {
+    let input_string = include_str!("input/cond_switch.in");
+    let program_string = include_str!("cond_switch.leo");
+    let expect_output = include_bytes!("output/cond_switch.out");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    let actual_output = get_output(program);
+
+    assert_eq!(expect_output, actual_output.bytes().as_slice());
+}
