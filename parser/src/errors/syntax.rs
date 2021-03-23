@@ -72,6 +72,10 @@ impl SyntaxError {
         )
     }
 
+    pub fn invalid_ident_name(got: &str, expected: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("expected identifier {} -- got '{}'", expected, got), span)
+    }
+
     pub fn unexpected_ident(got: &str, expected: &[&str], span: &Span) -> Self {
         Self::new_from_span(
             format!(
