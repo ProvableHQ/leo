@@ -153,3 +153,29 @@ macro_rules! match_integers_span {
         }
     };
 }
+
+macro_rules! allocate_type {
+    ($rust_ty:ty, $gadget_ty:ty, $leo_ty:path, $cs:expr, $name:expr, $option:expr, $span:expr) => {{
+        let option = $option.map(|s| {
+            s.parse::<$rust_ty>()
+                .map_err(|_| IntegerError::invalid_integer(s, $span))
+                .unwrap()
+        });
+
+        let result = <$gadget_ty>::alloc(
+            $cs.ns(|| {
+                format!(
+                    "`{}: {}` {}:{}",
+                    $name,
+                    stringify!($rust_ty),
+                    $span.line_start,
+                    $span.col_start
+                )
+            }),
+            || option.ok_or(SynthesisError::AssignmentMissing),
+        )
+        .map_err(|_| IntegerError::missing_integer(format!("{}: {}", $name, stringify!($rust_ty)), $span))?;
+
+        $leo_ty(result)
+    }};
+}
