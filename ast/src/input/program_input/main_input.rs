@@ -19,4 +19,4 @@ use leo_input::{definitions::Definition, InputParserError};
 
 use indexmap::IndexMap;
 
-main_input_definitions!(MainInput);
+main_input_section!(MainInput);

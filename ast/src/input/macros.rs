@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+/// Constructs an input section to store data parsed from a Leo input file.
+/// Constructs sections that pass variables to the main function through the input keyword.
 #[macro_export]
-macro_rules! input_section_impl {
+macro_rules! record_input_section {
     ($($name: ident), *) => ($(
 
         /// An input section declared in an input file with `[$name]`.
@@ -71,8 +73,10 @@ macro_rules! input_section_impl {
     )*)
 }
 
+/// Constructs an input section to store data parsed from a Leo input file.
+/// Constructs sections that pass variables directly to the main function.
 #[macro_export]
-macro_rules! main_input_definitions {
+macro_rules! main_input_section {
     ($($name: ident), *) => ($(
 
         /// `[$name]` program input section.
