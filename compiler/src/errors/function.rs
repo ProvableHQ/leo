@@ -104,14 +104,17 @@ impl FunctionError {
     }
 
     pub fn input_type_mismatch(expected: String, actual: String, variable: String, span: &Span) -> Self {
-        let message = format!("Expected {} to be {} not {}", variable, expected, actual);
+        let message = format!(
+            "Expected input variable `{}` to be type `{}`, found type `{}`",
+            variable, expected, actual
+        );
 
         Self::new_from_span(message, span)
     }
 
     pub fn expected_const_input(variable: String, span: &Span) -> Self {
         let message = format!(
-            "Expected {} input to be defined const. Move {} definition to [constants] section of input file",
+            "Expected input variable `{}` to be constant. Move input variable `{}` to [constants] section of input file",
             variable, variable
         );
 
@@ -120,7 +123,7 @@ impl FunctionError {
 
     pub fn expected_non_const_input(variable: String, span: &Span) -> Self {
         let message = format!(
-            "Expected {} input to be non constant. Move {} definition to [main] section of input file",
+            "Expected input variable `{}` to be non-constant. Move input variable `{}` to [main] section of input file",
             variable, variable
         );
 
