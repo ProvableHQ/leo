@@ -476,14 +476,14 @@ address = %s"aleo1" 58( lowercase-letter / digit )
 ; whose textual representation replaces the containers
 ; in the printed string).
 ; There is an implicit extra-grammatical requirements that
-; the explicit 'format-container' instances include
+; the explicit 'format-string-container' instances include
 ; all the occurrences of '{}' in the parsed character sequence:
 ; that is, there may not be two contiguous 'not-double-quote' instances
 ; that are '{' and '}'.
 
 format-string-container = "{}"
 
-format-string = double-quote
+formatted-string = double-quote
                 *( not-double-quote / format-string-container )
                 double-quote
 
@@ -498,9 +498,9 @@ format-string = double-quote
 ;
 ;  format-string-element = not-double-quote-or-open-brace
 ;                        / "{" not-double-quote-or-close-brace
-;                        / format-container
+;                        / format-string-container
 ;
-;  format-string = double-quote *format-string-element double-quote
+;  formatted-string = double-quote *format-string-element double-quote
 ;
 ; It is not immediately clear which approach is better; there are tradeoffs.
 ; Regardless, we should choose one eventually.
@@ -811,6 +811,11 @@ array-expression = array-construction / array-access
 ; There are circuit expressions to construct and deconstruct circuit values.
 ; A construction lists values for all the member variables (in any order);
 ; there must be at least one member variable currently.
+; A single identifier abbreviates
+; a pair consisting of the same identifier separated by dot;
+; note that, in the expansion, the left one denotes a member name,
+; while the right one denotes an expression (a variable),
+; so they are syntactically identical but semantically different.
 ; A deconstruction selects a member variable by name.
 ; Note that these expressions are delimited,
 ; by closing curly braces or identifiers.
@@ -819,7 +824,7 @@ circuit-construction = circuit-type "{"
                        circuit-inline-element *( "," circuit-inline-element )
                        "}"
 
-circuit-inline-element = identifier ":" expression
+circuit-inline-element = identifier ":" expression / identifier
 
 circuit-access = primary-expression "." identifier
 
