@@ -43,7 +43,12 @@ fn eat_identifier(input: &[u8]) -> Option<(&[u8], &[u8])> {
     if input.is_empty() {
         return None;
     }
-    if !input[0].is_ascii_alphabetic() {
+    if !input[0].is_ascii_alphabetic() && input[0] != b'_' {
+        // Allow _ at start.
+        return None;
+    }
+    if input.len() > 1 && input[0] == b'_' {
+        // But only if it the length of the identifer is 1.
         return None;
     }
     let mut i = 1usize;
