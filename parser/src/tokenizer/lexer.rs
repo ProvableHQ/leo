@@ -43,7 +43,7 @@ fn eat_identifier(input: &[u8]) -> Option<(&[u8], &[u8])> {
     if input.is_empty() {
         return None;
     }
-    if !input[0].is_ascii_alphabetic() && input[0] != b'_' {
+    if !input[0].is_ascii_alphabetic() {
         return None;
     }
     let mut i = 1usize;
