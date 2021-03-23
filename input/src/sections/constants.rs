@@ -14,16 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Enforces a logical `!` operator in a resolved Leo program.
+use crate::ast::Rule;
 
-use crate::{errors::IntegerError, value::ConstrainedValue, GroupType};
-use leo_asg::Span;
+use pest::Span;
+use pest_ast::FromPest;
 
-use snarkvm_fields::PrimeField;
-
-pub fn evaluate_bit_not<'a, F: PrimeField, G: GroupType<F>>(
-    value: ConstrainedValue<'a, F, G>,
-    span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, IntegerError> {
-    Err(IntegerError::cannot_evaluate(format!("!{}", value), span))
+#[derive(Clone, Debug, FromPest, PartialEq)]
+#[pest_ast(rule(Rule::constants))]
+pub struct Constants<'ast> {
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
 }
