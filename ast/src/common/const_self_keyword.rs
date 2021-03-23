@@ -14,29 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod array_dimensions;
-pub use array_dimensions::*;
+use crate::{Identifier, Node, Span};
 
-pub mod const_self_keyword;
-pub use const_self_keyword::*;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
-pub mod identifier;
-pub use identifier::*;
+/// The `self` keyword can view circuit values inside of a circuit function.
+/// Circuit values cannot be modified. To modify values use the `mut self` [MutSelfKeyword].
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[serde(transparent)]
+pub struct ConstSelfKeyword {
+    pub identifier: Identifier,
+}
 
-pub mod input_keyword;
-pub use input_keyword::*;
+impl fmt::Display for ConstSelfKeyword {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "const self")
+    }
+}
 
-pub mod mut_self_keyword;
-pub use mut_self_keyword::*;
+impl Node for ConstSelfKeyword {
+    fn span(&self) -> &Span {
+        &self.identifier.span
+    }
 
-pub mod positive_number;
-pub use positive_number::*;
-
-pub mod self_keyword;
-pub use self_keyword::*;
-
-pub mod span;
-pub use span::*;
-
-pub mod spread_or_expression;
-pub use spread_or_expression::*;
+    fn set_span(&mut self, span: Span) {
+        self.identifier.span = span;
+    }
+}

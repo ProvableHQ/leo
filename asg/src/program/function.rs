@@ -37,6 +37,7 @@ use std::cell::{Cell, RefCell};
 #[derive(Clone, Copy, PartialEq)]
 pub enum FunctionQualifier {
     SelfRef,
+    ConstSelfRef,
     MutSelfRef,
     Static,
 }
@@ -88,6 +89,9 @@ impl<'a> Function<'a> {
                     }
                     FunctionInput::SelfKeyword(_) => {
                         qualifier = FunctionQualifier::SelfRef;
+                    }
+                    FunctionInput::ConstSelfKeyword(_) => {
+                        qualifier = FunctionQualifier::ConstSelfRef;
                     }
                     FunctionInput::MutSelfKeyword(_) => {
                         qualifier = FunctionQualifier::MutSelfRef;
