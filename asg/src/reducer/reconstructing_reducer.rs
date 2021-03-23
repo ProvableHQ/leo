@@ -355,7 +355,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
 
 #[allow(unused_variables)]
 pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
-    // todo: this is kind of hacky
+    // todo @protryon: this is kind of hacky
     fn reduce_function(&mut self, input: &'a Function<'a>, body: Option<&'a Statement<'a>>) -> &'a Function<'a> {
         input.body.set(body);
         input
@@ -373,7 +373,7 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
         CircuitMember::Function(function)
     }
 
-    // todo: this is kind of hacky
+    // todo @protryon: this is kind of hacky
     fn reduce_circuit(&mut self, input: &'a Circuit<'a>, members: Vec<CircuitMember<'a>>) -> &'a Circuit<'a> {
         let mut input_members = input.members.borrow_mut();
         for ((name, input_member), member) in input_members.iter_mut().zip(members) {
