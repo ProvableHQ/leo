@@ -327,13 +327,13 @@ impl ParserContext {
             self.expect_ident()?
         };
         if name.name == "self" {
-            if const_.is_some() {
-                //error
-            }
             if let Some(mutable) = &mutable {
                 name.span = &mutable.span + &name.span;
                 name.name = "mut self".to_string();
                 return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
+            } else if let Some(const_) = &const_ {
+                name.span = &const_.span + &name.span;
+                name.name = "const self".to_string();
             }
             return Ok(FunctionInput::SelfKeyword(SelfKeyword { identifier: name }));
         }
@@ -347,8 +347,8 @@ impl ParserContext {
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable {
-            const_: const_.is_some(),
-            mutable: const_.is_none(),
+            const_: const_.is_some() || (const_.is_none() && mutable.is_none()),
+            mutable: mutable.is_some(),
             type_,
             span: name.span.clone(),
             identifier: name,
