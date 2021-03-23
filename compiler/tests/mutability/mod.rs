@@ -50,6 +50,14 @@ fn test_const_fail() {
 }
 
 #[test]
+fn test_cond_mut() {
+    let program_string = include_str!("cond_mut.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_array() {
     let program_string = include_str!("array.leo");
     let error = parse_program(program_string).err().unwrap();
