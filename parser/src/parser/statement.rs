@@ -89,7 +89,7 @@ impl ParserContext {
         match &self.peek()?.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
-            Token::For => Ok(Statement::Iteration(self.parse_for_statement()?)),
+            Token::For => Ok(Statement::Iteration(self.parse_loop_statement()?)),
             Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
             Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
@@ -195,7 +195,7 @@ impl ParserContext {
     ///
     /// Returns an [`IterationStatement`] AST node if the next tokens represent an iteration statement.
     ///
-    pub fn parse_for_statement(&mut self) -> SyntaxResult<IterationStatement> {
+    pub fn parse_loop_statement(&mut self) -> SyntaxResult<IterationStatement> {
         let start_span = self.expect(Token::For)?;
         let ident = self.expect_ident()?;
         self.expect(Token::In)?;
