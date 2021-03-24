@@ -91,7 +91,7 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                             path,
                             content: input.subtendril(
                                 line_start as u32,
-                                input[line_start..].find('\n').unwrap_or(input.len()) as u32,
+                                input[line_start..].find('\n').unwrap_or_else(|| input.len()) as u32,
                             ),
                         },
                     ));

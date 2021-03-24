@@ -25,7 +25,7 @@ use std::fmt;
 /// Returns a reference to bytes from the given input if the given string is equal to the bytes,
 /// otherwise returns [`None`].
 ///
-fn eat<'a>(input: &'a [u8], wanted: &str) -> Option<usize> {
+fn eat(input: &[u8], wanted: &str) -> Option<usize> {
     let wanted = wanted.as_bytes();
     if input.len() < wanted.len() {
         return None;
