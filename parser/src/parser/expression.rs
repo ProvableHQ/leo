@@ -541,6 +541,88 @@ impl ParserContext {
         }))
     }
 
+    pub fn parse_tupple_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
+        if let Some((left, right, span)) = self.eat_group_partial() {
+            return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
+                GroupTuple {
+                    span,
+                    x: left,
+                    y: right,
+                },
+            )))));
+        }
+        let mut args = vec![];
+        let end_span;
+        loop {
+            let end = self.eat(Token::RightParen);
+            if let Some(end) = end {
+                end_span = end.span;
+                break;
+            }
+            let expr = self.parse_expression()?;
+            args.push(expr);
+            if self.eat(Token::Comma).is_none() {
+                end_span = self.expect(Token::RightParen)?;
+                break;
+            }
+        }
+        if args.len() == 1 {
+            Ok(args.remove(0))
+        } else {
+            Ok(Expression::TupleInit(TupleInitExpression {
+                span: span + &end_span,
+                elements: args,
+            }))
+        }
+    }
+
+    pub fn parse_array_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
+        if let Some(end) = self.eat(Token::RightSquare) {
+            return Ok(Expression::ArrayInline(ArrayInlineExpression {
+                elements: vec![],
+                span: span + &end.span,
+            }));
+        }
+        let first = self.parse_spread_or_expression()?;
+        if self.eat(Token::Semicolon).is_some() {
+            let dimensions = self.parse_array_dimensions()?;
+            let end = self.expect(Token::RightSquare)?;
+            let first = match first {
+                SpreadOrExpression::Spread(first) => {
+                    let span = span + first.span();
+                    return Err(SyntaxError::spread_in_array_init(&span));
+                }
+                SpreadOrExpression::Expression(x) => x,
+            };
+            Ok(Expression::ArrayInit(ArrayInitExpression {
+                span: span + &end,
+                element: Box::new(first),
+                dimensions,
+            }))
+        } else {
+            let end_span;
+            let mut elements = vec![first];
+            loop {
+                if let Some(token) = self.eat(Token::RightSquare) {
+                    end_span = token.span;
+                    break;
+                }
+                if elements.len() == 1 {
+                    self.expect(Token::Comma)?;
+                }
+                elements.push(self.parse_spread_or_expression()?);
+                if self.eat(Token::Comma).is_none() {
+                    end_span = self.expect(Token::RightSquare)?;
+                    break;
+                }
+            }
+            Ok(Expression::ArrayInline(ArrayInlineExpression {
+                elements,
+                span: span + &end_span,
+            }))
+        }
+    }
+
     ///
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
     /// - Literals: field, group, unsigned integer, signed integer, boolean, address
@@ -594,86 +676,8 @@ impl ParserContext {
                 let end = self.expect(Token::RightParen)?;
                 Expression::Value(ValueExpression::Address(value, span + end))
             }
-            Token::LeftParen => {
-                if let Some((left, right, span)) = self.eat_group_partial() {
-                    return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
-                        GroupTuple {
-                            span,
-                            x: left,
-                            y: right,
-                        },
-                    )))));
-                }
-                let mut args = vec![];
-                let end_span;
-                loop {
-                    let end = self.eat(Token::RightParen);
-                    if let Some(end) = end {
-                        end_span = end.span;
-                        break;
-                    }
-                    let expr = self.parse_expression()?;
-                    args.push(expr);
-                    if self.eat(Token::Comma).is_none() {
-                        end_span = self.expect(Token::RightParen)?;
-                        break;
-                    }
-                }
-                if args.len() == 1 {
-                    args.remove(0)
-                } else {
-                    Expression::TupleInit(TupleInitExpression {
-                        span: span + end_span,
-                        elements: args,
-                    })
-                }
-            }
-            Token::LeftSquare => {
-                if let Some(end) = self.eat(Token::RightSquare) {
-                    return Ok(Expression::ArrayInline(ArrayInlineExpression {
-                        elements: vec![],
-                        span: span + end.span,
-                    }));
-                }
-                let first = self.parse_spread_or_expression()?;
-                if self.eat(Token::Semicolon).is_some() {
-                    let dimensions = self.parse_array_dimensions()?;
-                    let end = self.expect(Token::RightSquare)?;
-                    let first = match first {
-                        SpreadOrExpression::Spread(first) => {
-                            let span = &span + first.span();
-                            return Err(SyntaxError::spread_in_array_init(&span));
-                        }
-                        SpreadOrExpression::Expression(x) => x,
-                    };
-                    Expression::ArrayInit(ArrayInitExpression {
-                        span: span + end,
-                        element: Box::new(first),
-                        dimensions,
-                    })
-                } else {
-                    let end_span;
-                    let mut elements = vec![first];
-                    loop {
-                        if let Some(token) = self.eat(Token::RightSquare) {
-                            end_span = token.span;
-                            break;
-                        }
-                        if elements.len() == 1 {
-                            self.expect(Token::Comma)?;
-                        }
-                        elements.push(self.parse_spread_or_expression()?);
-                        if self.eat(Token::Comma).is_none() {
-                            end_span = self.expect(Token::RightSquare)?;
-                            break;
-                        }
-                    }
-                    Expression::ArrayInline(ArrayInlineExpression {
-                        elements,
-                        span: span + end_span,
-                    })
-                }
-            }
+            Token::LeftParen => self.parse_tupple_expression(&span)?,
+            Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
                 if !self.fuzzy_struct_state && self.peek()?.token == Token::LeftCurly {
