@@ -103,7 +103,7 @@ impl<'a> Function<'a> {
                         mutable,
                         ..
                     }) => {
-                        let variable = scope.alloc_variable(RefCell::new(crate::InnerVariable {
+                        let variable = scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                             id: scope.context.get_id(),
                             name: identifier.clone(),
                             type_: scope.resolve_ast_type(&type_, circuit_name)?,
@@ -121,7 +121,7 @@ impl<'a> Function<'a> {
         if qualifier != FunctionQualifier::Static && scope.circuit_self.get().is_none() {
             return Err(AsgConvertError::invalid_self_in_global(&value.span));
         }
-        let function = scope.alloc_function(Function {
+        let function = scope.context.alloc_function(Function {
             id: scope.context.get_id(),
             name: RefCell::new(value.identifier.clone()),
             output,
@@ -146,7 +146,7 @@ impl<'a> Function<'a> {
     ) -> Result<(), AsgConvertError> {
         if self.qualifier != FunctionQualifier::Static {
             let circuit = self.circuit.get();
-            let self_variable = self.scope.alloc_variable(RefCell::new(crate::InnerVariable {
+            let self_variable = self.scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                 id: self.scope.context.get_id(),
                 name: Identifier::new("self".to_string()),
                 type_: Type::Circuit(circuit.as_ref().unwrap()),
@@ -184,7 +184,7 @@ impl<'a> Function<'a> {
         }
 
         self.body
-            .replace(Some(self.scope.alloc_statement(Statement::Block(main_block))));
+            .replace(Some(self.scope.context.alloc_statement(Statement::Block(main_block))));
 
         Ok(())
     }

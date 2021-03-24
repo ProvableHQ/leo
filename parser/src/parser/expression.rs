@@ -507,7 +507,7 @@ impl ParserContext {
     /// Returns an [`Expression`] AST node if the next tokens represent an
     /// circuit initialization expression.
     ///
-    pub fn parse_circuit_init(&mut self, ident: Identifier) -> SyntaxResult<Expression> {
+    pub fn parse_circuit_init(&mut self, identifier: Identifier) -> SyntaxResult<Expression> {
         self.expect(Token::LeftCurly)?;
         let mut members = vec![];
         let end_span;
@@ -535,8 +535,8 @@ impl ParserContext {
             }
         }
         Ok(Expression::CircuitInit(CircuitInitExpression {
-            span: &ident.span + &end_span,
-            name: ident,
+            span: &identifier.span + &end_span,
+            name: identifier,
             members,
         }))
     }

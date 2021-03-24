@@ -14,15 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Node, Span};
+use crate::{Identifier, Node, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// The `mut self` keyword can view and modify circuit values inside of a circuit function.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
+#[serde(transparent)]
 pub struct MutSelfKeyword {
-    pub span: Span,
+    pub identifier: Identifier,
 }
 
 impl fmt::Display for MutSelfKeyword {
@@ -33,10 +34,10 @@ impl fmt::Display for MutSelfKeyword {
 
 impl Node for MutSelfKeyword {
     fn span(&self) -> &Span {
-        &self.span
+        &self.identifier.span
     }
 
     fn set_span(&mut self, span: Span) {
-        self.span = span;
+        self.identifier.span = span;
     }
 }

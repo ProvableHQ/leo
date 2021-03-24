@@ -81,3 +81,11 @@ fn test_iteration_input() {
 
     expect_asg_error(error);
 }
+
+#[test]
+fn test_iteration_variable() {
+    let program_string = include_str!("iteration_variable.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}

@@ -32,7 +32,7 @@ fn load_asg_imports<'a, T: ImportResolver<'a>>(
     imports: &mut T,
 ) -> Result<Program<'a>, AsgConvertError> {
     let ast = parse_ast(&TESTING_FILEPATH, program_string)?;
-    InternalProgram::new(context, &ast.as_repr(), imports)
+    Program::new(context, &ast.as_repr(), imports)
 }
 
 fn mocked_resolver(_context: AsgContext<'_>) -> MockedImportResolver<'_> {

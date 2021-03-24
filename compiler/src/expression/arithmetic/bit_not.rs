@@ -25,8 +25,5 @@ pub fn evaluate_bit_not<'a, F: PrimeField, G: GroupType<F>>(
     value: ConstrainedValue<'a, F, G>,
     span: &Span,
 ) -> Result<ConstrainedValue<'a, F, G>, IntegerError> {
-    match value {
-        // ConstrainedValue::Integer(i) => Ok(ConstrainedValue::Integer(i.not())),
-        value => Err(IntegerError::cannot_evaluate(format!("~{}", value), span)),
-    }
+    Err(IntegerError::cannot_evaluate(format!("!{}", value), span))
 }

@@ -143,7 +143,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                 element: Cell::new(
                     output
                         .map(Expression::ArrayInit)
-                        .map(|expr| &*scope.alloc_expression(expr))
+                        .map(|expr| &*scope.context.alloc_expression(expr))
                         .unwrap_or_else(|| element.take().unwrap()),
                 ),
                 len: dimension,

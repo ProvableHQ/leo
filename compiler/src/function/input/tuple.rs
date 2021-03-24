@@ -37,7 +37,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         match input_value {
             Some(InputValue::Tuple(values)) => {
-                // Allocate each value in the tuple
+                if values.len() != types.len() {
+                    return Err(FunctionError::tuple_size_mismatch(types.len(), values.len(), span));
+                }
+
+                // Allocate each value in the tuple.
                 for (i, (value, type_)) in values.into_iter().zip(types.iter()).enumerate() {
                     let value_name = format!("{}_{}", &name, &i.to_string());
 

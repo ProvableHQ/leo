@@ -90,6 +90,12 @@ pub enum Expression<'a> {
     Call(CallExpression<'a>),
 }
 
+impl<'a> Expression<'a> {
+    pub fn ptr_eq(&self, other: &Expression<'a>) -> bool {
+        std::ptr::eq(self as *const Expression<'a>, other as *const Expression<'a>)
+    }
+}
+
 impl<'a> Node for Expression<'a> {
     fn span(&self) -> Option<&Span> {
         use Expression::*;
@@ -283,63 +289,63 @@ impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
         use leo_ast::Expression::*;
         let expression = match value {
             Identifier(identifier) => Self::from_ast(scope, identifier, expected_type, circuit_name)?,
-            Value(value) => scope.alloc_expression(
+            Value(value) => scope.context.alloc_expression(
                 Constant::from_ast(scope, value, expected_type, circuit_name).map(Expression::Constant)?,
             ),
-            Binary(binary) => scope.alloc_expression(
+            Binary(binary) => scope.context.alloc_expression(
                 BinaryExpression::from_ast(scope, binary, expected_type, circuit_name).map(Expression::Binary)?,
             ),
-            Unary(unary) => scope.alloc_expression(
+            Unary(unary) => scope.context.alloc_expression(
                 UnaryExpression::from_ast(scope, unary, expected_type, circuit_name).map(Expression::Unary)?,
             ),
-            Ternary(conditional) => scope.alloc_expression(
+            Ternary(conditional) => scope.context.alloc_expression(
                 TernaryExpression::from_ast(scope, conditional, expected_type, circuit_name)
                     .map(Expression::Ternary)?,
             ),
-            Cast(cast) => scope.alloc_expression(
+            Cast(cast) => scope.context.alloc_expression(
                 CastExpression::from_ast(scope, cast, expected_type, circuit_name).map(Expression::Cast)?,
             ),
 
-            ArrayInline(array_inline) => scope.alloc_expression(
+            ArrayInline(array_inline) => scope.context.alloc_expression(
                 ArrayInlineExpression::from_ast(scope, array_inline, expected_type, circuit_name)
                     .map(Expression::ArrayInline)?,
             ),
-            ArrayInit(array_init) => scope.alloc_expression(
+            ArrayInit(array_init) => scope.context.alloc_expression(
                 ArrayInitExpression::from_ast(scope, array_init, expected_type, circuit_name)
                     .map(Expression::ArrayInit)?,
             ),
-            ArrayAccess(array_access) => scope.alloc_expression(
+            ArrayAccess(array_access) => scope.context.alloc_expression(
                 ArrayAccessExpression::from_ast(scope, array_access, expected_type, circuit_name)
                     .map(Expression::ArrayAccess)?,
             ),
-            ArrayRangeAccess(array_range_access) => scope.alloc_expression(
+            ArrayRangeAccess(array_range_access) => scope.context.alloc_expression(
                 ArrayRangeAccessExpression::from_ast(scope, array_range_access, expected_type, circuit_name)
                     .map(Expression::ArrayRangeAccess)?,
             ),
 
-            TupleInit(tuple_init) => scope.alloc_expression(
+            TupleInit(tuple_init) => scope.context.alloc_expression(
                 TupleInitExpression::from_ast(scope, tuple_init, expected_type, circuit_name)
                     .map(Expression::TupleInit)?,
             ),
-            TupleAccess(tuple_access) => scope.alloc_expression(
+            TupleAccess(tuple_access) => scope.context.alloc_expression(
                 TupleAccessExpression::from_ast(scope, tuple_access, expected_type, circuit_name)
                     .map(Expression::TupleAccess)?,
             ),
 
-            CircuitInit(circuit_init) => scope.alloc_expression(
+            CircuitInit(circuit_init) => scope.context.alloc_expression(
                 CircuitInitExpression::from_ast(scope, circuit_init, expected_type, circuit_name)
                     .map(Expression::CircuitInit)?,
             ),
-            CircuitMemberAccess(circuit_member) => scope.alloc_expression(
+            CircuitMemberAccess(circuit_member) => scope.context.alloc_expression(
                 CircuitAccessExpression::from_ast(scope, circuit_member, expected_type, circuit_name)
                     .map(Expression::CircuitAccess)?,
             ),
-            CircuitStaticFunctionAccess(circuit_member) => scope.alloc_expression(
+            CircuitStaticFunctionAccess(circuit_member) => scope.context.alloc_expression(
                 CircuitAccessExpression::from_ast(scope, circuit_member, expected_type, circuit_name)
                     .map(Expression::CircuitAccess)?,
             ),
 
-            Call(call) => scope.alloc_expression(
+            Call(call) => scope.context.alloc_expression(
                 CallExpression::from_ast(scope, call, expected_type, circuit_name).map(Expression::Call)?,
             ),
         };

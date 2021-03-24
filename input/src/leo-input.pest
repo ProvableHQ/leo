@@ -210,11 +210,14 @@ registers = { "registers" }
 // Declared in sections/state.rs
 state = { "state" }
 
+// Declared in sections/constants.rs
+constants = { "constants" }
+
 // Declared in sections/state_leaf.rs
 state_leaf = { "state_leaf" }
 
 // Declared in sections/header.rs
-header = { main | record | registers | state_leaf | state | identifier }
+header = { main | constants | record | registers | state_leaf | state | identifier }
 
 /// Definitions
 

@@ -219,7 +219,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         }
         let value = <&Expression<'a>>::from_ast(scope, &statement.value, target_type, circuit_name)?;
 
-        let statement = scope.alloc_statement(Statement::Assign(AssignStatement {
+        let statement = scope.context.alloc_statement(Statement::Assign(AssignStatement {
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             operation: statement.operation.clone(),

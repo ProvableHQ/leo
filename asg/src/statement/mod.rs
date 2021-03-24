@@ -54,6 +54,7 @@ pub enum Statement<'a> {
     Console(ConsoleStatement<'a>),
     Expression(ExpressionStatement<'a>),
     Block(BlockStatement<'a>),
+    Empty(Option<Span>),
 }
 
 impl<'a> Node for Statement<'a> {
@@ -68,6 +69,7 @@ impl<'a> Node for Statement<'a> {
             Console(s) => s.span(),
             Expression(s) => s.span(),
             Block(s) => s.span(),
+            Empty(s) => s.as_ref(),
         }
     }
 }
@@ -81,34 +83,46 @@ impl<'a> FromAst<'a, leo_ast::Statement> for &'a Statement<'a> {
     ) -> Result<&'a Statement<'a>, AsgConvertError> {
         use leo_ast::Statement::*;
         Ok(match value {
-            Return(statement) => scope.alloc_statement(Statement::Return(ReturnStatement::from_ast(
-                scope,
-                statement,
-                None,
-                circuit_name,
-            )?)),
+            Return(statement) => scope
+                .context
+                .alloc_statement(Statement::Return(ReturnStatement::from_ast(
+                    scope,
+                    statement,
+                    None,
+                    circuit_name,
+                )?)),
             Definition(statement) => Self::from_ast(scope, statement, None, circuit_name)?,
             Assign(statement) => Self::from_ast(scope, statement, None, circuit_name)?,
-            Conditional(statement) => scope.alloc_statement(Statement::Conditional(ConditionalStatement::from_ast(
-                scope,
-                statement,
-                None,
-                circuit_name,
-            )?)),
+            Conditional(statement) => {
+                scope
+                    .context
+                    .alloc_statement(Statement::Conditional(ConditionalStatement::from_ast(
+                        scope,
+                        statement,
+                        None,
+                        circuit_name,
+                    )?))
+            }
             Iteration(statement) => Self::from_ast(scope, statement, None, circuit_name)?,
-            Console(statement) => scope.alloc_statement(Statement::Console(ConsoleStatement::from_ast(
-                scope,
-                statement,
-                None,
-                circuit_name,
-            )?)),
-            Expression(statement) => scope.alloc_statement(Statement::Expression(ExpressionStatement::from_ast(
-                scope,
-                statement,
-                None,
-                circuit_name,
-            )?)),
-            Block(statement) => scope.alloc_statement(Statement::Block(BlockStatement::from_ast(
+            Console(statement) => scope
+                .context
+                .alloc_statement(Statement::Console(ConsoleStatement::from_ast(
+                    scope,
+                    statement,
+                    None,
+                    circuit_name,
+                )?)),
+            Expression(statement) => {
+                scope
+                    .context
+                    .alloc_statement(Statement::Expression(ExpressionStatement::from_ast(
+                        scope,
+                        statement,
+                        None,
+                        circuit_name,
+                    )?))
+            }
+            Block(statement) => scope.context.alloc_statement(Statement::Block(BlockStatement::from_ast(
                 scope,
                 statement,
                 None,
@@ -130,6 +144,7 @@ impl<'a> Into<leo_ast::Statement> for &Statement<'a> {
             Console(statement) => leo_ast::Statement::Console(statement.into()),
             Expression(statement) => leo_ast::Statement::Expression(statement.into()),
             Block(statement) => leo_ast::Statement::Block(statement.into()),
+            Empty(_) => unimplemented!(),
         }
     }
 }

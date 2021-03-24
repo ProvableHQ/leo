@@ -176,6 +176,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
             Statement::Expression(s) => self.reduce_expression_statement(s),
             Statement::Iteration(s) => self.reduce_iteration(s),
             Statement::Return(s) => self.reduce_return(s),
+            Statement::Empty(_) => T::default(),
         };
 
         self.reducer.reduce_statement(input, value)
@@ -272,15 +273,14 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
     }
 }
 
-#[allow(dead_code)]
 impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R> {
-    fn reduce_function(&mut self, input: &'a Function<'a>) -> T {
+    pub fn reduce_function(&mut self, input: &'a Function<'a>) -> T {
         let body = input.body.get().map(|s| self.reduce_statement(s)).unwrap_or_default();
 
         self.reducer.reduce_function(input, body)
     }
 
-    fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>) -> T {
+    pub fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>) -> T {
         let function = match input {
             CircuitMember::Function(f) => Some(self.reduce_function(f)),
             _ => None,
@@ -289,7 +289,7 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
         self.reducer.reduce_circuit_member(input, function)
     }
 
-    fn reduce_circuit(&mut self, input: &'a Circuit<'a>) -> T {
+    pub fn reduce_circuit(&mut self, input: &'a Circuit<'a>) -> T {
         let members = input
             .members
             .borrow()
@@ -300,7 +300,7 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
         self.reducer.reduce_circuit(input, members)
     }
 
-    fn reduce_program(&mut self, input: &Program<'a>) -> T {
+    pub fn reduce_program(&mut self, input: &Program<'a>) -> T {
         let imported_modules = input
             .imported_modules
             .iter()

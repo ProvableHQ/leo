@@ -56,7 +56,7 @@ impl<'a> Circuit<'a> {
     pub(super) fn init(scope: &'a Scope<'a>, value: &leo_ast::Circuit) -> Result<&'a Circuit<'a>, AsgConvertError> {
         let new_scope = scope.make_subscope();
 
-        let circuit = scope.alloc_circuit(Circuit {
+        let circuit = scope.context.alloc_circuit(Circuit {
             id: scope.context.get_id(),
             name: RefCell::new(value.circuit_name.clone()),
             members: RefCell::new(IndexMap::new()),

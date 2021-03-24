@@ -1,0 +1,2 @@
+[registers]
+r: bool = false;

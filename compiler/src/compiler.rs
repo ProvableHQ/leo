@@ -26,8 +26,8 @@ use crate::{
 };
 use indexmap::IndexMap;
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
-use leo_asg::{Asg, AsgPass, FormattedError};
-use leo_ast::{Input, LeoError, MainInput, Program};
+use leo_asg::{Asg, AsgPass, FormattedError, Program as AsgProgram};
+use leo_ast::{Input, LeoError, MainInput, Program as AstProgram};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
@@ -64,10 +64,10 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     program_name: String,
     main_file_path: PathBuf,
     output_directory: PathBuf,
-    program: Program,
+    program: AstProgram,
     program_input: Input,
     context: AsgContext<'a>,
-    asg: Option<Asg<'a>>,
+    asg: Option<AsgProgram<'a>>,
     file_contents: RefCell<IndexMap<String, Rc<Vec<String>>>>,
     options: CompilerOptions,
     _engine: PhantomData<F>,
@@ -88,7 +88,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             program_name: package_name.clone(),
             main_file_path,
             output_directory,
-            program: Program::new(package_name),
+            program: AstProgram::new(package_name),
             program_input: Input::new(),
             asg: None,
             context,
@@ -278,15 +278,29 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         tracing::debug!("ASG generation complete");
 
         // Store the ASG.
-        self.asg = Some(asg);
+        self.asg = Some(asg.into_repr());
+
+        self.do_asg_passes().map_err(CompilerError::AsgPassError)?;
 
         Ok(())
     }
 
-    fn do_asg_passes(&self) -> Result<(), FormattedError> {
+    ///
+    /// Run compiler optimization passes on the program in asg format.
+    ///
+    fn do_asg_passes(&mut self) -> Result<(), FormattedError> {
         assert!(self.asg.is_some());
+
+        // Do constant folding.
         if self.options.constant_folding_enabled {
-            leo_asg_passes::ConstantFolding::do_pass(self.asg.as_ref().unwrap().as_repr())?;
+            let asg = self.asg.take().unwrap();
+            self.asg = Some(leo_asg_passes::ConstantFolding::do_pass(asg)?);
+        }
+
+        // Do dead code elimination.
+        if self.options.dead_code_elimination_enabled {
+            let asg = self.asg.take().unwrap();
+            self.asg = Some(leo_asg_passes::DeadCodeElimination::do_pass(asg)?);
         }
 
         Ok(())
@@ -296,8 +310,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     /// Synthesizes the circuit with program input to verify correctness.
     ///
     pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
-        self.do_asg_passes().map_err(CompilerError::AsgPassError)?;
-
         generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input).map_err(|mut error| {
             if let Some(path) = error.get_path().map(|x| x.to_string()) {
                 let content = match self.resolve_content(&path) {
@@ -314,8 +326,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     /// Synthesizes the circuit for test functions with program input.
     ///
     pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
-        self.do_asg_passes().map_err(CompilerError::AsgPassError)?;
-
         generate_test_constraints::<F, G>(
             &self.asg.as_ref().unwrap(),
             input_pairs,
