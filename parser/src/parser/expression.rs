@@ -44,7 +44,7 @@ impl ParserContext {
         self.fuzzy_struct_state = false;
 
         // Parse expression.
-        let result = self.parse_expression_fuzzy();
+        let result = self.parse_conditional_expression();
 
         // Restore prior parser state.
         self.fuzzy_struct_state = prior_fuzzy_state;
@@ -58,7 +58,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_disjunctive_expression`].
     ///
-    pub fn parse_expression_fuzzy(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_conditional_expression(&mut self) -> SyntaxResult<Expression> {
         // Try to parse the next expression. Try BinaryOperation::Or.
         let mut expr = self.parse_disjunctive_expression()?;
 
@@ -66,7 +66,7 @@ impl ParserContext {
         if self.eat(Token::Question).is_some() {
             let if_true = self.parse_expression()?;
             self.expect(Token::Colon)?;
-            let if_false = self.parse_expression_fuzzy()?;
+            let if_false = self.parse_conditional_expression()?;
             expr = Expression::Ternary(TernaryExpression {
                 span: expr.span() + if_false.span(),
                 condition: Box::new(expr),

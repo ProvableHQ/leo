@@ -175,7 +175,7 @@ impl ParserContext {
     pub fn parse_conditional_statement(&mut self) -> SyntaxResult<ConditionalStatement> {
         let start = self.expect(Token::If)?;
         self.fuzzy_struct_state = true;
-        let expr = self.parse_expression_fuzzy()?;
+        let expr = self.parse_conditional_expression()?;
         self.fuzzy_struct_state = false;
         let body = self.parse_block()?;
         let next = if self.eat(Token::Else).is_some() {
@@ -202,7 +202,7 @@ impl ParserContext {
         let start = self.parse_expression()?;
         self.expect(Token::DotDot)?;
         self.fuzzy_struct_state = true;
-        let stop = self.parse_expression_fuzzy()?;
+        let stop = self.parse_conditional_expression()?;
         self.fuzzy_struct_state = false;
         let block = self.parse_block()?;
 

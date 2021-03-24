@@ -902,12 +902,16 @@ conjunctive-expression = equality-expression
 disjunctive-expression = conjunctive-expression
                        / disjunctive-expression "||" conjunctive-expression
 
-; Finally we have conditional expressions.
+; Next come conditional expressions.
 
 conditional-expression = disjunctive-expression
-                       / conditional-expression
+                        / conditional-expression
                          "?" expression
                          ":" conditional-expression
+                        
+; Need to decide on operator precedence for as.
+cast-expression = conditional-expression
+                / cast-expression %s"as" type
 
 ; These are all the expressions.
 ; Recall that conditional expressions
