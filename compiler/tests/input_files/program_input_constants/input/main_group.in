@@ -1,0 +1,4 @@
+[constants]
+a: group = 1group;
+b: group = -1group;
+c: group = (0, -1)group;

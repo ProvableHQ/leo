@@ -32,7 +32,7 @@ use std::cell::{Cell, RefCell};
 
 /// Stores the Leo program abstract semantic graph (ASG).
 #[derive(Clone)]
-pub struct InternalProgram<'a> {
+pub struct Program<'a> {
     pub context: AsgContext<'a>,
 
     /// The unique id of the program.
@@ -54,8 +54,6 @@ pub struct InternalProgram<'a> {
     /// Bindings for names and additional program context.
     pub scope: &'a Scope<'a>,
 }
-
-pub type Program<'a> = InternalProgram<'a>;
 
 /// Enumerates what names are imported from a package.
 #[derive(Clone)]
@@ -123,7 +121,7 @@ fn resolve_import_package_access(
     }
 }
 
-impl<'a> InternalProgram<'a> {
+impl<'a> Program<'a> {
     /// Returns a new Leo program ASG from the given Leo program AST and its imports.
     ///
     /// Stages:
@@ -225,7 +223,7 @@ impl<'a> InternalProgram<'a> {
             _ => unimplemented!(),
         };
 
-        let scope = import_scope.alloc_scope(Scope {
+        let scope = import_scope.context.alloc_scope(Scope {
             context,
             input: Cell::new(Some(Input::new(import_scope))), // we use import_scope to avoid recursive scope ref here
             id: context.get_id(),
@@ -273,7 +271,7 @@ impl<'a> InternalProgram<'a> {
             circuits.insert(name.name.clone(), asg_circuit);
         }
 
-        Ok(InternalProgram {
+        Ok(Program {
             context,
             id: context.get_id(),
             name: program.name.clone(),
@@ -371,7 +369,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
     }
 }
 
-impl<'a> Into<leo_ast::Program> for &InternalProgram<'a> {
+impl<'a> Into<leo_ast::Program> for &Program<'a> {
     fn into(self) -> leo_ast::Program {
         leo_ast::Program {
             name: self.name.clone(),

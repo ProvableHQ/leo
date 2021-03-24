@@ -97,13 +97,17 @@ impl<'a> Asg<'a> {
     ) -> Result<Self, AsgConvertError> {
         Ok(Self {
             context,
-            asg: InternalProgram::new(context, ast.as_ref(), resolver)?,
+            asg: Program::new(context, ast.as_ref(), resolver)?,
         })
     }
 
     /// Returns the internal program ASG representation.
     pub fn as_repr(&self) -> &Program<'a> {
         &self.asg
+    }
+
+    pub fn into_repr(self) -> Program<'a> {
+        self.asg
     }
 
     // /// Serializes the ast into a JSON string.
@@ -127,7 +131,7 @@ pub fn load_asg<'a, T: ImportResolver<'a>>(
     // Parses the Leo file and constructs a grammar ast.
     let ast = leo_parser::parse_ast("input.leo", content)?;
 
-    InternalProgram::new(context, ast.as_repr(), resolver)
+    Program::new(context, ast.as_repr(), resolver)
 }
 
 pub fn new_alloc_context<'a>() -> Arena<ArenaNode<'a>> {

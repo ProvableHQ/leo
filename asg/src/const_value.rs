@@ -91,6 +91,16 @@ pub enum GroupValue {
     Tuple(GroupCoordinate, GroupCoordinate),
 }
 
+impl From<leo_ast::GroupValue> for GroupValue {
+    fn from(other: leo_ast::GroupValue) -> Self {
+        use leo_ast::GroupValue::*;
+        match other {
+            Single(value, _) => GroupValue::Single(value),
+            Tuple(value) => GroupValue::Tuple(GroupCoordinate::from(&value.x), GroupCoordinate::from(&value.y)),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum ConstValue {
     Int(ConstInt),
