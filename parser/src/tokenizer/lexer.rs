@@ -163,14 +163,15 @@ impl Token {
             }
             b'&' => {
                 if let Some(input) = eat(input, "&&") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::AndEq));
-                    }
+                    // if let Some(input) = eat(input, "=") {
+                    //     return (input, Some(Token::AndEq));
+                    // }
                     return (input, Some(Token::And));
-                } else if let Some(input) = eat(input, "&=") {
-                    return (input, Some(Token::BitAndEq));
                 }
-                return (&input[1..], Some(Token::BitAnd));
+                // else if let Some(input) = eat(input, "&=") {
+                //     return (input, Some(Token::BitAndEq));
+                // }
+                // return (&input[1..], Some(Token::BitAnd));
             }
             b'(' => return (&input[1..], Some(Token::LeftParen)),
             b')' => return (&input[1..], Some(Token::RightParen)),
@@ -250,28 +251,30 @@ impl Token {
             b'<' => {
                 if let Some(input) = eat(input, "<=") {
                     return (input, Some(Token::LtEq));
-                } else if let Some(input) = eat(input, "<<") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::ShlEq));
-                    }
-                    return (input, Some(Token::Shl));
                 }
+                // else if let Some(input) = eat(input, "<<") {
+                //     if let Some(input) = eat(input, "=") {
+                //         return (input, Some(Token::ShlEq));
+                //     }
+                //     return (input, Some(Token::Shl));
+                // }
                 return (&input[1..], Some(Token::Lt));
             }
             b'>' => {
                 if let Some(input) = eat(input, ">=") {
                     return (input, Some(Token::GtEq));
-                } else if let Some(input) = eat(input, ">>") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::ShrEq));
-                    } else if let Some(input) = eat(input, ">") {
-                        if let Some(input) = eat(input, "=") {
-                            return (input, Some(Token::ShrSignedEq));
-                        }
-                        return (input, Some(Token::ShrSigned));
-                    }
-                    return (input, Some(Token::Shr));
                 }
+                // else if let Some(input) = eat(input, ">>") {
+                //     if let Some(input) = eat(input, "=") {
+                //         return (input, Some(Token::ShrEq));
+                //     } else if let Some(input) = eat(input, ">") {
+                //         if let Some(input) = eat(input, "=") {
+                //             return (input, Some(Token::ShrSignedEq));
+                //         }
+                //         return (input, Some(Token::ShrSigned));
+                //     }
+                //     return (input, Some(Token::Shr));
+                // }
                 return (&input[1..], Some(Token::Gt));
             }
             b'=' => {
@@ -288,28 +291,29 @@ impl Token {
             b'}' => return (&input[1..], Some(Token::RightCurly)),
             b'|' => {
                 if let Some(input) = eat(input, "||") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::OrEq));
-                    }
+                    // if let Some(input) = eat(input, "=") {
+                    //     return (input, Some(Token::OrEq));
+                    // }
                     return (input, Some(Token::Or));
-                } else if let Some(input) = eat(input, "|=") {
-                    return (input, Some(Token::BitOrEq));
                 }
-                return (&input[1..], Some(Token::BitOr));
+                // else if let Some(input) = eat(input, "|=") {
+                //     return (input, Some(Token::BitOrEq));
+                // }
+                // return (&input[1..], Some(Token::BitOr));
             }
-            b'^' => {
-                if let Some(input) = eat(input, "^=") {
-                    return (input, Some(Token::BitXorEq));
-                }
-                return (&input[1..], Some(Token::BitXor));
-            }
-            b'~' => return (&input[1..], Some(Token::BitNot)),
-            b'%' => {
-                if let Some(input) = eat(input, "%=") {
-                    return (input, Some(Token::ModEq));
-                }
-                return (&input[1..], Some(Token::Mod));
-            }
+            // b'^' => {
+            //     if let Some(input) = eat(input, "^=") {
+            //         return (input, Some(Token::BitXorEq));
+            //     }
+            //     return (&input[1..], Some(Token::BitXor));
+            // }
+            // b'~' => return (&input[1..], Some(Token::BitNot)),
+            // b'%' => {
+            //     if let Some(input) = eat(input, "%=") {
+            //         return (input, Some(Token::ModEq));
+            //     }
+            //     return (&input[1..], Some(Token::Mod));
+            // }
             _ => (),
         }
         if let Some((ident, input)) = eat_identifier(input) {

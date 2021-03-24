@@ -104,9 +104,9 @@ impl ParserContext {
     /// Otherwise, tries to parse the next token using [`parse_bit_or_expression`].
     ///
     pub fn parse_conjunctive_expression(&mut self) -> SyntaxResult<Expression> {
-        let mut expr = self.parse_bit_or_expression()?;
+        let mut expr = self.parse_equality_expression()?;
         while self.eat(Token::And).is_some() {
-            let right = self.parse_bit_or_expression()?;
+            let right = self.parse_equality_expression()?;
             expr = Expression::Binary(BinaryExpression {
                 span: expr.span() + right.span(),
                 op: BinaryOperation::And,
@@ -123,19 +123,19 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_bit_xor_expression`].
     ///
-    pub fn parse_bit_or_expression(&mut self) -> SyntaxResult<Expression> {
-        let mut expr = self.parse_bit_xor_expression()?;
-        while self.eat(Token::BitOr).is_some() {
-            let right = self.parse_bit_xor_expression()?;
-            expr = Expression::Binary(BinaryExpression {
-                span: expr.span() + right.span(),
-                op: BinaryOperation::BitOr,
-                left: Box::new(expr),
-                right: Box::new(right),
-            })
-        }
-        Ok(expr)
-    }
+    // pub fn parse_bit_or_expression(&mut self) -> SyntaxResult<Expression> {
+    //     let mut expr = self.parse_bit_xor_expression()?;
+    //     while self.eat(Token::BitOr).is_some() {
+    //         let right = self.parse_bit_xor_expression()?;
+    //         expr = Expression::Binary(BinaryExpression {
+    //             span: expr.span() + right.span(),
+    //             op: BinaryOperation::BitOr,
+    //             left: Box::new(expr),
+    //             right: Box::new(right),
+    //         })
+    //     }
+    //     Ok(expr)
+    // }
 
     ///
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -143,19 +143,19 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_bit_and_expression`].
     ///
-    pub fn parse_bit_xor_expression(&mut self) -> SyntaxResult<Expression> {
-        let mut expr = self.parse_bit_and_expression()?;
-        while self.eat(Token::BitXor).is_some() {
-            let right = self.parse_bit_and_expression()?;
-            expr = Expression::Binary(BinaryExpression {
-                span: expr.span() + right.span(),
-                op: BinaryOperation::BitXor,
-                left: Box::new(expr),
-                right: Box::new(right),
-            })
-        }
-        Ok(expr)
-    }
+    // pub fn parse_bit_xor_expression(&mut self) -> SyntaxResult<Expression> {
+    //     let mut expr = self.parse_bit_and_expression()?;
+    //     while self.eat(Token::BitXor).is_some() {
+    //         let right = self.parse_bit_and_expression()?;
+    //         expr = Expression::Binary(BinaryExpression {
+    //             span: expr.span() + right.span(),
+    //             op: BinaryOperation::BitXor,
+    //             left: Box::new(expr),
+    //             right: Box::new(right),
+    //         })
+    //     }
+    //     Ok(expr)
+    // }
 
     ///
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -163,19 +163,19 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
     ///
-    pub fn parse_bit_and_expression(&mut self) -> SyntaxResult<Expression> {
-        let mut expr = self.parse_equality_expression()?;
-        while self.eat(Token::BitAnd).is_some() {
-            let right = self.parse_equality_expression()?;
-            expr = Expression::Binary(BinaryExpression {
-                span: expr.span() + right.span(),
-                op: BinaryOperation::BitAnd,
-                left: Box::new(expr),
-                right: Box::new(right),
-            })
-        }
-        Ok(expr)
-    }
+    // pub fn parse_bit_and_expression(&mut self) -> SyntaxResult<Expression> {
+    //     let mut expr = self.parse_equality_expression()?;
+    //     while self.eat(Token::BitAnd).is_some() {
+    //         let right = self.parse_equality_expression()?;
+    //         expr = Expression::Binary(BinaryExpression {
+    //             span: expr.span() + right.span(),
+    //             op: BinaryOperation::BitAnd,
+    //             left: Box::new(expr),
+    //             right: Box::new(right),
+    //         })
+    //     }
+    //     Ok(expr)
+    // }
 
     ///
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -208,10 +208,10 @@ impl ParserContext {
     /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
     ///    
     pub fn parse_ordering_expression(&mut self) -> SyntaxResult<Expression> {
-        let mut expr = self.parse_shift_expression()?;
+        let mut expr = self.parse_additive_expression()?;
         while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq])
         {
-            let right = self.parse_shift_expression()?;
+            let right = self.parse_additive_expression()?;
             expr = Expression::Binary(BinaryExpression {
                 span: expr.span() + right.span(),
                 op: match op {
@@ -234,24 +234,24 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_additive_expression`].
     ///
-    pub fn parse_shift_expression(&mut self) -> SyntaxResult<Expression> {
-        let mut expr = self.parse_additive_expression()?;
-        while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Shl, Token::Shr, Token::ShrSigned]) {
-            let right = self.parse_additive_expression()?;
-            expr = Expression::Binary(BinaryExpression {
-                span: expr.span() + right.span(),
-                op: match op {
-                    Token::Shl => BinaryOperation::Shl,
-                    Token::Shr => BinaryOperation::Shr,
-                    Token::ShrSigned => BinaryOperation::ShrSigned,
-                    _ => unimplemented!(),
-                },
-                left: Box::new(expr),
-                right: Box::new(right),
-            })
-        }
-        Ok(expr)
-    }
+    // pub fn parse_shift_expression(&mut self) -> SyntaxResult<Expression> {
+    //     let mut expr = self.parse_additive_expression()?;
+    //     while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Shl, Token::Shr, Token::ShrSigned]) {
+    //         let right = self.parse_additive_expression()?;
+    //         expr = Expression::Binary(BinaryExpression {
+    //             span: expr.span() + right.span(),
+    //             op: match op {
+    //                 Token::Shl => BinaryOperation::Shl,
+    //                 Token::Shr => BinaryOperation::Shr,
+    //                 Token::ShrSigned => BinaryOperation::ShrSigned,
+    //                 _ => unimplemented!(),
+    //             },
+    //             left: Box::new(expr),
+    //             right: Box::new(right),
+    //         })
+    //     }
+    //     Ok(expr)
+    // }
 
     ///
     /// Returns an [`Expression`] AST node if the next tokens represent a
@@ -285,14 +285,14 @@ impl ParserContext {
     ///
     pub fn parse_multiplicative_expression(&mut self) -> SyntaxResult<Expression> {
         let mut expr = self.parse_exponential_expression()?;
-        while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Mul, Token::Div, Token::Mod]) {
+        while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Mul, Token::Div]) {
             let right = self.parse_exponential_expression()?;
             expr = Expression::Binary(BinaryExpression {
                 span: expr.span() + right.span(),
                 op: match op {
                     Token::Mul => BinaryOperation::Mul,
                     Token::Div => BinaryOperation::Div,
-                    Token::Mod => BinaryOperation::Mod,
+                    // Token::Mod => BinaryOperation::Mod,
                     _ => unimplemented!(),
                 },
                 left: Box::new(expr),
@@ -354,7 +354,7 @@ impl ParserContext {
     ///
     pub fn parse_unary_expression(&mut self) -> SyntaxResult<Expression> {
         let mut ops = vec![];
-        while let Some(token) = self.eat_any(&[Token::Not, Token::Minus, Token::BitNot]) {
+        while let Some(token) = self.eat_any(&[Token::Not, Token::Minus]) {
             ops.push(token);
         }
         let mut inner = self.parse_access_expression()?;
@@ -362,7 +362,7 @@ impl ParserContext {
             let operation = match op.token {
                 Token::Not => UnaryOperation::Not,
                 Token::Minus => UnaryOperation::Negate,
-                Token::BitNot => UnaryOperation::BitNot,
+                // Token::BitNot => UnaryOperation::BitNot,
                 _ => unimplemented!(),
             };
             // hack for const signed integer overflow issues

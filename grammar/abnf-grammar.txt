@@ -476,15 +476,15 @@ address = %s"aleo1" 58( lowercase-letter / digit )
 ; whose textual representation replaces the containers
 ; in the printed string).
 ; There is an implicit extra-grammatical requirements that
-; the explicit 'format-string-container' instances include
+; the explicit 'formatted-string-container' instances include
 ; all the occurrences of '{}' in the parsed character sequence:
 ; that is, there may not be two contiguous 'not-double-quote' instances
 ; that are '{' and '}'.
 
-format-string-container = "{}"
+formatted-string-container = "{}"
 
 formatted-string = double-quote
-                *( not-double-quote / format-string-container )
+                *( not-double-quote / formatted-string-container )
                 double-quote
 
 ; Here is (part of this ABNF comment),
@@ -496,11 +496,11 @@ formatted-string = double-quote
 ;
 ;  not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
 ;
-;  format-string-element = not-double-quote-or-open-brace
+;  formatted-string-element = not-double-quote-or-open-brace
 ;                        / "{" not-double-quote-or-close-brace
-;                        / format-string-container
+;                        / formatted-string-container
 ;
-;  formatted-string = double-quote *format-string-element double-quote
+;  formatted-string = double-quote *formatted-string-element double-quote
 ;
 ; It is not immediately clear which approach is better; there are tradeoffs.
 ; Regardless, we should choose one eventually.
@@ -652,7 +652,7 @@ token = keyword
       / identifier
       / literal
       / package-name
-      / format-string
+      / formatted-string
       / annotation-name
       / symbol
 
@@ -1004,7 +1004,7 @@ assert-call = %s"assert" "(" expression ")"
 
 print-function = %s"debug" / %s"error" / %s"log"
 
-print-arguments = "(" [ format-string *( "," expression ) ] ")"
+print-arguments = "(" [ formatted-string *( "," expression ) ] ")"
 
 print-call = print-function print-arguments
 
