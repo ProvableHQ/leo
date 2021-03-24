@@ -823,9 +823,7 @@ circuit-construction = circuit-type "{"
 
 circuit-inline-element = identifier ":" expression / identifier
 
-circuit-access = primary-expression "." identifier
-
-circuit-expression = circuit-construction / circuit-access
+circuit-expression = circuit-construction
 
 ; There are three kinds of function calls:
 ; top-level function calls,
@@ -847,11 +845,16 @@ function-call = top-level-function-call
 
 function-arguments = "(" [ expression *( "," expression ) ] ")"
 
-; Unary operators have the highest precedence.
-; They apply to primary expressions
+; Access expressions have highest precedence.
+; They apply to primary expressions.
+access-expression = primary-expression
+                 / access-expression "." identifier
+
+; Unary operators have the highest operator precedence.
+; They apply to access expressions
 ; and recursively to unary expressions.
 
-unary-expression = primary-expression
+unary-expression = access-expression
                  / "!" unary-expression
                  / "-" unary-expression
 
