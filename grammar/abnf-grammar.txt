@@ -855,14 +855,19 @@ unary-expression = primary-expression
                  / "!" unary-expression
                  / "-" unary-expression
 
+; Next in the operator precedence is casting.
+; The current rule below makes exponentiation left-associative,
+cast-expression = unary-expression
+                / cast-expression %s"as" type
+
 ; Next in the operator precedence is exponentiation,
 ; following mathematical practice.
 ; The current rule below makes exponentiation left-associative,
 ; i.e. 'a ** b ** c' must be parsed as '(a ** b) ** c'.
 ; This is easy to change if we want it to be right-associative instead.
 
-exponential-expression = unary-expression
-                       / exponential-expression "**" unary-expression
+exponential-expression = cast-expression
+                       / exponential-expression "**" cast-expression
 
 ; Next in precedence come multiplication and division, both left-associative.
 
@@ -902,16 +907,12 @@ conjunctive-expression = equality-expression
 disjunctive-expression = conjunctive-expression
                        / disjunctive-expression "||" conjunctive-expression
 
-; Next come conditional expressions.
+; Finally we have conditional expressions.
 
 conditional-expression = disjunctive-expression
                         / conditional-expression
                          "?" expression
                          ":" conditional-expression
-                        
-; Need to decide on operator precedence for as.
-cast-expression = conditional-expression
-                / cast-expression %s"as" type
 
 ; These are all the expressions.
 ; Recall that conditional expressions
