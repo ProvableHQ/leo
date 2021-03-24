@@ -93,44 +93,49 @@ impl ParserContext {
             Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
             Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
-            _ => {
-                let expr = self.parse_expression()?;
+            _ => Ok(self.parse_assign_statement()?),
+        }
+    }
 
-                if let Some(operator) = self.eat_any(ASSIGN_TOKENS) {
-                    let value = self.parse_expression()?;
-                    let assignee = Self::construct_assignee(expr)?;
-                    self.expect(Token::Semicolon)?;
-                    Ok(Statement::Assign(AssignStatement {
-                        span: &assignee.span + value.span(),
-                        assignee,
-                        operation: match operator.token {
-                            Token::Assign => AssignOperation::Assign,
-                            Token::AddEq => AssignOperation::Add,
-                            Token::MinusEq => AssignOperation::Sub,
-                            Token::MulEq => AssignOperation::Mul,
-                            Token::DivEq => AssignOperation::Div,
-                            Token::ExpEq => AssignOperation::Pow,
-                            // Token::OrEq => AssignOperation::Or,
-                            // Token::AndEq => AssignOperation::And,
-                            // Token::BitOrEq => AssignOperation::BitOr,
-                            // Token::BitAndEq => AssignOperation::BitAnd,
-                            // Token::BitXorEq => AssignOperation::BitXor,
-                            // Token::ShrEq => AssignOperation::Shr,
-                            // Token::ShrSignedEq => AssignOperation::ShrSigned,
-                            // Token::ShlEq => AssignOperation::Shl,
-                            // Token::ModEq => AssignOperation::Mod,
-                            _ => unimplemented!(),
-                        },
-                        value,
-                    }))
-                } else {
-                    self.expect(Token::Semicolon)?;
-                    Ok(Statement::Expression(ExpressionStatement {
-                        span: expr.span().clone(),
-                        expression: expr,
-                    }))
-                }
-            }
+    ///
+    /// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.
+    ///
+    pub fn parse_assign_statement(&mut self) -> SyntaxResult<Statement> {
+        let expr = self.parse_expression()?;
+
+        if let Some(operator) = self.eat_any(ASSIGN_TOKENS) {
+            let value = self.parse_expression()?;
+            let assignee = Self::construct_assignee(expr)?;
+            self.expect(Token::Semicolon)?;
+            Ok(Statement::Assign(AssignStatement {
+                span: &assignee.span + value.span(),
+                assignee,
+                operation: match operator.token {
+                    Token::Assign => AssignOperation::Assign,
+                    Token::AddEq => AssignOperation::Add,
+                    Token::MinusEq => AssignOperation::Sub,
+                    Token::MulEq => AssignOperation::Mul,
+                    Token::DivEq => AssignOperation::Div,
+                    Token::ExpEq => AssignOperation::Pow,
+                    // Token::OrEq => AssignOperation::Or,
+                    // Token::AndEq => AssignOperation::And,
+                    // Token::BitOrEq => AssignOperation::BitOr,
+                    // Token::BitAndEq => AssignOperation::BitAnd,
+                    // Token::BitXorEq => AssignOperation::BitXor,
+                    // Token::ShrEq => AssignOperation::Shr,
+                    // Token::ShrSignedEq => AssignOperation::ShrSigned,
+                    // Token::ShlEq => AssignOperation::Shl,
+                    // Token::ModEq => AssignOperation::Mod,
+                    _ => unimplemented!(),
+                },
+                value,
+            }))
+        } else {
+            self.expect(Token::Semicolon)?;
+            Ok(Statement::Expression(ExpressionStatement {
+                span: expr.span().clone(),
+                expression: expr,
+            }))
         }
     }
 
