@@ -541,6 +541,10 @@ impl ParserContext {
         }))
     }
 
+    ///
+    /// Returns an [`Expression`] AST node if the next tokens represent an
+    /// tuple initialization expression.
+    ///
     pub fn parse_tupple_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
         if let Some((left, right, span)) = self.eat_group_partial() {
             return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
@@ -576,6 +580,10 @@ impl ParserContext {
         }
     }
 
+    ///
+    /// Returns an [`Expression`] AST node if the next tokens represent an
+    /// array initialization expression.
+    ///
     pub fn parse_array_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
         if let Some(end) = self.eat(Token::RightSquare) {
             return Ok(Expression::ArrayInline(ArrayInlineExpression {
