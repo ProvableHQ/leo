@@ -57,6 +57,13 @@ impl SyntaxError {
         Self::new_from_span("unexpected EOF".to_string(), span)
     }
 
+    pub fn unexpected_whitespace(left: &str, right: &str, span: &Span) -> Self {
+        Self::new_from_span(
+            format!("Unexpected white space between terms {} and {}", left, right),
+            span,
+        )
+    }
+
     pub fn unexpected(got: &Token, expected: &[Token], span: &Span) -> Self {
         Self::new_from_span(
             format!(

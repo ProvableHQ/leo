@@ -88,6 +88,14 @@ impl ParserContext {
                 &name.span,
             )));
         }
+
+        if start.col_stop != name.span.col_start {
+            let mut error_span = &start + &name.span;
+            error_span.col_start = start.col_stop - 1;
+            error_span.col_stop = name.span.col_start - 1;
+            return Err(SyntaxError::unexpected_whitespace("@", &name.name, &error_span));
+        }
+
         let end_span;
         let arguments = if self.eat(Token::LeftParen).is_some() {
             let mut args = vec![];

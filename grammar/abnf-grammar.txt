@@ -509,9 +509,7 @@ formatted-string = double-quote
 ; Two names are currently supported.
 ; An argument is a sequence of one or more letters, digits, and underscores.
 
-annotation-name = %s"@context" / %s"@test"
-
-annotation-argument = 1*( letter / digit / "_" )
+annotation-name = "@" identifier
 
 ; A natural (number) is a sequence of one or more digits.
 ; Note that we allow leading zeros, e.g. '007'.
@@ -656,7 +654,6 @@ token = keyword
       / package-name
       / format-string
       / annotation-name
-      / annotation-argument
       / symbol
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1012,7 +1009,7 @@ print-call = print-function print-arguments
 ; Note that no parentheses are used if there are no arguments.
 
 annotation = annotation-name
-             [ "(" annotation-argument *( "," annotation-argument ) ")" ]
+             [ "(" identifier *( "," identifier ) ")" ]
 
 ; A function declaration defines a function.
 ; This could be called 'function-definition' instead,
