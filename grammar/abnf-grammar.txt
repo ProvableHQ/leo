@@ -645,7 +645,7 @@ symbol = "!" / "&&" / "||"
        / "[" / "]"
        / "{" / "}"
        / "," / "." / ".." / "..." / ";" / ":" / "::" / "?"
-       / "->"
+       / "->" / "_"
 
 ; Everything defined above, other than comments and whitespace,
 ; is a token, as defined by the following rule.

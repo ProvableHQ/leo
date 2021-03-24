@@ -85,6 +85,7 @@ pub enum Token {
     DoubleColon,
     Question,
     Arrow,
+    Underscore,
 
     // Syntactic Grammr
     // Types
@@ -298,6 +299,7 @@ impl fmt::Display for Token {
             OrEq => write!(f, "||="),
             AndEq => write!(f, "&&="),
             Question => write!(f, "?"),
+            Underscore => write!(f, "_"),
         }
     }
 }

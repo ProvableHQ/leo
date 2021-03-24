@@ -43,14 +43,11 @@ fn eat_identifier(input: &[u8]) -> Option<(&[u8], &[u8])> {
     if input.is_empty() {
         return None;
     }
-    if !input[0].is_ascii_alphabetic() && input[0] != b'_' {
+    if !input[0].is_ascii_alphabetic() {
         // Allow _ at start.
         return None;
     }
-    if input.len() == 1 && input[0] == b'_' {
-        // But only if it the length of the identifer is 1.
-        return None;
-    }
+
     let mut i = 1usize;
     while i < input.len() {
         if !input[i].is_ascii_alphanumeric() && input[i] != b'_' {
@@ -283,6 +280,7 @@ impl Token {
                 }
                 return (&input[1..], Some(Token::Assign));
             }
+            b'_' => return (&input[1..], Some(Token::Underscore)),
             b'@' => return (&input[1..], Some(Token::At)),
             b'[' => return (&input[1..], Some(Token::LeftSquare)),
             b']' => return (&input[1..], Some(Token::RightSquare)),
