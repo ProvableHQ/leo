@@ -767,7 +767,7 @@ primary-expression = identifier
 
 tuple-construction = "(" [ expression 1*( "," expression ) ] ")"
 
-tuple-access = primary-expression "." natural
+
 
 tuple-expression = tuple-construction / tuple-access
 
@@ -797,13 +797,7 @@ array-repeat-construction = "[" expression ";" array-dimensions "]"
 
 array-construction = array-inline-construction / array-repeat-construction
 
-array-element-access = primary-expression "[" expression "]"
-
-array-range-access = primary-expression "[" [expression] ".." [expression] "]"
-
-array-access = array-element-access / array-range-access
-
-array-expression = array-construction / array-access
+array-expression = array-construction
 
 ; There are circuit expressions to construct and deconstruct circuit values.
 ; A construction lists values for all the member variables (in any order);
@@ -832,23 +826,20 @@ circuit-expression = circuit-construction
 ; What changes is the start, but they all end in an argument list,
 ; delimited by a closing parenthesis.
 
-top-level-function-call = identifier function-arguments
-
-instance-member-function-call = primary-expression "."
-                                identifier function-arguments
-
-static-member-function-call = circuit-type "::" identifier function-arguments
-
-function-call = top-level-function-call
-              / instance-member-function-call
-              / static-member-function-call
-
 function-arguments = "(" [ expression *( "," expression ) ] ")"
 
 ; Access expressions have highest precedence.
 ; They apply to primary expressions.
+; Contains access expressions for arrays, tuples, and circuits.
+; Contains function call types.
 access-expression = primary-expression
+                 / access-expression "." natural
                  / access-expression "." identifier
+                 / identifier function-arguments
+                 / access-expression "." identifier function-arguments
+                 / circuit-type "::" identifier function-arguments
+                 / access-expression "[" expression "]"
+                 / access-expression "[" [expression] ".." [expression] "]"
 
 ; Unary operators have the highest operator precedence.
 ; They apply to access expressions

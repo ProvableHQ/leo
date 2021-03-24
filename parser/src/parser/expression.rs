@@ -545,7 +545,7 @@ impl ParserContext {
     /// Returns an [`Expression`] AST node if the next tokens represent an
     /// tuple initialization expression.
     ///
-    pub fn parse_tupple_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
+    pub fn parse_tuple_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
         if let Some((left, right, span)) = self.eat_group_partial() {
             return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
                 GroupTuple {
@@ -684,7 +684,7 @@ impl ParserContext {
                 let end = self.expect(Token::RightParen)?;
                 Expression::Value(ValueExpression::Address(value, span + end))
             }
-            Token::LeftParen => self.parse_tupple_expression(&span)?,
+            Token::LeftParen => self.parse_tuple_expression(&span)?,
             Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
