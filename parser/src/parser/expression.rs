@@ -350,14 +350,14 @@ impl ParserContext {
     /// Returns an [`Expression`] AST node if the next tokens represent a
     /// unary not, negate, or bitwise not expression.
     ///
-    /// Otherwise, tries to parse the next token using [`parse_access_expression`].
+    /// Otherwise, tries to parse the next token using [`parse_postfix_expression`].
     ///
     pub fn parse_unary_expression(&mut self) -> SyntaxResult<Expression> {
         let mut ops = vec![];
         while let Some(token) = self.eat_any(&[Token::Not, Token::Minus]) {
             ops.push(token);
         }
-        let mut inner = self.parse_access_expression()?;
+        let mut inner = self.parse_postfix_expression()?;
         for op in ops.into_iter().rev() {
             let operation = match op.token {
                 Token::Not => UnaryOperation::Not,
@@ -390,7 +390,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
     ///
-    pub fn parse_access_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_postfix_expression(&mut self) -> SyntaxResult<Expression> {
         let mut expr = self.parse_primary_expression()?;
         while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen, Token::DoubleColon]) {
             match token.token {

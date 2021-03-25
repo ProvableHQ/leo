@@ -828,24 +828,24 @@ circuit-expression = circuit-construction
 
 function-arguments = "(" [ expression *( "," expression ) ] ")"
 
-; Access expressions have highest precedence.
+; Postfix expressions have highest precedence.
 ; They apply to primary expressions.
 ; Contains access expressions for arrays, tuples, and circuits.
 ; Contains function call types.
-access-expression = primary-expression
-                 / access-expression "." natural
-                 / access-expression "." identifier
+postfix-expression = primary-expression
+                 / postfix-expression "." natural
+                 / postfix-expression "." identifier
                  / identifier function-arguments
-                 / access-expression "." identifier function-arguments
+                 / postfix-expression "." identifier function-arguments
                  / circuit-type "::" identifier function-arguments
-                 / access-expression "[" expression "]"
-                 / access-expression "[" [expression] ".." [expression] "]"
+                 / postfix-expression "[" expression "]"
+                 / postfix-expression "[" [expression] ".." [expression] "]"
 
 ; Unary operators have the highest operator precedence.
-; They apply to access expressions
+; They apply to postfix expressions
 ; and recursively to unary expressions.
 
-unary-expression = access-expression
+unary-expression = postfix-expression
                  / "!" unary-expression
                  / "-" unary-expression
 
