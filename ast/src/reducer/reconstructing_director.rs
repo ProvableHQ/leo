@@ -193,14 +193,16 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         array_range_access: &ArrayRangeAccessExpression,
     ) -> Result<ArrayRangeAccessExpression, CanonicalizeError> {
         let array = self.reduce_expression(&array_range_access.array)?;
-        let left = match array_range_access.left.as_ref() {
-            Some(left) => Some(self.reduce_expression(left)?),
-            None => None,
-        };
-        let right = match array_range_access.right.as_ref() {
-            Some(right) => Some(self.reduce_expression(right)?),
-            None => None,
-        };
+        let left = array_range_access
+            .left
+            .as_ref()
+            .map(|left| self.reduce_expression(left))
+            .transpose()?;
+        let right = array_range_access
+            .right
+            .as_ref()
+            .map(|right| self.reduce_expression(right))
+            .transpose()?;
 
         self.reducer
             .reduce_array_range_access(array_range_access, array, left, right, self.in_circuit)
@@ -232,10 +234,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         variable: &CircuitImpliedVariableDefinition,
     ) -> Result<CircuitImpliedVariableDefinition, CanonicalizeError> {
         let identifier = self.reduce_identifier(&variable.identifier)?;
-        let expression = match variable.expression.as_ref() {
-            Some(expr) => Some(self.reduce_expression(expr)?),
-            None => None,
-        };
+        let expression = variable
+            .expression
+            .as_ref()
+            .map(|expr| self.reduce_expression(expr))
+            .transpose()?;
 
         self.reducer
             .reduce_circuit_implied_variable_definition(variable, identifier, expression, self.in_circuit)
@@ -327,10 +330,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             variable_names.push(self.reduce_variable_name(variable_name)?);
         }
 
-        let type_ = match definition.type_.as_ref() {
-            Some(inner) => Some(self.reduce_type(inner, &definition.span)?),
-            None => None,
-        };
+        let type_ = definition
+            .type_
+            .as_ref()
+            .map(|type_| self.reduce_type(type_, &definition.span))
+            .transpose()?;
 
         let value = self.reduce_expression(&definition.value)?;
 
@@ -341,14 +345,8 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_assignee_access(&mut self, access: &AssigneeAccess) -> Result<AssigneeAccess, CanonicalizeError> {
         let new = match access {
             AssigneeAccess::ArrayRange(left, right) => {
-                let left = match left.as_ref() {
-                    Some(left) => Some(self.reduce_expression(left)?),
-                    None => None,
-                };
-                let right = match right.as_ref() {
-                    Some(right) => Some(self.reduce_expression(right)?),
-                    None => None,
-                };
+                let left = left.as_ref().map(|left| self.reduce_expression(left)).transpose()?;
+                let right = right.as_ref().map(|right| self.reduce_expression(right)).transpose()?;
 
                 AssigneeAccess::ArrayRange(left, right)
             }
@@ -385,10 +383,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     ) -> Result<ConditionalStatement, CanonicalizeError> {
         let condition = self.reduce_expression(&conditional.condition)?;
         let block = self.reduce_block(&conditional.block)?;
-        let next = match conditional.next.as_ref() {
-            Some(condition) => Some(self.reduce_statement(condition)?),
-            None => None,
-        };
+        let next = conditional
+            .next
+            .as_ref()
+            .map(|condition| self.reduce_statement(condition))
+            .transpose()?;
 
         self.reducer
             .reduce_conditional(conditional, condition, block, next, self.in_circuit)
@@ -579,10 +578,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             inputs.push(self.reduce_function_input(input)?);
         }
 
-        let output = match function.output.as_ref() {
-            Some(type_) => Some(self.reduce_type(type_, &function.span)?),
-            None => None,
-        };
+        let output = function
+            .output
+            .as_ref()
+            .map(|type_| self.reduce_type(type_, &function.span))
+            .transpose()?;
 
         let block = self.reduce_block(&function.block)?;
 

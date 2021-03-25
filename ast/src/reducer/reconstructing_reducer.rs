@@ -512,7 +512,7 @@ pub trait ReconstructingReducer {
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
     ) -> Result<Circuit, CanonicalizeError> {
-        Ok(Circuit { members, circuit_name })
+        Ok(Circuit { circuit_name, members })
     }
 
     fn reduce_annotation(

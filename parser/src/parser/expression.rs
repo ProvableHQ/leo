@@ -309,8 +309,8 @@ impl ParserContext {
     /// Otherwise, tries to parse the next token using [`parse_cast_expression`].
     ///
     pub fn parse_exp_expression(&mut self) -> SyntaxResult<Expression> {
-        let mut exprs = vec![];
-        exprs.push(self.parse_cast_expression()?);
+        let mut exprs = vec![self.parse_cast_expression()?];
+
         while self.eat(Token::Exp).is_some() {
             exprs.push(self.parse_cast_expression()?);
         }

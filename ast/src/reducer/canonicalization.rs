@@ -211,14 +211,8 @@ impl Canonicalizer {
     fn canonicalize_assignee_access(&mut self, access: &AssigneeAccess) -> AssigneeAccess {
         match access {
             AssigneeAccess::ArrayRange(left, right) => {
-                let left = match left.as_ref() {
-                    Some(left) => Some(self.canonicalize_expression(left)),
-                    None => None,
-                };
-                let right = match right.as_ref() {
-                    Some(right) => Some(self.canonicalize_expression(right)),
-                    None => None,
-                };
+                let left = left.as_ref().map(|left| self.canonicalize_expression(left));
+                let right = right.as_ref().map(|right| self.canonicalize_expression(right));
 
                 AssigneeAccess::ArrayRange(left, right)
             }
@@ -293,10 +287,10 @@ impl Canonicalizer {
             Statement::Conditional(conditional) => {
                 let condition = self.canonicalize_expression(&conditional.condition);
                 let block = self.canonicalize_block(&conditional.block);
-                let next = match conditional.next.as_ref() {
-                    Some(condition) => Some(Box::new(self.canonicalize_statement(condition))),
-                    None => None,
-                };
+                let next = conditional
+                    .next
+                    .as_ref()
+                    .map(|condition| Box::new(self.canonicalize_statement(condition)));
 
                 Statement::Conditional(ConditionalStatement {
                     condition,

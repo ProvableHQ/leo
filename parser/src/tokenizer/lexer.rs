@@ -212,7 +212,7 @@ impl Token {
                     let (input, comment) = if let Some(eol) = eol {
                         (&input[(eol + 1)..], &input[..eol])
                     } else {
-                        (&input[input.len()..input.len()], &input[..])
+                        (&input[input.len()..input.len()], input)
                     };
                     return (
                         input,
@@ -226,7 +226,7 @@ impl Token {
                     let (input, comment) = if let Some(eol) = eol {
                         (&input[(eol + 4)..], &input[..eol + 4])
                     } else {
-                        (&input[input.len()..input.len()], &input[..])
+                        (&input[input.len()..input.len()], input)
                     };
                     return (
                         input,
