@@ -53,7 +53,7 @@ impl<'a> Node for Circuit<'a> {
 }
 
 impl<'a> Circuit<'a> {
-    pub(super) fn init(scope: &'a Scope<'a>, value: &leo_ast::Circuit) -> Result<&'a Circuit<'a>, AsgConvertError> {
+    pub(super) fn init(scope: &'a Scope<'a>, value: &leo_ast::Circuit) -> &'a Circuit<'a> {
         let new_scope = scope.make_subscope();
 
         let circuit = scope.context.alloc_circuit(Circuit {
@@ -64,6 +64,19 @@ impl<'a> Circuit<'a> {
             span: Some(value.circuit_name.span.clone()),
             scope: new_scope,
         });
+        new_scope.circuit_self.replace(Some(circuit));
+
+        circuit
+    }
+
+    pub(super) fn init_member(
+        scope: &'a Scope<'a>,
+        value: &leo_ast::Circuit,
+    ) -> Result<&'a Circuit<'a>, AsgConvertError> {
+        let new_scope = scope.make_subscope();
+        let circuits = scope.circuits.borrow();
+
+        let circuit = circuits.get(&value.circuit_name.name).unwrap();
         new_scope.circuit_self.replace(Some(circuit));
 
         let mut members = circuit.members.borrow_mut();

@@ -194,26 +194,18 @@ impl<'a> Scope<'a> {
                     .map(|x| self.resolve_ast_type(x))
                     .collect::<Result<Vec<_>, AsgConvertError>>()?,
             ),
+            Circuit(name) if name.name == "Self" => Type::Circuit(
+                self.resolve_circuit_self()
+                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
+            ),
             SelfType => Type::Circuit(
                 self.resolve_circuit_self()
                     .ok_or_else(AsgConvertError::reference_self_outside_circuit)?,
             ),
-            Circuit(name) => {
-                // match current_circuit_name {
-                //     Some(cname) if name.name == cname.name => {
-                //         return Ok(Type::Circuit(
-                //             self.resolve_circuit_self()
-                //                 .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
-                //         ));
-                //     }
-                //     _ => {}
-                // }
-
-                Type::Circuit(
-                    self.resolve_circuit(&name.name)
-                        .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
-                )
-            }
+            Circuit(name) => Type::Circuit(
+                self.resolve_circuit(&name.name)
+                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
+            ),
         })
     }
 }
