@@ -139,7 +139,9 @@ impl ParserContext {
     ///
     pub fn parse_block(&mut self) -> SyntaxResult<Block> {
         let start = self.expect(Token::LeftCurly)?;
-        let mut statements = vec![];
+
+        #[allow(clippy::vec_init_then_push)]
+        let mut statements = Vec::new();
         loop {
             match self.eat(Token::RightCurly) {
                 None => {
