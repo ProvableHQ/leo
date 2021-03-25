@@ -132,6 +132,15 @@ fn test_member_static_function_undefined() {
     expect_asg_error(error)
 }
 
+// Constant
+#[test]
+fn test_const_self_variable_fail() {
+    let program_string = include_str!("const_self_variable_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
+}
+
 // Mutability
 
 #[test]
