@@ -19,6 +19,7 @@
 //! This module contains the [`parse()`] method which calls the underlying [`tokenize()`]
 //! method to create a new program ast.
 
+#[allow(clippy::vec_init_then_push)]
 mod context;
 use context::*;
 
