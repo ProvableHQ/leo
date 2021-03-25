@@ -61,7 +61,7 @@ impl ParserContext {
             ArrayDimensions(vec![int])
         } else {
             self.expect(Token::LeftParen)?;
-            let mut dimensions = vec![];
+            let mut dimensions = Vec::new();
             loop {
                 if let Some((int, _)) = self.eat_int() {
                     dimensions.push(int);
@@ -89,7 +89,7 @@ impl ParserContext {
             let span = ident.span.clone();
             (Type::Circuit(ident), span)
         } else if let Some(token) = self.eat(Token::LeftParen) {
-            let mut types = vec![];
+            let mut types = Vec::new();
             let end_span;
             loop {
                 if let Some(end) = self.eat(Token::RightParen) {

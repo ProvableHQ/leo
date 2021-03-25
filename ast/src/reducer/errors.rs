@@ -13,18 +13,29 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-#![allow(clippy::upper_case_acronyms)]
 
-//! Abstract syntax tree (ast) representation from leo-input.pest.
-use pest::{error::Error, iterators::Pairs, Parser, Span};
-#[derive(Parser)]
-#[grammar = "leo-input.pest"]
-pub struct LanguageParser;
+use crate::{FormattedError, Span};
 
-pub fn parse(input: &str) -> Result<Pairs<Rule>, Error<Rule>> {
-    LanguageParser::parse(Rule::file, input)
+#[derive(Debug, Error)]
+pub enum CanonicalizeError {
+    #[error("{}", _0)]
+    Error(#[from] FormattedError),
 }
 
-pub fn span_into_string(span: Span) -> String {
-    span.as_str().to_string()
+impl CanonicalizeError {
+    fn new_from_span(message: String, span: &Span) -> Self {
+        CanonicalizeError::Error(FormattedError::new_from_span(message, span))
+    }
+
+    pub fn big_self_outside_of_circuit(span: &Span) -> Self {
+        let message = "cannot call keyword `Self` outside of a circuit function".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_array_dimension_size(span: &Span) -> Self {
+        let message = "recieved dimension size of 0, expected it to be 1 or larger.".to_string();
+
+        Self::new_from_span(message, span)
+    }
 }
