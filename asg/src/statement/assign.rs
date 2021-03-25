@@ -66,7 +66,6 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::AssignStatement,
         _expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError> {
         let (name, span) = (&statement.assignee.identifier.name, &statement.assignee.identifier.span);
 
@@ -105,7 +104,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                         .as_ref()
                         .map(
                             |left: &leo_ast::Expression| -> Result<&'a Expression<'a>, AsgConvertError> {
-                                <&Expression<'a>>::from_ast(scope, left, index_type.clone(), circuit_name)
+                                <&Expression<'a>>::from_ast(scope, left, index_type.clone())
                             },
                         )
                         .transpose()?;
@@ -113,7 +112,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                         .as_ref()
                         .map(
                             |right: &leo_ast::Expression| -> Result<&'a Expression<'a>, AsgConvertError> {
-                                <&Expression<'a>>::from_ast(scope, right, index_type, circuit_name)
+                                <&Expression<'a>>::from_ast(scope, right, index_type)
                             },
                         )
                         .transpose()?;
@@ -167,7 +166,6 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                         scope,
                         index,
                         Some(PartialType::Integer(None, Some(IntegerType::U32))),
-                        circuit_name,
                     )?))
                 }
                 AstAssigneeAccess::Tuple(index, _) => {
@@ -217,7 +215,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                 }
             });
         }
-        let value = <&Expression<'a>>::from_ast(scope, &statement.value, target_type, circuit_name)?;
+        let value = <&Expression<'a>>::from_ast(scope, &statement.value, target_type)?;
 
         let statement = scope.context.alloc_statement(Statement::Assign(AssignStatement {
             parent: Cell::new(None),

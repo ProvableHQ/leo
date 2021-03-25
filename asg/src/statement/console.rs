@@ -53,7 +53,6 @@ impl<'a> FromAst<'a, leo_ast::FormattedString> for FormattedString<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::FormattedString,
         _expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError> {
         let expected_param_len = value
             .parts
@@ -70,12 +69,7 @@ impl<'a> FromAst<'a, leo_ast::FormattedString> for FormattedString<'a> {
         }
         let mut parameters = vec![];
         for parameter in value.parameters.iter() {
-            parameters.push(Cell::new(<&Expression<'a>>::from_ast(
-                scope,
-                parameter,
-                None,
-                circuit_name,
-            )?));
+            parameters.push(Cell::new(<&Expression<'a>>::from_ast(scope, parameter, None)?));
         }
         Ok(FormattedString {
             parts: value.parts.clone(),
@@ -100,23 +94,22 @@ impl<'a> FromAst<'a, leo_ast::ConsoleStatement> for ConsoleStatement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::ConsoleStatement,
         _expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError> {
         Ok(ConsoleStatement {
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             function: match &statement.function {
                 AstConsoleFunction::Assert(expression) => ConsoleFunction::Assert(Cell::new(
-                    <&Expression<'a>>::from_ast(scope, expression, Some(Type::Boolean.into()), circuit_name)?,
+                    <&Expression<'a>>::from_ast(scope, expression, Some(Type::Boolean.into()))?,
                 )),
                 AstConsoleFunction::Debug(formatted_string) => {
-                    ConsoleFunction::Debug(FormattedString::from_ast(scope, formatted_string, None, circuit_name)?)
+                    ConsoleFunction::Debug(FormattedString::from_ast(scope, formatted_string, None)?)
                 }
                 AstConsoleFunction::Error(formatted_string) => {
-                    ConsoleFunction::Error(FormattedString::from_ast(scope, formatted_string, None, circuit_name)?)
+                    ConsoleFunction::Error(FormattedString::from_ast(scope, formatted_string, None)?)
                 }
                 AstConsoleFunction::Log(formatted_string) => {
-                    ConsoleFunction::Log(FormattedString::from_ast(scope, formatted_string, None, circuit_name)?)
+                    ConsoleFunction::Log(FormattedString::from_ast(scope, formatted_string, None)?)
                 }
             },
         })

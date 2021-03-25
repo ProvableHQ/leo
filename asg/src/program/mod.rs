@@ -245,7 +245,7 @@ impl<'a> Program<'a> {
 
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
-            let function = Function::init(scope, function, None)?;
+            let function = Function::init(scope, function)?;
 
             scope.functions.borrow_mut().insert(name.name.clone(), function);
         }
@@ -256,7 +256,7 @@ impl<'a> Program<'a> {
             assert_eq!(name.name, function.identifier.name);
             let asg_function = *scope.functions.borrow().get(&name.name).unwrap();
 
-            asg_function.fill_from_ast(function, None)?;
+            asg_function.fill_from_ast(function)?;
 
             functions.insert(name.name.clone(), asg_function);
         }

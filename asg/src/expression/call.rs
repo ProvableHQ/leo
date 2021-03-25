@@ -89,7 +89,6 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::CallExpression,
         expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<CallExpression<'a>, AsgConvertError> {
         let (target, function) = match &*value.function {
             leo_ast::Expression::Identifier(name) => (
@@ -103,7 +102,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 name,
                 span,
             }) => {
-                let target = <&Expression<'a>>::from_ast(scope, &**ast_circuit, None, circuit_name)?;
+                let target = <&Expression<'a>>::from_ast(scope, &**ast_circuit, None)?;
                 let circuit = match target.get_type() {
                     Some(Type::Circuit(circuit)) => circuit,
                     type_ => {
@@ -205,8 +204,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
             .zip(function.arguments.iter())
             .map(|(expr, (_, argument))| {
                 let argument = argument.get().borrow();
-                let converted =
-                    <&Expression<'a>>::from_ast(scope, expr, Some(argument.type_.clone().partial()), circuit_name)?;
+                let converted = <&Expression<'a>>::from_ast(scope, expr, Some(argument.type_.clone().partial()))?;
                 if argument.const_ && !converted.is_consty() {
                     return Err(AsgConvertError::unexpected_nonconst(expr.span()));
                 }

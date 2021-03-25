@@ -97,9 +97,8 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
         scope: &'a Scope<'a>,
         value: &leo_ast::CircuitMemberAccessExpression,
         expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<CircuitAccessExpression<'a>, AsgConvertError> {
-        let target = <&'a Expression<'a>>::from_ast(scope, &*value.circuit, None, circuit_name)?;
+        let target = <&'a Expression<'a>>::from_ast(scope, &*value.circuit, None)?;
         let circuit = match target.get_type() {
             Some(Type::Circuit(circuit)) => circuit,
             x => {
@@ -171,7 +170,6 @@ impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for Circuit
         scope: &Scope<'a>,
         value: &leo_ast::CircuitStaticFunctionAccessExpression,
         expected_type: Option<PartialType>,
-        _circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<CircuitAccessExpression<'a>, AsgConvertError> {
         let circuit = match &*value.circuit {
             leo_ast::Expression::Identifier(name) => scope

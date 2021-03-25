@@ -68,15 +68,11 @@ impl<'a> PartialEq for Function<'a> {
 impl<'a> Eq for Function<'a> {}
 
 impl<'a> Function<'a> {
-    pub(crate) fn init(
-        scope: &'a Scope<'a>,
-        value: &leo_ast::Function,
-        circuit_name: Option<&leo_ast::Identifier>,
-    ) -> Result<&'a Function<'a>, AsgConvertError> {
+    pub(crate) fn init(scope: &'a Scope<'a>, value: &leo_ast::Function) -> Result<&'a Function<'a>, AsgConvertError> {
         let output: Type<'a> = value
             .output
             .as_ref()
-            .map(|t| scope.resolve_ast_type(t, circuit_name))
+            .map(|t| scope.resolve_ast_type(t))
             .transpose()?
             .unwrap_or_else(|| Type::Tuple(vec![]));
         let mut qualifier = FunctionQualifier::Static;
@@ -106,7 +102,7 @@ impl<'a> Function<'a> {
                         let variable = scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                             id: scope.context.get_id(),
                             name: identifier.clone(),
-                            type_: scope.resolve_ast_type(&type_, circuit_name)?,
+                            type_: scope.resolve_ast_type(&type_)?,
                             mutable: *mutable,
                             const_: *const_,
                             declaration: crate::VariableDeclaration::Parameter,
@@ -139,11 +135,7 @@ impl<'a> Function<'a> {
         Ok(function)
     }
 
-    pub(super) fn fill_from_ast(
-        self: &'a Function<'a>,
-        value: &leo_ast::Function,
-        circuit_name: Option<&leo_ast::Identifier>,
-    ) -> Result<(), AsgConvertError> {
+    pub(super) fn fill_from_ast(self: &'a Function<'a>, value: &leo_ast::Function) -> Result<(), AsgConvertError> {
         if self.qualifier != FunctionQualifier::Static {
             let circuit = self.circuit.get();
             let self_variable = self.scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
@@ -165,7 +157,7 @@ impl<'a> Function<'a> {
             self.scope.variables.borrow_mut().insert(name.clone(), argument.get());
         }
 
-        let main_block = BlockStatement::from_ast(self.scope, &value.block, None, circuit_name)?;
+        let main_block = BlockStatement::from_ast(self.scope, &value.block, None)?;
         let mut director = MonoidalDirector::new(ReturnPathReducer::new());
         if !director.reduce_block(&main_block).0 && !self.output.is_unit() {
             return Err(AsgConvertError::function_missing_return(

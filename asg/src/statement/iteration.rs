@@ -53,11 +53,10 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::IterationStatement,
         _expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError> {
         let expected_index_type = Some(PartialType::Integer(None, Some(IntegerType::U32)));
-        let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone(), circuit_name)?;
-        let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type, circuit_name)?;
+        let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone())?;
+        let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type)?;
 
         // Return an error if start or stop is not constant.
         if !start.is_consty() {
@@ -101,7 +100,6 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
                         scope,
                         &statement.block,
                         None,
-                        circuit_name,
                     )?)),
             ),
         }));

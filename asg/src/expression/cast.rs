@@ -75,9 +75,8 @@ impl<'a> FromAst<'a, leo_ast::CastExpression> for CastExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::CastExpression,
         expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<CastExpression<'a>, AsgConvertError> {
-        let target_type = scope.resolve_ast_type(&value.target_type, circuit_name)?;
+        let target_type = scope.resolve_ast_type(&value.target_type)?;
         if let Some(expected_type) = &expected_type {
             if !expected_type.matches(&target_type) {
                 return Err(AsgConvertError::unexpected_type(
@@ -88,7 +87,7 @@ impl<'a> FromAst<'a, leo_ast::CastExpression> for CastExpression<'a> {
             }
         }
 
-        let inner = <&Expression<'a>>::from_ast(scope, &*value.inner, None, circuit_name)?;
+        let inner = <&Expression<'a>>::from_ast(scope, &*value.inner, None)?;
 
         Ok(CastExpression {
             parent: Cell::new(None),

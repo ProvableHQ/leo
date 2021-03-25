@@ -116,7 +116,6 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::BinaryExpression,
         expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<BinaryExpression<'a>, AsgConvertError> {
         let class = value.op.class();
         let expected_type = match class {
@@ -146,18 +145,16 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
         };
 
         // left
-        let (left, right) = match <&Expression<'a>>::from_ast(scope, &*value.left, expected_type.clone(), circuit_name)
-        {
+        let (left, right) = match <&Expression<'a>>::from_ast(scope, &*value.left, expected_type.clone()) {
             Ok(left) => {
                 if let Some(left_type) = left.get_type() {
-                    let right =
-                        <&Expression<'a>>::from_ast(scope, &*value.right, Some(left_type.partial()), circuit_name)?;
+                    let right = <&Expression<'a>>::from_ast(scope, &*value.right, Some(left_type.partial()))?;
                     (left, right)
                 } else {
-                    let right = <&Expression<'a>>::from_ast(scope, &*value.right, expected_type, circuit_name)?;
+                    let right = <&Expression<'a>>::from_ast(scope, &*value.right, expected_type)?;
                     if let Some(right_type) = right.get_type() {
                         (
-                            <&Expression<'a>>::from_ast(scope, &*value.left, Some(right_type.partial()), circuit_name)?,
+                            <&Expression<'a>>::from_ast(scope, &*value.left, Some(right_type.partial()))?,
                             right,
                         )
                     } else {
@@ -166,10 +163,10 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
                 }
             }
             Err(e) => {
-                let right = <&Expression<'a>>::from_ast(scope, &*value.right, expected_type, circuit_name)?;
+                let right = <&Expression<'a>>::from_ast(scope, &*value.right, expected_type)?;
                 if let Some(right_type) = right.get_type() {
                     (
-                        <&Expression<'a>>::from_ast(scope, &*value.left, Some(right_type.partial()), circuit_name)?,
+                        <&Expression<'a>>::from_ast(scope, &*value.left, Some(right_type.partial()))?,
                         right,
                     )
                 } else {

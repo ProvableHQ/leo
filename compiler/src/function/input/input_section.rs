@@ -30,7 +30,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         identifier: Identifier,
         expected_type: &'a Circuit<'a>,
         section: IndexMap<Parameter, Option<InputValue>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
         let mut members = Vec::with_capacity(section.len());
 
@@ -41,7 +40,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 Some(CircuitMember::Variable(inner)) => inner,
                 _ => continue, // present, but unused
             };
-            let declared_type = self.asg.scope.resolve_ast_type(&parameter.type_, circuit_name)?;
+            let declared_type = self.asg.scope.resolve_ast_type(&parameter.type_)?;
             if !expected_type.is_assignable_from(&declared_type) {
                 return Err(AsgConvertError::unexpected_type(
                     &expected_type.to_string(),

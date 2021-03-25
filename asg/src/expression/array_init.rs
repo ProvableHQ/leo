@@ -68,7 +68,6 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayInitExpression,
         expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<ArrayInitExpression<'a>, AsgConvertError> {
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
@@ -128,12 +127,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                 }
             }
         }
-        let mut element = Some(<&'a Expression<'a>>::from_ast(
-            scope,
-            &*value.element,
-            expected_item,
-            circuit_name,
-        )?);
+        let mut element = Some(<&'a Expression<'a>>::from_ast(scope, &*value.element, expected_item)?);
         let mut output = None;
 
         for dimension in dimensions.iter().rev().copied() {

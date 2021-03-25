@@ -16,17 +16,30 @@
 
 use crate::*;
 
-pub struct Canonicalizer;
+/// Replace Self when it is in a enclosing circuit type.
+/// Error when Self is outside an enclosing circuit type.
+/// Tuple array types and expressions expand to nested arrays.
+/// Tuple array types and expressions error if a size of 0 is given.anyhow
+/// Compound operators become simple assignments.
+/// Functions missing output type return a empty tuple.
+pub struct Canonicalizer {
+    // If we are in a circuit keep track of the circuit name.
+    circuit_name: Option<Identifier>,
+}
 
 impl Canonicalizer {
-    fn is_self_type(&self, type_option: Option<&Type>) -> bool {
+    pub fn default() -> Self {
+        Self { circuit_name: None }
+    }
+
+    fn is_self_type(&mut self, type_option: Option<&Type>) -> bool {
         matches!(type_option, Some(Type::SelfType))
     }
 
-    fn canonicalize_expression(&self, expression: &Expression, circuit_name: &Identifier) -> Expression {
+    fn canonicalize_expression(&mut self, expression: &Expression) -> Expression {
         match expression {
             Expression::Unary(unary) => {
-                let inner = Box::new(self.canonicalize_expression(&unary.inner, circuit_name));
+                let inner = Box::new(self.canonicalize_expression(&unary.inner));
 
                 return Expression::Unary(UnaryExpression {
                     inner,
@@ -35,8 +48,8 @@ impl Canonicalizer {
                 });
             }
             Expression::Binary(binary) => {
-                let left = Box::new(self.canonicalize_expression(&binary.left, circuit_name));
-                let right = Box::new(self.canonicalize_expression(&binary.right, circuit_name));
+                let left = Box::new(self.canonicalize_expression(&binary.left));
+                let right = Box::new(self.canonicalize_expression(&binary.right));
 
                 return Expression::Binary(BinaryExpression {
                     left,
@@ -46,9 +59,9 @@ impl Canonicalizer {
                 });
             }
             Expression::Ternary(ternary) => {
-                let condition = Box::new(self.canonicalize_expression(&ternary.condition, circuit_name));
-                let if_true = Box::new(self.canonicalize_expression(&ternary.if_true, circuit_name));
-                let if_false = Box::new(self.canonicalize_expression(&ternary.if_false, circuit_name));
+                let condition = Box::new(self.canonicalize_expression(&ternary.condition));
+                let if_true = Box::new(self.canonicalize_expression(&ternary.if_true));
+                let if_false = Box::new(self.canonicalize_expression(&ternary.if_false));
 
                 return Expression::Ternary(TernaryExpression {
                     condition,
@@ -59,11 +72,11 @@ impl Canonicalizer {
             }
 
             Expression::Cast(cast) => {
-                let inner = Box::new(self.canonicalize_expression(&cast.inner, circuit_name));
+                let inner = Box::new(self.canonicalize_expression(&cast.inner));
                 let mut target_type = cast.target_type.clone();
 
                 if matches!(target_type, Type::SelfType) {
-                    target_type = Type::Circuit(circuit_name.clone());
+                    target_type = Type::Circuit(self.circuit_name.as_ref().unwrap().clone());
                 }
 
                 return Expression::Cast(CastExpression {
@@ -79,10 +92,10 @@ impl Canonicalizer {
                     .iter()
                     .map(|element| match element {
                         SpreadOrExpression::Expression(expression) => {
-                            SpreadOrExpression::Expression(self.canonicalize_expression(expression, circuit_name))
+                            SpreadOrExpression::Expression(self.canonicalize_expression(expression))
                         }
                         SpreadOrExpression::Spread(expression) => {
-                            SpreadOrExpression::Spread(self.canonicalize_expression(expression, circuit_name))
+                            SpreadOrExpression::Spread(self.canonicalize_expression(expression))
                         }
                     })
                     .collect();
@@ -94,7 +107,7 @@ impl Canonicalizer {
             }
 
             Expression::ArrayInit(array_init) => {
-                let element = Box::new(self.canonicalize_expression(&array_init.element, circuit_name));
+                let element = Box::new(self.canonicalize_expression(&array_init.element));
 
                 return Expression::ArrayInit(ArrayInitExpression {
                     dimensions: array_init.dimensions.clone(),
@@ -104,8 +117,8 @@ impl Canonicalizer {
             }
 
             Expression::ArrayAccess(array_access) => {
-                let array = Box::new(self.canonicalize_expression(&array_access.array, circuit_name));
-                let index = Box::new(self.canonicalize_expression(&array_access.index, circuit_name));
+                let array = Box::new(self.canonicalize_expression(&array_access.array));
+                let index = Box::new(self.canonicalize_expression(&array_access.index));
 
                 return Expression::ArrayAccess(ArrayAccessExpression {
                     array,
@@ -115,15 +128,15 @@ impl Canonicalizer {
             }
 
             Expression::ArrayRangeAccess(array_range_access) => {
-                let array = Box::new(self.canonicalize_expression(&array_range_access.array, circuit_name));
+                let array = Box::new(self.canonicalize_expression(&array_range_access.array));
                 let left = array_range_access
                     .left
                     .as_ref()
-                    .map(|left| Box::new(self.canonicalize_expression(left, circuit_name)));
+                    .map(|left| Box::new(self.canonicalize_expression(left)));
                 let right = array_range_access
                     .right
                     .as_ref()
-                    .map(|right| Box::new(self.canonicalize_expression(right, circuit_name)));
+                    .map(|right| Box::new(self.canonicalize_expression(right)));
 
                 return Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
                     array,
@@ -137,7 +150,7 @@ impl Canonicalizer {
                 let elements = tuple_init
                     .elements
                     .iter()
-                    .map(|element| self.canonicalize_expression(element, circuit_name))
+                    .map(|element| self.canonicalize_expression(element))
                     .collect();
 
                 return Expression::TupleInit(TupleInitExpression {
@@ -147,7 +160,7 @@ impl Canonicalizer {
             }
 
             Expression::TupleAccess(tuple_access) => {
-                let tuple = Box::new(self.canonicalize_expression(&tuple_access.tuple, circuit_name));
+                let tuple = Box::new(self.canonicalize_expression(&tuple_access.tuple));
 
                 return Expression::TupleAccess(TupleAccessExpression {
                     tuple,
@@ -159,7 +172,7 @@ impl Canonicalizer {
             Expression::CircuitInit(circuit_init) => {
                 let mut name = circuit_init.name.clone();
                 if name.name == *"Self" {
-                    name = circuit_name.clone();
+                    name = self.circuit_name.as_ref().unwrap().clone();
                 }
 
                 return Expression::CircuitInit(CircuitInitExpression {
@@ -170,21 +183,21 @@ impl Canonicalizer {
             }
             Expression::CircuitMemberAccess(circuit_member_access) => {
                 return Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
-                    circuit: Box::new(self.canonicalize_expression(&circuit_member_access.circuit, circuit_name)),
+                    circuit: Box::new(self.canonicalize_expression(&circuit_member_access.circuit)),
                     name: circuit_member_access.name.clone(),
                     span: circuit_member_access.span.clone(),
                 });
             }
             Expression::CircuitStaticFunctionAccess(circuit_static_func_access) => {
                 return Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression {
-                    circuit: Box::new(self.canonicalize_expression(&circuit_static_func_access.circuit, circuit_name)),
+                    circuit: Box::new(self.canonicalize_expression(&circuit_static_func_access.circuit)),
                     name: circuit_static_func_access.name.clone(),
                     span: circuit_static_func_access.span.clone(),
                 });
             }
             Expression::Call(call) => {
                 return Expression::Call(CallExpression {
-                    function: Box::new(self.canonicalize_expression(&call.function, circuit_name)),
+                    function: Box::new(self.canonicalize_expression(&call.function)),
                     arguments: call.arguments.clone(),
                     span: call.span.clone(),
                 });
@@ -195,32 +208,30 @@ impl Canonicalizer {
         expression.clone()
     }
 
-    fn canonicalize_assignee_access(&self, access: &AssigneeAccess, circuit_name: &Identifier) -> AssigneeAccess {
+    fn canonicalize_assignee_access(&mut self, access: &AssigneeAccess) -> AssigneeAccess {
         match access {
             AssigneeAccess::ArrayRange(left, right) => {
                 let left = match left.as_ref() {
-                    Some(left) => Some(self.canonicalize_expression(left, circuit_name)),
+                    Some(left) => Some(self.canonicalize_expression(left)),
                     None => None,
                 };
                 let right = match right.as_ref() {
-                    Some(right) => Some(self.canonicalize_expression(right, circuit_name)),
+                    Some(right) => Some(self.canonicalize_expression(right)),
                     None => None,
                 };
 
                 AssigneeAccess::ArrayRange(left, right)
             }
-            AssigneeAccess::ArrayIndex(index) => {
-                AssigneeAccess::ArrayIndex(self.canonicalize_expression(&index, circuit_name))
-            }
+            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.canonicalize_expression(&index)),
             _ => access.clone(),
         }
     }
 
-    fn canonicalize_assignee(&self, assignee: &Assignee, circuit_name: &Identifier) -> Assignee {
+    fn canonicalize_assignee(&mut self, assignee: &Assignee) -> Assignee {
         let accesses = assignee
             .accesses
             .iter()
-            .map(|access| self.canonicalize_assignee_access(access, circuit_name))
+            .map(|access| self.canonicalize_assignee_access(access))
             .collect();
 
         Assignee {
@@ -230,11 +241,11 @@ impl Canonicalizer {
         }
     }
 
-    fn canonicalize_block(&self, block: &Block, circuit_name: &Identifier) -> Block {
+    fn canonicalize_block(&mut self, block: &Block) -> Block {
         let statements = block
             .statements
             .iter()
-            .map(|block_statement| self.canonicalize_statement(&block_statement, circuit_name))
+            .map(|block_statement| self.canonicalize_statement(&block_statement))
             .collect();
 
         Block {
@@ -243,21 +254,21 @@ impl Canonicalizer {
         }
     }
 
-    fn canonicalize_statement(&self, statement: &Statement, circuit_name: &Identifier) -> Statement {
+    fn canonicalize_statement(&mut self, statement: &Statement) -> Statement {
         match statement {
             Statement::Return(return_statement) => {
-                let expression = self.canonicalize_expression(&return_statement.expression, circuit_name);
+                let expression = self.canonicalize_expression(&return_statement.expression);
                 Statement::Return(ReturnStatement {
                     expression,
                     span: return_statement.span.clone(),
                 })
             }
             Statement::Definition(definition) => {
-                let value = self.canonicalize_expression(&definition.value, circuit_name);
+                let value = self.canonicalize_expression(&definition.value);
                 let mut type_ = definition.type_.clone();
 
                 if self.is_self_type(type_.as_ref()) {
-                    type_ = Some(Type::Circuit(circuit_name.clone()));
+                    type_ = Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone()));
                 }
 
                 Statement::Definition(DefinitionStatement {
@@ -269,8 +280,8 @@ impl Canonicalizer {
                 })
             }
             Statement::Assign(assign) => {
-                let assignee = self.canonicalize_assignee(&assign.assignee, circuit_name);
-                let value = self.canonicalize_expression(&assign.value, circuit_name);
+                let assignee = self.canonicalize_assignee(&assign.assignee);
+                let value = self.canonicalize_expression(&assign.value);
 
                 Statement::Assign(AssignStatement {
                     assignee,
@@ -280,10 +291,10 @@ impl Canonicalizer {
                 })
             }
             Statement::Conditional(conditional) => {
-                let condition = self.canonicalize_expression(&conditional.condition, circuit_name);
-                let block = self.canonicalize_block(&conditional.block, circuit_name);
+                let condition = self.canonicalize_expression(&conditional.condition);
+                let block = self.canonicalize_block(&conditional.block);
                 let next = match conditional.next.as_ref() {
-                    Some(condition) => Some(Box::new(self.canonicalize_statement(condition, circuit_name))),
+                    Some(condition) => Some(Box::new(self.canonicalize_statement(condition))),
                     None => None,
                 };
 
@@ -295,9 +306,9 @@ impl Canonicalizer {
                 })
             }
             Statement::Iteration(iteration) => {
-                let start = self.canonicalize_expression(&iteration.start, circuit_name);
-                let stop = self.canonicalize_expression(&iteration.stop, circuit_name);
-                let block = self.canonicalize_block(&iteration.block, circuit_name);
+                let start = self.canonicalize_expression(&iteration.start);
+                let stop = self.canonicalize_expression(&iteration.stop);
+                let block = self.canonicalize_block(&iteration.block);
 
                 Statement::Iteration(IterationStatement {
                     variable: iteration.variable.clone(),
@@ -310,13 +321,13 @@ impl Canonicalizer {
             Statement::Console(console_function_call) => {
                 let function = match &console_function_call.function {
                     ConsoleFunction::Assert(expression) => {
-                        ConsoleFunction::Assert(self.canonicalize_expression(expression, circuit_name))
+                        ConsoleFunction::Assert(self.canonicalize_expression(expression))
                     }
                     ConsoleFunction::Debug(format) | ConsoleFunction::Error(format) | ConsoleFunction::Log(format) => {
                         let parameters = format
                             .parameters
                             .iter()
-                            .map(|parameter| self.canonicalize_expression(parameter, circuit_name))
+                            .map(|parameter| self.canonicalize_expression(parameter))
                             .collect();
 
                         let formatted = FormattedString {
@@ -340,23 +351,23 @@ impl Canonicalizer {
                 })
             }
             Statement::Expression(expression) => Statement::Expression(ExpressionStatement {
-                expression: self.canonicalize_expression(&expression.expression, circuit_name),
+                expression: self.canonicalize_expression(&expression.expression),
                 span: expression.span.clone(),
             }),
-            Statement::Block(block) => Statement::Block(self.canonicalize_block(block, circuit_name)),
+            Statement::Block(block) => Statement::Block(self.canonicalize_block(block)),
         }
     }
 
-    fn canonicalize_circuit_member(&self, circuit_member: &CircuitMember, circuit_name: &Identifier) -> CircuitMember {
+    fn canonicalize_circuit_member(&mut self, circuit_member: &CircuitMember) -> CircuitMember {
         match circuit_member {
             CircuitMember::CircuitVariable(_, _) => {}
             CircuitMember::CircuitFunction(function) => {
                 let input = function.input.clone();
                 let mut output = function.output.clone();
-                let block = self.canonicalize_block(&function.block, circuit_name);
+                let block = self.canonicalize_block(&function.block);
 
                 if self.is_self_type(output.as_ref()) {
-                    output = Some(Type::Circuit(circuit_name.clone()));
+                    output = Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone()));
                 }
 
                 return CircuitMember::CircuitFunction(Function {
@@ -375,7 +386,13 @@ impl Canonicalizer {
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    fn reduce_type(&self, _type_: &Type, new: Type, in_circuit: bool, span: &Span) -> Result<Type, CanonicalizeError> {
+    fn reduce_type(
+        &mut self,
+        _type_: &Type,
+        new: Type,
+        in_circuit: bool,
+        span: &Span,
+    ) -> Result<Type, CanonicalizeError> {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
@@ -402,7 +419,7 @@ impl ReconstructingReducer for Canonicalizer {
     }
 
     fn reduce_array_init(
-        &self,
+        &mut self,
         array_init: &ArrayInitExpression,
         element: Expression,
         _in_circuit: bool,
@@ -451,7 +468,7 @@ impl ReconstructingReducer for Canonicalizer {
     }
 
     fn reduce_assign(
-        &self,
+        &mut self,
         assign: &AssignStatement,
         assignee: Assignee,
         value: Expression,
@@ -499,7 +516,7 @@ impl ReconstructingReducer for Canonicalizer {
     }
 
     fn reduce_function(
-        &self,
+        &mut self,
         function: &Function,
         identifier: Identifier,
         annotations: Vec<Annotation>,
@@ -524,17 +541,20 @@ impl ReconstructingReducer for Canonicalizer {
     }
 
     fn reduce_circuit(
-        &self,
+        &mut self,
         _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
     ) -> Result<Circuit, CanonicalizeError> {
-        Ok(Circuit {
-            circuit_name: circuit_name.clone(),
+        self.circuit_name = Some(circuit_name.clone());
+        let circ = Circuit {
+            circuit_name,
             members: members
                 .iter()
-                .map(|member| self.canonicalize_circuit_member(member, &circuit_name))
+                .map(|member| self.canonicalize_circuit_member(member))
                 .collect(),
-        })
+        };
+        self.circuit_name = None;
+        Ok(circ)
     }
 }

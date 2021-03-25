@@ -37,18 +37,12 @@ impl<'a> FromAst<'a, leo_ast::Block> for BlockStatement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::Block,
         _expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError> {
         let new_scope = scope.make_subscope();
 
         let mut output = vec![];
         for item in statement.statements.iter() {
-            output.push(Cell::new(<&'a Statement<'a>>::from_ast(
-                &new_scope,
-                item,
-                None,
-                circuit_name,
-            )?));
+            output.push(Cell::new(<&'a Statement<'a>>::from_ast(&new_scope, item, None)?));
         }
         Ok(BlockStatement {
             parent: Cell::new(None),

@@ -36,9 +36,8 @@ impl<'a> FromAst<'a, leo_ast::ExpressionStatement> for ExpressionStatement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::ExpressionStatement,
         _expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<Self, AsgConvertError> {
-        let expression = <&Expression<'a>>::from_ast(scope, &statement.expression, None, circuit_name)?;
+        let expression = <&Expression<'a>>::from_ast(scope, &statement.expression, None)?;
 
         Ok(ExpressionStatement {
             parent: Cell::new(None),

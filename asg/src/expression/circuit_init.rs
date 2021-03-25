@@ -84,7 +84,6 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::CircuitInitExpression,
         expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<CircuitInitExpression<'a>, AsgConvertError> {
         let circuit = scope
             .resolve_circuit(&value.name.name)
@@ -127,13 +126,12 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
                 };
                 if let Some((identifier, receiver)) = members.get(&name) {
                     let received = if let Some(receiver) = *receiver {
-                        <&Expression<'a>>::from_ast(scope, receiver, Some(type_.partial()), circuit_name)?
+                        <&Expression<'a>>::from_ast(scope, receiver, Some(type_.partial()))?
                     } else {
                         <&Expression<'a>>::from_ast(
                             scope,
                             &leo_ast::Expression::Identifier((*identifier).clone()),
                             Some(type_.partial()),
-                            circuit_name,
                         )?
                     };
                     values.push(((*identifier).clone(), Cell::new(received)));

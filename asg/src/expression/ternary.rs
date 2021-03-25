@@ -78,7 +78,6 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::TernaryExpression,
         expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<TernaryExpression<'a>, AsgConvertError> {
         Ok(TernaryExpression {
             parent: Cell::new(None),
@@ -87,20 +86,13 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
                 scope,
                 &*value.condition,
                 Some(Type::Boolean.partial()),
-                circuit_name,
             )?),
             if_true: Cell::new(<&Expression<'a>>::from_ast(
                 scope,
                 &*value.if_true,
                 expected_type.clone(),
-                circuit_name,
             )?),
-            if_false: Cell::new(<&Expression<'a>>::from_ast(
-                scope,
-                &*value.if_false,
-                expected_type,
-                circuit_name,
-            )?),
+            if_false: Cell::new(<&Expression<'a>>::from_ast(scope, &*value.if_false, expected_type)?),
         })
     }
 }

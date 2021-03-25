@@ -112,7 +112,6 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayRangeAccessExpression,
         expected_type: Option<PartialType<'a>>,
-        circuit_name: Option<&leo_ast::Identifier>,
     ) -> Result<ArrayRangeAccessExpression<'a>, AsgConvertError> {
         let expected_array = match expected_type {
             Some(PartialType::Array(element, _len)) => Some(PartialType::Array(element, None)),
@@ -125,7 +124,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
                 ));
             }
         };
-        let array = <&Expression<'a>>::from_ast(scope, &*value.array, expected_array, circuit_name)?;
+        let array = <&Expression<'a>>::from_ast(scope, &*value.array, expected_array)?;
         let array_type = array.get_type();
         match array_type {
             Some(Type::Array(_, _)) => (),
@@ -141,24 +140,14 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
             .left
             .as_deref()
             .map(|left| {
-                <&Expression<'a>>::from_ast(
-                    scope,
-                    left,
-                    Some(PartialType::Integer(None, Some(IntegerType::U32))),
-                    circuit_name,
-                )
+                <&Expression<'a>>::from_ast(scope, left, Some(PartialType::Integer(None, Some(IntegerType::U32))))
             })
             .transpose()?;
         let right = value
             .right
             .as_deref()
             .map(|right| {
-                <&Expression<'a>>::from_ast(
-                    scope,
-                    right,
-                    Some(PartialType::Integer(None, Some(IntegerType::U32))),
-                    circuit_name,
-                )
+                <&Expression<'a>>::from_ast(scope, right, Some(PartialType::Integer(None, Some(IntegerType::U32))))
             })
             .transpose()?;
 
