@@ -767,9 +767,7 @@ primary-expression = identifier
 
 tuple-construction = "(" [ expression 1*( "," expression ) ] ")"
 
-
-
-tuple-expression = tuple-construction / tuple-access
+tuple-expression = tuple-construction
 
 ; The are array expressions to construct and deconstruct arrays.
 ; There are two kinds of constructions:
