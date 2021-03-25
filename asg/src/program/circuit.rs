@@ -53,7 +53,7 @@ impl<'a> Node for Circuit<'a> {
 }
 
 impl<'a> Circuit<'a> {
-    pub(super) fn init(scope: &'a Scope<'a>, value: &leo_ast::Circuit) -> &'a Circuit<'a> {
+    pub(super) fn init(scope: &'a Scope<'a>, value: &leo_ast::Circuit) -> Result<&'a Circuit<'a>, AsgConvertError> {
         let new_scope = scope.make_subscope();
 
         let circuit = scope.context.alloc_circuit(Circuit {
@@ -66,7 +66,24 @@ impl<'a> Circuit<'a> {
         });
         new_scope.circuit_self.replace(Some(circuit));
 
-        circuit
+        let mut members = circuit.members.borrow_mut();
+        for member in value.members.iter() {
+            if let leo_ast::CircuitMember::CircuitVariable(name, type_) = member {
+                if members.contains_key(&name.name) {
+                    return Err(AsgConvertError::redefined_circuit_member(
+                        &value.circuit_name.name,
+                        &name.name,
+                        &name.span,
+                    ));
+                }
+                members.insert(
+                    name.name.clone(),
+                    CircuitMember::Variable(new_scope.resolve_ast_type(type_)?),
+                );
+            }
+        }
+
+        Ok(circuit)
     }
 
     pub(super) fn init_member(
@@ -81,35 +98,20 @@ impl<'a> Circuit<'a> {
 
         let mut members = circuit.members.borrow_mut();
         for member in value.members.iter() {
-            match member {
-                leo_ast::CircuitMember::CircuitVariable(name, type_) => {
-                    if members.contains_key(&name.name) {
-                        return Err(AsgConvertError::redefined_circuit_member(
-                            &value.circuit_name.name,
-                            &name.name,
-                            &name.span,
-                        ));
-                    }
-                    members.insert(
-                        name.name.clone(),
-                        CircuitMember::Variable(new_scope.resolve_ast_type(type_)?),
-                    );
+            if let leo_ast::CircuitMember::CircuitFunction(function) = member {
+                if members.contains_key(&function.identifier.name) {
+                    return Err(AsgConvertError::redefined_circuit_member(
+                        &value.circuit_name.name,
+                        &function.identifier.name,
+                        &function.identifier.span,
+                    ));
                 }
-                leo_ast::CircuitMember::CircuitFunction(function) => {
-                    if members.contains_key(&function.identifier.name) {
-                        return Err(AsgConvertError::redefined_circuit_member(
-                            &value.circuit_name.name,
-                            &function.identifier.name,
-                            &function.identifier.span,
-                        ));
-                    }
-                    let asg_function = Function::init(new_scope, function)?;
-                    asg_function.circuit.replace(Some(circuit));
-                    if asg_function.is_test() {
-                        return Err(AsgConvertError::circuit_test_function(&function.identifier.span));
-                    }
-                    members.insert(function.identifier.name.clone(), CircuitMember::Function(asg_function));
+                let asg_function = Function::init(new_scope, function)?;
+                asg_function.circuit.replace(Some(circuit));
+                if asg_function.is_test() {
+                    return Err(AsgConvertError::circuit_test_function(&function.identifier.span));
                 }
+                members.insert(function.identifier.name.clone(), CircuitMember::Function(asg_function));
             }
         }
 

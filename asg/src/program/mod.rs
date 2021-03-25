@@ -238,7 +238,7 @@ impl<'a> Program<'a> {
         // Prepare header-like scope entries.
         for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = Circuit::init(scope, circuit);
+            let asg_circuit = Circuit::init(scope, circuit)?;
 
             scope.circuits.borrow_mut().insert(name.name.clone(), asg_circuit);
         }
