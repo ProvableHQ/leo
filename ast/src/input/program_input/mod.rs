@@ -16,6 +16,9 @@
 
 #![allow(clippy::module_inception)]
 
+pub mod constant_input;
+pub use constant_input::*;
+
 pub mod main_input;
 pub use main_input::*;
 

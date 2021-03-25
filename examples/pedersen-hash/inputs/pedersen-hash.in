@@ -1,4 +1,8 @@
 [main]
+hash_input: [bool; 256] = [true; 256];
+
+[constants]
+parameters: [group; 256] = [1group; 256];
 
 [registers]
 r0: group = (1, 0)group;

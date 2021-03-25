@@ -18,7 +18,7 @@ use std::{cell::Cell, unimplemented};
 
 use typed_arena::Arena;
 
-use crate::ArenaNode;
+use crate::{ArenaNode, Circuit, Expression, Function, Scope, Statement, Variable};
 
 pub struct AsgContextInner<'a> {
     pub arena: &'a Arena<ArenaNode<'a>>,
@@ -40,6 +40,54 @@ impl<'a> AsgContextInner<'a> {
         let next_id = self.next_id.get();
         self.next_id.replace(next_id + 1);
         next_id
+    }
+
+    #[allow(clippy::mut_from_ref)]
+    pub fn alloc_expression(&'a self, expr: Expression<'a>) -> &'a Expression<'a> {
+        match self.arena.alloc(ArenaNode::Expression(expr)) {
+            ArenaNode::Expression(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    #[allow(clippy::mut_from_ref)]
+    pub fn alloc_statement(&'a self, statement: Statement<'a>) -> &'a Statement<'a> {
+        match self.arena.alloc(ArenaNode::Statement(statement)) {
+            ArenaNode::Statement(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    #[allow(clippy::mut_from_ref)]
+    pub fn alloc_variable(&'a self, variable: Variable<'a>) -> &'a Variable<'a> {
+        match self.arena.alloc(ArenaNode::Variable(variable)) {
+            ArenaNode::Variable(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    #[allow(clippy::mut_from_ref)]
+    pub fn alloc_scope(&'a self, scope: Scope<'a>) -> &'a Scope<'a> {
+        match self.arena.alloc(ArenaNode::Scope(scope)) {
+            ArenaNode::Scope(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    #[allow(clippy::mut_from_ref)]
+    pub fn alloc_circuit(&'a self, circuit: Circuit<'a>) -> &'a Circuit<'a> {
+        match self.arena.alloc(ArenaNode::Circuit(circuit)) {
+            ArenaNode::Circuit(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    #[allow(clippy::mut_from_ref)]
+    pub fn alloc_function(&'a self, function: Function<'a>) -> &'a Function<'a> {
+        match self.arena.alloc(ArenaNode::Function(function)) {
+            ArenaNode::Function(e) => e,
+            _ => unimplemented!(),
+        }
     }
 }
 

@@ -113,19 +113,20 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     }
 
     fn pop_namespace(&mut self) {
-        if let Some(ns) = self.namespaces.pop() {
-            for idx in ns.constraint_indices {
-                self.constraints.remove(idx);
-            }
-
-            for idx in ns.private_var_indices {
-                self.private_variables.remove(idx);
-            }
-
-            for idx in ns.public_var_indices {
-                self.public_variables.remove(idx);
-            }
-        }
+        // Todo @ljedrz: Fix constraint system optimizations.
+        // if let Some(ns) = self.namespaces.pop() {
+        //     for idx in ns.constraint_indices {
+        //         self.constraints.remove(idx);
+        //     }
+        //
+        //     for idx in ns.private_var_indices {
+        //         self.private_variables.remove(idx);
+        //     }
+        //
+        //     for idx in ns.public_var_indices {
+        //         self.public_variables.remove(idx);
+        //     }
+        // }
     }
 
     fn get_root(&mut self) -> &mut Self::Root {

@@ -18,10 +18,8 @@ circuit PedersenHash {
 }
 
 // The 'pedersen-hash' main function.
-function main() -> group {
-    const parameters = [1group; 256];
-    const pedersen = PedersenHash::new(parameters);
-    const hash_input: [bool; 256] = [true; 256];
+function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {
+    let pedersen = PedersenHash::new(parameters);
     return pedersen.hash(hash_input)
 }
 

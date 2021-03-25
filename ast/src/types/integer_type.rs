@@ -23,7 +23,7 @@ use leo_input::types::{
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// Explicit integer type
+/// Explicit integer type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum IntegerType {
     U8,

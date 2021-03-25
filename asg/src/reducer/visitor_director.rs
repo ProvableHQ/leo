@@ -248,6 +248,7 @@ impl<'a, R: StatementVisitor<'a>> VisitorDirector<'a, R> {
                 Statement::Expression(s) => self.visit_expression_statement(s),
                 Statement::Iteration(s) => self.visit_iteration(s),
                 Statement::Return(s) => self.visit_return(s),
+                Statement::Empty(_) => Ok(()),
             },
             x => x.into(),
         }

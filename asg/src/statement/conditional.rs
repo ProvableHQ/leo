@@ -40,7 +40,7 @@ impl<'a> FromAst<'a, leo_ast::ConditionalStatement> for ConditionalStatement<'a>
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
         let condition = <&Expression<'a>>::from_ast(scope, &statement.condition, Some(Type::Boolean.into()))?;
-        let result = scope.alloc_statement(Statement::Block(BlockStatement::from_ast(
+        let result = scope.context.alloc_statement(Statement::Block(BlockStatement::from_ast(
             scope,
             &statement.block,
             None,

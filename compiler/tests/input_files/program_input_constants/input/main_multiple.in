@@ -1,0 +1,3 @@
+[constants]
+a: bool = true;
+b: bool = false;

@@ -18,5 +18,5 @@ use crate::Program;
 pub use leo_ast::FormattedError;
 
 pub trait AsgPass<'a> {
-    fn do_pass(asg: &Program<'a>) -> Result<(), FormattedError>;
+    fn do_pass(asg: Program<'a>) -> Result<Program<'a>, FormattedError>;
 }
