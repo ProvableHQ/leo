@@ -19,6 +19,8 @@
 //! This module contains the [`parse_ast()`] method which calls the underlying [`parse()`]
 //! method to create a new program ast.
 
+#![allow(clippy::vec_init_then_push)]
+
 #[macro_use]
 extern crate thiserror;
 
