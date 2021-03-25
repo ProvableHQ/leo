@@ -43,8 +43,8 @@ pub fn find_tests<T: AsRef<Path>>(path: T, out: &mut Vec<(String, String)>) {
 #[test]
 pub fn parser_pass_tests() {
     let mut pass = 0;
-    let mut fail = vec![];
-    let mut tests = vec![];
+    let mut fail = Vec::new();
+    let mut tests = Vec::new();
     let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     test_dir.push("../tests/pass/parse/");
     find_tests(&test_dir, &mut tests);
@@ -76,8 +76,8 @@ pub fn parser_pass_tests() {
 #[test]
 pub fn parser_fail_tests() {
     let mut pass = 0;
-    let mut fail = vec![];
-    let mut tests = vec![];
+    let mut fail = Vec::new();
+    let mut tests = Vec::new();
     let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     test_dir.push("../tests/fail/parse/");
     find_tests(&test_dir, &mut tests);

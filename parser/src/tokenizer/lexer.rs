@@ -106,7 +106,7 @@ impl Token {
                 let mut i = 1;
                 let mut in_escape = false;
                 let mut start = 1usize;
-                let mut segments = vec![];
+                let mut segments = Vec::new();
                 while i < input.len() {
                     if !in_escape {
                         if input[i] == b'"' {

@@ -72,7 +72,7 @@ impl ParserContext {
     ///
     pub fn construct_assignee(expr: Expression) -> SyntaxResult<Assignee> {
         let expr_span = expr.span().clone();
-        let mut accesses = vec![];
+        let mut accesses = Vec::new();
         let identifier = Self::construct_assignee_access(expr, &mut accesses)?;
 
         Ok(Assignee {
@@ -140,7 +140,6 @@ impl ParserContext {
     pub fn parse_block(&mut self) -> SyntaxResult<Block> {
         let start = self.expect(Token::LeftCurly)?;
 
-        #[allow(clippy::vec_init_then_push)]
         let mut statements = Vec::new();
         loop {
             match self.eat(Token::RightCurly) {
@@ -232,7 +231,7 @@ impl ParserContext {
             }
             SpannedToken { token, span } => return Err(SyntaxError::unexpected_str(&token, "formatted string", &span)),
         };
-        let mut parameters = vec![];
+        let mut parameters = Vec::new();
         while self.eat(Token::Comma).is_some() {
             let param = self.parse_expression()?;
             parameters.push(param);
@@ -306,7 +305,7 @@ impl ParserContext {
     ///
     pub fn parse_definition_statement(&mut self) -> SyntaxResult<DefinitionStatement> {
         let declare = self.expect_oneof(&[Token::Let, Token::Const])?;
-        let mut variable_names = vec![];
+        let mut variable_names = Vec::new();
         if self.eat(Token::LeftParen).is_some() {
             variable_names.push(self.parse_variable_name()?);
             while self.eat(Token::Comma).is_some() {

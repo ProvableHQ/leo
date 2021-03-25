@@ -353,7 +353,7 @@ impl ParserContext {
     /// Otherwise, tries to parse the next token using [`parse_access_expression`].
     ///
     pub fn parse_unary_expression(&mut self) -> SyntaxResult<Expression> {
-        let mut ops = vec![];
+        let mut ops = Vec::new();
         while let Some(token) = self.eat_any(&[Token::Not, Token::Minus, Token::BitNot]) {
             ops.push(token);
         }
@@ -455,7 +455,7 @@ impl ParserContext {
                     }
                 }
                 Token::LeftParen => {
-                    let mut arguments = vec![];
+                    let mut arguments = Vec::new();
                     let end_span;
                     loop {
                         let end = self.eat(Token::RightParen);
@@ -509,7 +509,7 @@ impl ParserContext {
     ///
     pub fn parse_circuit_init(&mut self, identifier: Identifier) -> SyntaxResult<Expression> {
         self.expect(Token::LeftCurly)?;
-        let mut members = vec![];
+        let mut members = Vec::new();
         let end_span;
         loop {
             if let Some(end) = self.eat(Token::RightCurly) {
@@ -603,7 +603,7 @@ impl ParserContext {
                         },
                     )))));
                 }
-                let mut args = vec![];
+                let mut args = Vec::new();
                 let end_span;
                 loop {
                     let end = self.eat(Token::RightParen);
@@ -630,7 +630,7 @@ impl ParserContext {
             Token::LeftSquare => {
                 if let Some(end) = self.eat(Token::RightSquare) {
                     return Ok(Expression::ArrayInline(ArrayInlineExpression {
-                        elements: vec![],
+                        elements: Vec::new(),
                         span: span + end.span,
                     }));
                 }

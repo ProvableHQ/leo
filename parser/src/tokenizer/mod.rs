@@ -34,7 +34,7 @@ use std::rc::Rc;
 pub(crate) fn tokenize(path: &str, source: &str) -> Result<Vec<SpannedToken>, TokenError> {
     let path = Rc::new(path.to_string());
     let mut input = source.as_bytes();
-    let mut tokens = vec![];
+    let mut tokens = Vec::new();
     let mut index = 0usize;
     let mut line_no = 1usize;
     let mut line_start = 0usize;
