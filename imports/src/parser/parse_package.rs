@@ -35,7 +35,7 @@ impl<'a> ImportParser<'a> {
             return self.parse_package(context, package.path(), remaining_segments, span);
         }
         let program = Self::parse_import_file(package, span)?;
-        let asg = leo_asg::InternalProgram::new(context, &program, self)?;
+        let asg = leo_asg::Program::new(context, &program, self)?;
 
         Ok(asg)
     }

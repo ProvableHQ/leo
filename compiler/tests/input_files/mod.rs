@@ -16,5 +16,6 @@
 
 mod program_input;
 mod program_input_and_program_state;
+mod program_input_constants;
 mod program_registers;
 mod program_state;

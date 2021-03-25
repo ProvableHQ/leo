@@ -26,6 +26,12 @@ pub use monoidal_director::*;
 mod monoidal_reducer;
 pub use monoidal_reducer::*;
 
+mod reconstructing_reducer;
+pub use reconstructing_reducer::*;
+
+mod reconstructing_director;
+pub use reconstructing_director::*;
+
 mod visitor;
 pub use visitor::*;
 
