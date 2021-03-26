@@ -23,7 +23,7 @@ impl ParserContext {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     ///
     pub fn parse_program(&mut self) -> SyntaxResult<Program> {
-        let mut imports = vec![];
+        let mut imports = Vec::new();
         let mut circuits = IndexMap::new();
         let mut functions = IndexMap::new();
         // let mut tests = IndexMap::new();
@@ -70,7 +70,7 @@ impl ParserContext {
         }
         Ok(Program {
             name: String::new(),
-            expected_input: vec![],
+            expected_input: Vec::new(),
             imports,
             circuits,
             functions,
@@ -98,7 +98,7 @@ impl ParserContext {
 
         let end_span;
         let arguments = if self.eat(Token::LeftParen).is_some() {
-            let mut args = vec![];
+            let mut args = Vec::new();
             loop {
                 if let Some(end) = self.eat(Token::RightParen) {
                     end_span = end.span;
@@ -120,7 +120,7 @@ impl ParserContext {
             args
         } else {
             end_span = name.span.clone();
-            vec![]
+            Vec::new()
         };
         Ok(Annotation {
             name,
@@ -134,7 +134,7 @@ impl ParserContext {
     /// expressions within an import statement.
     ///
     pub fn parse_package_accesses(&mut self) -> SyntaxResult<Vec<PackageAccess>> {
-        let mut out = vec![];
+        let mut out = Vec::new();
         self.expect(Token::LeftParen)?;
         while self.eat(Token::RightParen).is_none() {
             let access = self.parse_package_access()?;
@@ -301,7 +301,7 @@ impl ParserContext {
         self.expect(Token::Circuit)?;
         let name = self.expect_ident()?;
         self.expect(Token::LeftCurly)?;
-        let mut members = vec![];
+        let mut members = Vec::new();
         while self.eat(Token::RightCurly).is_none() {
             let member = self.parse_circuit_member()?;
             members.push(member);
@@ -335,21 +335,29 @@ impl ParserContext {
             self.expect_ident()?
         };
         if name.name == "self" {
-            if const_.is_some() {
-                //error
-            }
             if let Some(mutable) = &mutable {
                 name.span = &mutable.span + &name.span;
                 name.name = "mut self".to_string();
                 return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
+            } else if let Some(const_) = &const_ {
+                name.span = &const_.span + &name.span;
+                name.name = "const self".to_string();
+                return Ok(FunctionInput::ConstSelfKeyword(ConstSelfKeyword { identifier: name }));
             }
             return Ok(FunctionInput::SelfKeyword(SelfKeyword { identifier: name }));
         }
+
+        if let Some(mutable) = &mutable {
+            return Err(SyntaxError::DeprecatedError(DeprecatedError::mut_function_input(
+                &mutable.span + &name.span,
+            )));
+        }
+
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
         Ok(FunctionInput::Variable(FunctionInputVariable {
             const_: const_.is_some(),
-            mutable: mutable.is_some(),
+            mutable: const_.is_none(),
             type_,
             span: name.span.clone(),
             identifier: name,
@@ -361,14 +369,14 @@ impl ParserContext {
     /// and function definition.
     ///
     pub fn parse_function_declaration(&mut self) -> SyntaxResult<(Identifier, Function)> {
-        let mut annotations = vec![];
+        let mut annotations = Vec::new();
         while self.peek()?.token == Token::At {
             annotations.push(self.parse_annotation()?);
         }
         let start = self.expect(Token::Function)?;
         let name = self.expect_ident()?;
         self.expect(Token::LeftParen)?;
-        let mut inputs = vec![];
+        let mut inputs = Vec::new();
         while self.eat(Token::RightParen).is_none() {
             let input = self.parse_function_parameters()?;
             inputs.push(input);

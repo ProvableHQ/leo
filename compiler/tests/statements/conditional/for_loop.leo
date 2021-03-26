@@ -1,5 +1,5 @@
 function main(a: bool) {
-    let mut b = 0u32;
+    let b = 0u32;
 
     if a {
         for i in 0..4 {
@@ -7,7 +7,7 @@ function main(a: bool) {
         }
     }
 
-    let r: u32 = a ? 6 : 0;
+    const r: u32 = a ? 6 : 0;
 
     console.assert(r == b);
 }

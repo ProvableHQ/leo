@@ -1,4 +1,4 @@
 function main() {
-    let a = (true, false);
-    let b: (bool, (bool, bool)) = (true, a);
+    const a = (true, false);
+    const b: (bool, (bool, bool)) = (true, a);
 }

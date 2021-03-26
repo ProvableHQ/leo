@@ -35,6 +35,7 @@ impl OutputBytes {
         program: &Program<'a>,
         registers: &Registers,
         value: ConstrainedValue<'a, F, G>,
+
         span: &Span,
     ) -> Result<Self, OutputBytesError> {
         let return_values = match value {

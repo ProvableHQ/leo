@@ -1,3 +1,3 @@
 function main() {
-    let group = 0u32;
+    const group = 0u32;
 }

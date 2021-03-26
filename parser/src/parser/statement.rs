@@ -72,7 +72,7 @@ impl ParserContext {
     ///
     pub fn construct_assignee(expr: Expression) -> SyntaxResult<Assignee> {
         let expr_span = expr.span().clone();
-        let mut accesses = vec![];
+        let mut accesses = Vec::new();
         let identifier = Self::construct_assignee_access(expr, &mut accesses)?;
 
         Ok(Assignee {
@@ -144,7 +144,8 @@ impl ParserContext {
     ///
     pub fn parse_block(&mut self) -> SyntaxResult<Block> {
         let start = self.expect(Token::LeftCurly)?;
-        let mut statements = vec![];
+
+        let mut statements = Vec::new();
         loop {
             match self.eat(Token::RightCurly) {
                 None => {
@@ -235,7 +236,7 @@ impl ParserContext {
             }
             SpannedToken { token, span } => return Err(SyntaxError::unexpected_str(&token, "formatted string", &span)),
         };
-        let mut parameters = vec![];
+        let mut parameters = Vec::new();
         while self.eat(Token::Comma).is_some() {
             let param = self.parse_expression()?;
             parameters.push(param);
@@ -291,15 +292,18 @@ impl ParserContext {
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
     ///
-    pub fn parse_variable_name(&mut self) -> SyntaxResult<VariableName> {
+    pub fn parse_variable_name(&mut self, span: &SpannedToken) -> SyntaxResult<VariableName> {
         let mutable = self.eat(Token::Mut);
+        if let Some(mutable) = &mutable {
+            return Err(SyntaxError::DeprecatedError(DeprecatedError::let_mut_statement(
+                &mutable.span + &span.span,
+            )));
+        }
+
         let name = self.expect_ident()?;
         Ok(VariableName {
-            span: mutable
-                .as_ref()
-                .map(|x| &x.span + &name.span)
-                .unwrap_or_else(|| name.span.clone()),
-            mutable: mutable.is_some(),
+            span: name.span.clone(),
+            mutable: matches!(span.token, Token::Let),
             identifier: name,
         })
     }
@@ -309,15 +313,15 @@ impl ParserContext {
     ///
     pub fn parse_definition_statement(&mut self) -> SyntaxResult<DefinitionStatement> {
         let declare = self.expect_oneof(&[Token::Let, Token::Const])?;
-        let mut variable_names = vec![];
+        let mut variable_names = Vec::new();
         if self.eat(Token::LeftParen).is_some() {
-            variable_names.push(self.parse_variable_name()?);
+            variable_names.push(self.parse_variable_name(&declare)?);
             while self.eat(Token::Comma).is_some() {
-                variable_names.push(self.parse_variable_name()?);
+                variable_names.push(self.parse_variable_name(&declare)?);
             }
             self.expect(Token::RightParen)?;
         } else {
-            variable_names.push(self.parse_variable_name()?);
+            variable_names.push(self.parse_variable_name(&declare)?);
         }
 
         let type_ = if self.eat(Token::Colon).is_some() {
@@ -334,12 +338,7 @@ impl ParserContext {
             span: &declare.span + expr.span(),
             declaration_type: match declare.token {
                 Token::Let => Declare::Let,
-                Token::Const => {
-                    return Err(SyntaxError::DeprecatedError(DeprecatedError::const_statement(
-                        &declare.span,
-                    )));
-                    //Declare::Const
-                }
+                Token::Const => Declare::Const,
                 _ => unimplemented!(),
             },
             variable_names,

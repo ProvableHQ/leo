@@ -1,3 +1,3 @@
 function main() {
-    let a = -5i8 > 342u32;
+    const a = -5i8 > 342u32;
 }

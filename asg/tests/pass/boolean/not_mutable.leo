@@ -1,4 +1,4 @@
 function main () {
-    let mut b = false;
-    let a = !b;
+    let b = false;
+    const a = !b;
 }

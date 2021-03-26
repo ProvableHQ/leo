@@ -7,12 +7,12 @@
 //   line 11: variable `x` is set to value `0`.
 //   line 18: program returns the value of `a`.
 
-function bad_mutate(mut x: u32) {
+function bad_mutate(x: u32) {
     x = 0; // <- does not change `a`
 }
 
 function main() {
-    let a = 1u32;
+    const a = 1u32;
     bad_mutate(a);
 
     console.assert(a == 1u32); // <- value `a` is still `1u32`

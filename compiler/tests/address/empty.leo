@@ -1,3 +1,3 @@
 function main() {
-    let owner = address();
+    const owner = address();
 }

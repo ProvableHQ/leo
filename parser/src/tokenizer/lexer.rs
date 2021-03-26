@@ -108,7 +108,7 @@ impl Token {
                 let mut i = 1;
                 let mut in_escape = false;
                 let mut start = 1usize;
-                let mut segments = vec![];
+                let mut segments = Vec::new();
                 while i < input.len() {
                     if !in_escape {
                         if input[i] == b'"' {
@@ -215,7 +215,7 @@ impl Token {
                     let (input, comment) = if let Some(eol) = eol {
                         (&input[(eol + 1)..], &input[..eol])
                     } else {
-                        (&input[input.len()..input.len()], &input[..])
+                        (&input[input.len()..input.len()], input)
                     };
                     return (
                         input,
@@ -229,7 +229,7 @@ impl Token {
                     let (input, comment) = if let Some(eol) = eol {
                         (&input[(eol + 4)..], &input[..eol + 4])
                     } else {
-                        (&input[input.len()..input.len()], &input[..])
+                        (&input[input.len()..input.len()], input)
                     };
                     return (
                         input,
