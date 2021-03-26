@@ -495,7 +495,7 @@ impl ReconstructingReducer for Canonicalizer {
                                 span: assign.span.clone(),
                             }));
                         }
-                        _ => unimplemented!(), // No reason for someone to comput ArrayRanges.
+                        _ => unimplemented!(), // No reason for someone to compute ArrayRanges.
                     }
                 }
 
