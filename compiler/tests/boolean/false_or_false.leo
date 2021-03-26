@@ -1,5 +1,5 @@
 function main() {
-    let a = false || false;
+    const a = false || false;
 
     console.assert(a == false);
 }

@@ -7,6 +7,6 @@ circuit Foo {
 }
 
 function main() -> u32 {
-    let foo = Foo { f: 1u32 };
-    let err = foo.bar();
+    const foo = Foo { f: 1u32 };
+    const err = foo.bar();
 }

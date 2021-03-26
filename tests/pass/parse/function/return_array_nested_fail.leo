@@ -3,5 +3,5 @@ function array_3x2_tuple() -> [[u8; 2]; 3] {
 }
 
 function main() {
-    let b = array_3x2_tuple();
+    const b = array_3x2_tuple();
 }

@@ -49,7 +49,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         }
 
         match function.qualifier {
-            FunctionQualifier::SelfRef | FunctionQualifier::MutSelfRef => {
+            FunctionQualifier::SelfRef | FunctionQualifier::ConstSelfRef | FunctionQualifier::MutSelfRef => {
                 unimplemented!("cannot access self variable in main function")
             }
             FunctionQualifier::Static => (),

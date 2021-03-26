@@ -5,6 +5,6 @@ circuit Foo {
 }
 
 function main() {
-    let a = Foo { };
-    let err = a.echo(1u32); // echo is a static function and must be accessed using `::`
+    const a = Foo { };
+    const err = a.echo(1u32); // echo is a static function and must be accessed using `::`
 }

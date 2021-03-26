@@ -3,7 +3,7 @@ function tuple() -> (bool, bool) {
 }
 
 function main() {
-    let (a, b) = tuple();
+    const (a, b) = tuple();
 
     console.assert(a == true);
     console.assert(b == false);

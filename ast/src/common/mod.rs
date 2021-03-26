@@ -17,6 +17,9 @@
 pub mod array_dimensions;
 pub use array_dimensions::*;
 
+pub mod const_self_keyword;
+pub use const_self_keyword::*;
+
 pub mod identifier;
 pub use identifier::*;
 

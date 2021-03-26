@@ -1,3 +1,3 @@
 function main() {
-    let a: i16 = -32769;
+    const a: i16 = -32769;
 }

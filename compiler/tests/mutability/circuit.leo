@@ -4,6 +4,6 @@ circuit Foo {
 }
 
 function main() {
-    let a = Foo { x: 1 };
+    const a = Foo { x: 1 };
     a.x = 0;
 }

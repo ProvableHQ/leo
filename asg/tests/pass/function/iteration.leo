@@ -3,7 +3,7 @@ function one() -> u32 {
 }
 
 function main() {
-    let mut a = 0u32;
+    let a = 0u32;
 
     for i in 0..10 {
         a += one();

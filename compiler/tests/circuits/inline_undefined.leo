@@ -1,3 +1,3 @@
 function main() {
-    let a = Foo { };
+    const a = Foo { };
 }

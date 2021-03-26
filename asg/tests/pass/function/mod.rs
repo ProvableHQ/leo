@@ -36,7 +36,7 @@ fn test_const_args() {
     }
     
     function main() {
-        let mut a = 0u32;
+        let a = 0u32;
     
         for i in 0..10 {
             a += one(i);
@@ -56,8 +56,8 @@ fn test_const_args_used() {
     }
     
     function main() {
-        let mut a = 0u8;
-        let arr = [1u8, 2, 3];
+        let a = 0u8;
+        const arr = [1u8, 2, 3];
     
         for i in 0..3 {
             a += index(arr, i);
@@ -77,8 +77,8 @@ fn test_const_args_fail() {
     }
     
     function main(x_value: u32) {
-        let mut a = 0u8;
-        let arr = [1u8, 2, 3];
+        let a = 0u8;
+        const arr = [1u8, 2, 3];
     
         a += index(arr, x_value);
     

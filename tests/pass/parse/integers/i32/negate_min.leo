@@ -1,4 +1,4 @@
 function main() {
-    let a = -2147483648i32;
-    let b = -a;
+    const a = -2147483648i32;
+    const b = -a;
 }

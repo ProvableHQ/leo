@@ -1,5 +1,5 @@
 function main() {
-    let x: u8 = 191;
+    const x: u8 = 191;
 
     if x == 0 {
         return x

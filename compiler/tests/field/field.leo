@@ -1,4 +1,4 @@
 function main() {
-    let negOneField: field = -1field;
-    let oneField = 1field;
+    const negOneField: field = -1field;
+    const oneField = 1field;
 }

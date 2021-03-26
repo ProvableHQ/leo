@@ -1,3 +1,3 @@
 function main() {
-    let i8 = 0u32;
+    const i8 = 0u32;
 }

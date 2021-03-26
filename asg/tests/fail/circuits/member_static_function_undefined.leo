@@ -5,5 +5,5 @@ circuit Foo {
 }
 
 function main() {
-    let err = Foo::echoed(1u32);
+    const err = Foo::echoed(1u32);
 }

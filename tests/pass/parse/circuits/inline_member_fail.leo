@@ -3,6 +3,6 @@ circuit Foo {
 }
 
 function main() {
-    let y: u8 = 1;
-    let a = Foo { y };
+    const y: u8 = 1;
+    const a = Foo { y };
 }

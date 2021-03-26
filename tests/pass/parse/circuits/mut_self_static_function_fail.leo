@@ -9,7 +9,7 @@ circuit Foo {
 }
 
 function main() {
-    let mut f  = Foo { a: 0u8 };
+    let f  = Foo { a: 0u8 };
 
     f.set_a(1u8);
 }

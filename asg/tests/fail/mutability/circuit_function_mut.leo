@@ -4,6 +4,6 @@ circuit Foo {
 }
 
 function main() {
-    let mut a = Foo { x: 1 };
+    let a = Foo { x: 1 };
     a.bar = 0;
 }

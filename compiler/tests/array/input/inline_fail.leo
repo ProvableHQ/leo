@@ -1,3 +1,3 @@
 function main() {
-    let a = [1u8, bool];
+    const a = [1u8, bool];
 }
