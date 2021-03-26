@@ -16,7 +16,9 @@
 
 use crate::{common::span::Span, groups::GroupCoordinate};
 use leo_input::values::{
-    GroupRepresentation as InputGroupRepresentation, GroupTuple as InputGroupTuple, GroupValue as InputGroupValue,
+    GroupRepresentation as InputGroupRepresentation,
+    GroupTuple as InputGroupTuple,
+    GroupValue as InputGroupValue,
 };
 
 use serde::{Deserialize, Serialize};

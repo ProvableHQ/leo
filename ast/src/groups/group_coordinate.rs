@@ -16,8 +16,11 @@
 
 use crate::common::span::Span;
 use leo_input::values::{
-    GroupCoordinate as InputGroupCoordinate, Inferred as InputInferred, NumberValue as InputNumberValue,
-    SignHigh as InputSignHigh, SignLow as InputSignLow,
+    GroupCoordinate as InputGroupCoordinate,
+    Inferred as InputInferred,
+    NumberValue as InputNumberValue,
+    SignHigh as InputSignHigh,
+    SignLow as InputSignLow,
 };
 
 use serde::{Deserialize, Serialize};

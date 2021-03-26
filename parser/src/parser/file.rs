@@ -299,13 +299,10 @@ impl ParserContext {
             let member = self.parse_circuit_member()?;
             members.push(member);
         }
-        Ok((
-            name.clone(),
-            Circuit {
-                circuit_name: name,
-                members,
-            },
-        ))
+        Ok((name.clone(), Circuit {
+            circuit_name: name,
+            members,
+        }))
     }
 
     ///
@@ -332,7 +329,7 @@ impl ParserContext {
         };
         if name.name.as_ref() == "self" {
             if let Some(const_) = const_.as_ref() {
-                return Err(SyntaxError::illegal_self_const(&(&name.span + &const_.span)))
+                return Err(SyntaxError::illegal_self_const(&(&name.span + &const_.span)));
             }
             if let Some(mutable) = &mutable {
                 name.span = &mutable.span + &name.span;
@@ -390,16 +387,13 @@ impl ParserContext {
             None
         };
         let block = self.parse_block()?;
-        Ok((
-            name.clone(),
-            Function {
-                annotations,
-                identifier: name,
-                input: inputs,
-                output,
-                span: start + block.span.clone(),
-                block,
-            },
-        ))
+        Ok((name.clone(), Function {
+            annotations,
+            identifier: name,
+            input: inputs,
+            output,
+            span: start + block.span.clone(),
+            block,
+        }))
     }
 }

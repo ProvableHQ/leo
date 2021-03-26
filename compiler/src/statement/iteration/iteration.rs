@@ -17,7 +17,11 @@
 //! Enforces an iteration statement in a compiled Leo program.
 
 use crate::{
-    program::ConstrainedProgram, value::ConstrainedValue, GroupType, IndicatorAndConstrainedValue, Integer,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
+    IndicatorAndConstrainedValue,
+    Integer,
     StatementResult,
 };
 use leo_asg::IterationStatement;

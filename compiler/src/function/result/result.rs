@@ -17,7 +17,11 @@
 //! Enforces that one return value is produced in a compiled Leo program.
 
 use crate::{
-    errors::StatementError, get_indicator_value, program::ConstrainedProgram, value::ConstrainedValue, GroupType,
+    errors::StatementError,
+    get_indicator_value,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
 };
 
 use leo_asg::{Span, Type};

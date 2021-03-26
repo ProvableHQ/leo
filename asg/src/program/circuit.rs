@@ -111,7 +111,10 @@ impl<'a> Circuit<'a> {
                 if asg_function.is_test() {
                     return Err(AsgConvertError::circuit_test_function(&function.identifier.span));
                 }
-                members.insert(function.identifier.name.to_string(), CircuitMember::Function(asg_function));
+                members.insert(
+                    function.identifier.name.to_string(),
+                    CircuitMember::Function(asg_function),
+                );
             }
         }
 

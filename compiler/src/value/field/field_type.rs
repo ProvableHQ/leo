@@ -289,11 +289,7 @@ impl<F: PrimeField> CondSelectGadget<F> for FieldType<F> {
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         if let Boolean::Constant(cond) = *cond {
-            if cond {
-                Ok(first.clone())
-            } else {
-                Ok(second.clone())
-            }
+            if cond { Ok(first.clone()) } else { Ok(second.clone()) }
         } else {
             let first_gadget = first.allocated(&mut cs)?;
             let second_gadget = second.allocated(&mut cs)?;

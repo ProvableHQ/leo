@@ -15,8 +15,18 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError, Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Span, Statement,
-    Type, Variable,
+    AsgConvertError,
+    Expression,
+    ExpressionNode,
+    FromAst,
+    InnerVariable,
+    Node,
+    PartialType,
+    Scope,
+    Span,
+    Statement,
+    Type,
+    Variable,
 };
 
 use std::cell::{Cell, RefCell};

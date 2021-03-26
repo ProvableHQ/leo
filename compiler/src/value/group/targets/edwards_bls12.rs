@@ -20,7 +20,8 @@ use leo_asg::{GroupCoordinate, GroupValue, Span};
 use snarkvm_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
     templates::twisted_edwards_extended::GroupAffine,
-    AffineCurve, TEModelParameters,
+    AffineCurve,
+    TEModelParameters,
 };
 use snarkvm_fields::{Fp256, One, Zero};
 use snarkvm_gadgets::{
@@ -481,11 +482,7 @@ impl CondSelectGadget<Fq> for EdwardsGroupType {
         second: &Self,
     ) -> Result<Self, SynthesisError> {
         if let Boolean::Constant(cond) = *cond {
-            if cond {
-                Ok(first.clone())
-            } else {
-                Ok(second.clone())
-            }
+            if cond { Ok(first.clone()) } else { Ok(second.clone()) }
         } else {
             let first_gadget = first.allocated(cs.ns(|| "first"))?;
             let second_gadget = second.allocated(cs.ns(|| "second"))?;

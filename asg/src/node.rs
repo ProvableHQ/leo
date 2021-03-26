@@ -15,7 +15,16 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgContextInner, AsgConvertError, Circuit, Expression, Function, PartialType, Scope, Span, Statement, Variable,
+    AsgContextInner,
+    AsgConvertError,
+    Circuit,
+    Expression,
+    Function,
+    PartialType,
+    Scope,
+    Span,
+    Statement,
+    Variable,
 };
 
 /// A node in the abstract semantic graph.

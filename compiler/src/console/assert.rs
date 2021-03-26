@@ -17,7 +17,11 @@
 //! Enforces an assert equals statement in a compiled Leo program.
 
 use crate::{
-    errors::ConsoleError, get_indicator_value, program::ConstrainedProgram, value::ConstrainedValue, GroupType,
+    errors::ConsoleError,
+    get_indicator_value,
+    program::ConstrainedProgram,
+    value::ConstrainedValue,
+    GroupType,
 };
 use leo_asg::{Expression, Span};
 

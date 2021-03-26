@@ -21,7 +21,14 @@ use anyhow::Result;
 use crate::{
     commands::{
         package::{Login, Logout},
-        Build, Command, Prove, Run, Setup, Test, Update, UpdateAutomatic,
+        Build,
+        Command,
+        Prove,
+        Run,
+        Setup,
+        Test,
+        Update,
+        UpdateAutomatic,
     },
     context::{create_context, Context},
 };

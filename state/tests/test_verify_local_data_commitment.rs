@@ -21,7 +21,9 @@ use leo_state::verify_local_data_commitment;
 use snarkvm_algorithms::traits::{CommitmentScheme, CRH};
 use snarkvm_dpc::{
     base_dpc::{instantiated::*, record_payload::RecordPayload, DPC},
-    Account, AccountScheme, Record,
+    Account,
+    AccountScheme,
+    Record,
 };
 use snarkvm_utilities::{bytes::ToBytes, to_bytes};
 
@@ -70,11 +72,13 @@ fn test_generate_values_from_dpc() {
     let noop_program_snark_pp =
         InstantiatedDPC::generate_noop_program_snark_parameters(&system_parameters, &mut rng).unwrap();
 
-    let noop_program_id = to_bytes![ProgramVerificationKeyCRH::hash(
-        &system_parameters.program_verification_key_crh,
-        &to_bytes![noop_program_snark_pp.verification_key].unwrap()
-    )
-    .unwrap()]
+    let noop_program_id = to_bytes![
+        ProgramVerificationKeyCRH::hash(
+            &system_parameters.program_verification_key_crh,
+            &to_bytes![noop_program_snark_pp.verification_key].unwrap()
+        )
+        .unwrap()
+    ]
     .unwrap();
 
     let signature_parameters = &system_parameters.account_signature;

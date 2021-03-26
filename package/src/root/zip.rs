@@ -21,8 +21,12 @@ use crate::{
     imports::IMPORTS_DIRECTORY_NAME,
     inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION},
     outputs::{
-        CHECKSUM_FILE_EXTENSION, CIRCUIT_FILE_EXTENSION, OUTPUTS_DIRECTORY_NAME, PROOF_FILE_EXTENSION,
-        PROVING_KEY_FILE_EXTENSION, VERIFICATION_KEY_FILE_EXTENSION,
+        CHECKSUM_FILE_EXTENSION,
+        CIRCUIT_FILE_EXTENSION,
+        OUTPUTS_DIRECTORY_NAME,
+        PROOF_FILE_EXTENSION,
+        PROVING_KEY_FILE_EXTENSION,
+        VERIFICATION_KEY_FILE_EXTENSION,
     },
     root::{MANIFEST_FILENAME, README_FILENAME},
     source::{SOURCE_DIRECTORY_NAME, SOURCE_FILE_EXTENSION},
@@ -32,7 +36,8 @@ use serde::Deserialize;
 use std::{
     borrow::Cow,
     fs::{
-        File, {self},
+        File,
+        {self},
     },
     io::{Read, Write},
     path::Path,

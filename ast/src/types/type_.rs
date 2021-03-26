@@ -16,7 +16,10 @@
 
 use crate::{ArrayDimensions, Identifier, IntegerType};
 use leo_input::types::{
-    ArrayType as InputArrayType, DataType as InputDataType, TupleType as InputTupleType, Type as InputType,
+    ArrayType as InputArrayType,
+    DataType as InputDataType,
+    TupleType as InputTupleType,
+    Type as InputType,
 };
 
 use serde::{Deserialize, Serialize};

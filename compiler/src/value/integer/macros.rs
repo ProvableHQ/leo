@@ -19,8 +19,7 @@ use snarkvm_gadgets::traits::utilities::{
     int::{Int128, Int16, Int32, Int64, Int8},
     uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
 };
-use std::convert::TryInto;
-use std::fmt::Debug;
+use std::{convert::TryInto, fmt::Debug};
 
 pub trait IntegerTrait: Sized + Clone + Debug {
     fn get_value(&self) -> Option<String>;

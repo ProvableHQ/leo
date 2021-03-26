@@ -16,7 +16,9 @@
 
 use std::{
     fs::{
-        create_dir_all, File, {self},
+        create_dir_all,
+        File,
+        {self},
     },
     io,
     io::prelude::*,

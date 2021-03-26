@@ -15,8 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{
-    AddressError, BooleanError, ExpressionError, FieldError, GroupError, IntegerError, OutputBytesError,
-    StatementError, ValueError,
+    AddressError,
+    BooleanError,
+    ExpressionError,
+    FieldError,
+    GroupError,
+    IntegerError,
+    OutputBytesError,
+    StatementError,
+    ValueError,
 };
 use leo_asg::AsgConvertError;
 use leo_ast::{FormattedError, LeoError, Span};

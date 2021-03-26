@@ -15,7 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    statement::*, BoolAnd, Expression, Monoid, MonoidalReducerExpression, MonoidalReducerStatement, Node, Span,
+    statement::*,
+    BoolAnd,
+    Expression,
+    Monoid,
+    MonoidalReducerExpression,
+    MonoidalReducerStatement,
+    Node,
+    Span,
 };
 
 pub struct ReturnPathReducer {

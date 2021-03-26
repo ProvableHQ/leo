@@ -15,7 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    assert_satisfied, expect_asg_error, expect_compiler_error, generate_main_input, parse_program,
+    assert_satisfied,
+    expect_asg_error,
+    expect_compiler_error,
+    generate_main_input,
+    parse_program,
     parse_program_with_input,
 };
 use leo_ast::InputValue;
