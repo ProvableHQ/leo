@@ -13,18 +13,15 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-#![allow(clippy::upper_case_acronyms)]
 
-//! Abstract syntax tree (ast) representation from leo-input.pest.
-use pest::{error::Error, iterators::Pairs, Parser, Span};
-#[derive(Parser)]
-#[grammar = "leo-input.pest"]
-pub struct LanguageParser;
+mod canonicalization;
+pub use canonicalization::*;
 
-pub fn parse(input: &str) -> Result<Pairs<Rule>, Error<Rule>> {
-    LanguageParser::parse(Rule::file, input)
-}
+mod errors;
+pub use errors::*;
 
-pub fn span_into_string(span: Span) -> String {
-    span.as_str().to_string()
-}
+mod reconstructing_reducer;
+pub use reconstructing_reducer::*;
+
+mod reconstructing_director;
+pub use reconstructing_director::*;

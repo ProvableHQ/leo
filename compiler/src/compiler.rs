@@ -263,7 +263,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             Rc::new(lines),
         );
 
-        let ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
+        let mut ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
+        // Preform compiler optimization via canonicalizing AST if its enabled.
+        if self.options.canonicalization_enabled {
+            ast.canonicalize()?;
+        }
 
         // Store the main program file.
         self.program = ast.into_repr();

@@ -16,6 +16,7 @@
 
 use std::io;
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Error)]
 pub enum READMEError {
     #[error("{}: {}", _0, _1)]

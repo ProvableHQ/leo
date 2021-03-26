@@ -243,6 +243,14 @@ impl<'a> Program<'a> {
             scope.circuits.borrow_mut().insert(name.name.clone(), asg_circuit);
         }
 
+        // Second pass for circuit members.
+        for (name, circuit) in program.circuits.iter() {
+            assert_eq!(name.name, circuit.circuit_name.name);
+            let asg_circuit = Circuit::init_member(scope, circuit)?;
+
+            scope.circuits.borrow_mut().insert(name.name.clone(), asg_circuit);
+        }
+
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
             let function = Function::init(scope, function)?;
