@@ -29,6 +29,7 @@ members = [
   "asg",
   "ast",
   "compiler",
+  "grammar",
   "imports",
   "input",
   "linter",
