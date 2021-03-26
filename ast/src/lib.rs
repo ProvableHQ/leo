@@ -41,9 +41,6 @@ pub use self::expression::*;
 pub mod functions;
 pub use self::functions::*;
 
-pub mod global_consts;
-pub use self::global_consts::*;
-
 pub mod groups;
 pub use self::groups::*;
 

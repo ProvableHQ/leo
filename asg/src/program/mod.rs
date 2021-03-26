@@ -270,7 +270,10 @@ impl<'a> Program<'a> {
         }
 
         for (name, global_const) in program.global_consts.iter() {
-            assert_eq!(name.name, global_const.variable_name.identifier.name);
+            global_const
+                .variable_names
+                .iter()
+                .map(|variable_name| assert!(name.contains(&variable_name.identifier.name)));
             // TODO re-enable
             // let gc = GlobalConst::init(scope, global_const)?;
             // scope.global_consts.borrow_mut().insert(name.name.clone(), gc);

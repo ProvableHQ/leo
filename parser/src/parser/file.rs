@@ -55,7 +55,14 @@ impl ParserContext {
                     // });
                 }
                 Token::Const => {
-                    // TODO
+                    let statement = self.parse_definition_statement()?;
+                    let variable_names = statement
+                        .variable_names
+                        .iter()
+                        .fold("".to_string(), |joined, variable_name| {
+                            format!("{}, {}", joined, variable_name.identifier.name)
+                        });
+                    global_consts.insert(variable_names, statement);
                 }
                 _ => {
                     return Err(SyntaxError::unexpected(
