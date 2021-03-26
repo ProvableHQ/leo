@@ -477,8 +477,16 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             functions.insert(self.reduce_identifier(identifier)?, self.reduce_function(function)?);
         }
 
-        self.reducer
-            .reduce_program(program, inputs, imports, circuits, functions)
+        // TODO reduce gcs
+
+        self.reducer.reduce_program(
+            program,
+            inputs,
+            imports,
+            circuits,
+            functions,
+            program.global_consts.clone(),
+        )
     }
 
     pub fn reduce_function_input_variable(

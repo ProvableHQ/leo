@@ -39,6 +39,22 @@ pub struct DefinitionStatement<'a> {
     pub value: Cell<&'a Expression<'a>>,
 }
 
+impl<'a> DefinitionStatement<'a> {
+    pub fn split(&self) -> Vec<(String, Self)> {
+        self.variables
+            .iter()
+            .map(|variable| {
+                (variable.borrow().name.name.clone(), DefinitionStatement {
+                    parent: self.parent.clone(),
+                    span: self.span.clone(),
+                    variables: vec![variable],
+                    value: self.value.clone(),
+                })
+            })
+            .collect()
+    }
+}
+
 impl<'a> Node for DefinitionStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()

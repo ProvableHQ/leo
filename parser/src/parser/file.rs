@@ -59,9 +59,10 @@ impl ParserContext {
                     let variable_names = statement
                         .variable_names
                         .iter()
-                        .fold("".to_string(), |joined, variable_name| {
-                            format!("{}, {}", joined, variable_name.identifier.name)
-                        });
+                        .map(|variable_name| variable_name.identifier.name.clone())
+                        .collect::<Vec<String>>()
+                        .join(",");
+                    println!("definition VN {}", variable_names);
                     global_consts.insert(variable_names, statement);
                 }
                 _ => {

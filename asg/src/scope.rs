@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgContext, AsgConvertError, Circuit, Function, Input, Type, Variable};
+use crate::{AsgContext, AsgConvertError, Circuit, DefinitionStatement, Function, Input, Type, Variable};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -44,7 +44,7 @@ pub struct Scope<'a> {
 
     /// Maps global constant name => global const code block.
     /// TODO fixs
-    pub global_consts: RefCell<IndexMap<String, String>>,
+    pub global_consts: RefCell<IndexMap<String, &'a DefinitionStatement<'a>>>,
 
     /// Maps circuit name => circuit.
     pub circuits: RefCell<IndexMap<String, &'a Circuit<'a>>>,
@@ -62,6 +62,7 @@ impl<'a> Scope<'a> {
     /// If there is no parent scope, then `None` is returned.
     ///
     pub fn resolve_variable(&self, name: &str) -> Option<&'a Variable<'a>> {
+        println!("rv n {}", name);
         if let Some(resolved) = self.variables.borrow().get(name) {
             Some(*resolved)
         }

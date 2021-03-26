@@ -24,10 +24,18 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
-mod global_const;
-pub use global_const::*;
-
-use crate::{ArenaNode, AsgContext, AsgConvertError, ImportResolver, Input, Scope};
+use crate::{
+    node::FromAst,
+    ArenaNode,
+    AsgContext,
+    AsgConvertError,
+    DefinitionStatement,
+    ImportResolver,
+    Input,
+    Scope,
+    Statement,
+    Variable,
+};
 use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
 
 use indexmap::IndexMap;
@@ -52,7 +60,7 @@ pub struct Program<'a> {
     pub functions: IndexMap<String, &'a Function<'a>>,
 
     /// Maps global constant name => global const code block.
-    pub global_consts: IndexMap<String, &'a GlobalConst<'a>>,
+    pub global_consts: IndexMap<String, &'a DefinitionStatement<'a>>,
 
     /// Maps circuit name => circuit code block.
     pub circuits: IndexMap<String, &'a Circuit<'a>>,
@@ -269,25 +277,36 @@ impl<'a> Program<'a> {
             scope.functions.borrow_mut().insert(name.name.clone(), function);
         }
 
+        println!("Helllo? {:?}", program.global_consts);
         for (name, global_const) in program.global_consts.iter() {
+            println!("loop over p gcs name {}", name);
             global_const
                 .variable_names
                 .iter()
-                .map(|variable_name| assert!(name.contains(&variable_name.identifier.name)));
+                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name)));
             // TODO re-enable
-            // let gc = GlobalConst::init(scope, global_const)?;
-            // scope.global_consts.borrow_mut().insert(name.name.clone(), gc);
+            let gc = <&Statement<'a>>::from_ast(scope, global_const, None)?;
+            if let Statement::Definition(gc) = gc {
+                scope.global_consts.borrow_mut().insert(name.clone(), gc);
+                // let split = gc.split();
+                // for (var_name, statement) in split.iter() {
+                //     scope.global_consts.borrow_mut().insert(var_name.clone(), statement.get());
+                // }
+            }
         }
 
         // Load concrete definitions.
         // TODO RE-ENABLE
         let mut global_consts = IndexMap::new();
-        // for (name, global_const) in program.global_consts.iter() {
-        //     assert_eq!(name.name, global_const.variable_name.identifier.name);
-        //     let asg_global_const = *scope.global_consts.borrow().get(&name.name).unwrap();
+        for (name, global_const) in program.global_consts.iter() {
+            global_const
+                .variable_names
+                .iter()
+                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name)));
+            let asg_global_const = *scope.global_consts.borrow().get(name).unwrap();
 
-        //     global_consts.insert(name.name.clone(), asg_global_const);
-        // }
+            global_consts.insert(name.clone(), asg_global_const);
+        }
 
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
@@ -365,7 +384,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
 
     let mut all_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
     let mut all_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
-    let mut all_global_consts: IndexMap<String, &'a GlobalConst<'a>> = IndexMap::new();
+    let mut all_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
     let mut identifiers = InternalIdentifierGenerator { next: 0 };
     for (_, program) in all_programs.into_iter() {
         for (name, circuit) in program.circuits.iter() {
@@ -383,11 +402,11 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             all_functions.insert(identifier, *function);
         }
         // TODO RE-ENABLE
-        // for (name, global_const) in program.global_consts.iter() {
-        //     let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-        //     global_const.variable.borrow_mut().name.name = identifier.clone();
-        //     all_global_consts.insert(identifier, *global_const);
-        // }
+        for (name, global_const) in program.global_consts.iter() {
+            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
+            // global_const.variable.borrow_mut().name.name = identifier.clone();
+            all_global_consts.insert(identifier, *global_const);
+        }
     }
 
     leo_ast::Program {
@@ -412,12 +431,20 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             .into_iter()
             .map(|(_, circuit)| (circuit.name.borrow().clone(), circuit.into()))
             .collect(),
-        global_consts: IndexMap::new(),
-        // TODO re-enable
-        // all_global_consts
-        //     .into_iter()
-        //     .map(|(_, global_const)| (global_const.variable.borrow().name.clone(), global_const.into()))
-        //     .collect(),
+        global_consts: all_global_consts
+            .into_iter()
+            .map(|(_, global_const)| {
+                (
+                    global_const
+                        .variables
+                        .iter()
+                        .fold("".to_string(), |joined, variable_name| {
+                            format!("{}, {}", joined, variable_name.borrow().name.name)
+                        }),
+                    global_const.into(),
+                )
+            })
+            .collect(),
     }
 }
 
@@ -437,13 +464,21 @@ impl<'a> Into<leo_ast::Program> for &Program<'a> {
                 .iter()
                 .map(|(_, function)| (function.name.borrow().clone(), (*function).into()))
                 .collect(),
-            global_consts: IndexMap::new(),
-            // TODO re-enable
-            // self
-            //     .global_consts
-            //     .iter()
-            //     .map(|(_, global_const)| (global_const.variable.borrow().name.clone(), (*global_const).into()))
-            //     .collect(),
+            global_consts: self
+                .global_consts
+                .iter()
+                .map(|(_, global_const)| {
+                    (
+                        global_const
+                            .variables
+                            .iter()
+                            .fold("".to_string(), |joined, variable_name| {
+                                format!("{}, {}", joined, variable_name.borrow().name.name)
+                            }),
+                        (*global_const).into(),
+                    )
+                })
+                .collect(),
         }
     }
 }

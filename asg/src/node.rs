@@ -20,7 +20,6 @@ use crate::{
     Circuit,
     Expression,
     Function,
-    GlobalConst,
     PartialType,
     Scope,
     Span,
@@ -50,6 +49,5 @@ pub enum ArenaNode<'a> {
     Variable(Variable<'a>),
     Circuit(Circuit<'a>),
     Function(Function<'a>),
-    GlobalConst(GlobalConst<'a>),
     Inner(AsgContextInner<'a>),
 }
