@@ -488,7 +488,14 @@ impl ReconstructingReducer for Canonicalizer {
                                 span: assign.span.clone(),
                             }));
                         }
-                        _ => {}
+                        AssigneeAccess::Member(identifier) => {
+                            left = Box::new(Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
+                                circuit: left,
+                                name: identifier,
+                                span: assign.span.clone(),
+                            }));
+                        }
+                        _ => unimplemented!(), // No reason for someone to comput ArrayRanges.
                     }
                 }
 
