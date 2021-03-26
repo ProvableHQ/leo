@@ -19,6 +19,7 @@
 //! This module contains the [`Ast`] type, a wrapper around the [`Program`] type.
 //! The [`Ast`] type is intended to be parsed and modified by different passes
 //! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].
+
 #[macro_use]
 extern crate thiserror;
 
@@ -55,6 +56,9 @@ pub use self::input::*;
 pub mod program;
 pub use self::program::*;
 
+pub mod reducer;
+pub use self::reducer::*;
+
 pub mod statements;
 pub use self::statements::*;
 
@@ -63,8 +67,6 @@ pub use self::types::*;
 
 mod node;
 pub use node::*;
-
-use leo_grammar::Grammar;
 
 /// The abstract syntax tree (AST) for a Leo program.
 ///
@@ -78,16 +80,24 @@ pub struct Ast {
 }
 
 impl Ast {
-    /// Creates a new AST from a given program name and grammar tree.
-    pub fn new<'ast>(program_name: &str, grammar: &Grammar<'ast>) -> Result<Self, AstError> {
-        Ok(Self {
-            ast: Program::from(program_name, grammar.as_repr())?,
-        })
+    /// Creates a new AST from a given program tree.
+    pub fn new(program: Program) -> Self {
+        Self { ast: program }
+    }
+
+    /// Mutates the program ast by preforming canonicalization on it.
+    pub fn canonicalize(&mut self) -> Result<(), CanonicalizeError> {
+        self.ast = ReconstructingDirector::new(Canonicalizer::default()).reduce_program(self.as_repr())?;
+        Ok(())
     }
 
     /// Returns a reference to the inner program AST representation.
     pub fn as_repr(&self) -> &Program {
         &self.ast
+    }
+
+    pub fn into_repr(self) -> Program {
+        self.ast
     }
 
     /// Serializes the ast into a JSON string.
@@ -99,5 +109,11 @@ impl Ast {
     pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {
         let ast: Program = serde_json::from_str(json)?;
         Ok(Self { ast })
+    }
+}
+
+impl AsRef<Program> for Ast {
+    fn as_ref(&self) -> &Program {
+        &self.ast
     }
 }

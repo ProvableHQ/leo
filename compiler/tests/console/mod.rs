@@ -96,7 +96,7 @@ fn test_log_conditional() {
     let program_string = include_str!("log_conditional.leo");
     let input_equal_string = include_str!("input/input_equal.in");
 
-    let program = parse_program_with_input(program_string.clone(), input_equal_string).unwrap();
+    let program = parse_program_with_input(program_string, input_equal_string).unwrap();
 
     assert_satisfied(program);
 

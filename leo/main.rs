@@ -19,11 +19,10 @@ pub mod commands;
 pub mod config;
 pub mod context;
 pub mod logger;
-pub mod synthesizer;
 pub mod updater;
 
 use commands::{
-    package::{Add, Login, Logout, Publish, Remove},
+    package::{Add, Clone, Login, Logout, Publish, Remove},
     Build,
     Clean,
     Command,
@@ -121,10 +120,16 @@ enum CommandOpts {
         command: Test,
     },
 
-    #[structopt(about = "Install a package from the Aleo Package Manager")]
+    #[structopt(about = "Import a package from the Aleo Package Manager")]
     Add {
         #[structopt(flatten)]
         command: Add,
+    },
+
+    #[structopt(about = "Clone a package from the Aleo Package Manager")]
+    Clone {
+        #[structopt(flatten)]
+        command: Clone,
     },
 
     #[structopt(about = "Login to the Aleo Package Manager")]
@@ -189,6 +194,7 @@ fn main() {
         CommandOpts::Update { command } => command.try_execute(),
 
         CommandOpts::Add { command } => command.try_execute(),
+        CommandOpts::Clone { command } => command.try_execute(),
         CommandOpts::Login { command } => command.try_execute(),
         CommandOpts::Logout { command } => command.try_execute(),
         CommandOpts::Publish { command } => command.try_execute(),

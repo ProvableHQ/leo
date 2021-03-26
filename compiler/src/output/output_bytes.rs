@@ -18,7 +18,7 @@ use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VAR
 use leo_asg::Program;
 use leo_ast::{Parameter, Registers, Span};
 
-use snarkvm_models::curves::PrimeField;
+use snarkvm_fields::PrimeField;
 
 use serde::{Deserialize, Serialize};
 
@@ -35,7 +35,8 @@ impl OutputBytes {
         program: &Program<'a>,
         registers: &Registers,
         value: ConstrainedValue<'a, F, G>,
-        span: Span,
+
+        span: &Span,
     ) -> Result<Self, OutputBytesError> {
         let return_values = match value {
             ConstrainedValue::Tuple(values) => values,
@@ -68,7 +69,7 @@ impl OutputBytes {
 
             // Check register type == return value type.
             let register_type = program.scope.resolve_ast_type(&parameter.type_)?;
-            let return_value_type = value.to_type(&span)?;
+            let return_value_type = value.to_type(span)?;
 
             if !register_type.is_assignable_from(&return_value_type) {
                 return Err(OutputBytesError::mismatched_output_types(

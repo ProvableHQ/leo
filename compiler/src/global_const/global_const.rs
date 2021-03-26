@@ -19,12 +19,13 @@
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::GlobalConst;
 
-use snarkvm_models::curves::PrimeField;
+// TODO remove
+// use snarkvm_models::curves::PrimeField;
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn store_global_const(&mut self, global_const: &GlobalConst, value: ConstrainedValue<'a, F, G>) {
-        let variable = global_const.variable.borrow();
+// impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+//     pub fn store_global_const(&mut self, global_const: &GlobalConst, value: ConstrainedValue<'a, F, G>) {
+//         let variable = global_const.variable.borrow();
 
-        self.store(variable.id, value);
-    }
-}
+//         self.store(variable.id, value);
+//     }
+// }

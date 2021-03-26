@@ -15,11 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 // allow the use of EdwardsTestCompiler::parse_program_from_string for tests
+
 #![allow(deprecated)]
 
 pub mod address;
 pub mod array;
 pub mod boolean;
+pub mod canonicalization;
 pub mod circuits;
 pub mod compiler;
 pub mod console;
@@ -48,7 +50,7 @@ use leo_compiler::{
 use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
 
 use snarkvm_curves::edwards_bls12::Fq;
-use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
+use snarkvm_r1cs::TestConstraintSystem;
 
 use std::path::PathBuf;
 
@@ -72,7 +74,7 @@ fn new_compiler() -> EdwardsTestCompiler {
     EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context())
 }
 
-pub(crate) fn parse_program<'a>(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
 
     compiler.parse_program_from_string(program_string)?;
@@ -80,7 +82,7 @@ pub(crate) fn parse_program<'a>(program_string: &str) -> Result<EdwardsTestCompi
     Ok(compiler)
 }
 
-pub(crate) fn parse_input<'a>(input_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_input(input_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
     let path = PathBuf::new();
 
@@ -89,7 +91,7 @@ pub(crate) fn parse_input<'a>(input_string: &str) -> Result<EdwardsTestCompiler,
     Ok(compiler)
 }
 
-pub(crate) fn parse_state<'a>(state_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_state(state_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler();
     let path = PathBuf::new();
 
@@ -98,7 +100,7 @@ pub(crate) fn parse_state<'a>(state_string: &str) -> Result<EdwardsTestCompiler,
     Ok(compiler)
 }
 
-pub(crate) fn parse_input_and_state<'a>(
+pub(crate) fn parse_input_and_state(
     input_string: &str,
     state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -110,7 +112,7 @@ pub(crate) fn parse_input_and_state<'a>(
     Ok(compiler)
 }
 
-pub fn parse_program_with_input<'a>(
+pub fn parse_program_with_input(
     program_string: &str,
     input_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -123,7 +125,7 @@ pub fn parse_program_with_input<'a>(
     Ok(compiler)
 }
 
-pub fn parse_program_with_state<'a>(
+pub fn parse_program_with_state(
     program_string: &str,
     state_string: &str,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -188,6 +190,7 @@ pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> Mai
     main_input
 }
 
+#[allow(clippy::unnecessary_wraps)] // consumers expect an optional value
 pub(crate) fn generate_test_input_u32(number: u32) -> Option<InputValue> {
     Some(InputValue::Integer(
         IntegerType::Unsigned(UnsignedIntegerType::U32Type(U32Type {})),

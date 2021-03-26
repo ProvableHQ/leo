@@ -22,6 +22,9 @@
 //! A new [`Asg`] type can be created from an [`Ast`].
 //! Converting to an [`Asg`] provides greater type safety by canonicalizing and checking program types.
 
+#![allow(clippy::from_over_into)]
+#![allow(clippy::result_unit_err)]
+
 #[macro_use]
 extern crate thiserror;
 
@@ -76,8 +79,6 @@ pub use context::*;
 
 pub use leo_ast::{Ast, Identifier, Span};
 
-use std::path::Path;
-
 /// The abstract semantic graph (ASG) for a Leo program.
 ///
 /// The [`Asg`] type represents a Leo program as a series of recursive data types.
@@ -92,20 +93,24 @@ pub struct Asg<'a> {
 
 impl<'a> Asg<'a> {
     /// Creates a new ASG from a given AST and import resolver.
-    pub fn new<T: ImportResolver<'a>>(
+    pub fn new<T: ImportResolver<'a>, Y: AsRef<leo_ast::Program>>(
         context: AsgContext<'a>,
-        ast: &Ast,
+        ast: Y,
         resolver: &mut T,
     ) -> Result<Self, AsgConvertError> {
         Ok(Self {
             context,
-            asg: InternalProgram::new(context, &ast.as_repr(), resolver)?,
+            asg: Program::new(context, ast.as_ref(), resolver)?,
         })
     }
 
     /// Returns the internal program ASG representation.
-    pub fn as_repr(&self) -> Program<'a> {
-        self.asg.clone()
+    pub fn as_repr(&self) -> &Program<'a> {
+        &self.asg
+    }
+
+    pub fn into_repr(self) -> Program<'a> {
+        self.asg
     }
 
     // /// Serializes the ast into a JSON string.
@@ -127,10 +132,9 @@ pub fn load_asg<'a, T: ImportResolver<'a>>(
     resolver: &mut T,
 ) -> Result<Program<'a>, AsgConvertError> {
     // Parses the Leo file and constructs a grammar ast.
-    let ast = leo_grammar::Grammar::new(&Path::new("input.leo"), content)
-        .map_err(|e| AsgConvertError::InternalError(format!("ast: {:?}", e)))?;
+    let ast = leo_parser::parse_ast("input.leo", content)?;
 
-    InternalProgram::new(context, leo_ast::Ast::new("load_ast", &ast)?.as_repr(), resolver)
+    Program::new(context, ast.as_repr(), resolver)
 }
 
 pub fn new_alloc_context<'a>() -> Arena<ArenaNode<'a>> {

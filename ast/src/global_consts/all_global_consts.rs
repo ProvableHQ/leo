@@ -22,7 +22,6 @@ use crate::{
     Span,
     Type,
 };
-use leo_grammar::global_consts::GlobalConst as GrammarGlobalConst;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -96,26 +95,26 @@ impl fmt::Display for GlobalConsts {
     }
 }
 
-impl<'ast> From<GrammarGlobalConst<'ast>> for GlobalConsts {
-    fn from(global_const: GrammarGlobalConst<'ast>) -> Self {
-        let variable_names = global_const
-            .variables
-            .names
-            .into_iter()
-            .map(VariableName::from)
-            .collect::<Vec<_>>();
+// impl<'ast> From<GrammarGlobalConst<'ast>> for GlobalConsts {
+//     fn from(global_const: GrammarGlobalConst<'ast>) -> Self {
+//         let variable_names = global_const
+//             .variables
+//             .names
+//             .into_iter()
+//             .map(VariableName::from)
+//             .collect::<Vec<_>>();
 
-        let type_ = global_const.variables.type_.map(Type::from);
+//         let type_ = global_const.variables.type_.map(Type::from);
 
-        GlobalConsts {
-            declaration_type: Declare::Const,
-            variable_names,
-            type_,
-            value: Expression::from(global_const.expression),
-            span: Span::from(global_const.span),
-        }
-    }
-}
+//         GlobalConsts {
+//             declaration_type: Declare::Const,
+//             variable_names,
+//             type_,
+//             value: Expression::from(global_const.expression),
+//             span: Span::from(global_const.span),
+//         }
+//     }
+// }
 
 impl Node for GlobalConsts {
     fn span(&self) -> &Span {

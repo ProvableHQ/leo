@@ -19,6 +19,7 @@
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 
 #![allow(clippy::module_inception)]
+#![allow(clippy::upper_case_acronyms)]
 
 #[macro_use]
 extern crate thiserror;
@@ -26,38 +27,41 @@ extern crate thiserror;
 pub mod compiler;
 
 pub mod console;
-pub use self::console::*;
+pub use console::*;
 
 pub mod constraints;
-pub use self::constraints::*;
+pub use constraints::*;
 
 pub mod definition;
 
 pub mod errors;
 
 pub mod expression;
-pub use self::expression::*;
+pub use expression::*;
 
 pub mod function;
-pub use self::function::*;
+pub use function::*;
 
 pub mod global_const;
 pub use self::global_const::*;
 
 pub mod output;
-pub use self::output::*;
+pub use output::*;
 
 pub mod program;
-pub use self::program::*;
+pub use program::*;
 
 pub mod statement;
-pub use self::statement::*;
+pub use statement::*;
 
 pub mod prelude;
-pub use self::prelude::*;
+pub use prelude::*;
 
 pub mod value;
-pub use self::value::*;
+pub use value::*;
 
 pub mod stage;
-pub use self::stage::*;
+pub use stage::*;
+
+pub mod option;
+pub use option::*;

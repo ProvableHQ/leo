@@ -114,7 +114,7 @@ impl InputValue {
         let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
 
         // Convert the array dimensions to usize.
-        let array_dimensions = parse_array_dimensions(array_dimensions_type, array_type.span.clone())?;
+        let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
 
         // Return an error if the outer array dimension does not equal the number of array elements.
         if array_dimensions[0] != inline.expressions.len() {
@@ -146,7 +146,7 @@ impl InputValue {
         initializer: ArrayInitializerExpression,
     ) -> Result<Self, InputParserError> {
         let array_dimensions_type = ArrayDimensions::from(initializer.dimensions.clone());
-        let array_dimensions = parse_array_dimensions(array_dimensions_type, array_type.span.clone())?;
+        let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
 
         if array_dimensions.len() > 1 {
             // The expression is an array initializer with tuple syntax
@@ -169,7 +169,7 @@ impl InputValue {
             return Err(InputParserError::array_init_length(
                 array_dimensions,
                 initializer_dimensions,
-                initializer.span,
+                &initializer.span,
             ));
         }
 
@@ -199,7 +199,7 @@ impl InputValue {
         let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
 
         // Convert the array dimensions to usize.
-        let array_dimensions = parse_array_dimensions(array_dimensions_type, array_type.span.clone())?;
+        let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
 
         let current_array_dimension = array_dimensions[0];
         let current_initializer_dimension = initializer_dimensions[0];
@@ -209,7 +209,7 @@ impl InputValue {
             return Err(InputParserError::array_init_length(
                 array_dimensions,
                 initializer_dimensions,
-                initializer.span,
+                &initializer.span,
             ));
         }
 
@@ -235,11 +235,7 @@ impl InputValue {
         let num_values = tuple.expressions.len();
 
         if num_types != num_values {
-            return Err(InputParserError::tuple_length(
-                num_types,
-                num_values,
-                tuple_type.span.clone(),
-            ));
+            return Err(InputParserError::tuple_length(num_types, num_values, &tuple_type.span));
         }
 
         let mut values = Vec::with_capacity(tuple_type.types_.len());
@@ -260,7 +256,7 @@ impl InputValue {
 /// is successful, the `usize` value is appended to the return vector. If parsing fails, an error
 /// is returned.
 ///
-fn parse_array_dimensions(array_dimensions_type: ArrayDimensions, span: Span) -> Result<Vec<usize>, InputParserError> {
+fn parse_array_dimensions(array_dimensions_type: ArrayDimensions, span: &Span) -> Result<Vec<usize>, InputParserError> {
     // Convert the array dimensions to usize.
     let mut array_dimensions = Vec::with_capacity(array_dimensions_type.0.len());
 
@@ -271,7 +267,7 @@ fn parse_array_dimensions(array_dimensions_type: ArrayDimensions, span: Span) ->
         // Convert the string to usize.
         let dimension_usize = match dimension_string.parse::<usize>() {
             Ok(dimension_usize) => dimension_usize,
-            Err(_) => return Err(InputParserError::array_index(dimension_string, span.clone())),
+            Err(_) => return Err(InputParserError::array_index(dimension_string, span)),
         };
 
         // Collect dimension usize values.
@@ -292,7 +288,7 @@ fn fetch_nested_array_type_dimensions(
     let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
 
     // Convert the array dimensions to usize.
-    let mut current_dimension = parse_array_dimensions(array_dimensions_type, array_type.span.clone())?;
+    let mut current_dimension = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
 
     array_dimensions.append(&mut current_dimension);
 

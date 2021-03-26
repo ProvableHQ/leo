@@ -21,10 +21,9 @@ use crate::{errors::FunctionError, program::ConstrainedProgram, value::Constrain
 use leo_asg::{Expression, Function, FunctionQualifier};
 use std::cell::Cell;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_function<CS: ConstraintSystem<F>>(
@@ -34,11 +33,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
     ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
-        let target_value = if let Some(target) = target {
-            Some(self.enforce_expression(cs, target)?)
-        } else {
-            None
-        };
+        let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
 
         let self_var = if let Some(target) = &target_value {
             let self_var = function
@@ -54,7 +49,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if function.arguments.len() != arguments.len() {
             return Err(FunctionError::input_not_found(
                 "arguments length invalid".to_string(),
-                function.span.clone().unwrap_or_default(),
+                &function.span.clone().unwrap_or_default(),
             ));
         }
 

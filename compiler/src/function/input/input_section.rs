@@ -18,7 +18,8 @@ use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram,
 use leo_asg::{AsgConvertError, Circuit, CircuitMember};
 use leo_ast::{Identifier, InputValue, Parameter};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 use indexmap::IndexMap;
 

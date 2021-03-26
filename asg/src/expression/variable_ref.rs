@@ -80,10 +80,14 @@ impl<'a> ExpressionNode<'a> for VariableRef<'a> {
 
                     value.get().const_value()
                 } else {
-                    for defined_variable in variables.iter() {
+                    for (i, defined_variable) in variables.iter().enumerate() {
                         let defined_variable = defined_variable.borrow();
                         if defined_variable.id == variable.id {
-                            return value.get().const_value();
+                            match value.get().const_value() {
+                                Some(ConstValue::Tuple(values)) => return values.get(i).cloned(),
+                                None => return None,
+                                _ => (),
+                            }
                         }
                     }
                     panic!("no corresponding tuple variable found during const destructuring (corrupt asg?)");
@@ -152,7 +156,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
                 Some(v) => v,
                 None => {
                     if value.name.starts_with("aleo1") {
-                        return Ok(scope.alloc_expression(Expression::Constant(Constant {
+                        return Ok(scope.context.alloc_expression(Expression::Constant(Constant {
                             parent: Cell::new(None),
                             span: Some(value.span.clone()),
                             value: ConstValue::Address(value.name.clone()),
@@ -168,7 +172,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
             span: Some(value.span.clone()),
             variable,
         };
-        let expression = scope.alloc_expression(Expression::VariableRef(variable_ref));
+        let expression = scope.context.alloc_expression(Expression::VariableRef(variable_ref));
 
         if let Some(expected_type) = expected_type {
             let type_ = expression

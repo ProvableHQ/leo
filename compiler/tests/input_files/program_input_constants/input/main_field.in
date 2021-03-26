@@ -1,0 +1,3 @@
+[constants]
+a: field = 1;
+b: field = -1;

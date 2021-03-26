@@ -19,23 +19,23 @@
 use crate::{errors::FieldError, number_string_typing};
 use leo_ast::Span;
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        curves::{FieldGadget, FpGadget},
-        r1cs::ConstraintSystem,
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::{
+    fields::{AllocatedFp, FpGadget},
+    traits::{
+        fields::FieldGadget,
         utilities::{
             alloc::AllocGadget,
             boolean::Boolean,
             eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
             uint::UInt8,
-            ToBitsGadget,
+            ToBitsBEGadget,
             ToBytesGadget,
         },
     },
 };
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 use std::{borrow::Borrow, cmp::Ordering};
 
@@ -57,10 +57,8 @@ impl<F: PrimeField> FieldType<F> {
         let number_info = number_string_typing(&string);
 
         let value = match number_info {
-            (number, neg) if neg => {
-                -F::from_str(&number).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?
-            }
-            (number, _) => F::from_str(&number).map_err(|_| FieldError::invalid_field(string, span.to_owned()))?,
+            (number, neg) if neg => -F::from_str(&number).map_err(|_| FieldError::invalid_field(string, span))?,
+            (number, _) => F::from_str(&number).map_err(|_| FieldError::invalid_field(string, span))?,
         };
 
         Ok(FieldType::Constant(value))
@@ -70,9 +68,7 @@ impl<F: PrimeField> FieldType<F> {
         match self {
             FieldType::Constant(field) => Ok(FieldType::Constant(field.neg())),
             FieldType::Allocated(field) => {
-                let result = field
-                    .negate(cs)
-                    .map_err(|e| FieldError::negate_operation(e, span.to_owned()))?;
+                let result = field.negate(cs).map_err(|e| FieldError::negate_operation(e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -88,7 +84,7 @@ impl<F: PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .add(cs, other_value)
-                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.to_owned()))?;
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -97,7 +93,7 @@ impl<F: PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .add_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.to_owned()))?,
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?,
             )),
         }
     }
@@ -111,7 +107,7 @@ impl<F: PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .sub(cs, other_value)
-                    .map_err(|e| FieldError::binary_operation("-".to_string(), e, span.to_owned()))?;
+                    .map_err(|e| FieldError::binary_operation("-".to_string(), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -120,7 +116,7 @@ impl<F: PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .sub_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.to_owned()))?,
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?,
             )),
         }
     }
@@ -134,7 +130,7 @@ impl<F: PrimeField> FieldType<F> {
             (FieldType::Allocated(self_value), FieldType::Allocated(other_value)) => {
                 let result = self_value
                     .mul(cs, other_value)
-                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span.to_owned()))?;
+                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span))?;
 
                 Ok(FieldType::Allocated(result))
             }
@@ -143,7 +139,7 @@ impl<F: PrimeField> FieldType<F> {
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .mul_by_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span.to_owned()))?,
+                    .map_err(|e| FieldError::binary_operation("*".to_string(), e, span))?,
             )),
         }
     }
@@ -153,14 +149,14 @@ impl<F: PrimeField> FieldType<F> {
             FieldType::Constant(constant) => {
                 let constant_inverse = constant
                     .inverse()
-                    .ok_or_else(|| FieldError::no_inverse(constant.to_string(), span.to_owned()))?;
+                    .ok_or_else(|| FieldError::no_inverse(constant.to_string(), span))?;
 
                 FieldType::Constant(constant_inverse)
             }
             FieldType::Allocated(allocated) => {
                 let allocated_inverse = allocated
                     .inverse(&mut cs)
-                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span.to_owned()))?;
+                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?;
 
                 FieldType::Allocated(allocated_inverse)
             }
@@ -187,7 +183,7 @@ impl<F: PrimeField> FieldType<F> {
         match self {
             FieldType::Constant(constant) => FpGadget::alloc(&mut cs.ns(|| format!("{:?}", constant)), || Ok(constant)),
             FieldType::Allocated(allocated) => FpGadget::alloc(&mut cs.ns(|| format!("{:?}", allocated)), || {
-                allocated.value.ok_or(SynthesisError::AssignmentMissing)
+                allocated.get_value().ok_or(SynthesisError::AssignmentMissing)
             }),
         }
     }
@@ -273,7 +269,7 @@ impl<F: PrimeField> ConditionalEqGadget<F> for FieldType<F> {
             // c - a = a - c
             (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
             | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => {
-                let constant_gadget = FpGadget::from(&mut cs, constant_value);
+                let constant_gadget = FpGadget::from(AllocatedFp::from(&mut cs, constant_value));
 
                 constant_gadget.conditional_enforce_equal(cs, allocated_value, condition)
             }
@@ -308,15 +304,15 @@ impl<F: PrimeField> CondSelectGadget<F> for FieldType<F> {
     }
 }
 
-impl<F: PrimeField> ToBitsGadget<F> for FieldType<F> {
-    fn to_bits<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
+impl<F: PrimeField> ToBitsBEGadget<F> for FieldType<F> {
+    fn to_bits_be<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
-        self_gadget.to_bits(cs)
+        self_gadget.to_bits_be(cs)
     }
 
-    fn to_bits_strict<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
+    fn to_bits_be_strict<CS: ConstraintSystem<F>>(&self, mut cs: CS) -> Result<Vec<Boolean>, SynthesisError> {
         let self_gadget = self.allocated(&mut cs)?;
-        self_gadget.to_bits_strict(cs)
+        self_gadget.to_bits_be_strict(cs)
     }
 }
 

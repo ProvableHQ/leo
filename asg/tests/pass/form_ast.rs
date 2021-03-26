@@ -15,10 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{load_asg, make_test_context};
-use leo_ast::Ast;
-use leo_grammar::Grammar;
-
-use std::path::Path;
+use leo_parser::parse_ast;
 
 #[test]
 fn test_basic() {
@@ -33,7 +30,7 @@ fn test_basic() {
 fn test_function_rename() {
     let program_string = r#"
     function iteration() -> u32 {
-        let mut a = 0u32;
+        let a = 0u32;
     
         for i in 0..10 {
             a += 1;
@@ -43,7 +40,7 @@ fn test_function_rename() {
     }
     
     function main() {
-        let total = iteration() + iteration();
+        const total = iteration() + iteration();
     
         console.assert(total == 20);
     }
@@ -56,6 +53,7 @@ fn test_function_rename() {
 
 #[test]
 fn test_imports() {
+    let import_name = "test-import".to_string();
     let context = make_test_context();
     let mut imports = crate::mocked_resolver(&context);
     let test_import = r#"
@@ -70,7 +68,7 @@ fn test_imports() {
   "#;
     imports
         .packages
-        .insert("test-import".to_string(), load_asg(test_import).unwrap());
+        .insert(import_name.clone(), load_asg(test_import).unwrap());
     let program_string = r#"
         import test-import.foo;
 
@@ -79,17 +77,11 @@ fn test_imports() {
         }
     "#;
 
-    let test_import_grammar = Grammar::new(Path::new("test-import.leo"), test_import).unwrap();
-    println!(
-        "{}",
-        serde_json::to_string(Ast::new("test-import", &test_import_grammar).unwrap().as_repr()).unwrap()
-    );
+    let test_import_ast = parse_ast(&import_name, test_import).unwrap();
+    println!("{}", serde_json::to_string(test_import_ast.as_repr()).unwrap());
 
-    let test_grammar = Grammar::new(Path::new("test.leo"), program_string).unwrap();
-    println!(
-        "{}",
-        serde_json::to_string(Ast::new("test", &test_grammar).unwrap().as_repr()).unwrap()
-    );
+    let test_ast = parse_ast("test.leo", program_string).unwrap();
+    println!("{}", serde_json::to_string(test_ast.as_repr()).unwrap());
 
     let asg = crate::load_asg_imports(&context, program_string, &mut imports).unwrap();
     let reformed_ast = leo_asg::reform_ast(&asg);

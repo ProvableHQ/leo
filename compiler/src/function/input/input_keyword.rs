@@ -18,7 +18,8 @@ use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram,
 use leo_asg::{Circuit, CircuitMember, Type};
 use leo_ast::{Identifier, Input, Span};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 pub const RECORD_VARIABLE_NAME: &str = "record";
 pub const REGISTERS_VARIABLE_NAME: &str = "registers";
@@ -26,10 +27,11 @@ pub const STATE_VARIABLE_NAME: &str = "state";
 pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+    #[allow(clippy::vec_init_then_push)]
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        span: Span,
+        span: &Span,
         expected_type: &'a Circuit<'a>,
         input: &Input,
     ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
@@ -49,7 +51,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
         let state_leaf_name = Identifier {
             name: STATE_LEAF_VARIABLE_NAME.to_string(),
-            span,
+            span: span.clone(),
         };
 
         // Fetch each input variable's definitions

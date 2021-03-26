@@ -14,19 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    ArenaNode,
-    AsgContext,
-    AsgConvertError,
-    Circuit,
-    Expression,
-    Function,
-    GlobalConst,
-    Input,
-    Statement,
-    Type,
-    Variable,
-};
+use crate::{AsgContext, AsgConvertError, Circuit, Function, Input, Type, Variable};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -55,7 +43,8 @@ pub struct Scope<'a> {
     pub functions: RefCell<IndexMap<String, &'a Function<'a>>>,
 
     /// Maps global constant name => global const code block.
-    pub global_consts: RefCell<IndexMap<String, &'a GlobalConst<'a>>>,
+    /// TODO fixs
+    pub global_consts: RefCell<IndexMap<String, String>>,
 
     /// Maps circuit name => circuit.
     pub circuits: RefCell<IndexMap<String, &'a Circuit<'a>>>,
@@ -66,55 +55,6 @@ pub struct Scope<'a> {
 
 #[allow(clippy::mut_from_ref)]
 impl<'a> Scope<'a> {
-    pub fn alloc_expression(&'a self, expr: Expression<'a>) -> &'a mut Expression<'a> {
-        match self.context.arena.alloc(ArenaNode::Expression(expr)) {
-            ArenaNode::Expression(e) => e,
-            _ => unimplemented!(),
-        }
-    }
-
-    pub fn alloc_statement(&'a self, statement: Statement<'a>) -> &'a mut Statement<'a> {
-        match self.context.arena.alloc(ArenaNode::Statement(statement)) {
-            ArenaNode::Statement(e) => e,
-            _ => unimplemented!(),
-        }
-    }
-
-    pub fn alloc_variable(&'a self, variable: Variable<'a>) -> &'a mut Variable<'a> {
-        match self.context.arena.alloc(ArenaNode::Variable(variable)) {
-            ArenaNode::Variable(e) => e,
-            _ => unimplemented!(),
-        }
-    }
-
-    pub fn alloc_scope(&'a self, scope: Scope<'a>) -> &'a mut Scope<'a> {
-        match self.context.arena.alloc(ArenaNode::Scope(scope)) {
-            ArenaNode::Scope(e) => e,
-            _ => unimplemented!(),
-        }
-    }
-
-    pub fn alloc_circuit(&'a self, circuit: Circuit<'a>) -> &'a mut Circuit<'a> {
-        match self.context.arena.alloc(ArenaNode::Circuit(circuit)) {
-            ArenaNode::Circuit(e) => e,
-            _ => unimplemented!(),
-        }
-    }
-
-    pub fn alloc_function(&'a self, function: Function<'a>) -> &'a mut Function<'a> {
-        match self.context.arena.alloc(ArenaNode::Function(function)) {
-            ArenaNode::Function(e) => e,
-            _ => unimplemented!(),
-        }
-    }
-
-    pub fn alloc_global_const(&'a self, global_const: GlobalConst<'a>) -> &'a mut GlobalConst<'a> {
-        match self.context.arena.alloc(ArenaNode::GlobalConst(global_const)) {
-            ArenaNode::GlobalConst(e) => e,
-            _ => unimplemented!(),
-        }
-    }
-
     ///
     /// Returns a reference to the variable corresponding to the name.
     ///
@@ -124,9 +64,12 @@ impl<'a> Scope<'a> {
     pub fn resolve_variable(&self, name: &str) -> Option<&'a Variable<'a>> {
         if let Some(resolved) = self.variables.borrow().get(name) {
             Some(*resolved)
-        } else if let Some(resolved) = self.global_consts.borrow().get(name) {
-            Some(resolved.variable)
-        } else if let Some(scope) = self.parent_scope.get() {
+        }
+        // TODO re-enable
+        //  else if let Some(resolved) = self.global_consts.borrow().get(name) {
+        //     Some(resolved.variable)
+        // }
+        else if let Some(scope) = self.parent_scope.get() {
             scope.resolve_variable(name)
         } else {
             None
@@ -219,7 +162,7 @@ impl<'a> Scope<'a> {
     /// Returns a new scope given a parent scope.
     ///
     pub fn make_subscope(self: &'a Scope<'a>) -> &'a Scope<'a> {
-        self.alloc_scope(Scope::<'a> {
+        self.context.alloc_scope(Scope::<'a> {
             context: self.context,
             id: self.context.get_id(),
             parent_scope: Cell::new(Some(self)),

@@ -16,7 +16,6 @@
 
 use crate::{Expression, Node, Span};
 
-use leo_grammar::statements::ReturnStatement as GrammarReturnStatement;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -29,15 +28,6 @@ pub struct ReturnStatement {
 impl fmt::Display for ReturnStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "return {}", self.expression)
-    }
-}
-
-impl<'ast> From<GrammarReturnStatement<'ast>> for ReturnStatement {
-    fn from(statement: GrammarReturnStatement<'ast>) -> Self {
-        ReturnStatement {
-            expression: Expression::from(statement.expression),
-            span: Span::from(statement.span),
-        }
     }
 }
 

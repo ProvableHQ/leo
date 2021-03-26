@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use leo_asg::AsgConvertError;
-use leo_ast::{AstError, DeprecatedError, Error as FormattedError, Identifier, Span};
-use leo_grammar::ParserError;
+use leo_ast::{FormattedError, Identifier, LeoError, Span};
+use leo_parser::{DeprecatedError, SyntaxError};
 
 use std::{io, path::Path};
 
@@ -28,29 +28,45 @@ pub enum ImportParserError {
     Error(#[from] FormattedError),
 
     #[error("{}", _0)]
-    ParserError(#[from] ParserError),
+    SyntaxError(#[from] SyntaxError),
     #[error("{}", _0)]
     AsgConvertError(#[from] AsgConvertError),
+}
+
+impl LeoError for ImportParserError {
+    fn get_path(&self) -> Option<&str> {
+        match self {
+            ImportParserError::Error(error) => error.get_path(),
+            ImportParserError::SyntaxError(error) => error.get_path(),
+            ImportParserError::AsgConvertError(error) => error.get_path(),
+            ImportParserError::DeprecatedError(error) => error.get_path(),
+        }
+    }
+
+    fn set_path(&mut self, path: &str, contents: &[String]) {
+        match self {
+            ImportParserError::Error(error) => error.set_path(path, contents),
+            ImportParserError::SyntaxError(error) => error.set_path(path, contents),
+            ImportParserError::AsgConvertError(error) => error.set_path(path, contents),
+            ImportParserError::DeprecatedError(error) => error.set_path(path, contents),
+        }
+    }
 }
 
 impl Into<AsgConvertError> for ImportParserError {
     fn into(self) -> AsgConvertError {
         match self {
             ImportParserError::Error(x) => AsgConvertError::ImportError(x),
-            ImportParserError::ParserError(x) => x.into(),
-            ImportParserError::DeprecatedError(x) => AsgConvertError::AstError(AstError::DeprecatedError(x)),
+            ImportParserError::SyntaxError(x) => x.into(),
+            ImportParserError::DeprecatedError(x) => AsgConvertError::SyntaxError(SyntaxError::DeprecatedError(x)),
             ImportParserError::AsgConvertError(x) => x,
         }
     }
 }
 
 impl ImportParserError {
-    fn new_from_span(message: String, span: Span) -> Self {
+    fn new_from_span(message: String, span: &Span) -> Self {
         ImportParserError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    fn new_from_span_with_path(message: String, span: Span, path: &Path) -> Self {
-        ImportParserError::Error(FormattedError::new_from_span_with_path(message, span, path))
     }
 
     ///
@@ -59,13 +75,13 @@ impl ImportParserError {
     pub fn conflicting_imports(identifier: Identifier) -> Self {
         let message = format!("conflicting imports found for `{}`.", identifier.name);
 
-        Self::new_from_span(message, identifier.span)
+        Self::new_from_span(message, &identifier.span)
     }
 
     pub fn recursive_imports(package: &str, span: &Span) -> Self {
         let message = format!("recursive imports for `{}`.", package);
 
-        Self::new_from_span(message, span.clone())
+        Self::new_from_span(message, span)
     }
 
     ///
@@ -74,13 +90,13 @@ impl ImportParserError {
     pub fn duplicate_core_package(identifier: Identifier) -> Self {
         let message = format!("Duplicate core_package import `{}`.", identifier.name);
 
-        Self::new_from_span(message, identifier.span)
+        Self::new_from_span(message, &identifier.span)
     }
 
     ///
     /// Failed to convert a file path into an os string.
     ///
-    pub fn convert_os_string(span: Span) -> Self {
+    pub fn convert_os_string(span: &Span) -> Self {
         let message = "Failed to convert file string name, maybe an illegal character?".to_string();
 
         Self::new_from_span(message, span)
@@ -90,30 +106,28 @@ impl ImportParserError {
     /// Failed to find the directory of the current file.
     ///
     pub fn current_directory_error(error: io::Error) -> Self {
-        let span = Span {
-            text: "".to_string(),
-            line: 0,
-            start: 0,
-            end: 0,
-        };
         let message = format!("Compilation failed trying to find current directory - {:?}.", error);
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, &Span::default())
     }
 
     ///
     /// Failed to open or get the name of a directory.
     ///
-    pub fn directory_error(error: io::Error, span: Span, path: &Path) -> Self {
-        let message = format!("Compilation failed due to directory error - {:?}.", error);
+    pub fn directory_error(error: io::Error, span: &Span, path: &Path) -> Self {
+        let message = format!(
+            "Compilation failed due to directory error @ '{}' - {:?}.",
+            path.to_str().unwrap_or_default(),
+            error
+        );
 
-        Self::new_from_span_with_path(message, span, path)
+        Self::new_from_span(message, span)
     }
 
     ///
     /// Failed to import all symbols at a package path.
     ///
-    pub fn star(path: &Path, span: Span) -> Self {
+    pub fn star(path: &Path, span: &Span) -> Self {
         let message = format!("Cannot import `*` from path `{:?}`.", path);
 
         Self::new_from_span(message, span)
@@ -122,11 +136,8 @@ impl ImportParserError {
     ///
     /// Failed to find a library file for the current package.
     ///
-    pub fn expected_lib_file(entry: String, span: Span) -> Self {
-        let message = format!(
-            "Expected library file`{}` when looking for symbol `{}`.",
-            entry, span.text
-        );
+    pub fn expected_lib_file(entry: String, span: &Span) -> Self {
+        let message = format!("Expected library file `{}`.", entry,);
 
         Self::new_from_span(message, span)
     }
@@ -140,6 +151,12 @@ impl ImportParserError {
             identifier.name
         );
 
-        Self::new_from_span(message, identifier.span)
+        Self::new_from_span(message, &identifier.span)
+    }
+
+    pub fn io_error(span: &Span, path: &str, error: std::io::Error) -> Self {
+        let message = format!("cannot read imported file '{}': {:?}", path, error,);
+
+        Self::new_from_span(message, span)
     }
 }

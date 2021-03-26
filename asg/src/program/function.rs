@@ -29,6 +29,7 @@ use crate::{
     Variable,
 };
 use indexmap::IndexMap;
+pub use leo_ast::Annotation;
 use leo_ast::FunctionInput;
 
 use std::cell::{Cell, RefCell};
@@ -36,6 +37,7 @@ use std::cell::{Cell, RefCell};
 #[derive(Clone, Copy, PartialEq)]
 pub enum FunctionQualifier {
     SelfRef,
+    ConstSelfRef,
     MutSelfRef,
     Static,
 }
@@ -52,6 +54,7 @@ pub struct Function<'a> {
     pub body: Cell<Option<&'a Statement<'a>>>,
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
+    pub annotations: Vec<Annotation>,
 }
 
 impl<'a> PartialEq for Function<'a> {
@@ -87,6 +90,9 @@ impl<'a> Function<'a> {
                     FunctionInput::SelfKeyword(_) => {
                         qualifier = FunctionQualifier::SelfRef;
                     }
+                    FunctionInput::ConstSelfKeyword(_) => {
+                        qualifier = FunctionQualifier::ConstSelfRef;
+                    }
                     FunctionInput::MutSelfKeyword(_) => {
                         qualifier = FunctionQualifier::MutSelfRef;
                     }
@@ -97,7 +103,7 @@ impl<'a> Function<'a> {
                         mutable,
                         ..
                     }) => {
-                        let variable = scope.alloc_variable(RefCell::new(crate::InnerVariable {
+                        let variable = scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                             id: scope.context.get_id(),
                             name: identifier.clone(),
                             type_: scope.resolve_ast_type(&type_)?,
@@ -115,7 +121,7 @@ impl<'a> Function<'a> {
         if qualifier != FunctionQualifier::Static && scope.circuit_self.get().is_none() {
             return Err(AsgConvertError::invalid_self_in_global(&value.span));
         }
-        let function = scope.alloc_function(Function {
+        let function = scope.context.alloc_function(Function {
             id: scope.context.get_id(),
             name: RefCell::new(value.identifier.clone()),
             output,
@@ -126,6 +132,7 @@ impl<'a> Function<'a> {
             qualifier,
             scope: new_scope,
             span: Some(value.span.clone()),
+            annotations: value.annotations.clone(),
         });
         function.scope.function.replace(Some(function));
 
@@ -135,7 +142,7 @@ impl<'a> Function<'a> {
     pub(super) fn fill_from_ast(self: &'a Function<'a>, value: &leo_ast::Function) -> Result<(), AsgConvertError> {
         if self.qualifier != FunctionQualifier::Static {
             let circuit = self.circuit.get();
-            let self_variable = self.scope.alloc_variable(RefCell::new(crate::InnerVariable {
+            let self_variable = self.scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                 id: self.scope.context.get_id(),
                 name: Identifier::new("self".to_string()),
                 type_: Type::Circuit(circuit.as_ref().unwrap()),
@@ -173,9 +180,13 @@ impl<'a> Function<'a> {
         }
 
         self.body
-            .replace(Some(self.scope.alloc_statement(Statement::Block(main_block))));
+            .replace(Some(self.scope.context.alloc_statement(Statement::Block(main_block))));
 
         Ok(())
+    }
+
+    pub fn is_test(&self) -> bool {
+        self.annotations.iter().any(|x| x.name.name == "test")
     }
 }
 
@@ -213,6 +224,7 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
             block: body,
             output: Some((&output).into()),
             span,
+            annotations: self.annotations.clone(),
         }
     }
 }

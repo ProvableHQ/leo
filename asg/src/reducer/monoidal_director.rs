@@ -47,6 +47,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
             Expression::CircuitAccess(e) => self.reduce_circuit_access(e),
             Expression::CircuitInit(e) => self.reduce_circuit_init(e),
             Expression::Ternary(e) => self.reduce_ternary_expression(e),
+            Expression::Cast(e) => self.reduce_cast_expression(e),
             Expression::Constant(e) => self.reduce_constant(e),
             Expression::TupleAccess(e) => self.reduce_tuple_access(e),
             Expression::TupleInit(e) => self.reduce_tuple_init(e),
@@ -131,6 +132,12 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
             .reduce_ternary_expression(input, condition, if_true, if_false)
     }
 
+    pub fn reduce_cast_expression(&mut self, input: &CastExpression<'a>) -> T {
+        let inner = self.reduce_expression(input.inner.get());
+
+        self.reducer.reduce_cast_expression(input, inner)
+    }
+
     pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
         self.reducer.reduce_constant(input)
     }
@@ -169,6 +176,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
             Statement::Expression(s) => self.reduce_expression_statement(s),
             Statement::Iteration(s) => self.reduce_iteration(s),
             Statement::Return(s) => self.reduce_return(s),
+            Statement::Empty(_) => T::default(),
         };
 
         self.reducer.reduce_statement(input, value)
@@ -265,15 +273,14 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
     }
 }
 
-#[allow(dead_code)]
 impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R> {
-    fn reduce_function(&mut self, input: &'a Function<'a>) -> T {
+    pub fn reduce_function(&mut self, input: &'a Function<'a>) -> T {
         let body = input.body.get().map(|s| self.reduce_statement(s)).unwrap_or_default();
 
         self.reducer.reduce_function(input, body)
     }
 
-    fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>) -> T {
+    pub fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>) -> T {
         let function = match input {
             CircuitMember::Function(f) => Some(self.reduce_function(f)),
             _ => None,
@@ -282,7 +289,7 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
         self.reducer.reduce_circuit_member(input, function)
     }
 
-    fn reduce_circuit(&mut self, input: &'a Circuit<'a>) -> T {
+    pub fn reduce_circuit(&mut self, input: &'a Circuit<'a>) -> T {
         let members = input
             .members
             .borrow()
@@ -293,21 +300,16 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
         self.reducer.reduce_circuit(input, members)
     }
 
-    fn reduce_program(&mut self, input: &Program<'a>) -> T {
+    pub fn reduce_program(&mut self, input: &Program<'a>) -> T {
         let imported_modules = input
             .imported_modules
             .iter()
             .map(|(_, import)| self.reduce_program(import))
             .collect();
-        let test_functions = input
-            .test_functions
-            .iter()
-            .map(|(_, (f, _))| self.reduce_function(f))
-            .collect();
         let functions = input.functions.iter().map(|(_, f)| self.reduce_function(f)).collect();
         let circuits = input.circuits.iter().map(|(_, c)| self.reduce_circuit(c)).collect();
 
         self.reducer
-            .reduce_program(&input, imported_modules, test_functions, functions, circuits)
+            .reduce_program(&input, imported_modules, functions, circuits)
     }
 }

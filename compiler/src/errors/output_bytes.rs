@@ -16,9 +16,7 @@
 
 use crate::errors::ValueError;
 use leo_asg::{AsgConvertError, Type};
-use leo_ast::{Error as FormattedError, Span};
-
-use std::path::Path;
+use leo_ast::{FormattedError, LeoError, Span};
 
 #[derive(Debug, Error)]
 pub enum OutputBytesError {
@@ -32,26 +30,36 @@ pub enum OutputBytesError {
     AsgConvertError(#[from] AsgConvertError),
 }
 
-impl OutputBytesError {
-    pub fn set_path(&mut self, path: &Path) {
+impl LeoError for OutputBytesError {
+    fn get_path(&self) -> Option<&str> {
         match self {
-            OutputBytesError::Error(error) => error.set_path(path),
-            OutputBytesError::ValueError(error) => error.set_path(path),
-            OutputBytesError::AsgConvertError(_error) => (),
+            OutputBytesError::Error(error) => error.get_path(),
+            OutputBytesError::ValueError(error) => error.get_path(),
+            OutputBytesError::AsgConvertError(error) => error.get_path(),
         }
     }
 
-    fn new_from_span(message: String, span: Span) -> Self {
+    fn set_path(&mut self, path: &str, contents: &[String]) {
+        match self {
+            OutputBytesError::Error(error) => error.set_path(path, contents),
+            OutputBytesError::ValueError(error) => error.set_path(path, contents),
+            OutputBytesError::AsgConvertError(error) => error.set_path(path, contents),
+        }
+    }
+}
+
+impl OutputBytesError {
+    fn new_from_span(message: String, span: &Span) -> Self {
         OutputBytesError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn not_enough_registers(span: Span) -> Self {
+    pub fn not_enough_registers(span: &Span) -> Self {
         let message = "number of input registers must be greater than or equal to output registers".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn mismatched_output_types(left: &Type, right: &Type, span: Span) -> Self {
+    pub fn mismatched_output_types(left: &Type, right: &Type, span: &Span) -> Self {
         let message = format!(
             "Mismatched types. Expected register output type `{}`, found type `{}`.",
             left, right

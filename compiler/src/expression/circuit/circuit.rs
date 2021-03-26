@@ -24,7 +24,8 @@ use crate::{
 };
 use leo_asg::{CircuitInitExpression, CircuitMember, Span};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn enforce_circuit<CS: ConstraintSystem<F>>(
@@ -48,7 +49,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     let variable_value = self.enforce_expression(cs, inner.get())?;
                     resolved_members.push(ConstrainedCircuitMember(name.clone(), variable_value));
                 }
-                _ => return Err(ExpressionError::expected_circuit_member(name.to_string(), span.clone())),
+                _ => return Err(ExpressionError::expected_circuit_member(name.to_string(), span)),
             }
         }
 

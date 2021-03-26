@@ -19,7 +19,8 @@
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{CircuitAccessExpression, Node};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
@@ -40,19 +41,19 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         Err(ExpressionError::undefined_member_access(
                             expr.circuit.get().name.borrow().to_string(),
                             expr.member.to_string(),
-                            expr.member.span.clone(),
+                            &expr.member.span,
                         ))
                     }
                 }
                 value => Err(ExpressionError::undefined_circuit(
                     value.to_string(),
-                    target.span().cloned().unwrap_or_default(),
+                    &target.span().cloned().unwrap_or_default(),
                 )),
             }
         } else {
             Err(ExpressionError::invalid_static_access(
                 expr.member.to_string(),
-                expr.member.span.clone(),
+                &expr.member.span,
             ))
         }
     }

@@ -35,7 +35,7 @@ use std::cell::{Cell, RefCell};
 
 /// Stores the Leo program abstract semantic graph (ASG).
 #[derive(Clone)]
-pub struct InternalProgram<'a> {
+pub struct Program<'a> {
     pub context: AsgContext<'a>,
 
     /// The unique id of the program.
@@ -47,9 +47,6 @@ pub struct InternalProgram<'a> {
     /// The packages imported by this program.
     /// these should generally not be accessed directly, but through scoped imports
     pub imported_modules: IndexMap<String, Program<'a>>,
-
-    /// Maps test name => test code block.
-    pub test_functions: IndexMap<String, (&'a Function<'a>, Option<Identifier>)>, // identifier = test input file
 
     /// Maps function name => function code block.
     pub functions: IndexMap<String, &'a Function<'a>>,
@@ -64,8 +61,6 @@ pub struct InternalProgram<'a> {
     /// Bindings for names and additional program context.
     pub scope: &'a Scope<'a>,
 }
-
-pub type Program<'a> = InternalProgram<'a>;
 
 /// Enumerates what names are imported from a package.
 #[derive(Clone)]
@@ -133,7 +128,7 @@ fn resolve_import_package_access(
     }
 }
 
-impl<'a> InternalProgram<'a> {
+impl<'a> Program<'a> {
     /// Returns a new Leo program ASG from the given Leo program AST and its imports.
     ///
     /// Stages:
@@ -238,7 +233,7 @@ impl<'a> InternalProgram<'a> {
             _ => unimplemented!(),
         };
 
-        let scope = import_scope.alloc_scope(Scope {
+        let scope = import_scope.context.alloc_scope(Scope {
             context,
             input: Cell::new(Some(Input::new(import_scope))), // we use import_scope to avoid recursive scope ref here
             id: context.get_id(),
@@ -259,12 +254,12 @@ impl<'a> InternalProgram<'a> {
             scope.circuits.borrow_mut().insert(name.name.clone(), asg_circuit);
         }
 
-        let mut proto_test_functions = IndexMap::new();
-        for (name, test_function) in program.tests.iter() {
-            assert_eq!(name.name, test_function.function.identifier.name);
-            let function = Function::init(scope, &test_function.function)?;
+        // Second pass for circuit members.
+        for (name, circuit) in program.circuits.iter() {
+            assert_eq!(name.name, circuit.circuit_name.name);
+            let asg_circuit = Circuit::init_member(scope, circuit)?;
 
-            proto_test_functions.insert(name.name.clone(), function);
+            scope.circuits.borrow_mut().insert(name.name.clone(), asg_circuit);
         }
 
         for (name, function) in program.functions.iter() {
@@ -276,28 +271,20 @@ impl<'a> InternalProgram<'a> {
 
         for (name, global_const) in program.global_consts.iter() {
             assert_eq!(name.name, global_const.variable_name.identifier.name);
-            let gc = GlobalConst::init(scope, global_const)?;
-            scope.global_consts.borrow_mut().insert(name.name.clone(), gc);
+            // TODO re-enable
+            // let gc = GlobalConst::init(scope, global_const)?;
+            // scope.global_consts.borrow_mut().insert(name.name.clone(), gc);
         }
 
         // Load concrete definitions.
+        // TODO RE-ENABLE
         let mut global_consts = IndexMap::new();
-        for (name, global_const) in program.global_consts.iter() {
-            assert_eq!(name.name, global_const.variable_name.identifier.name);
-            let asg_global_const = *scope.global_consts.borrow().get(&name.name).unwrap();
+        // for (name, global_const) in program.global_consts.iter() {
+        //     assert_eq!(name.name, global_const.variable_name.identifier.name);
+        //     let asg_global_const = *scope.global_consts.borrow().get(&name.name).unwrap();
 
-            global_consts.insert(name.name.clone(), asg_global_const);
-        }
-
-        let mut test_functions = IndexMap::new();
-        for (name, test_function) in program.tests.iter() {
-            assert_eq!(name.name, test_function.function.identifier.name);
-            let function = proto_test_functions.get(&name.name).unwrap();
-
-            function.fill_from_ast(&test_function.function)?;
-
-            test_functions.insert(name.name.clone(), (*function, test_function.input_file.clone()));
-        }
+        //     global_consts.insert(name.name.clone(), asg_global_const);
+        // }
 
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
@@ -319,11 +306,10 @@ impl<'a> InternalProgram<'a> {
             circuits.insert(name.name.clone(), asg_circuit);
         }
 
-        Ok(InternalProgram {
+        Ok(Program {
             context,
             id: context.get_id(),
             name: program.name.clone(),
-            test_functions,
             functions,
             global_consts,
             circuits,
@@ -377,7 +363,6 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
     let mut all_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
     let mut all_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
     let mut all_global_consts: IndexMap<String, &'a GlobalConst<'a>> = IndexMap::new();
-    let mut all_test_functions: IndexMap<String, (&'a Function<'a>, Option<Identifier>)> = IndexMap::new();
     let mut identifiers = InternalIdentifierGenerator { next: 0 };
     for (_, program) in all_programs.into_iter() {
         for (name, circuit) in program.circuits.iter() {
@@ -394,16 +379,12 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             function.name.borrow_mut().name = identifier.clone();
             all_functions.insert(identifier, *function);
         }
-        for (name, global_const) in program.global_consts.iter() {
-            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-            global_const.variable.borrow_mut().name.name = identifier.clone();
-            all_global_consts.insert(identifier, *global_const);
-        }
-        for (name, function) in program.test_functions.iter() {
-            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-            function.0.name.borrow_mut().name = identifier.clone();
-            all_test_functions.insert(identifier, function.clone());
-        }
+        // TODO RE-ENABLE
+        // for (name, global_const) in program.global_consts.iter() {
+        //     let identifier = format!("{}{}", identifiers.next().unwrap(), name);
+        //     global_const.variable.borrow_mut().name.name = identifier.clone();
+        //     all_global_consts.insert(identifier, *global_const);
+        // }
     }
 
     leo_ast::Program {
@@ -420,15 +401,6 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             })
             .collect(),
         expected_input: vec![],
-        tests: all_test_functions
-            .into_iter()
-            .map(|(_, (function, ident))| {
-                (function.name.borrow().clone(), leo_ast::TestFunction {
-                    function: function.into(),
-                    input_file: ident,
-                })
-            })
-            .collect(),
         functions: all_functions
             .into_iter()
             .map(|(_, function)| (function.name.borrow().clone(), function.into()))
@@ -437,14 +409,16 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             .into_iter()
             .map(|(_, circuit)| (circuit.name.borrow().clone(), circuit.into()))
             .collect(),
-        global_consts: all_global_consts
-            .into_iter()
-            .map(|(_, global_const)| (global_const.variable.borrow().name.clone(), global_const.into()))
-            .collect(),
+        global_consts: IndexMap::new(),
+        // TODO re-enable
+        // all_global_consts
+        //     .into_iter()
+        //     .map(|(_, global_const)| (global_const.variable.borrow().name.clone(), global_const.into()))
+        //     .collect(),
     }
 }
 
-impl<'a> Into<leo_ast::Program> for &InternalProgram<'a> {
+impl<'a> Into<leo_ast::Program> for &Program<'a> {
     fn into(self) -> leo_ast::Program {
         leo_ast::Program {
             name: self.name.clone(),
@@ -460,21 +434,13 @@ impl<'a> Into<leo_ast::Program> for &InternalProgram<'a> {
                 .iter()
                 .map(|(_, function)| (function.name.borrow().clone(), (*function).into()))
                 .collect(),
-            tests: self
-                .test_functions
-                .iter()
-                .map(|(_, function)| {
-                    (function.0.name.borrow().clone(), leo_ast::TestFunction {
-                        function: function.0.into(),
-                        input_file: function.1.clone(),
-                    })
-                })
-                .collect(),
-            global_consts: self
-                .global_consts
-                .iter()
-                .map(|(_, global_const)| (global_const.variable.borrow().name.clone(), (*global_const).into()))
-                .collect(),
+            global_consts: IndexMap::new(),
+            // TODO re-enable
+            // self
+            //     .global_consts
+            //     .iter()
+            //     .map(|(_, global_const)| (global_const.variable.borrow().name.clone(), (*global_const).into()))
+            //     .collect(),
         }
     }
 }

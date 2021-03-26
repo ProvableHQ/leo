@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![allow(clippy::module_inception)]
+#![allow(clippy::upper_case_acronyms)]
 
 #[macro_use]
 extern crate thiserror;

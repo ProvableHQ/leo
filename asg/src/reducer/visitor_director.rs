@@ -60,6 +60,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
                 Expression::CircuitAccess(e) => self.visit_circuit_access(e),
                 Expression::CircuitInit(e) => self.visit_circuit_init(e),
                 Expression::Ternary(e) => self.visit_ternary_expression(e),
+                Expression::Cast(e) => self.visit_cast_expression(e),
                 Expression::Constant(e) => self.visit_constant(e),
                 Expression::TupleAccess(e) => self.visit_tuple_access(e),
                 Expression::TupleInit(e) => self.visit_tuple_init(e),
@@ -71,10 +72,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
     }
 
     fn visit_opt_expression(&mut self, input: &Cell<Option<&'a Expression<'a>>>) -> ConcreteVisitResult {
-        let interior = match input.get() {
-            Some(expr) => Some(Cell::new(expr)),
-            None => None,
-        };
+        let interior = input.get().map(Cell::new);
         if let Some(interior) = interior.as_ref() {
             let result = self.visit_expression(interior);
             input.replace(Some(interior.get()));
@@ -187,6 +185,16 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
+    pub fn visit_cast_expression(&mut self, input: &CastExpression<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_cast_expression(input) {
+            VisitResult::VisitChildren => {
+                self.visit_expression(&input.inner)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
+    }
+
     pub fn visit_constant(&mut self, input: &Constant<'a>) -> ConcreteVisitResult {
         self.visitor.visit_constant(input).into()
     }
@@ -240,16 +248,14 @@ impl<'a, R: StatementVisitor<'a>> VisitorDirector<'a, R> {
                 Statement::Expression(s) => self.visit_expression_statement(s),
                 Statement::Iteration(s) => self.visit_iteration(s),
                 Statement::Return(s) => self.visit_return(s),
+                Statement::Empty(_) => Ok(()),
             },
             x => x.into(),
         }
     }
 
     fn visit_opt_statement(&mut self, input: &Cell<Option<&'a Statement<'a>>>) -> ConcreteVisitResult {
-        let interior = match input.get() {
-            Some(expr) => Some(Cell::new(expr)),
-            None => None,
-        };
+        let interior = input.get().map(Cell::new);
         if let Some(interior) = interior.as_ref() {
             let result = self.visit_statement(interior);
             input.replace(Some(interior.get()));
@@ -383,9 +389,8 @@ impl<'a, R: StatementVisitor<'a>> VisitorDirector<'a, R> {
     }
 }
 
-#[allow(dead_code)]
 impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
-    fn visit_function(&mut self, input: &'a Function<'a>) -> ConcreteVisitResult {
+    pub fn visit_function(&mut self, input: &'a Function<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_function(input) {
             VisitResult::VisitChildren => {
                 self.visit_opt_statement(&input.body)?;
@@ -395,7 +400,7 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    fn visit_circuit_member(&mut self, input: &CircuitMember<'a>) -> ConcreteVisitResult {
+    pub fn visit_circuit_member(&mut self, input: &CircuitMember<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_circuit_member(input) {
             VisitResult::VisitChildren => {
                 if let CircuitMember::Function(f) = input {
@@ -407,7 +412,7 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    fn visit_circuit(&mut self, input: &'a Circuit<'a>) -> ConcreteVisitResult {
+    pub fn visit_circuit(&mut self, input: &'a Circuit<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_circuit(input) {
             VisitResult::VisitChildren => {
                 for (_, member) in input.members.borrow().iter() {
@@ -419,14 +424,11 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    fn visit_program(&mut self, input: &Program<'a>) -> ConcreteVisitResult {
+    pub fn visit_program(&mut self, input: &Program<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_program(input) {
             VisitResult::VisitChildren => {
                 for (_, import) in input.imported_modules.iter() {
                     self.visit_program(import)?;
-                }
-                for (_, (function, _)) in input.test_functions.iter() {
-                    self.visit_function(function)?;
                 }
                 for (_, function) in input.functions.iter() {
                     self.visit_function(function)?;

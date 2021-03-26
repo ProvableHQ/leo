@@ -26,13 +26,9 @@ use crate::{
 
 use leo_asg::{Span, Type};
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{boolean::Boolean, select::CondSelectGadget},
-    },
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{boolean::Boolean, select::CondSelectGadget};
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ///
@@ -64,7 +60,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             if get_indicator_value(&indicator) {
                 // Error if we already have a return value.
                 if return_value.is_some() {
-                    return Err(StatementError::multiple_returns(span.to_owned()));
+                    return Err(StatementError::multiple_returns(span));
                 } else {
                     // Set the function return value.
                     return_value = Some(result);
@@ -83,12 +79,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             if let Some(value) = &return_value {
                 return_value = Some(
                     ConstrainedValue::conditionally_select(
-                        cs.ns(|| format!("select result {} {}:{}", i, span.line, span.start)),
+                        cs.ns(|| format!("select result {} {}:{}", i, span.line_start, span.col_start)),
                         &indicator,
                         &result,
                         &value,
                     )
-                    .map_err(|_| StatementError::select_fail(result.to_string(), value.to_string(), span.to_owned()))?,
+                    .map_err(|_| StatementError::select_fail(result.to_string(), value.to_string(), span))?,
                 );
             } else {
                 return_value = Some(result); // we ignore indicator for default -- questionable
@@ -98,7 +94,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if expected_return.is_unit() {
             Ok(ConstrainedValue::Tuple(vec![]))
         } else {
-            return_value.ok_or_else(|| StatementError::no_returns(&expected_return, span.to_owned()))
+            return_value.ok_or_else(|| StatementError::no_returns(&expected_return, span))
         }
     }
 }

@@ -1,5 +1,5 @@
 function main(a: u32, b: u32) {
-    let mut c = 0u32;
+    let c = 0u32;
 
     if a == 1 {
         c = 1;

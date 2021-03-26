@@ -15,20 +15,23 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{ExpressionError, FunctionError, ImportError, OutputBytesError, OutputFileError};
-use leo_asg::AsgConvertError;
-use leo_ast::AstError;
-use leo_grammar::ParserError;
+use leo_asg::{AsgConvertError, FormattedError};
+use leo_ast::{CanonicalizeError, LeoError};
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
+use leo_parser::SyntaxError;
 use leo_state::LocalDataVerificationError;
 
 use bincode::Error as SerdeError;
-use std::path::{Path, PathBuf};
+use std::{ffi::OsString, path::PathBuf};
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
     #[error("{}", _0)]
-    AstError(#[from] AstError),
+    SyntaxError(#[from] SyntaxError),
+
+    #[error("{}", _0)]
+    AsgPassError(FormattedError),
 
     #[error("{}", _0)]
     ExpressionError(#[from] ExpressionError),
@@ -48,8 +51,11 @@ pub enum CompilerError {
     #[error("{}", _0)]
     FunctionError(#[from] FunctionError),
 
-    #[error("Cannot read from the provided file path - {:?}", _0)]
-    FileReadError(PathBuf),
+    #[error("Cannot read from the provided file path '{:?}': {}", _0, _1)]
+    FileReadError(PathBuf, std::io::Error),
+
+    #[error("Cannot parse file string `{:?}`", _0)]
+    FileStringError(OsString),
 
     #[error("{}", _0)]
     LocalDataVerificationError(#[from] LocalDataVerificationError),
@@ -70,21 +76,38 @@ pub enum CompilerError {
     OutputStringError(#[from] OutputBytesError),
 
     #[error("{}", _0)]
-    ParserError(#[from] ParserError),
-
-    #[error("{}", _0)]
     SerdeError(#[from] SerdeError),
 
     #[error("{}", _0)]
     AsgConvertError(#[from] AsgConvertError),
+
+    #[error("{}", _0)]
+    CanonicalizeError(#[from] CanonicalizeError),
 }
 
-impl CompilerError {
-    pub fn set_path(&mut self, path: &Path) {
+impl LeoError for CompilerError {
+    fn get_path(&self) -> Option<&str> {
         match self {
-            CompilerError::InputParserError(error) => error.set_path(path),
-            CompilerError::FunctionError(error) => error.set_path(path),
-            CompilerError::OutputStringError(error) => error.set_path(path),
+            CompilerError::SyntaxError(error) => error.get_path(),
+            CompilerError::ImportError(error) => error.get_path(),
+            CompilerError::ImportParserError(error) => error.get_path(),
+            CompilerError::InputParserError(error) => error.get_path(),
+            CompilerError::FunctionError(error) => error.get_path(),
+            CompilerError::OutputStringError(error) => error.get_path(),
+            CompilerError::AsgConvertError(error) => error.get_path(),
+            _ => None,
+        }
+    }
+
+    fn set_path(&mut self, path: &str, contents: &[String]) {
+        match self {
+            CompilerError::SyntaxError(error) => error.set_path(path, contents),
+            CompilerError::ImportError(error) => error.set_path(path, contents),
+            CompilerError::ImportParserError(error) => error.set_path(path, contents),
+            CompilerError::InputParserError(error) => error.set_path(path, contents),
+            CompilerError::FunctionError(error) => error.set_path(path, contents),
+            CompilerError::OutputStringError(error) => error.set_path(path, contents),
+            CompilerError::AsgConvertError(error) => error.set_path(path, contents),
             _ => {}
         }
     }

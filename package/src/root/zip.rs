@@ -35,7 +35,10 @@ use crate::{
 use serde::Deserialize;
 use std::{
     borrow::Cow,
-    fs::{self, File},
+    fs::{
+        File,
+        {self},
+    },
     io::{Read, Write},
     path::Path,
 };

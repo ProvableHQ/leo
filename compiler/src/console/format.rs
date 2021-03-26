@@ -18,8 +18,9 @@
 
 use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
 use leo_asg::FormattedString;
-
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use leo_ast::FormattedStringPart;
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn format<CS: ConstraintSystem<F>>(
@@ -28,30 +29,33 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         formatted: &FormattedString<'a>,
     ) -> Result<String, ConsoleError> {
         // Check that containers and parameters match
-        if formatted.containers.len() != formatted.parameters.len() {
+        let container_count = formatted
+            .parts
+            .iter()
+            .filter(|x| matches!(x, FormattedStringPart::Container))
+            .count();
+        if container_count != formatted.parameters.len() {
             return Err(ConsoleError::length(
-                formatted.containers.len(),
+                container_count,
                 formatted.parameters.len(),
-                formatted.span.clone(),
+                &formatted.span,
             ));
         }
 
-        // Trim starting double quote `"`
-        let mut string = formatted.string.as_str();
-        string = string.trim_start_matches('\"');
-
-        // Trim everything after the ending double quote `"`
-        let string = string.split('\"').next().unwrap();
-
-        // Insert the parameter for each container `{}`
-        let mut result = string.to_string();
-
+        let mut executed_containers = Vec::with_capacity(formatted.parameters.len());
         for parameter in formatted.parameters.iter() {
-            let parameter_value = self.enforce_expression(cs, parameter.get())?;
-
-            result = result.replacen("{}", &parameter_value.to_string(), 1);
+            executed_containers.push(self.enforce_expression(cs, parameter.get())?.to_string());
         }
 
-        Ok(result)
+        let mut out = vec![];
+        let mut parameters = executed_containers.iter();
+        for part in formatted.parts.iter() {
+            match part {
+                FormattedStringPart::Const(c) => out.push(&**c),
+                FormattedStringPart::Container => out.push(&**parameters.next().unwrap()),
+            }
+        }
+
+        Ok(out.join(""))
     }
 }

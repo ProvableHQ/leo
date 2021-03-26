@@ -1,4 +1,4 @@
-// Function input are immutable by default.
-function main(a: bool) {
+// Const function input are immutable.
+function main(const a: bool) {
     a = false;
 }

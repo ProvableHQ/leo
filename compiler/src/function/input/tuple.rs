@@ -21,7 +21,8 @@ use crate::{errors::FunctionError, program::ConstrainedProgram, value::Constrain
 use leo_asg::Type;
 use leo_ast::{InputValue, Span};
 
-use snarkvm_models::{curves::PrimeField, gadgets::r1cs::ConstraintSystem};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_tuple<CS: ConstraintSystem<F>>(
@@ -36,7 +37,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         match input_value {
             Some(InputValue::Tuple(values)) => {
-                // Allocate each value in the tuple
+                if values.len() != types.len() {
+                    return Err(FunctionError::tuple_size_mismatch(types.len(), values.len(), span));
+                }
+
+                // Allocate each value in the tuple.
                 for (i, (value, type_)) in values.into_iter().zip(types.iter()).enumerate() {
                     let value_name = format!("{}_{}", &name, &i.to_string());
 
@@ -52,10 +57,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(FunctionError::invalid_tuple(
-                    input_value.unwrap().to_string(),
-                    span.to_owned(),
-                ));
+                return Err(FunctionError::invalid_tuple(input_value.unwrap().to_string(), span));
             }
         }
 

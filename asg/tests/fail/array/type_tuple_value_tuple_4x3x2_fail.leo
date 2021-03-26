@@ -1,3 +1,3 @@
 function main() {
-    let b: [u8; (4, 3, 2)] = [0; (2, 3, 4)]; // initializer (incorrectly reversed order)
+    const b: [u8; (4, 3, 2)] = [0; (2, 3, 4)]; // initializer (incorrectly reversed order)
 }

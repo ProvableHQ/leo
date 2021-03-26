@@ -15,10 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier, PositiveNumber, Span};
-use leo_grammar::{
-    access::{ArrayAccess, AssigneeAccess as GrammarAssigneeAccess},
-    common::{Assignee as GrammarAssignee, Range, RangeOrExpression},
-};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -29,25 +25,6 @@ pub enum AssigneeAccess {
     ArrayIndex(Expression),
     Tuple(PositiveNumber, Span),
     Member(Identifier),
-}
-
-impl<'ast> From<GrammarAssigneeAccess<'ast>> for AssigneeAccess {
-    fn from(access: GrammarAssigneeAccess<'ast>) -> Self {
-        match access {
-            GrammarAssigneeAccess::Array(ArrayAccess {
-                expression: RangeOrExpression::Range(Range { from, to, .. }),
-                ..
-            }) => AssigneeAccess::ArrayRange(from.map(Expression::from), to.map(Expression::from)),
-            GrammarAssigneeAccess::Array(ArrayAccess {
-                expression: RangeOrExpression::Expression(index),
-                ..
-            }) => AssigneeAccess::ArrayIndex(Expression::from(index)),
-            GrammarAssigneeAccess::Tuple(tuple) => {
-                AssigneeAccess::Tuple(PositiveNumber::from(tuple.number), Span::from(tuple.span))
-            }
-            GrammarAssigneeAccess::Member(member) => AssigneeAccess::Member(Identifier::from(member.identifier)),
-        }
-    }
 }
 
 /// Definition assignee: v, arr[0..2], Point p.x
@@ -62,20 +39,6 @@ impl Assignee {
     /// Returns the name of the variable being assigned to
     pub fn identifier(&self) -> &Identifier {
         &self.identifier
-    }
-}
-
-impl<'ast> From<GrammarAssignee<'ast>> for Assignee {
-    fn from(assignee: GrammarAssignee<'ast>) -> Self {
-        Assignee {
-            identifier: Identifier::from(assignee.name),
-            accesses: assignee
-                .accesses
-                .into_iter()
-                .map(AssigneeAccess::from)
-                .collect::<Vec<_>>(),
-            span: Span::from(assignee.span),
-        }
     }
 }
 

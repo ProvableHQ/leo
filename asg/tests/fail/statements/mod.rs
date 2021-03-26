@@ -23,7 +23,7 @@ fn test_num_returns_fail() {
 }
 
 #[test]
-fn test_const_declaration_fail() {
-    let program_string = include_str!("const_declaration_fail.leo");
+fn test_let_mut_declaration_fail() {
+    let program_string = include_str!("let_mut_declaration_fail.leo");
     load_asg(program_string).err().unwrap();
 }

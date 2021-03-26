@@ -1,6 +1,6 @@
 [package]
 name = "leo-input"
-version = "1.2.2"
+version = "1.2.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Input parser of the Leo programming language"
 homepage = "https://aleo.org"

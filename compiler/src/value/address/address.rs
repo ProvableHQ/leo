@@ -17,22 +17,16 @@
 use crate::{errors::AddressError, ConstrainedValue, GroupType};
 use leo_ast::{InputValue, Span};
 
-use snarkvm_dpc::base_dpc::instantiated::Components;
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::{
-        r1cs::{Assignment, ConstraintSystem},
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            uint::{UInt, UInt8},
-        },
-    },
+use snarkvm_dpc::{account::AccountAddress, base_dpc::instantiated::Components};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    boolean::Boolean,
+    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+    select::CondSelectGadget,
+    uint::{UInt, UInt8},
 };
-use snarkvm_objects::account::AccountAddress;
+use snarkvm_r1cs::{Assignment, ConstraintSystem, SynthesisError};
 use snarkvm_utilities::ToBytes;
 use std::{borrow::Borrow, str::FromStr};
 
@@ -45,8 +39,7 @@ pub struct Address {
 
 impl Address {
     pub(crate) fn constant(address: String, span: &Span) -> Result<Self, AddressError> {
-        let address =
-            AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span.to_owned()))?;
+        let address = AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
 
         let mut address_bytes = vec![];
         address.write(&mut address_bytes).unwrap();
@@ -75,17 +68,17 @@ impl Address {
                 if let InputValue::Address(string) = input {
                     Some(string)
                 } else {
-                    return Err(AddressError::invalid_address(name.to_owned(), span.to_owned()));
+                    return Err(AddressError::invalid_address(name.to_owned(), span));
                 }
             }
             None => None,
         };
 
         let address = Address::alloc(
-            cs.ns(|| format!("`{}: address` {}:{}", name, span.line, span.start)),
+            cs.ns(|| format!("`{}: address` {}:{}", name, span.line_start, span.col_start)),
             || address_value.ok_or(SynthesisError::AssignmentMissing),
         )
-        .map_err(|_| AddressError::missing_address(span.to_owned()))?;
+        .map_err(|_| AddressError::missing_address(span))?;
 
         Ok(ConstrainedValue::Address(address))
     }
@@ -134,7 +127,7 @@ impl<F: PrimeField> AllocGadget<String, F> for Address {
             .write(&mut address_bytes)
             .map_err(|_| SynthesisError::AssignmentMissing)?;
 
-        let bytes = UInt8::alloc_input_vec(cs, &address_bytes[..])?;
+        let bytes = UInt8::alloc_input_vec_le(cs, &address_bytes[..])?;
 
         Ok(Address {
             address: Some(address),

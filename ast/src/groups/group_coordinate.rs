@@ -15,13 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::common::span::Span;
-use leo_grammar::values::{
-    GroupCoordinate as GrammarGroupCoordinate,
-    Inferred as GrammarInferred,
-    NumberValue as GrammarNumberValue,
-    SignHigh as GrammarSignHigh,
-    SignLow as GrammarSignLow,
-};
 use leo_input::values::{
     GroupCoordinate as InputGroupCoordinate,
     Inferred as InputInferred,
@@ -39,17 +32,6 @@ pub enum GroupCoordinate {
     SignHigh,
     SignLow,
     Inferred,
-}
-
-impl<'ast> From<GrammarGroupCoordinate<'ast>> for GroupCoordinate {
-    fn from(coordinate: GrammarGroupCoordinate<'ast>) -> Self {
-        match coordinate {
-            GrammarGroupCoordinate::Number(number) => GroupCoordinate::from(number),
-            GrammarGroupCoordinate::SignHigh(sign_high) => GroupCoordinate::from(sign_high),
-            GrammarGroupCoordinate::SignLow(sign_low) => GroupCoordinate::from(sign_low),
-            GrammarGroupCoordinate::Inferred(inferred) => GroupCoordinate::from(inferred),
-        }
-    }
 }
 
 impl<'ast> From<InputGroupCoordinate<'ast>> for GroupCoordinate {
@@ -71,33 +53,6 @@ impl fmt::Display for GroupCoordinate {
             GroupCoordinate::SignLow => write!(f, "-"),
             GroupCoordinate::Inferred => write!(f, "_"),
         }
-    }
-}
-
-impl<'ast> From<GrammarNumberValue<'ast>> for GroupCoordinate {
-    fn from(number: GrammarNumberValue<'ast>) -> Self {
-        let value = number.to_string();
-        let span = Span::from(number.span().clone());
-
-        GroupCoordinate::Number(value, span)
-    }
-}
-
-impl<'ast> From<GrammarSignHigh<'ast>> for GroupCoordinate {
-    fn from(_sign: GrammarSignHigh<'ast>) -> Self {
-        GroupCoordinate::SignHigh
-    }
-}
-
-impl<'ast> From<GrammarSignLow<'ast>> for GroupCoordinate {
-    fn from(_sign: GrammarSignLow<'ast>) -> Self {
-        GroupCoordinate::SignLow
-    }
-}
-
-impl<'ast> From<GrammarInferred<'ast>> for GroupCoordinate {
-    fn from(_sign: GrammarInferred<'ast>) -> Self {
-        GroupCoordinate::Inferred
     }
 }
 

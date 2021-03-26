@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Package, Packages};
-use leo_grammar::imports::PackageOrPackages as GrammarPackageOrPackages;
+use crate::{Node, Package, Packages, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,15 +23,6 @@ use std::fmt;
 pub enum PackageOrPackages {
     Package(Package),
     Packages(Packages),
-}
-
-impl<'ast> From<GrammarPackageOrPackages<'ast>> for PackageOrPackages {
-    fn from(package_or_packages: GrammarPackageOrPackages<'ast>) -> Self {
-        match package_or_packages {
-            GrammarPackageOrPackages::Package(package) => PackageOrPackages::Package(Package::from(package)),
-            GrammarPackageOrPackages::Packages(packages) => PackageOrPackages::Packages(Packages::from(packages)),
-        }
-    }
 }
 
 impl PackageOrPackages {
@@ -62,5 +52,21 @@ impl fmt::Debug for PackageOrPackages {
 impl fmt::Display for PackageOrPackages {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
+    }
+}
+
+impl Node for PackageOrPackages {
+    fn span(&self) -> &Span {
+        match self {
+            PackageOrPackages::Package(package) => &package.span,
+            PackageOrPackages::Packages(packages) => &packages.span,
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        match self {
+            PackageOrPackages::Package(package) => package.span = span,
+            PackageOrPackages::Packages(packages) => packages.span = span,
+        }
     }
 }

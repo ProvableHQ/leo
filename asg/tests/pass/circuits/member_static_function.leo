@@ -5,7 +5,7 @@ circuit Foo {
 }
 
 function main() {
-    let a = Foo::echo(1u32);
+    const a = Foo::echo(1u32);
 
     console.assert(a == 1u32);
 }

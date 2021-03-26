@@ -28,8 +28,7 @@ use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
 use rand::Rng;
 use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
-use snarkvm_algorithms::prf::blake2s::Blake2s as B2SPRF;
-use snarkvm_models::algorithms::PRF;
+use snarkvm_algorithms::{prf::blake2s::Blake2s as B2SPRF, traits::PRF};
 
 #[test]
 fn test_arguments_length_fail() {

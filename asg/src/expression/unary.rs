@@ -69,6 +69,10 @@ impl<'a> ExpressionNode<'a> for UnaryExpression<'a> {
                         _ => None,
                     }
                 }
+                UnaryOperation::BitNot => match inner {
+                    ConstValue::Int(value) => Some(ConstValue::Int(value.value_bit_negate()?)),
+                    _ => None,
+                },
             }
         } else {
             None
@@ -110,16 +114,37 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
                     ));
                 }
             },
+            UnaryOperation::BitNot => match expected_type.map(|x| x.full()).flatten() {
+                Some(type_ @ Type::Integer(_)) => Some(type_),
+                None => None,
+                Some(type_) => {
+                    return Err(AsgConvertError::unexpected_type(
+                        &type_.to_string(),
+                        Some("integer"),
+                        &value.span,
+                    ));
+                }
+            },
         };
+        let expr = <&Expression<'a>>::from_ast(scope, &*value.inner, expected_type.map(Into::into))?;
+
+        if matches!(value.op, UnaryOperation::Negate) {
+            let is_expr_unsigned = expr
+                .get_type()
+                .map(|x| match x {
+                    Type::Integer(x) => !x.is_signed(),
+                    _ => false,
+                })
+                .unwrap_or(false);
+            if is_expr_unsigned {
+                return Err(AsgConvertError::unsigned_negation(&value.span));
+            }
+        }
         Ok(UnaryExpression {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             operation: value.op.clone(),
-            inner: Cell::new(<&Expression<'a>>::from_ast(
-                scope,
-                &*value.inner,
-                expected_type.map(Into::into),
-            )?),
+            inner: Cell::new(expr),
         })
     }
 }

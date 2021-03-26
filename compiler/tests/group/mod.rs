@@ -39,8 +39,8 @@ pub fn group_element_to_input_value(g: EdwardsAffine) -> GroupValue {
     };
 
     GroupValue::Tuple(GroupTuple {
-        x: GroupCoordinate::Number(x, fake_span.clone()),
-        y: GroupCoordinate::Number(y, fake_span.clone()),
+        x: GroupCoordinate::Number(x, fake_span),
+        y: GroupCoordinate::Number(y, fake_span),
         span: fake_span,
     })
 }

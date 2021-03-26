@@ -27,7 +27,11 @@ impl fmt::Display for CircuitInitExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{} {{", self.name)?;
         for (i, member) in self.members.iter().enumerate() {
-            write!(f, "{}: {}", member.identifier, member.expression)?;
+            if let Some(expression) = &member.expression {
+                write!(f, "{}: {}", member.identifier, expression)?;
+            } else {
+                write!(f, "{}", member.identifier)?;
+            }
 
             if i < self.members.len() - 1 {
                 write!(f, ", ")?;

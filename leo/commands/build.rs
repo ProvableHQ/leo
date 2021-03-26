@@ -14,11 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    commands::Command,
-    context::Context,
-    synthesizer::{CircuitSynthesizer, SerializedCircuit},
-};
+use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
@@ -28,10 +24,11 @@ use leo_package::{
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
+use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
 use anyhow::Result;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
-use snarkvm_models::gadgets::r1cs::ConstraintSystem;
+use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -125,11 +122,10 @@ impl Command for Build {
             // Generate the program on the constraint system and verify correctness
             {
                 let mut cs = CircuitSynthesizer::<Bls12_377> {
-                    at: vec![],
-                    bt: vec![],
-                    ct: vec![],
-                    input_assignment: vec![],
-                    aux_assignment: vec![],
+                    constraints: Default::default(),
+                    public_variables: Default::default(),
+                    private_variables: Default::default(),
+                    namespaces: Default::default(),
                 };
                 let temporary_program = program.clone();
                 let output = temporary_program.compile_constraints(&mut cs)?;

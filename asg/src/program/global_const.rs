@@ -37,70 +37,70 @@ pub struct GlobalConst<'a> {
     pub value: Cell<&'a Expression<'a>>,
 }
 
-impl<'a> Node for GlobalConst<'a> {
-    fn span(&self) -> Option<&Span> {
-        self.span.as_ref()
-    }
-}
+// impl<'a> Node for GlobalConst<'a> {
+//     fn span(&self) -> Option<&Span> {
+//         self.span.as_ref()
+//     }
+// }
 
-impl<'a> GlobalConst<'a> {
-    pub(super) fn init(
-        scope: &'a Scope<'a>,
-        global_const: &leo_ast::GlobalConst,
-    ) -> Result<&'a GlobalConst<'a>, AsgConvertError> {
-        let type_ = global_const
-            .type_
-            .as_ref()
-            .map(|x| scope.resolve_ast_type(&x))
-            .transpose()?;
+// impl<'a> GlobalConst<'a> {
+//     pub(super) fn init(
+//         scope: &'a Scope<'a>,
+//         global_const: &leo_ast::GlobalConst,
+//     ) -> Result<&'a GlobalConst<'a>, AsgConvertError> {
+//         let type_ = global_const
+//             .type_
+//             .as_ref()
+//             .map(|x| scope.resolve_ast_type(&x))
+//             .transpose()?;
 
-        let value = <&Expression<'a>>::from_ast(scope, &global_const.value, type_.clone().map(Into::into))?;
+//         let value = <&Expression<'a>>::from_ast(scope, &global_const.value, type_.clone().map(Into::into))?;
 
-        let type_ = type_.or_else(|| value.get_type());
+//         let type_ = type_.or_else(|| value.get_type());
 
-        let variable = scope.alloc_variable(RefCell::new(InnerVariable {
-            id: scope.context.get_id(),
-            name: global_const.variable_name.identifier.clone(),
-            type_: type_.ok_or_else(|| {
-                AsgConvertError::unresolved_type(&global_const.variable_name.identifier.name, &global_const.span)
-            })?,
-            mutable: global_const.variable_name.mutable,
-            const_: false,
-            declaration: crate::VariableDeclaration::Definition,
-            references: vec![],
-            assignments: vec![],
-        }));
+//         let variable = scope.alloc_variable(RefCell::new(InnerVariable {
+//             id: scope.context.get_id(),
+//             name: global_const.variable_name.identifier.clone(),
+//             type_: type_.ok_or_else(|| {
+//                 AsgConvertError::unresolved_type(&global_const.variable_name.identifier.name, &global_const.span)
+//             })?,
+//             mutable: global_const.variable_name.mutable,
+//             const_: false,
+//             declaration: crate::VariableDeclaration::Definition,
+//             references: vec![],
+//             assignments: vec![],
+//         }));
 
-        let global_const = scope.alloc_global_const(GlobalConst {
-            parent: Cell::new(None),
-            span: Some(global_const.span.clone()),
-            variable,
-            value: Cell::new(value),
-        });
+//         let global_const = scope.alloc_global_const(GlobalConst {
+//             parent: Cell::new(None),
+//             span: Some(global_const.span.clone()),
+//             variable,
+//             value: Cell::new(value),
+//         });
 
-        Ok(global_const)
-    }
-}
+//         Ok(global_const)
+//     }
+// }
 
-impl<'a> Into<leo_ast::GlobalConst> for &GlobalConst<'a> {
-    fn into(self) -> leo_ast::GlobalConst {
-        let mut type_ = None::<leo_ast::Type>;
-        let variable = self.variable.borrow();
-        let variable_name = leo_ast::VariableName {
-            mutable: variable.mutable,
-            identifier: variable.name.clone(),
-            span: variable.name.span.clone(),
-        };
-        if type_.is_none() {
-            type_ = Some((&variable.type_.clone()).into());
-        }
+// impl<'a> Into<leo_ast::GlobalConst> for &GlobalConst<'a> {
+//     fn into(self) -> leo_ast::GlobalConst {
+//         let mut type_ = None::<leo_ast::Type>;
+//         let variable = self.variable.borrow();
+//         let variable_name = leo_ast::VariableName {
+//             mutable: variable.mutable,
+//             identifier: variable.name.clone(),
+//             span: variable.name.span.clone(),
+//         };
+//         if type_.is_none() {
+//             type_ = Some((&variable.type_.clone()).into());
+//         }
 
-        leo_ast::GlobalConst {
-            declaration_type: leo_ast::Declare::Let,
-            variable_name,
-            type_,
-            value: self.value.get().into(),
-            span: self.span.clone().unwrap_or_default(),
-        }
-    }
-}
+//         leo_ast::GlobalConst {
+//             declaration_type: leo_ast::Declare::Let,
+//             variable_name,
+//             type_,
+//             value: self.value.get().into(),
+//             span: self.span.clone().unwrap_or_default(),
+//         }
+//     }
+// }

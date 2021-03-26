@@ -17,28 +17,26 @@
 //! Generates R1CS constraints for a compiled Leo program.
 
 use crate::{errors::CompilerError, ConstrainedProgram, GroupType, OutputBytes, OutputFile};
-use leo_asg::Asg;
-use leo_ast::Input;
+use leo_asg::Program;
+use leo_ast::{Input, LeoError};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
-use snarkvm_models::{
-    curves::PrimeField,
-    gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::{ConstraintSystem, TestConstraintSystem};
 use std::path::Path;
 
 pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    asg: &Asg<'a>,
+    program: &Program<'a>,
     input: &Input,
 ) -> Result<OutputBytes, CompilerError> {
-    let program = asg.as_repr();
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
 
     for (_, global_const) in program.global_consts.iter() {
         let value = resolved_program.enforce_expression(cs, global_const.value.get())?;
-        resolved_program.store_global_const(global_const, value);
+        // TODO re-enable
+        // resolved_program.store_global_const(global_const, value);
     }
 
     let main = {
@@ -56,34 +54,44 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
 }
 
 pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
-    asg: &Asg<'a>,
+    program: &Program<'a>,
     input: InputPairs,
     main_file_path: &Path,
     output_directory: &Path,
 ) -> Result<(u32, u32), CompilerError> {
-    let program = asg.as_repr();
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
     let program_name = program.name.clone();
 
     // Get default input
     let default = input.pairs.get(&program_name);
 
-    let tests = &program.test_functions;
+    let tests = program
+        .functions
+        .iter()
+        .filter(|(_name, func)| func.is_test())
+        .collect::<Vec<_>>();
     tracing::info!("Running {} tests", tests.len());
 
     // Count passed and failed tests
     let mut passed = 0;
     let mut failed = 0;
 
-    for (test_name, (function, input_file)) in tests.into_iter() {
+    for (test_name, function) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
         let full_test_name = format!("{}::{}", program_name.clone(), test_name);
         let mut output_file_name = program_name.clone();
 
+        let input_file = function
+            .annotations
+            .iter()
+            .find(|x| x.name.name == "test")
+            .unwrap()
+            .arguments
+            .get(0);
         // get input file name from annotation or use test_name
         let input_pair = match input_file {
             Some(file_id) => {
-                let file_name = file_id.name.clone();
+                let file_name = file_id.clone();
 
                 output_file_name = file_name.clone();
 
@@ -134,7 +142,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
             (false, _) => {
                 // Set file location of error
                 let mut error = result.unwrap_err();
-                error.set_path(main_file_path);
+                error.set_path(main_file_path.to_str().unwrap_or_default(), &[]);
 
                 tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
 

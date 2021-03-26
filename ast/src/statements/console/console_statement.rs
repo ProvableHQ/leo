@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConsoleFunction, Node, Span};
-use leo_grammar::console::ConsoleFunctionCall as GrammarConsoleFunctionCall;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,15 +23,6 @@ use std::fmt;
 pub struct ConsoleStatement {
     pub function: ConsoleFunction,
     pub span: Span,
-}
-
-impl<'ast> From<GrammarConsoleFunctionCall<'ast>> for ConsoleStatement {
-    fn from(console: GrammarConsoleFunctionCall<'ast>) -> Self {
-        ConsoleStatement {
-            function: ConsoleFunction::from(console.function),
-            span: Span::from(console.span),
-        }
-    }
 }
 
 impl fmt::Display for ConsoleStatement {

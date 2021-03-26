@@ -60,7 +60,7 @@ fn test_mut_member_function_fail() {
         }
         
         function main() {
-            let a = Foo { };
+            const a = Foo { };
         
             console.assert(a.echo(1u32) == 1u32);
         }"#;
