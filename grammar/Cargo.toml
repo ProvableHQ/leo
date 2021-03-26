@@ -1,11 +1,17 @@
 [package]
-name = "grammar"
-version = "0.1.0"
+name = "leo-abnf"
+version = "1.2.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "ABNF to Markdown converter"
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge",
+  "leo-abnf"
+]
 
 [dependencies]
 abnf = "0.10.0"
