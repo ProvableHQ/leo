@@ -18,11 +18,12 @@ use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
+    CompilerOptions,
 };
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    source::{LibraryFile, MainFile, LIBRARY_FILENAME, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
+    source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
@@ -32,10 +33,54 @@ use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
 
+#[derive(StructOpt, Clone, Debug)]
+pub struct BuildOptions {
+    #[structopt(long, help = "Enable canonicalization compiler optimization")]
+    pub canonicalization_enabled: bool,
+    #[structopt(long, help = "Enable constant folding compiler optimization")]
+    pub constant_folding_enabled: bool,
+    #[structopt(long, help = "Enable dead code elimination compiler optimization")]
+    pub dead_code_elimination_enabled: bool,
+    #[structopt(long, help = "Enable all compiler optimizations")]
+    pub enable_all_optimizations: bool,
+}
+
+impl Default for BuildOptions {
+    fn default() -> Self {
+        Self {
+            canonicalization_enabled: true,
+            constant_folding_enabled: true,
+            dead_code_elimination_enabled: true,
+            enable_all_optimizations: true,
+        }
+    }
+}
+
+impl Into<CompilerOptions> for BuildOptions {
+    fn into(self) -> CompilerOptions {
+        if self.enable_all_optimizations {
+            CompilerOptions {
+                canonicalization_enabled: true,
+                constant_folding_enabled: true,
+                dead_code_elimination_enabled: true,
+            }
+        } else {
+            CompilerOptions {
+                canonicalization_enabled: self.canonicalization_enabled,
+                constant_folding_enabled: self.constant_folding_enabled,
+                dead_code_elimination_enabled: self.dead_code_elimination_enabled,
+            }
+        }
+    }
+}
+
 /// Compile and build program command
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Build {}
+pub struct Build {
+    #[structopt(flatten)]
+    pub(crate) compiler_options: BuildOptions,
+}
 
 impl Command for Build {
     type Input = ();
@@ -64,27 +109,6 @@ impl Command for Build {
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
         tracing::info!("Starting...");
-
-        // Compile the package starting with the lib.leo file
-        if LibraryFile::exists_at(&package_path) {
-            // Construct the path to the library file in the source directory
-            let mut lib_file_path = package_path.clone();
-            lib_file_path.push(SOURCE_DIRECTORY_NAME);
-            lib_file_path.push(LIBRARY_FILENAME);
-
-            // Log compilation of library file to console
-            tracing::info!("Compiling library... ({:?})", lib_file_path);
-
-            // Compile the library file but do not output
-            let _program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
-                package_name.clone(),
-                lib_file_path,
-                output_directory.clone(),
-                thread_leaked_context(),
-                None,
-            )?;
-            tracing::info!("Complete");
-        };
 
         // Compile the main.leo file along with constraints
         if MainFile::exists_at(&package_path) {
@@ -115,7 +139,7 @@ impl Command for Build {
                 &state_string,
                 &state_path,
                 thread_leaked_context(),
-                None,
+                Some(self.compiler_options.into()),
             )?;
 
             // Compute the current program checksum

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::prove::Prove;
+use super::{build::BuildOptions, prove::Prove};
 use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 
@@ -30,6 +30,9 @@ use tracing::span::Span;
 pub struct Run {
     #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
     pub(crate) skip_key_check: bool,
+
+    #[structopt(flatten)]
+    pub(crate) compiler_options: BuildOptions,
 }
 
 impl Command for Run {
@@ -41,8 +44,11 @@ impl Command for Run {
     }
 
     fn prelude(&self) -> Result<Self::Input> {
-        let skip_key_check = self.skip_key_check;
-        (Prove { skip_key_check }).execute()
+        (Prove {
+            skip_key_check: self.skip_key_check,
+            compiler_options: self.compiler_options.clone(),
+        })
+        .execute()
     }
 
     fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::setup::Setup;
+use super::{build::BuildOptions, setup::Setup};
 use crate::{commands::Command, context::Context};
 use leo_package::outputs::ProofFile;
 use snarkvm_algorithms::{
@@ -35,6 +35,9 @@ use tracing::span::Span;
 pub struct Prove {
     #[structopt(long = "skip-key-check", help = "Skip key verification on Setup stage")]
     pub(crate) skip_key_check: bool,
+
+    #[structopt(flatten)]
+    pub(crate) compiler_options: BuildOptions,
 }
 
 impl Command for Prove {
@@ -46,8 +49,11 @@ impl Command for Prove {
     }
 
     fn prelude(&self) -> Result<Self::Input> {
-        let skip_key_check = self.skip_key_check;
-        (Setup { skip_key_check }).execute()
+        (Setup {
+            skip_key_check: self.skip_key_check,
+            compiler_options: self.compiler_options.clone(),
+        })
+        .execute()
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {

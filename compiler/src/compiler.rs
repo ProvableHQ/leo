@@ -93,7 +93,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             program_input: Input::new(),
             asg: None,
             context,
-            options: options.unwrap_or(CompilerOptions::default()),
+            options: options.unwrap_or_default(),
             file_contents: RefCell::new(IndexMap::new()),
             _engine: PhantomData,
             _group: PhantomData,

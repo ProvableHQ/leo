@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::build::Build;
+use super::build::{Build, BuildOptions};
 use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::outputs::{ProvingKeyFile, VerificationKeyFile};
@@ -35,6 +35,9 @@ use tracing::span::Span;
 pub struct Setup {
     #[structopt(long = "skip-key-check", help = "Skip key verification")]
     pub(crate) skip_key_check: bool,
+
+    #[structopt(flatten)]
+    pub(crate) compiler_options: BuildOptions,
 }
 
 impl Command for Setup {
@@ -50,7 +53,10 @@ impl Command for Setup {
     }
 
     fn prelude(&self) -> Result<Self::Input> {
-        (Build {}).execute()
+        (Build {
+            compiler_options: self.compiler_options.clone(),
+        })
+        .execute()
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {

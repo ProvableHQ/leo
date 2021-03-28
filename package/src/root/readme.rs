@@ -13,7 +13,6 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-#![allow(clippy::upper_case_acronyms)]
 
 //! The `README.md` file.
 

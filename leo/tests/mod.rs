@@ -39,34 +39,82 @@ const PEDERSEN_HASH_PATH: &str = "./examples/pedersen-hash/";
 
 #[test]
 pub fn build_pedersen_hash() -> Result<()> {
-    (Build {}).apply(context()?, ())?;
+    (Build {
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, ())?;
     Ok(())
 }
 
 #[test]
 pub fn setup_pedersen_hash() -> Result<()> {
-    let build = (Build {}).apply(context()?, ())?;
-    (Setup { skip_key_check: false }).apply(context()?, build.clone())?;
-    (Setup { skip_key_check: true }).apply(context()?, build)?;
+    let build = (Build {
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, ())?;
+    (Setup {
+        skip_key_check: false,
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, build.clone())?;
+    (Setup {
+        skip_key_check: true,
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, build)?;
     Ok(())
 }
 
 #[test]
 pub fn prove_pedersen_hash() -> Result<()> {
-    let build = (Build {}).apply(context()?, ())?;
-    let setup = (Setup { skip_key_check: false }).apply(context()?, build)?;
-    (Prove { skip_key_check: false }).apply(context()?, setup.clone())?;
-    (Prove { skip_key_check: true }).apply(context()?, setup)?;
+    let build = (Build {
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, ())?;
+    let setup = (Setup {
+        skip_key_check: false,
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, build)?;
+    (Prove {
+        skip_key_check: false,
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, setup.clone())?;
+    (Prove {
+        skip_key_check: true,
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, setup)?;
     Ok(())
 }
 
 #[test]
 pub fn run_pedersen_hash() -> Result<()> {
-    let build = (Build {}).apply(context()?, ())?;
-    let setup = (Setup { skip_key_check: false }).apply(context()?, build)?;
-    let prove = (Prove { skip_key_check: false }).apply(context()?, setup)?;
-    (Run { skip_key_check: false }).apply(context()?, prove.clone())?;
-    (Run { skip_key_check: true }).apply(context()?, prove)?;
+    let build = (Build {
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, ())?;
+    let setup = (Setup {
+        skip_key_check: false,
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, build)?;
+    let prove = (Prove {
+        skip_key_check: false,
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, setup)?;
+    (Run {
+        skip_key_check: false,
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, prove.clone())?;
+    (Run {
+        skip_key_check: true,
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, prove)?;
     Ok(())
 }
 
@@ -75,8 +123,16 @@ pub fn test_pedersen_hash() -> Result<()> {
     let mut main_file = PathBuf::from(PEDERSEN_HASH_PATH);
     main_file.push("src/main.leo");
 
-    (Test { files: vec![] }).apply(context()?, ())?;
-    (Test { files: vec![main_file] }).apply(context()?, ())?;
+    (Test {
+        files: vec![],
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, ())?;
+    (Test {
+        files: vec![main_file],
+        compiler_options: Default::default(),
+    })
+    .apply(context()?, ())?;
     Ok(())
 }
 
@@ -90,6 +146,8 @@ pub fn test_logout() -> Result<()> {
 // So this test only tells that error cases are errors
 #[test]
 pub fn login_incorrect_credentials_or_token() -> Result<()> {
+    test_logout()?;
+
     // no credentials passed
     let login = Login::new(None, None, None).apply(context()?, ());
     assert!(login.is_err());
