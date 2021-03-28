@@ -33,6 +33,8 @@ use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
 
+/// Compiler Options wrapper for Build command. Also used by other commands which
+/// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug)]
 pub struct BuildOptions {
     #[structopt(long, help = "Enable canonicalization compiler optimization")]
