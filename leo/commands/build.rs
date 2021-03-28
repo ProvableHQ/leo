@@ -81,6 +81,7 @@ impl Command for Build {
                 lib_file_path,
                 output_directory.clone(),
                 thread_leaked_context(),
+                None,
             )?;
             tracing::info!("Complete");
         };
@@ -114,6 +115,7 @@ impl Command for Build {
                 &state_string,
                 &state_path,
                 thread_leaked_context(),
+                None,
             )?;
 
             // Compute the current program checksum

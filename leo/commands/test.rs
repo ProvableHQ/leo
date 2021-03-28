@@ -107,6 +107,7 @@ impl Command for Test {
                 file_path,
                 output_directory.clone(),
                 thread_leaked_context(),
+                None,
             )?;
 
             let temporary_program = program;

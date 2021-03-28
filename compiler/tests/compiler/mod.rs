@@ -28,7 +28,7 @@ fn test_parse_program_from_string() {
     // Parse program from string with compiler.
     let program_string = include_str!("main.leo");
     let context = crate::make_test_context();
-    let mut compiler_no_path = EdwardsTestCompiler::new("".to_string(), PathBuf::new(), PathBuf::new(), context);
+    let mut compiler_no_path = EdwardsTestCompiler::new("".to_string(), PathBuf::new(), PathBuf::new(), context, None);
 
     compiler_no_path.parse_program_from_string(program_string).unwrap();
 
@@ -37,7 +37,7 @@ fn test_parse_program_from_string() {
     local.push(MAIN_FILE_NAME);
 
     let compiler_with_path =
-        EdwardsTestCompiler::parse_program_without_input("".to_string(), local, PathBuf::new(), context).unwrap();
+        EdwardsTestCompiler::parse_program_without_input("".to_string(), local, PathBuf::new(), context, None).unwrap();
 
     // Compare output bytes.
     let expected_output = get_output(compiler_no_path);
