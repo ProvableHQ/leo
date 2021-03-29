@@ -158,6 +158,19 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-add-remove.sh
 
+  leo-check-constraints:
+    docker:
+      - image: cimg/rust:1.50.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo check constraints for Pedersen Hash
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-check-constraints.sh
+
   leo-login-logout:
     docker:
       - image: cimg/rust:1.50.0
