@@ -18,6 +18,7 @@ use crate::{AsgConvertError, IntegerType, Span, Type};
 
 use num_bigint::BigInt;
 use std::{convert::TryInto, fmt};
+use tendril::StrTendril;
 
 /// Constant integer values in a program.
 #[derive(Clone, Debug, PartialEq)]
@@ -38,7 +39,7 @@ pub enum ConstInt {
 #[derive(Clone, Debug, PartialEq)]
 pub enum GroupCoordinate {
     /// Explicit field element number string.
-    Number(String),
+    Number(StrTendril),
 
     /// Attempt to recover with a sign high bit.
     SignHigh,
@@ -87,7 +88,7 @@ impl Into<leo_ast::GroupCoordinate> for &GroupCoordinate {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum GroupValue {
-    Single(String),
+    Single(StrTendril),
     Tuple(GroupCoordinate, GroupCoordinate),
 }
 
@@ -106,7 +107,7 @@ pub enum ConstValue {
     Int(ConstInt),
     Group(GroupValue),
     Field(BigInt),
-    Address(String),
+    Address(StrTendril),
     Boolean(bool),
 
     // compounds

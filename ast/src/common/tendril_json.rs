@@ -14,26 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{FormattedError, LeoError, Span};
+use serde::{Deserialize, Deserializer, Serializer};
+use tendril::StrTendril;
 
-#[derive(Debug, Error)]
-pub enum TokenError {
-    #[error("{}", _0)]
-    Error(#[from] FormattedError),
+pub fn serialize<S: Serializer>(tendril: &StrTendril, serializer: S) -> Result<S::Ok, S::Error> {
+    serializer.serialize_str(&tendril[..])
 }
 
-impl LeoError for TokenError {}
-
-impl TokenError {
-    fn new_from_span(message: String, span: &Span) -> Self {
-        TokenError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    pub fn unexpected_token(token: &str, span: &Span) -> Self {
-        TokenError::new_from_span(format!("unexpected token: '{}'", token), span)
-    }
-
-    pub fn invalid_address_lit(token: &str, span: &Span) -> Self {
-        TokenError::new_from_span(format!("invalid address literal: '{}'", token), span)
-    }
+pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<StrTendril, D::Error> {
+    Ok(String::deserialize(deserializer)?.into())
 }

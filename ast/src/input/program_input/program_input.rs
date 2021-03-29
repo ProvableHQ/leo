@@ -74,12 +74,12 @@ impl ProgramInput {
 
     /// Returns the main function input value with the given `name`
     #[allow(clippy::ptr_arg)]
-    pub fn get(&self, name: &String) -> Option<Option<InputValue>> {
+    pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
         self.main.get(name)
     }
 
     #[allow(clippy::ptr_arg)]
-    pub fn get_constant(&self, name: &String) -> Option<Option<InputValue>> {
+    pub fn get_constant(&self, name: &str) -> Option<Option<InputValue>> {
         self.constants.get(name)
     }
 

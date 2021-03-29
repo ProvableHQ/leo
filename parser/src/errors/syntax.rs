@@ -30,23 +30,7 @@ pub enum SyntaxError {
     DeprecatedError(#[from] DeprecatedError),
 }
 
-impl LeoError for SyntaxError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            SyntaxError::Error(error) => error.get_path(),
-            SyntaxError::TokenError(error) => error.get_path(),
-            SyntaxError::DeprecatedError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            SyntaxError::Error(error) => error.set_path(path, contents),
-            SyntaxError::TokenError(error) => error.set_path(path, contents),
-            SyntaxError::DeprecatedError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for SyntaxError {}
 
 impl SyntaxError {
     fn new_from_span(message: String, span: &Span) -> Self {
@@ -104,5 +88,9 @@ impl SyntaxError {
             "package names must be lowercase alphanumeric ascii with underscores and singular dashes".to_string(),
             span,
         )
+    }
+
+    pub fn illegal_self_const(span: &Span) -> Self {
+        Self::new_from_span("cannot have const self".to_string(), span)
     }
 }

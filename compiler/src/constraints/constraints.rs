@@ -18,7 +18,7 @@
 
 use crate::{errors::CompilerError, ConstrainedProgram, GroupType, OutputBytes, OutputFile};
 use leo_asg::Program;
-use leo_ast::{Input, LeoError};
+use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
@@ -50,7 +50,6 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
 pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
     program: &Program<'a>,
     input: InputPairs,
-    main_file_path: &Path,
     output_directory: &Path,
 ) -> Result<(u32, u32), CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
@@ -78,7 +77,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
         let input_file = function
             .annotations
             .iter()
-            .find(|x| x.name.name == "test")
+            .find(|x| x.name.name.as_ref() == "test")
             .unwrap()
             .arguments
             .get(0);
@@ -87,11 +86,11 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
             Some(file_id) => {
                 let file_name = file_id.clone();
 
-                output_file_name = file_name.clone();
+                output_file_name = file_name.to_string();
 
-                match input.pairs.get(&file_name) {
+                match input.pairs.get(file_name.as_ref()) {
                     Some(pair) => pair.to_owned(),
-                    None => return Err(CompilerError::InvalidTestContext(file_name)),
+                    None => return Err(CompilerError::InvalidTestContext(file_name.to_string())),
                 }
             }
             None => default.ok_or(CompilerError::NoTestInput)?,
@@ -135,8 +134,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
             }
             (false, _) => {
                 // Set file location of error
-                let mut error = result.unwrap_err();
-                error.set_path(main_file_path.to_str().unwrap_or_default(), &[]);
+                let error = result.unwrap_err();
 
                 tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
 

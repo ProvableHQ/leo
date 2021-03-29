@@ -24,19 +24,7 @@ pub enum AddressError {
     Error(#[from] FormattedError),
 }
 
-impl LeoError for AddressError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            AddressError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            AddressError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for AddressError {}
 
 impl AddressError {
     fn new_from_span(message: String, span: &Span) -> Self {
