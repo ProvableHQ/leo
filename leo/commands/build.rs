@@ -37,8 +37,6 @@ use tracing::span::Span;
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug)]
 pub struct BuildOptions {
-    #[structopt(long, help = "Enable canonicalization compiler optimization")]
-    pub canonicalization_enabled: bool,
     #[structopt(long, help = "Enable constant folding compiler optimization")]
     pub constant_folding_enabled: bool,
     #[structopt(long, help = "Enable dead code elimination compiler optimization")]
@@ -50,7 +48,6 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            canonicalization_enabled: true,
             constant_folding_enabled: true,
             dead_code_elimination_enabled: true,
             enable_all_optimizations: true,
@@ -68,7 +65,7 @@ impl Into<CompilerOptions> for BuildOptions {
             }
         } else {
             CompilerOptions {
-                canonicalization_enabled: self.canonicalization_enabled,
+                canonicalization_enabled: true,
                 constant_folding_enabled: self.constant_folding_enabled,
                 dead_code_elimination_enabled: self.dead_code_elimination_enabled,
             }
@@ -76,7 +73,7 @@ impl Into<CompilerOptions> for BuildOptions {
     }
 }
 
-/// Compile and build program command
+/// Compile and build program command.
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Build {
@@ -100,24 +97,24 @@ impl Command for Build {
         let path = context.dir()?;
         let package_name = context.manifest()?.get_package_name();
 
-        // Sanitize the package path to the root directory
+        // Sanitize the package path to the root directory.
         let mut package_path = path.clone();
         if package_path.is_file() {
             package_path.pop();
         }
 
-        // Construct the path to the output directory
+        // Construct the path to the output directory.
         let mut output_directory = package_path.clone();
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
         tracing::info!("Starting...");
 
-        // Compile the main.leo file along with constraints
+        // Compile the main.leo file along with constraints.
         if MainFile::exists_at(&package_path) {
-            // Create the output directory
+            // Create the output directory.
             OutputsDirectory::create(&package_path)?;
 
-            // Construct the path to the main file in the source directory
+            // Construct the path to the main file in the source directory.
             let mut main_file_path = package_path.clone();
             main_file_path.push(SOURCE_DIRECTORY_NAME);
             main_file_path.push(MAIN_FILENAME);
@@ -144,10 +141,10 @@ impl Command for Build {
                 Some(self.compiler_options.into()),
             )?;
 
-            // Compute the current program checksum
+            // Compute the current program checksum.
             let program_checksum = program.checksum()?;
 
-            // Generate the program on the constraint system and verify correctness
+            // Generate the program on the constraint system and verify correctness.
             {
                 let mut cs = CircuitSynthesizer::<Bls12_377> {
                     constraints: Default::default(),
@@ -161,7 +158,7 @@ impl Command for Build {
                 tracing::debug!("Compiled output - {:#?}", output);
                 tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
 
-                // Serialize the circuit
+                // Serialize the circuit.
                 let circuit_object = SerializedCircuit::from(cs);
                 let json = circuit_object.to_json_string().unwrap();
                 // println!("json: {}", json);
@@ -179,19 +176,19 @@ impl Command for Build {
                 // println!("deserialized {:?}", circuit_synthesizer.num_constraints());
             }
 
-            // If a checksum file exists, check if it differs from the new checksum
+            // If a checksum file exists, check if it differs from the new checksum.
             let checksum_file = ChecksumFile::new(&package_name);
             let checksum_differs = if checksum_file.exists_at(&package_path) {
                 let previous_checksum = checksum_file.read_from(&package_path)?;
                 program_checksum != previous_checksum
             } else {
-                // By default, the checksum differs if there is no checksum to compare against
+                // By default, the checksum differs if there is no checksum to compare against.
                 true
             };
 
-            // If checksum differs, compile the program
+            // If checksum differs, compile the program.
             if checksum_differs {
-                // Write the new checksum to the output directory
+                // Write the new checksum to the output directory.
                 checksum_file.write_to(&path, program_checksum)?;
 
                 tracing::debug!("Checksum saved ({:?})", path);
