@@ -2,7 +2,7 @@
 
 cd ./project/examples/pedersen-hash
 
-PEDERSEH_HASH_CONSTRAINTS=1539
+export PEDERSEH_HASH_CONSTRAINTS=1539
 
 # 1. build 
 # 2. find lines with constraint number
@@ -11,7 +11,7 @@ PEDERSEH_HASH_CONSTRAINTS=1539
 # 4.Er if result is 0 -> constraint number changed
 # 4.Ok if result is 1 -> all good
 
-[[ $($LEO build | grep "Number of constraints" | grep $PEDERSEH_HASH_CONSTRAINTS | wc -l) -eq 0 ]] || { 
+[[ $($LEO build | grep "Number of constraints" | grep $PEDERSEH_HASH_CONSTRAINTS | wc -l) -eq 1 ]] || { 
     echo >&2 "Number of constraints for Pedersen Hash is not $PEDERSEN_HASH_CONSTRAINTS"; 
     exit 1; 
 } 
