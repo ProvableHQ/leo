@@ -22,8 +22,8 @@ use tendril::StrTendril;
 use std::fmt;
 
 ///
-/// Returns a reference to bytes from the given input if the given string is equal to the bytes,
-/// otherwise returns [`None`].
+/// Returns the length of the given `wanted` string if the string can be eaten, otherwise returns [`None`].
+/// A string can be eaten if its bytes are at the front of the given `input` array.
 ///
 fn eat(input: &[u8], wanted: &str) -> Option<usize> {
     let wanted = wanted.as_bytes();
@@ -37,8 +37,8 @@ fn eat(input: &[u8], wanted: &str) -> Option<usize> {
 }
 
 ///
-/// Returns a reference to the bytes of an identifier and the remaining bytes from the given input.
-/// Returns [`None`] if the bytes do not represent an identifier.
+/// Returns a new `StrTendril` string if an identifier can be eaten, otherwise returns [`None`].
+/// An identifier can be eaten if its bytes are at the front of the given `input_tendril` string.
 ///
 fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
     if input_tendril.is_empty() {
@@ -60,10 +60,10 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
 
 impl Token {
     ///
-    /// Returns a reference to the remaining bytes and the bytes of a number from the given input.
-    /// Returns [`None`] if the bytes do not represent a number.
+    /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
+    /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
     ///
-    fn gobble_int(input_tendril: &StrTendril) -> (usize, Option<Token>) {
+    fn eat_integer(input_tendril: &StrTendril) -> (usize, Option<Token>) {
         if input_tendril.is_empty() {
             return (0, None);
         }
@@ -93,10 +93,10 @@ impl Token {
     }
 
     ///
-    /// Returns a reference to the remaining bytes and the bytes of a [`Token`] from the given input.
-    /// Returns [`None`] if the bytes do not represent a token.
+    /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
+    /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
     ///
-    pub(crate) fn gobble(input_tendril: StrTendril) -> (usize, Option<Token>) {
+    pub(crate) fn eat(input_tendril: StrTendril) -> (usize, Option<Token>) {
         if input_tendril.is_empty() {
             return (0, None);
         }
@@ -149,7 +149,7 @@ impl Token {
                 return (i + 1, Some(Token::FormattedString(segments)));
             }
             x if x.is_ascii_digit() => {
-                return Self::gobble_int(&input_tendril);
+                return Self::eat_integer(&input_tendril);
             }
             b'!' => {
                 if let Some(len) = eat(input, "!=") {

@@ -39,7 +39,7 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
     let mut line_no = 1usize;
     let mut line_start = 0usize;
     while input.len() > index {
-        match Token::gobble(input.subtendril(index as u32, (input.len() - index) as u32)) {
+        match Token::eat(input.subtendril(index as u32, (input.len() - index) as u32)) {
             (token_len, Some(token)) => {
                 let mut span = Span {
                     line_start: line_no,

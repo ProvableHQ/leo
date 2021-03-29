@@ -21,7 +21,7 @@ use std::{fmt, sync::Arc};
 pub const INDENT: &str = "    ";
 
 /// Formatted compiler error type
-///     --> file.leo 2:8
+///     --> file.leo: 2:8
 ///      |
 ///    2 | let a = x;
 ///      |         ^
