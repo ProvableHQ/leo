@@ -82,6 +82,8 @@ fn test_compound_assignment() {
     assert_satisfied(program);
 
     let ast = parse_program_ast(program_string);
+    println!("{}", ast.to_json_string().unwrap());
+
     let expected_json = include_str!("compound_assignment.json");
     let expected_ast: Ast = Ast::from_json_string(expected_json).expect("Unable to parse json.");
 

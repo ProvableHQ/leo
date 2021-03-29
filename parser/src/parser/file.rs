@@ -328,18 +328,18 @@ impl ParserContext {
             self.expect_ident()?
         };
         if name.name.as_ref() == "self" {
-            if let Some(const_) = const_.as_ref() {
-                return Err(SyntaxError::illegal_self_const(&(&name.span + &const_.span)));
-            }
             if let Some(mutable) = &mutable {
+                // Handle `mut self`.
                 name.span = &mutable.span + &name.span;
                 name.name = "mut self".to_string().into();
                 return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
             } else if let Some(const_) = &const_ {
+                // Handle `const self`.
                 name.span = &const_.span + &name.span;
                 name.name = "const self".to_string().into();
                 return Ok(FunctionInput::ConstSelfKeyword(ConstSelfKeyword { identifier: name }));
             }
+            // Handle `self`.
             return Ok(FunctionInput::SelfKeyword(SelfKeyword { identifier: name }));
         }
 
