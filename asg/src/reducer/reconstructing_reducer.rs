@@ -382,6 +382,15 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
         input
     }
 
+    fn reduce_global_const(
+        &mut self,
+        input: &'a DefinitionStatement<'a>,
+        value: &'a Expression<'a>,
+    ) -> &'a DefinitionStatement<'a> {
+        input.value.set(value);
+        input
+    }
+
     fn reduce_program(
         &mut self,
         input: Program<'a>,

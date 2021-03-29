@@ -224,7 +224,7 @@ impl<'a> Program<'a> {
             }
         }
 
-        let import_scope = match context.arena.alloc(ArenaNode::Scope(Scope {
+        let import_scope = match context.arena.alloc(ArenaNode::Scope(Box::new(Scope {
             context,
             id: context.get_id(),
             parent_scope: Cell::new(None),
@@ -235,7 +235,7 @@ impl<'a> Program<'a> {
             circuits: RefCell::new(imported_circuits),
             function: Cell::new(None),
             input: Cell::new(None),
-        })) {
+        }))) {
             ArenaNode::Scope(c) => c,
             _ => unimplemented!(),
         };

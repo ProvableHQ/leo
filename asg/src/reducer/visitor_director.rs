@@ -424,6 +424,16 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
+    pub fn visit_global_const(&mut self, input: &'a DefinitionStatement<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_global_const(input) {
+            VisitResult::VisitChildren => {
+                self.visit_expression(&input.value)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
+    }
+
     pub fn visit_program(&mut self, input: &Program<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_program(input) {
             VisitResult::VisitChildren => {
@@ -435,6 +445,9 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
                 }
                 for (_, circuit) in input.circuits.iter() {
                     self.visit_circuit(circuit)?;
+                }
+                for (_, global_const) in input.global_consts.iter() {
+                    self.visit_global_const(global_const)?;
                 }
                 Ok(())
             }

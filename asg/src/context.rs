@@ -68,7 +68,7 @@ impl<'a> AsgContextInner<'a> {
 
     #[allow(clippy::mut_from_ref)]
     pub fn alloc_scope(&'a self, scope: Scope<'a>) -> &'a Scope<'a> {
-        match self.arena.alloc(ArenaNode::Scope(scope)) {
+        match self.arena.alloc(ArenaNode::Scope(Box::new(scope))) {
             ArenaNode::Scope(e) => e,
             _ => unimplemented!(),
         }

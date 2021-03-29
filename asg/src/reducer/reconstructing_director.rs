@@ -322,6 +322,12 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
         self.reducer.reduce_circuit(input, members)
     }
 
+    pub fn reduce_global_const(&mut self, input: &'a DefinitionStatement<'a>) -> &'a DefinitionStatement<'a> {
+        let value = self.reduce_expression(input.value.get());
+
+        self.reducer.reduce_global_const(input, value)
+    }
+
     pub fn reduce_program(&mut self, input: Program<'a>) -> Program<'a> {
         let imported_modules = input
             .imported_modules
@@ -338,10 +344,11 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
             .iter()
             .map(|(name, c)| (name.clone(), self.reduce_circuit(c)))
             .collect();
+
         let global_consts = input
             .global_consts
             .iter()
-            .map(|(name, gc)| (name.clone(), <&DefinitionStatement>::clone(gc))) // TODO REDUCE GC
+            .map(|(name, gc)| (name.clone(), self.reduce_global_const(gc)))
             .collect();
 
         self.reducer
