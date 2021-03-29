@@ -74,6 +74,7 @@ pub trait ReconstructingReducerExpression<'a> {
             left: Cell::new(left),
             right: Cell::new(right),
             span: input.span,
+            length: input.length,
         })
     }
 
