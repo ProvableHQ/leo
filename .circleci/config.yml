@@ -232,6 +232,9 @@ workflows:
       - leo-add-remove:
           requires:
             - leo-executable
+      - leo-check-constraints:
+          requires:
+            - leo-executable
       - leo-login-logout:
           requires:
             - leo-executable
