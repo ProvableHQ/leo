@@ -2,7 +2,7 @@
 
 cd ./project/examples/pedersen-hash
 
-export PEDERSEH_HASH_CONSTRAINTS=1539
+export PEDERSEH_HASH_CONSTRAINTS=1538
 
 # 1. build 
 # 2. find lines with constraint number
