@@ -1,6 +1,6 @@
 # leo new hello-world
 
-cd examples/pedersen-hash
+cd ./project/examples/pedersen-hash
 
 PEDERSEH_HASH_CONSTRAINTS=1539
 
