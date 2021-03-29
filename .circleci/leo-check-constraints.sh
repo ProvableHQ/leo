@@ -1,16 +1,16 @@
 # leo new hello-world
 
-cd ./project/examples/pedersen-hash
+cd ./examples/pedersen-hash
 
-export PEDERSEN_HASH_CONSTRAINTS=1539
+export PEDERSEN_HASH_CONSTRAINTS=1539;
 
-# 1. build 
-# 2. find lines with constraint number
-# 3. search this line for CONSTRAINTS number
-# 4.Er if result is 0 -> constraint number changed exit 1
-# 4.Ok if result is 1 -> all good
+# line that we're searching for is:
+# `Build Number of constraints - 1539`
+export ACTUAL_CONSTRAINTS=$($LEO build | grep constraints | awk '{print $NF}')
 
-[[ $(cargo run -q -- build | grep constraints) == *"$PEDERSEN_HASH_CONSTRAINTS"* ]] || { 
+# if else expression with only else block
+[[ PEDERSEN_HASH_CONSTRAINTS -eq ACTUAL_CONSTRAINTS ]] || { 
     echo >&2 "Number of constraints for Pedersen Hash is not $PEDERSEN_HASH_CONSTRAINTS"; 
+    echo >&2 "Real number of constraints is $ACTUAL_CONSTRAINTS";
     exit 1; 
 }
