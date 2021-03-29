@@ -67,6 +67,18 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
+    pub fn array_length_out_of_bounds(span: &Span) -> Self {
+        let message = "array length cannot be >= 2^32".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_index_out_of_legal_bounds(span: &Span) -> Self {
+        let message = "array index cannot be >= 2^32".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn conditional_boolean(actual: String, span: &Span) -> Self {
         let message = format!("if, else conditional must resolve to a boolean, found `{}`", actual);
 

@@ -16,6 +16,8 @@
 
 //! Enforces array access in a compiled Leo program.
 
+use std::convert::TryInto;
+
 use crate::{
     arithmetic::*,
     errors::ExpressionError,
@@ -59,10 +61,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 return Err(ExpressionError::array_index_out_of_bounds(0, span));
             }
             {
+                let array_len: u32 = array
+                    .len()
+                    .try_into()
+                    .map_err(|_| ExpressionError::array_length_out_of_bounds(span))?;
                 let bounds_check = evaluate_lt::<F, G, CS>(
                     cs,
                     ConstrainedValue::Integer(index_resolved.clone()),
-                    ConstrainedValue::Integer(Integer::new(&ConstInt::U32(array.len() as u32))),
+                    ConstrainedValue::Integer(Integer::new(&ConstInt::U32(array_len))),
                     span,
                 )?;
                 let bounds_check = match bounds_check {
@@ -75,17 +81,20 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     .enforce_equal(&mut unique_namespace, &Boolean::Constant(true))
                     .map_err(|e| ExpressionError::cannot_enforce("array bounds check".to_string(), e, span))?;
             }
+
             let mut current_value = array.pop().unwrap();
             for (i, item) in array.into_iter().enumerate() {
                 let namespace_string = format!("evaluate array access eq {} {}:{}", i, span.line_start, span.col_start);
                 let eq_namespace = cs.ns(|| namespace_string);
-                //todo: bounds check static index
-                let const_index = ConstInt::U32(i as u32).cast_to(&index_resolved.get_type());
+
+                let index_bounded = i
+                    .try_into()
+                    .map_err(|_| ExpressionError::array_index_out_of_legal_bounds(span))?;
+                let const_index = ConstInt::U32(index_bounded).cast_to(&index_resolved.get_type());
                 let index_comparison = index_resolved
                     .evaluate_equal(eq_namespace, &Integer::new(&const_index))
                     .map_err(|_| ExpressionError::cannot_evaluate("==".to_string(), span))?;
 
-                //todo: handle out of bounds
                 let unique_namespace =
                     cs.ns(|| format!("select array access {} {}:{}", i, span.line_start, span.col_start));
                 let value =
@@ -118,8 +127,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
         let to_resolved = match right {
             Some(to_index) => self.enforce_index(cs, to_index, span)?,
-            // todo: handle out of bounds for array len
-            None => Integer::new(&ConstInt::U32(array.len() as u32)), // Array slice ends at array length
+            None => {
+                let index_bounded: u32 = array
+                    .len()
+                    .try_into()
+                    .map_err(|_| ExpressionError::array_length_out_of_bounds(span))?;
+                Integer::new(&ConstInt::U32(index_bounded))
+            } // Array slice ends at array length
         };
         let const_dimensions = match (from_resolved.to_usize(), to_resolved.to_usize()) {
             (Some(from), Some(to)) => Some((from, to)),
