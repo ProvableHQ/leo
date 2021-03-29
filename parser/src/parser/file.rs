@@ -55,6 +55,7 @@ impl ParserContext {
                     // });
                 }
                 Token::Const => {
+                    // TODO separate into own function.
                     let statement = self.parse_definition_statement()?;
                     let variable_names = statement
                         .variable_names

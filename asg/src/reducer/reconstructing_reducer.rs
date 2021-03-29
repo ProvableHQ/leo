@@ -388,9 +388,8 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
         imported_modules: Vec<(String, Program<'a>)>,
         functions: Vec<(String, &'a Function<'a>)>,
         circuits: Vec<(String, &'a Circuit<'a>)>,
+        global_consts: Vec<(String, &'a DefinitionStatement<'a>)>,
     ) -> Program<'a> {
-        // TODO
-        use indexmap::IndexMap;
         Program {
             context: input.context,
             id: input.id,
@@ -399,7 +398,7 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
             functions: functions.into_iter().collect(),
             circuits: circuits.into_iter().collect(),
             scope: input.scope,
-            global_consts: IndexMap::new(),
+            global_consts: global_consts.into_iter().collect(),
         }
     }
 }

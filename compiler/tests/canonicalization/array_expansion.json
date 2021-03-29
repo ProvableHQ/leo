@@ -3,6 +3,7 @@
   "expected_input": [],
   "imports": [],
   "circuits": {},
+  "global_consts": {},
   "functions": {
     "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\"}\"}": {
       "annotations": [],

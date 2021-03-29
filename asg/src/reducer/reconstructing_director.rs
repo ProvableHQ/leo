@@ -338,8 +338,13 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
             .iter()
             .map(|(name, c)| (name.clone(), self.reduce_circuit(c)))
             .collect();
+        let global_consts = input
+            .global_consts
+            .iter()
+            .map(|(name, gc)| (name.clone(), <&DefinitionStatement>::clone(gc))) // TODO REDUCE GC
+            .collect();
 
         self.reducer
-            .reduce_program(input, imported_modules, functions, circuits)
+            .reduce_program(input, imported_modules, functions, circuits, global_consts)
     }
 }

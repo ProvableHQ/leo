@@ -43,7 +43,6 @@ pub struct Scope<'a> {
     pub functions: RefCell<IndexMap<String, &'a Function<'a>>>,
 
     /// Maps global constant name => global const code block.
-    /// TODO fixs
     pub global_consts: RefCell<IndexMap<String, &'a DefinitionStatement<'a>>>,
 
     /// Maps circuit name => circuit.
@@ -62,15 +61,9 @@ impl<'a> Scope<'a> {
     /// If there is no parent scope, then `None` is returned.
     ///
     pub fn resolve_variable(&self, name: &str) -> Option<&'a Variable<'a>> {
-        println!("rv n {}", name);
         if let Some(resolved) = self.variables.borrow().get(name) {
             Some(*resolved)
-        }
-        // TODO re-enable
-        //  else if let Some(resolved) = self.global_consts.borrow().get(name) {
-        //     Some(resolved.variable)
-        // }
-        else if let Some(scope) = self.parent_scope.get() {
+        } else if let Some(scope) = self.parent_scope.get() {
             scope.resolve_variable(name)
         } else {
             None

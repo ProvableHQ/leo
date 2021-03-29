@@ -24,7 +24,6 @@ use snarkvm_fields::PrimeField;
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn store_definition(&mut self, variable: &Variable, value: ConstrainedValue<'a, F, G>) {
         let variable = variable.borrow();
-
         self.store(variable.id, value);
     }
 }

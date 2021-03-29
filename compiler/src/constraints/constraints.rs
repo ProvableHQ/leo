@@ -34,7 +34,6 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
 
     for (_, global_const) in program.global_consts.iter() {
-        println!("Yo");
         resolved_program.enforce_definition_statement(cs, global_const)?;
     }
 

@@ -119,6 +119,7 @@
         ]
       }
     },
+    "global_consts": {},
     "functions": {
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\"}\"}": {
         "annotations": [],

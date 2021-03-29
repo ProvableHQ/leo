@@ -34,7 +34,6 @@ use crate::{
     Input,
     Scope,
     Statement,
-    Variable,
 };
 use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
 
@@ -277,26 +276,18 @@ impl<'a> Program<'a> {
             scope.functions.borrow_mut().insert(name.name.clone(), function);
         }
 
-        println!("Helllo? {:?}", program.global_consts);
         for (name, global_const) in program.global_consts.iter() {
-            println!("loop over p gcs name {}", name);
             global_const
                 .variable_names
                 .iter()
                 .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name)));
-            // TODO re-enable
             let gc = <&Statement<'a>>::from_ast(scope, global_const, None)?;
             if let Statement::Definition(gc) = gc {
                 scope.global_consts.borrow_mut().insert(name.clone(), gc);
-                // let split = gc.split();
-                // for (var_name, statement) in split.iter() {
-                //     scope.global_consts.borrow_mut().insert(var_name.clone(), statement.get());
-                // }
             }
         }
 
         // Load concrete definitions.
-        // TODO RE-ENABLE
         let mut global_consts = IndexMap::new();
         for (name, global_const) in program.global_consts.iter() {
             global_const
@@ -401,10 +392,9 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             function.name.borrow_mut().name = identifier.clone();
             all_functions.insert(identifier, *function);
         }
-        // TODO RE-ENABLE
+
         for (name, global_const) in program.global_consts.iter() {
             let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-            // global_const.variable.borrow_mut().name.name = identifier.clone();
             all_global_consts.insert(identifier, *global_const);
         }
     }
