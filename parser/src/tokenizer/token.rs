@@ -146,6 +146,9 @@ pub enum Token {
     // ModEq,
     // OrEq,
     // AndEq,
+
+    // Meta Tokens
+    EOF,
 }
 
 /// Represents all valid Leo keyword tokens.
@@ -289,6 +292,7 @@ impl fmt::Display for Token {
             Return => write!(f, "return"),
             Static => write!(f, "static"),
             String => write!(f, "string"),
+            EOF => write!(f, ""),
             // BitAnd => write!(f, "&"),
             // BitAndEq => write!(f, "&="),
             // BitOr => write!(f, "|"),

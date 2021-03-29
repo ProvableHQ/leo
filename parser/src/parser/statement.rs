@@ -167,7 +167,7 @@ impl ParserContext {
     pub fn parse_return_statement(&mut self) -> SyntaxResult<ReturnStatement> {
         let start = self.expect(Token::Return)?;
         let expr = self.parse_expression()?;
-        self.eat(Token::Comma);
+        self.eat(Token::Semicolon);
 
         Ok(ReturnStatement {
             span: &start + expr.span(),
@@ -316,10 +316,17 @@ impl ParserContext {
         let mut variable_names = Vec::new();
         if self.eat(Token::LeftParen).is_some() {
             variable_names.push(self.parse_variable_name(&declare)?);
+            let mut eaten_ending = false;
             while self.eat(Token::Comma).is_some() {
+                if self.eat(Token::RightParen).is_some() {
+                    eaten_ending = true;
+                    break;
+                }
                 variable_names.push(self.parse_variable_name(&declare)?);
             }
-            self.expect(Token::RightParen)?;
+            if !eaten_ending {
+                self.expect(Token::RightParen)?;
+            }
         } else {
             variable_names.push(self.parse_variable_name(&declare)?);
         }

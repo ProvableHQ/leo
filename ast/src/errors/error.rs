@@ -75,7 +75,7 @@ fn underline(mut start: usize, mut end: usize) -> String {
 
 impl fmt::Display for FormattedError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let underline = underline(self.col_start - 1, self.col_stop - 1);
+        let underline = underline(self.col_start, self.col_stop);
 
         write!(
             f,
@@ -99,7 +99,7 @@ impl fmt::Display for FormattedError {
 
         write!(
             f,
-            "{indent     } |  {underline}\n\
+            "{indent     } |{underline}\n\
              {indent     } |\n\
              {indent     } = {message}",
             indent = INDENT,

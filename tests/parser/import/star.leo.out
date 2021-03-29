@@ -1,0 +1,34 @@
+---
+ns: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    imports:
+      - package_or_packages:
+          Package:
+            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/star.leo\\\",\\\"content\\\":\\\"import test-import.*;\\\"}\"}"
+            access:
+              Star:
+                line_start: 3
+                line_stop: 3
+                col_start: 20
+                col_stop: 21
+                path: /home/p/aleo/leo/parser/../tests/parser/import/star.leo
+                content: import test-import.*;
+            span:
+              line_start: 3
+              line_stop: 3
+              col_start: 8
+              col_stop: 21
+              path: /home/p/aleo/leo/parser/../tests/parser/import/star.leo
+              content: import test-import.*;
+        span:
+          line_start: 3
+          line_stop: 3
+          col_start: 8
+          col_stop: 21
+          path: /home/p/aleo/leo/parser/../tests/parser/import/star.leo
+          content: import test-import.*;
+    circuits: {}
+    functions: {}

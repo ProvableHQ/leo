@@ -1,0 +1,411 @@
+---
+ns: ParseStatement
+expectation: Pass
+outputs:
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = expr;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 2
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: x = expr;
+      value:
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = expr;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 9
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: x = expr;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = ();\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 2
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: x = ();
+      value:
+        TupleInit:
+          elements: []
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 7
+            path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+            content: x = ();
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 7
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: x = ();
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = x+y;\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 2
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: x = x+y;
+      value:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = x+y;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = x+y;\\\"}\"}"
+          op: Add
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 8
+            path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+            content: x = x+y;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: x = x+y;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = (x,y);\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 2
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: "x = (x,y);"
+      value:
+        TupleInit:
+          elements:
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = (x,y);\\\"}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = (x,y);\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 10
+            path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+            content: "x = (x,y);"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 10
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: "x = (x,y);"
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = x();\\\"}\"}"
+        accesses: []
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 2
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: x = x();
+      value:
+        Call:
+          function:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x = x();\\\"}\"}"
+          arguments: []
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 8
+            path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+            content: x = x();
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: x = x();
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[0] = y;\\\"}\"}"
+        accesses:
+          - ArrayIndex:
+              Value:
+                Implicit:
+                  - "0"
+                  - line_start: 1
+                    line_stop: 1
+                    col_start: 3
+                    col_stop: 4
+                    path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+                    content: "x[0] = y;"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: "x[0] = y;"
+      value:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[0] = y;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 9
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: "x[0] = y;"
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[0u32] = y;\\\"}\"}"
+        accesses:
+          - ArrayIndex:
+              Value:
+                Integer:
+                  - U32
+                  - "0"
+                  - line_start: 1
+                    line_stop: 1
+                    col_start: 3
+                    col_stop: 7
+                    path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+                    content: "x[0u32] = y;"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: "x[0u32] = y;"
+      value:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[0u32] = y;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 12
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: "x[0u32] = y;"
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x.0 = y;\\\"}\"}"
+        accesses:
+          - Tuple:
+              - value: "0"
+              - line_start: 1
+                line_stop: 1
+                col_start: 1
+                col_stop: 4
+                path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+                content: x.0 = y;
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 4
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: x.0 = y;
+      value:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x.0 = y;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 8
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: x.0 = y;
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[1..2] = y;\\\"}\"}"
+        accesses:
+          - ArrayRange:
+              - Value:
+                  Implicit:
+                    - "1"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 3
+                      col_stop: 4
+                      path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+                      content: "x[1..2] = y;"
+              - Value:
+                  Implicit:
+                    - "2"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 6
+                      col_stop: 7
+                      path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+                      content: "x[1..2] = y;"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: "x[1..2] = y;"
+      value:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[1..2] = y;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 12
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: "x[1..2] = y;"
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[..2] = y;\\\"}\"}"
+        accesses:
+          - ArrayRange:
+              - ~
+              - Value:
+                  Implicit:
+                    - "2"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 5
+                      col_stop: 6
+                      path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+                      content: "x[..2] = y;"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: "x[..2] = y;"
+      value:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[..2] = y;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 11
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: "x[..2] = y;"
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[2..] = y;\\\"}\"}"
+        accesses:
+          - ArrayRange:
+              - Value:
+                  Implicit:
+                    - "2"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 3
+                      col_stop: 4
+                      path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+                      content: "x[2..] = y;"
+              - ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: "x[2..] = y;"
+      value:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[2..] = y;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 11
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: "x[2..] = y;"
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[..] = y;\\\"}\"}"
+        accesses:
+          - ArrayRange:
+              - ~
+              - ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: "x[..] = y;"
+      value:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x[..] = y;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 10
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: "x[..] = y;"
+  - Assign:
+      operation: Assign
+      assignee:
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x.0[0][..] = y;\\\"}\"}"
+        accesses:
+          - Tuple:
+              - value: "0"
+              - line_start: 1
+                line_stop: 1
+                col_start: 1
+                col_stop: 4
+                path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+                content: "x.0[0][..] = y;"
+          - ArrayIndex:
+              Value:
+                Implicit:
+                  - "0"
+                  - line_start: 1
+                    line_stop: 1
+                    col_start: 5
+                    col_stop: 6
+                    path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+                    content: "x.0[0][..] = y;"
+          - ArrayRange:
+              - ~
+              - ~
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 11
+          path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+          content: "x.0[0][..] = y;"
+      value:
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/assign.leo\\\",\\\"content\\\":\\\"x.0[0][..] = y;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 15
+        path: /home/p/aleo/leo/parser/../tests/parser/statement/assign.leo
+        content: "x.0[0][..] = y;"

@@ -91,7 +91,7 @@ impl ParserContext {
             )));
         }
 
-        unexpected_whitespace(&start, &name.span, &name.name, "@")?;
+        assert_no_whitespace(&start, &name.span, &name.name, "@")?;
 
         let end_span;
         let arguments = if self.eat(Token::LeftParen).is_some() {
@@ -153,7 +153,7 @@ impl ParserContext {
             Ok(PackageAccess::Star(span))
         } else {
             let name = self.expect_ident()?;
-            if self.peek()?.token == Token::Dot {
+            if self.peek_token().as_ref() == &Token::Dot {
                 self.backtrack(SpannedToken {
                     token: Token::Ident(name.name),
                     span: name.span,
@@ -188,7 +188,7 @@ impl ParserContext {
 
         // Build the rest of the package name including dashes.
         loop {
-            match &self.peek()?.token {
+            match &self.peek_token().as_ref() {
                 Token::Minus => {
                     let span = self.expect(Token::Minus)?;
                     base.span = base.span + span;
@@ -369,7 +369,7 @@ impl ParserContext {
     ///
     pub fn parse_function_declaration(&mut self) -> SyntaxResult<(Identifier, Function)> {
         let mut annotations = Vec::new();
-        while self.peek()?.token == Token::At {
+        while self.peek_token().as_ref() == &Token::At {
             annotations.push(self.parse_annotation()?);
         }
         let start = self.expect(Token::Function)?;

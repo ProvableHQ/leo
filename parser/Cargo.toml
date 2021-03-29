@@ -51,6 +51,9 @@ version = "0.4"
 [dev-dependencies.criterion]
 version = "0.3"
 
+[dev-dependencies.serde_yaml]
+version = "0.8"
+
 [features]
 default = [ ]
 ci_skip = [ ]

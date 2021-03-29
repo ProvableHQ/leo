@@ -1,0 +1,289 @@
+---
+ns: ParseExpression
+expectation: Pass
+outputs:
+  - Binary:
+      left:
+        Value:
+          Implicit:
+            - "1"
+            - line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 2
+              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+              content: 1 * 1
+      right:
+        Value:
+          Implicit:
+            - "1"
+            - line_start: 1
+              line_stop: 1
+              col_start: 5
+              col_stop: 6
+              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+              content: 1 * 1
+      op: Mul
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 6
+        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+        content: 1 * 1
+  - Binary:
+      left:
+        Value:
+          Implicit:
+            - "2"
+            - line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 2
+              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+              content: 2*3
+      right:
+        Value:
+          Implicit:
+            - "3"
+            - line_start: 1
+              line_stop: 1
+              col_start: 3
+              col_stop: 4
+              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+              content: 2*3
+      op: Mul
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 4
+        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+        content: 2*3
+  - Binary:
+      left:
+        Binary:
+          left:
+            Value:
+              Implicit:
+                - "1"
+                - line_start: 1
+                  line_stop: 1
+                  col_start: 1
+                  col_stop: 2
+                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                  content: 1 * 2 * 3
+          right:
+            Value:
+              Implicit:
+                - "2"
+                - line_start: 1
+                  line_stop: 1
+                  col_start: 5
+                  col_stop: 6
+                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                  content: 1 * 2 * 3
+          op: Mul
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 6
+            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+            content: 1 * 2 * 3
+      right:
+        Value:
+          Implicit:
+            - "3"
+            - line_start: 1
+              line_stop: 1
+              col_start: 9
+              col_stop: 10
+              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+              content: 1 * 2 * 3
+      op: Mul
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 10
+        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+        content: 1 * 2 * 3
+  - Binary:
+      left:
+        Binary:
+          left:
+            Value:
+              Implicit:
+                - "1"
+                - line_start: 1
+                  line_stop: 1
+                  col_start: 1
+                  col_stop: 2
+                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                  content: 1 ** 2 * 3 ** 4
+          right:
+            Value:
+              Implicit:
+                - "2"
+                - line_start: 1
+                  line_stop: 1
+                  col_start: 6
+                  col_stop: 7
+                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                  content: 1 ** 2 * 3 ** 4
+          op: Pow
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 7
+            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+            content: 1 ** 2 * 3 ** 4
+      right:
+        Binary:
+          left:
+            Value:
+              Implicit:
+                - "3"
+                - line_start: 1
+                  line_stop: 1
+                  col_start: 10
+                  col_stop: 11
+                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                  content: 1 ** 2 * 3 ** 4
+          right:
+            Value:
+              Implicit:
+                - "4"
+                - line_start: 1
+                  line_stop: 1
+                  col_start: 15
+                  col_stop: 16
+                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                  content: 1 ** 2 * 3 ** 4
+          op: Pow
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 10
+            col_stop: 16
+            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+            content: 1 ** 2 * 3 ** 4
+      op: Mul
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 16
+        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+        content: 1 ** 2 * 3 ** 4
+  - Binary:
+      left:
+        Binary:
+          left:
+            Binary:
+              left:
+                Value:
+                  Implicit:
+                    - "1"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 1
+                      col_stop: 2
+                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                      content: 1 ** 2 * 3 ** 4 / 5 ** 6
+              right:
+                Value:
+                  Implicit:
+                    - "2"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 6
+                      col_stop: 7
+                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                      content: 1 ** 2 * 3 ** 4 / 5 ** 6
+              op: Pow
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 1
+                col_stop: 7
+                path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                content: 1 ** 2 * 3 ** 4 / 5 ** 6
+          right:
+            Binary:
+              left:
+                Value:
+                  Implicit:
+                    - "3"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 10
+                      col_stop: 11
+                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                      content: 1 ** 2 * 3 ** 4 / 5 ** 6
+              right:
+                Value:
+                  Implicit:
+                    - "4"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 15
+                      col_stop: 16
+                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                      content: 1 ** 2 * 3 ** 4 / 5 ** 6
+              op: Pow
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 10
+                col_stop: 16
+                path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                content: 1 ** 2 * 3 ** 4 / 5 ** 6
+          op: Mul
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 16
+            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+            content: 1 ** 2 * 3 ** 4 / 5 ** 6
+      right:
+        Binary:
+          left:
+            Value:
+              Implicit:
+                - "5"
+                - line_start: 1
+                  line_stop: 1
+                  col_start: 19
+                  col_stop: 20
+                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                  content: 1 ** 2 * 3 ** 4 / 5 ** 6
+          right:
+            Value:
+              Implicit:
+                - "6"
+                - line_start: 1
+                  line_stop: 1
+                  col_start: 24
+                  col_stop: 25
+                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+                  content: 1 ** 2 * 3 ** 4 / 5 ** 6
+          op: Pow
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 19
+            col_stop: 25
+            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+            content: 1 ** 2 * 3 ** 4 / 5 ** 6
+      op: Div
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 25
+        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/mul.leo
+        content: 1 ** 2 * 3 ** 4 / 5 ** 6

@@ -306,11 +306,7 @@ impl Token {
             return (
                 ident.len(),
                 Some(match &*ident {
-                    x if x.starts_with("aleo1")
-                        && x.chars().skip(5).all(|x| x.is_ascii_lowercase() || x.is_ascii_digit()) =>
-                    {
-                        Token::AddressLit(ident)
-                    }
+                    x if x.starts_with("aleo1") => Token::AddressLit(ident),
                     "address" => Token::Address,
                     "as" => Token::As,
                     "bool" => Token::Bool,
