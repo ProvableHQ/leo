@@ -23,15 +23,15 @@ const ASSIGN_TOKENS: &[Token] = &[
     Token::MulEq,
     Token::DivEq,
     Token::ExpEq,
-    Token::BitAndEq,
-    Token::BitOrEq,
-    Token::BitXorEq,
-    Token::ShlEq,
-    Token::ShrEq,
-    Token::ShrSignedEq,
-    Token::ModEq,
-    Token::OrEq,
-    Token::AndEq,
+    // Token::BitAndEq,
+    // Token::BitOrEq,
+    // Token::BitXorEq,
+    // Token::ShlEq,
+    // Token::ShrEq,
+    // Token::ShrSignedEq,
+    // Token::ModEq,
+    // Token::OrEq,
+    // Token::AndEq,
 ];
 
 impl ParserContext {
@@ -89,48 +89,53 @@ impl ParserContext {
         match &self.peek()?.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
-            Token::For => Ok(Statement::Iteration(self.parse_for_statement()?)),
+            Token::For => Ok(Statement::Iteration(self.parse_loop_statement()?)),
             Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
             Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
-            _ => {
-                let expr = self.parse_expression()?;
+            _ => Ok(self.parse_assign_statement()?),
+        }
+    }
 
-                if let Some(operator) = self.eat_any(ASSIGN_TOKENS) {
-                    let value = self.parse_expression()?;
-                    let assignee = Self::construct_assignee(expr)?;
-                    self.expect(Token::Semicolon)?;
-                    Ok(Statement::Assign(AssignStatement {
-                        span: &assignee.span + value.span(),
-                        assignee,
-                        operation: match operator.token {
-                            Token::Assign => AssignOperation::Assign,
-                            Token::AddEq => AssignOperation::Add,
-                            Token::MinusEq => AssignOperation::Sub,
-                            Token::MulEq => AssignOperation::Mul,
-                            Token::DivEq => AssignOperation::Div,
-                            Token::ExpEq => AssignOperation::Pow,
-                            Token::OrEq => AssignOperation::Or,
-                            Token::AndEq => AssignOperation::And,
-                            Token::BitOrEq => AssignOperation::BitOr,
-                            Token::BitAndEq => AssignOperation::BitAnd,
-                            Token::BitXorEq => AssignOperation::BitXor,
-                            Token::ShrEq => AssignOperation::Shr,
-                            Token::ShrSignedEq => AssignOperation::ShrSigned,
-                            Token::ShlEq => AssignOperation::Shl,
-                            Token::ModEq => AssignOperation::Mod,
-                            _ => unimplemented!(),
-                        },
-                        value,
-                    }))
-                } else {
-                    self.expect(Token::Semicolon)?;
-                    Ok(Statement::Expression(ExpressionStatement {
-                        span: expr.span().clone(),
-                        expression: expr,
-                    }))
-                }
-            }
+    ///
+    /// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.
+    ///
+    pub fn parse_assign_statement(&mut self) -> SyntaxResult<Statement> {
+        let expr = self.parse_expression()?;
+
+        if let Some(operator) = self.eat_any(ASSIGN_TOKENS) {
+            let value = self.parse_expression()?;
+            let assignee = Self::construct_assignee(expr)?;
+            self.expect(Token::Semicolon)?;
+            Ok(Statement::Assign(AssignStatement {
+                span: &assignee.span + value.span(),
+                assignee,
+                operation: match operator.token {
+                    Token::Assign => AssignOperation::Assign,
+                    Token::AddEq => AssignOperation::Add,
+                    Token::MinusEq => AssignOperation::Sub,
+                    Token::MulEq => AssignOperation::Mul,
+                    Token::DivEq => AssignOperation::Div,
+                    Token::ExpEq => AssignOperation::Pow,
+                    // Token::OrEq => AssignOperation::Or,
+                    // Token::AndEq => AssignOperation::And,
+                    // Token::BitOrEq => AssignOperation::BitOr,
+                    // Token::BitAndEq => AssignOperation::BitAnd,
+                    // Token::BitXorEq => AssignOperation::BitXor,
+                    // Token::ShrEq => AssignOperation::Shr,
+                    // Token::ShrSignedEq => AssignOperation::ShrSigned,
+                    // Token::ShlEq => AssignOperation::Shl,
+                    // Token::ModEq => AssignOperation::Mod,
+                    _ => unimplemented!(),
+                },
+                value,
+            }))
+        } else {
+            self.expect(Token::Semicolon)?;
+            Ok(Statement::Expression(ExpressionStatement {
+                span: expr.span().clone(),
+                expression: expr,
+            }))
         }
     }
 
@@ -176,7 +181,7 @@ impl ParserContext {
     pub fn parse_conditional_statement(&mut self) -> SyntaxResult<ConditionalStatement> {
         let start = self.expect(Token::If)?;
         self.fuzzy_struct_state = true;
-        let expr = self.parse_expression_fuzzy()?;
+        let expr = self.parse_conditional_expression()?;
         self.fuzzy_struct_state = false;
         let body = self.parse_block()?;
         let next = if self.eat(Token::Else).is_some() {
@@ -196,14 +201,14 @@ impl ParserContext {
     ///
     /// Returns an [`IterationStatement`] AST node if the next tokens represent an iteration statement.
     ///
-    pub fn parse_for_statement(&mut self) -> SyntaxResult<IterationStatement> {
+    pub fn parse_loop_statement(&mut self) -> SyntaxResult<IterationStatement> {
         let start_span = self.expect(Token::For)?;
         let ident = self.expect_ident()?;
         self.expect(Token::In)?;
         let start = self.parse_expression()?;
         self.expect(Token::DotDot)?;
         self.fuzzy_struct_state = true;
-        let stop = self.parse_expression_fuzzy()?;
+        let stop = self.parse_conditional_expression()?;
         self.fuzzy_struct_state = false;
         let block = self.parse_block()?;
 

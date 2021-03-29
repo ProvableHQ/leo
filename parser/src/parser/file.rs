@@ -40,7 +40,7 @@ impl ParserContext {
                     circuits.insert(id, circuit);
                 }
                 Token::Function | Token::At => {
-                    let (id, function) = self.parse_function()?;
+                    let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
                 }
                 Token::Ident(ident) if ident == "test" => {
@@ -48,23 +48,15 @@ impl ParserContext {
                         &token.span,
                     )));
                     // self.expect(Token::Test)?;
-                    // let (id, function) = self.parse_function()?;
+                    // let (id, function) = self.parse_function_declaration()?;
                     // tests.insert(id, TestFunction {
                     //     function,
                     //     input_file: None,
                     // });
                 }
                 Token::Const => {
-                    // TODO separate into own function.
-                    let statement = self.parse_definition_statement()?;
-                    let variable_names = statement
-                        .variable_names
-                        .iter()
-                        .map(|variable_name| variable_name.identifier.name.clone())
-                        .collect::<Vec<String>>()
-                        .join(",");
-                    println!("definition VN {}", variable_names);
-                    global_consts.insert(variable_names, statement);
+                    let (name, global_const) = self.parse_global_const_declaration()?;
+                    global_consts.insert(name, global_const);
                 }
                 _ => {
                     return Err(SyntaxError::unexpected(
@@ -102,6 +94,14 @@ impl ParserContext {
                 &name.span,
             )));
         }
+
+        if start.col_stop != name.span.col_start {
+            let mut error_span = &start + &name.span;
+            error_span.col_start = start.col_stop - 1;
+            error_span.col_stop = name.span.col_start - 1;
+            return Err(SyntaxError::unexpected_whitespace("@", &name.name, &error_span));
+        }
+
         let end_span;
         let arguments = if self.eat(Token::LeftParen).is_some() {
             let mut args = Vec::new();
@@ -167,7 +167,7 @@ impl ParserContext {
                     token: Token::Ident(name.name),
                     span: name.span,
                 });
-                Ok(match self.parse_package_or_packages()? {
+                Ok(match self.parse_package_path()? {
                     PackageOrPackages::Package(p) => PackageAccess::SubPackage(Box::new(p)),
                     PackageOrPackages::Packages(p) => PackageAccess::Multiple(p),
                 })
@@ -247,7 +247,7 @@ impl ParserContext {
     /// Returns a [`PackageOrPackages`] AST node if the next tokens represent a valid package import
     /// with accesses.
     ///
-    pub fn parse_package_or_packages(&mut self) -> SyntaxResult<PackageOrPackages> {
+    pub fn parse_package_path(&mut self) -> SyntaxResult<PackageOrPackages> {
         let package_name = self.parse_package_name()?;
         self.expect(Token::Dot)?;
         if self.peek()?.token == Token::LeftParen {
@@ -272,7 +272,7 @@ impl ParserContext {
     ///
     pub fn parse_import(&mut self) -> SyntaxResult<ImportStatement> {
         self.expect(Token::Import)?;
-        let package_or_packages = self.parse_package_or_packages()?;
+        let package_or_packages = self.parse_package_path()?;
         self.expect(Token::Semicolon)?;
         Ok(ImportStatement {
             span: package_or_packages.span().clone(),
@@ -287,7 +287,7 @@ impl ParserContext {
     pub fn parse_circuit_member(&mut self) -> SyntaxResult<CircuitMember> {
         let peeked = &self.peek()?.token;
         if peeked == &Token::Function || peeked == &Token::At {
-            let function = self.parse_function()?;
+            let function = self.parse_function_declaration()?;
             Ok(CircuitMember::CircuitFunction(function.1))
         } else {
             // circuit variable
@@ -321,7 +321,7 @@ impl ParserContext {
     ///
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
-    pub fn parse_function_input(&mut self) -> SyntaxResult<FunctionInput> {
+    pub fn parse_function_parameters(&mut self) -> SyntaxResult<FunctionInput> {
         if let Some(token) = self.eat(Token::Input) {
             return Ok(FunctionInput::InputKeyword(InputKeyword {
                 identifier: Identifier {
@@ -374,7 +374,7 @@ impl ParserContext {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     ///
-    pub fn parse_function(&mut self) -> SyntaxResult<(Identifier, Function)> {
+    pub fn parse_function_declaration(&mut self) -> SyntaxResult<(Identifier, Function)> {
         let mut annotations = Vec::new();
         while self.peek()?.token == Token::At {
             annotations.push(self.parse_annotation()?);
@@ -384,7 +384,7 @@ impl ParserContext {
         self.expect(Token::LeftParen)?;
         let mut inputs = Vec::new();
         while self.eat(Token::RightParen).is_none() {
-            let input = self.parse_function_input()?;
+            let input = self.parse_function_parameters()?;
             inputs.push(input);
             if self.eat(Token::Comma).is_none() {
                 self.expect(Token::RightParen)?;
@@ -405,5 +405,21 @@ impl ParserContext {
             span: start + block.span.clone(),
             block,
         }))
+    }
+
+    ///
+    /// Returns an [`(String, DefinitionStatement)`] AST node if the next tokens represent a global
+    /// const definition statement and assignment.
+    ///
+    pub fn parse_global_const_declaration(&mut self) -> SyntaxResult<(String, DefinitionStatement)> {
+        let statement = self.parse_definition_statement()?;
+        let variable_names = statement
+            .variable_names
+            .iter()
+            .map(|variable_name| variable_name.identifier.name.clone())
+            .collect::<Vec<String>>()
+            .join(",");
+
+        Ok((variable_names, statement))
     }
 }

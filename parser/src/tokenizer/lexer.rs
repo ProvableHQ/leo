@@ -43,9 +43,11 @@ fn eat_identifier(input: &[u8]) -> Option<(&[u8], &[u8])> {
     if input.is_empty() {
         return None;
     }
-    if !input[0].is_ascii_alphabetic() && input[0] != b'_' {
+    if !input[0].is_ascii_alphabetic() {
+        // Allow _ at start.
         return None;
     }
+
     let mut i = 1usize;
     while i < input.len() {
         if !input[i].is_ascii_alphanumeric() && input[i] != b'_' {
@@ -161,14 +163,15 @@ impl Token {
             }
             b'&' => {
                 if let Some(input) = eat(input, "&&") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::AndEq));
-                    }
+                    // if let Some(input) = eat(input, "=") {
+                    //     return (input, Some(Token::AndEq));
+                    // }
                     return (input, Some(Token::And));
-                } else if let Some(input) = eat(input, "&=") {
-                    return (input, Some(Token::BitAndEq));
                 }
-                return (&input[1..], Some(Token::BitAnd));
+                // else if let Some(input) = eat(input, "&=") {
+                //     return (input, Some(Token::BitAndEq));
+                // }
+                // return (&input[1..], Some(Token::BitAnd));
             }
             b'(' => return (&input[1..], Some(Token::LeftParen)),
             b')' => return (&input[1..], Some(Token::RightParen)),
@@ -248,28 +251,30 @@ impl Token {
             b'<' => {
                 if let Some(input) = eat(input, "<=") {
                     return (input, Some(Token::LtEq));
-                } else if let Some(input) = eat(input, "<<") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::ShlEq));
-                    }
-                    return (input, Some(Token::Shl));
                 }
+                // else if let Some(input) = eat(input, "<<") {
+                //     if let Some(input) = eat(input, "=") {
+                //         return (input, Some(Token::ShlEq));
+                //     }
+                //     return (input, Some(Token::Shl));
+                // }
                 return (&input[1..], Some(Token::Lt));
             }
             b'>' => {
                 if let Some(input) = eat(input, ">=") {
                     return (input, Some(Token::GtEq));
-                } else if let Some(input) = eat(input, ">>") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::ShrEq));
-                    } else if let Some(input) = eat(input, ">") {
-                        if let Some(input) = eat(input, "=") {
-                            return (input, Some(Token::ShrSignedEq));
-                        }
-                        return (input, Some(Token::ShrSigned));
-                    }
-                    return (input, Some(Token::Shr));
                 }
+                // else if let Some(input) = eat(input, ">>") {
+                //     if let Some(input) = eat(input, "=") {
+                //         return (input, Some(Token::ShrEq));
+                //     } else if let Some(input) = eat(input, ">") {
+                //         if let Some(input) = eat(input, "=") {
+                //             return (input, Some(Token::ShrSignedEq));
+                //         }
+                //         return (input, Some(Token::ShrSigned));
+                //     }
+                //     return (input, Some(Token::Shr));
+                // }
                 return (&input[1..], Some(Token::Gt));
             }
             b'=' => {
@@ -278,6 +283,7 @@ impl Token {
                 }
                 return (&input[1..], Some(Token::Assign));
             }
+            b'_' => return (&input[1..], Some(Token::Underscore)),
             b'@' => return (&input[1..], Some(Token::At)),
             b'[' => return (&input[1..], Some(Token::LeftSquare)),
             b']' => return (&input[1..], Some(Token::RightSquare)),
@@ -285,28 +291,29 @@ impl Token {
             b'}' => return (&input[1..], Some(Token::RightCurly)),
             b'|' => {
                 if let Some(input) = eat(input, "||") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::OrEq));
-                    }
+                    // if let Some(input) = eat(input, "=") {
+                    //     return (input, Some(Token::OrEq));
+                    // }
                     return (input, Some(Token::Or));
-                } else if let Some(input) = eat(input, "|=") {
-                    return (input, Some(Token::BitOrEq));
                 }
-                return (&input[1..], Some(Token::BitOr));
+                // else if let Some(input) = eat(input, "|=") {
+                //     return (input, Some(Token::BitOrEq));
+                // }
+                // return (&input[1..], Some(Token::BitOr));
             }
-            b'^' => {
-                if let Some(input) = eat(input, "^=") {
-                    return (input, Some(Token::BitXorEq));
-                }
-                return (&input[1..], Some(Token::BitXor));
-            }
-            b'~' => return (&input[1..], Some(Token::BitNot)),
-            b'%' => {
-                if let Some(input) = eat(input, "%=") {
-                    return (input, Some(Token::ModEq));
-                }
-                return (&input[1..], Some(Token::Mod));
-            }
+            // b'^' => {
+            //     if let Some(input) = eat(input, "^=") {
+            //         return (input, Some(Token::BitXorEq));
+            //     }
+            //     return (&input[1..], Some(Token::BitXor));
+            // }
+            // b'~' => return (&input[1..], Some(Token::BitNot)),
+            // b'%' => {
+            //     if let Some(input) = eat(input, "%=") {
+            //         return (input, Some(Token::ModEq));
+            //     }
+            //     return (&input[1..], Some(Token::Mod));
+            // }
             _ => (),
         }
         if let Some((ident, input)) = eat_identifier(input) {
@@ -323,6 +330,7 @@ impl Token {
                     "as" => Token::As,
                     "bool" => Token::Bool,
                     "circuit" => Token::Circuit,
+                    "console" => Token::Console,
                     "const" => Token::Const,
                     "else" => Token::Else,
                     "false" => Token::False,
@@ -330,11 +338,11 @@ impl Token {
                     "for" => Token::For,
                     "function" => Token::Function,
                     "group" => Token::Group,
-                    "i128" => Token::I128,
-                    "i64" => Token::I64,
-                    "i32" => Token::I32,
-                    "i16" => Token::I16,
                     "i8" => Token::I8,
+                    "i16" => Token::I16,
+                    "i32" => Token::I32,
+                    "i64" => Token::I64,
+                    "i128" => Token::I128,
                     "if" => Token::If,
                     "import" => Token::Import,
                     "in" => Token::In,
@@ -342,17 +350,16 @@ impl Token {
                     "let" => Token::Let,
                     "mut" => Token::Mut,
                     "return" => Token::Return,
-                    "static" => Token::Static,
-                    "string" => Token::Str,
-                    "true" => Token::True,
-                    "u128" => Token::U128,
-                    "u64" => Token::U64,
-                    "u32" => Token::U32,
-                    "u16" => Token::U16,
-                    "u8" => Token::U8,
                     "Self" => Token::BigSelf,
                     "self" => Token::LittleSelf,
-                    "console" => Token::Console,
+                    "static" => Token::Static,
+                    "string" => Token::String,
+                    "true" => Token::True,
+                    "u8" => Token::U8,
+                    "u16" => Token::U16,
+                    "u32" => Token::U32,
+                    "u64" => Token::U64,
+                    "u128" => Token::U128,
                     _ => Token::Ident(ident),
                 }),
             );
