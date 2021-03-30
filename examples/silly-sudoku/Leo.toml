@@ -1,0 +1,8 @@
+[project]
+name = "silly-sudoku"
+version = "0.1.3"
+description = "A simple Sudoku puzzle grid"
+license = "MIT"
+
+[remote]
+author = "howard"
