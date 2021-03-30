@@ -46,7 +46,6 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
     }
     let input = input_tendril[..].as_bytes();
     if !input[0].is_ascii_alphabetic() {
-        // Allow _ at start.
         return None;
     }
 
@@ -176,6 +175,7 @@ impl Token {
             }
             b'(' => return (1, Some(Token::LeftParen)),
             b')' => return (1, Some(Token::RightParen)),
+            b'_' => return (1, Some(Token::Underscore)),
             b'*' => {
                 if let Some(len) = eat(input, "**") {
                     if let Some(inner_len) = eat(&input[len..], "=") {

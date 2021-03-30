@@ -303,10 +303,6 @@ impl ParserContext {
                     span,
                 } = token
                 {
-                    // if name.starts_with('_') {
-                    //     return Err(SyntaxError::invalid_ident_name(&name, &name[1..name.len()], &span));
-                    // }
-
                     Ok(Identifier { name, span })
                 } else {
                     unimplemented!()
