@@ -39,7 +39,7 @@ use commands::{
 };
 
 use anyhow::Error;
-use std::process::exit;
+use std::{path::PathBuf, process::exit};
 use structopt::{clap::AppSettings, StructOpt};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
@@ -54,6 +54,9 @@ struct Opt {
 
     #[structopt(subcommand)]
     command: CommandOpts,
+
+    #[structopt(short, long, help = "Optional path to Leo program root folder", parse(from_os_str))]
+    path: Option<PathBuf>,
 }
 
 ///Leo compiler and package manager
@@ -170,38 +173,45 @@ enum CommandOpts {
 }
 
 fn main() {
-    // read command line arguments
+    // Read command line arguments.
     let opt = Opt::from_args();
 
     if !opt.quiet {
-        // init logger with optional debug flag
+        // Init logger with optional debug flag.
         logger::init_logger("leo", match opt.debug {
             false => 1,
             true => 2,
         });
     }
 
+    // Get custom root folder and create context for it.
+    // If not specified, default context will be created in cwd.
+    let context = handle_error(match opt.path {
+        Some(path) => context::create_context(path),
+        None => context::get_context(),
+    });
+
     handle_error(match opt.command {
-        CommandOpts::Init { command } => command.try_execute(),
-        CommandOpts::New { command } => command.try_execute(),
-        CommandOpts::Build { command } => command.try_execute(),
-        CommandOpts::Setup { command } => command.try_execute(),
-        CommandOpts::Prove { command } => command.try_execute(),
-        CommandOpts::Test { command } => command.try_execute(),
-        CommandOpts::Run { command } => command.try_execute(),
-        CommandOpts::Clean { command } => command.try_execute(),
-        CommandOpts::Watch { command } => command.try_execute(),
-        CommandOpts::Update { command } => command.try_execute(),
+        CommandOpts::Init { command } => command.try_execute(context),
+        CommandOpts::New { command } => command.try_execute(context),
+        CommandOpts::Build { command } => command.try_execute(context),
+        CommandOpts::Setup { command } => command.try_execute(context),
+        CommandOpts::Prove { command } => command.try_execute(context),
+        CommandOpts::Test { command } => command.try_execute(context),
+        CommandOpts::Run { command } => command.try_execute(context),
+        CommandOpts::Clean { command } => command.try_execute(context),
+        CommandOpts::Watch { command } => command.try_execute(context),
+        CommandOpts::Update { command } => command.try_execute(context),
 
-        CommandOpts::Add { command } => command.try_execute(),
-        CommandOpts::Clone { command } => command.try_execute(),
-        CommandOpts::Login { command } => command.try_execute(),
-        CommandOpts::Logout { command } => command.try_execute(),
-        CommandOpts::Publish { command } => command.try_execute(),
-        CommandOpts::Remove { command } => command.try_execute(),
+        CommandOpts::Add { command } => command.try_execute(context),
+        CommandOpts::Clone { command } => command.try_execute(context),
+        CommandOpts::Login { command } => command.try_execute(context),
+        CommandOpts::Logout { command } => command.try_execute(context),
+        CommandOpts::Publish { command } => command.try_execute(context),
+        CommandOpts::Remove { command } => command.try_execute(context),
 
-        CommandOpts::Lint { command } => command.try_execute(),
-        CommandOpts::Deploy { command } => command.try_execute(),
+        CommandOpts::Lint { command } => command.try_execute(context),
+        CommandOpts::Deploy { command } => command.try_execute(context),
     });
 }
 

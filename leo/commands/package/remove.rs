@@ -37,7 +37,7 @@ impl Command for Remove {
         tracing::span!(tracing::Level::INFO, "Removing")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
         Ok(())
     }
 

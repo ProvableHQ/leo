@@ -33,7 +33,7 @@ impl Command for Deploy {
         tracing::span!(tracing::Level::INFO, "Deploy")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
         Ok(())
     }
 
