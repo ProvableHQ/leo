@@ -37,27 +37,27 @@ use tracing::span::Span;
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug)]
 pub struct BuildOptions {
-    #[structopt(long, help = "Enable constant folding compiler optimization")]
-    pub constant_folding_enabled: bool,
-    #[structopt(long, help = "Enable dead code elimination compiler optimization")]
-    pub dead_code_elimination_enabled: bool,
-    #[structopt(long, help = "Enable all compiler optimizations")]
-    pub enable_all_optimizations: bool,
+    #[structopt(long, help = "Disable constant folding compiler optimization")]
+    pub disable_constant_folding: bool,
+    #[structopt(long, help = "Disable dead code elimination compiler optimization")]
+    pub disable_code_elimination: bool,
+    #[structopt(long, help = "Disable all compiler optimizations")]
+    pub disable_all_optimizations: bool,
 }
 
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            constant_folding_enabled: true,
-            dead_code_elimination_enabled: true,
-            enable_all_optimizations: true,
+            disable_constant_folding: true,
+            disable_code_elimination: true,
+            disable_all_optimizations: true,
         }
     }
 }
 
 impl Into<CompilerOptions> for BuildOptions {
     fn into(self) -> CompilerOptions {
-        if self.enable_all_optimizations {
+        if self.disable_all_optimizations {
             CompilerOptions {
                 canonicalization_enabled: true,
                 constant_folding_enabled: true,
@@ -66,8 +66,8 @@ impl Into<CompilerOptions> for BuildOptions {
         } else {
             CompilerOptions {
                 canonicalization_enabled: true,
-                constant_folding_enabled: self.constant_folding_enabled,
-                dead_code_elimination_enabled: self.dead_code_elimination_enabled,
+                constant_folding_enabled: !self.disable_constant_folding,
+                dead_code_elimination_enabled: !self.disable_code_elimination,
             }
         }
     }
