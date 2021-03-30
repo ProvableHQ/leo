@@ -22,6 +22,9 @@
 //! A new [`Asg`] type can be created from an [`Ast`].
 //! Converting to an [`Asg`] provides greater type safety by canonicalizing and checking program types.
 
+#![allow(clippy::from_over_into)]
+#![allow(clippy::result_unit_err)]
+
 #[macro_use]
 extern crate thiserror;
 

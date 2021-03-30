@@ -13,10 +13,10 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+#![allow(clippy::upper_case_acronyms)]
 
 //! Abstract syntax tree (ast) representation from leo-input.pest.
 use pest::{error::Error, iterators::Pairs, Parser, Span};
-
 #[derive(Parser)]
 #[grammar = "leo-input.pest"]
 pub struct LanguageParser;

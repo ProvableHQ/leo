@@ -28,24 +28,22 @@ impl DeprecatedError {
     }
 }
 
-impl LeoError for DeprecatedError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            DeprecatedError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            DeprecatedError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for DeprecatedError {}
 
 impl DeprecatedError {
-    pub fn const_statement(span: &Span) -> Self {
-        let message = "const _ = ... is deprecated. Did you mean let?".to_string();
-        Self::new_from_span(message, span)
+    pub fn mut_function_input(mut span: Span) -> Self {
+        let message =
+            "function func(mut a: u32) { ... } is deprecated. Passed variables are mutable by default.".to_string();
+        span.col_start -= 1;
+        span.col_stop -= 1;
+        Self::new_from_span(message, &span)
+    }
+
+    pub fn let_mut_statement(mut span: Span) -> Self {
+        let message = "let mut = ... is deprecated. `let` keyword implies mutabality by default.".to_string();
+        span.col_start -= 1;
+        span.col_stop -= 1;
+        Self::new_from_span(message, &span)
     }
 
     pub fn test_function(span: &Span) -> Self {

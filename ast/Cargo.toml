@@ -35,8 +35,14 @@ features = ["derive", "rc"]
 [dependencies.serde_json]
 version = "1.0"
 
+[dependencies.anyhow]
+version = "1.0"
+
 [dependencies.thiserror]
 version = "1.0"
+
+[dependencies.tendril]
+version = "0.4"
 
 [dev-dependencies.criterion]
 version = "0.3"

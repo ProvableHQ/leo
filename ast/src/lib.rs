@@ -19,6 +19,10 @@
 //! This module contains the [`Ast`] type, a wrapper around the [`Program`] type.
 //! The [`Ast`] type is intended to be parsed and modified by different passes
 //! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].
+
+#[macro_use]
+extern crate thiserror;
+
 pub mod annotation;
 pub use self::annotation::*;
 
@@ -49,6 +53,9 @@ pub use self::input::*;
 pub mod program;
 pub use self::program::*;
 
+pub mod reducer;
+pub use self::reducer::*;
+
 pub mod statements;
 pub use self::statements::*;
 
@@ -73,6 +80,12 @@ impl Ast {
     /// Creates a new AST from a given program tree.
     pub fn new(program: Program) -> Self {
         Self { ast: program }
+    }
+
+    /// Mutates the program ast by preforming canonicalization on it.
+    pub fn canonicalize(&mut self) -> Result<(), CanonicalizeError> {
+        self.ast = ReconstructingDirector::new(Canonicalizer::default()).reduce_program(self.as_repr())?;
+        Ok(())
     }
 
     /// Returns a reference to the inner program AST representation.

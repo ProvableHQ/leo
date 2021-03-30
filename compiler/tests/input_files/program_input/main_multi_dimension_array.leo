@@ -1,7 +1,7 @@
 function main(x: [i16; (2, 2, 3)]){
   console.log("x: {}", x);
 
-  let y: [i16; (2, 2, 3)] = [0i16; (2, 2, 3)];
+  const y: [i16; (2, 2, 3)] = [0i16; (2, 2, 3)];
   console.log("y: {}", y);
 
   console.assert(x[0][0][0] == y[0][0][0]);

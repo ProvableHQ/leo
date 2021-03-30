@@ -15,11 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 // allow the use of EdwardsTestCompiler::parse_program_from_string for tests
+
 #![allow(deprecated)]
 
 pub mod address;
 pub mod array;
 pub mod boolean;
+pub mod canonicalization;
 pub mod circuits;
 pub mod compiler;
 pub mod console;

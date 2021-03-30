@@ -17,6 +17,9 @@
 pub mod array_dimensions;
 pub use array_dimensions::*;
 
+pub mod const_self_keyword;
+pub use const_self_keyword::*;
+
 pub mod identifier;
 pub use identifier::*;
 
@@ -37,3 +40,7 @@ pub use span::*;
 
 pub mod spread_or_expression;
 pub use spread_or_expression::*;
+
+pub mod tendril_json;
+
+pub mod vec_tendril_json;

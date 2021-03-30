@@ -1,3 +1,3 @@
 function main() {
-    let a: (bool, bool) = (true, false);
+    const a: (bool, bool) = (true, false);
 }

@@ -18,6 +18,7 @@ use std::unimplemented;
 
 use crate::{tokenizer::*, SyntaxError, SyntaxResult, Token, KEYWORD_TOKENS};
 use leo_ast::*;
+use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
@@ -149,7 +150,7 @@ impl ParserContext {
                     span,
                 }) => {
                     *i -= 1;
-                    GroupCoordinate::Number(format!("-{}", value), span.clone())
+                    GroupCoordinate::Number(format_tendril!("-{}", value), span.clone())
                 }
                 _ => GroupCoordinate::SignLow,
             },
@@ -280,7 +281,7 @@ impl ParserContext {
     pub fn expect_loose_identifier(&mut self) -> SyntaxResult<Identifier> {
         if let Some(token) = self.eat_any(KEYWORD_TOKENS) {
             return Ok(Identifier {
-                name: token.token.to_string(),
+                name: token.token.to_string().into(),
                 span: token.span,
             });
         }
@@ -302,10 +303,6 @@ impl ParserContext {
                     span,
                 } = token
                 {
-                    // if name.starts_with('_') {
-                    //     return Err(SyntaxError::invalid_ident_name(&name, &name[1..name.len()], &span));
-                    // }
-
                     Ok(Identifier { name, span })
                 } else {
                     unimplemented!()

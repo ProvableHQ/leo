@@ -16,7 +16,7 @@
 
 use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
 use leo_asg::{AsgConvertError, FormattedError};
-use leo_ast::LeoError;
+use leo_ast::{CanonicalizeError, LeoError};
 use leo_imports::ImportParserError;
 use leo_input::InputParserError;
 use leo_parser::SyntaxError;
@@ -77,32 +77,9 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     AsgConvertError(#[from] AsgConvertError),
+
+    #[error("{}", _0)]
+    CanonicalizeError(#[from] CanonicalizeError),
 }
 
-impl LeoError for CompilerError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            CompilerError::SyntaxError(error) => error.get_path(),
-            CompilerError::ImportError(error) => error.get_path(),
-            CompilerError::ImportParserError(error) => error.get_path(),
-            CompilerError::InputParserError(error) => error.get_path(),
-            CompilerError::FunctionError(error) => error.get_path(),
-            CompilerError::OutputStringError(error) => error.get_path(),
-            CompilerError::AsgConvertError(error) => error.get_path(),
-            _ => None,
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            CompilerError::SyntaxError(error) => error.set_path(path, contents),
-            CompilerError::ImportError(error) => error.set_path(path, contents),
-            CompilerError::ImportParserError(error) => error.set_path(path, contents),
-            CompilerError::InputParserError(error) => error.set_path(path, contents),
-            CompilerError::FunctionError(error) => error.set_path(path, contents),
-            CompilerError::OutputStringError(error) => error.set_path(path, contents),
-            CompilerError::AsgConvertError(error) => error.set_path(path, contents),
-            _ => {}
-        }
-    }
-}
+impl LeoError for CompilerError {}

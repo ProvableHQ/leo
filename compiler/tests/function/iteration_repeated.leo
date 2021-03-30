@@ -1,5 +1,5 @@
 function iteration() -> u32 {
-    let mut a = 0u32;
+    let a = 0u32;
 
     for i in 0..10 {
         a += 1;
@@ -9,7 +9,7 @@ function iteration() -> u32 {
 }
 
 function main() {
-    let total = iteration() + iteration();
+    const total = iteration() + iteration();
 
     console.assert(total == 20);
 }

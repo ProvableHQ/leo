@@ -3,5 +3,5 @@ function array_3x2_nested() -> [u8; (3, 2)] {
 }
 
 function main() {
-    let a = array_3x2_nested();
+    const a = array_3x2_nested();
 }

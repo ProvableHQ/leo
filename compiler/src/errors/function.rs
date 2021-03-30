@@ -64,39 +64,7 @@ pub enum FunctionError {
     ImportASGError(#[from] AsgConvertError),
 }
 
-impl LeoError for FunctionError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            FunctionError::AddressError(error) => error.get_path(),
-            FunctionError::BooleanError(error) => error.get_path(),
-            FunctionError::ExpressionError(error) => error.get_path(),
-            FunctionError::Error(error) => error.get_path(),
-            FunctionError::FieldError(error) => error.get_path(),
-            FunctionError::GroupError(error) => error.get_path(),
-            FunctionError::IntegerError(error) => error.get_path(),
-            FunctionError::OutputStringError(error) => error.get_path(),
-            FunctionError::StatementError(error) => error.get_path(),
-            FunctionError::ValueError(error) => error.get_path(),
-            FunctionError::ImportASGError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            FunctionError::AddressError(error) => error.set_path(path, contents),
-            FunctionError::BooleanError(error) => error.set_path(path, contents),
-            FunctionError::ExpressionError(error) => error.set_path(path, contents),
-            FunctionError::Error(error) => error.set_path(path, contents),
-            FunctionError::FieldError(error) => error.set_path(path, contents),
-            FunctionError::GroupError(error) => error.set_path(path, contents),
-            FunctionError::IntegerError(error) => error.set_path(path, contents),
-            FunctionError::OutputStringError(error) => error.set_path(path, contents),
-            FunctionError::StatementError(error) => error.set_path(path, contents),
-            FunctionError::ValueError(error) => error.set_path(path, contents),
-            FunctionError::ImportASGError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for FunctionError {}
 
 impl FunctionError {
     fn new_from_span(message: String, span: &Span) -> Self {

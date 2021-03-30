@@ -40,7 +40,7 @@ impl<'a> Input<'a> {
     fn make_header(scope: &'a Scope<'a>, name: &str) -> &'a Circuit<'a> {
         scope.context.alloc_circuit(Circuit {
             id: scope.context.get_id(),
-            name: RefCell::new(Identifier::new(name.to_string())),
+            name: RefCell::new(Identifier::new(name.into())),
             members: RefCell::new(IndexMap::new()),
             core_mapping: RefCell::new(None),
             scope,
@@ -69,7 +69,7 @@ impl<'a> Input<'a> {
 
         let container_circuit = input_scope.context.alloc_circuit(Circuit {
             id: scope.context.get_id(),
-            name: RefCell::new(Identifier::new(CONTAINER_PSEUDO_CIRCUIT.to_string())),
+            name: RefCell::new(Identifier::new(CONTAINER_PSEUDO_CIRCUIT.into())),
             members: RefCell::new(container_members),
             core_mapping: RefCell::new(None),
             scope: input_scope,
@@ -84,7 +84,7 @@ impl<'a> Input<'a> {
             container_circuit,
             container: input_scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                 id: scope.context.get_id(),
-                name: Identifier::new("input".to_string()),
+                name: Identifier::new("input".into()),
                 type_: Type::Circuit(container_circuit),
                 mutable: false,
                 const_: false,

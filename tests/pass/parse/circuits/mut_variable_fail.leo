@@ -3,7 +3,7 @@ circuit Foo {
 }
 
 function main() {
-    let f  = Foo { a: 0u8 };
+    const f  = Foo { a: 0u8 };
 
     f.a = 1u8;
 }

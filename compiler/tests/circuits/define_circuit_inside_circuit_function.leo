@@ -4,10 +4,10 @@ circuit Foo {
 
 circuit Bar {
     function bar() {
-        let f = Foo { a: 0u32 };
+        const f = Foo { a: 0u32 };
     }
 }
 
 function main() {
-    let b = Bar::bar();
+    const b = Bar::bar();
 }

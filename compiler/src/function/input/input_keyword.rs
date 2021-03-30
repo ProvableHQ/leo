@@ -27,6 +27,7 @@ pub const STATE_VARIABLE_NAME: &str = "state";
 pub const STATE_LEAF_VARIABLE_NAME: &str = "state_leaf";
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+    #[allow(clippy::vec_init_then_push)]
     pub fn allocate_input_keyword<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
@@ -37,19 +38,19 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         // Create an identifier for each input variable
 
         let registers_name = Identifier {
-            name: REGISTERS_VARIABLE_NAME.to_string(),
+            name: REGISTERS_VARIABLE_NAME.into(),
             span: span.clone(),
         };
         let record_name = Identifier {
-            name: RECORD_VARIABLE_NAME.to_string(),
+            name: RECORD_VARIABLE_NAME.into(),
             span: span.clone(),
         };
         let state_name = Identifier {
-            name: STATE_VARIABLE_NAME.to_string(),
+            name: STATE_VARIABLE_NAME.into(),
             span: span.clone(),
         };
         let state_leaf_name = Identifier {
-            name: STATE_LEAF_VARIABLE_NAME.to_string(),
+            name: STATE_LEAF_VARIABLE_NAME.into(),
             span: span.clone(),
         };
 
@@ -72,7 +73,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let mut members = Vec::with_capacity(sections.len());
 
         for (name, values) in sections {
-            let sub_circuit = match expected_type.members.borrow().get(&name.name) {
+            let sub_circuit = match expected_type.members.borrow().get(name.name.as_ref()) {
                 Some(CircuitMember::Variable(Type::Circuit(circuit))) => *circuit,
                 _ => panic!("illegal input type definition from asg"),
             };

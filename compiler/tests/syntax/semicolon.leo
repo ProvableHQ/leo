@@ -1,3 +1,3 @@
 function main() {
-    let a = 0
+    const a = 0
 }

@@ -51,7 +51,7 @@ impl ImportSymbol {
     pub fn star(span: &Span) -> Self {
         Self {
             symbol: Identifier {
-                name: "*".to_string(),
+                name: "*".into(),
                 span: span.clone(),
             },
             alias: None,
@@ -60,6 +60,6 @@ impl ImportSymbol {
     }
 
     pub fn is_star(&self) -> bool {
-        self.symbol.name.eq("*")
+        self.symbol.name.as_ref().eq("*")
     }
 }

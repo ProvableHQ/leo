@@ -56,7 +56,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuit<'a, F, G> for Blake2s {
         mut arguments: Vec<ConstrainedValue<'a, F, G>>,
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         assert_eq!(arguments.len(), 2); // asg enforced
-        assert!(function.name.borrow().name == "hash"); // asg enforced
+        assert!(function.name.borrow().name.as_ref() == "hash"); // asg enforced
         assert!(target.is_none()); // asg enforced
         let input = unwrap_argument(arguments.remove(1));
         let seed = unwrap_argument(arguments.remove(0));

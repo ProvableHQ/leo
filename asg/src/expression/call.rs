@@ -116,7 +116,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 let circuit_name = circuit.name.borrow().name.clone();
                 let member = circuit.members.borrow();
                 let member = member
-                    .get(&name.name)
+                    .get(name.name.as_ref())
                     .ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
                 match member {
                     CircuitMember::Function(body) => {
@@ -156,7 +156,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
 
                 let member = circuit.members.borrow();
                 let member = member
-                    .get(&name.name)
+                    .get(name.name.as_ref())
                     .ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
                 match member {
                     CircuitMember::Function(body) => {

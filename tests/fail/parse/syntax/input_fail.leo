@@ -1,3 +1,3 @@
 function main() {
-    let input = 0u32;
+    const input = 0u32;
 }

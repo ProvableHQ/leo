@@ -3,7 +3,7 @@ circuit Foo {
 }
 
 function main() {
-    let a = Foo { x: 1u32 };
+    const a = Foo { x: 1u32 };
 
     console.assert(a.x == 1u32);
 }
