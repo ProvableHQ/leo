@@ -199,7 +199,7 @@ impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Token::*;
         match self {
-            CommentLine(s) => writeln!(f, "{}", s),
+            CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
             FormattedString(parts) => {
                 // todo escapes
