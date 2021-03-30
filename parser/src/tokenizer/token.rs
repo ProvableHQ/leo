@@ -16,11 +16,12 @@
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use tendril::StrTendril;
 
 /// Parts of a formatted string for logging to the console.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum FormattedStringPart {
-    Const(String),
+    Const(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Container,
 }
 
@@ -38,14 +39,14 @@ impl fmt::Display for FormattedStringPart {
 pub enum Token {
     // Lexical Grammar
     // Literals
-    CommentLine(String),
-    CommentBlock(String),
+    CommentLine(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
+    CommentBlock(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     FormattedString(Vec<FormattedStringPart>),
-    Ident(String),
-    Int(String),
+    Ident(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
+    Int(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     True,
     False,
-    AddressLit(String),
+    AddressLit(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
 
     At,
 

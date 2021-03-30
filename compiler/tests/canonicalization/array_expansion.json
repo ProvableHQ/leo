@@ -4,15 +4,15 @@
   "imports": [],
   "circuits": {},
   "functions": {
-    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\"}\"}": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(a: [group; (2, 1)]) {\\\"}\"}": {
       "annotations": [],
-      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\"}\"}",
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(a: [group; (2, 1)]) {\\\"}\"}",
       "input": [
         {
           "Variable": {
-            "identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\"}\"}",
+            "identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(a: [group; (2, 1)]) {\\\"}\"}",
             "const_": false,
-            "mutable": false,
+            "mutable": true,
             "type_": {
               "Array": [
                 {
@@ -37,7 +37,8 @@
               "line_stop": 1,
               "col_start": 15,
               "col_stop": 16,
-              "path": ""
+              "path": "",
+              "content": "function main(a: [group; (2, 1)]) {"
             }
           }
         }
@@ -52,14 +53,15 @@
               "declaration_type": "Let",
               "variable_names": [
                 {
-                  "mutable": false,
-                  "identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\"}\"}",
+                  "mutable": true,
+                  "identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let b = [true; (6, 5, 4, 3, 2)];\\\"}\"}",
                   "span": {
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 7,
                     "col_stop": 8,
-                    "path": ""
+                    "path": "",
+                    "content": "  let b = [true; (6, 5, 4, 3, 2)];"
                   }
                 }
               ],
@@ -83,7 +85,8 @@
                                           "line_stop": 2,
                                           "col_start": 12,
                                           "col_stop": 16,
-                                          "path": ""
+                                          "path": "",
+                                          "content": "  let b = [true; (6, 5, 4, 3, 2)];"
                                         }
                                       ]
                                     }
@@ -98,7 +101,8 @@
                                     "line_stop": 2,
                                     "col_start": 11,
                                     "col_stop": 34,
-                                    "path": ""
+                                    "path": "",
+                                    "content": "  let b = [true; (6, 5, 4, 3, 2)];"
                                   }
                                 }
                               },
@@ -112,7 +116,8 @@
                                 "line_stop": 2,
                                 "col_start": 11,
                                 "col_stop": 34,
-                                "path": ""
+                                "path": "",
+                                "content": "  let b = [true; (6, 5, 4, 3, 2)];"
                               }
                             }
                           },
@@ -126,7 +131,8 @@
                             "line_stop": 2,
                             "col_start": 11,
                             "col_stop": 34,
-                            "path": ""
+                            "path": "",
+                            "content": "  let b = [true; (6, 5, 4, 3, 2)];"
                           }
                         }
                       },
@@ -140,7 +146,8 @@
                         "line_stop": 2,
                         "col_start": 11,
                         "col_stop": 34,
-                        "path": ""
+                        "path": "",
+                        "content": "  let b = [true; (6, 5, 4, 3, 2)];"
                       }
                     }
                   },
@@ -154,7 +161,8 @@
                     "line_stop": 2,
                     "col_start": 11,
                     "col_stop": 34,
-                    "path": ""
+                    "path": "",
+                    "content": "  let b = [true; (6, 5, 4, 3, 2)];"
                   }
                 }
               },
@@ -163,7 +171,8 @@
                 "line_stop": 2,
                 "col_start": 3,
                 "col_stop": 34,
-                "path": ""
+                "path": "",
+                "content": "  let b = [true; (6, 5, 4, 3, 2)];"
               }
             }
           },
@@ -172,14 +181,15 @@
               "declaration_type": "Let",
               "variable_names": [
                 {
-                  "mutable": false,
-                  "identifier": "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\"}\"}",
+                  "mutable": true,
+                  "identifier": "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let c: [u32; (1, 2)] = [0u32; (1, 2)];\\\"}\"}",
                   "span": {
                     "line_start": 3,
                     "line_stop": 3,
                     "col_start": 7,
                     "col_stop": 8,
-                    "path": ""
+                    "path": "",
+                    "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
                   }
                 }
               ],
@@ -218,7 +228,8 @@
                               "line_stop": 3,
                               "col_start": 27,
                               "col_stop": 31,
-                              "path": ""
+                              "path": "",
+                              "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
                             }
                           ]
                         }
@@ -233,7 +244,8 @@
                         "line_stop": 3,
                         "col_start": 26,
                         "col_stop": 40,
-                        "path": ""
+                        "path": "",
+                        "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
                       }
                     }
                   },
@@ -247,7 +259,8 @@
                     "line_stop": 3,
                     "col_start": 26,
                     "col_stop": 40,
-                    "path": ""
+                    "path": "",
+                    "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
                   }
                 }
               },
@@ -256,7 +269,8 @@
                 "line_stop": 3,
                 "col_start": 3,
                 "col_stop": 40,
-                "path": ""
+                "path": "",
+                "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
               }
             }
           },
@@ -265,14 +279,15 @@
               "declaration_type": "Let",
               "variable_names": [
                 {
-                  "mutable": false,
-                  "identifier": "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\"}\"}",
+                  "mutable": true,
+                  "identifier": "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let d = [0i8; (1)];\\\"}\"}",
                   "span": {
                     "line_start": 4,
                     "line_stop": 4,
                     "col_start": 7,
                     "col_stop": 8,
-                    "path": ""
+                    "path": "",
+                    "content": "  let d = [0i8; (1)];"
                   }
                 }
               ],
@@ -289,7 +304,8 @@
                           "line_stop": 4,
                           "col_start": 12,
                           "col_stop": 15,
-                          "path": ""
+                          "path": "",
+                          "content": "  let d = [0i8; (1)];"
                         }
                       ]
                     }
@@ -304,7 +320,8 @@
                     "line_stop": 4,
                     "col_start": 11,
                     "col_stop": 21,
-                    "path": ""
+                    "path": "",
+                    "content": "  let d = [0i8; (1)];"
                   }
                 }
               },
@@ -313,25 +330,28 @@
                 "line_stop": 4,
                 "col_start": 3,
                 "col_stop": 21,
-                "path": ""
+                "path": "",
+                "content": "  let d = [0i8; (1)];"
               }
             }
           }
         ],
         "span": {
           "line_start": 1,
-          "line_stop": 5,
+          "line_stop": 7,
           "col_start": 35,
           "col_stop": 2,
-          "path": ""
+          "path": "",
+          "content": "function main(a: [group; (2, 1)]) {\n...\n}"
         }
       },
       "span": {
         "line_start": 1,
-        "line_stop": 5,
+        "line_stop": 7,
         "col_start": 1,
         "col_stop": 2,
-        "path": ""
+        "path": "",
+        "content": "function main(a: [group; (2, 1)]) {\n...\n}\n\n\n\n"
       }
     }
   }

@@ -18,11 +18,13 @@ use leo_input::values::PositiveNumber as InputPositiveNumber;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use tendril::StrTendril;
 
 /// A number string guaranteed to be positive by the pest grammar.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
 pub struct PositiveNumber {
-    pub value: String,
+    #[serde(with = "crate::common::tendril_json")]
+    pub value: StrTendril,
 }
 
 impl PositiveNumber {
@@ -30,14 +32,16 @@ impl PositiveNumber {
     /// Returns `true` if this number is zero.
     ///
     pub fn is_zero(&self) -> bool {
-        self.value.eq("0")
+        self.value.as_ref().eq("0")
     }
 }
 
 /// Create a new [`PositiveNumber`] from an [`InputPositiveNumber`]  in a Leo input file.
 impl<'ast> From<InputPositiveNumber<'ast>> for PositiveNumber {
     fn from(array: InputPositiveNumber<'ast>) -> Self {
-        Self { value: array.value }
+        Self {
+            value: array.value.into(),
+        }
     }
 }
 

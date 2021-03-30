@@ -69,7 +69,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
     ) -> Result<Self, AsgConvertError> {
         let (name, span) = (&statement.assignee.identifier.name, &statement.assignee.identifier.span);
 
-        let variable = if name == "input" {
+        let variable = if name.as_ref() == "input" {
             if let Some(function) = scope.resolve_current_function() {
                 if !function.has_input {
                     return Err(AsgConvertError::unresolved_reference(name, &span));
@@ -188,7 +188,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             let circuit = circuit;
 
                             let members = circuit.members.borrow();
-                            let member = members.get(&name.name).ok_or_else(|| {
+                            let member = members.get(name.name.as_ref()).ok_or_else(|| {
                                 AsgConvertError::unresolved_circuit_member(
                                     &circuit.name.borrow().name,
                                     &name.name,
@@ -251,7 +251,7 @@ impl<'a> Into<leo_ast::AssignStatement> for &AssignStatement<'a> {
                         AssignAccess::ArrayIndex(index) => AstAssigneeAccess::ArrayIndex(index.get().into()),
                         AssignAccess::Tuple(index) => AstAssigneeAccess::Tuple(
                             leo_ast::PositiveNumber {
-                                value: index.to_string(),
+                                value: index.to_string().into(),
                             },
                             self.span.clone().unwrap_or_default(),
                         ),

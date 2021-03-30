@@ -25,19 +25,7 @@ pub enum IntegerError {
     Error(#[from] FormattedError),
 }
 
-impl LeoError for IntegerError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            IntegerError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            IntegerError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for IntegerError {}
 
 impl IntegerError {
     fn new_from_span(message: String, span: &Span) -> Self {

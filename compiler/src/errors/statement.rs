@@ -42,31 +42,7 @@ pub enum StatementError {
     ValueError(#[from] ValueError),
 }
 
-impl LeoError for StatementError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            StatementError::AddressError(error) => error.get_path(),
-            StatementError::BooleanError(error) => error.get_path(),
-            StatementError::Error(error) => error.get_path(),
-            StatementError::ExpressionError(error) => error.get_path(),
-            StatementError::IntegerError(error) => error.get_path(),
-            StatementError::MacroError(error) => error.get_path(),
-            StatementError::ValueError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            StatementError::AddressError(error) => error.set_path(path, contents),
-            StatementError::BooleanError(error) => error.set_path(path, contents),
-            StatementError::Error(error) => error.set_path(path, contents),
-            StatementError::ExpressionError(error) => error.set_path(path, contents),
-            StatementError::IntegerError(error) => error.set_path(path, contents),
-            StatementError::MacroError(error) => error.set_path(path, contents),
-            StatementError::ValueError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for StatementError {}
 
 impl StatementError {
     fn new_from_span(message: String, span: &Span) -> Self {

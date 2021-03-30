@@ -171,7 +171,7 @@ impl Canonicalizer {
 
             Expression::CircuitInit(circuit_init) => {
                 let mut name = circuit_init.name.clone();
-                if name.name == *"Self" {
+                if name.name.as_ref() == "Self" {
                     name = self.circuit_name.as_ref().unwrap().clone();
                 }
 

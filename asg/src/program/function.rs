@@ -113,7 +113,7 @@ impl<'a> Function<'a> {
                             references: vec![],
                             assignments: vec![],
                         }));
-                        arguments.insert(identifier.name.clone(), Cell::new(&*variable));
+                        arguments.insert(identifier.name.to_string(), Cell::new(&*variable));
                     }
                 }
             }
@@ -144,7 +144,7 @@ impl<'a> Function<'a> {
             let circuit = self.circuit.get();
             let self_variable = self.scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                 id: self.scope.context.get_id(),
-                name: Identifier::new("self".to_string()),
+                name: Identifier::new("self".into()),
                 type_: Type::Circuit(circuit.as_ref().unwrap()),
                 mutable: self.qualifier == FunctionQualifier::MutSelfRef,
                 const_: false,
@@ -186,7 +186,7 @@ impl<'a> Function<'a> {
     }
 
     pub fn is_test(&self) -> bool {
-        self.annotations.iter().any(|x| x.name.name == "test")
+        self.annotations.iter().any(|x| x.name.name.as_ref() == "test")
     }
 }
 

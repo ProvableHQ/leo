@@ -22,19 +22,7 @@ pub enum ImportError {
     Error(#[from] FormattedError),
 }
 
-impl LeoError for ImportError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            ImportError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            ImportError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for ImportError {}
 
 impl ImportError {
     fn new_from_span(message: String, span: &Span) -> Self {

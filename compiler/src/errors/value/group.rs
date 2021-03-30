@@ -23,19 +23,7 @@ pub enum GroupError {
     Error(#[from] FormattedError),
 }
 
-impl LeoError for GroupError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            GroupError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            GroupError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for GroupError {}
 
 impl GroupError {
     fn new_from_span(message: String, span: &Span) -> Self {

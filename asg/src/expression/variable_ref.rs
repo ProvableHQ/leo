@@ -136,7 +136,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
         value: &leo_ast::Identifier,
         expected_type: Option<PartialType<'a>>,
     ) -> Result<&'a Expression<'a>, AsgConvertError> {
-        let variable = if value.name == "input" {
+        let variable = if value.name.as_ref() == "input" {
             if let Some(function) = scope.resolve_current_function() {
                 if !function.has_input {
                     return Err(AsgConvertError::unresolved_reference(&value.name, &value.span));

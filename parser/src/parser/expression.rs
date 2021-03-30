@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use tendril::format_tendril;
+
 use super::*;
 
 const INT_TYPES: &[Token] = &[
@@ -368,10 +370,17 @@ impl ParserContext {
             // hack for const signed integer overflow issues
             if matches!(operation, UnaryOperation::Negate) {
                 if let Expression::Value(ValueExpression::Integer(type_, value, span)) = inner {
-                    inner = Expression::Value(ValueExpression::Integer(type_, format!("-{}", value), &op.span + &span));
+                    inner = Expression::Value(ValueExpression::Integer(
+                        type_,
+                        format_tendril!("-{}", value),
+                        &op.span + &span,
+                    ));
                     continue;
                 } else if let Expression::Value(ValueExpression::Implicit(value, span)) = inner {
-                    inner = Expression::Value(ValueExpression::Implicit(format!("-{}", value), &op.span + &span));
+                    inner = Expression::Value(ValueExpression::Implicit(
+                        format_tendril!("-{}", value),
+                        &op.span + &span,
+                    ));
                     continue;
                 }
             }
@@ -665,8 +674,8 @@ impl ParserContext {
                     None => Expression::Value(ValueExpression::Implicit(value, span)),
                 }
             }
-            Token::True => Expression::Value(ValueExpression::Boolean("true".to_string(), span)),
-            Token::False => Expression::Value(ValueExpression::Boolean("false".to_string(), span)),
+            Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
+            Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
             Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
             Token::Address => {
                 self.expect(Token::LeftParen)?;
@@ -696,7 +705,7 @@ impl ParserContext {
             }
             Token::BigSelf => {
                 let ident = Identifier {
-                    name: token.to_string(),
+                    name: token.to_string().into(),
                     span,
                 };
                 if !self.fuzzy_struct_state && self.peek()?.token == Token::LeftCurly {
@@ -707,7 +716,7 @@ impl ParserContext {
             }
             Token::Input | Token::LittleSelf => {
                 let ident = Identifier {
-                    name: token.to_string(),
+                    name: token.to_string().into(),
                     span,
                 };
                 Expression::Identifier(ident)

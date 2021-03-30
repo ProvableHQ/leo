@@ -18,10 +18,11 @@ use crate::{Expression, Node, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use tendril::StrTendril;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum FormattedStringPart {
-    Const(String),
+    Const(#[serde(with = "crate::common::tendril_json")] StrTendril),
     Container,
 }
 

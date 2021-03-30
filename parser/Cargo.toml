@@ -48,6 +48,9 @@ version = "0.3"
 [dependencies.indexmap]
 version = "1.6"
 
+[dependencies.tendril]
+version = "0.4"
+
 [features]
 default = [ ]
 ci_skip = [ ]

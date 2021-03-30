@@ -17,8 +17,4 @@
 pub mod error;
 pub use error::*;
 
-pub trait LeoError {
-    fn get_path(&self) -> Option<&str>;
-
-    fn set_path(&mut self, path: &str, contents: &[String]);
-}
+pub trait LeoError {}

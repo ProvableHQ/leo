@@ -23,10 +23,11 @@ use leo_input::values::{
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use tendril::StrTendril;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupValue {
-    Single(String, Span),
+    Single(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
     Tuple(GroupTuple),
 }
 
@@ -51,7 +52,7 @@ impl<'ast> From<InputGroupValue<'ast>> for GroupValue {
         let span = Span::from(ast_group.span);
 
         match ast_group.value {
-            InputGroupRepresentation::Single(number) => GroupValue::Single(number.to_string(), span),
+            InputGroupRepresentation::Single(number) => GroupValue::Single(number.to_string().into(), span),
             InputGroupRepresentation::Tuple(tuple) => GroupValue::Tuple(GroupTuple::from(tuple)),
         }
     }
