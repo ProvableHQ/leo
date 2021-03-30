@@ -17,7 +17,7 @@
 //! Enforces a statement in a compiled Leo program.
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::Statement;
+use leo_asg::{Node, Statement};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::utilities::boolean::Boolean;
@@ -42,6 +42,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         statement: &'a Statement<'a>,
     ) -> StatementResult<Vec<IndicatorAndConstrainedValue<'a, F, G>>> {
         let mut results = vec![];
+        let span = statement.span().cloned().unwrap_or_default();
+        let mut cs = cs.ns(|| format!("statement {}:{}", span.line_start, span.col_start));
+        let cs = &mut cs;
 
         match statement {
             Statement::Return(statement) => {
