@@ -140,148 +140,17 @@ impl Integer {
         span: &Span,
     ) -> Result<Self, IntegerError> {
         Ok(match integer_type {
-            IntegerType::U8 => {
-                let u8_option = option.map(|s| {
-                    s.parse::<u8>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
+            IntegerType::U8 => allocate_type!(u8, UInt8, Integer::U8, cs, name, option, span),
+            IntegerType::U16 => allocate_type!(u16, UInt16, Integer::U16, cs, name, option, span),
+            IntegerType::U32 => allocate_type!(u32, UInt32, Integer::U32, cs, name, option, span),
+            IntegerType::U64 => allocate_type!(u64, UInt64, Integer::U64, cs, name, option, span),
+            IntegerType::U128 => allocate_type!(u128, UInt128, Integer::U128, cs, name, option, span),
 
-                let u8_result = UInt8::alloc(
-                    cs.ns(|| format!("`{}: u8` {}:{}", name, span.line_start, span.col_start)),
-                    || u8_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u8", name), span))?;
-
-                Integer::U8(u8_result)
-            }
-            IntegerType::U16 => {
-                let u16_option = option.map(|s| {
-                    s.parse::<u16>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
-                let u16_result = UInt16::alloc(
-                    cs.ns(|| format!("`{}: u16` {}:{}", name, span.line_start, span.col_start)),
-                    || u16_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u16", name), span))?;
-
-                Integer::U16(u16_result)
-            }
-            IntegerType::U32 => {
-                let u32_option = option.map(|s| {
-                    s.parse::<u32>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
-                let u32_result = UInt32::alloc(
-                    cs.ns(|| format!("`{}: u32` {}:{}", name, span.line_start, span.col_start)),
-                    || u32_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u32", name), span))?;
-
-                Integer::U32(u32_result)
-            }
-            IntegerType::U64 => {
-                let u64_option = option.map(|s| {
-                    s.parse::<u64>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
-                let u64_result = UInt64::alloc(
-                    cs.ns(|| format!("`{}: u64` {}:{}", name, span.line_start, span.col_start)),
-                    || u64_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u64", name), span))?;
-
-                Integer::U64(u64_result)
-            }
-            IntegerType::U128 => {
-                let u128_option = option.map(|s| {
-                    s.parse::<u128>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
-                let u128_result = UInt128::alloc(
-                    cs.ns(|| format!("`{}: u128` {}:{}", name, span.line_start, span.col_start)),
-                    || u128_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u128", name), span))?;
-
-                Integer::U128(u128_result)
-            }
-
-            IntegerType::I8 => {
-                let i8_option = option.map(|s| {
-                    s.parse::<i8>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
-                let i8_result = Int8::alloc(
-                    cs.ns(|| format!("`{}: i8` {}:{}", name, span.line_start, span.col_start)),
-                    || i8_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i8", name), span))?;
-
-                Integer::I8(i8_result)
-            }
-            IntegerType::I16 => {
-                let i16_option = option.map(|s| {
-                    s.parse::<i16>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
-                let i16_result = Int16::alloc(
-                    cs.ns(|| format!("`{}: i16` {}:{}", name, span.line_start, span.col_start)),
-                    || i16_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i16", name), span))?;
-
-                Integer::I16(i16_result)
-            }
-            IntegerType::I32 => {
-                let i32_option = option.map(|s| {
-                    s.parse::<i32>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
-                let i32_result = Int32::alloc(
-                    cs.ns(|| format!("`{}: i32` {}:{}", name, span.line_start, span.col_start)),
-                    || i32_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i32", name), span))?;
-
-                Integer::I32(i32_result)
-            }
-            IntegerType::I64 => {
-                let i64_option = option.map(|s| {
-                    s.parse::<i64>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
-                let i64_result = Int64::alloc(
-                    cs.ns(|| format!("`{}: i64` {}:{}", name, span.line_start, span.col_start)),
-                    || i64_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i64", name), span))?;
-
-                Integer::I64(i64_result)
-            }
-            IntegerType::I128 => {
-                let i128_option = option.map(|s| {
-                    s.parse::<i128>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span))
-                        .unwrap()
-                });
-                let i128_result = Int128::alloc(
-                    cs.ns(|| format!("`{}: i128` {}:{}", name, span.line_start, span.col_start)),
-                    || i128_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i128", name), span))?;
-
-                Integer::I128(i128_result)
-            }
+            IntegerType::I8 => allocate_type!(i8, Int8, Integer::I8, cs, name, option, span),
+            IntegerType::I16 => allocate_type!(i16, Int16, Integer::I16, cs, name, option, span),
+            IntegerType::I32 => allocate_type!(i32, Int32, Integer::I32, cs, name, option, span),
+            IntegerType::I64 => allocate_type!(i64, Int64, Integer::I64, cs, name, option, span),
+            IntegerType::I128 => allocate_type!(i128, Int128, Integer::I128, cs, name, option, span),
         })
     }
 
