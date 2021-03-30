@@ -41,7 +41,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         span: &Span,
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         Ok(match value {
-            ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.clone(), span)?),
+            ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.to_string(), span)?),
             ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
             ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), span)?),
             ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),

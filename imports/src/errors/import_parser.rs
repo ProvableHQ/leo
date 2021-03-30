@@ -33,25 +33,7 @@ pub enum ImportParserError {
     AsgConvertError(#[from] AsgConvertError),
 }
 
-impl LeoError for ImportParserError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            ImportParserError::Error(error) => error.get_path(),
-            ImportParserError::SyntaxError(error) => error.get_path(),
-            ImportParserError::AsgConvertError(error) => error.get_path(),
-            ImportParserError::DeprecatedError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            ImportParserError::Error(error) => error.set_path(path, contents),
-            ImportParserError::SyntaxError(error) => error.set_path(path, contents),
-            ImportParserError::AsgConvertError(error) => error.set_path(path, contents),
-            ImportParserError::DeprecatedError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for ImportParserError {}
 
 impl Into<AsgConvertError> for ImportParserError {
     fn into(self) -> AsgConvertError {

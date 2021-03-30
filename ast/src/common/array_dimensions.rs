@@ -32,7 +32,7 @@ impl ArrayDimensions {
     ///
     pub fn push_usize(&mut self, number: usize) {
         let positive_number = PositiveNumber {
-            value: number.to_string(),
+            value: number.to_string().into(),
         };
 
         self.0.push(positive_number)

@@ -89,11 +89,11 @@ fn resolve_import_package(
 ) {
     match package_or_packages {
         PackageOrPackages::Package(package) => {
-            package_segments.push(package.name.name.clone());
+            package_segments.push(package.name.name.to_string());
             resolve_import_package_access(output, package_segments, &package.access);
         }
         PackageOrPackages::Packages(packages) => {
-            package_segments.push(packages.name.name.clone());
+            package_segments.push(packages.name.name.to_string());
             for access in packages.accesses.clone() {
                 resolve_import_package_access(output, package_segments.clone(), &access);
             }
@@ -120,14 +120,14 @@ fn resolve_import_package_access(
         PackageAccess::Symbol(symbol) => {
             let span = symbol.symbol.span.clone();
             let symbol = if let Some(alias) = symbol.alias.as_ref() {
-                ImportSymbol::Alias(symbol.symbol.name.clone(), alias.name.clone())
+                ImportSymbol::Alias(symbol.symbol.name.to_string(), alias.name.to_string())
             } else {
-                ImportSymbol::Direct(symbol.symbol.name.clone())
+                ImportSymbol::Direct(symbol.symbol.name.to_string())
             };
             output.push((package_segments, symbol, span));
         }
         PackageAccess::Multiple(packages) => {
-            package_segments.push(packages.name.name.clone());
+            package_segments.push(packages.name.name.to_string());
             for subaccess in packages.accesses.iter() {
                 resolve_import_package_access(output, package_segments.clone(), &subaccess);
             }
@@ -258,7 +258,7 @@ impl<'a> Program<'a> {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init(scope, circuit)?;
 
-            scope.circuits.borrow_mut().insert(name.name.clone(), asg_circuit);
+            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
         }
 
         // Second pass for circuit members.
@@ -266,21 +266,21 @@ impl<'a> Program<'a> {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init_member(scope, circuit)?;
 
-            scope.circuits.borrow_mut().insert(name.name.clone(), asg_circuit);
+            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
         }
 
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
             let function = Function::init(scope, function)?;
 
-            scope.functions.borrow_mut().insert(name.name.clone(), function);
+            scope.functions.borrow_mut().insert(name.name.to_string(), function);
         }
 
         for (name, global_const) in program.global_consts.iter() {
             global_const
                 .variable_names
                 .iter()
-                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name)));
+                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name.to_string())));
             let gc = <&Statement<'a>>::from_ast(scope, global_const, None)?;
             if let Statement::Definition(gc) = gc {
                 scope.global_consts.borrow_mut().insert(name.clone(), gc);
@@ -293,7 +293,7 @@ impl<'a> Program<'a> {
             global_const
                 .variable_names
                 .iter()
-                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name)));
+                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name.to_string())));
             let asg_global_const = *scope.global_consts.borrow().get(name).unwrap();
 
             global_consts.insert(name.clone(), asg_global_const);
@@ -302,21 +302,21 @@ impl<'a> Program<'a> {
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
-            let asg_function = *scope.functions.borrow().get(&name.name).unwrap();
+            let asg_function = *scope.functions.borrow().get(name.name.as_ref()).unwrap();
 
             asg_function.fill_from_ast(function)?;
 
-            functions.insert(name.name.clone(), asg_function);
+            functions.insert(name.name.to_string(), asg_function);
         }
 
         let mut circuits = IndexMap::new();
         for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = *scope.circuits.borrow().get(&name.name).unwrap();
+            let asg_circuit = *scope.circuits.borrow().get(name.name.as_ref()).unwrap();
 
             asg_circuit.fill_from_ast(circuit)?;
 
-            circuits.insert(name.name.clone(), asg_circuit);
+            circuits.insert(name.name.to_string(), asg_circuit);
         }
 
         Ok(Program {
@@ -380,7 +380,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
     for (_, program) in all_programs.into_iter() {
         for (name, circuit) in program.circuits.iter() {
             let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-            circuit.name.borrow_mut().name = identifier.clone();
+            circuit.name.borrow_mut().name = identifier.clone().into();
             all_circuits.insert(identifier, *circuit);
         }
         for (name, function) in program.functions.iter() {
@@ -389,7 +389,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             } else {
                 format!("{}{}", identifiers.next().unwrap(), name)
             };
-            function.name.borrow_mut().name = identifier.clone();
+            function.name.borrow_mut().name = identifier.clone().into();
             all_functions.insert(identifier, *function);
         }
 
@@ -405,7 +405,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             .iter()
             .map(|(module, _)| leo_ast::ImportStatement {
                 package_or_packages: leo_ast::PackageOrPackages::Package(leo_ast::Package {
-                    name: Identifier::new(module.clone()),
+                    name: Identifier::new(module.clone().into()),
                     access: leo_ast::PackageAccess::Star(Span::default()),
                     span: Default::default(),
                 }),

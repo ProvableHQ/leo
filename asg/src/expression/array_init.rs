@@ -152,7 +152,7 @@ impl<'a> Into<leo_ast::ArrayInitExpression> for &ArrayInitExpression<'a> {
         leo_ast::ArrayInitExpression {
             element: Box::new(self.element.get().into()),
             dimensions: leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {
-                value: self.len.to_string(),
+                value: self.len.to_string().into(),
             }]),
             span: self.span.clone().unwrap_or_default(),
         }

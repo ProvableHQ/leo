@@ -28,19 +28,7 @@ impl DeprecatedError {
     }
 }
 
-impl LeoError for DeprecatedError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            DeprecatedError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            DeprecatedError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for DeprecatedError {}
 
 impl DeprecatedError {
     pub fn mut_function_input(mut span: Span) -> Self {

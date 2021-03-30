@@ -23,19 +23,7 @@ pub enum BooleanError {
     Error(#[from] FormattedError),
 }
 
-impl LeoError for BooleanError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            BooleanError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            BooleanError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for BooleanError {}
 
 impl BooleanError {
     fn new_from_span(message: String, span: &Span) -> Self {

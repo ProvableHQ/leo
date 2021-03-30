@@ -5,9 +5,9 @@
   "circuits": {},
   "global_consts": {},
   "functions": {
-    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"test\\\"}\"}": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function main() {\\\"}\"}": {
       "annotations": [],
-      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"test\\\"}\"}",
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function main() {\\\"}\"}",
       "input": [],
       "output": null,
       "block": {
@@ -25,7 +25,8 @@
                           "line_stop": 2,
                           "col_start": 12,
                           "col_stop": 13,
-                          "path": "test"
+                          "path": "test",
+                          "content": "    return 1 + 1"
                         }
                       ]
                     }
@@ -39,7 +40,8 @@
                           "line_stop": 2,
                           "col_start": 16,
                           "col_stop": 17,
-                          "path": "test"
+                          "path": "test",
+                          "content": "    return 1 + 1"
                         }
                       ]
                     }
@@ -50,7 +52,8 @@
                     "line_stop": 2,
                     "col_start": 12,
                     "col_stop": 17,
-                    "path": "test"
+                    "path": "test",
+                    "content": "    return 1 + 1"
                   }
                 }
               },
@@ -59,7 +62,8 @@
                 "line_stop": 2,
                 "col_start": 5,
                 "col_stop": 17,
-                "path": "test"
+                "path": "test",
+                "content": "    return 1 + 1"
               }
             }
           }
@@ -69,7 +73,8 @@
           "line_stop": 3,
           "col_start": 17,
           "col_stop": 2,
-          "path": "test"
+          "path": "test",
+          "content": "function main() {\n...\n}"
         }
       },
       "span": {
@@ -77,7 +82,8 @@
         "line_stop": 3,
         "col_start": 1,
         "col_stop": 2,
-        "path": "test"
+        "path": "test",
+        "content": "function main() {\n...\n}"
       }
     }
   }

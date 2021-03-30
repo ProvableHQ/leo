@@ -38,29 +38,7 @@ pub enum ValueError {
     IntegerError(#[from] IntegerError),
 }
 
-impl LeoError for ValueError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            ValueError::AddressError(error) => error.get_path(),
-            ValueError::BooleanError(error) => error.get_path(),
-            ValueError::Error(error) => error.get_path(),
-            ValueError::FieldError(error) => error.get_path(),
-            ValueError::GroupError(error) => error.get_path(),
-            ValueError::IntegerError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            ValueError::AddressError(error) => error.set_path(path, contents),
-            ValueError::BooleanError(error) => error.set_path(path, contents),
-            ValueError::Error(error) => error.set_path(path, contents),
-            ValueError::FieldError(error) => error.set_path(path, contents),
-            ValueError::GroupError(error) => error.set_path(path, contents),
-            ValueError::IntegerError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for ValueError {}
 
 impl ValueError {
     fn new_from_span(message: String, span: &Span) -> Self {

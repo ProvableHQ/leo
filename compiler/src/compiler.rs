@@ -24,10 +24,9 @@ use crate::{
     OutputBytes,
     OutputFile,
 };
-use indexmap::IndexMap;
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, FormattedError, Program as AsgProgram};
-use leo_ast::{Input, LeoError, MainInput, Program as AstProgram};
+use leo_ast::{Input, MainInput, Program as AstProgram};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
@@ -39,11 +38,9 @@ use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
 use sha2::{Digest, Sha256};
 use std::{
-    cell::RefCell,
     fs,
     marker::PhantomData,
     path::{Path, PathBuf},
-    rc::Rc,
 };
 
 thread_local! {
@@ -68,7 +65,6 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     program_input: Input,
     context: AsgContext<'a>,
     asg: Option<AsgProgram<'a>>,
-    file_contents: RefCell<IndexMap<String, Rc<Vec<String>>>>,
     options: CompilerOptions,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
@@ -93,7 +89,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             asg: None,
             context,
             options: CompilerOptions::default(),
-            file_contents: RefCell::new(IndexMap::new()),
             _engine: PhantomData,
             _group: PhantomData,
         }
@@ -200,20 +195,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         Ok(())
     }
 
-    fn resolve_content(&self, path: &str) -> Result<Rc<Vec<String>>, CompilerError> {
-        let mut file_contents = self.file_contents.borrow_mut();
-        if file_contents.contains_key(path) {
-            // using this pattern because of mutable reference in branch below
-            Ok(file_contents.get(path).unwrap().clone())
-        } else {
-            let content = fs::read_to_string(path).map_err(|e| CompilerError::FileReadError(PathBuf::from(path), e))?;
-
-            let content = Rc::new(content.lines().map(|x| x.to_string()).collect::<Vec<String>>());
-            file_contents.insert(path.to_string(), content);
-            Ok(file_contents.get(path).unwrap().clone())
-        }
-    }
-
     ///
     /// Parses and stores the main program file, constructs a syntax tree, and generates a program.
     ///
@@ -224,31 +205,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         let content = fs::read_to_string(&self.main_file_path)
             .map_err(|e| CompilerError::FileReadError(self.main_file_path.clone(), e))?;
 
-        self.parse_program_from_string(&content).map_err(|mut error| {
-            // Return a formatted error with file path and code text.
-
-            let path = match error.get_path().map(|x| x.to_string()) {
-                // Get the file path if it exists
-                Some(path) => path,
-
-                // If a file path does not exist, then insert the main file path.
-                None => match self.main_file_path.clone().into_os_string().into_string() {
-                    Err(e) => return CompilerError::FileStringError(e),
-                    Ok(path) => path,
-                },
-            };
-
-            // Resolve the code text using the file path.
-            let content = match self.resolve_content(&path) {
-                Err(e) => return e,
-                Ok(x) => x,
-            };
-
-            // Update the formatted error.
-            error.set_path(&path, &content[..]);
-
-            error
-        })
+        self.parse_program_from_string(&content)
     }
 
     ///
@@ -257,11 +214,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), CompilerError> {
         // Use the parser to construct the abstract syntax tree (ast).
-        let lines = program_string.lines().map(|x| x.to_string()).collect();
-        self.file_contents.borrow_mut().insert(
-            self.main_file_path.to_str().map(|x| x.to_string()).unwrap_or_default(),
-            Rc::new(lines),
-        );
 
         let mut ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
         // Preform compiler optimization via canonicalizing AST if its enabled.
@@ -313,28 +265,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     /// Synthesizes the circuit with program input to verify correctness.
     ///
     pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
-        generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input).map_err(|mut error| {
-            if let Some(path) = error.get_path().map(|x| x.to_string()) {
-                let content = match self.resolve_content(&path) {
-                    Err(e) => return e,
-                    Ok(x) => x,
-                };
-                error.set_path(&path, &content[..]);
-            }
-            error
-        })
+        generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input)
     }
 
     ///
     /// Synthesizes the circuit for test functions with program input.
     ///
     pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
-        generate_test_constraints::<F, G>(
-            &self.asg.as_ref().unwrap(),
-            input_pairs,
-            &self.main_file_path,
-            &self.output_directory,
-        )
+        generate_test_constraints::<F, G>(&self.asg.as_ref().unwrap(), input_pairs, &self.output_directory)
     }
 
     ///

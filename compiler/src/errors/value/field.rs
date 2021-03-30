@@ -23,19 +23,7 @@ pub enum FieldError {
     Error(#[from] FormattedError),
 }
 
-impl LeoError for FieldError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            FieldError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            FieldError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for FieldError {}
 
 impl FieldError {
     fn new_from_span(message: String, span: &Span) -> Self {

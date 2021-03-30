@@ -45,33 +45,7 @@ pub enum ExpressionError {
     ValueError(#[from] ValueError),
 }
 
-impl LeoError for ExpressionError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            ExpressionError::AddressError(error) => error.get_path(),
-            ExpressionError::BooleanError(error) => error.get_path(),
-            ExpressionError::Error(error) => error.get_path(),
-            ExpressionError::FieldError(error) => error.get_path(),
-            ExpressionError::FunctionError(error) => error.get_path(),
-            ExpressionError::GroupError(error) => error.get_path(),
-            ExpressionError::IntegerError(error) => error.get_path(),
-            ExpressionError::ValueError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            ExpressionError::AddressError(error) => error.set_path(path, contents),
-            ExpressionError::BooleanError(error) => error.set_path(path, contents),
-            ExpressionError::Error(error) => error.set_path(path, contents),
-            ExpressionError::FieldError(error) => error.set_path(path, contents),
-            ExpressionError::FunctionError(error) => error.set_path(path, contents),
-            ExpressionError::GroupError(error) => error.set_path(path, contents),
-            ExpressionError::IntegerError(error) => error.set_path(path, contents),
-            ExpressionError::ValueError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for ExpressionError {}
 
 impl ExpressionError {
     fn new_from_span(message: String, span: &Span) -> Self {

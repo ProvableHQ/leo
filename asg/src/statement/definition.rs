@@ -44,7 +44,7 @@ impl<'a> DefinitionStatement<'a> {
         self.variables
             .iter()
             .map(|variable| {
-                (variable.borrow().name.name.clone(), DefinitionStatement {
+                (variable.borrow().name.name.to_string(), DefinitionStatement {
                     parent: self.parent.clone(),
                     span: self.span.clone(),
                     variables: vec![variable],
@@ -122,7 +122,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             scope
                 .variables
                 .borrow_mut()
-                .insert(variable.borrow().name.name.clone(), *variable);
+                .insert(variable.borrow().name.name.to_string(), *variable);
         }
 
         let statement = scope

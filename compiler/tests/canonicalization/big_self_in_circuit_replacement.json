@@ -1,207 +1,219 @@
 {
-    "name": "",
-    "expected_input": [],
-    "imports": [],
-    "circuits": {
-      "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\"}\"}": {
-        "circuit_name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\"}\"}",
-        "members": [
-          {
-            "CircuitVariable": [
-              "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\"}\"}",
-              {
-                "IntegerType": "U32"
-              }
-            ]
-          },
-          {
-            "CircuitFunction": {
-              "annotations": [],
-              "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\"}\"}",
-              "input": [],
-              "output": {
-                "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\"}\"}"
-              },
-              "block": {
-                "statements": [
-                  {
-                    "Definition": {
-                      "declaration_type": "Let",
-                      "variable_names": [
-                        {
-                          "mutable": false,
-                          "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\"}\"}",
-                          "span": {
-                            "line_start": 5,
-                            "line_stop": 5,
-                            "col_start": 9,
-                            "col_stop": 12,
-                            "path": ""
-                          }
+  "name": "",
+  "expected_input": [],
+  "imports": [],
+  "circuits": {
+    "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}": {
+      "circuit_name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}",
+      "members": [
+        {
+          "CircuitVariable": [
+            "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  x: u32\\\"}\"}",
+            {
+              "IntegerType": "U32"
+            }
+          ]
+        },
+        {
+          "CircuitFunction": {
+            "annotations": [],
+            "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  function new() -> Self {\\\"}\"}",
+            "input": [],
+            "output": {
+              "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let new: Self = Self {\\\"}\"}",
+                        "span": {
+                          "line_start": 5,
+                          "line_stop": 5,
+                          "col_start": 9,
+                          "col_stop": 12,
+                          "path": "",
+                          "content": "    let new: Self = Self {"
                         }
-                      ],
-                      "type_": {
-                        "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\"}\"}"
-                      },
-                      "value": {
-                        "CircuitInit": {
-                          "name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\"}\"}",
-                          "members": [
-                            {
-                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\"}\"}",
-                              "expression": {
-                                "Value": {
-                                  "Integer": [
-                                    "U32",
-                                    "1",
-                                    {
-                                      "line_start": 6,
-                                      "line_stop": 6,
-                                      "col_start": 10,
-                                      "col_stop": 14,
-                                      "path": ""
-                                    }
-                                  ]
-                                }
+                      }
+                    ],
+                    "type_": {
+                      "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+                    },
+                    "value": {
+                      "CircuitInit": {
+                        "name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}",
+                        "members": [
+                          {
+                            "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      x: 1u32\\\"}\"}",
+                            "expression": {
+                              "Value": {
+                                "Integer": [
+                                  "U32",
+                                  "1",
+                                  {
+                                    "line_start": 6,
+                                    "line_stop": 6,
+                                    "col_start": 10,
+                                    "col_stop": 14,
+                                    "path": "",
+                                    "content": "      x: 1u32"
+                                  }
+                                ]
                               }
                             }
-                          ],
-                          "span": {
-                            "line_start": 5,
-                            "line_stop": 7,
-                            "col_start": 21,
-                            "col_stop": 6,
-                            "path": ""
                           }
-                        }
-                      },
-                      "span": {
-                        "line_start": 5,
-                        "line_stop": 7,
-                        "col_start": 5,
-                        "col_stop": 6,
-                        "path": ""
-                      }
-                    }
-                  },
-                  {
-                    "Return": {
-                      "expression": {
-                        "Identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\"}\"}"
-                      },
-                      "span": {
-                        "line_start": 9,
-                        "line_stop": 9,
-                        "col_start": 5,
-                        "col_stop": 15,
-                        "path": ""
-                      }
-                    }
-                  }
-                ],
-                "span": {
-                  "line_start": 4,
-                  "line_stop": 10,
-                  "col_start": 26,
-                  "col_stop": 4,
-                  "path": ""
-                }
-              },
-              "span": {
-                "line_start": 4,
-                "line_stop": 10,
-                "col_start": 3,
-                "col_stop": 4,
-                "path": ""
-              }
-            }
-          }
-        ]
-      }
-    },
-    "global_consts": {},
-    "functions": {
-      "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\"}\"}": {
-        "annotations": [],
-        "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\"}\"}",
-        "input": [],
-        "output": {
-          "Tuple": []
-        },
-        "block": {
-          "statements": [
-            {
-              "Definition": {
-                "declaration_type": "Let",
-                "variable_names": [
-                  {
-                    "mutable": false,
-                    "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\"}\"}",
-                    "span": {
-                      "line_start": 14,
-                      "line_stop": 14,
-                      "col_start": 7,
-                      "col_stop": 10,
-                      "path": ""
-                    }
-                  }
-                ],
-                "type_": {
-                  "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\"}\"}"
-                },
-                "value": {
-                  "Call": {
-                    "function": {
-                      "CircuitStaticFunctionAccess": {
-                        "circuit": {
-                          "Identifier": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\"}\"}"
-                        },
-                        "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":23,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\"}\"}",
+                        ],
                         "span": {
-                          "line_start": 14,
-                          "line_stop": 14,
-                          "col_start": 18,
-                          "col_stop": 26,
-                          "path": ""
+                          "line_start": 5,
+                          "line_stop": 7,
+                          "col_start": 21,
+                          "col_stop": 6,
+                          "path": "",
+                          "content": "    let new: Self = Self {\n...\n    };"
                         }
                       }
                     },
-                    "arguments": [],
                     "span": {
-                      "line_start": 14,
-                      "line_stop": 14,
-                      "col_start": 18,
-                      "col_stop": 28,
-                      "path": ""
+                      "line_start": 5,
+                      "line_stop": 7,
+                      "col_start": 5,
+                      "col_stop": 6,
+                      "path": "",
+                      "content": "    let new: Self = Self {\n...\n    };"
                     }
                   }
                 },
-                "span": {
-                  "line_start": 14,
-                  "line_stop": 14,
-                  "col_start": 3,
-                  "col_stop": 28,
-                  "path": ""
+                {
+                  "Return": {
+                    "expression": {
+                      "Identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return new\\\"}\"}"
+                    },
+                    "span": {
+                      "line_start": 9,
+                      "line_stop": 9,
+                      "col_start": 5,
+                      "col_stop": 15,
+                      "path": "",
+                      "content": "    return new"
+                    }
+                  }
                 }
+              ],
+              "span": {
+                "line_start": 4,
+                "line_stop": 10,
+                "col_start": 26,
+                "col_stop": 4,
+                "path": "",
+                "content": "  function new() -> Self {\n...\n  }"
+              }
+            },
+            "span": {
+              "line_start": 4,
+              "line_stop": 10,
+              "col_start": 3,
+              "col_stop": 4,
+              "path": "",
+              "content": "  function new() -> Self {\n...\n  }\n\n\n\n"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "global_consts": {},
+  "functions": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}": {
+      "annotations": [],
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}",
+      "input": [],
+      "output": {
+        "Tuple": []
+      },
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}",
+                  "span": {
+                    "line_start": 14,
+                    "line_stop": 14,
+                    "col_start": 7,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  let foo: Foo = Foo::new();"
+                  }
+                }
+              ],
+              "type_": {
+                "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}"
+              },
+              "value": {
+                "Call": {
+                  "function": {
+                    "CircuitStaticFunctionAccess": {
+                      "circuit": {
+                        "Identifier": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}"
+                      },
+                      "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":23,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}",
+                      "span": {
+                        "line_start": 14,
+                        "line_stop": 14,
+                        "col_start": 18,
+                        "col_stop": 26,
+                        "path": "",
+                        "content": "  let foo: Foo = Foo::new();"
+                      }
+                    }
+                  },
+                  "arguments": [],
+                  "span": {
+                    "line_start": 14,
+                    "line_stop": 14,
+                    "col_start": 18,
+                    "col_stop": 28,
+                    "path": "",
+                    "content": "  let foo: Foo = Foo::new();"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 14,
+                "line_stop": 14,
+                "col_start": 3,
+                "col_stop": 28,
+                "path": "",
+                "content": "  let foo: Foo = Foo::new();"
               }
             }
-          ],
-          "span": {
-            "line_start": 13,
-            "line_stop": 15,
-            "col_start": 17,
-            "col_stop": 2,
-            "path": ""
           }
-        },
+        ],
         "span": {
           "line_start": 13,
           "line_stop": 15,
-          "col_start": 1,
+          "col_start": 17,
           "col_stop": 2,
-          "path": ""
+          "path": "",
+          "content": "function main() {\n...\n}"
         }
+      },
+      "span": {
+        "line_start": 13,
+        "line_stop": 15,
+        "col_start": 1,
+        "col_stop": 2,
+        "path": "",
+        "content": "function main() {\n...\n}"
       }
     }
   }
-  
+}
