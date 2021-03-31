@@ -14,27 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{io, path::PathBuf};
+use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum VerificationKeyFileError {
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
-    #[error("creating: {}", _0)]
-    Creating(io::Error),
-
+    // #[error("creating: {}", _0)]
+    // Creating(io::Error),
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 
     #[error("Cannot remove the provided file - {:?}", _0)]
     FileRemovalError(PathBuf),
+    // #[error("Verification key file was corrupted")]
+    // IncorrectVerificationKey,
 
-    #[error("Verification key file was corrupted")]
-    IncorrectVerificationKey,
-
-    #[error("writing: {}", _0)]
-    Writing(io::Error),
+    // #[error("writing: {}", _0)]
+    // Writing(io::Error),
 }
 
 impl From<std::io::Error> for VerificationKeyFileError {
