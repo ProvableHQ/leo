@@ -77,21 +77,21 @@ impl<'a> Processor<'a> {
     /// Main function for this struct.
     /// Goes through each line and transforms it into proper markdown.
     fn process(&mut self) -> Result<()> {
-        let mut lines = self.grammar.lines();
+        let lines = self.grammar.lines();
         let mut prev = "";
 
-        while let Some(line) = lines.next() {
+        for line in lines {
             self.line += 1;
 
             // code block in comment (not highlighted as abnf)
-            if line.starts_with(";  ") {
+            if let Some(code) = line.strip_prefix(";  ") {
                 self.enter_scope(Scope::Code)?;
-                self.append_str(&line[3..]);
+                self.append_str(code);
 
             // just comment. end of code block
-            } else if line.starts_with("; ") {
+            } else if let Some(code) = line.strip_prefix("; ") {
                 self.enter_scope(Scope::Free)?;
-                self.append_str(&line[2..]);
+                self.append_str(code);
 
             // horizontal rule - section separator
             } else if line.starts_with(";;;;;;;;;;") {
@@ -99,24 +99,24 @@ impl<'a> Processor<'a> {
                 self.append_str("\n--------\n");
 
             // empty line in comment. end of code block
-            } else if line.starts_with(";") {
+            } else if line.starts_with(';') {
                 self.enter_scope(Scope::Free)?;
                 self.append_str("\n\n");
 
             // just empty line. end of doc, start of definition
-            } else if line.len() == 0 {
+            } else if line.is_empty() {
                 self.enter_scope(Scope::Free)?;
                 self.append_str("");
 
             // definition (may be multiline)
             } else {
                 // if there's an equality sign and previous line was empty
-                if line.contains("=") && prev.len() == 0 {
-                    let (def, _) = line.split_at(line.find("=").unwrap());
+                if line.contains('=') && prev.is_empty() {
+                    let (def, _) = line.split_at(line.find('=').unwrap());
                     let def = def.trim();
 
                     // try to find rule matching definition or fail
-                    let rule = self.rules.get(&def.to_string()).map(|rule| rule.clone()).unwrap();
+                    let rule = self.rules.get(&def.to_string()).cloned().unwrap();
 
                     self.enter_scope(Scope::Definition(rule))?;
                 }
@@ -133,7 +133,7 @@ impl<'a> Processor<'a> {
     /// Append new line into output, add newline character.
     fn append_str(&mut self, line: &str) {
         self.out.push_str(line);
-        self.out.push_str("\n");
+        self.out.push('\n');
     }
 
     /// Enter new scope (definition or code block). Allows customizing
@@ -166,7 +166,7 @@ impl<'a> Processor<'a> {
 
                 self.append_str("```");
 
-                if keys.len() > 0 {
+                if !keys.is_empty() {
                     self.append_str(&format!("\nGo to: _{}_;\n", keys));
                 }
             }
