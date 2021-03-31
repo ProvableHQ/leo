@@ -45,33 +45,7 @@ pub enum ExpressionError {
     ValueError(#[from] ValueError),
 }
 
-impl LeoError for ExpressionError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            ExpressionError::AddressError(error) => error.get_path(),
-            ExpressionError::BooleanError(error) => error.get_path(),
-            ExpressionError::Error(error) => error.get_path(),
-            ExpressionError::FieldError(error) => error.get_path(),
-            ExpressionError::FunctionError(error) => error.get_path(),
-            ExpressionError::GroupError(error) => error.get_path(),
-            ExpressionError::IntegerError(error) => error.get_path(),
-            ExpressionError::ValueError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            ExpressionError::AddressError(error) => error.set_path(path, contents),
-            ExpressionError::BooleanError(error) => error.set_path(path, contents),
-            ExpressionError::Error(error) => error.set_path(path, contents),
-            ExpressionError::FieldError(error) => error.set_path(path, contents),
-            ExpressionError::FunctionError(error) => error.set_path(path, contents),
-            ExpressionError::GroupError(error) => error.set_path(path, contents),
-            ExpressionError::IntegerError(error) => error.set_path(path, contents),
-            ExpressionError::ValueError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for ExpressionError {}
 
 impl ExpressionError {
     fn new_from_span(message: String, span: &Span) -> Self {
@@ -89,6 +63,18 @@ impl ExpressionError {
 
     pub fn cannot_evaluate(operation: String, span: &Span) -> Self {
         let message = format!("Mismatched types found for operation `{}`", operation);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_length_out_of_bounds(span: &Span) -> Self {
+        let message = "array length cannot be >= 2^32".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_index_out_of_legal_bounds(span: &Span) -> Self {
+        let message = "array index cannot be >= 2^32".to_string();
 
         Self::new_from_span(message, span)
     }
@@ -111,8 +97,20 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn index_out_of_bounds(index: usize, span: &Span) -> Self {
+    pub fn tuple_index_out_of_bounds(index: usize, span: &Span) -> Self {
         let message = format!("cannot access index {} of tuple out of bounds", index);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_index_out_of_bounds(index: usize, span: &Span) -> Self {
+        let message = format!("cannot access index {} of array out of bounds", index);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_invalid_slice_length(span: &Span) -> Self {
+        let message = "illegal length of slice".to_string();
 
         Self::new_from_span(message, span)
     }

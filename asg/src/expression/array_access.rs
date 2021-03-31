@@ -89,8 +89,8 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             &*value.array,
             Some(PartialType::Array(expected_type.map(Box::new), None)),
         )?;
-        match array.get_type() {
-            Some(Type::Array(..)) => (),
+        let array_len = match array.get_type() {
+            Some(Type::Array(_, len)) => len,
             type_ => {
                 return Err(AsgConvertError::unexpected_type(
                     "array",
@@ -98,7 +98,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
                     &value.span,
                 ));
             }
-        }
+        };
 
         let index = <&Expression<'a>>::from_ast(
             scope,
@@ -106,10 +106,17 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             Some(PartialType::Integer(None, Some(IntegerType::U32))),
         )?;
 
-        if !index.is_consty() {
-            return Err(AsgConvertError::unexpected_nonconst(
-                &index.span().cloned().unwrap_or_default(),
-            ));
+        if let Some(index) = index
+            .const_value()
+            .map(|x| x.int().map(|x| x.to_usize()).flatten())
+            .flatten()
+        {
+            if index >= array_len {
+                return Err(AsgConvertError::array_index_out_of_bounds(
+                    index,
+                    &array.span().cloned().unwrap_or_default(),
+                ));
+            }
         }
 
         Ok(ArrayAccessExpression {

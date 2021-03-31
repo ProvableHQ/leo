@@ -82,30 +82,4 @@ pub enum CompilerError {
     CanonicalizeError(#[from] CanonicalizeError),
 }
 
-impl LeoError for CompilerError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            CompilerError::SyntaxError(error) => error.get_path(),
-            CompilerError::ImportError(error) => error.get_path(),
-            CompilerError::ImportParserError(error) => error.get_path(),
-            CompilerError::InputParserError(error) => error.get_path(),
-            CompilerError::FunctionError(error) => error.get_path(),
-            CompilerError::OutputStringError(error) => error.get_path(),
-            CompilerError::AsgConvertError(error) => error.get_path(),
-            _ => None,
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            CompilerError::SyntaxError(error) => error.set_path(path, contents),
-            CompilerError::ImportError(error) => error.set_path(path, contents),
-            CompilerError::ImportParserError(error) => error.set_path(path, contents),
-            CompilerError::InputParserError(error) => error.set_path(path, contents),
-            CompilerError::FunctionError(error) => error.set_path(path, contents),
-            CompilerError::OutputStringError(error) => error.set_path(path, contents),
-            CompilerError::AsgConvertError(error) => error.set_path(path, contents),
-            _ => {}
-        }
-    }
-}
+impl LeoError for CompilerError {}

@@ -30,23 +30,7 @@ pub enum OutputBytesError {
     AsgConvertError(#[from] AsgConvertError),
 }
 
-impl LeoError for OutputBytesError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            OutputBytesError::Error(error) => error.get_path(),
-            OutputBytesError::ValueError(error) => error.get_path(),
-            OutputBytesError::AsgConvertError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            OutputBytesError::Error(error) => error.set_path(path, contents),
-            OutputBytesError::ValueError(error) => error.set_path(path, contents),
-            OutputBytesError::AsgConvertError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for OutputBytesError {}
 
 impl OutputBytesError {
     fn new_from_span(message: String, span: &Span) -> Self {

@@ -35,25 +35,7 @@ pub enum AsgConvertError {
     SyntaxError(#[from] SyntaxError),
 }
 
-impl LeoError for AsgConvertError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            AsgConvertError::Error(error) => error.get_path(),
-            AsgConvertError::SyntaxError(error) => error.get_path(),
-            AsgConvertError::ImportError(error) => error.get_path(),
-            AsgConvertError::InternalError(_) => None,
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            AsgConvertError::Error(error) => error.set_path(path, contents),
-            AsgConvertError::SyntaxError(error) => error.set_path(path, contents),
-            AsgConvertError::ImportError(error) => error.set_path(path, contents),
-            AsgConvertError::InternalError(_) => {}
-        }
-    }
-}
+impl LeoError for AsgConvertError {}
 
 impl AsgConvertError {
     fn new_from_span(message: String, span: &Span) -> Self {
@@ -196,6 +178,14 @@ impl AsgConvertError {
 
     pub fn tuple_index_out_of_bounds(index: usize, span: &Span) -> Self {
         Self::new_from_span(format!("tuple index out of bounds: '{}'", index), span)
+    }
+
+    pub fn array_index_out_of_bounds(index: usize, span: &Span) -> Self {
+        Self::new_from_span(format!("array index out of bounds: '{}'", index), span)
+    }
+
+    pub fn unknown_array_size(span: &Span) -> Self {
+        Self::new_from_span("array size cannot be inferred, add explicit types".to_string(), span)
     }
 
     pub fn unexpected_call_argument_count(expected: usize, got: usize, span: &Span) -> Self {

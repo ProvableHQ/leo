@@ -41,7 +41,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         span: &Span,
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         Ok(match value {
-            ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.clone(), span)?),
+            ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.to_string(), span)?),
             ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
             ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), span)?),
             ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),
@@ -133,9 +133,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
                 self.enforce_array_access(cs, array.get(), index.get(), span)
             }
-            Expression::ArrayRangeAccess(ArrayRangeAccessExpression { array, left, right, .. }) => {
-                self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), span)
-            }
+            Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                array,
+                left,
+                right,
+                length,
+                ..
+            }) => self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), *length, span),
 
             // Tuples
             Expression::TupleInit(TupleInitExpression { elements, .. }) => self.enforce_tuple(cs, &elements[..]),

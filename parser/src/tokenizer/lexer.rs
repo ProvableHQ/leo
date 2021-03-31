@@ -17,32 +17,34 @@
 use crate::tokenizer::{FormattedStringPart, Token};
 use leo_ast::Span;
 use serde::{Deserialize, Serialize};
+use tendril::StrTendril;
 
 use std::fmt;
 
 ///
-/// Returns a reference to bytes from the given input if the given string is equal to the bytes,
-/// otherwise returns [`None`].
+/// Returns the length of the given `wanted` string if the string can be eaten, otherwise returns [`None`].
+/// A string can be eaten if its bytes are at the front of the given `input` array.
 ///
-fn eat<'a>(input: &'a [u8], wanted: &str) -> Option<&'a [u8]> {
+fn eat(input: &[u8], wanted: &str) -> Option<usize> {
     let wanted = wanted.as_bytes();
     if input.len() < wanted.len() {
         return None;
     }
     if &input[0..wanted.len()] == wanted {
-        return Some(&input[wanted.len()..]);
+        return Some(wanted.len());
     }
     None
 }
 
 ///
-/// Returns a reference to the bytes of an identifier and the remaining bytes from the given input.
-/// Returns [`None`] if the bytes do not represent an identifier.
+/// Returns a new `StrTendril` string if an identifier can be eaten, otherwise returns [`None`].
+/// An identifier can be eaten if its bytes are at the front of the given `input_tendril` string.
 ///
-fn eat_identifier(input: &[u8]) -> Option<(&[u8], &[u8])> {
-    if input.is_empty() {
+fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
+    if input_tendril.is_empty() {
         return None;
     }
+    let input = input_tendril[..].as_bytes();
     if !input[0].is_ascii_alphabetic() && input[0] != b'_' {
         return None;
     }
@@ -53,20 +55,21 @@ fn eat_identifier(input: &[u8]) -> Option<(&[u8], &[u8])> {
         }
         i += 1;
     }
-    Some((&input[0..i], &input[i..]))
+    Some(input_tendril.subtendril(0, i as u32))
 }
 
 impl Token {
     ///
-    /// Returns a reference to the remaining bytes and the bytes of a number from the given input.
-    /// Returns [`None`] if the bytes do not represent a number.
+    /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
+    /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
     ///
-    fn gobble_int(input: &[u8]) -> (&[u8], Option<Token>) {
-        if input.is_empty() {
-            return (input, None);
+    fn eat_integer(input_tendril: &StrTendril) -> (usize, Option<Token>) {
+        if input_tendril.is_empty() {
+            return (0, None);
         }
+        let input = input_tendril[..].as_bytes();
         if !input[0].is_ascii_digit() {
-            return (input, None);
+            return (0, None);
         }
         let mut i = 1;
         let mut is_hex = false;
@@ -86,22 +89,20 @@ impl Token {
 
             i += 1;
         }
-        (
-            &input[i..],
-            Some(Token::Int(String::from_utf8(input[0..i].to_vec()).unwrap_or_default())),
-        )
+        (i, Some(Token::Int(input_tendril.subtendril(0, i as u32))))
     }
 
     ///
-    /// Returns a reference to the remaining bytes and the bytes of a [`Token`] from the given input.
-    /// Returns [`None`] if the bytes do not represent a token.
+    /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
+    /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
     ///
-    pub(crate) fn gobble(input: &[u8]) -> (&[u8], Option<Token>) {
-        if input.is_empty() {
-            return (input, None);
+    pub(crate) fn eat(input_tendril: StrTendril) -> (usize, Option<Token>) {
+        if input_tendril.is_empty() {
+            return (0, None);
         }
+        let input = input_tendril[..].as_bytes();
         match input[0] {
-            x if x.is_ascii_whitespace() => return (&input[1..], None),
+            x if x.is_ascii_whitespace() => return (1, None),
             b'"' => {
                 let mut i = 1;
                 let mut in_escape = false;
@@ -124,7 +125,7 @@ impl Token {
                             }
                             if start < i {
                                 segments.push(FormattedStringPart::Const(
-                                    String::from_utf8_lossy(&input[start..i]).to_string(),
+                                    input_tendril.subtendril(start as u32, (i - start) as u32),
                                 ));
                             }
                             segments.push(FormattedStringPart::Container);
@@ -138,186 +139,171 @@ impl Token {
                     i += 1;
                 }
                 if i == input.len() {
-                    return (input, None);
+                    return (0, None);
                 }
                 if start < i {
                     segments.push(FormattedStringPart::Const(
-                        String::from_utf8_lossy(&input[start..i]).to_string(),
+                        input_tendril.subtendril(start as u32, (i - start) as u32),
                     ));
                 }
-                return (&input[(i + 1)..], Some(Token::FormattedString(segments)));
+                return (i + 1, Some(Token::FormattedString(segments)));
             }
             x if x.is_ascii_digit() => {
-                return Self::gobble_int(input);
+                return Self::eat_integer(&input_tendril);
             }
             b'!' => {
-                if let Some(input) = eat(input, "!=") {
-                    return (input, Some(Token::NotEq));
+                if let Some(len) = eat(input, "!=") {
+                    return (len, Some(Token::NotEq));
                 }
-                return (&input[1..], Some(Token::Not));
+                return (1, Some(Token::Not));
             }
             b'?' => {
-                return (&input[1..], Some(Token::Question));
+                return (1, Some(Token::Question));
             }
             b'&' => {
-                if let Some(input) = eat(input, "&&") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::AndEq));
+                if let Some(len) = eat(input, "&&") {
+                    if let Some(inner_len) = eat(&input[len..], "=") {
+                        return (len + inner_len, Some(Token::AndEq));
                     }
-                    return (input, Some(Token::And));
-                } else if let Some(input) = eat(input, "&=") {
-                    return (input, Some(Token::BitAndEq));
+                    return (len, Some(Token::And));
+                } else if let Some(len) = eat(input, "&=") {
+                    return (len, Some(Token::BitAndEq));
                 }
-                return (&input[1..], Some(Token::BitAnd));
+                return (1, Some(Token::BitAnd));
             }
-            b'(' => return (&input[1..], Some(Token::LeftParen)),
-            b')' => return (&input[1..], Some(Token::RightParen)),
+            b'(' => return (1, Some(Token::LeftParen)),
+            b')' => return (1, Some(Token::RightParen)),
             b'*' => {
-                if let Some(input) = eat(input, "**") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::ExpEq));
+                if let Some(len) = eat(input, "**") {
+                    if let Some(inner_len) = eat(&input[len..], "=") {
+                        return (len + inner_len, Some(Token::ExpEq));
                     }
-                    return (input, Some(Token::Exp));
-                } else if let Some(input) = eat(input, "*=") {
-                    return (input, Some(Token::MulEq));
+                    return (len, Some(Token::Exp));
+                } else if let Some(len) = eat(input, "*=") {
+                    return (len, Some(Token::MulEq));
                 }
-                return (&input[1..], Some(Token::Mul));
+                return (1, Some(Token::Mul));
             }
             b'+' => {
-                if let Some(input) = eat(input, "+=") {
-                    return (input, Some(Token::AddEq));
+                if let Some(len) = eat(input, "+=") {
+                    return (len, Some(Token::AddEq));
                 }
-                return (&input[1..], Some(Token::Add));
+                return (1, Some(Token::Add));
             }
-            b',' => return (&input[1..], Some(Token::Comma)),
+            b',' => return (1, Some(Token::Comma)),
             b'-' => {
-                if let Some(input) = eat(input, "->") {
-                    return (input, Some(Token::Arrow));
-                } else if let Some(input) = eat(input, "-=") {
-                    return (input, Some(Token::MinusEq));
+                if let Some(len) = eat(input, "->") {
+                    return (len, Some(Token::Arrow));
+                } else if let Some(len) = eat(input, "-=") {
+                    return (len, Some(Token::MinusEq));
                 }
-                return (&input[1..], Some(Token::Minus));
+                return (1, Some(Token::Minus));
             }
             b'.' => {
-                if let Some(input) = eat(input, "...") {
-                    return (input, Some(Token::DotDotDot));
-                } else if let Some(input) = eat(input, "..") {
-                    return (input, Some(Token::DotDot));
+                if let Some(len) = eat(input, "...") {
+                    return (len, Some(Token::DotDotDot));
+                } else if let Some(len) = eat(input, "..") {
+                    return (len, Some(Token::DotDot));
                 }
-                return (&input[1..], Some(Token::Dot));
+                return (1, Some(Token::Dot));
             }
             b'/' => {
                 if eat(input, "//").is_some() {
                     let eol = input.iter().position(|x| *x == b'\n');
-                    let (input, comment) = if let Some(eol) = eol {
-                        (&input[(eol + 1)..], &input[..eol])
-                    } else {
-                        (&input[input.len()..input.len()], input)
-                    };
-                    return (
-                        input,
-                        Some(Token::CommentLine(String::from_utf8_lossy(comment).to_string())),
-                    );
+                    let len = if let Some(eol) = eol { eol + 1 } else { input.len() };
+                    return (len, Some(Token::CommentLine(input_tendril.subtendril(0, len as u32))));
                 } else if eat(input, "/*").is_some() {
                     if input.is_empty() {
-                        return (input, None);
+                        return (0, None);
                     }
                     let eol = input.windows(2).skip(2).position(|x| x[0] == b'*' && x[1] == b'/');
-                    let (input, comment) = if let Some(eol) = eol {
-                        (&input[(eol + 4)..], &input[..eol + 4])
-                    } else {
-                        (&input[input.len()..input.len()], input)
-                    };
-                    return (
-                        input,
-                        Some(Token::CommentBlock(String::from_utf8_lossy(comment).to_string())),
-                    );
-                } else if let Some(input) = eat(input, "/=") {
-                    return (input, Some(Token::DivEq));
+                    let len = if let Some(eol) = eol { eol + 4 } else { input.len() };
+                    return (len, Some(Token::CommentBlock(input_tendril.subtendril(0, len as u32))));
+                } else if let Some(len) = eat(input, "/=") {
+                    return (len, Some(Token::DivEq));
                 }
-                return (&input[1..], Some(Token::Div));
+                return (1, Some(Token::Div));
             }
             b':' => {
-                if let Some(input) = eat(input, "::") {
-                    return (input, Some(Token::DoubleColon));
+                if let Some(len) = eat(input, "::") {
+                    return (len, Some(Token::DoubleColon));
                 } else {
-                    return (&input[1..], Some(Token::Colon));
+                    return (1, Some(Token::Colon));
                 }
             }
-            b';' => return (&input[1..], Some(Token::Semicolon)),
+            b';' => return (1, Some(Token::Semicolon)),
             b'<' => {
-                if let Some(input) = eat(input, "<=") {
-                    return (input, Some(Token::LtEq));
-                } else if let Some(input) = eat(input, "<<") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::ShlEq));
+                if let Some(len) = eat(input, "<=") {
+                    return (len, Some(Token::LtEq));
+                } else if let Some(len) = eat(input, "<<") {
+                    if let Some(inner_len) = eat(&input[len..], "=") {
+                        return (len + inner_len, Some(Token::ShlEq));
                     }
-                    return (input, Some(Token::Shl));
+                    return (len, Some(Token::Shl));
                 }
-                return (&input[1..], Some(Token::Lt));
+                return (1, Some(Token::Lt));
             }
             b'>' => {
-                if let Some(input) = eat(input, ">=") {
-                    return (input, Some(Token::GtEq));
-                } else if let Some(input) = eat(input, ">>") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::ShrEq));
-                    } else if let Some(input) = eat(input, ">") {
-                        if let Some(input) = eat(input, "=") {
-                            return (input, Some(Token::ShrSignedEq));
+                if let Some(len) = eat(input, ">=") {
+                    return (len, Some(Token::GtEq));
+                } else if let Some(len) = eat(input, ">>") {
+                    if let Some(inner_len) = eat(&input[len..], "=") {
+                        return (len + inner_len, Some(Token::ShrEq));
+                    } else if let Some(inner_len) = eat(&input[len..], ">") {
+                        if let Some(eq_len) = eat(&input[len + inner_len..], "=") {
+                            return (len + inner_len + eq_len, Some(Token::ShrSignedEq));
                         }
-                        return (input, Some(Token::ShrSigned));
+                        return (len + inner_len, Some(Token::ShrSigned));
                     }
-                    return (input, Some(Token::Shr));
+                    return (len, Some(Token::Shr));
                 }
-                return (&input[1..], Some(Token::Gt));
+                return (1, Some(Token::Gt));
             }
             b'=' => {
-                if let Some(input) = eat(input, "==") {
-                    return (input, Some(Token::Eq));
+                if let Some(len) = eat(input, "==") {
+                    return (len, Some(Token::Eq));
                 }
-                return (&input[1..], Some(Token::Assign));
+                return (1, Some(Token::Assign));
             }
-            b'@' => return (&input[1..], Some(Token::At)),
-            b'[' => return (&input[1..], Some(Token::LeftSquare)),
-            b']' => return (&input[1..], Some(Token::RightSquare)),
-            b'{' => return (&input[1..], Some(Token::LeftCurly)),
-            b'}' => return (&input[1..], Some(Token::RightCurly)),
+            b'@' => return (1, Some(Token::At)),
+            b'[' => return (1, Some(Token::LeftSquare)),
+            b']' => return (1, Some(Token::RightSquare)),
+            b'{' => return (1, Some(Token::LeftCurly)),
+            b'}' => return (1, Some(Token::RightCurly)),
             b'|' => {
-                if let Some(input) = eat(input, "||") {
-                    if let Some(input) = eat(input, "=") {
-                        return (input, Some(Token::OrEq));
+                if let Some(len) = eat(input, "||") {
+                    if let Some(inner_len) = eat(&input[len..], "=") {
+                        return (len + inner_len, Some(Token::OrEq));
                     }
-                    return (input, Some(Token::Or));
-                } else if let Some(input) = eat(input, "|=") {
-                    return (input, Some(Token::BitOrEq));
+                    return (len, Some(Token::Or));
+                } else if let Some(len) = eat(input, "|=") {
+                    return (len, Some(Token::BitOrEq));
                 }
-                return (&input[1..], Some(Token::BitOr));
+                return (1, Some(Token::BitOr));
             }
             b'^' => {
-                if let Some(input) = eat(input, "^=") {
-                    return (input, Some(Token::BitXorEq));
+                if let Some(len) = eat(input, "^=") {
+                    return (len, Some(Token::BitXorEq));
                 }
-                return (&input[1..], Some(Token::BitXor));
+                return (1, Some(Token::BitXor));
             }
-            b'~' => return (&input[1..], Some(Token::BitNot)),
+            b'~' => return (1, Some(Token::BitNot)),
             b'%' => {
-                if let Some(input) = eat(input, "%=") {
-                    return (input, Some(Token::ModEq));
+                if let Some(len) = eat(input, "%=") {
+                    return (len, Some(Token::ModEq));
                 }
-                return (&input[1..], Some(Token::Mod));
+                return (1, Some(Token::Mod));
             }
             _ => (),
         }
-        if let Some((ident, input)) = eat_identifier(input) {
-            let ident = String::from_utf8_lossy(ident).to_string();
+        if let Some(ident) = eat_identifier(&input_tendril) {
             return (
-                input,
+                ident.len(),
                 Some(match &*ident {
                     x if x.starts_with("aleo1")
                         && x.chars().skip(5).all(|x| x.is_ascii_lowercase() || x.is_ascii_digit()) =>
                     {
-                        Token::AddressLit(x.to_string())
+                        Token::AddressLit(ident)
                     }
                     "address" => Token::Address,
                     "as" => Token::As,
@@ -358,7 +344,7 @@ impl Token {
             );
         }
 
-        (input, None)
+        (0, None)
     }
 }
 

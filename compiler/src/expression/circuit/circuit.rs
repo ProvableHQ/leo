@@ -42,7 +42,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         // type checking is already done in asg
         for (name, inner) in expr.values.iter() {
             let target = members
-                .get(&name.name)
+                .get(name.name.as_ref())
                 .expect("illegal name in asg circuit init expression");
             match target {
                 CircuitMember::Variable(_type_) => {

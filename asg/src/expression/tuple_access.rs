@@ -109,7 +109,7 @@ impl<'a> Into<leo_ast::TupleAccessExpression> for &TupleAccessExpression<'a> {
         leo_ast::TupleAccessExpression {
             tuple: Box::new(self.tuple_ref.get().into()),
             index: leo_ast::PositiveNumber {
-                value: self.index.to_string(),
+                value: self.index.to_string().into(),
             },
             span: self.span.clone().unwrap_or_default(),
         }
