@@ -154,7 +154,7 @@ impl ParserContext {
                 }
                 _ => GroupCoordinate::SignLow,
             },
-            Token::Ident(x) if x.as_ref() == "_" => GroupCoordinate::Inferred,
+            Token::Underscore => GroupCoordinate::Inferred,
             Token::Int(value) => GroupCoordinate::Number(value.clone(), token.span.clone()),
             _ => return None,
         })

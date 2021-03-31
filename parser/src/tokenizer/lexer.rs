@@ -45,9 +45,10 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
         return None;
     }
     let input = input_tendril[..].as_bytes();
-    if !input[0].is_ascii_alphabetic() && input[0] != b'_' {
+    if !input[0].is_ascii_alphabetic() {
         return None;
     }
+
     let mut i = 1usize;
     while i < input.len() {
         if !input[i].is_ascii_alphanumeric() && input[i] != b'_' {
@@ -162,17 +163,19 @@ impl Token {
             }
             b'&' => {
                 if let Some(len) = eat(input, "&&") {
-                    if let Some(inner_len) = eat(&input[len..], "=") {
-                        return (len + inner_len, Some(Token::AndEq));
-                    }
+                    // if let Some(inner_len) = eat(&input[len..], "=") {
+                    //     return (len + inner_len, Some(Token::AndEq));
+                    // }
                     return (len, Some(Token::And));
-                } else if let Some(len) = eat(input, "&=") {
-                    return (len, Some(Token::BitAndEq));
                 }
-                return (1, Some(Token::BitAnd));
+                // else if let Some(len) = eat(input, "&=") {
+                //     return (len, Some(Token::BitAndEq));
+                // }
+                // return (1, Some(Token::BitAnd));
             }
             b'(' => return (1, Some(Token::LeftParen)),
             b')' => return (1, Some(Token::RightParen)),
+            b'_' => return (1, Some(Token::Underscore)),
             b'*' => {
                 if let Some(len) = eat(input, "**") {
                     if let Some(inner_len) = eat(&input[len..], "=") {
@@ -235,28 +238,30 @@ impl Token {
             b'<' => {
                 if let Some(len) = eat(input, "<=") {
                     return (len, Some(Token::LtEq));
-                } else if let Some(len) = eat(input, "<<") {
-                    if let Some(inner_len) = eat(&input[len..], "=") {
-                        return (len + inner_len, Some(Token::ShlEq));
-                    }
-                    return (len, Some(Token::Shl));
                 }
+                // else if let Some(len) = eat(input, "<<") {
+                //     if let Some(inner_len) = eat(&input[len..], "=") {
+                //         return (len + inner_len, Some(Token::ShlEq));
+                //     }
+                //     return (len, Some(Token::Shl));
+                // }
                 return (1, Some(Token::Lt));
             }
             b'>' => {
                 if let Some(len) = eat(input, ">=") {
                     return (len, Some(Token::GtEq));
-                } else if let Some(len) = eat(input, ">>") {
-                    if let Some(inner_len) = eat(&input[len..], "=") {
-                        return (len + inner_len, Some(Token::ShrEq));
-                    } else if let Some(inner_len) = eat(&input[len..], ">") {
-                        if let Some(eq_len) = eat(&input[len + inner_len..], "=") {
-                            return (len + inner_len + eq_len, Some(Token::ShrSignedEq));
-                        }
-                        return (len + inner_len, Some(Token::ShrSigned));
-                    }
-                    return (len, Some(Token::Shr));
                 }
+                // else if let Some(len) = eat(input, ">>") {
+                //     if let Some(inner_len) = eat(&input[len..], "=") {
+                //         return (len + inner_len, Some(Token::ShrEq));
+                //     } else if let Some(inner_len) = eat(&input[len..], ">") {
+                //         if let Some(eq_len) = eat(&input[len + inner_len..], "=") {
+                //             return (len + inner_len + eq_len, Some(Token::ShrSignedEq));
+                //         }
+                //         return (len + inner_len, Some(Token::ShrSigned));
+                //     }
+                //     return (len, Some(Token::Shr));
+                // }
                 return (1, Some(Token::Gt));
             }
             b'=' => {
@@ -272,28 +277,29 @@ impl Token {
             b'}' => return (1, Some(Token::RightCurly)),
             b'|' => {
                 if let Some(len) = eat(input, "||") {
-                    if let Some(inner_len) = eat(&input[len..], "=") {
-                        return (len + inner_len, Some(Token::OrEq));
-                    }
+                    // if let Some(inner_len) = eat(&input[len..], "=") {
+                    //     return (len + inner_len, Some(Token::OrEq));
+                    // }
                     return (len, Some(Token::Or));
-                } else if let Some(len) = eat(input, "|=") {
-                    return (len, Some(Token::BitOrEq));
                 }
-                return (1, Some(Token::BitOr));
+                // else if let Some(len) = eat(input, "|=") {
+                //     return (len, Some(Token::BitOrEq));
+                // }
+                // return (1, Some(Token::BitOr));
             }
-            b'^' => {
-                if let Some(len) = eat(input, "^=") {
-                    return (len, Some(Token::BitXorEq));
-                }
-                return (1, Some(Token::BitXor));
-            }
-            b'~' => return (1, Some(Token::BitNot)),
-            b'%' => {
-                if let Some(len) = eat(input, "%=") {
-                    return (len, Some(Token::ModEq));
-                }
-                return (1, Some(Token::Mod));
-            }
+            // b'^' => {
+            //     if let Some(len) = eat(input, "^=") {
+            //         return (len, Some(Token::BitXorEq));
+            //     }
+            //     return (1, Some(Token::BitXor));
+            // }
+            // b'~' => return (1, Some(Token::BitNot)),
+            // b'%' => {
+            //     if let Some(len) = eat(input, "%=") {
+            //         return (len, Some(Token::ModEq));
+            //     }
+            //     return (1, Some(Token::Mod));
+            // }
             _ => (),
         }
         if let Some(ident) = eat_identifier(&input_tendril) {
@@ -309,6 +315,7 @@ impl Token {
                     "as" => Token::As,
                     "bool" => Token::Bool,
                     "circuit" => Token::Circuit,
+                    "console" => Token::Console,
                     "const" => Token::Const,
                     "else" => Token::Else,
                     "false" => Token::False,
@@ -316,11 +323,11 @@ impl Token {
                     "for" => Token::For,
                     "function" => Token::Function,
                     "group" => Token::Group,
-                    "i128" => Token::I128,
-                    "i64" => Token::I64,
-                    "i32" => Token::I32,
-                    "i16" => Token::I16,
                     "i8" => Token::I8,
+                    "i16" => Token::I16,
+                    "i32" => Token::I32,
+                    "i64" => Token::I64,
+                    "i128" => Token::I128,
                     "if" => Token::If,
                     "import" => Token::Import,
                     "in" => Token::In,
@@ -328,17 +335,16 @@ impl Token {
                     "let" => Token::Let,
                     "mut" => Token::Mut,
                     "return" => Token::Return,
-                    "static" => Token::Static,
-                    "string" => Token::Str,
-                    "true" => Token::True,
-                    "u128" => Token::U128,
-                    "u64" => Token::U64,
-                    "u32" => Token::U32,
-                    "u16" => Token::U16,
-                    "u8" => Token::U8,
                     "Self" => Token::BigSelf,
                     "self" => Token::LittleSelf,
-                    "console" => Token::Console,
+                    "static" => Token::Static,
+                    "string" => Token::String,
+                    "true" => Token::True,
+                    "u8" => Token::U8,
+                    "u16" => Token::U16,
+                    "u32" => Token::U32,
+                    "u64" => Token::U64,
+                    "u128" => Token::U128,
                     _ => Token::Ident(ident),
                 }),
             );
