@@ -55,7 +55,12 @@ struct Opt {
     #[structopt(subcommand)]
     command: CommandOpts,
 
-    #[structopt(short, long, help = "Optional path to Leo program root folder", parse(from_os_str))]
+    #[structopt(
+        long,
+        global = true,
+        help = "Optional path to Leo program root folder",
+        parse(from_os_str)
+    )]
     path: Option<PathBuf>,
 }
 
