@@ -470,7 +470,35 @@ impl ReconstructingReducer for Canonicalizer {
     ) -> Result<AssignStatement, CanonicalizeError> {
         match value {
             Expression::Value(value_expr) if assign.operation != AssignOperation::Assign => {
-                let left = Box::new(Expression::Identifier(assignee.identifier.clone()));
+                let mut left = Box::new(Expression::Identifier(assignee.identifier.clone()));
+
+                for access in assignee.accesses.iter().rev() {
+                    match self.canonicalize_assignee_access(&access) {
+                        AssigneeAccess::ArrayIndex(index) => {
+                            left = Box::new(Expression::ArrayAccess(ArrayAccessExpression {
+                                array: left,
+                                index: Box::new(index),
+                                span: assign.span.clone(),
+                            }));
+                        }
+                        AssigneeAccess::Tuple(positive_number, _) => {
+                            left = Box::new(Expression::TupleAccess(TupleAccessExpression {
+                                tuple: left,
+                                index: positive_number,
+                                span: assign.span.clone(),
+                            }));
+                        }
+                        AssigneeAccess::Member(identifier) => {
+                            left = Box::new(Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
+                                circuit: left,
+                                name: identifier,
+                                span: assign.span.clone(),
+                            }));
+                        }
+                        _ => unimplemented!(), // No reason for someone to compute ArrayRanges.
+                    }
+                }
+
                 let right = Box::new(Expression::Value(value_expr));
 
                 let op = match assign.operation {
