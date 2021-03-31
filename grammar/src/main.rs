@@ -76,7 +76,7 @@ impl<'a> Processor<'a> {
 
     /// Main function for this struct.
     /// Goes through each line and transforms it into proper markdown.
-    fn process(&mut self) -> Result<()> {
+    fn process(&mut self) {
         let lines = self.grammar.lines();
         let mut prev = "";
 
@@ -85,27 +85,27 @@ impl<'a> Processor<'a> {
 
             // code block in comment (not highlighted as abnf)
             if let Some(code) = line.strip_prefix(";  ") {
-                self.enter_scope(Scope::Code)?;
+                self.enter_scope(Scope::Code);
                 self.append_str(code);
 
             // just comment. end of code block
             } else if let Some(code) = line.strip_prefix("; ") {
-                self.enter_scope(Scope::Free)?;
+                self.enter_scope(Scope::Free);
                 self.append_str(code);
 
             // horizontal rule - section separator
             } else if line.starts_with(";;;;;;;;;;") {
-                self.enter_scope(Scope::Free)?;
+                self.enter_scope(Scope::Free);
                 self.append_str("\n--------\n");
 
             // empty line in comment. end of code block
             } else if line.starts_with(';') {
-                self.enter_scope(Scope::Free)?;
+                self.enter_scope(Scope::Free);
                 self.append_str("\n\n");
 
             // just empty line. end of doc, start of definition
             } else if line.is_empty() {
-                self.enter_scope(Scope::Free)?;
+                self.enter_scope(Scope::Free);
                 self.append_str("");
 
             // definition (may be multiline)
@@ -118,7 +118,7 @@ impl<'a> Processor<'a> {
                     // try to find rule matching definition or fail
                     let rule = self.rules.get(&def.to_string()).cloned().unwrap();
 
-                    self.enter_scope(Scope::Definition(rule))?;
+                    self.enter_scope(Scope::Definition(rule));
                 }
 
                 self.append_str(line);
@@ -126,8 +126,6 @@ impl<'a> Processor<'a> {
 
             prev = line;
         }
-
-        Ok(())
     }
 
     /// Append new line into output, add newline character.
@@ -138,7 +136,7 @@ impl<'a> Processor<'a> {
 
     /// Enter new scope (definition or code block). Allows customizing
     /// pre and post lines for each scope entered or exited.
-    fn enter_scope(&mut self, new_scope: Scope) -> Result<()> {
+    fn enter_scope(&mut self, new_scope: Scope) {
         match (&self.scope, &new_scope) {
             // exchange scopes between Free and Code
             (Scope::Free, Scope::Code) => self.append_str("```"),
@@ -174,8 +172,6 @@ impl<'a> Processor<'a> {
         };
 
         self.scope = new_scope;
-
-        Ok(())
     }
 }
 
@@ -215,7 +211,7 @@ fn main() -> Result<()> {
 
     // Init parser and run it. That's it.
     let mut parser = Processor::new(grammar, parsed);
-    parser.process()?;
+    parser.process();
 
     // Print result of conversion to STDOUT.
     println!("{}", parser.out);
