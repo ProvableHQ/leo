@@ -15,6 +15,6 @@ function main() {
   console.assert(z.1 == 5u8);
 
   let foo = Foo { f: 6u8 };
-  foo.f = foo.f + 2u8;
+  foo.f += 2u8;
   console.assert(foo.f == 8u8);
 }

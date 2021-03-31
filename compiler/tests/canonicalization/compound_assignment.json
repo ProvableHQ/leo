@@ -715,10 +715,10 @@
             "Assign": {
               "operation": "Assign",
               "assignee": {
-                "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":3,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f = foo.f + 2u8;\\\"}\"}",
+                "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":3,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}",
                 "accesses": [
                   {
-                    "Member": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f = foo.f + 2u8;\\\"}\"}"
+                    "Member": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}"
                   }
                 ],
                 "span": {
@@ -727,7 +727,7 @@
                   "col_start": 3,
                   "col_stop": 8,
                   "path": "",
-                  "content": "  foo.f = foo.f + 2u8;"
+                  "content": "  foo.f += 2u8;"
                 }
               },
               "value": {
@@ -735,16 +735,16 @@
                   "left": {
                     "CircuitMemberAccess": {
                       "circuit": {
-                        "Identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":11,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f = foo.f + 2u8;\\\"}\"}"
+                        "Identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":3,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}"
                       },
-                      "name": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f = foo.f + 2u8;\\\"}\"}",
+                      "name": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}",
                       "span": {
                         "line_start": 18,
                         "line_stop": 18,
-                        "col_start": 11,
-                        "col_stop": 16,
+                        "col_start": 3,
+                        "col_stop": 15,
                         "path": "",
-                        "content": "  foo.f = foo.f + 2u8;"
+                        "content": "  foo.f += 2u8;"
                       }
                     }
                   },
@@ -756,10 +756,10 @@
                         {
                           "line_start": 18,
                           "line_stop": 18,
-                          "col_start": 19,
-                          "col_stop": 22,
+                          "col_start": 12,
+                          "col_stop": 15,
                           "path": "",
-                          "content": "  foo.f = foo.f + 2u8;"
+                          "content": "  foo.f += 2u8;"
                         }
                       ]
                     }
@@ -768,10 +768,10 @@
                   "span": {
                     "line_start": 18,
                     "line_stop": 18,
-                    "col_start": 11,
-                    "col_stop": 22,
+                    "col_start": 3,
+                    "col_stop": 15,
                     "path": "",
-                    "content": "  foo.f = foo.f + 2u8;"
+                    "content": "  foo.f += 2u8;"
                   }
                 }
               },
@@ -779,9 +779,9 @@
                 "line_start": 18,
                 "line_stop": 18,
                 "col_start": 3,
-                "col_stop": 22,
+                "col_stop": 15,
                 "path": "",
-                "content": "  foo.f = foo.f + 2u8;"
+                "content": "  foo.f += 2u8;"
               }
             }
           },
@@ -851,7 +851,7 @@
           "col_start": 17,
           "col_stop": 2,
           "path": "",
-          "content": "function main() {\n...\n}"
+          "content": "function main() {\n...\n} "
         }
       },
       "span": {
@@ -860,7 +860,7 @@
         "col_start": 1,
         "col_stop": 2,
         "path": "",
-        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+        "content": "function main() {\n...\n} \n\n\n\n\n\n\n\n\n\n\n\n\n\n"
       }
     }
   }
