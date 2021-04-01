@@ -78,7 +78,7 @@ jobs:
   leo-executable:
     docker:
       - image: cimg/rust:1.51.0
-    resource_class: 2xlarge
+    resource_class: xlarge
     steps:
       - checkout
       - setup_environment:
@@ -86,7 +86,7 @@ jobs:
       - run:
           name: Build and install Leo
           no_output_timeout: 30m
-          command: cargo install --path . --root .
+          command: cargo install --path . --root . --locked
       - persist_to_workspace:
           root: ~/
           paths: project/
