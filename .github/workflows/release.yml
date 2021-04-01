@@ -25,7 +25,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo
+          cargo build --all --release --features noconfig && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -67,7 +67,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release && strip target/release/leo
+          cargo build --all --release --features noconfig && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -118,7 +118,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release
+          cargo build --all --release --features noconfig
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
