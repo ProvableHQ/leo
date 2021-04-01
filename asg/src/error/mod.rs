@@ -180,6 +180,14 @@ impl AsgConvertError {
         Self::new_from_span(format!("tuple index out of bounds: '{}'", index), span)
     }
 
+    pub fn array_index_out_of_bounds(index: usize, span: &Span) -> Self {
+        Self::new_from_span(format!("array index out of bounds: '{}'", index), span)
+    }
+
+    pub fn unknown_array_size(span: &Span) -> Self {
+        Self::new_from_span("array size cannot be inferred, add explicit types".to_string(), span)
+    }
+
     pub fn unexpected_call_argument_count(expected: usize, got: usize, span: &Span) -> Self {
         Self::new_from_span(
             format!("function call expected {} arguments, got {}", expected, got),

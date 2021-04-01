@@ -1,0 +1,26 @@
+// The program state for tmp-test/src/main.leo
+[[public]]
+
+[state]
+leaf_index: u32 = 0;
+root: [u8; 32] = [0; 32];
+
+[[private]]
+
+[record]
+serial_number: [u8; 64] = [0; 64];
+commitment: [u8; 32] = [0; 32];
+owner: address = aleo1daxej63vwrmn2zhl4dymygagh89k5d2vaw6rjauueme7le6k2q8sjn0ng9;
+is_dummy: bool = false;
+value: u64 = 0;
+payload: [u8; 32] = [0; 32];
+birth_program_id: [u8; 48] = [0; 48];
+death_program_id: [u8; 48] = [0; 48];
+serial_number_nonce: [u8; 32] = [0; 32];
+commitment_randomness: [u8; 32] = [0; 32];
+
+[state_leaf]
+path: [u8; 128] = [0; 128];
+memo: [u8; 32] = [0; 32];
+network_id: u8 = 0;
+leaf_randomness: [u8; 32] = [0; 32];

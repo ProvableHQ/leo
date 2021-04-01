@@ -61,6 +61,12 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
+    pub fn array_assign_index_const(span: &Span) -> Self {
+        let message = "Cannot assign to non-const array index".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn array_assign_interior_index(span: &Span) -> Self {
         let message = "Cannot assign single index to interior of array of values".to_string();
 
@@ -214,6 +220,12 @@ impl StatementError {
 
     pub fn undefined_circuit_variable(name: String, span: &Span) -> Self {
         let message = format!("Attempted to assign to unknown circuit member variable `{}`", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn loop_index_const(span: &Span) -> Self {
+        let message = "iteration range must be const".to_string();
 
         Self::new_from_span(message, span)
     }
