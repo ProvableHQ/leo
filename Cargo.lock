@@ -2571,9 +2571,9 @@ checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 
 [[package]]
 name = "snarkvm-algorithms"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "472ed062cdd1f54076312dd34e5fb56bd585c80c12209045f4b5bbbd368e9000"
+checksum = "bdf8ca73d429824090b96f751846e37e539f24c527f1f1ce0254984ade6d17b2"
 dependencies = [
  "blake2",
  "derivative",
@@ -2594,9 +2594,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-curves"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cdfdfa3aa137f64a7f49df03393e5d0269f133ca8c8c79e569cb3bb13181aeb2"
+checksum = "64610b135b8b1152439d5dfa4f745515933366082f08651961344aa0bb5abfca"
 dependencies = [
  "derivative",
  "rand",
@@ -2610,9 +2610,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-derives"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a2ba967601ff2534adbc6a71a691be4285e61c83d23d54a59824f8fa80f6038"
+checksum = "46c9829b6e2023b4c7c4d6c55e88fe755dd997171a6c9c063b75c28161d04326"
 dependencies = [
  "proc-macro-crate",
  "proc-macro-error",
@@ -2623,9 +2623,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-dpc"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff4cb55898089843ba44b9f96448dcb2badcc1ce12daa8d7365d4e41513e37bc"
+checksum = "491ae936e24e17c358d112ff8638b260500b5a982ecefc804861e28b5279f552"
 dependencies = [
  "anyhow",
  "base58",
@@ -2649,9 +2649,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-fields"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca9ea954196e76fe8968fb99eced7ccf08f901ab22747c4c489bda6674a7cb39"
+checksum = "8c49c69d02df11be58e07f626c9d6f5804c6dd4ccf42e425f2be8d79fe6e5bb7"
 dependencies = [
  "bincode",
  "derivative",
@@ -2664,9 +2664,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-gadgets"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdda42a0a6484d9f008801a8a4d494a69a4db3f7b317057a8cc3c6e4b3ef6884"
+checksum = "bd6f9ac2a166d926e1755a06fdae21ce40ce6164c75c89120401b8d78f3b7ba4"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2681,9 +2681,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-objects"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e20d13db49cedc147df06c4a6f2dd727ea25640bdf50b876f40005331767a68f"
+checksum = "9bd9779ec6ab9211f34a6ba25566feb575a396f4c41cc0e002ec2d48d7560a2a"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2702,9 +2702,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-parameters"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d35fa1819d803e45b4e99fe822e6981f177716f5384eef27245b5f6ed59a8305"
+checksum = "98378f612206fc7dd44a26f4e345bd1f3ba51bd325acad1e5cc3785d14750ec5"
 dependencies = [
  "curl",
  "hex",
@@ -2715,15 +2715,15 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-profiler"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7834d57af37a31f2f280f08b61d07a04a9a4b7720819b06ca325da32a5a925f5"
+checksum = "b2460ac01c25f79f5ea306e4de82a1d4105e811f868206b4fd31c0c9b62a3d7b"
 
 [[package]]
 name = "snarkvm-r1cs"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0838118f276e7bb673cbf3741f4966c56861aaff399a46d343fc98c12851d9eb"
+checksum = "a3a0d54b15802976aff7522765dd29d5733f338612449629cc57c5a4a4d51f05"
 dependencies = [
  "cfg-if 1.0.0",
  "fxhash",
@@ -2736,9 +2736,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-storage"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a42d92a817502878f315cc264704fa2a3d563755f16186316d8177ea685769af"
+checksum = "1d76881939f008d7bba4c8cc4118d29567b5c71908ad66bef9880f8aa7c52881"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2757,9 +2757,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-utilities"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5598f7f71c8aaf4fc267b5b420b2440a4d86c9243cecd57ff0af5c366217e5cc"
+checksum = "c763843fa67a3aa4ce68173c8cd96b4f04aaa135a5792bc051c36eec0fe1cd73"
 dependencies = [
  "bincode",
  "rand",
