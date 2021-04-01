@@ -1,4 +1,4 @@
-mkdir hello-world && cd hello-world || exit 1
-$LEO init
-ls -la
-$LEO run
+mkdir hello-world
+$LEO init --path hello-world || exit 1
+ls -la hello-world
+$LEO run --path hello-world
