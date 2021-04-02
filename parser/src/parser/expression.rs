@@ -554,7 +554,7 @@ impl ParserContext {
     /// tuple initialization expression.
     ///
     pub fn parse_tuple_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
-        if let Some((left, right, span)) = self.eat_group_partial() {
+        if let Some((left, right, span)) = self.eat_group_partial()? {
             return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
                 GroupTuple {
                     span,
@@ -657,19 +657,28 @@ impl ParserContext {
                     Some(SpannedToken {
                         token: Token::Field,
                         span: type_span,
-                    }) => Expression::Value(ValueExpression::Field(value, span + type_span)),
+                    }) => {
+                        unexpected_whitespace(&span, &type_span, &value, "field")?;
+                        Expression::Value(ValueExpression::Field(value, span + type_span))
+                    }
                     Some(SpannedToken {
                         token: Token::Group,
                         span: type_span,
-                    }) => Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(
-                        value,
-                        span + type_span,
-                    )))),
-                    Some(SpannedToken { token, span: type_span }) => Expression::Value(ValueExpression::Integer(
-                        Self::token_to_int_type(token).expect("unknown int type token"),
-                        value,
-                        span + type_span,
-                    )),
+                    }) => {
+                        unexpected_whitespace(&span, &type_span, &value, "group")?;
+                        Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(
+                            value,
+                            span + type_span,
+                        ))))
+                    }
+                    Some(SpannedToken { token, span: type_span }) => {
+                        unexpected_whitespace(&span, &type_span, &value, &token.to_string())?;
+                        Expression::Value(ValueExpression::Integer(
+                            Self::token_to_int_type(token).expect("unknown int type token"),
+                            value,
+                            span + type_span,
+                        ))
+                    }
                     None => Expression::Value(ValueExpression::Implicit(value, span)),
                 }
             }

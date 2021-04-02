@@ -41,3 +41,14 @@ pub fn parse(path: &str, source: &str) -> SyntaxResult<Program> {
 
     tokens.parse_program()
 }
+
+pub fn unexpected_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> SyntaxResult<()> {
+    if left_span.col_stop != right_span.col_start {
+        let mut error_span = left_span + right_span;
+        error_span.col_start = left_span.col_stop - 1;
+        error_span.col_stop = right_span.col_start - 1;
+        return Err(SyntaxError::unexpected_whitespace(left, right, &error_span));
+    }
+
+    Ok(())
+}
