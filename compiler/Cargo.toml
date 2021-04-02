@@ -50,7 +50,7 @@ path = "../asg-passes"
 version = "1.2.3"
 
 [dependencies.snarkvm-curves]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-fields]

@@ -73,7 +73,7 @@ version = "0.2.1"
 #default-features = false
 
 [dependencies.snarkvm-curves]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
