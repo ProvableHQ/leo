@@ -46,6 +46,14 @@ pub fn group_element_to_input_value(g: EdwardsAffine) -> GroupValue {
 }
 
 #[test]
+fn test_no_space_between_literal() {
+    let program_string = include_str!("no_space_between_literal.leo");
+    let mut program = parse_program(program_string).unwrap();
+
+    expect_compiler_error(program)
+}
+
+#[test]
 fn test_one() {
     let program_string = include_str!("one.leo");
     let program = parse_program(program_string).unwrap();
