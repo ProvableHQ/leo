@@ -114,6 +114,9 @@ default-features = false
 version = "0.2.1"
 default-features = false
 
+[dev-dependencies.tempfile]
+version = "3.0.4"
+
 [features]
 default = [ ]
 ci_skip = [ "leo-ast/ci_skip" ]

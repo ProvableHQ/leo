@@ -42,19 +42,6 @@ impl OutputFile {
         }
     }
 
-    pub fn exists_at(&self, path: &Path) -> bool {
-        let path = self.setup_file_path(path);
-        path.exists()
-    }
-
-    /// Reads the output register variables from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<String, OutputFileError> {
-        let path = self.setup_file_path(path);
-
-        let output = fs::read_to_string(&path).map_err(|_| OutputFileError::FileReadError(path.into_owned()))?;
-        Ok(output)
-    }
-
     /// Writes output to a file.
     pub fn write(&self, path: &Path, bytes: &[u8]) -> Result<(), OutputFileError> {
         // create output file
@@ -86,5 +73,28 @@ impl OutputFile {
                 .push(format!("{}{}", self.package_name, OUTPUT_FILE_EXTENSION));
         }
         path
+    }
+}
+
+#[cfg(test)]
+mod test_output_file {
+    use crate::{OutputFile, OUTPUTS_DIRECTORY_NAME};
+    use std::{error::Error, fs};
+
+    #[test]
+    fn test_all() -> Result<(), Box<dyn Error>> {
+        let dir = tempfile::tempdir()?;
+        let file = OutputFile::new("test");
+        let path = dir.path();
+
+        assert!(file.write(path, Default::default()).is_err());
+        assert!(file.remove(path)? == false);
+
+        fs::create_dir(dir.path().join(OUTPUTS_DIRECTORY_NAME))?;
+
+        assert!(file.write(path, Default::default()).is_ok());
+        assert!(file.remove(path)? == true);
+
+        Ok(())
     }
 }

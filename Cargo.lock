@@ -1269,6 +1269,7 @@ dependencies = [
  "snarkvm-gadgets",
  "snarkvm-r1cs",
  "snarkvm-utilities",
+ "tempfile",
  "thiserror",
  "tracing",
 ]
