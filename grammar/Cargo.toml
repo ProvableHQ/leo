@@ -14,5 +14,5 @@ keywords = [
 ]
 
 [dependencies]
-abnf = "0.10.0"
+abnf = "0.10.1"
 anyhow = "1.0"
