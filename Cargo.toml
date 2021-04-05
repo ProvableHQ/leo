@@ -29,6 +29,7 @@ members = [
   "asg",
   "ast",
   "compiler",
+  "grammar",
   "imports",
   "input",
   "linter",
@@ -154,8 +155,10 @@ version = "0.5"
 version = "0.11.2"
 
 [features]
-default = [ ]
+default = []
 ci_skip = [ "leo-compiler/ci_skip" ]
+# This feature flag is used to disable `target-cpu=native` in `.cargo/config`.
+noconfig = []
 
 [profile.release]
 opt-level = 3
