@@ -88,12 +88,12 @@ mod test_output_file {
         let path = dir.path();
 
         assert!(file.write(path, Default::default()).is_err());
-        assert!(!file.remove(path)?);
+        assert!(!(file.remove(path)?));
 
         fs::create_dir(dir.path().join(OUTPUTS_DIRECTORY_NAME))?;
 
         assert!(file.write(path, Default::default()).is_ok());
-        assert!(!file.remove(path)?);
+        assert!(file.remove(path)?);
 
         Ok(())
     }
