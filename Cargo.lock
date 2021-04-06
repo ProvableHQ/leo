@@ -4,9 +4,9 @@ version = 3
 
 [[package]]
 name = "abnf"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "020babd9b431b239cffff9eb1e49d8cad5f3581674d3938540801e633a3b5f69"
+checksum = "eb23c378acfcb46052bd7d1a6119d8d608d4c12ac6c72cb1d9c4e85bc2cb2bb7"
 dependencies = [
  "abnf-core",
  "nom 6.1.2",
