@@ -816,14 +816,15 @@ function-arguments = "(" [ expression *( "," expression ) ] ")"
 ; They apply to primary expressions.
 ; Contains access expressions for arrays, tuples, and circuits.
 ; Contains function call types.
+
 postfix-expression = primary-expression
-                 / postfix-expression "." natural
-                 / postfix-expression "." identifier
-                 / identifier function-arguments
-                 / postfix-expression "." identifier function-arguments
-                 / circuit-type "::" identifier function-arguments
-                 / postfix-expression "[" expression "]"
-                 / postfix-expression "[" [expression] ".." [expression] "]"
+                   / postfix-expression "." natural
+                   / postfix-expression "." identifier
+                   / identifier function-arguments
+                   / postfix-expression "." identifier function-arguments
+                   / circuit-type "::" identifier function-arguments
+                   / postfix-expression "[" expression "]"
+                   / postfix-expression "[" [expression] ".." [expression] "]"
 
 ; Unary operators have the highest operator precedence.
 ; They apply to postfix expressions
