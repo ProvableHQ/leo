@@ -187,8 +187,9 @@
 ;        / additive-expression "+" multiplicative-expression
 ;        / additive-expression "-" multiplicative-expression
 ;
-; this rule tells us that the additive operators '+' and '-' have
-; lower precedence than the multiplicative operators '*' and '/',
+; These rules tell us
+; that the additive operators '+' and '-' have lower precedence
+; than the multiplicative operators '*' and '/',
 ; and that both the additive and multiplicative operators associate to the left.
 ; This may be best understood via the examples given below.
 
