@@ -62,10 +62,4 @@ impl FieldError {
 
         Self::new_from_span(message, span)
     }
-
-    pub fn synthesis_error(error: SynthesisError, span: &Span) -> Self {
-        let message = format!("compilation failed due to field synthesis error `{:?}`", error);
-
-        Self::new_from_span(message, span)
-    }
 }

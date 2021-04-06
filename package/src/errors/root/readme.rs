@@ -14,19 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::io;
-
 #[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Error)]
 pub enum READMEError {
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
-
-    #[error("creating: {}", _0)]
-    Creating(io::Error),
-
-    #[error("writing: {}", _0)]
-    Writing(io::Error),
 }
 
 impl From<std::io::Error> for READMEError {
