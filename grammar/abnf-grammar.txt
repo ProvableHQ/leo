@@ -244,14 +244,14 @@
 ; Naming Convention
 ; -----------------
 
-; For this ABNF grammar, we choose nonterminal names
+; This ABNF grammar uses nonterminal names
 ; that consist of complete English words, separated by dashes,
 ; and that describe the construct the way it is in English.
 ; For instance, we use the name 'conditional-statement'
 ; to describe conditional statements.
 
-; At the same time, we attempt to establish
-; a precise and "official" nomenclature for the Leo constructs,
+; At the same time, this grammar establishes
+; a precise and official nomenclature for the Leo constructs,
 ; by way of the nonterminal names that define their syntax.
 ; For instance, the rule
 ;
@@ -269,19 +269,21 @@
 ; is the fact that, as discussed above,
 ; we write the grammar rules in a way that determines
 ; the relative precedence and the associativity of expression operators,
-; and that therefore we have rules like
+; and therefore we have rules like
 ;
 ;  unary-expression = primary-expression
 ;                   / "!" unary-expression
 ;                   / "-" unary-expression
 ;
 ; In order to allow the recursion of the rule to stop,
-; we need to regard, in the grammar, a primary expression as a unary expression.
+; we need to regard, in the grammar, a primary expression as a unary expression
+; (i.e. a primary expression is also a unary expression in the grammar;
+; but note that the opposite is not true).
 ; However, this is just a grammatical artifact:
 ; ontologically, a primary expression is not really a unary expression,
 ; because a unary expression is one that consists of
 ; a unary operator and an operand sub-expression.
-; These terminological "exceptions" should be easy to identify in the rules.
+; These terminological exceptions should be easy to identify in the rules.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
