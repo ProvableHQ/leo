@@ -1002,10 +1002,8 @@ annotation = annotation-name
 ; In general, a function input consists of an identifier and a type,
 ; with an optional 'const' modifier.
 ; However, functions inside circuits
-; may start with a 'mut self' or 'self' parameter,
-; which may be the only parameter in fact.
-; Furthermore, any function may end with an 'input' parameter,
-; which may be the only parameter in fact.
+; may start with a 'mut self' or 'const self' or 'self' parameter.
+; Furthermore, any function may end with an 'input' parameter.
 
 function-declaration = *annotation %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
@@ -1016,7 +1014,7 @@ function-parameters = self-parameter [ "," input-parameter ]
                     / function-inputs [ "," input-parameter ]
                     / input-parameter
 
-self-parameter = [%s"mut"] %s"self"
+self-parameter = [ %s"mut" / %s"const" ] %s"self"
 
 function-inputs = function-input *( "," function-input )
 
