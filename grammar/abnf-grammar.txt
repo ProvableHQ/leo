@@ -130,48 +130,41 @@
 ; Structure
 ; ---------
 
-; Language specifications often define the syntax of their languages via
+; This ABNF grammar consists of two (sub)grammars:
 ; (i) a lexical grammar that describes how
 ; sequence of characters are parsed into tokens, and
 ; (ii) a syntactic grammar that described how
 ; tokens are parsed into expressions, statements, etc.
-; (The adjectives 'lexical' and 'syntactic' are
-; the ones used in the Java language specification;
-; other terms may be used by other languages,
-; but the essence is similar.)
-; The situation is sometimes more complex,
-; with multiple passes (e.g. Unicode escape processing in Java),
-; but the division between lexical and syntactic (in the sense above) stands.
+; The adjectives 'lexical' and 'syntactic' are
+; the same ones used in the Java language reference,
+; for instance;
+; alternative terms may be used in other languages,
+; but the separation into these two components is quite common
+; (the situation is sometimes a bit more complex, with multiple passes,
+; e.g. Unicode escape processing in Java).
 
-; In the aforementioned language specifications,
-; both the lexical and syntactic grammars
-; are normally written in a context-free grammar notation,
-; augmented with natural language that may assert, for instance,
-; that tokenization always takes the longest sequence that constitutes a token.
-
-; This dual structure appears to be motivated by the fact that
+; This separation enables
 ; concerns of white space, line endings, etc.
-; can be handled by the lexical grammar,
-; allowing the syntactic grammar to focus on the more important structure.
-; Handling both aspects in a single context-free grammar may be unwieldy,
+; to be handled by the lexical grammar,
+; with the syntactic grammar focused on the more important structure.
+; Handling both aspects in a single grammar may be unwieldy,
 ; so having two grammars provides more clarity and readability.
 
-; In contrast, PEG (Parsing Expression Grammar) formalisms like Pest
-; naturally embody a procedural interpretation
-; that can handle white space and tokenization in just one manageable grammar.
-; However, this procedural interpretaion may be sometimes
-; less clear and readable to humans than context-free rules.
-; Indeed, context-free grammar are commonly used to documentat languages.
-
-; ABNF is a context-free grammar notation,
-; with no procedural interpretation,
-; and therefore it makes sense to define
-; separate lexical and syntactic ABNF grammars for Leo.
-; Conceptually, the two grammars define two subsequent processing phases,
+; ABNF is a context-free grammar notation, with no procedural interpretation.
+; The two grammars conceptually define two subsequent processing phases,
 ; as detailed below.
 ; However, a parser implementation does not need to perform
 ; two strictly separate phases (in fact, it typically does not),
 ; so long as it produces the same final result.
+
+; The grammar is accompanied by some extra-grammatical requirements,
+; which are not conveniently expressible in a context-free grammar like ABNF.
+; These requirements are needed to make the grammar unambiguous,
+; i.e. to ensure that, for each sequence of terminals,
+; there is exactly one parse tree for that sequence terminals
+; that satisfies not only the grammar rules
+; but also the extra-grammatical requirements.
+; These requirements are expressed as comments in this file.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
