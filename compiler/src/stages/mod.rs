@@ -14,54 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The compiler for Leo programs.
-//!
-//! The [`Compiler`] type compiles Leo programs into R1CS circuits.
+//! Compiles a Leo program from a file path.
 
-#![allow(clippy::module_inception)]
-#![allow(clippy::upper_case_acronyms)]
-
-#[macro_use]
-extern crate thiserror;
-
-pub mod compiler;
-
-pub mod console;
-pub use console::*;
-
-pub mod constraints;
-pub use constraints::*;
-
-pub mod definition;
-
-pub mod errors;
-
-pub mod expression;
-pub use expression::*;
-
-pub mod function;
-pub use function::*;
-
-pub mod output;
-pub use output::*;
-
-pub mod program;
-pub use program::*;
-
-pub mod statement;
-pub use statement::*;
-
-pub mod prelude;
-pub use prelude::*;
-
-pub mod value;
-pub use value::*;
-
-pub mod stage;
-pub use stage::*;
-
-pub mod stages;
-pub use stages::*;
-
-pub mod option;
-pub use option::*;
+pub mod reducing_director;
+pub use reducing_director::*;
