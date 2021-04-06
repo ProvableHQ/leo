@@ -130,7 +130,7 @@
 ; Structure
 ; ---------
 
-; This ABNF grammar consists of two (sub)grammars:
+; This ABNF grammar consists of two (sub-)grammars:
 ; (i) a lexical grammar that describes how
 ; sequence of characters are parsed into tokens, and
 ; (ii) a syntactic grammar that described how
@@ -454,7 +454,7 @@ address = %s"aleo1" 58( lowercase-letter / digit )
 
 ; A formatted string is a sequence of characters, other than double quote,
 ; surrounded by double quotes.
-; Within a formatted string, substrings '{}' are distinguished as containers
+; Within a formatted string, sub-strings '{}' are distinguished as containers
 ; (these are the ones that may be matched with values
 ; whose textual representation replaces the containers
 ; in the printed string).
@@ -631,7 +631,7 @@ group-type = %s"group"
 arithmetic-type = integer-type / field-type / group-type
 
 ; The arithmetic types, along with the boolean and address types,
-; form the scalar types, i.e. the ones whose values do not contain (sub)values.
+; form the scalar types, i.e. the ones whose values do not contain (sub-)values.
 
 boolean-type = %s"bool"
 
@@ -662,7 +662,7 @@ array-dimensions = natural
                  / "(" natural *( "," natural ) ")"
 
 ; Circuit, tuple, and array types form the aggregate types,
-; i.e. types whose values contain (sub)values
+; i.e. types whose values contain (sub-)values
 ; (with the corner-case exception of the empty tuple value).
 
 aggregate-type = tuple-type / array-type / circuit-type
