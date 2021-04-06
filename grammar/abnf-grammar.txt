@@ -683,7 +683,7 @@ type = scalar-type / aggregate-type
 
 group-coordinate = integer / "+" / "-" / "_"
 
-affine-group-literal = "(" group-coordinate "," group-coordinate ")" %s"group"
+affine-group-literal = "(" group-coordinate "," group-coordinate %s")group"
 
 ; A literal is either an atomic one or an affine group literal.
 
