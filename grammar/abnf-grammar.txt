@@ -51,12 +51,9 @@
 ; ------------------
 
 ; ABNF is an Internet standard:
-; see https://www.rfc-editor.org/info/rfc5234
-; and https://www.rfc-editor.org/info/rfc7405.
+; see RFC 5234 at https://www.rfc-editor.org/info/rfc5234
+; and RFC 7405 at https://www.rfc-editor.org/info/rfc7405.
 ; It is used to specify the syntax of JSON, HTTP, and other standards.
-
-; The following is copied (and "un-LaTeX'd") from the aforementioned paper
-; (at https://www.kestrel.edu/people/coglio/vstte18.pdf).
 
 ; ABNF adds conveniences and makes slight modifications
 ; to Backus-Naur Form (BNF),
@@ -74,15 +71,15 @@
 ; and denotes them via:
 ; (i) binary, decimal, or hexadecimal sequences,
 ; e.g. %b1.11.1010, %d1.3.10, and %x.1.3.A
-; all denote the string '1 3 10';
+; all denote the sequence of terminals '1 3 10';
 ; (ii) binary, decimal, or hexadecimal ranges,
-; e.g. %x30-39 denotes any string 'n' with 48 <= n <= 57
-; (an ASCII digit);
+; e.g. %x30-39 denotes any singleton sequence of terminals
+; 'n' with 48 <= n <= 57 (an ASCII digit);
 ; (iii) case-sensitive ASCII strings,
-; e.g. %s"Ab" denotes the string '65 98';
+; e.g. %s"Ab" denotes the sequence of terminals '65 98';
 ; and (iv) case-insensitive ASCII strings,
 ; e.g. %i"ab", or just "ab", denotes
-; any string among
+; any sequence of terminals among
 ; '65 66',
 ; '65 98',
 ; '97 66', and
@@ -106,7 +103,7 @@
 ; Repetition prefixes have precedence over juxtapositions,
 ; which have precedence over /.
 ; Round brackets group things and override the aforementioned precedence rules,
-; e.g. *(WSP / CRLF WSP) denotes strings
+; e.g. *(WSP / CRLF WSP) denotes sequences of terminals
 ; obtained by repeating, zero or more times,
 ; either (i) a WSP or (ii) a CRLF followed by a WSP.
 ; Square brackets also group things but make them optional,
