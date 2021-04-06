@@ -3,111 +3,111 @@ ns: ParseExpression
 expectation: Pass
 outputs:
   - CircuitInit:
-      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x {}\\\"}\"}"
+      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x {}\\\"}\"}"
       members: []
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 5
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo
+        path: circuit_init.leo
         content: "x {}"
   - CircuitInit:
-      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x {y}\\\"}\"}"
+      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x {y}\\\"}\"}"
       members:
-        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x {y}\\\"}\"}"
+        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x {y}\\\"}\"}"
           expression: ~
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 6
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo
+        path: circuit_init.leo
         content: "x {y}"
   - CircuitInit:
-      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y}\\\"}\"}"
+      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y}\\\"}\"}"
       members:
-        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y}\\\"}\"}"
+        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y}\\\"}\"}"
           expression: ~
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 5
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo
+        path: circuit_init.leo
         content: "x{y}"
   - CircuitInit:
-      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{}\\\"}\"}"
+      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{}\\\"}\"}"
       members: []
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo
+        path: circuit_init.leo
         content: "x{}"
   - CircuitInit:
-      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y: y}\\\"}\"}"
+      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y: y}\\\"}\"}"
       members:
-        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y: y}\\\"}\"}"
+        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y: y}\\\"}\"}"
           expression:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y: y}\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y: y}\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 8
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo
+        path: circuit_init.leo
         content: "x{y: y}"
   - CircuitInit:
-      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x}\\\"}\"}"
+      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x}\\\"}\"}"
       members:
-        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x}\\\"}\"}"
+        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x}\\\"}\"}"
           expression:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x}\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x}\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 8
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo
+        path: circuit_init.leo
         content: "x{y: x}"
   - CircuitInit:
-      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x,}\\\"}\"}"
+      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x,}\\\"}\"}"
       members:
-        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x,}\\\"}\"}"
+        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x,}\\\"}\"}"
           expression:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x,}\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y: x,}\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 9
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo
+        path: circuit_init.leo
         content: "x{y: x,}"
   - CircuitInit:
-      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
+      name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
       members:
-        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
+        - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
           expression:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
-        - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
+        - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
           expression:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 13
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo
+        path: circuit_init.leo
         content: "x{y:x, x:y,}"
   - CircuitInit:
-      name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo\\\",\\\"content\\\":\\\"Self {}\\\"}\"}"
+      name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"circuit_init.leo\\\",\\\"content\\\":\\\"Self {}\\\"}\"}"
       members: []
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 8
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/circuit_init.leo
+        path: circuit_init.leo
         content: "Self {}"

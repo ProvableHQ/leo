@@ -7,158 +7,158 @@ outputs:
     imports:
       - package_or_packages:
           Package:
-            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo\\\",\\\"content\\\":\\\"import test-import.*; // local import\\\"}\"}"
+            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"many_import_star.leo\\\",\\\"content\\\":\\\"import test-import.*; // local import\\\"}\"}"
             access:
               Star:
                 line_start: 3
                 line_stop: 3
                 col_start: 20
                 col_stop: 21
-                path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+                path: many_import_star.leo
                 content: import test-import.*; // local import
             span:
               line_start: 3
               line_stop: 3
               col_start: 8
               col_stop: 21
-              path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+              path: many_import_star.leo
               content: import test-import.*; // local import
         span:
           line_start: 3
           line_stop: 3
           col_start: 8
           col_stop: 21
-          path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+          path: many_import_star.leo
           content: import test-import.*; // local import
       - package_or_packages:
           Package:
-            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo\\\",\\\"content\\\":\\\"import bar.*;         // imports directory import\\\"}\"}"
+            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"many_import_star.leo\\\",\\\"content\\\":\\\"import bar.*;         // imports directory import\\\"}\"}"
             access:
               Star:
                 line_start: 5
                 line_stop: 5
                 col_start: 12
                 col_stop: 13
-                path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+                path: many_import_star.leo
                 content: import bar.*;         // imports directory import
             span:
               line_start: 5
               line_stop: 5
               col_start: 8
               col_stop: 13
-              path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+              path: many_import_star.leo
               content: import bar.*;         // imports directory import
         span:
           line_start: 5
           line_stop: 5
           col_start: 8
           col_stop: 13
-          path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+          path: many_import_star.leo
           content: import bar.*;         // imports directory import
       - package_or_packages:
           Package:
-            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\"}\"}"
+            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"many_import_star.leo\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\"}\"}"
             access:
               SubPackage:
-                name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\"}\"}"
+                name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"many_import_star.leo\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\"}\"}"
                 access:
                   Star:
                     line_start: 6
                     line_stop: 6
                     col_start: 16
                     col_stop: 17
-                    path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+                    path: many_import_star.leo
                     content: import bar.baz.*;     // imports directory import
                 span:
                   line_start: 6
                   line_stop: 6
                   col_start: 12
                   col_stop: 17
-                  path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+                  path: many_import_star.leo
                   content: import bar.baz.*;     // imports directory import
             span:
               line_start: 6
               line_stop: 6
               col_start: 8
               col_stop: 17
-              path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+              path: many_import_star.leo
               content: import bar.baz.*;     // imports directory import
         span:
           line_start: 6
           line_stop: 6
           col_start: 8
           col_stop: 17
-          path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+          path: many_import_star.leo
           content: import bar.baz.*;     // imports directory import
       - package_or_packages:
           Package:
-            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
+            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"many_import_star.leo\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
             access:
               SubPackage:
-                name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
+                name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"many_import_star.leo\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
                 access:
                   SubPackage:
-                    name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
+                    name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"many_import_star.leo\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
                     access:
                       Star:
                         line_start: 7
                         line_stop: 7
                         col_start: 20
                         col_stop: 21
-                        path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+                        path: many_import_star.leo
                         content: import bar.bat.bat.*; // imports directory import
                     span:
                       line_start: 7
                       line_stop: 7
                       col_start: 16
                       col_stop: 21
-                      path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+                      path: many_import_star.leo
                       content: import bar.bat.bat.*; // imports directory import
                 span:
                   line_start: 7
                   line_stop: 7
                   col_start: 12
                   col_stop: 21
-                  path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+                  path: many_import_star.leo
                   content: import bar.bat.bat.*; // imports directory import
             span:
               line_start: 7
               line_stop: 7
               col_start: 8
               col_stop: 21
-              path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+              path: many_import_star.leo
               content: import bar.bat.bat.*; // imports directory import
         span:
           line_start: 7
           line_stop: 7
           col_start: 8
           col_stop: 21
-          path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+          path: many_import_star.leo
           content: import bar.bat.bat.*; // imports directory import
       - package_or_packages:
           Package:
-            name: "{\"name\":\"car\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo\\\",\\\"content\\\":\\\"import car.*;         // imports directory import\\\"}\"}"
+            name: "{\"name\":\"car\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"many_import_star.leo\\\",\\\"content\\\":\\\"import car.*;         // imports directory import\\\"}\"}"
             access:
               Star:
                 line_start: 8
                 line_stop: 8
                 col_start: 12
                 col_stop: 13
-                path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+                path: many_import_star.leo
                 content: import car.*;         // imports directory import
             span:
               line_start: 8
               line_stop: 8
               col_start: 8
               col_stop: 13
-              path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+              path: many_import_star.leo
               content: import car.*;         // imports directory import
         span:
           line_start: 8
           line_stop: 8
           col_start: 8
           col_stop: 13
-          path: /home/p/aleo/leo/parser/../tests/parser/import/many_import_star.leo
+          path: many_import_star.leo
           content: import car.*;         // imports directory import
     circuits: {}
     functions: {}

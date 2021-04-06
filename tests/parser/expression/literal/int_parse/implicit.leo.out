@@ -9,7 +9,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 4
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "123"
   - Value:
       Implicit:
@@ -18,7 +18,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 4
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "123"
   - Value:
       Implicit:
@@ -27,7 +27,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 4
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "456"
   - Value:
       Implicit:
@@ -36,7 +36,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 81
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
   - Value:
       Implicit:
@@ -45,7 +45,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 401
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
   - Value:
       Implicit:
@@ -54,7 +54,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "340130024"
   - Value:
       Implicit:
@@ -63,7 +63,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "158951116"
   - Value:
       Implicit:
@@ -72,7 +72,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "155529659"
   - Value:
       Implicit:
@@ -81,7 +81,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "642023166"
   - Value:
       Implicit:
@@ -90,7 +90,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "228481736"
   - Value:
       Implicit:
@@ -99,7 +99,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "469712960"
   - Value:
       Implicit:
@@ -108,7 +108,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "929437719"
   - Value:
       Implicit:
@@ -117,7 +117,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "721072814"
   - Value:
       Implicit:
@@ -126,7 +126,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "363254789"
   - Value:
       Implicit:
@@ -135,7 +135,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "906732565"
   - Value:
       Implicit:
@@ -144,7 +144,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "288246391"
   - Value:
       Implicit:
@@ -153,7 +153,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "724940549"
   - Value:
       Implicit:
@@ -162,7 +162,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "487101620"
   - Value:
       Implicit:
@@ -171,7 +171,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "261373583"
   - Value:
       Implicit:
@@ -180,7 +180,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "891163927"
   - Value:
       Implicit:
@@ -189,7 +189,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "743967544"
   - Value:
       Implicit:
@@ -198,7 +198,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 8
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "8372586"
   - Value:
       Implicit:
@@ -207,7 +207,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "461793278"
   - Value:
       Implicit:
@@ -216,7 +216,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "806307045"
   - Value:
       Implicit:
@@ -225,7 +225,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "122764546"
   - Value:
       Implicit:
@@ -234,7 +234,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "356336181"
   - Value:
       Implicit:
@@ -243,7 +243,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "158370903"
   - Value:
       Implicit:
@@ -252,7 +252,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "774460877"
   - Value:
       Implicit:
@@ -261,7 +261,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "557174131"
   - Value:
       Implicit:
@@ -270,7 +270,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "492401267"
   - Value:
       Implicit:
@@ -279,7 +279,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "893445620"
   - Value:
       Implicit:
@@ -288,7 +288,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "957757048"
   - Value:
       Implicit:
@@ -297,7 +297,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "721540649"
   - Value:
       Implicit:
@@ -306,7 +306,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "390746493"
   - Value:
       Implicit:
@@ -315,7 +315,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "211251725"
   - Value:
       Implicit:
@@ -324,7 +324,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "938266114"
   - Value:
       Implicit:
@@ -333,7 +333,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "156985870"
   - Value:
       Implicit:
@@ -342,7 +342,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "703831126"
   - Value:
       Implicit:
@@ -351,7 +351,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "729964155"
   - Value:
       Implicit:
@@ -360,7 +360,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "988151305"
   - Value:
       Implicit:
@@ -369,7 +369,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "320872435"
   - Value:
       Implicit:
@@ -378,7 +378,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "719287167"
   - Value:
       Implicit:
@@ -387,7 +387,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "152289486"
   - Value:
       Implicit:
@@ -396,7 +396,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "740067975"
   - Value:
       Implicit:
@@ -405,7 +405,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "728627816"
   - Value:
       Implicit:
@@ -414,7 +414,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "385008978"
   - Value:
       Implicit:
@@ -423,7 +423,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "553967635"
   - Value:
       Implicit:
@@ -432,7 +432,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "71980713"
   - Value:
       Implicit:
@@ -441,7 +441,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "519444716"
   - Value:
       Implicit:
@@ -450,7 +450,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "116499965"
   - Value:
       Implicit:
@@ -459,7 +459,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "717422268"
   - Value:
       Implicit:
@@ -468,7 +468,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "18966279"
   - Value:
       Implicit:
@@ -477,7 +477,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "22458638"
   - Value:
       Implicit:
@@ -486,7 +486,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "857282620"
   - Value:
       Implicit:
@@ -495,7 +495,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "920675898"
   - Value:
       Implicit:
@@ -504,7 +504,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "762235516"
   - Value:
       Implicit:
@@ -513,7 +513,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "469018377"
   - Value:
       Implicit:
@@ -522,7 +522,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "199986521"
   - Value:
       Implicit:
@@ -531,7 +531,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "536679358"
   - Value:
       Implicit:
@@ -540,7 +540,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "591399452"
   - Value:
       Implicit:
@@ -549,7 +549,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "83083158"
   - Value:
       Implicit:
@@ -558,7 +558,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "599449051"
   - Value:
       Implicit:
@@ -567,7 +567,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "445442318"
   - Value:
       Implicit:
@@ -576,7 +576,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "585486590"
   - Value:
       Implicit:
@@ -585,7 +585,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "209278800"
   - Value:
       Implicit:
@@ -594,7 +594,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "873568117"
   - Value:
       Implicit:
@@ -603,7 +603,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "664470940"
   - Value:
       Implicit:
@@ -612,7 +612,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "465262783"
   - Value:
       Implicit:
@@ -621,7 +621,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "605652874"
   - Value:
       Implicit:
@@ -630,7 +630,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "376803940"
   - Value:
       Implicit:
@@ -639,7 +639,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "965247040"
   - Value:
       Implicit:
@@ -648,7 +648,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "598474509"
   - Value:
       Implicit:
@@ -657,7 +657,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "845119918"
   - Value:
       Implicit:
@@ -666,7 +666,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "648159133"
   - Value:
       Implicit:
@@ -675,7 +675,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "669051032"
   - Value:
       Implicit:
@@ -684,7 +684,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "800600261"
   - Value:
       Implicit:
@@ -693,7 +693,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "434689764"
   - Value:
       Implicit:
@@ -702,7 +702,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "520060080"
   - Value:
       Implicit:
@@ -711,7 +711,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "804659385"
   - Value:
       Implicit:
@@ -720,7 +720,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "537828058"
   - Value:
       Implicit:
@@ -729,7 +729,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "716600292"
   - Value:
       Implicit:
@@ -738,7 +738,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "387020273"
   - Value:
       Implicit:
@@ -747,7 +747,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "199375617"
   - Value:
       Implicit:
@@ -756,7 +756,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "680337189"
   - Value:
       Implicit:
@@ -765,7 +765,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "818479931"
   - Value:
       Implicit:
@@ -774,7 +774,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "893693281"
   - Value:
       Implicit:
@@ -783,7 +783,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "87377802"
   - Value:
       Implicit:
@@ -792,7 +792,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "84699261"
   - Value:
       Implicit:
@@ -801,7 +801,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "292826090"
   - Value:
       Implicit:
@@ -810,7 +810,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "569171405"
   - Value:
       Implicit:
@@ -819,7 +819,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "387436237"
   - Value:
       Implicit:
@@ -828,7 +828,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "150682190"
   - Value:
       Implicit:
@@ -837,7 +837,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "888770419"
   - Value:
       Implicit:
@@ -846,7 +846,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "824696431"
   - Value:
       Implicit:
@@ -855,7 +855,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "765659803"
   - Value:
       Implicit:
@@ -864,7 +864,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "270163693"
   - Value:
       Implicit:
@@ -873,7 +873,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "427940240"
   - Value:
       Implicit:
@@ -882,7 +882,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "504997332"
   - Value:
       Implicit:
@@ -891,7 +891,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "337808338"
   - Value:
       Implicit:
@@ -900,7 +900,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "907200008"
   - Value:
       Implicit:
@@ -909,7 +909,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "757177889"
   - Value:
       Implicit:
@@ -918,7 +918,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "696697188"
   - Value:
       Implicit:
@@ -927,7 +927,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "41376051"
   - Value:
       Implicit:
@@ -936,7 +936,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "496293518"
   - Value:
       Implicit:
@@ -945,5 +945,5 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/implicit.leo
+          path: implicit.leo
           content: "251218820"

@@ -9,7 +9,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 3
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+        path: block.leo
         content: "{}"
   - Block:
       statements:
@@ -22,21 +22,21 @@ outputs:
                   line_stop: 2
                   col_start: 8
                   col_stop: 10
-                  path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+                  path: block.leo
                   content: return ();
             span:
               line_start: 2
               line_stop: 2
               col_start: 1
               col_stop: 10
-              path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+              path: block.leo
               content: return ();
       span:
         line_start: 1
         line_stop: 3
         col_start: 1
         col_stop: 2
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+        path: block.leo
         content: "{\n...\n}"
   - Block:
       statements:
@@ -47,14 +47,14 @@ outputs:
               line_stop: 1
               col_start: 2
               col_stop: 4
-              path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+              path: block.leo
               content: "{{}}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 5
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+        path: block.leo
         content: "{{}}"
   - Block:
       statements:
@@ -69,34 +69,34 @@ outputs:
                         line_stop: 3
                         col_start: 8
                         col_stop: 10
-                        path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+                        path: block.leo
                         content: return ();
                   span:
                     line_start: 3
                     line_stop: 3
                     col_start: 1
                     col_stop: 10
-                    path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+                    path: block.leo
                     content: return ();
             span:
               line_start: 2
               line_stop: 4
               col_start: 1
               col_stop: 2
-              path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+              path: block.leo
               content: "{\n...\n}"
       span:
         line_start: 1
         line_stop: 5
         col_start: 1
         col_stop: 2
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+        path: block.leo
         content: "{\n...\n}"
   - Block:
       statements:
         - Conditional:
             condition:
-              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/block.leo\\\",\\\"content\\\":\\\"if x {\\\"}\"}"
+              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"block.leo\\\",\\\"content\\\":\\\"if x {\\\"}\"}"
             block:
               statements:
                 - Return:
@@ -108,21 +108,21 @@ outputs:
                           line_stop: 3
                           col_start: 8
                           col_stop: 10
-                          path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+                          path: block.leo
                           content: return ();
                     span:
                       line_start: 3
                       line_stop: 3
                       col_start: 1
                       col_stop: 10
-                      path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+                      path: block.leo
                       content: return ();
               span:
                 line_start: 2
                 line_stop: 4
                 col_start: 6
                 col_stop: 2
-                path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+                path: block.leo
                 content: "if x {\n...\n}"
             next: ~
             span:
@@ -130,12 +130,12 @@ outputs:
               line_stop: 4
               col_start: 1
               col_stop: 2
-              path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+              path: block.leo
               content: "if x {\n...\n}"
       span:
         line_start: 1
         line_stop: 5
         col_start: 1
         col_stop: 2
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/block.leo
+        path: block.leo
         content: "{\n...\n}"

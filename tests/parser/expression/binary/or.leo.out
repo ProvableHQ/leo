@@ -11,7 +11,7 @@ outputs:
               line_stop: 1
               col_start: 1
               col_stop: 2
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+              path: or.leo
               content: 1 + 1
       right:
         Value:
@@ -21,7 +21,7 @@ outputs:
               line_stop: 1
               col_start: 5
               col_stop: 6
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+              path: or.leo
               content: 1 + 1
       op: Add
       span:
@@ -29,7 +29,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 6
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+        path: or.leo
         content: 1 + 1
   - Binary:
       left:
@@ -40,7 +40,7 @@ outputs:
               line_stop: 1
               col_start: 1
               col_stop: 2
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+              path: or.leo
               content: 2+3
       right:
         Value:
@@ -50,7 +50,7 @@ outputs:
               line_stop: 1
               col_start: 3
               col_stop: 4
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+              path: or.leo
               content: 2+3
       op: Add
       span:
@@ -58,7 +58,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+        path: or.leo
         content: 2+3
   - Binary:
       left:
@@ -71,7 +71,7 @@ outputs:
                   line_stop: 1
                   col_start: 1
                   col_stop: 2
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 + 2 + 3
           right:
             Value:
@@ -81,7 +81,7 @@ outputs:
                   line_stop: 1
                   col_start: 5
                   col_stop: 6
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 + 2 + 3
           op: Add
           span:
@@ -89,7 +89,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 6
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+            path: or.leo
             content: 1 + 2 + 3
       right:
         Value:
@@ -99,7 +99,7 @@ outputs:
               line_stop: 1
               col_start: 9
               col_stop: 10
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+              path: or.leo
               content: 1 + 2 + 3
       op: Add
       span:
@@ -107,7 +107,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 10
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+        path: or.leo
         content: 1 + 2 + 3
   - Binary:
       left:
@@ -120,7 +120,7 @@ outputs:
                   line_stop: 1
                   col_start: 1
                   col_stop: 2
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 * 2 + 3 * 4
           right:
             Value:
@@ -130,7 +130,7 @@ outputs:
                   line_stop: 1
                   col_start: 5
                   col_stop: 6
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 * 2 + 3 * 4
           op: Mul
           span:
@@ -138,7 +138,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 6
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+            path: or.leo
             content: 1 * 2 + 3 * 4
       right:
         Binary:
@@ -150,7 +150,7 @@ outputs:
                   line_stop: 1
                   col_start: 9
                   col_stop: 10
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 * 2 + 3 * 4
           right:
             Value:
@@ -160,7 +160,7 @@ outputs:
                   line_stop: 1
                   col_start: 13
                   col_stop: 14
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 * 2 + 3 * 4
           op: Mul
           span:
@@ -168,7 +168,7 @@ outputs:
             line_stop: 1
             col_start: 9
             col_stop: 14
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+            path: or.leo
             content: 1 * 2 + 3 * 4
       op: Add
       span:
@@ -176,7 +176,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 14
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+        path: or.leo
         content: 1 * 2 + 3 * 4
   - Binary:
       left:
@@ -189,7 +189,7 @@ outputs:
                   line_stop: 1
                   col_start: 1
                   col_stop: 2
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 + 2 - 3
           right:
             Value:
@@ -199,7 +199,7 @@ outputs:
                   line_stop: 1
                   col_start: 5
                   col_stop: 6
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 + 2 - 3
           op: Add
           span:
@@ -207,7 +207,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 6
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+            path: or.leo
             content: 1 + 2 - 3
       right:
         Value:
@@ -217,7 +217,7 @@ outputs:
               line_stop: 1
               col_start: 9
               col_stop: 10
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+              path: or.leo
               content: 1 + 2 - 3
       op: Sub
       span:
@@ -225,7 +225,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 10
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+        path: or.leo
         content: 1 + 2 - 3
   - Binary:
       left:
@@ -240,7 +240,7 @@ outputs:
                       line_stop: 1
                       col_start: 1
                       col_stop: 2
-                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                      path: or.leo
                       content: 1 * 2 + 3 * 4 - 5 * 6
               right:
                 Value:
@@ -250,7 +250,7 @@ outputs:
                       line_stop: 1
                       col_start: 5
                       col_stop: 6
-                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                      path: or.leo
                       content: 1 * 2 + 3 * 4 - 5 * 6
               op: Mul
               span:
@@ -258,7 +258,7 @@ outputs:
                 line_stop: 1
                 col_start: 1
                 col_stop: 6
-                path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                path: or.leo
                 content: 1 * 2 + 3 * 4 - 5 * 6
           right:
             Binary:
@@ -270,7 +270,7 @@ outputs:
                       line_stop: 1
                       col_start: 9
                       col_stop: 10
-                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                      path: or.leo
                       content: 1 * 2 + 3 * 4 - 5 * 6
               right:
                 Value:
@@ -280,7 +280,7 @@ outputs:
                       line_stop: 1
                       col_start: 13
                       col_stop: 14
-                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                      path: or.leo
                       content: 1 * 2 + 3 * 4 - 5 * 6
               op: Mul
               span:
@@ -288,7 +288,7 @@ outputs:
                 line_stop: 1
                 col_start: 9
                 col_stop: 14
-                path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                path: or.leo
                 content: 1 * 2 + 3 * 4 - 5 * 6
           op: Add
           span:
@@ -296,7 +296,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 14
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+            path: or.leo
             content: 1 * 2 + 3 * 4 - 5 * 6
       right:
         Binary:
@@ -308,7 +308,7 @@ outputs:
                   line_stop: 1
                   col_start: 17
                   col_stop: 18
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 * 2 + 3 * 4 - 5 * 6
           right:
             Value:
@@ -318,7 +318,7 @@ outputs:
                   line_stop: 1
                   col_start: 21
                   col_stop: 22
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+                  path: or.leo
                   content: 1 * 2 + 3 * 4 - 5 * 6
           op: Mul
           span:
@@ -326,7 +326,7 @@ outputs:
             line_stop: 1
             col_start: 17
             col_stop: 22
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+            path: or.leo
             content: 1 * 2 + 3 * 4 - 5 * 6
       op: Sub
       span:
@@ -334,5 +334,5 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 22
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/or.leo
+        path: or.leo
         content: 1 * 2 + 3 * 4 - 5 * 6

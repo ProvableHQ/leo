@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - ArrayAccess:
       array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[0]\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[0]\\\"}\"}"
       index:
         Value:
           Implicit:
@@ -13,18 +13,18 @@ outputs:
               line_stop: 1
               col_start: 3
               col_stop: 4
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+              path: array_access.leo
               content: "x[0]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 5
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+        path: array_access.leo
         content: "x[0]"
   - ArrayAccess:
       array:
-        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"X[1]\\\"}\"}"
+        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"X[1]\\\"}\"}"
       index:
         Value:
           Implicit:
@@ -33,18 +33,18 @@ outputs:
               line_stop: 1
               col_start: 3
               col_stop: 4
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+              path: array_access.leo
               content: "X[1]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 5
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+        path: array_access.leo
         content: "X[1]"
   - ArrayAccess:
       array:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[0u8]\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[0u8]\\\"}\"}"
       index:
         Value:
           Integer:
@@ -54,20 +54,20 @@ outputs:
               line_stop: 1
               col_start: 3
               col_stop: 6
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+              path: array_access.leo
               content: "x[0u8]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+        path: array_access.leo
         content: "x[0u8]"
   - ArrayAccess:
       array:
         ArrayAccess:
           array:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[1u8][2u8]\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[1u8][2u8]\\\"}\"}"
           index:
             Value:
               Integer:
@@ -77,14 +77,14 @@ outputs:
                   line_stop: 1
                   col_start: 3
                   col_stop: 6
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+                  path: array_access.leo
                   content: "x[1u8][2u8]"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 7
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+            path: array_access.leo
             content: "x[1u8][2u8]"
       index:
         Value:
@@ -95,14 +95,14 @@ outputs:
               line_stop: 1
               col_start: 8
               col_stop: 11
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+              path: array_access.leo
               content: "x[1u8][2u8]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 12
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+        path: array_access.leo
         content: "x[1u8][2u8]"
   - ArrayAccess:
       array:
@@ -110,39 +110,39 @@ outputs:
           array:
             ArrayAccess:
               array:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[x][y][z]\\\"}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[x][y][z]\\\"}\"}"
               index:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[x][y][z]\\\"}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[x][y][z]\\\"}\"}"
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
                 col_stop: 5
-                path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+                path: array_access.leo
                 content: "x[x][y][z]"
           index:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[x][y][z]\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[x][y][z]\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 8
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+            path: array_access.leo
             content: "x[x][y][z]"
       index:
-        Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[x][y][z]\\\"}\"}"
+        Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[x][y][z]\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 11
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+        path: array_access.leo
         content: "x[x][y][z]"
   - Call:
       function:
         ArrayAccess:
           array:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[0]()\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[0]()\\\"}\"}"
           index:
             Value:
               Implicit:
@@ -151,14 +151,14 @@ outputs:
                   line_stop: 1
                   col_start: 3
                   col_stop: 4
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+                  path: array_access.leo
                   content: "x[0]()"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 5
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+            path: array_access.leo
             content: "x[0]()"
       arguments: []
       span:
@@ -166,20 +166,20 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+        path: array_access.leo
         content: "x[0]()"
   - ArrayAccess:
       array:
         Call:
           function:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x()[0]\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x()[0]\\\"}\"}"
           arguments: []
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 4
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+            path: array_access.leo
             content: "x()[0]"
       index:
         Value:
@@ -189,14 +189,14 @@ outputs:
               line_stop: 1
               col_start: 5
               col_stop: 6
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+              path: array_access.leo
               content: "x()[0]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+        path: array_access.leo
         content: "x()[0]"
   - Call:
       function:
@@ -204,32 +204,32 @@ outputs:
           circuit:
             Call:
               function:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
               arguments:
-                - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
+                - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
                 col_stop: 5
-                path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+                path: array_access.leo
                 content: "x(y)::y(x)"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
+          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 8
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+            path: array_access.leo
             content: "x(y)::y(x)"
       arguments:
-        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
+        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 11
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+        path: array_access.leo
         content: "x(y)::y(x)"
   - ArrayAccess:
       array:
@@ -237,15 +237,15 @@ outputs:
           tuple:
             ArrayAccess:
               array:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[x].0[x]\\\"}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[x].0[x]\\\"}\"}"
               index:
-                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[x].0[x]\\\"}\"}"
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[x].0[x]\\\"}\"}"
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
                 col_stop: 5
-                path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+                path: array_access.leo
                 content: "x[x].0[x]"
           index:
             value: "0"
@@ -254,14 +254,14 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 7
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+            path: array_access.leo
             content: "x[x].0[x]"
       index:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo\\\",\\\"content\\\":\\\"x[x].0[x]\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"array_access.leo\\\",\\\"content\\\":\\\"x[x].0[x]\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 10
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/array_access.leo
+        path: array_access.leo
         content: "x[x].0[x]"

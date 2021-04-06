@@ -4,77 +4,77 @@ expectation: Pass
 outputs:
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x()\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x()\\\"}\"}"
       arguments: []
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+        path: call.leo
         content: x()
   - Call:
       function:
-        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"X()\\\"}\"}"
+        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"X()\\\"}\"}"
       arguments: []
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+        path: call.leo
         content: X()
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x(y)\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x(y)\\\"}\"}"
       arguments:
-        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x(y)\\\"}\"}"
+        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x(y)\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 5
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+        path: call.leo
         content: x(y)
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x(y, z)\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x(y, z)\\\"}\"}"
       arguments:
-        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x(y, z)\\\"}\"}"
-        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x(y, z)\\\"}\"}"
+        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x(y, z)\\\"}\"}"
+        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x(y, z)\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 8
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+        path: call.leo
         content: "x(y, z)"
   - Call:
       function:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
       arguments:
-        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
-        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
-        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
+        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
+        - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
+        - Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x(x, y, z)\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 11
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+        path: call.leo
         content: "x(x, y, z)"
   - Call:
       function:
         CircuitStaticFunctionAccess:
           circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
+          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 5
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+            path: call.leo
             content: "x::y()"
       arguments: []
       span:
@@ -82,35 +82,35 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+        path: call.leo
         content: "x::y()"
   - Call:
       function:
         CircuitStaticFunctionAccess:
           circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
+          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 5
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+            path: call.leo
             content: "x::y(x)"
       arguments:
-        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
+        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 8
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+        path: call.leo
         content: "x::y(x)"
   - Call:
       function:
         TupleAccess:
           tuple:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x.0(x)\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x.0(x)\\\"}\"}"
           index:
             value: "0"
           span:
@@ -118,22 +118,22 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 4
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+            path: call.leo
             content: x.0(x)
       arguments:
-        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x.0(x)\\\"}\"}"
+        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x.0(x)\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+        path: call.leo
         content: x.0(x)
   - Call:
       function:
         ArrayAccess:
           array:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x[0](x)\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x[0](x)\\\"}\"}"
           index:
             Value:
               Implicit:
@@ -142,21 +142,21 @@ outputs:
                   line_stop: 1
                   col_start: 3
                   col_stop: 4
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+                  path: call.leo
                   content: "x[0](x)"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 5
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+            path: call.leo
             content: "x[0](x)"
       arguments:
-        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo\\\",\\\"content\\\":\\\"x[0](x)\\\"}\"}"
+        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"call.leo\\\",\\\"content\\\":\\\"x[0](x)\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 8
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/call.leo
+        path: call.leo
         content: "x[0](x)"

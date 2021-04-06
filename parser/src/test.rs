@@ -426,13 +426,29 @@ pub fn parser_tests() {
         let mut expectation_path = path.clone();
         expectation_path += ".out";
         let expectations: Option<TestExpectation> = if std::path::Path::new(&expectation_path).exists() {
-            let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
-            Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file"))
+            if std::env::var("CLEAR_LEO_TEST_EXPECTATIONS")
+                .unwrap_or_default()
+                .trim()
+                .len()
+                > 0
+            {
+                None
+            } else {
+                let raw = std::fs::read_to_string(&expectation_path).expect("failed to read expectations file");
+                Some(serde_yaml::from_str(&raw).expect("invalid yaml in expectations file"))
+            }
         } else {
             None
         };
         let mut errors = vec![];
-        let new_outputs = run_test(&config, &path, &content, expectations.as_ref(), &mut errors);
+        let raw_path = Path::new(&path);
+        let new_outputs = run_test(
+            &config,
+            raw_path.file_name().unwrap_or_default().to_str().unwrap_or_default(),
+            &content,
+            expectations.as_ref(),
+            &mut errors,
+        );
         if errors.is_empty() {
             if expectations.is_none() {
                 outputs.push((expectation_path, TestExpectation {

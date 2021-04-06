@@ -11,7 +11,7 @@ outputs:
               line_stop: 1
               col_start: 1
               col_stop: 2
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+              path: exp.leo
               content: 1 ** 1
       right:
         Value:
@@ -21,7 +21,7 @@ outputs:
               line_stop: 1
               col_start: 6
               col_stop: 7
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+              path: exp.leo
               content: 1 ** 1
       op: Pow
       span:
@@ -29,7 +29,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+        path: exp.leo
         content: 1 ** 1
   - Binary:
       left:
@@ -40,7 +40,7 @@ outputs:
               line_stop: 1
               col_start: 1
               col_stop: 2
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+              path: exp.leo
               content: 2**3
       right:
         Value:
@@ -50,7 +50,7 @@ outputs:
               line_stop: 1
               col_start: 4
               col_stop: 5
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+              path: exp.leo
               content: 2**3
       op: Pow
       span:
@@ -58,7 +58,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 5
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+        path: exp.leo
         content: 2**3
   - Binary:
       left:
@@ -69,7 +69,7 @@ outputs:
               line_stop: 1
               col_start: 1
               col_stop: 2
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+              path: exp.leo
               content: 1 ** 2 ** 3
       right:
         Binary:
@@ -81,7 +81,7 @@ outputs:
                   line_stop: 1
                   col_start: 6
                   col_stop: 7
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+                  path: exp.leo
                   content: 1 ** 2 ** 3
           right:
             Value:
@@ -91,7 +91,7 @@ outputs:
                   line_stop: 1
                   col_start: 11
                   col_stop: 12
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+                  path: exp.leo
                   content: 1 ** 2 ** 3
           op: Pow
           span:
@@ -99,7 +99,7 @@ outputs:
             line_stop: 1
             col_start: 6
             col_stop: 12
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+            path: exp.leo
             content: 1 ** 2 ** 3
       op: Pow
       span:
@@ -107,7 +107,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 12
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+        path: exp.leo
         content: 1 ** 2 ** 3
   - Binary:
       left:
@@ -120,7 +120,7 @@ outputs:
                   line_stop: 1
                   col_start: 1
                   col_stop: 2
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+                  path: exp.leo
                   content: 1 as i8 ** 3 as i8
           target_type:
             IntegerType: I8
@@ -129,7 +129,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 8
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+            path: exp.leo
             content: 1 as i8 ** 3 as i8
       right:
         Cast:
@@ -141,7 +141,7 @@ outputs:
                   line_stop: 1
                   col_start: 12
                   col_stop: 13
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+                  path: exp.leo
                   content: 1 as i8 ** 3 as i8
           target_type:
             IntegerType: I8
@@ -150,7 +150,7 @@ outputs:
             line_stop: 1
             col_start: 12
             col_stop: 19
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+            path: exp.leo
             content: 1 as i8 ** 3 as i8
       op: Pow
       span:
@@ -158,7 +158,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 19
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+        path: exp.leo
         content: 1 as i8 ** 3 as i8
   - Binary:
       left:
@@ -171,7 +171,7 @@ outputs:
                   line_stop: 1
                   col_start: 1
                   col_stop: 2
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+                  path: exp.leo
                   content: 1 as i8 ** 3 as i8 ** 5 as i8
           target_type:
             IntegerType: I8
@@ -180,7 +180,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 8
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+            path: exp.leo
             content: 1 as i8 ** 3 as i8 ** 5 as i8
       right:
         Binary:
@@ -194,7 +194,7 @@ outputs:
                       line_stop: 1
                       col_start: 12
                       col_stop: 13
-                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+                      path: exp.leo
                       content: 1 as i8 ** 3 as i8 ** 5 as i8
               target_type:
                 IntegerType: I8
@@ -203,7 +203,7 @@ outputs:
                 line_stop: 1
                 col_start: 12
                 col_stop: 19
-                path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+                path: exp.leo
                 content: 1 as i8 ** 3 as i8 ** 5 as i8
           right:
             Cast:
@@ -215,7 +215,7 @@ outputs:
                       line_stop: 1
                       col_start: 23
                       col_stop: 24
-                      path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+                      path: exp.leo
                       content: 1 as i8 ** 3 as i8 ** 5 as i8
               target_type:
                 IntegerType: I8
@@ -224,7 +224,7 @@ outputs:
                 line_stop: 1
                 col_start: 23
                 col_stop: 30
-                path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+                path: exp.leo
                 content: 1 as i8 ** 3 as i8 ** 5 as i8
           op: Pow
           span:
@@ -232,7 +232,7 @@ outputs:
             line_stop: 1
             col_start: 12
             col_stop: 30
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+            path: exp.leo
             content: 1 as i8 ** 3 as i8 ** 5 as i8
       op: Pow
       span:
@@ -240,5 +240,5 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 30
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/exp.leo
+        path: exp.leo
         content: 1 as i8 ** 3 as i8 ** 5 as i8

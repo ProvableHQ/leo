@@ -7,12 +7,12 @@ outputs:
     imports: []
     circuits: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}":
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"const_param.leo\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}":
         annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"const_param.leo\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"const_param.leo\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
               const_: false
               mutable: true
               type_:
@@ -22,10 +22,10 @@ outputs:
                 line_stop: 3
                 col_start: 12
                 col_stop: 13
-                path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+                path: const_param.leo
                 content: "function x(x: u32, const y: i32) {"
           - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"const_param.leo\\\",\\\"content\\\":\\\"function x(x: u32, const y: i32) {\\\"}\"}"
               const_: true
               mutable: false
               type_:
@@ -35,7 +35,7 @@ outputs:
                 line_stop: 3
                 col_start: 26
                 col_stop: 27
-                path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+                path: const_param.leo
                 content: "function x(x: u32, const y: i32) {"
         output: ~
         block:
@@ -49,35 +49,35 @@ outputs:
                       line_stop: 4
                       col_start: 12
                       col_stop: 14
-                      path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+                      path: const_param.leo
                       content: "    return ();"
                 span:
                   line_start: 4
                   line_stop: 4
                   col_start: 5
                   col_stop: 14
-                  path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+                  path: const_param.leo
                   content: "    return ();"
           span:
             line_start: 3
             line_stop: 5
             col_start: 34
             col_stop: 2
-            path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+            path: const_param.leo
             content: "function x(x: u32, const y: i32) {\n...\n}"
         span:
           line_start: 3
           line_stop: 5
           col_start: 1
           col_stop: 2
-          path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+          path: const_param.leo
           content: "function x(x: u32, const y: i32) {\n...\n}"
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}":
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"const_param.leo\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}":
         annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"const_param.leo\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"const_param.leo\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
               const_: true
               mutable: false
               type_:
@@ -87,10 +87,10 @@ outputs:
                 line_stop: 7
                 col_start: 18
                 col_stop: 19
-                path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+                path: const_param.leo
                 content: "function x(const x: u32, y: i32) {"
           - Variable:
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"const_param.leo\\\",\\\"content\\\":\\\"function x(const x: u32, y: i32) {\\\"}\"}"
               const_: false
               mutable: true
               type_:
@@ -100,7 +100,7 @@ outputs:
                 line_stop: 7
                 col_start: 26
                 col_stop: 27
-                path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+                path: const_param.leo
                 content: "function x(const x: u32, y: i32) {"
         output: ~
         block:
@@ -114,26 +114,26 @@ outputs:
                       line_stop: 8
                       col_start: 12
                       col_stop: 14
-                      path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+                      path: const_param.leo
                       content: "    return ();"
                 span:
                   line_start: 8
                   line_stop: 8
                   col_start: 5
                   col_stop: 14
-                  path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+                  path: const_param.leo
                   content: "    return ();"
           span:
             line_start: 7
             line_stop: 9
             col_start: 34
             col_stop: 2
-            path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+            path: const_param.leo
             content: "function x(const x: u32, y: i32) {\n...\n}"
         span:
           line_start: 7
           line_stop: 9
           col_start: 1
           col_stop: 2
-          path: /home/p/aleo/leo/parser/../tests/parser/functions/const_param.leo
+          path: const_param.leo
           content: "function x(const x: u32, y: i32) {\n...\n}"

@@ -9,7 +9,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 64
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/address_parse.leo
+          path: address_parse.leo
           content: aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
   - Value:
       Address:
@@ -18,7 +18,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 64
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/address_parse.leo
+          path: address_parse.leo
           content: aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j9
   - Value:
       Address:
@@ -27,7 +27,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 64
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/address_parse.leo
+          path: address_parse.leo
           content: aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9
   - Value:
       Address:
@@ -36,7 +36,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 64
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/address_parse.leo
+          path: address_parse.leo
           content: aleo1aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8st
   - Value:
       Address:
@@ -45,7 +45,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 73
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/address_parse.leo
+          path: address_parse.leo
           content: address(aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8)
   - Value:
       Address:
@@ -54,7 +54,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 73
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/address_parse.leo
+          path: address_parse.leo
           content: address(aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j9)
   - Value:
       Address:
@@ -63,7 +63,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 73
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/address_parse.leo
+          path: address_parse.leo
           content: address(aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9)
   - Value:
       Address:
@@ -72,5 +72,5 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 73
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/address_parse.leo
+          path: address_parse.leo
           content: address(aleo1aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8st)

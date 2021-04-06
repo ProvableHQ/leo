@@ -4,59 +4,59 @@ expectation: Pass
 outputs:
   - CircuitMemberAccess:
       circuit:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y\\\"}\"}"
-      name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y\\\"}\"}"
+      name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+        path: circuit.leo
         content: x.y
   - CircuitMemberAccess:
       circuit:
-        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"X.Y\\\"}\"}"
-      name: "{\"name\":\"Y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"X.Y\\\"}\"}"
+        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"X.Y\\\"}\"}"
+      name: "{\"name\":\"Y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"X.Y\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+        path: circuit.leo
         content: X.Y
   - CircuitMemberAccess:
       circuit:
         CircuitMemberAccess:
           circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y.z\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y.z\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y.z\\\"}\"}"
+          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y.z\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 4
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+            path: circuit.leo
             content: x.y.z
-      name: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y.z\\\"}\"}"
+      name: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y.z\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 6
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+        path: circuit.leo
         content: x.y.z
   - Call:
       function:
         CircuitMemberAccess:
           circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y()\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y()\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y()\\\"}\"}"
+          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y()\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 4
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+            path: circuit.leo
             content: x.y()
       arguments: []
       span:
@@ -64,20 +64,20 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 6
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+        path: circuit.leo
         content: x.y()
   - TupleAccess:
       tuple:
         CircuitMemberAccess:
           circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y.0\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y.0\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y.0\\\"}\"}"
+          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y.0\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 4
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+            path: circuit.leo
             content: x.y.0
       index:
         value: "0"
@@ -86,20 +86,20 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 6
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+        path: circuit.leo
         content: x.y.0
   - ArrayAccess:
       array:
         CircuitMemberAccess:
           circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y[1]\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo\\\",\\\"content\\\":\\\"x.y[1]\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y[1]\\\"}\"}"
+          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"circuit.leo\\\",\\\"content\\\":\\\"x.y[1]\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 4
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+            path: circuit.leo
             content: "x.y[1]"
       index:
         Value:
@@ -109,12 +109,12 @@ outputs:
               line_stop: 1
               col_start: 5
               col_stop: 6
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+              path: circuit.leo
               content: "x.y[1]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/access/circuit.leo
+        path: circuit.leo
         content: "x.y[1]"

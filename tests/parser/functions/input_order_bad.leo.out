@@ -7,12 +7,12 @@ outputs:
     imports: []
     circuits: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/input_order_bad.leo\\\",\\\"content\\\":\\\"function x(x: u32, input) {\\\"}\"}":
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"input_order_bad.leo\\\",\\\"content\\\":\\\"function x(x: u32, input) {\\\"}\"}":
         annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/input_order_bad.leo\\\",\\\"content\\\":\\\"function x(x: u32, input) {\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"input_order_bad.leo\\\",\\\"content\\\":\\\"function x(x: u32, input) {\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/input_order_bad.leo\\\",\\\"content\\\":\\\"function x(x: u32, input) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"input_order_bad.leo\\\",\\\"content\\\":\\\"function x(x: u32, input) {\\\"}\"}"
               const_: false
               mutable: true
               type_:
@@ -22,9 +22,9 @@ outputs:
                 line_stop: 3
                 col_start: 12
                 col_stop: 13
-                path: /home/p/aleo/leo/parser/../tests/parser/functions/input_order_bad.leo
+                path: input_order_bad.leo
                 content: "function x(x: u32, input) {"
-          - InputKeyword: "{\"name\":\"input\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":20,\\\"col_stop\\\":25,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/input_order_bad.leo\\\",\\\"content\\\":\\\"function x(x: u32, input) {\\\"}\"}"
+          - InputKeyword: "{\"name\":\"input\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":20,\\\"col_stop\\\":25,\\\"path\\\":\\\"input_order_bad.leo\\\",\\\"content\\\":\\\"function x(x: u32, input) {\\\"}\"}"
         output: ~
         block:
           statements:
@@ -37,26 +37,26 @@ outputs:
                       line_stop: 4
                       col_start: 12
                       col_stop: 14
-                      path: /home/p/aleo/leo/parser/../tests/parser/functions/input_order_bad.leo
+                      path: input_order_bad.leo
                       content: "    return ();"
                 span:
                   line_start: 4
                   line_stop: 4
                   col_start: 5
                   col_stop: 14
-                  path: /home/p/aleo/leo/parser/../tests/parser/functions/input_order_bad.leo
+                  path: input_order_bad.leo
                   content: "    return ();"
           span:
             line_start: 3
             line_stop: 5
             col_start: 27
             col_stop: 2
-            path: /home/p/aleo/leo/parser/../tests/parser/functions/input_order_bad.leo
+            path: input_order_bad.leo
             content: "function x(x: u32, input) {\n...\n}"
         span:
           line_start: 3
           line_stop: 5
           col_start: 1
           col_stop: 2
-          path: /home/p/aleo/leo/parser/../tests/parser/functions/input_order_bad.leo
+          path: input_order_bad.leo
           content: "function x(x: u32, input) {\n...\n}"

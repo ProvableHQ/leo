@@ -11,7 +11,7 @@ outputs:
               line_stop: 1
               col_start: 1
               col_stop: 5
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+              path: and.leo
               content: true && false
       right:
         Value:
@@ -21,7 +21,7 @@ outputs:
               line_stop: 1
               col_start: 9
               col_stop: 14
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+              path: and.leo
               content: true && false
       op: And
       span:
@@ -29,7 +29,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 14
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+        path: and.leo
         content: true && false
   - Binary:
       left:
@@ -40,7 +40,7 @@ outputs:
               line_stop: 1
               col_start: 1
               col_stop: 6
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+              path: and.leo
               content: false&&true
       right:
         Value:
@@ -50,7 +50,7 @@ outputs:
               line_stop: 1
               col_start: 8
               col_stop: 12
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+              path: and.leo
               content: false&&true
       op: And
       span:
@@ -58,7 +58,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 12
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+        path: and.leo
         content: false&&true
   - Binary:
       left:
@@ -71,7 +71,7 @@ outputs:
                   line_stop: 1
                   col_start: 1
                   col_stop: 5
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+                  path: and.leo
                   content: true&&false&&true
           right:
             Value:
@@ -81,7 +81,7 @@ outputs:
                   line_stop: 1
                   col_start: 7
                   col_stop: 12
-                  path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+                  path: and.leo
                   content: true&&false&&true
           op: And
           span:
@@ -89,7 +89,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 12
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+            path: and.leo
             content: true&&false&&true
       right:
         Value:
@@ -99,7 +99,7 @@ outputs:
               line_stop: 1
               col_start: 14
               col_stop: 18
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+              path: and.leo
               content: true&&false&&true
       op: And
       span:
@@ -107,5 +107,5 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 18
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/binary/and.leo
+        path: and.leo
         content: true&&false&&true

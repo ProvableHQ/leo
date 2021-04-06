@@ -12,7 +12,7 @@ outputs:
               line_stop: 1
               col_start: 2
               col_stop: 5
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+              path: array_init.leo
               content: "[0u8; 1]"
       dimensions:
         - value: "1"
@@ -21,7 +21,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 9
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+        path: array_init.leo
         content: "[0u8; 1]"
   - ArrayInit:
       element:
@@ -32,7 +32,7 @@ outputs:
               line_stop: 1
               col_start: 2
               col_stop: 3
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+              path: array_init.leo
               content: "[0; 1]"
       dimensions:
         - value: "1"
@@ -41,7 +41,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+        path: array_init.leo
         content: "[0; 1]"
   - ArrayInit:
       element:
@@ -52,7 +52,7 @@ outputs:
               line_stop: 1
               col_start: 2
               col_stop: 3
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+              path: array_init.leo
               content: "[0; (1)]"
       dimensions:
         - value: "1"
@@ -61,7 +61,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 9
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+        path: array_init.leo
         content: "[0; (1)]"
   - ArrayInit:
       element:
@@ -72,7 +72,7 @@ outputs:
               line_stop: 1
               col_start: 2
               col_stop: 3
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+              path: array_init.leo
               content: "[0; (1, 2)]"
       dimensions:
         - value: "1"
@@ -82,7 +82,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 12
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+        path: array_init.leo
         content: "[0; (1, 2)]"
   - ArrayInit:
       element:
@@ -93,7 +93,7 @@ outputs:
               line_stop: 1
               col_start: 2
               col_stop: 3
-              path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+              path: array_init.leo
               content: "[0; (1, 2, 3)]"
       dimensions:
         - value: "1"
@@ -104,7 +104,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 15
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+        path: array_init.leo
         content: "[0; (1, 2, 3)]"
   - ArrayInit:
       element:
@@ -119,7 +119,7 @@ outputs:
                       line_stop: 1
                       col_start: 4
                       col_stop: 5
-                      path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+                      path: array_init.leo
                       content: "[[[0; 3]; 2]; 1]"
               dimensions:
                 - value: "3"
@@ -128,7 +128,7 @@ outputs:
                 line_stop: 1
                 col_start: 3
                 col_stop: 9
-                path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+                path: array_init.leo
                 content: "[[[0; 3]; 2]; 1]"
           dimensions:
             - value: "2"
@@ -137,7 +137,7 @@ outputs:
             line_stop: 1
             col_start: 2
             col_stop: 13
-            path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+            path: array_init.leo
             content: "[[[0; 3]; 2]; 1]"
       dimensions:
         - value: "1"
@@ -146,5 +146,5 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 17
-        path: /home/p/aleo/leo/parser/../tests/parser/expression/array_init.leo
+        path: array_init.leo
         content: "[[[0; 3]; 2]; 1]"

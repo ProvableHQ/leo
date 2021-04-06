@@ -7,31 +7,31 @@ outputs:
     imports:
       - package_or_packages:
           Package:
-            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/alias.leo\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
+            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"alias.leo\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
             access:
               Symbol:
-                symbol: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/alias.leo\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
-                alias: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/import/alias.leo\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
+                symbol: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"alias.leo\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
+                alias: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"alias.leo\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
                 span:
                   line_start: 3
                   line_stop: 3
                   col_start: 10
                   col_stop: 18
-                  path: /home/p/aleo/leo/parser/../tests/parser/import/alias.leo
+                  path: alias.leo
                   content: import a.b as bar;
             span:
               line_start: 3
               line_stop: 3
               col_start: 8
               col_stop: 18
-              path: /home/p/aleo/leo/parser/../tests/parser/import/alias.leo
+              path: alias.leo
               content: import a.b as bar;
         span:
           line_start: 3
           line_stop: 3
           col_start: 8
           col_stop: 18
-          path: /home/p/aleo/leo/parser/../tests/parser/import/alias.leo
+          path: alias.leo
           content: import a.b as bar;
     circuits: {}
     functions: {}

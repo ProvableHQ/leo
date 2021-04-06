@@ -7,9 +7,9 @@ outputs:
     imports: []
     circuits: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/return_tuple.leo\\\",\\\"content\\\":\\\"function x() -> (u32, u32) {\\\"}\"}":
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"return_tuple.leo\\\",\\\"content\\\":\\\"function x() -> (u32, u32) {\\\"}\"}":
         annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/functions/return_tuple.leo\\\",\\\"content\\\":\\\"function x() -> (u32, u32) {\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"return_tuple.leo\\\",\\\"content\\\":\\\"function x() -> (u32, u32) {\\\"}\"}"
         input: []
         output:
           Tuple:
@@ -26,26 +26,26 @@ outputs:
                       line_stop: 4
                       col_start: 12
                       col_stop: 14
-                      path: /home/p/aleo/leo/parser/../tests/parser/functions/return_tuple.leo
+                      path: return_tuple.leo
                       content: "    return ();"
                 span:
                   line_start: 4
                   line_stop: 4
                   col_start: 5
                   col_stop: 14
-                  path: /home/p/aleo/leo/parser/../tests/parser/functions/return_tuple.leo
+                  path: return_tuple.leo
                   content: "    return ();"
           span:
             line_start: 3
             line_stop: 5
             col_start: 28
             col_stop: 2
-            path: /home/p/aleo/leo/parser/../tests/parser/functions/return_tuple.leo
+            path: return_tuple.leo
             content: "function x() -> (u32, u32) {\n...\n}"
         span:
           line_start: 3
           line_stop: 5
           col_start: 1
           col_stop: 2
-          path: /home/p/aleo/leo/parser/../tests/parser/functions/return_tuple.leo
+          path: return_tuple.leo
           content: "function x() -> (u32, u32) {\n...\n}"

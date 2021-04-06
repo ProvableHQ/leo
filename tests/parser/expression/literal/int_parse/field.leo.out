@@ -9,7 +9,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 123field
   - Value:
       Implicit:
@@ -18,7 +18,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 4
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: "123"
   - Value:
       Field:
@@ -27,7 +27,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 456field
   - Value:
       Field:
@@ -36,7 +36,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 86
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 87377802873778028737780287377802873778028737780287377802873778028737780287377802field
   - Value:
       Field:
@@ -45,7 +45,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 406
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802field
   - Value:
       Field:
@@ -54,7 +54,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 340130024field
   - Value:
       Field:
@@ -63,7 +63,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 158951116field
   - Value:
       Field:
@@ -72,7 +72,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 155529659field
   - Value:
       Field:
@@ -81,7 +81,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 642023166field
   - Value:
       Field:
@@ -90,7 +90,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 228481736field
   - Value:
       Field:
@@ -99,7 +99,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 469712960field
   - Value:
       Field:
@@ -108,7 +108,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 929437719field
   - Value:
       Field:
@@ -117,7 +117,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 721072814field
   - Value:
       Field:
@@ -126,7 +126,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 363254789field
   - Value:
       Field:
@@ -135,7 +135,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 906732565field
   - Value:
       Field:
@@ -144,7 +144,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 288246391field
   - Value:
       Field:
@@ -153,7 +153,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 724940549field
   - Value:
       Field:
@@ -162,7 +162,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 487101620field
   - Value:
       Field:
@@ -171,7 +171,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 261373583field
   - Value:
       Field:
@@ -180,7 +180,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 891163927field
   - Value:
       Field:
@@ -189,7 +189,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 743967544field
   - Value:
       Field:
@@ -198,7 +198,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 13
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 8372586field
   - Value:
       Field:
@@ -207,7 +207,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 461793278field
   - Value:
       Field:
@@ -216,7 +216,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 806307045field
   - Value:
       Field:
@@ -225,7 +225,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 122764546field
   - Value:
       Field:
@@ -234,7 +234,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 356336181field
   - Value:
       Field:
@@ -243,7 +243,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 158370903field
   - Value:
       Field:
@@ -252,7 +252,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 774460877field
   - Value:
       Field:
@@ -261,7 +261,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 557174131field
   - Value:
       Field:
@@ -270,7 +270,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 492401267field
   - Value:
       Field:
@@ -279,7 +279,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 893445620field
   - Value:
       Field:
@@ -288,7 +288,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 957757048field
   - Value:
       Field:
@@ -297,7 +297,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 721540649field
   - Value:
       Field:
@@ -306,7 +306,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 390746493field
   - Value:
       Field:
@@ -315,7 +315,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 211251725field
   - Value:
       Field:
@@ -324,7 +324,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 938266114field
   - Value:
       Field:
@@ -333,7 +333,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 156985870field
   - Value:
       Field:
@@ -342,7 +342,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 703831126field
   - Value:
       Field:
@@ -351,7 +351,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 729964155field
   - Value:
       Field:
@@ -360,7 +360,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 988151305field
   - Value:
       Field:
@@ -369,7 +369,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 320872435field
   - Value:
       Field:
@@ -378,7 +378,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 719287167field
   - Value:
       Field:
@@ -387,7 +387,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 152289486field
   - Value:
       Field:
@@ -396,7 +396,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 740067975field
   - Value:
       Field:
@@ -405,7 +405,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 728627816field
   - Value:
       Field:
@@ -414,7 +414,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 385008978field
   - Value:
       Field:
@@ -423,7 +423,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 553967635field
   - Value:
       Field:
@@ -432,7 +432,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 14
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 71980713field
   - Value:
       Field:
@@ -441,7 +441,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 519444716field
   - Value:
       Field:
@@ -450,7 +450,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 116499965field
   - Value:
       Field:
@@ -459,7 +459,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 717422268field
   - Value:
       Field:
@@ -468,7 +468,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 14
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 18966279field
   - Value:
       Field:
@@ -477,7 +477,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 14
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 22458638field
   - Value:
       Field:
@@ -486,7 +486,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 857282620field
   - Value:
       Field:
@@ -495,7 +495,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 920675898field
   - Value:
       Field:
@@ -504,7 +504,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 762235516field
   - Value:
       Field:
@@ -513,7 +513,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 469018377field
   - Value:
       Field:
@@ -522,7 +522,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 199986521field
   - Value:
       Field:
@@ -531,7 +531,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 536679358field
   - Value:
       Field:
@@ -540,7 +540,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 591399452field
   - Value:
       Field:
@@ -549,7 +549,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 14
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 83083158field
   - Value:
       Field:
@@ -558,7 +558,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 599449051field
   - Value:
       Field:
@@ -567,7 +567,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 445442318field
   - Value:
       Field:
@@ -576,7 +576,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 585486590field
   - Value:
       Field:
@@ -585,7 +585,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 209278800field
   - Value:
       Field:
@@ -594,7 +594,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 873568117field
   - Value:
       Field:
@@ -603,7 +603,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 664470940field
   - Value:
       Field:
@@ -612,7 +612,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 465262783field
   - Value:
       Field:
@@ -621,7 +621,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 605652874field
   - Value:
       Field:
@@ -630,7 +630,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 376803940field
   - Value:
       Field:
@@ -639,7 +639,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 965247040field
   - Value:
       Field:
@@ -648,7 +648,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 598474509field
   - Value:
       Field:
@@ -657,7 +657,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 845119918field
   - Value:
       Field:
@@ -666,7 +666,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 648159133field
   - Value:
       Field:
@@ -675,7 +675,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 669051032field
   - Value:
       Field:
@@ -684,7 +684,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 800600261field
   - Value:
       Field:
@@ -693,7 +693,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 434689764field
   - Value:
       Field:
@@ -702,7 +702,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 520060080field
   - Value:
       Field:
@@ -711,7 +711,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 804659385field
   - Value:
       Field:
@@ -720,7 +720,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 537828058field
   - Value:
       Field:
@@ -729,7 +729,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 716600292field
   - Value:
       Field:
@@ -738,7 +738,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 387020273field
   - Value:
       Field:
@@ -747,7 +747,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 199375617field
   - Value:
       Field:
@@ -756,7 +756,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 680337189field
   - Value:
       Field:
@@ -765,7 +765,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 818479931field
   - Value:
       Field:
@@ -774,7 +774,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 893693281field
   - Value:
       Field:
@@ -783,7 +783,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 14
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 87377802field
   - Value:
       Field:
@@ -792,7 +792,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 14
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 84699261field
   - Value:
       Field:
@@ -801,7 +801,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 292826090field
   - Value:
       Field:
@@ -810,7 +810,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 569171405field
   - Value:
       Field:
@@ -819,7 +819,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 387436237field
   - Value:
       Field:
@@ -828,7 +828,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 150682190field
   - Value:
       Field:
@@ -837,7 +837,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 888770419field
   - Value:
       Field:
@@ -846,7 +846,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 824696431field
   - Value:
       Field:
@@ -855,7 +855,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 765659803field
   - Value:
       Field:
@@ -864,7 +864,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 270163693field
   - Value:
       Field:
@@ -873,7 +873,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 427940240field
   - Value:
       Field:
@@ -882,7 +882,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 504997332field
   - Value:
       Field:
@@ -891,7 +891,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 337808338field
   - Value:
       Field:
@@ -900,7 +900,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 907200008field
   - Value:
       Field:
@@ -909,7 +909,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 757177889field
   - Value:
       Field:
@@ -918,7 +918,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 696697188field
   - Value:
       Field:
@@ -927,7 +927,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 14
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 41376051field
   - Value:
       Field:
@@ -936,7 +936,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 496293518field
   - Value:
       Field:
@@ -945,5 +945,5 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/int_parse/field.leo
+          path: field.leo
           content: 251218820field

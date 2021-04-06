@@ -5,13 +5,13 @@ outputs:
   - Console:
       function:
         Assert:
-          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.assert(x);\\\"}\"}"
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.assert(x);\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 17
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: console.assert(x);
   - Console:
       function:
@@ -19,20 +19,20 @@ outputs:
           parts:
             - Container
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 15
             col_stop: 22
-            path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+            path: console.leo
             content: "console.error(\"{}\", x);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 22
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: "console.error(\"{}\", x);"
   - Console:
       function:
@@ -41,21 +41,21 @@ outputs:
             - Container
             - Container
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 15
             col_stop: 27
-            path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+            path: console.leo
             content: "console.error(\"{}{}\", x, y);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 27
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: "console.error(\"{}{}\", x, y);"
   - Console:
       function:
@@ -68,14 +68,14 @@ outputs:
             line_stop: 1
             col_start: 15
             col_stop: 18
-            path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+            path: console.leo
             content: "console.error(\"x\");"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 18
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: "console.error(\"x\");"
   - Console:
       function:
@@ -83,20 +83,20 @@ outputs:
           parts:
             - Container
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.debug(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.debug(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 15
             col_stop: 22
-            path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+            path: console.leo
             content: "console.debug(\"{}\", x);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 22
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: "console.debug(\"{}\", x);"
   - Console:
       function:
@@ -105,21 +105,21 @@ outputs:
             - Container
             - Container
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.debug(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.debug(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.debug(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.debug(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 15
             col_stop: 27
-            path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+            path: console.leo
             content: "console.debug(\"{}{}\", x, y);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 27
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: "console.debug(\"{}{}\", x, y);"
   - Console:
       function:
@@ -132,14 +132,14 @@ outputs:
             line_stop: 1
             col_start: 15
             col_stop: 18
-            path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+            path: console.leo
             content: "console.debug(\"x\");"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 18
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: "console.debug(\"x\");"
   - Console:
       function:
@@ -147,20 +147,20 @@ outputs:
           parts:
             - Container
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 13
             col_stop: 20
-            path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+            path: console.leo
             content: "console.log(\"{}\", x);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 20
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: "console.log(\"{}\", x);"
   - Console:
       function:
@@ -169,21 +169,21 @@ outputs:
             - Container
             - Container
           parameters:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/statement/console.leo\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"console.leo\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 13
             col_stop: 25
-            path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+            path: console.leo
             content: "console.log(\"{}{}\", x, y);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 25
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: "console.log(\"{}{}\", x, y);"
   - Console:
       function:
@@ -196,12 +196,12 @@ outputs:
             line_stop: 1
             col_start: 13
             col_stop: 16
-            path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+            path: console.leo
             content: "console.log(\"x\");"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 16
-        path: /home/p/aleo/leo/parser/../tests/parser/statement/console.leo
+        path: console.leo
         content: "console.log(\"x\");"

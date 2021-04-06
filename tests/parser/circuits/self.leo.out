@@ -6,14 +6,14 @@ outputs:
     expected_input: []
     imports: []
     circuits:
-      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/self.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
-        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/self.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"self.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"self.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
         members:
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/self.leo\\\",\\\"content\\\":\\\"    function x(self) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"self.leo\\\",\\\"content\\\":\\\"    function x(self) {\\\"}\"}"
               input:
-                - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/self.leo\\\",\\\"content\\\":\\\"    function x(self) {\\\"}\"}"
+                - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"self.leo\\\",\\\"content\\\":\\\"    function x(self) {\\\"}\"}"
               output: ~
               block:
                 statements:
@@ -26,27 +26,27 @@ outputs:
                             line_stop: 5
                             col_start: 16
                             col_stop: 18
-                            path: /home/p/aleo/leo/parser/../tests/parser/circuits/self.leo
+                            path: self.leo
                             content: "        return ();"
                       span:
                         line_start: 5
                         line_stop: 5
                         col_start: 9
                         col_stop: 18
-                        path: /home/p/aleo/leo/parser/../tests/parser/circuits/self.leo
+                        path: self.leo
                         content: "        return ();"
                 span:
                   line_start: 4
                   line_stop: 6
                   col_start: 22
                   col_stop: 6
-                  path: /home/p/aleo/leo/parser/../tests/parser/circuits/self.leo
+                  path: self.leo
                   content: "    function x(self) {\n...\n    }"
               span:
                 line_start: 4
                 line_stop: 6
                 col_start: 5
                 col_stop: 6
-                path: /home/p/aleo/leo/parser/../tests/parser/circuits/self.leo
+                path: self.leo
                 content: "    function x(self) {\n...\n    }"
     functions: {}

@@ -6,18 +6,18 @@ outputs:
     expected_input: []
     imports: []
     circuits:
-      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
-        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"field_and_functions.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"field_and_functions.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
         members:
           - CircuitVariable:
-              - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
+              - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"field_and_functions.leo\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
               - IntegerType: U32
           - CircuitVariable:
-              - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo\\\",\\\"content\\\":\\\"    y: u32,\\\"}\"}"
+              - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"field_and_functions.leo\\\",\\\"content\\\":\\\"    y: u32,\\\"}\"}"
               - IntegerType: U32
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo\\\",\\\"content\\\":\\\"    function x() {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"field_and_functions.leo\\\",\\\"content\\\":\\\"    function x() {\\\"}\"}"
               input: []
               output: ~
               block:
@@ -31,32 +31,32 @@ outputs:
                             line_stop: 7
                             col_start: 16
                             col_stop: 18
-                            path: /home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo
+                            path: field_and_functions.leo
                             content: "        return ();"
                       span:
                         line_start: 7
                         line_stop: 7
                         col_start: 9
                         col_stop: 18
-                        path: /home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo
+                        path: field_and_functions.leo
                         content: "        return ();"
                 span:
                   line_start: 6
                   line_stop: 8
                   col_start: 18
                   col_stop: 6
-                  path: /home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo
+                  path: field_and_functions.leo
                   content: "    function x() {\n...\n    }"
               span:
                 line_start: 6
                 line_stop: 8
                 col_start: 5
                 col_stop: 6
-                path: /home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo
+                path: field_and_functions.leo
                 content: "    function x() {\n...\n    }"
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"/home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo\\\",\\\"content\\\":\\\"    function y() {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"field_and_functions.leo\\\",\\\"content\\\":\\\"    function y() {\\\"}\"}"
               input: []
               output: ~
               block:
@@ -70,27 +70,27 @@ outputs:
                             line_stop: 10
                             col_start: 16
                             col_stop: 18
-                            path: /home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo
+                            path: field_and_functions.leo
                             content: "        return ();"
                       span:
                         line_start: 10
                         line_stop: 10
                         col_start: 9
                         col_stop: 18
-                        path: /home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo
+                        path: field_and_functions.leo
                         content: "        return ();"
                 span:
                   line_start: 9
                   line_stop: 11
                   col_start: 18
                   col_stop: 6
-                  path: /home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo
+                  path: field_and_functions.leo
                   content: "    function y() {\n...\n    }"
               span:
                 line_start: 9
                 line_stop: 11
                 col_start: 5
                 col_stop: 6
-                path: /home/p/aleo/leo/parser/../tests/parser/circuits/field_and_functions.leo
+                path: field_and_functions.leo
                 content: "    function y() {\n...\n    }"
     functions: {}

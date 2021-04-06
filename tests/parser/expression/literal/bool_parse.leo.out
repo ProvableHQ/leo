@@ -9,7 +9,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 5
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/bool_parse.leo
+          path: bool_parse.leo
           content: "true"
   - Value:
       Boolean:
@@ -18,5 +18,5 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 6
-          path: /home/p/aleo/leo/parser/../tests/parser/expression/literal/bool_parse.leo
+          path: bool_parse.leo
           content: "false"
