@@ -295,11 +295,12 @@
 ; which are numbers in the range form 0 to 10FFFFh.
 ; These are captured by the ABNF rule 'character' below.
 
-; The lexical grammar defines how, conceptually,
+; The lexical grammar defines how, at least conceptually,
 ; the sequence of characters is turned into
-; a sequence of tokens, comments, and whitespaces.
+; a sequence of tokens, comments, and whitespaces:
+; these entities are all defined by the grammar rules below.
 
-; As stated, the lexical grammar is ambiguous.
+; As stated, the lexical grammar alone is ambiguous.
 ; For example, the sequence of characters '**' (i.e. two stars)
 ; could be equally parsed as two '*' symbol tokens or one '**' symbol token
 ; (see rule for 'symbol' below).
@@ -314,10 +315,6 @@
 ; the longest possible sequence of characters is always parsed.
 ; This way, '**' must be parsed as one '**' symbol token,
 ; and '<CR><LF>' must be parsed as one line terminator.
-; (We should formalize this requirement,
-; along with the other extra-grammatical requirements given below,
-; and formally prove that they indeed make
-; the lexical grammar of Leo unambiguous.)
 
 ; As mentioned above, a character is any Unicode code point.
 ; This grammar does not say how those are encoded in files (e.g. UTF-8):
@@ -356,7 +353,8 @@ not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF   ; anything but * or /
 ; a line feed,
 ; or a carriage return immediately followed by a line feed.
 ; Note that the latter combination constitutes a single line terminator,
-; according to the extra-grammatical rule of the longest sequence.
+; according to the extra-grammatical requirement of the longest sequence,
+; described above.
 
 newline = line-feed / carriage-return / carriage-return line-feed
 
@@ -366,13 +364,13 @@ whitespace = space / horizontal-tab / newline
 
 ; There are two kinds of comments in Leo, as in other languages.
 ; One is block comments of the form '/* ... */',
-; and the other is end-of-line comments '// ...'.
+; and the other is end-of-line comments of the form '// ...'.
 ; The first kind start at '/*' and end at the first '*/',
 ; possibly spanning multiple (partial) lines;
-; they do no nest.
+; these do no nest.
 ; The second kind start at '//' and extend till the end of the line.
 ; The rules about comments given below are similar to
-; the ones used in the Java language specification.
+; the ones used in the Java language reference.
 
 comment = block-comment / end-of-line-comment
 
@@ -454,9 +452,9 @@ package-name = 1*( lowercase-letter / digit )
 
 address = %s"aleo1" 58( lowercase-letter / digit )
 
-; A format string is a sequence of characters, other than double quote,
+; A formatted string is a sequence of characters, other than double quote,
 ; surrounded by double quotes.
-; Within a format string, substrings '{}' are distinguished as containers
+; Within a formatted string, substrings '{}' are distinguished as containers
 ; (these are the ones that may be matched with values
 ; whose textual representation replaces the containers
 ; in the printed string).
@@ -469,12 +467,12 @@ address = %s"aleo1" 58( lowercase-letter / digit )
 formatted-string-container = "{}"
 
 formatted-string = double-quote
-                *( not-double-quote / formatted-string-container )
-                double-quote
+                   *( not-double-quote / formatted-string-container )
+                   double-quote
 
 ; Here is (part of this ABNF comment),
-; an alternative way to specify format strings,
-; which captures the extra-grammatical requirement above in the grammar
+; an alternative way to specify formatted strings,
+; which captures the extra-grammatical requirement above in the grammar,
 ; but is more complicated:
 ;
 ;  not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
@@ -482,27 +480,25 @@ formatted-string = double-quote
 ;  not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
 ;
 ;  formatted-string-element = not-double-quote-or-open-brace
-;                        / "{" not-double-quote-or-close-brace
-;                        / formatted-string-container
+;                           / "{" not-double-quote-or-close-brace
+;                           / formatted-string-container
 ;
 ;  formatted-string = double-quote *formatted-string-element double-quote
 ;
 ; It is not immediately clear which approach is better; there are tradeoffs.
-; Regardless, we should choose one eventually.
+; We may choose to adopt this one in future revisions of the grammar.
 
-; Annotations are built out of names and arguments, which are tokens.
-; Two names are currently supported.
-; An argument is a sequence of one or more letters, digits, and underscores.
+; Annotations have names, which are identifiers immediately preceded by '@'.
 
 annotation-name = "@" identifier
 
 ; A natural (number) is a sequence of one or more digits.
-; Note that we allow leading zeros, e.g. '007'.
+; We allow leading zeros, e.g. '007'.
 
 natural = 1*digit
 
 ; An integer (number) is either a natural or its negation.
-; Note that we also allow leading zeros in negative numbers, e.g. '-007'.
+; We allow leading zeros also in negative numbers, e.g. '-007'.
 
 integer = [ "-" ] natural
 
@@ -539,7 +535,9 @@ boolean-literal = %s"true" / %s"false"
 
 address-literal = %s"address" "(" address ")"
 
-; The ones above are all the literals, as defined by the following rule.
+; The ones above are all the atomic literals
+; (in the sense that they are tokens, without whitespace allowed in them),
+; as defined by the following rule.
 
 atomic-literal = untyped-literal
                / unsigned-literal
@@ -553,14 +551,14 @@ atomic-literal = untyped-literal
 ; it remains to define tokens for non-alphanumeric symbols such as "+" and "(".
 ; Different programming languages used different terminologies for these,
 ; e.g. operators, separators, punctuators, etc.
-; Here we use 'symbol', for all of them, but we can do something different.
+; Here we use 'symbol', for all of them.
 ; We also include a token consisting of
 ; a closing parenthesis immediately followed by 'group':
 ; as defined in the syntactic grammar,
-; this is the final part of an affine group literal.
-; Even though it includes letters,
+; this is the final part of an affine group literal;
+; even though it includes letters,
 ; it seems appropriate to still consider it a symbol,
-; particularly since it starts with a symbol.
+; particularly since it starts with a proper symbol.
 
 ; We could give names to all of these symbols,
 ; via rules such as
@@ -955,8 +953,8 @@ assignment-statement = expression assignment-operator expression ";"
 ; The call may be an assertion or a print command.
 ; The former takes an expression (which must be boolean) as argument.
 ; The latter takes either no argument,
-; or a format string followed by expressions,
-; whose number must match the number of containers '{}' in the format string.
+; or a formatted string followed by expressions,
+; whose number must match the number of containers '{}' in the formatted string.
 ; Note that the console function names are identifiers, not keywords.
 ; There are three kind of printing.
 
