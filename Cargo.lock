@@ -1315,6 +1315,7 @@ dependencies = [
  "snarkvm-r1cs",
  "snarkvm-utilities",
  "tempfile",
+ "tendril",
  "thiserror",
  "tracing",
 ]

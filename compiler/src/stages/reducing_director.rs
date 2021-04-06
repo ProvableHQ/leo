@@ -32,11 +32,13 @@ use leo_asg::{
     TernaryExpression as AsgTernaryExpression,
     TupleAccessExpression as AsgTupleAccessExpression,
     TupleInitExpression as AsgTupleInitExpression,
+    Type as AsgType,
     UnaryExpression as AsgUnaryExpression,
     VariableRef as AsgVariableRef,
 };
 use leo_ast::{
     ArrayAccessExpression as AstArrayAccessExpression,
+    ArrayDimensions,
     ArrayInitExpression as AstArrayInitExpression,
     ArrayInlineExpression as AstArrayInlineExpression,
     ArrayRangeAccessExpression as AstArrayRangeAccessExpression,
@@ -45,16 +47,21 @@ use leo_ast::{
     CanonicalizeError,
     CastExpression as AstCastExpression,
     CircuitInitExpression as AstCircuitInitExpression,
-    CircuitMemberAccessExpression as AstCircuitAccessExpression,
+    CircuitMemberAccessExpression,
+    CircuitStaticFunctionAccessExpression,
     Expression as AstExpression,
+    PositiveNumber,
     ReconstructingReducer,
+    Span,
     SpreadOrExpression,
     TernaryExpression as AstTernaryExpression,
     TupleAccessExpression as AstTupleAccessExpression,
     TupleInitExpression as AstTupleInitExpression,
+    Type as AstType,
     UnaryExpression as AstUnaryExpression,
     ValueExpression,
 };
+use tendril::StrTendril;
 
 pub struct CombineAstAsgDirector<R: ReconstructingReducer> {
     ast_reducer: R,
@@ -71,40 +78,94 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         }
     }
 
+    pub fn reduce_type(&mut self, ast: &AstType, asg: &AsgType, span: &Span) -> Result<AstType, CanonicalizeError> {
+        let new = match (ast, asg) {
+            (AstType::Array(ast_type, ast_dimensions), AsgType::Array(asg_type, asg_dimensions)) => {
+                if self.options.type_inference_enabled {
+                    AstType::Array(
+                        Box::new(self.reduce_type(ast_type, asg_type, span)?),
+                        ArrayDimensions(vec![PositiveNumber {
+                            value: StrTendril::from(format!("{}", asg_dimensions)),
+                        }]),
+                    )
+                } else {
+                    AstType::Array(
+                        Box::new(self.reduce_type(ast_type, asg_type, span)?),
+                        ast_dimensions.clone(),
+                    )
+                }
+            }
+            (AstType::Tuple(ast_types), AsgType::Tuple(asg_types)) => {
+                let mut reduced_types = vec![];
+                for (ast_type, asg_type) in ast_types.iter().zip(asg_types.iter()) {
+                    reduced_types.push(self.reduce_type(ast_type, asg_type, span)?);
+                }
+
+                AstType::Tuple(reduced_types)
+            }
+            // TODO REDUCE CIRCUIT TYPE
+            // Just need reduce identifier I believe
+            // (AstType::Circuit(ast), AsgType::Circuit(asg)) => AstType::Circuit(self.reduce_identifier(identifier)?),
+            _ if !self.options.type_inference_enabled => ast.clone(),
+            _ => asg.into(),
+        };
+
+        self.ast_reducer.reduce_type(ast, new, self.in_circuit, span)
+    }
+
     pub fn reduce_expression(
         &mut self,
         ast: &AstExpression,
         asg: &AsgExpression,
     ) -> Result<AstExpression, CanonicalizeError> {
         let new = match (ast, asg) {
+            // TODO what to do for the following:
+            // Ast::Identifier, Ast::Value, Asg::Constant, Asg::ValueRef
+
             // AsgExpression::Identifier(identifier) => AsgExpression::Identifier(self.reduce_identifier(&identifier)?),
             // AsgExpression::Value(value) => AsgExpression::Value(self.reduce_value(&value)?),
-            // AsgExpression::Binary(binary) => AsgExpression::Binary(self.reduce_binary(&binary)?),
-            // AsgExpression::Unary(unary) => AsgExpression::Unary(self.reduce_unary(&unary)?),
-            // AsgExpression::Ternary(ternary) => AsgExpression::Ternary(self.reduce_ternary(&ternary)?),
-            // AsgExpression::Cast(cast) => AsgExpression::Cast(self.reduce_cast(&cast)?),
+            (AstExpression::Binary(ast), AsgExpression::Binary(asg)) => {
+                AstExpression::Binary(self.reduce_binary(&ast, &asg)?)
+            }
+            (AstExpression::Unary(ast), AsgExpression::Unary(asg)) => {
+                AstExpression::Unary(self.reduce_unary(&ast, &asg)?)
+            }
+            (AstExpression::Ternary(ast), AsgExpression::Ternary(asg)) => {
+                AstExpression::Ternary(self.reduce_ternary(&ast, &asg)?)
+            }
+            (AstExpression::Cast(ast), AsgExpression::Cast(asg)) => AstExpression::Cast(self.reduce_cast(&ast, &asg)?),
 
-            // AsgExpression::ArrayInline(array_inline) => AsgExpression::ArrayInline(self.reduce_array_inline(&array_inline)?),
-            // AsgExpression::ArrayInit(array_init) => AsgExpression::ArrayInit(self.reduce_array_init(&array_init)?),
-            // AsgExpression::ArrayAccess(array_access) => AsgExpression::ArrayAccess(self.reduce_array_access(&array_access)?),
-            // AsgExpression::ArrayRangeAccess(array_range_access) => {
-            //     AsgExpression::ArrayRangeAccess(self.reduce_array_range_access(&array_range_access)?)
-            // }
+            (AstExpression::ArrayInline(ast), AsgExpression::ArrayInline(asg)) => {
+                AstExpression::ArrayInline(self.reduce_array_inline(&ast, &asg)?)
+            }
+            (AstExpression::ArrayInit(ast), AsgExpression::ArrayInit(asg)) => {
+                AstExpression::ArrayInit(self.reduce_array_init(&ast, &asg)?)
+            }
+            (AstExpression::ArrayAccess(ast), AsgExpression::ArrayAccess(asg)) => {
+                AstExpression::ArrayAccess(self.reduce_array_access(&ast, &asg)?)
+            }
+            (AstExpression::ArrayRangeAccess(ast), AsgExpression::ArrayRangeAccess(asg)) => {
+                AstExpression::ArrayRangeAccess(self.reduce_array_range_access(&ast, &asg)?)
+            }
 
-            // AsgExpression::TupleInit(tuple_init) => AsgExpression::TupleInit(self.reduce_tuple_init(&tuple_init)?),
-            // AsgExpression::TupleAccess(tuple_access) => AsgExpression::TupleAccess(self.reduce_tuple_access(&tuple_access)?),
+            (AstExpression::TupleInit(ast), AsgExpression::TupleInit(asg)) => {
+                AstExpression::TupleInit(self.reduce_tuple_init(&ast, &asg)?)
+            }
+            (AstExpression::TupleAccess(ast), AsgExpression::TupleAccess(asg)) => {
+                AstExpression::TupleAccess(self.reduce_tuple_access(&ast, &asg)?)
+            }
 
-            // AsgExpression::CircuitInit(circuit_init) => AsgExpression::CircuitInit(self.reduce_circuit_init(&circuit_init)?),
-            // AsgExpression::CircuitMemberAccess(circuit_member_access) => {
-            //     AsgExpression::CircuitMemberAccess(self.reduce_circuit_member_access(&circuit_member_access)?)
-            // }
-            // AsgExpression::CircuitStaticFunctionAccess(circuit_static_fn_access) => {
-            //     AsgExpression::CircuitStaticFunctionAccess(
-            //         self.reduce_circuit_static_fn_access(&circuit_static_fn_access)?,
-            //     )
-            // }
+            (AstExpression::CircuitInit(ast), AsgExpression::CircuitInit(asg)) => {
+                AstExpression::CircuitInit(self.reduce_circuit_init(&ast, &asg)?)
+            }
+            (AstExpression::CircuitMemberAccess(ast), AsgExpression::CircuitAccess(asg)) => {
+                AstExpression::CircuitMemberAccess(self.reduce_circuit_member_access(&ast, &asg)?)
+            }
+            (AstExpression::CircuitStaticFunctionAccess(ast), AsgExpression::CircuitAccess(asg)) => {
+                AstExpression::CircuitStaticFunctionAccess(self.reduce_circuit_static_fn_access(&ast, &asg)?)
+            }
 
-            // AsgExpression::Call(call) => AsgExpression::Call(self.reduce_call(&call)?),
+            (AstExpression::Call(ast), AsgExpression::Call(asg)) => AstExpression::Call(self.reduce_call(&ast, &asg)?),
             _ => ast.clone(),
         };
 
@@ -203,17 +264,15 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         // self.ast_reducer.reduce_call(ast, function, arguments, self.in_circuit)
     }
 
-    pub fn reduce_cast_expression(
+    pub fn reduce_cast(
         &mut self,
         ast: &AstCastExpression,
         asg: &AsgCastExpression,
     ) -> Result<AstCastExpression, CanonicalizeError> {
         let inner = self.reduce_expression(&ast.inner, &asg.inner.get())?;
-        // TODO REDUCE TYPE let target_type;
+        let target_type = self.reduce_type(&ast.target_type, &asg.target_type, &ast.span)?;
 
-        Ok(ast.clone())
-
-        // self.ast_reducer.reduce_cast(ast, inner, target_type, self.in_circuit)
+        self.ast_reducer.reduce_cast(ast, inner, target_type, self.in_circuit)
     }
 
     pub fn reduce_constant(
@@ -232,11 +291,11 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         self.ast_reducer.reduce_value(ast, new)
     }
 
-    pub fn reduce_circuit_access(
+    pub fn reduce_circuit_member_access(
         &mut self,
-        ast: &AstCircuitAccessExpression,
+        ast: &CircuitMemberAccessExpression,
         asg: &AsgCircuitAccessExpression,
-    ) -> Result<AstCircuitAccessExpression, CanonicalizeError> {
+    ) -> Result<CircuitMemberAccessExpression, CanonicalizeError> {
         // TODO FIGURE IT OUT
         // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         // let name = self.reduce_identifier(&circuit_member_access.name)?;
@@ -245,6 +304,21 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         Ok(ast.clone())
         // self.reducer
         //     .reduce_circuit_member_access(ast, circuit, name, self.in_circuit)
+    }
+
+    pub fn reduce_circuit_static_fn_access(
+        &mut self,
+        ast: &CircuitStaticFunctionAccessExpression,
+        asg: &AsgCircuitAccessExpression,
+    ) -> Result<CircuitStaticFunctionAccessExpression, CanonicalizeError> {
+        // TODO FIGURE IT OUT
+        // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
+        // let name = self.reduce_identifier(&circuit_member_access.name)?;
+        // let target = input.target.get().map(|e| self.reduce_expression(e));
+
+        Ok(ast.clone())
+        // self.reducer
+        //     .reduce_circuit_static_fn_access(ast, circuit, name, self.in_circuit)
     }
 
     pub fn reduce_circuit_init(
@@ -270,7 +344,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         //     .reduce_circuit_init(ast, name, members, self.in_circuit)
     }
 
-    pub fn reduce_ternary_expression(
+    pub fn reduce_ternary(
         &mut self,
         ast: &AstTernaryExpression,
         asg: &AsgTernaryExpression,

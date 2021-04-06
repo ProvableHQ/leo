@@ -22,6 +22,7 @@ pub struct CompilerOptions {
     pub canonicalization_enabled: bool,
     pub constant_folding_enabled: bool,
     pub dead_code_elimination_enabled: bool,
+    pub type_inference_enabled: bool,
 }
 
 impl Default for CompilerOptions {
@@ -33,6 +34,7 @@ impl Default for CompilerOptions {
             canonicalization_enabled: true,
             constant_folding_enabled: true,
             dead_code_elimination_enabled: true,
+            type_inference_enabled: true,
         }
     }
 }
