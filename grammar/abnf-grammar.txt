@@ -18,7 +18,7 @@
 
 ; Note that this CR LF requirement only applies to the grammar files themselves.
 ; It does not apply to the lines of the languages described by the grammar.
-; ABNF grammar may describe any kinds of languages,
+; ABNF grammars may describe any kind of languages,
 ; with any kind of line terminators,
 ; or even without line terminators at all (e.g. for "binary" languages).
 
