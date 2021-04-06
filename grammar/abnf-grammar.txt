@@ -1,8 +1,6 @@
 ; Leo Library
 ;
 ; Copyright (C) 2021 Aleo Systems Inc.
-;
-; Author: Alessandro Coglio (acoglio on GitHub)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
