@@ -540,59 +540,10 @@ field-literal = integer %s"field"
 ; There are two kinds of group literals.
 ; One is a single integer followed by the type of group elements,
 ; which denotes the scalar product of the generator point by the integer.
-; The other is a pair of integer coordinates,
-; which are reduced modulo the prime to identify a point,
-; which must be on the elliptic curve.
-; It is also allowed to omit one (not both) coordinates,
-; with an indication of how to infer the missing coordinate
-; (i.e. sign high, sign low, or inferred).
+; The other kind is not a token because it allows some whitespace inside;
+; therefore, it is defined in the syntactic grammar.
 
 product-group-literal = integer %s"group"
-
-group-coordinate = integer / "+" / "-" / "_"
-
-affine-group-literal = "(" group-coordinate "," group-coordinate ")" %s"group"
-
-group-literal = product-group-literal / affine-group-literal
-
-; Note that the rule for group literals above
-; allows no whitespace between coordinates.
-; If we want to allow whitespace,
-; e.g. '(3, 4)group' as opposed to requiring '(3,4)group',
-; then we should define affine group literals
-; in the syntactic grammar instead of in the lexical grammar.
-; We should have a notion of atomic literal in the lexical grammar,
-; and (non-atomic) literal in the syntactic grammar.
-; The lexical grammar should define a token for ')group'
-; if we want no whitespace between the closing parenthesis and 'group'.
-; More precisely, the rule for 'literal' below in the lexical grammar
-; would be replaced with
-;
-;  atomic-literal = ... / product-group-literal
-;
-; where the '...' stands for all the '...-literal' alternatives
-; in the current rule for 'literal' below, except 'group-literal'.
-; Furthermore, the rule for 'symbol' below in the lexical grammar
-; would be extended to
-;
-;  symbol = ... / %s")group"
-;
-; where '...' stands for the current definiens of the rule.
-; We would also have to adjust the rule for 'token' below in the lexical grammar
-; to reference 'atomic-literal' instead of 'literal' in the definiens.
-; We would then add to the syntactic grammar the following rules
-;
-;  affine-group-literal = "(" group-coordinate "," group-coordinate %s")group"
-;
-;  literal = atomic-literal / affine-group-literal
-;
-; which would now define literals in the syntactic grammar.
-; Note that now an affine group literal would have the form
-;
-;  ( <ow> <coordinate> <ow> , <ow> <coordinate> <ow> )group
-;
-; where <ow> is optional whitespace;
-; however, no whitespace is allowed between the closing ')' and 'group'.
 
 ; Boolean literals are the usual two.
 
@@ -605,19 +556,27 @@ address-literal = %s"address" "(" address ")"
 
 ; The ones above are all the literals, as defined by the following rule.
 
-literal = untyped-literal
-        / unsigned-literal
-        / signed-literal
-        / field-literal
-        / group-literal
-        / boolean-literal
-        / address-literal
+atomic-literal = untyped-literal
+               / unsigned-literal
+               / signed-literal
+               / field-literal
+               / product-group-literal
+               / boolean-literal
+               / address-literal
 
 ; After defining the (mostly) alphanumeric tokens above,
 ; it remains to define tokens for non-alphanumeric symbols such as "+" and "(".
 ; Different programming languages used different terminologies for these,
 ; e.g. operators, separators, punctuators, etc.
 ; Here we use 'symbol', for all of them, but we can do something different.
+; We also include a token consisting of
+; a closing parenthesis immediately followed by 'group':
+; as defined in the syntactic grammar,
+; this is the final part of an affine group literal.
+; Even though it includes letters,
+; it seems appropriate to still consider it a symbol,
+; particularly since it starts with a symbol.
+
 ; We could give names to all of these symbols,
 ; via rules such as
 ;
@@ -644,13 +603,14 @@ symbol = "!" / "&&" / "||"
        / "{" / "}"
        / "," / "." / ".." / "..." / ";" / ":" / "::" / "?"
        / "->" / "_"
+       / %s")group"
 
 ; Everything defined above, other than comments and whitespace,
 ; is a token, as defined by the following rule.
 
 token = keyword
       / identifier
-      / literal
+      / atomic-literal
       / package-name
       / formatted-string
       / annotation-name
@@ -728,6 +688,33 @@ aggregate-type = tuple-type / array-type / circuit-type
 ; Scalar and aggregate types form all the types.
 
 type = scalar-type / aggregate-type
+
+; The lexical grammar above defines product group literals.
+; The other kind of group literal is a pair of integer coordinates,
+; which are reduced modulo the prime to identify a point,
+; which must be on the elliptic curve.
+; It is also allowed to omit one (not both) coordinates,
+; with an indication of how to infer the missing coordinate
+; (i.e. sign high, sign low, or inferred).
+; This is an affine group literal,
+; because it consists of affine point coordinates.
+
+group-coordinate = integer / "+" / "-" / "_"
+
+affine-group-literal = "(" group-coordinate "," group-coordinate ")" %s"group"
+
+; A literal is either an atomic one or an affine group literal.
+; Here 'atomic' refers to being a token or not,
+; since no whitespace is allowed within a token.
+
+literal = atomic-literal / affine-group-literal
+
+; The following rule is not directly referenced in the rules for expressions
+; (which reference 'literal' instead),
+; but it is useful to establish terminology:
+; a group literal is either a product group literal or an affine group literal.
+
+group-literal = product-group-literal / affine-group-literal
 
 ; As often done in grammatical language syntax specifications,
 ; we define rules for different kinds of expressions,
