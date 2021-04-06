@@ -739,7 +739,6 @@ primary-expression = identifier
                    / tuple-expression
                    / array-expression
                    / circuit-expression
-                   / function-call
 
 ; There are tuple expressions to construct and deconstruct tuples.
 ; A construction consists of zero, two, or more component expressions.
