@@ -79,7 +79,7 @@ impl ParserContext {
             .last()
             .map(|x| &x.token)
             .map(Cow::Borrowed)
-            .unwrap_or_else(|| Cow::Owned(Token::EOF))
+            .unwrap_or_else(|| Cow::Owned(Token::Eof))
     }
 
     // pub fn peek_oneof(&self, token: &[Token]) -> SyntaxResult<&SpannedToken> {
