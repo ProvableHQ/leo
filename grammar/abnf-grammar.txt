@@ -27,29 +27,23 @@
 ; Introduction
 ; ------------
 
-; This file contains an initial draft of
-; a complete ABNF (Augmented Backus-Naur Form) grammar of Leo.
+; This file contains an ABNF (Augmented Backus-Naur Form) grammar of Leo.
 ; Background on ABNF is provided later in this file.
 
-; The initial motivation for creating an ABNF grammar of Leo was that
-; we have a formally verified parser of ABNF grammars
+; This grammar provides an official definition of the syntax of Leo
+; that is both human-readable and machine-readable.
+; It will be part of an upcoming Leo language reference.
+; It may also be used to generate parser tests at some point.
+
+; We are also using this grammar
+; as part of a mathematical formalization of the Leo language,
+; which we are developing in the ACL2 theorem prover
+; and which we plan to publish at some point.
+; In particular, we have used a formally verified parser of ABNF grammars
 ; (at https://github.com/acl2/acl2/tree/master/books/kestrel/abnf;
 ; also see the paper at https://www.kestrel.edu/people/coglio/vstte18.pdf)
-; which we have used to parse this ABNF grammar of Leo
-; into a formal representation, in the ACL2 theorem prover,
-; of the Leo concrete syntax.
-; The parsing of this grammar file into an ACL2 representation
-; happens every time the ACL2 formalization of Leo is built.
-
-; In addition to that initial motivation,
-; this ABNF grammar has now the additional and primary purpose of
-; providing an official definition of the syntax of Leo
-; that is both human-readable and machine-readable.
-; This grammar will be part of the (upcoming) Leo language reference,
-; of the Leo Language Formal Specification
-; (i.e. the LaTeX document in the leo-semantics repo),
-; and of the ACL2 formalization of Leo (which was the initial motivation).
-; It has also been suggested that it may be used to generate tests.
+; to parse this grammar into a formal representation of the Leo concrete syntax
+; and to validate that the grammar satisfies certain consistency properties.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
