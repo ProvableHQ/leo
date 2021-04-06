@@ -641,7 +641,7 @@ scalar-type =  boolean-type / arithmetic-type / address-type
 
 ; Circuit types are denoted by identifiers and the keyword 'Self'.
 ; The latter is only allowed inside a circuit definition,
-; to denote the defined circuit.
+; to denote the circuit being defined.
 
 self-type = %s"Self"
 
@@ -653,9 +653,8 @@ tuple-type = "(" [ type 1*( "," type ) ] ")"
 
 ; An array type consists of an element type
 ; and an indication of dimensions.
-; There is either a single dimension (a number),
-; or a tuple of one or more dimensions
-; (we could restrict  the latter to two or more dimensions).
+; There is either a single dimension,
+; or a tuple of one or more dimensions.
 
 array-type = "[" type ";" array-dimensions "]"
 
@@ -672,12 +671,12 @@ aggregate-type = tuple-type / array-type / circuit-type
 
 type = scalar-type / aggregate-type
 
-; The lexical grammar above defines product group literals.
+; The lexical grammar given earlier defines product group literals.
 ; The other kind of group literal is a pair of integer coordinates,
 ; which are reduced modulo the prime to identify a point,
 ; which must be on the elliptic curve.
-; It is also allowed to omit one (not both) coordinates,
-; with an indication of how to infer the missing coordinate
+; It is also allowed to omit one coordinate (not both),
+; with an indication of how to fill in the missing coordinate
 ; (i.e. sign high, sign low, or inferred).
 ; This is an affine group literal,
 ; because it consists of affine point coordinates.
@@ -687,8 +686,6 @@ group-coordinate = integer / "+" / "-" / "_"
 affine-group-literal = "(" group-coordinate "," group-coordinate ")" %s"group"
 
 ; A literal is either an atomic one or an affine group literal.
-; Here 'atomic' refers to being a token or not,
-; since no whitespace is allowed within a token.
 
 literal = atomic-literal / affine-group-literal
 
@@ -706,13 +703,12 @@ group-literal = product-group-literal / affine-group-literal
 ; and the (left or right) associativity of binary operators.
 
 ; The primary expressions are self-contained in a way,
-; i.e. they have clear deliminations.
-; Some consist of single tokens:
-; identifiers, the keywords 'self' and 'input', and literals.
+; i.e. they have clear deliminations:
+; Some consist of single tokens,
+; while others have explicit endings.
 ; Primary expressions also include parenthesized expressions,
 ; i.e. any expression may be turned into a primary one
 ; by putting parentheses around it.
-; The other kinds are defined and explained below.
 
 primary-expression = identifier
                    / %s"self"
@@ -723,35 +719,19 @@ primary-expression = identifier
                    / array-expression
                    / circuit-expression
 
-; There are tuple expressions to construct and deconstruct tuples.
-; A construction consists of zero, two, or more component expressions.
-; A deconstruction uses a component index (zero-indexed).
-; Note that constructions are delimited by closing parentheses
-; and deconstructions are delimited by natural tokens.
-; The rule below, and similar rules for other aggregate types,
-; use the perhaps more familiar 'access',
-; but note that 'deconstruction' has a nice symmetry to 'construction';
-; the term 'destructor' has a different meaning in other languages,
-; so we may want to avoid it, but not necessarily.
+; Tuple expressions construct tuples.
+; Each consists of zero, two, or more component expressions.
 
 tuple-construction = "(" [ expression 1*( "," expression ) ] ")"
 
 tuple-expression = tuple-construction
 
-; The are array expressions to construct and deconstruct arrays.
-; There are two kinds of constructions:
+; Array expressions construct arrays.
+; There are two kinds:
 ; one lists the element expressions (at least one),
 ; including spreads (via '...') which are arrays being spliced in;
 ; the other repeats (the value of) a single expression
 ; across one or more dimensions.
-; There are two kinds of deconstructions:
-; one selects a single element by index (zero-indexed);
-; the other selects a range via two indices,
-; the first inclusive and the second exclusive --
-; both are optional,
-; the first defaulting to 0 and the second to the array length.
-; Note that these expressions are all delimited
-; by closing square brackets.
 
 array-inline-construction = "["
                             array-inline-element
@@ -766,17 +746,14 @@ array-construction = array-inline-construction / array-repeat-construction
 
 array-expression = array-construction
 
-; There are circuit expressions to construct and deconstruct circuit values.
-; A construction lists values for all the member variables (in any order);
-; there must be at least one member variable currently.
+; Circuit expressions construct circuit values.
+; Each lists values for all the member variables (in any order);
+; there must be at least one member variable.
 ; A single identifier abbreviates
-; a pair consisting of the same identifier separated by dot;
+; a pair consisting of the same identifier separated by colon;
 ; note that, in the expansion, the left one denotes a member name,
 ; while the right one denotes an expression (a variable),
 ; so they are syntactically identical but semantically different.
-; A deconstruction selects a member variable by name.
-; Note that these expressions are delimited,
-; by closing curly braces or identifiers.
 
 circuit-construction = circuit-type "{"
                        circuit-inline-element *( "," circuit-inline-element )
@@ -786,19 +763,27 @@ circuit-inline-element = identifier ":" expression / identifier
 
 circuit-expression = circuit-construction
 
+; After primary expressions, postfix expressions have highest precedence.
+; They apply to primary expressions, and recursively to postfix expressions.
+
+; There are postfix expressions to access parts of aggregate values.
+; A tuple access selects a component by index (zero-based).
+; There are two kinds of array accesses:
+; one selects a single element by index (zero-based);
+; the other selects a range via two indices,
+; the first inclusive and the second exclusive --
+; both are optional,
+; the first defaulting to 0 and the second to the array length.
+; A circuit access selects a member variable by name.
+
+; Function calls are also postfix expressions.
 ; There are three kinds of function calls:
 ; top-level function calls,
 ; instance (i.e. non-static) member function calls, and
 ; static member function calls.
-; What changes is the start, but they all end in an argument list,
-; delimited by a closing parenthesis.
+; What changes is the start, but they all end in an argument list.
 
 function-arguments = "(" [ expression *( "," expression ) ] ")"
-
-; Postfix expressions have highest precedence.
-; They apply to primary expressions.
-; Contains access expressions for arrays, tuples, and circuits.
-; Contains function call types.
 
 postfix-expression = primary-expression
                    / postfix-expression "." natural
@@ -810,7 +795,7 @@ postfix-expression = primary-expression
                    / postfix-expression "[" [expression] ".." [expression] "]"
 
 ; Unary operators have the highest operator precedence.
-; They apply to postfix expressions
+; They apply to postfix expressions,
 ; and recursively to unary expressions.
 
 unary-expression = postfix-expression
@@ -818,7 +803,7 @@ unary-expression = postfix-expression
                  / "-" unary-expression
 
 ; Next in the operator precedence is casting.
-; The current rule below makes exponentiation left-associative,
+
 cast-expression = unary-expression
                 / cast-expression %s"as" type
 
@@ -826,7 +811,6 @@ cast-expression = unary-expression
 ; following mathematical practice.
 ; The current rule below makes exponentiation left-associative,
 ; i.e. 'a ** b ** c' must be parsed as '(a ** b) ** c'.
-; This is easy to change if we want it to be right-associative instead.
 
 exponential-expression = cast-expression
                        / exponential-expression "**" cast-expression
@@ -852,8 +836,8 @@ ordering-expression = additive-expression
                     / additive-expression "<=" additive-expression
                     / additive-expression ">=" additive-expression
 
-; Equalities return booleans but may also operate on boolean,
-; so we make them left-associative.
+; Equalities return booleans but may also operate on booleans;
+; the rule below makes them left-associative.
 
 equality-expression = ordering-expression
                     / equality-expression "==" ordering-expression
@@ -872,11 +856,11 @@ disjunctive-expression = conjunctive-expression
 ; Finally we have conditional expressions.
 
 conditional-expression = disjunctive-expression
-                        / conditional-expression
+                       / conditional-expression
                          "?" expression
                          ":" conditional-expression
 
-; These are all the expressions.
+; Those above are all the expressions.
 ; Recall that conditional expressions
 ; may be disjunctive expressions,
 ; which may be conjunctive expressions,
@@ -884,9 +868,8 @@ conditional-expression = disjunctive-expression
 
 expression = conditional-expression
 
-; There are various kinds of statements,
-; including blocks, which are
-; possibly empty sequences of statements surounded by curly braces.
+; There are various kinds of statements, including blocks.
+; Blocks are possibly empty sequences of statements surrounded by curly braces.
 
 statement = expression-statement
           / return-statement
@@ -899,13 +882,13 @@ statement = expression-statement
 
 block = "{" *statement "}"
 
-; An expression (that returns the empty tuple)
+; An expression (that must return the empty tuple, as semantically required)
 ; can be turned into a statement by appending a semicolon.
 
 expression-statement = expression ";"
 
 ; A return statement always takes an expression,
-; and does not end with a semicolon (but we may want to change that).
+; and does not end with a semicolon.
 
 return-statement = %s"return" expression
 
@@ -926,7 +909,7 @@ identifier-or-identifiers = identifier
 ; (which together form a branch).
 ; It may stop there, or it may continue with an alternative block,
 ; or possibly with another conditional statement, forming a chain.
-; Note that we require blocks in all branches, not merely statements.
+; Note that blocks are required in all branches, not merely statements.
 
 branch = %s"if" expression block
 
@@ -956,7 +939,7 @@ assignment-statement = expression assignment-operator expression ";"
 ; or a formatted string followed by expressions,
 ; whose number must match the number of containers '{}' in the formatted string.
 ; Note that the console function names are identifiers, not keywords.
-; There are three kind of printing.
+; There are three kinds of print commands.
 
 console-statement = %s"console" "." console-call
 
@@ -972,19 +955,17 @@ print-arguments = "(" [ formatted-string *( "," expression ) ] ")"
 print-call = print-function print-arguments
 
 ; An annotation consists of an annotation name (which starts with '@')
-; with optional annotation arguments.
+; with optional annotation arguments, which are identifiers.
 ; Note that no parentheses are used if there are no arguments.
 
 annotation = annotation-name
              [ "(" identifier *( "," identifier ) ")" ]
 
 ; A function declaration defines a function.
-; This could be called 'function-definition' instead,
-; but see the comments about the 'declaration' rule below.
-; The output type is optional (it defaults to the empty tuple type).
+; The output type is optional, defaulting to the empty tuple type.
 ; In general, a function input consists of an identifier and a type,
 ; with an optional 'const' modifier.
-; However, functions inside circuits
+; Additionally, functions inside circuits
 ; may start with a 'mut self' or 'const self' or 'self' parameter.
 ; Furthermore, any function may end with an 'input' parameter.
 
@@ -1007,8 +988,6 @@ input-parameter = %s"input"
 
 ; A circuit member variable declaration consists of an identifier and a type.
 ; A circuit member function declaration consists of a function declaration.
-; We could call these 'member-definition' etc.,
-; but see the comments about the 'declaration' rule below.
 
 member-declaration = member-variable-declaration
                    / member-function-declaration
@@ -1017,9 +996,8 @@ member-variable-declaration = identifier ":" type
 
 member-function-declaration = function-declaration
 
-; A circuit declaration defines a circuit type. It is straightforward.
-; This could be called 'circuit-definition' instead,
-; but see the comments about the 'declaration' rule below.
+; A circuit declaration defines a circuit type,
+; as consisting of member variables and functions.
 
 circuit-declaration = *annotation %s"circuit" identifier
                       "{" member-declaration *( "," member-declaration ) "}"
@@ -1032,7 +1010,7 @@ circuit-declaration = *annotation %s"circuit" identifier
 ; or a parenthesized list of package paths,
 ; which are "fan out" of the initial path.
 ; Note that we allow the last element of the parenthesized list
-; to be followed by a comma, presumably for convenience.
+; to be followed by a comma, for convenience.
 
 import-declaration = %s"import" package-path
 
@@ -1042,12 +1020,6 @@ package-path = "*"
              / "(" package-path *( "," package-path ) [","] ")"
 
 ; Finally, we define a file as a sequence of zero or more declarations.
-; This is why we used 'function-declaration' and 'circuit-declaration'
-; instead of 'function-definition' and 'ciruit-definition':
-; this way, they are all declarations of some sort.
-; An import declaration cannot really called an import definition,
-; because it does not define anything.
-; But we may revisit this, and use 'definition' instead of 'declaration'.
 
 declaration = import-declaration
             / function-declaration
