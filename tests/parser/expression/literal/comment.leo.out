@@ -1,5 +1,5 @@
 ---
-ns: Token
+namespace: Token
 expectation: Pass
 outputs:
   - "'// test1' @ 1:1-9"

@@ -1,5 +1,5 @@
 /*
-ns: Token
+namespace: Token
 expectation: Pass
 */
 

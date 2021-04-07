@@ -1,5 +1,5 @@
 ---
-ns: ParseStatement
+namespace: ParseStatement
 expectation: Fail
 outputs:
   - "    --> test: 1:0\n     |\n   1 | let mut x = expr;\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."

@@ -1,5 +1,5 @@
 /*
-ns: ParseStatement
+namespace: ParseStatement
 expectation: Pass
 */
 

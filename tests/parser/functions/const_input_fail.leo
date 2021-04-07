@@ -1,5 +1,5 @@
 /*
-ns: Parse
+namespace: Parse
 expectation: Fail
 */
 

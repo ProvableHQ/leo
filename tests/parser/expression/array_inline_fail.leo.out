@@ -1,5 +1,5 @@
 ---
-ns: ParseExpression
+namespace: ParseExpression
 expectation: Fail
 outputs:
   - "    --> test: 1:2\n     |\n   1 | [,]\n     |  ^\n     |\n     = expected 'expression', got ','"

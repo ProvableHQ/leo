@@ -110,13 +110,13 @@ enum TestExpectationMode {
 
 #[derive(serde::Serialize, serde::Deserialize)]
 struct TestConfig {
-    ns: TestNamespace,
+    namespace: TestNamespace,
     expectation: TestExpectationMode,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
 struct TestExpectation {
-    ns: TestNamespace,
+    namespace: TestNamespace,
     expectation: TestExpectationMode,
     outputs: Vec<Value>,
 }
@@ -285,7 +285,7 @@ fn run_test(
     let end_of_header = source.find("*/").expect("failed to find header block in test");
     let source = &source[end_of_header + 2..];
     let mut outputs = vec![];
-    match &config.ns {
+    match &config.namespace {
         TestNamespace::Token => {
             let tests = split_tests_oneline(source);
             if let Some(expectations) = expectations.as_ref() {
@@ -452,7 +452,7 @@ pub fn parser_tests() {
         if errors.is_empty() {
             if expectations.is_none() {
                 outputs.push((expectation_path, TestExpectation {
-                    ns: config.ns,
+                    namespace: config.namespace,
                     expectation: config.expectation,
                     outputs: new_outputs,
                 }));

@@ -1,5 +1,5 @@
 ---
-ns: Token
+namespace: Token
 expectation: Fail
 outputs:
   - "    --> test: 1:1\n     |\n   1 | aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d1aleo1\n     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n     |\n     = invalid address literal: 'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d1aleo1'"

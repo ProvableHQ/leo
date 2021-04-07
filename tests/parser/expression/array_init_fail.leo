@@ -1,6 +1,6 @@
 
 /*
-ns: ParseExpression
+namespace: ParseExpression
 expectation: Fail
 */
 

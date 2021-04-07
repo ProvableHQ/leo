@@ -1,5 +1,5 @@
 ---
-ns: ParseExpression
+namespace: ParseExpression
 expectation: Fail
 outputs:
   - "    --> test: 1:3\n     |\n   1 | x {\n     |   ^\n     |\n     = unexpected EOF"

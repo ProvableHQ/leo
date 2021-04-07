@@ -1,5 +1,5 @@
 ---
-ns: Token
+namespace: Token
 expectation: Pass
 outputs:
   - "'true' @ 1:1-5"
