@@ -14,41 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use snarkvm_gadgets::traits::utilities::{
-    boolean::Boolean,
-    int::{Int128, Int16, Int32, Int64, Int8},
-    uint::{UInt128, UInt16, UInt32, UInt64, UInt8},
-};
-use std::{convert::TryInto, fmt::Debug};
-
-pub trait IntegerTrait: Sized + Clone + Debug {
-    fn get_value(&self) -> Option<String>;
-
-    fn get_index(&self) -> Option<usize>;
-
-    fn get_bits(&self) -> Vec<Boolean>;
-}
-
-macro_rules! integer_trait_impl {
-    ($($gadget: ident)*) => ($(
-        impl IntegerTrait for $gadget {
-            fn get_value(&self) -> Option<String> {
-                self.value.map(|num| num.to_string())
-            }
-
-            fn get_index(&self) -> Option<usize> {
-                self.value.map(|num| num.try_into().ok()).flatten()
-            }
-
-            fn get_bits(&self) -> Vec<Boolean> {
-                self.bits.clone()
-            }
-        }
-
-    )*)
-}
-
-integer_trait_impl!(UInt8 UInt16 UInt32 UInt64 UInt128 Int8 Int16 Int32 Int64 Int128);
+pub use snarkvm_gadgets::traits::utilities::integer::Integer as IntegerTrait;
 
 /// Useful macros to avoid duplicating `match` constructions.
 #[macro_export]
@@ -125,19 +91,19 @@ macro_rules! match_integers_span {
     (($a: ident, $b: ident), $span: ident => $expression:expr) => {
         match ($a, $b) {
             (Integer::U8($a), Integer::U8($b)) => {
-                Some(Integer::U8($expression.map_err(|e| IntegerError::synthesis(e, $span))?))
+                Some(Integer::U8($expression.map_err(|e| IntegerError::unsigned(e, $span))?))
             }
-            (Integer::U16($a), Integer::U16($b)) => Some(Integer::U16(
-                $expression.map_err(|e| IntegerError::synthesis(e, $span))?,
-            )),
-            (Integer::U32($a), Integer::U32($b)) => Some(Integer::U32(
-                $expression.map_err(|e| IntegerError::synthesis(e, $span))?,
-            )),
-            (Integer::U64($a), Integer::U64($b)) => Some(Integer::U64(
-                $expression.map_err(|e| IntegerError::synthesis(e, $span))?,
-            )),
+            (Integer::U16($a), Integer::U16($b)) => {
+                Some(Integer::U16($expression.map_err(|e| IntegerError::unsigned(e, $span))?))
+            }
+            (Integer::U32($a), Integer::U32($b)) => {
+                Some(Integer::U32($expression.map_err(|e| IntegerError::unsigned(e, $span))?))
+            }
+            (Integer::U64($a), Integer::U64($b)) => {
+                Some(Integer::U64($expression.map_err(|e| IntegerError::unsigned(e, $span))?))
+            }
             (Integer::U128($a), Integer::U128($b)) => Some(Integer::U128(
-                $expression.map_err(|e| IntegerError::synthesis(e, $span))?,
+                $expression.map_err(|e| IntegerError::unsigned(e, $span))?,
             )),
 
             (Integer::I8($a), Integer::I8($b)) => {
