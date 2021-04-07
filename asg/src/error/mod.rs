@@ -174,7 +174,7 @@ impl AsgConvertError {
 
     pub fn duplicate_function_definition(name: &str, span: &Span) -> Self {
         Self::new_from_span(
-            format!("duplicate definition, function with name \"{}\" already exists", name),
+            format!("a function named \"{}\" already exists in this scope", name),
             span,
         )
     }
