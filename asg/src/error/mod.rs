@@ -172,6 +172,13 @@ impl AsgConvertError {
         )
     }
 
+    pub fn duplicate_function_definition(name: &str, span: &Span) -> Self {
+        Self::new_from_span(
+            format!("duplicate definition, function with name \"{}\" already exists", name),
+            span,
+        )
+    }
+
     pub fn index_into_non_tuple(name: &str, span: &Span) -> Self {
         Self::new_from_span(format!("failed to index into non-tuple '{}'", name), span)
     }

@@ -266,7 +266,13 @@ impl<'a> Program<'a> {
 
             asg_function.fill_from_ast(function)?;
 
-            functions.insert(name.name.to_string(), asg_function);
+            let name = name.name.to_string();
+
+            if functions.contains_key(&name) {
+                return Err(AsgConvertError::duplicate_function_definition(&name, &function.span));
+            }
+
+            functions.insert(name, asg_function);
         }
 
         let mut circuits = IndexMap::new();
