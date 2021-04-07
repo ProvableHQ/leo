@@ -17,6 +17,7 @@
 //! Compiles a Leo program from a file path.
 
 use crate::CompilerOptions;
+use indexmap::IndexMap;
 use leo_asg::{
     ArrayAccessExpression as AsgArrayAccessExpression,
     ArrayInitExpression as AsgArrayInitExpression,
@@ -29,6 +30,7 @@ use leo_asg::{
     CircuitInitExpression as AsgCircuitInitExpression,
     Constant as AsgConstant,
     Expression as AsgExpression,
+    Statement as AsgStatement,
     TernaryExpression as AsgTernaryExpression,
     TupleAccessExpression as AsgTupleAccessExpression,
     TupleInitExpression as AsgTupleInitExpression,
@@ -46,6 +48,7 @@ use leo_ast::{
     CallExpression as AstCallExpression,
     CanonicalizeError,
     CastExpression as AstCastExpression,
+    CircuitImpliedVariableDefinition,
     CircuitInitExpression as AstCircuitInitExpression,
     CircuitMemberAccessExpression,
     CircuitStaticFunctionAccessExpression,
@@ -54,6 +57,7 @@ use leo_ast::{
     ReconstructingReducer,
     Span,
     SpreadOrExpression,
+    Statement as AstStatement,
     TernaryExpression as AstTernaryExpression,
     TupleAccessExpression as AstTupleAccessExpression,
     TupleInitExpression as AstTupleInitExpression,
@@ -103,9 +107,6 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
 
                 AstType::Tuple(reduced_types)
             }
-            // TODO REDUCE CIRCUIT TYPE
-            // Just need reduce identifier I believe
-            // (AstType::Circuit(ast), AsgType::Circuit(asg)) => AstType::Circuit(self.reduce_identifier(identifier)?),
             _ if !self.options.type_inference_enabled => ast.clone(),
             _ => asg.into(),
         };
@@ -254,14 +255,15 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         // TODO FIGURE IT OUT
         // let function = self.reduce_expression(&ast.function, asg.function.get())?;
         // let target = asg.target.get().map(|exp| self.reduce_expression())
+        // Is this needed?
 
         let mut arguments = vec![];
         for (ast_arg, asg_arg) in ast.arguments.iter().zip(asg.arguments.iter()) {
             arguments.push(self.reduce_expression(ast_arg, asg_arg.get())?);
         }
 
-        Ok(ast.clone())
-        // self.ast_reducer.reduce_call(ast, function, arguments, self.in_circuit)
+        self.ast_reducer
+            .reduce_call(ast, *ast.function.clone(), arguments, self.in_circuit)
     }
 
     pub fn reduce_cast(
@@ -278,9 +280,10 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
     pub fn reduce_constant(
         &mut self,
         ast: &ValueExpression,
-        asg: &AsgConstant,
+        _asg: &AsgConstant,
     ) -> Result<ValueExpression, CanonicalizeError> {
         // TODO REDUCE GV
+        // Is this needed?
         let new = match ast {
             // AstConstant::Group(group_value) => {
             //     AstConstant::Group(Box::new(self.reduce_group_value(&group_value)?))
@@ -294,31 +297,50 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
     pub fn reduce_circuit_member_access(
         &mut self,
         ast: &CircuitMemberAccessExpression,
-        asg: &AsgCircuitAccessExpression,
+        _asg: &AsgCircuitAccessExpression,
     ) -> Result<CircuitMemberAccessExpression, CanonicalizeError> {
         // TODO FIGURE IT OUT
         // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         // let name = self.reduce_identifier(&circuit_member_access.name)?;
         // let target = input.target.get().map(|e| self.reduce_expression(e));
+        // does it matter?
 
-        Ok(ast.clone())
-        // self.reducer
-        //     .reduce_circuit_member_access(ast, circuit, name, self.in_circuit)
+        self.ast_reducer
+            .reduce_circuit_member_access(ast, *ast.circuit.clone(), ast.name.clone(), self.in_circuit)
     }
 
     pub fn reduce_circuit_static_fn_access(
         &mut self,
         ast: &CircuitStaticFunctionAccessExpression,
-        asg: &AsgCircuitAccessExpression,
+        _asg: &AsgCircuitAccessExpression,
     ) -> Result<CircuitStaticFunctionAccessExpression, CanonicalizeError> {
         // TODO FIGURE IT OUT
         // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         // let name = self.reduce_identifier(&circuit_member_access.name)?;
         // let target = input.target.get().map(|e| self.reduce_expression(e));
+        // does it matter?
 
-        Ok(ast.clone())
-        // self.reducer
-        //     .reduce_circuit_static_fn_access(ast, circuit, name, self.in_circuit)
+        self.ast_reducer
+            .reduce_circuit_static_fn_access(ast, *ast.circuit.clone(), ast.name.clone(), self.in_circuit)
+    }
+
+    pub fn reduce_circuit_implied_variable_definition(
+        &mut self,
+        ast: &CircuitImpliedVariableDefinition,
+        asg: &AsgExpression,
+    ) -> Result<CircuitImpliedVariableDefinition, CanonicalizeError> {
+        let expression = ast
+            .expression
+            .as_ref()
+            .map(|ast_expr| self.reduce_expression(ast_expr, asg))
+            .transpose()?;
+
+        self.ast_reducer.reduce_circuit_implied_variable_definition(
+            ast,
+            ast.identifier.clone(),
+            expression,
+            self.in_circuit,
+        )
     }
 
     pub fn reduce_circuit_init(
@@ -326,22 +348,13 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         ast: &AstCircuitInitExpression,
         asg: &AsgCircuitInitExpression,
     ) -> Result<AstCircuitInitExpression, CanonicalizeError> {
-        // TODO FIGURE IT OUT
-        // let name = self.reduce_identifier(&circuit_init.name)?;
-        // let values = asg
-        //     .values
-        //     .iter()
-        //     .map(|(ident, e)| (ident.clone(), self.reduce_expression(e.get())))
-        //     .collect();
+        let mut members = vec![];
+        for (ast_member, asg_member) in ast.members.iter().zip(asg.values.iter()) {
+            members.push(self.reduce_circuit_implied_variable_definition(ast_member, asg_member.1.get())?);
+        }
 
-        // let mut members = vec![];
-        // for member in ast.members.iter() {
-        //     // members.push(self.reduce_circuit_implied_variable_definition(member)?);
-        // }
-
-        Ok(ast.clone())
-        // self.ast_reducer
-        //     .reduce_circuit_init(ast, name, members, self.in_circuit)
+        self.ast_reducer
+            .reduce_circuit_init(ast, ast.name.clone(), members, self.in_circuit)
     }
 
     pub fn reduce_ternary(
@@ -395,7 +408,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
     pub fn reduce_variable_ref(
         &mut self,
         ast: &ValueExpression,
-        asg: &AsgVariableRef,
+        _asg: &AsgVariableRef,
     ) -> Result<ValueExpression, CanonicalizeError> {
         // TODO FIGURE IT OUT
         let new = match ast {
@@ -409,26 +422,37 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         // self.ast_reducer.reduce_value(value, new)
     }
 
-    // pub fn reduce_program(&mut self, ast: &leo_ast::Program, asg: &leo_asg::Program) -> Result<leo_ast::Program, leo_ast::CanonicalizeError> {
-    //     pub fn new(ast_reducer: AstR) -> Self {
-    //         Self {
-    //             ast_reducer
-    //         }
-    //     }
-
-    //     let mut circuits = IndexMap::new();
-    //     for ((asg_ident, asg_circuit), (ast_ident, ast_circuit)) in asg.circuits.iter().zip(&ast.circuits) {
-    //         circuits.insert(
-    //             self.reduce_identifier(asg_ident, ast_ident),
-    //             self.reduce_circuit(asg_circuit, ast_circuit)
-    //         );
-    //     }
-
-    //     let mut functions = IndexMap::new();
-    //     for ((asg_ident, asg_function), (ast_identifier, ast_function)) in asg.functions.iter().zip(&ast.functions) {
-    //        // etc
-    //     }
-
-    //     self.ast_reducer.reduce_program(ast, ast.expected_input, ast.imports, IndexMap::new(), IndexMap::new())
+    // pub fn reduce_statement(&mut self, ast: AstStatement, asg: AsgStatement) -> Result<AstStatement, CanonicalizeError> {
+    //     let new = match (ast, asg)
     // }
+
+    pub fn reduce_program(
+        &mut self,
+        ast: &leo_ast::Program,
+        asg: &leo_asg::Program,
+    ) -> Result<leo_ast::Program, leo_ast::CanonicalizeError> {
+        let mut circuits = IndexMap::new();
+        for ((asg_ident, asg_circuit), (ast_ident, ast_circuit)) in asg.circuits.iter().zip(&ast.circuits) {
+            circuits.insert(
+                // self.reduce_identifier(asg_ident, ast_ident),
+                ast_ident.clone(),
+                // self.reduce_circuit(asg_circuit, ast_circuit)
+                ast_circuit.clone(),
+            );
+        }
+
+        let mut functions = IndexMap::new();
+        for ((asg_ident, asg_function), (ast_identifier, ast_function)) in asg.functions.iter().zip(&ast.functions) {
+            // etc
+            functions.insert(ast_identifier.clone(), ast_function.clone());
+        }
+
+        self.ast_reducer.reduce_program(
+            ast,
+            ast.expected_input.clone(),
+            ast.imports.clone(),
+            circuits,
+            functions,
+        )
+    }
 }
