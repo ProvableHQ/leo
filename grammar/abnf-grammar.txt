@@ -18,7 +18,7 @@
 
 ; Note that this CR LF requirement only applies to the grammar files themselves.
 ; It does not apply to the lines of the languages described by the grammar.
-; ABNF grammar may describe any kinds of languages,
+; ABNF grammars may describe any kind of languages,
 ; with any kind of line terminators,
 ; or even without line terminators at all (e.g. for "binary" languages).
 
@@ -27,29 +27,23 @@
 ; Introduction
 ; ------------
 
-; This file contains an initial draft of
-; a complete ABNF (Augmented Backus-Naur Form) grammar of Leo.
+; This file contains an ABNF (Augmented Backus-Naur Form) grammar of Leo.
 ; Background on ABNF is provided later in this file.
 
-; The initial motivation for creating an ABNF grammar of Leo was that
-; we have a formally verified parser of ABNF grammars
+; This grammar provides an official definition of the syntax of Leo
+; that is both human-readable and machine-readable.
+; It will be part of an upcoming Leo language reference.
+; It may also be used to generate parser tests at some point.
+
+; We are also using this grammar
+; as part of a mathematical formalization of the Leo language,
+; which we are developing in the ACL2 theorem prover
+; and which we plan to publish at some point.
+; In particular, we have used a formally verified parser of ABNF grammars
 ; (at https://github.com/acl2/acl2/tree/master/books/kestrel/abnf;
 ; also see the paper at https://www.kestrel.edu/people/coglio/vstte18.pdf)
-; which we have used to parse this ABNF grammar of Leo
-; into a formal representation, in the ACL2 theorem prover,
-; of the Leo concrete syntax.
-; The parsing of this grammar file into an ACL2 representation
-; happens every time the ACL2 formalization of Leo is built.
-
-; In addition to that initial motivation,
-; this ABNF grammar has now the additional and primary purpose of
-; providing an official definition of the syntax of Leo
-; that is both human-readable and machine-readable.
-; This grammar will be part of the (upcoming) Leo language reference,
-; of the Leo Language Formal Specification
-; (i.e. the LaTeX document in the leo-semantics repo),
-; and of the ACL2 formalization of Leo (which was the initial motivation).
-; It has also been suggested that it may be used to generate tests.
+; to parse this grammar into a formal representation of the Leo concrete syntax
+; and to validate that the grammar satisfies certain consistency properties.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -57,12 +51,9 @@
 ; ------------------
 
 ; ABNF is an Internet standard:
-; see https://www.rfc-editor.org/info/rfc5234
-; and https://www.rfc-editor.org/info/rfc7405.
+; see RFC 5234 at https://www.rfc-editor.org/info/rfc5234
+; and RFC 7405 at https://www.rfc-editor.org/info/rfc7405.
 ; It is used to specify the syntax of JSON, HTTP, and other standards.
-
-; The following is copied (and "un-LaTeX'd") from the aforementioned paper
-; (at https://www.kestrel.edu/people/coglio/vstte18.pdf).
 
 ; ABNF adds conveniences and makes slight modifications
 ; to Backus-Naur Form (BNF),
@@ -80,15 +71,15 @@
 ; and denotes them via:
 ; (i) binary, decimal, or hexadecimal sequences,
 ; e.g. %b1.11.1010, %d1.3.10, and %x.1.3.A
-; all denote the string '1 3 10';
+; all denote the sequence of terminals '1 3 10';
 ; (ii) binary, decimal, or hexadecimal ranges,
-; e.g. %x30-39 denotes any string 'n' with 48 <= n <= 57
-; (an ASCII digit);
+; e.g. %x30-39 denotes any singleton sequence of terminals
+; 'n' with 48 <= n <= 57 (an ASCII digit);
 ; (iii) case-sensitive ASCII strings,
-; e.g. %s"Ab" denotes the string '65 98';
+; e.g. %s"Ab" denotes the sequence of terminals '65 98';
 ; and (iv) case-insensitive ASCII strings,
 ; e.g. %i"ab", or just "ab", denotes
-; any string among
+; any sequence of terminals among
 ; '65 66',
 ; '65 98',
 ; '97 66', and
@@ -112,7 +103,7 @@
 ; Repetition prefixes have precedence over juxtapositions,
 ; which have precedence over /.
 ; Round brackets group things and override the aforementioned precedence rules,
-; e.g. *(WSP / CRLF WSP) denotes strings
+; e.g. *(WSP / CRLF WSP) denotes sequences of terminals
 ; obtained by repeating, zero or more times,
 ; either (i) a WSP or (ii) a CRLF followed by a WSP.
 ; Square brackets also group things but make them optional,
@@ -139,48 +130,41 @@
 ; Structure
 ; ---------
 
-; Language specifications often define the syntax of their languages via
+; This ABNF grammar consists of two (sub-)grammars:
 ; (i) a lexical grammar that describes how
 ; sequence of characters are parsed into tokens, and
 ; (ii) a syntactic grammar that described how
 ; tokens are parsed into expressions, statements, etc.
-; (The adjectives 'lexical' and 'syntactic' are
-; the ones used in the Java language specification;
-; other terms may be used by other languages,
-; but the essence is similar.)
-; The situation is sometimes more complex,
-; with multiple passes (e.g. Unicode escape processing in Java),
-; but the division between lexical and syntactic (in the sense above) stands.
+; The adjectives 'lexical' and 'syntactic' are
+; the same ones used in the Java language reference,
+; for instance;
+; alternative terms may be used in other languages,
+; but the separation into these two components is quite common
+; (the situation is sometimes a bit more complex, with multiple passes,
+; e.g. Unicode escape processing in Java).
 
-; In the aforementioned language specifications,
-; both the lexical and syntactic grammars
-; are normally written in a context-free grammar notation,
-; augmented with natural language that may assert, for instance,
-; that tokenization always takes the longest sequence that constitutes a token.
-
-; This dual structure appears to be motivated by the fact that
+; This separation enables
 ; concerns of white space, line endings, etc.
-; can be handled by the lexical grammar,
-; allowing the syntactic grammar to focus on the more important structure.
-; Handling both aspects in a single context-free grammar may be unwieldy,
+; to be handled by the lexical grammar,
+; with the syntactic grammar focused on the more important structure.
+; Handling both aspects in a single grammar may be unwieldy,
 ; so having two grammars provides more clarity and readability.
 
-; In contrast, PEG (Parsing Expression Grammar) formalisms like Pest
-; naturally embody a procedural interpretation
-; that can handle white space and tokenization in just one manageable grammar.
-; However, this procedural interpretaion may be sometimes
-; less clear and readable to humans than context-free rules.
-; Indeed, context-free grammar are commonly used to documentat languages.
-
-; ABNF is a context-free grammar notation,
-; with no procedural interpretation,
-; and therefore it makes sense to define
-; separate lexical and syntactic ABNF grammars for Leo.
-; Conceptually, the two grammars define two subsequent processing phases,
+; ABNF is a context-free grammar notation, with no procedural interpretation.
+; The two grammars conceptually define two subsequent processing phases,
 ; as detailed below.
 ; However, a parser implementation does not need to perform
 ; two strictly separate phases (in fact, it typically does not),
 ; so long as it produces the same final result.
+
+; The grammar is accompanied by some extra-grammatical requirements,
+; which are not conveniently expressible in a context-free grammar like ABNF.
+; These requirements are needed to make the grammar unambiguous,
+; i.e. to ensure that, for each sequence of terminals,
+; there is exactly one parse tree for that sequence terminals
+; that satisfies not only the grammar rules
+; but also the extra-grammatical requirements.
+; These requirements are expressed as comments in this file.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -203,8 +187,9 @@
 ;        / additive-expression "+" multiplicative-expression
 ;        / additive-expression "-" multiplicative-expression
 ;
-; this rule tells us that the additive operators '+' and '-' have
-; lower precedence than the multiplicative operators '*' and '/',
+; These rules tell us
+; that the additive operators '+' and '-' have lower precedence
+; than the multiplicative operators '*' and '/',
 ; and that both the additive and multiplicative operators associate to the left.
 ; This may be best understood via the examples given below.
 
@@ -259,14 +244,14 @@
 ; Naming Convention
 ; -----------------
 
-; For this ABNF grammar, we choose nonterminal names
+; This ABNF grammar uses nonterminal names
 ; that consist of complete English words, separated by dashes,
 ; and that describe the construct the way it is in English.
 ; For instance, we use the name 'conditional-statement'
 ; to describe conditional statements.
 
-; At the same time, we attempt to establish
-; a precise and "official" nomenclature for the Leo constructs,
+; At the same time, this grammar establishes
+; a precise and official nomenclature for the Leo constructs,
 ; by way of the nonterminal names that define their syntax.
 ; For instance, the rule
 ;
@@ -284,19 +269,21 @@
 ; is the fact that, as discussed above,
 ; we write the grammar rules in a way that determines
 ; the relative precedence and the associativity of expression operators,
-; and that therefore we have rules like
+; and therefore we have rules like
 ;
 ;  unary-expression = primary-expression
 ;                   / "!" unary-expression
 ;                   / "-" unary-expression
 ;
 ; In order to allow the recursion of the rule to stop,
-; we need to regard, in the grammar, a primary expression as a unary expression.
+; we need to regard, in the grammar, a primary expression as a unary expression
+; (i.e. a primary expression is also a unary expression in the grammar;
+; but note that the opposite is not true).
 ; However, this is just a grammatical artifact:
 ; ontologically, a primary expression is not really a unary expression,
 ; because a unary expression is one that consists of
 ; a unary operator and an operand sub-expression.
-; These terminological "exceptions" should be easy to identify in the rules.
+; These terminological exceptions should be easy to identify in the rules.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -308,11 +295,12 @@
 ; which are numbers in the range form 0 to 10FFFFh.
 ; These are captured by the ABNF rule 'character' below.
 
-; The lexical grammar defines how, conceptually,
+; The lexical grammar defines how, at least conceptually,
 ; the sequence of characters is turned into
-; a sequence of tokens, comments, and whitespaces.
+; a sequence of tokens, comments, and whitespaces:
+; these entities are all defined by the grammar rules below.
 
-; As stated, the lexical grammar is ambiguous.
+; As stated, the lexical grammar alone is ambiguous.
 ; For example, the sequence of characters '**' (i.e. two stars)
 ; could be equally parsed as two '*' symbol tokens or one '**' symbol token
 ; (see rule for 'symbol' below).
@@ -327,10 +315,6 @@
 ; the longest possible sequence of characters is always parsed.
 ; This way, '**' must be parsed as one '**' symbol token,
 ; and '<CR><LF>' must be parsed as one line terminator.
-; (We should formalize this requirement,
-; along with the other extra-grammatical requirements given below,
-; and formally prove that they indeed make
-; the lexical grammar of Leo unambiguous.)
 
 ; As mentioned above, a character is any Unicode code point.
 ; This grammar does not say how those are encoded in files (e.g. UTF-8):
@@ -369,7 +353,8 @@ not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF   ; anything but * or /
 ; a line feed,
 ; or a carriage return immediately followed by a line feed.
 ; Note that the latter combination constitutes a single line terminator,
-; according to the extra-grammatical rule of the longest sequence.
+; according to the extra-grammatical requirement of the longest sequence,
+; described above.
 
 newline = line-feed / carriage-return / carriage-return line-feed
 
@@ -379,13 +364,13 @@ whitespace = space / horizontal-tab / newline
 
 ; There are two kinds of comments in Leo, as in other languages.
 ; One is block comments of the form '/* ... */',
-; and the other is end-of-line comments '// ...'.
+; and the other is end-of-line comments of the form '// ...'.
 ; The first kind start at '/*' and end at the first '*/',
 ; possibly spanning multiple (partial) lines;
-; they do no nest.
+; these do no nest.
 ; The second kind start at '//' and extend till the end of the line.
 ; The rules about comments given below are similar to
-; the ones used in the Java language specification.
+; the ones used in the Java language reference.
 
 comment = block-comment / end-of-line-comment
 
@@ -467,9 +452,9 @@ package-name = 1*( lowercase-letter / digit )
 
 address = %s"aleo1" 58( lowercase-letter / digit )
 
-; A format string is a sequence of characters, other than double quote,
+; A formatted string is a sequence of characters, other than double quote,
 ; surrounded by double quotes.
-; Within a format string, substrings '{}' are distinguished as containers
+; Within a formatted string, sub-strings '{}' are distinguished as containers
 ; (these are the ones that may be matched with values
 ; whose textual representation replaces the containers
 ; in the printed string).
@@ -482,12 +467,12 @@ address = %s"aleo1" 58( lowercase-letter / digit )
 formatted-string-container = "{}"
 
 formatted-string = double-quote
-                *( not-double-quote / formatted-string-container )
-                double-quote
+                   *( not-double-quote / formatted-string-container )
+                   double-quote
 
 ; Here is (part of this ABNF comment),
-; an alternative way to specify format strings,
-; which captures the extra-grammatical requirement above in the grammar
+; an alternative way to specify formatted strings,
+; which captures the extra-grammatical requirement above in the grammar,
 ; but is more complicated:
 ;
 ;  not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
@@ -495,27 +480,25 @@ formatted-string = double-quote
 ;  not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
 ;
 ;  formatted-string-element = not-double-quote-or-open-brace
-;                        / "{" not-double-quote-or-close-brace
-;                        / formatted-string-container
+;                           / "{" not-double-quote-or-close-brace
+;                           / formatted-string-container
 ;
 ;  formatted-string = double-quote *formatted-string-element double-quote
 ;
 ; It is not immediately clear which approach is better; there are tradeoffs.
-; Regardless, we should choose one eventually.
+; We may choose to adopt this one in future revisions of the grammar.
 
-; Annotations are built out of names and arguments, which are tokens.
-; Two names are currently supported.
-; An argument is a sequence of one or more letters, digits, and underscores.
+; Annotations have names, which are identifiers immediately preceded by '@'.
 
 annotation-name = "@" identifier
 
 ; A natural (number) is a sequence of one or more digits.
-; Note that we allow leading zeros, e.g. '007'.
+; We allow leading zeros, e.g. '007'.
 
 natural = 1*digit
 
 ; An integer (number) is either a natural or its negation.
-; Note that we also allow leading zeros in negative numbers, e.g. '-007'.
+; We allow leading zeros also in negative numbers, e.g. '-007'.
 
 integer = [ "-" ] natural
 
@@ -552,7 +535,9 @@ boolean-literal = %s"true" / %s"false"
 
 address-literal = %s"address" "(" address ")"
 
-; The ones above are all the literals, as defined by the following rule.
+; The ones above are all the atomic literals
+; (in the sense that they are tokens, without whitespace allowed in them),
+; as defined by the following rule.
 
 atomic-literal = untyped-literal
                / unsigned-literal
@@ -566,14 +551,14 @@ atomic-literal = untyped-literal
 ; it remains to define tokens for non-alphanumeric symbols such as "+" and "(".
 ; Different programming languages used different terminologies for these,
 ; e.g. operators, separators, punctuators, etc.
-; Here we use 'symbol', for all of them, but we can do something different.
+; Here we use 'symbol', for all of them.
 ; We also include a token consisting of
 ; a closing parenthesis immediately followed by 'group':
 ; as defined in the syntactic grammar,
-; this is the final part of an affine group literal.
-; Even though it includes letters,
+; this is the final part of an affine group literal;
+; even though it includes letters,
 ; it seems appropriate to still consider it a symbol,
-; particularly since it starts with a symbol.
+; particularly since it starts with a proper symbol.
 
 ; We could give names to all of these symbols,
 ; via rules such as
@@ -646,7 +631,7 @@ group-type = %s"group"
 arithmetic-type = integer-type / field-type / group-type
 
 ; The arithmetic types, along with the boolean and address types,
-; form the scalar types, i.e. the ones whose values do not contain (sub)values.
+; form the scalar types, i.e. the ones whose values do not contain (sub-)values.
 
 boolean-type = %s"bool"
 
@@ -656,7 +641,7 @@ scalar-type =  boolean-type / arithmetic-type / address-type
 
 ; Circuit types are denoted by identifiers and the keyword 'Self'.
 ; The latter is only allowed inside a circuit definition,
-; to denote the defined circuit.
+; to denote the circuit being defined.
 
 self-type = %s"Self"
 
@@ -668,9 +653,8 @@ tuple-type = "(" [ type 1*( "," type ) ] ")"
 
 ; An array type consists of an element type
 ; and an indication of dimensions.
-; There is either a single dimension (a number),
-; or a tuple of one or more dimensions
-; (we could restrict  the latter to two or more dimensions).
+; There is either a single dimension,
+; or a tuple of one or more dimensions.
 
 array-type = "[" type ";" array-dimensions "]"
 
@@ -678,7 +662,7 @@ array-dimensions = natural
                  / "(" natural *( "," natural ) ")"
 
 ; Circuit, tuple, and array types form the aggregate types,
-; i.e. types whose values contain (sub)values
+; i.e. types whose values contain (sub-)values
 ; (with the corner-case exception of the empty tuple value).
 
 aggregate-type = tuple-type / array-type / circuit-type
@@ -687,23 +671,21 @@ aggregate-type = tuple-type / array-type / circuit-type
 
 type = scalar-type / aggregate-type
 
-; The lexical grammar above defines product group literals.
+; The lexical grammar given earlier defines product group literals.
 ; The other kind of group literal is a pair of integer coordinates,
 ; which are reduced modulo the prime to identify a point,
 ; which must be on the elliptic curve.
-; It is also allowed to omit one (not both) coordinates,
-; with an indication of how to infer the missing coordinate
+; It is also allowed to omit one coordinate (not both),
+; with an indication of how to fill in the missing coordinate
 ; (i.e. sign high, sign low, or inferred).
 ; This is an affine group literal,
 ; because it consists of affine point coordinates.
 
 group-coordinate = integer / "+" / "-" / "_"
 
-affine-group-literal = "(" group-coordinate "," group-coordinate ")" %s"group"
+affine-group-literal = "(" group-coordinate "," group-coordinate %s")group"
 
 ; A literal is either an atomic one or an affine group literal.
-; Here 'atomic' refers to being a token or not,
-; since no whitespace is allowed within a token.
 
 literal = atomic-literal / affine-group-literal
 
@@ -721,13 +703,12 @@ group-literal = product-group-literal / affine-group-literal
 ; and the (left or right) associativity of binary operators.
 
 ; The primary expressions are self-contained in a way,
-; i.e. they have clear deliminations.
-; Some consist of single tokens:
-; identifiers, the keywords 'self' and 'input', and literals.
+; i.e. they have clear deliminations:
+; Some consist of single tokens,
+; while others have explicit endings.
 ; Primary expressions also include parenthesized expressions,
 ; i.e. any expression may be turned into a primary one
 ; by putting parentheses around it.
-; The other kinds are defined and explained below.
 
 primary-expression = identifier
                    / %s"self"
@@ -738,35 +719,19 @@ primary-expression = identifier
                    / array-expression
                    / circuit-expression
 
-; There are tuple expressions to construct and deconstruct tuples.
-; A construction consists of zero, two, or more component expressions.
-; A deconstruction uses a component index (zero-indexed).
-; Note that constructions are delimited by closing parentheses
-; and deconstructions are delimited by natural tokens.
-; The rule below, and similar rules for other aggregate types,
-; use the perhaps more familiar 'access',
-; but note that 'deconstruction' has a nice symmetry to 'construction';
-; the term 'destructor' has a different meaning in other languages,
-; so we may want to avoid it, but not necessarily.
+; Tuple expressions construct tuples.
+; Each consists of zero, two, or more component expressions.
 
 tuple-construction = "(" [ expression 1*( "," expression ) ] ")"
 
 tuple-expression = tuple-construction
 
-; The are array expressions to construct and deconstruct arrays.
-; There are two kinds of constructions:
+; Array expressions construct arrays.
+; There are two kinds:
 ; one lists the element expressions (at least one),
 ; including spreads (via '...') which are arrays being spliced in;
 ; the other repeats (the value of) a single expression
 ; across one or more dimensions.
-; There are two kinds of deconstructions:
-; one selects a single element by index (zero-indexed);
-; the other selects a range via two indices,
-; the first inclusive and the second exclusive --
-; both are optional,
-; the first defaulting to 0 and the second to the array length.
-; Note that these expressions are all delimited
-; by closing square brackets.
 
 array-inline-construction = "["
                             array-inline-element
@@ -781,17 +746,14 @@ array-construction = array-inline-construction / array-repeat-construction
 
 array-expression = array-construction
 
-; There are circuit expressions to construct and deconstruct circuit values.
-; A construction lists values for all the member variables (in any order);
-; there must be at least one member variable currently.
+; Circuit expressions construct circuit values.
+; Each lists values for all the member variables (in any order);
+; there must be at least one member variable.
 ; A single identifier abbreviates
-; a pair consisting of the same identifier separated by dot;
+; a pair consisting of the same identifier separated by colon;
 ; note that, in the expansion, the left one denotes a member name,
 ; while the right one denotes an expression (a variable),
 ; so they are syntactically identical but semantically different.
-; A deconstruction selects a member variable by name.
-; Note that these expressions are delimited,
-; by closing curly braces or identifiers.
 
 circuit-construction = circuit-type "{"
                        circuit-inline-element *( "," circuit-inline-element )
@@ -801,19 +763,27 @@ circuit-inline-element = identifier ":" expression / identifier
 
 circuit-expression = circuit-construction
 
+; After primary expressions, postfix expressions have highest precedence.
+; They apply to primary expressions, and recursively to postfix expressions.
+
+; There are postfix expressions to access parts of aggregate values.
+; A tuple access selects a component by index (zero-based).
+; There are two kinds of array accesses:
+; one selects a single element by index (zero-based);
+; the other selects a range via two indices,
+; the first inclusive and the second exclusive --
+; both are optional,
+; the first defaulting to 0 and the second to the array length.
+; A circuit access selects a member variable by name.
+
+; Function calls are also postfix expressions.
 ; There are three kinds of function calls:
 ; top-level function calls,
 ; instance (i.e. non-static) member function calls, and
 ; static member function calls.
-; What changes is the start, but they all end in an argument list,
-; delimited by a closing parenthesis.
+; What changes is the start, but they all end in an argument list.
 
 function-arguments = "(" [ expression *( "," expression ) ] ")"
-
-; Postfix expressions have highest precedence.
-; They apply to primary expressions.
-; Contains access expressions for arrays, tuples, and circuits.
-; Contains function call types.
 
 postfix-expression = primary-expression
                    / postfix-expression "." natural
@@ -825,7 +795,7 @@ postfix-expression = primary-expression
                    / postfix-expression "[" [expression] ".." [expression] "]"
 
 ; Unary operators have the highest operator precedence.
-; They apply to postfix expressions
+; They apply to postfix expressions,
 ; and recursively to unary expressions.
 
 unary-expression = postfix-expression
@@ -833,7 +803,7 @@ unary-expression = postfix-expression
                  / "-" unary-expression
 
 ; Next in the operator precedence is casting.
-; The current rule below makes exponentiation left-associative,
+
 cast-expression = unary-expression
                 / cast-expression %s"as" type
 
@@ -841,7 +811,6 @@ cast-expression = unary-expression
 ; following mathematical practice.
 ; The current rule below makes exponentiation left-associative,
 ; i.e. 'a ** b ** c' must be parsed as '(a ** b) ** c'.
-; This is easy to change if we want it to be right-associative instead.
 
 exponential-expression = cast-expression
                        / exponential-expression "**" cast-expression
@@ -867,8 +836,8 @@ ordering-expression = additive-expression
                     / additive-expression "<=" additive-expression
                     / additive-expression ">=" additive-expression
 
-; Equalities return booleans but may also operate on boolean,
-; so we make them left-associative.
+; Equalities return booleans but may also operate on booleans;
+; the rule below makes them left-associative.
 
 equality-expression = ordering-expression
                     / equality-expression "==" ordering-expression
@@ -887,11 +856,11 @@ disjunctive-expression = conjunctive-expression
 ; Finally we have conditional expressions.
 
 conditional-expression = disjunctive-expression
-                        / conditional-expression
+                       / conditional-expression
                          "?" expression
                          ":" conditional-expression
 
-; These are all the expressions.
+; Those above are all the expressions.
 ; Recall that conditional expressions
 ; may be disjunctive expressions,
 ; which may be conjunctive expressions,
@@ -899,9 +868,8 @@ conditional-expression = disjunctive-expression
 
 expression = conditional-expression
 
-; There are various kinds of statements,
-; including blocks, which are
-; possibly empty sequences of statements surounded by curly braces.
+; There are various kinds of statements, including blocks.
+; Blocks are possibly empty sequences of statements surrounded by curly braces.
 
 statement = expression-statement
           / return-statement
@@ -914,13 +882,13 @@ statement = expression-statement
 
 block = "{" *statement "}"
 
-; An expression (that returns the empty tuple)
+; An expression (that must return the empty tuple, as semantically required)
 ; can be turned into a statement by appending a semicolon.
 
 expression-statement = expression ";"
 
 ; A return statement always takes an expression,
-; and does not end with a semicolon (but we may want to change that).
+; and does not end with a semicolon.
 
 return-statement = %s"return" expression
 
@@ -941,7 +909,7 @@ identifier-or-identifiers = identifier
 ; (which together form a branch).
 ; It may stop there, or it may continue with an alternative block,
 ; or possibly with another conditional statement, forming a chain.
-; Note that we require blocks in all branches, not merely statements.
+; Note that blocks are required in all branches, not merely statements.
 
 branch = %s"if" expression block
 
@@ -968,10 +936,10 @@ assignment-statement = expression assignment-operator expression ";"
 ; The call may be an assertion or a print command.
 ; The former takes an expression (which must be boolean) as argument.
 ; The latter takes either no argument,
-; or a format string followed by expressions,
-; whose number must match the number of containers '{}' in the format string.
+; or a formatted string followed by expressions,
+; whose number must match the number of containers '{}' in the formatted string.
 ; Note that the console function names are identifiers, not keywords.
-; There are three kind of printing.
+; There are three kinds of print commands.
 
 console-statement = %s"console" "." console-call
 
@@ -987,19 +955,17 @@ print-arguments = "(" [ formatted-string *( "," expression ) ] ")"
 print-call = print-function print-arguments
 
 ; An annotation consists of an annotation name (which starts with '@')
-; with optional annotation arguments.
+; with optional annotation arguments, which are identifiers.
 ; Note that no parentheses are used if there are no arguments.
 
 annotation = annotation-name
              [ "(" identifier *( "," identifier ) ")" ]
 
 ; A function declaration defines a function.
-; This could be called 'function-definition' instead,
-; but see the comments about the 'declaration' rule below.
-; The output type is optional (it defaults to the empty tuple type).
+; The output type is optional, defaulting to the empty tuple type.
 ; In general, a function input consists of an identifier and a type,
 ; with an optional 'const' modifier.
-; However, functions inside circuits
+; Additionally, functions inside circuits
 ; may start with a 'mut self' or 'const self' or 'self' parameter.
 ; Furthermore, any function may end with an 'input' parameter.
 
@@ -1022,8 +988,6 @@ input-parameter = %s"input"
 
 ; A circuit member variable declaration consists of an identifier and a type.
 ; A circuit member function declaration consists of a function declaration.
-; We could call these 'member-definition' etc.,
-; but see the comments about the 'declaration' rule below.
 
 member-declaration = member-variable-declaration
                    / member-function-declaration
@@ -1032,9 +996,8 @@ member-variable-declaration = identifier ":" type
 
 member-function-declaration = function-declaration
 
-; A circuit declaration defines a circuit type. It is straightforward.
-; This could be called 'circuit-definition' instead,
-; but see the comments about the 'declaration' rule below.
+; A circuit declaration defines a circuit type,
+; as consisting of member variables and functions.
 
 circuit-declaration = *annotation %s"circuit" identifier
                       "{" member-declaration *( "," member-declaration ) "}"
@@ -1047,7 +1010,7 @@ circuit-declaration = *annotation %s"circuit" identifier
 ; or a parenthesized list of package paths,
 ; which are "fan out" of the initial path.
 ; Note that we allow the last element of the parenthesized list
-; to be followed by a comma, presumably for convenience.
+; to be followed by a comma, for convenience.
 
 import-declaration = %s"import" package-path
 
@@ -1057,12 +1020,6 @@ package-path = "*"
              / "(" package-path *( "," package-path ) [","] ")"
 
 ; Finally, we define a file as a sequence of zero or more declarations.
-; This is why we used 'function-declaration' and 'circuit-declaration'
-; instead of 'function-definition' and 'ciruit-definition':
-; this way, they are all declarations of some sort.
-; An import declaration cannot really called an import definition,
-; because it does not define anything.
-; But we may revisit this, and use 'definition' instead of 'declaration'.
 
 declaration = import-declaration
             / function-declaration
