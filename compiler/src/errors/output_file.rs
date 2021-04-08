@@ -21,9 +21,6 @@ pub enum OutputFileError {
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
-    #[error("creating: {}", _0)]
-    Creating(io::Error),
-
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),
 

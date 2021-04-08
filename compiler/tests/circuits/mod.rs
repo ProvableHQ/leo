@@ -308,3 +308,11 @@ fn test_duplicate_name_context() {
 
     assert_satisfied(program);
 }
+
+#[test]
+fn test_mutable_call_immutable_context() {
+    let program_string = include_str!("mutable_call_immutable_context.leo");
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}

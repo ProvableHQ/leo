@@ -116,3 +116,11 @@ fn test_u8_console_assert() {
 fn test_u8_ternary() {
     TestU8::test_ternary();
 }
+
+#[test]
+fn test_no_space_between_literal() {
+    let program_string = include_str!("no_space_between_literal.leo");
+    let program = parse_program(program_string);
+
+    assert!(program.is_err());
+}

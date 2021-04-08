@@ -28,10 +28,10 @@ use snarkvm_gadgets::traits::utilities::{
     eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
     int::{Int128, Int16, Int32, Int64, Int8},
     select::CondSelectGadget,
-    uint::*,
+    uint::{Sub as UIntSub, *},
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
-use std::fmt;
+use std::{convert::TryInto, fmt};
 
 /// An integer type enum wrapping the integer value.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd)]
@@ -83,7 +83,7 @@ impl Integer {
 
     pub fn get_bits(&self) -> Vec<Boolean> {
         let integer = self;
-        match_integer!(integer => integer.get_bits())
+        match_integer!(integer => integer.to_bits_le())
     }
 
     // pub fn get_bits_typed(&self) -> (Vec<Boolean>, IntegerType) {
@@ -113,7 +113,7 @@ impl Integer {
 
     pub fn to_usize(&self) -> Option<usize> {
         let unsigned_integer = self;
-        match_unsigned_integer!(unsigned_integer => unsigned_integer.get_index())
+        match_unsigned_integer!(unsigned_integer => unsigned_integer.value.map(|num| num.try_into().ok()).flatten())
     }
 
     pub fn get_type(&self) -> IntegerType {

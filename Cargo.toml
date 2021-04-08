@@ -29,6 +29,7 @@ members = [
   "asg",
   "ast",
   "compiler",
+  "grammar",
   "imports",
   "input",
   "linter",
@@ -68,23 +69,23 @@ path = "./synthesizer"
 version = "1.2.3"
 
 [dependencies.snarkvm-algorithms]
-version = "0.2.1"
+version = "0.2.2"
 #default-features = false
 
 [dependencies.snarkvm-curves]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-r1cs]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.2.1"
+version = "0.2.2"
 
 [dependencies.anyhow]
 version = "1.0"
@@ -154,8 +155,10 @@ version = "0.5"
 version = "0.11.2"
 
 [features]
-default = [ ]
+default = []
 ci_skip = [ "leo-compiler/ci_skip" ]
+# This feature flag is used to disable `target-cpu=native` in `.cargo/config`.
+noconfig = []
 
 [profile.release]
 opt-level = 3

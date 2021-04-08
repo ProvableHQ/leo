@@ -1,0 +1,18 @@
+[package]
+name = "leo-abnf"
+version = "1.2.3"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "ABNF to Markdown converter"
+edition = "2018"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge",
+  "leo-abnf"
+]
+
+[dependencies]
+abnf = "0.10.2"
+anyhow = "1.0"

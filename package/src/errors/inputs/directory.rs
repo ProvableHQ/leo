@@ -26,9 +26,6 @@ pub enum InputsDirectoryError {
     #[error("file entry getting: {}", _0)]
     GettingFileEntry(io::Error),
 
-    #[error("file {:?} extension getting", _0)]
-    GettingFileExtension(OsString),
-
     #[error("file {:?} name getting", _0)]
     GettingFileName(OsString),
 
@@ -37,9 +34,6 @@ pub enum InputsDirectoryError {
 
     #[error("{}", _0)]
     InputFileError(#[from] InputFileError),
-
-    #[error("invalid file {:?} extension: {:?}", _0, _1)]
-    InvalidFileExtension(String, OsString),
 
     #[error("invalid file {:?} type: {:?}", _0, _1)]
     InvalidFileType(OsString, FileType),

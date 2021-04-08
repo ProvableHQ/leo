@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{FormattedError, IntegerType, LeoError, Span, Type};
+use leo_ast::{FormattedError, LeoError, Span};
 
-use snarkvm_gadgets::errors::SignedIntegerError;
+use snarkvm_gadgets::errors::{SignedIntegerError, UnsignedIntegerError};
 use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
@@ -32,25 +32,16 @@ impl IntegerError {
         IntegerError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn cannot_enforce(operation: String, error: SynthesisError, span: &Span) -> Self {
-        let message = format!(
-            "the integer operation `{}` failed due to the synthesis error `{:?}`",
-            operation, error,
-        );
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn signed(error: SignedIntegerError, span: &Span) -> Self {
         let message = format!("integer operation failed due to the signed integer error `{:?}`", error);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn signed_error(operation: String, error: SignedIntegerError, span: &Span) -> Self {
+    pub fn unsigned(error: UnsignedIntegerError, span: &Span) -> Self {
         let message = format!(
-            "the integer operation `{}` failed due to the signed integer error `{:?}`",
-            operation, error
+            "integer operation failed due to the unsigned integer error `{:?}`",
+            error
         );
 
         Self::new_from_span(message, span)
@@ -77,28 +68,8 @@ impl IntegerError {
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_index(span: &Span) -> Self {
-        let message =
-            "index must be a constant value unsigned integer. allocated indices produce a circuit of unknown size"
-                .to_string();
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn invalid_integer(actual: String, span: &Span) -> Self {
         let message = format!("failed to parse `{}` as expected integer type", actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn invalid_integer_type(expected: &IntegerType, actual: &IntegerType, span: &Span) -> Self {
-        let message = format!("expected integer type {} found integer type {}", expected, actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn invalid_type(actual: &Type, span: &Span) -> Self {
-        let message = format!("expected type {}, found type IntegerType", actual);
 
         Self::new_from_span(message, span)
     }

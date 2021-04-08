@@ -16,7 +16,7 @@
 
 use std::unimplemented;
 
-use crate::{tokenizer::*, SyntaxError, SyntaxResult, Token, KEYWORD_TOKENS};
+use crate::{tokenizer::*, unexpected_whitespace, SyntaxError, SyntaxResult, Token, KEYWORD_TOKENS};
 use leo_ast::*;
 use tendril::format_tendril;
 
@@ -154,7 +154,7 @@ impl ParserContext {
                 }
                 _ => GroupCoordinate::SignLow,
             },
-            Token::Ident(x) if x.as_ref() == "_" => GroupCoordinate::Inferred,
+            Token::Underscore => GroupCoordinate::Inferred,
             Token::Int(value) => GroupCoordinate::Number(value.clone(), token.span.clone()),
             _ => return None,
         })
@@ -164,10 +164,16 @@ impl ParserContext {
     /// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
     /// or [None] if the next token is not a [`GroupCoordinate`].
     ///
-    pub fn eat_group_partial(&mut self) -> Option<(GroupCoordinate, GroupCoordinate, Span)> {
+    pub fn eat_group_partial(&mut self) -> SyntaxResult<Option<(GroupCoordinate, GroupCoordinate, Span)>> {
         let mut i = self.tokens.len() - 1;
-        let start_span = self.tokens.get(i)?.span.clone();
-        let first = self.peek_group_coordinate(&mut i)?;
+        let start_span = match self.tokens.get(i) {
+            Some(span) => span.span.clone(),
+            None => return Ok(None),
+        };
+        let first = match self.peek_group_coordinate(&mut i) {
+            Some(coord) => coord,
+            None => return Ok(None),
+        };
         match self.tokens.get(i) {
             Some(SpannedToken {
                 token: Token::Comma, ..
@@ -175,19 +181,24 @@ impl ParserContext {
                 i -= 1;
             }
             _ => {
-                return None;
+                return Ok(None);
             }
         }
-        let second = self.peek_group_coordinate(&mut i)?;
+        let second = match self.peek_group_coordinate(&mut i) {
+            Some(coord) => coord,
+            None => return Ok(None),
+        };
+        let right_paren_span;
         match self.tokens.get(i) {
             Some(SpannedToken {
                 token: Token::RightParen,
-                ..
+                span,
             }) => {
+                right_paren_span = span.clone();
                 i -= 1;
             }
             _ => {
-                return None;
+                return Ok(None);
             }
         }
         let end_span;
@@ -200,12 +211,18 @@ impl ParserContext {
                 i -= 1;
             }
             _ => {
-                return None;
+                return Ok(None);
             }
         }
 
         self.tokens.drain((i + 1)..);
-        Some((first, second, start_span + end_span))
+        unexpected_whitespace(
+            &right_paren_span,
+            &end_span,
+            &format!("({},{})", first, second),
+            "group",
+        )?;
+        Ok(Some((first, second, start_span + end_span)))
     }
 
     ///
