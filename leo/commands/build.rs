@@ -42,7 +42,7 @@ impl Command for Build {
     type Output = Option<(Compiler<'static, Fq, EdwardsGroupType>, bool)>;
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Compiling")
+        tracing::span!(tracing::Level::INFO, "Build")
     }
 
     fn prelude(&self, _: Context) -> Result<Self::Input> {
