@@ -43,11 +43,11 @@ impl Command for Watch {
         tracing::span!(tracing::Level::INFO, "Watching")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let (tx, rx) = channel();
         let mut watcher = watcher(tx, Duration::from_secs(self.interval)).unwrap();
 
@@ -64,7 +64,7 @@ impl Command for Watch {
             match rx.recv() {
                 // See changes on the write event
                 Ok(DebouncedEvent::Write(_write)) => {
-                    match (Build {}).execute() {
+                    match (Build {}).execute(context.clone()) {
                         Ok(_output) => {
                             tracing::info!("Built successfully");
                         }

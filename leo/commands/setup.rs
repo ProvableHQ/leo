@@ -49,8 +49,8 @@ impl Command for Setup {
         tracing::span!(tracing::Level::INFO, "Setup")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
-        (Build {}).execute()
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
+        (Build {}).execute(context)
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
