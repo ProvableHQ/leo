@@ -71,7 +71,7 @@ impl Package {
         // Iterate and check that the package name is valid.
         for current in package_name.chars() {
             // Check that the package name is lowercase.
-            if !current.is_ascii_lowercase() && current != '-' {
+            if current.is_ascii_uppercase() && current != '-' {
                 tracing::error!("Project names must be all lowercase");
                 return false;
             }
