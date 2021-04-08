@@ -135,8 +135,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
 
                 AstType::Tuple(reduced_types)
             }
-            _ if !self.options.type_inference_enabled => ast.clone(),
-            _ => asg.into(),
+            _ => ast.clone(),
         };
 
         self.ast_reducer.reduce_type(ast, new, self.in_circuit, span)
@@ -472,8 +471,12 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
             (AstStatement::Expression(ast), AsgStatement::Expression(asg)) => {
                 AstStatement::Expression(self.reduce_expression_statement(ast, asg)?)
             }
-            // (AstStatement::Iteration(ast), AsgStatement::Iteration(asg)) => AstStatement::Iteration(self.reduce_iteration(ast, asg)?),
-            // (AstStatement::Return(ast), AsgStatement::Return(asg)) => AstStatement::Return(self.reduce_return(ast, asg)?),
+            (AstStatement::Iteration(ast), AsgStatement::Iteration(asg)) => {
+                AstStatement::Iteration(self.reduce_iteration(ast, asg)?)
+            }
+            (AstStatement::Return(ast), AsgStatement::Return(asg)) => {
+                AstStatement::Return(self.reduce_return(ast, asg)?)
+            }
             _ => ast_statement.clone(),
         };
 
@@ -613,17 +616,23 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
                 types.push(variable.borrow().type_.clone());
             }
 
-            type_ = ast
-                .type_
-                .as_ref()
-                .map(|type_| self.reduce_type(type_, &AsgType::Tuple(types), &ast.span))
-                .transpose()?;
+            let asg_type = AsgType::Tuple(types);
+
+            type_ = match &ast.type_ {
+                Some(ast_type) => Some(self.reduce_type(&ast_type, &asg_type, &ast.span)?),
+                None if self.options.type_inference_enabled => Some((&asg_type).into()),
+                _ => None,
+            };
         } else {
-            type_ = ast
-                .type_
-                .as_ref()
-                .map(|type_| self.reduce_type(type_, &asg.variables.first().unwrap().borrow().type_, &ast.span))
-                .transpose()?;
+            type_ = match &ast.type_ {
+                Some(ast_type) => {
+                    Some(self.reduce_type(&ast_type, &asg.variables.first().unwrap().borrow().type_, &ast.span)?)
+                }
+                None if self.options.type_inference_enabled => {
+                    Some((&asg.variables.first().unwrap().borrow().type_).into())
+                }
+                _ => None,
+            };
         }
 
         let value = self.reduce_expression(&ast.value, asg.value.get())?;
@@ -702,8 +711,10 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
             .transpose()?;
 
         let mut statements = vec![];
-        for (ast_statement, asg_statement) in ast.block.statements.iter().zip(asg.body.get()) {
-            statements.push(self.reduce_statement(ast_statement, asg_statement)?);
+        if let Some(AsgStatement::Block(asg_block)) = asg.body.get() {
+            for (ast_statement, asg_statement) in ast.block.statements.iter().zip(asg_block.statements.iter()) {
+                statements.push(self.reduce_statement(ast_statement, asg_statement.get())?);
+            }
         }
 
         let block = AstBlockStatement {
