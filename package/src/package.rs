@@ -68,6 +68,12 @@ impl Package {
             return false;
         }
 
+        // Check that the first character is not a number.
+        if previous.is_numeric() {
+            tracing::error!("Project names cannot begin with a number");
+            return false;
+        }
+
         // Iterate and check that the package name is valid.
         for current in package_name.chars() {
             // Check that the package name is lowercase.
@@ -267,6 +273,8 @@ mod tests {
         assert!(Package::is_package_name_valid("foo"));
         assert!(Package::is_package_name_valid("foo-bar"));
         assert!(Package::is_package_name_valid("foo-bar-baz"));
+        assert!(Package::is_package_name_valid("foo1"));
+        assert!(Package::is_package_name_valid("foo-1"));
 
         assert!(!Package::is_package_name_valid(""));
         assert!(!Package::is_package_name_valid("-"));
@@ -279,5 +287,6 @@ mod tests {
         assert!(!Package::is_package_name_valid("foo*bar"));
         assert!(!Package::is_package_name_valid("foo,bar"));
         assert!(!Package::is_package_name_valid("foo_bar"));
+        assert!(!Package::is_package_name_valid("1-foo"));
     }
 }
