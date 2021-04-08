@@ -46,10 +46,10 @@ use structopt::{clap::AppSettings, StructOpt};
 #[derive(StructOpt, Debug)]
 #[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
 struct Opt {
-    #[structopt(short, long, help = "Print additional information for debugging")]
+    #[structopt(short, global = true, help = "Print additional information for debugging")]
     debug: bool,
 
-    #[structopt(short, long, help = "Suppress CLI output")]
+    #[structopt(short, global = true, help = "Suppress CLI output")]
     quiet: bool,
 
     #[structopt(subcommand)]
