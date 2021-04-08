@@ -23,13 +23,23 @@ use leo_asg::{
     ArrayInitExpression as AsgArrayInitExpression,
     ArrayInlineExpression as AsgArrayInlineExpression,
     ArrayRangeAccessExpression as AsgArrayRangeAccessExpression,
+    AssignAccess as AsgAssignAccess,
+    AssignStatement as AsgAssignStatement,
     BinaryExpression as AsgBinaryExpression,
+    BlockStatement as AsgBlockStatement,
     CallExpression as AsgCallExpression,
     CastExpression as AsgCastExpression,
     CircuitAccessExpression as AsgCircuitAccessExpression,
     CircuitInitExpression as AsgCircuitInitExpression,
+    ConditionalStatement as AsgConditionalStatement,
+    ConsoleFunction as AsgConsoleFunction,
+    ConsoleStatement as AsgConsoleStatement,
     Constant as AsgConstant,
+    DefinitionStatement as AsgDefinitionStatement,
     Expression as AsgExpression,
+    ExpressionStatement as AsgExpressionStatement,
+    IterationStatement as AsgIterationStatement,
+    ReturnStatement as AsgReturnStatement,
     Statement as AsgStatement,
     TernaryExpression as AsgTernaryExpression,
     TupleAccessExpression as AsgTupleAccessExpression,
@@ -44,7 +54,11 @@ use leo_ast::{
     ArrayInitExpression as AstArrayInitExpression,
     ArrayInlineExpression as AstArrayInlineExpression,
     ArrayRangeAccessExpression as AstArrayRangeAccessExpression,
+    AssignStatement as AstAssignStatement,
+    Assignee,
+    AssigneeAccess as AstAssignAccess,
     BinaryExpression as AstBinaryExpression,
+    Block as AstBlockStatement,
     CallExpression as AstCallExpression,
     CanonicalizeError,
     CastExpression as AstCastExpression,
@@ -52,9 +66,17 @@ use leo_ast::{
     CircuitInitExpression as AstCircuitInitExpression,
     CircuitMemberAccessExpression,
     CircuitStaticFunctionAccessExpression,
+    ConditionalStatement as AstConditionalStatement,
+    ConsoleFunction as AstConsoleFunction,
+    ConsoleStatement as AstConsoleStatement,
+    DefinitionStatement as AstDefinitionStatement,
     Expression as AstExpression,
+    ExpressionStatement as AstExpressionStatement,
+    FormattedString,
+    IterationStatement as AstIterationStatement,
     PositiveNumber,
     ReconstructingReducer,
+    ReturnStatement as AstReturnStatement,
     Span,
     SpreadOrExpression,
     Statement as AstStatement,
@@ -422,9 +444,229 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         // self.ast_reducer.reduce_value(value, new)
     }
 
-    // pub fn reduce_statement(&mut self, ast: AstStatement, asg: AsgStatement) -> Result<AstStatement, CanonicalizeError> {
-    //     let new = match (ast, asg)
-    // }
+    pub fn reduce_statement(
+        &mut self,
+        ast_statement: &AstStatement,
+        asg_statement: &AsgStatement,
+    ) -> Result<AstStatement, CanonicalizeError> {
+        let new = match (ast_statement, asg_statement) {
+            (AstStatement::Assign(ast), AsgStatement::Assign(asg)) => {
+                AstStatement::Assign(self.reduce_assign(ast, asg)?)
+            }
+            (AstStatement::Block(ast), AsgStatement::Block(asg)) => AstStatement::Block(self.reduce_block(ast, asg)?),
+            (AstStatement::Conditional(ast), AsgStatement::Conditional(asg)) => {
+                AstStatement::Conditional(self.reduce_conditional(ast, asg)?)
+            }
+            (AstStatement::Console(ast), AsgStatement::Console(asg)) => {
+                AstStatement::Console(self.reduce_console(ast, asg)?)
+            }
+            (AstStatement::Definition(ast), AsgStatement::Definition(asg)) => {
+                AstStatement::Definition(self.reduce_definition(ast, asg)?)
+            }
+            (AstStatement::Expression(ast), AsgStatement::Expression(asg)) => {
+                AstStatement::Expression(self.reduce_expression_statement(ast, asg)?)
+            }
+            // (AstStatement::Iteration(ast), AsgStatement::Iteration(asg)) => AstStatement::Iteration(self.reduce_iteration(ast, asg)?),
+            // (AstStatement::Return(ast), AsgStatement::Return(asg)) => AstStatement::Return(self.reduce_return(ast, asg)?),
+            _ => ast_statement.clone(),
+        };
+
+        self.ast_reducer.reduce_statement(ast_statement, new, self.in_circuit)
+    }
+
+    pub fn reduce_assign_access(
+        &mut self,
+        ast: &AstAssignAccess,
+        asg: &AsgAssignAccess,
+    ) -> Result<AstAssignAccess, CanonicalizeError> {
+        let new = match (ast, asg) {
+            (AstAssignAccess::ArrayRange(ast_left, ast_right), AsgAssignAccess::ArrayRange(asg_left, asg_right)) => {
+                let left = match (ast_left.as_ref(), asg_left.get()) {
+                    (Some(ast_left), Some(asg_left)) => Some(self.reduce_expression(ast_left, asg_left)?),
+                    _ => None,
+                };
+                let right = match (ast_right.as_ref(), asg_right.get()) {
+                    (Some(ast_right), Some(asg_right)) => Some(self.reduce_expression(ast_right, asg_right)?),
+                    _ => None,
+                };
+
+                AstAssignAccess::ArrayRange(left, right)
+            }
+            (AstAssignAccess::ArrayIndex(ast_index), AsgAssignAccess::ArrayIndex(asg_index)) => {
+                let index = self.reduce_expression(&ast_index, asg_index.get())?;
+                AstAssignAccess::ArrayIndex(index)
+            }
+            _ => ast.clone(),
+        };
+
+        self.ast_reducer.reduce_assignee_access(ast, new, self.in_circuit)
+    }
+
+    pub fn reduce_assignee(
+        &mut self,
+        ast: &Assignee,
+        asg: &Vec<AsgAssignAccess>,
+    ) -> Result<Assignee, CanonicalizeError> {
+        let mut accesses = vec![];
+        for (ast_access, asg_access) in ast.accesses.iter().zip(asg.iter()) {
+            accesses.push(self.reduce_assign_access(ast_access, asg_access)?);
+        }
+
+        self.ast_reducer
+            .reduce_assignee(ast, ast.identifier.clone(), accesses, self.in_circuit)
+    }
+
+    pub fn reduce_assign(
+        &mut self,
+        ast: &AstAssignStatement,
+        asg: &AsgAssignStatement,
+    ) -> Result<AstAssignStatement, CanonicalizeError> {
+        let assignee = self.reduce_assignee(&ast.assignee, &asg.target_accesses)?;
+        let value = self.reduce_expression(&ast.value, asg.value.get())?;
+
+        self.ast_reducer.reduce_assign(ast, assignee, value, self.in_circuit)
+    }
+
+    pub fn reduce_block(
+        &mut self,
+        ast: &AstBlockStatement,
+        asg: &AsgBlockStatement,
+    ) -> Result<AstBlockStatement, CanonicalizeError> {
+        let mut statements = vec![];
+        for (ast_statement, asg_statement) in ast.statements.iter().zip(asg.statements.iter()) {
+            statements.push(self.reduce_statement(ast_statement, asg_statement.get())?);
+        }
+
+        self.ast_reducer.reduce_block(ast, statements, self.in_circuit)
+    }
+
+    pub fn reduce_conditional(
+        &mut self,
+        ast: &AstConditionalStatement,
+        asg: &AsgConditionalStatement,
+    ) -> Result<AstConditionalStatement, CanonicalizeError> {
+        let condition = self.reduce_expression(&ast.condition, asg.condition.get())?;
+        let block;
+        if let AsgStatement::Block(asg_block) = asg.result.get() {
+            block = self.reduce_block(&ast.block, asg_block)?;
+        } else {
+            // TODO throw error?
+            block = ast.block.clone();
+        }
+        let next = match (ast.next.as_ref(), asg.next.get()) {
+            (Some(ast_next), Some(asg_next)) => Some(self.reduce_statement(ast_next, asg_next)?),
+            _ => None,
+        };
+
+        self.ast_reducer
+            .reduce_conditional(ast, condition, block, next, self.in_circuit)
+    }
+
+    pub fn reduce_console(
+        &mut self,
+        ast: &AstConsoleStatement,
+        asg: &AsgConsoleStatement,
+    ) -> Result<AstConsoleStatement, CanonicalizeError> {
+        let function = match (&ast.function, &asg.function) {
+            (AstConsoleFunction::Assert(ast_expression), AsgConsoleFunction::Assert(asg_expression)) => {
+                AstConsoleFunction::Assert(self.reduce_expression(&ast_expression, asg_expression.get())?)
+            }
+            (AstConsoleFunction::Debug(ast_format), AsgConsoleFunction::Debug(asg_format))
+            | (AstConsoleFunction::Error(ast_format), AsgConsoleFunction::Error(asg_format))
+            | (AstConsoleFunction::Log(ast_format), AsgConsoleFunction::Log(asg_format)) => {
+                let mut parameters = vec![];
+                for (ast_parameter, asg_parameter) in ast_format.parameters.iter().zip(asg_format.parameters.iter()) {
+                    parameters.push(self.reduce_expression(&ast_parameter, asg_parameter.get())?);
+                }
+
+                let formatted = FormattedString {
+                    parts: ast_format.parts.clone(),
+                    parameters,
+                    span: ast_format.span.clone(),
+                };
+
+                match &ast.function {
+                    AstConsoleFunction::Debug(_) => AstConsoleFunction::Debug(formatted),
+                    AstConsoleFunction::Error(_) => AstConsoleFunction::Error(formatted),
+                    AstConsoleFunction::Log(_) => AstConsoleFunction::Log(formatted),
+                    _ => unimplemented!(), // impossible
+                }
+            }
+            _ => ast.function.clone(),
+        };
+
+        self.ast_reducer.reduce_console(ast, function, self.in_circuit)
+    }
+
+    pub fn reduce_definition(
+        &mut self,
+        ast: &AstDefinitionStatement,
+        asg: &AsgDefinitionStatement,
+    ) -> Result<AstDefinitionStatement, CanonicalizeError> {
+        let type_;
+
+        if asg.variables.len() > 1 {
+            let mut types = vec![];
+            for variable in asg.variables.iter() {
+                types.push(variable.borrow().type_.clone());
+            }
+
+            type_ = ast
+                .type_
+                .as_ref()
+                .map(|type_| self.reduce_type(type_, &AsgType::Tuple(types), &ast.span))
+                .transpose()?;
+        } else {
+            type_ = ast
+                .type_
+                .as_ref()
+                .map(|type_| self.reduce_type(type_, &asg.variables.first().unwrap().borrow().type_, &ast.span))
+                .transpose()?;
+        }
+
+        let value = self.reduce_expression(&ast.value, asg.value.get())?;
+
+        self.ast_reducer
+            .reduce_definition(ast, ast.variable_names.clone(), type_, value, self.in_circuit)
+    }
+
+    pub fn reduce_expression_statement(
+        &mut self,
+        ast: &AstExpressionStatement,
+        asg: &AsgExpressionStatement,
+    ) -> Result<AstExpressionStatement, CanonicalizeError> {
+        let inner_expression = self.reduce_expression(&ast.expression, asg.expression.get())?;
+        self.ast_reducer
+            .reduce_expression_statement(ast, inner_expression, self.in_circuit)
+    }
+
+    pub fn reduce_iteration(
+        &mut self,
+        ast: &AstIterationStatement,
+        asg: &AsgIterationStatement,
+    ) -> Result<AstIterationStatement, CanonicalizeError> {
+        let start = self.reduce_expression(&ast.start, asg.start.get())?;
+        let stop = self.reduce_expression(&ast.stop, asg.stop.get())?;
+        let block;
+        if let AsgStatement::Block(asg_block) = asg.body.get() {
+            block = self.reduce_block(&ast.block, asg_block)?;
+        } else {
+            block = ast.block.clone();
+        }
+
+        self.ast_reducer
+            .reduce_iteration(ast, ast.variable.clone(), start, stop, block, self.in_circuit)
+    }
+
+    pub fn reduce_return(
+        &mut self,
+        ast: &AstReturnStatement,
+        asg: &AsgReturnStatement,
+    ) -> Result<AstReturnStatement, CanonicalizeError> {
+        let expression = self.reduce_expression(&ast.expression, asg.expression.get())?;
+
+        self.ast_reducer.reduce_return(ast, expression, self.in_circuit)
+    }
 
     pub fn reduce_program(
         &mut self,
