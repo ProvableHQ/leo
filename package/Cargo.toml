@@ -1,6 +1,6 @@
 [package]
 name = "leo-package"
-version = "1.2.3"
+version = "1.3.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Package parser of the Leo programming language"
 homepage = "https://aleo.org"
