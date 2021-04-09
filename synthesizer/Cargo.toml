@@ -27,7 +27,6 @@ default-features = false
 
 [dependencies.snarkvm-gadgets]
 version = "0.2.2"
-default-features = false
 
 [dependencies.snarkvm-r1cs]
 version = "0.2.2"
