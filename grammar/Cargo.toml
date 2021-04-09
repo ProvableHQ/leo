@@ -2,8 +2,9 @@
 name = "leo-abnf"
 version = "1.2.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
-description = "ABNF to Markdown converter"
-edition = "2018"
+description = "ABNF to Markdown converter for the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
 keywords = [
   "aleo",
   "cryptography",
@@ -11,6 +12,10 @@ keywords = [
   "programming-language",
   "zero-knowledge"
 ]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2018"
 
 [dependencies]
 abnf = "0.10.2"
