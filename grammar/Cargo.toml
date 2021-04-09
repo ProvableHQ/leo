@@ -9,8 +9,7 @@ keywords = [
   "cryptography",
   "leo",
   "programming-language",
-  "zero-knowledge",
-  "leo-abnf"
+  "zero-knowledge"
 ]
 
 [dependencies]
