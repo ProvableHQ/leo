@@ -27,6 +27,7 @@ path = "leo/main.rs"
 [workspace]
 members = [
   "asg",
+  "asg-passes",
   "ast",
   "compiler",
   "grammar",
@@ -37,7 +38,6 @@ members = [
   "parser",
   "state",
   "synthesizer",
-  "asg-passes"
 ]
 
 [dependencies.leo-ast]
