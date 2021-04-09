@@ -42,14 +42,14 @@ version = "1.0"
 [dependencies.tracing]
 version = "0.1"
 
-[dev-dependencies.criterion]
-version = "0.3"
-
 [dependencies.indexmap]
 version = "1.6"
 
 [dependencies.tendril]
 version = "0.4"
+
+[dev-dependencies.criterion]
+version = "0.3"
 
 [features]
 default = [ ]
