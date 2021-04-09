@@ -15,15 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use leo_asg::AsgConvertError;
 use leo_ast::{FormattedError, Identifier, LeoError, Span};
-use leo_parser::{DeprecatedError, SyntaxError};
+use leo_parser::SyntaxError;
 
 use std::{io, path::Path};
 
 #[derive(Debug, Error)]
 pub enum ImportParserError {
-    #[error("{}", _0)]
-    DeprecatedError(#[from] DeprecatedError),
-
     #[error("{}", _0)]
     Error(#[from] FormattedError),
 
@@ -33,32 +30,13 @@ pub enum ImportParserError {
     AsgConvertError(#[from] AsgConvertError),
 }
 
-impl LeoError for ImportParserError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            ImportParserError::Error(error) => error.get_path(),
-            ImportParserError::SyntaxError(error) => error.get_path(),
-            ImportParserError::AsgConvertError(error) => error.get_path(),
-            ImportParserError::DeprecatedError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            ImportParserError::Error(error) => error.set_path(path, contents),
-            ImportParserError::SyntaxError(error) => error.set_path(path, contents),
-            ImportParserError::AsgConvertError(error) => error.set_path(path, contents),
-            ImportParserError::DeprecatedError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for ImportParserError {}
 
 impl Into<AsgConvertError> for ImportParserError {
     fn into(self) -> AsgConvertError {
         match self {
             ImportParserError::Error(x) => AsgConvertError::ImportError(x),
             ImportParserError::SyntaxError(x) => x.into(),
-            ImportParserError::DeprecatedError(x) => AsgConvertError::SyntaxError(SyntaxError::DeprecatedError(x)),
             ImportParserError::AsgConvertError(x) => x,
         }
     }
@@ -82,15 +60,6 @@ impl ImportParserError {
         let message = format!("recursive imports for `{}`.", package);
 
         Self::new_from_span(message, span)
-    }
-
-    ///
-    /// A core package name has been imported twice.
-    ///
-    pub fn duplicate_core_package(identifier: Identifier) -> Self {
-        let message = format!("Duplicate core_package import `{}`.", identifier.name);
-
-        Self::new_from_span(message, &identifier.span)
     }
 
     ///
@@ -120,15 +89,6 @@ impl ImportParserError {
             path.to_str().unwrap_or_default(),
             error
         );
-
-        Self::new_from_span(message, span)
-    }
-
-    ///
-    /// Failed to import all symbols at a package path.
-    ///
-    pub fn star(path: &Path, span: &Span) -> Self {
-        let message = format!("Cannot import `*` from path `{:?}`.", path);
 
         Self::new_from_span(message, span)
     }

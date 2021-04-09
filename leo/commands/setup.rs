@@ -52,11 +52,11 @@ impl Command for Setup {
         tracing::span!(tracing::Level::INFO, "Setup")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
         (Build {
             compiler_options: self.compiler_options.clone(),
         })
-        .execute()
+        .execute(context)
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {

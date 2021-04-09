@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{FormattedError, Identifier, ImportSymbol, LeoError, Span};
+use leo_ast::{FormattedError, LeoError};
 
 #[derive(Debug, Error)]
 pub enum ImportError {
@@ -22,38 +22,4 @@ pub enum ImportError {
     Error(#[from] FormattedError),
 }
 
-impl LeoError for ImportError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            ImportError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            ImportError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
-
-impl ImportError {
-    fn new_from_span(message: String, span: &Span) -> Self {
-        ImportError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    pub fn unknown_package(identifier: Identifier) -> Self {
-        let message = format!(
-            "cannot find imported package `{}` in source files or import directory",
-            identifier.name
-        );
-
-        Self::new_from_span(message, &identifier.span)
-    }
-
-    pub fn unknown_symbol(symbol: ImportSymbol, file: String) -> Self {
-        let message = format!("cannot find imported symbol `{}` in imported file `{}`", symbol, file);
-        let error = FormattedError::new_from_span(message, &symbol.span);
-
-        ImportError::Error(error)
-    }
-}
+impl LeoError for ImportError {}

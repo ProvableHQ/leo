@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::AddressError, ConstrainedValue, GroupType};
+use crate::{errors::AddressError, ConstrainedValue, GroupType, IntegerTrait};
 use leo_ast::{InputValue, Span};
 
 use snarkvm_dpc::{account::AccountAddress, base_dpc::instantiated::Components};
@@ -24,7 +24,7 @@ use snarkvm_gadgets::traits::utilities::{
     boolean::Boolean,
     eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
     select::CondSelectGadget,
-    uint::{UInt, UInt8},
+    uint::UInt8,
 };
 use snarkvm_r1cs::{Assignment, ConstraintSystem, SynthesisError};
 use snarkvm_utilities::ToBytes;

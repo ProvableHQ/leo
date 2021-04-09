@@ -43,12 +43,12 @@ impl Command for Run {
         tracing::span!(tracing::Level::INFO, "Verifying")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
         (Prove {
             skip_key_check: self.skip_key_check,
             compiler_options: self.compiler_options.clone(),
         })
-        .execute()
+        .execute(context)
     }
 
     fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {

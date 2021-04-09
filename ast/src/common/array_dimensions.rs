@@ -27,18 +27,6 @@ pub struct ArrayDimensions(pub Vec<PositiveNumber>);
 
 impl ArrayDimensions {
     ///
-    /// Creates a new `PositiveNumber` from the given `usize` and `Span`.
-    /// Appends the new `PositiveNumber` to the array dimensions.
-    ///
-    pub fn push_usize(&mut self, number: usize) {
-        let positive_number = PositiveNumber {
-            value: number.to_string(),
-        };
-
-        self.0.push(positive_number)
-    }
-
-    ///
     /// Appends a vector of array dimensions to the self array dimensions.
     ///
     pub fn append(&mut self, other: &mut ArrayDimensions) {

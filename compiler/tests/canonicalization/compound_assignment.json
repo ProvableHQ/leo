@@ -1,128 +1,867 @@
 {
-    "name": "",
-    "expected_input": [],
-    "imports": [],
-    "circuits": {},
-    "functions": {
-      "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\"}\"}": {
-        "annotations": [],
-        "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\"}\"}",
-        "input": [],
-        "output": {
-          "Tuple": []
-        },
-        "block": {
-          "statements": [
+  "name": "",
+  "expected_input": [],
+  "imports": [],
+  "circuits": {
+    "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}": {
+      "circuit_name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}",
+      "members": [
+        {
+          "CircuitVariable": [
+            "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  f: u8,\\\"}\"}",
             {
-              "Definition": {
-                "declaration_type": "Let",
-                "variable_names": [
-                  {
-                    "mutable": true,
-                    "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\"}\"}",
-                    "span": {
-                      "line_start": 2,
-                      "line_stop": 2,
-                      "col_start": 7,
-                      "col_stop": 12,
-                      "path": ""
-                    }
-                  }
-                ],
-                "type_": null,
-                "value": {
-                  "Value": {
-                    "Integer": [
-                      "U32",
-                      "10",
-                      {
-                        "line_start": 2,
-                        "line_stop": 2,
-                        "col_start": 15,
-                        "col_stop": 20,
-                        "path": ""
-                      }
-                    ]
-                  }
-                },
-                "span": {
-                  "line_start": 2,
-                  "line_stop": 2,
-                  "col_start": 3,
-                  "col_stop": 20,
-                  "path": ""
-                }
-              }
-            },
-            {
-              "Assign": {
-                "operation": "Assign",
-                "assignee": {
-                  "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\"}\"}",
-                  "accesses": [],
+              "IntegerType": "U8"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "functions": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}": {
+      "annotations": [],
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}",
+      "input": [],
+      "output": {
+        "Tuple": []
+      },
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let x = 10u32;\\\"}\"}",
                   "span": {
-                    "line_start": 3,
-                    "line_stop": 3,
-                    "col_start": 3,
-                    "col_stop": 4,
-                    "path": ""
+                    "line_start": 5,
+                    "line_stop": 5,
+                    "col_start": 7,
+                    "col_stop": 8,
+                    "path": "",
+                    "content": "  let x = 10u32;"
                   }
-                },
-                "value": {
+                }
+              ],
+              "type_": null,
+              "value": {
+                "Value": {
+                  "Integer": [
+                    "U32",
+                    "10",
+                    {
+                      "line_start": 5,
+                      "line_stop": 5,
+                      "col_start": 11,
+                      "col_stop": 16,
+                      "path": "",
+                      "content": "  let x = 10u32;"
+                    }
+                  ]
+                }
+              },
+              "span": {
+                "line_start": 5,
+                "line_stop": 5,
+                "col_start": 3,
+                "col_stop": 16,
+                "path": "",
+                "content": "  let x = 10u32;"
+              }
+            }
+          },
+          {
+            "Assign": {
+              "operation": "Assign",
+              "assignee": {
+                "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  x += 20;\\\"}\"}",
+                "accesses": [],
+                "span": {
+                  "line_start": 6,
+                  "line_stop": 6,
+                  "col_start": 3,
+                  "col_stop": 4,
+                  "path": "",
+                  "content": "  x += 20;"
+                }
+              },
+              "value": {
+                "Binary": {
+                  "left": {
+                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  x += 20;\\\"}\"}"
+                  },
+                  "right": {
+                    "Value": {
+                      "Implicit": [
+                        "20",
+                        {
+                          "line_start": 6,
+                          "line_stop": 6,
+                          "col_start": 8,
+                          "col_stop": 10,
+                          "path": "",
+                          "content": "  x += 20;"
+                        }
+                      ]
+                    }
+                  },
+                  "op": "Add",
+                  "span": {
+                    "line_start": 6,
+                    "line_stop": 6,
+                    "col_start": 3,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  x += 20;"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 6,
+                "line_stop": 6,
+                "col_start": 3,
+                "col_stop": 10,
+                "path": "",
+                "content": "  x += 20;"
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
                   "Binary": {
                     "left": {
-                      "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\"}\"}"
+                      "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(x == 30u32);\\\"}\"}"
                     },
                     "right": {
                       "Value": {
-                        "Implicit": [
-                          "20",
+                        "Integer": [
+                          "U32",
+                          "30",
                           {
-                            "line_start": 3,
-                            "line_stop": 3,
-                            "col_start": 8,
-                            "col_stop": 10,
-                            "path": ""
+                            "line_start": 7,
+                            "line_stop": 7,
+                            "col_start": 23,
+                            "col_stop": 28,
+                            "path": "",
+                            "content": "  console.assert(x == 30u32);"
                           }
                         ]
                       }
                     },
-                    "op": "Add",
+                    "op": "Eq",
                     "span": {
-                      "line_start": 3,
-                      "line_stop": 3,
-                      "col_start": 3,
-                      "col_stop": 10,
-                      "path": ""
+                      "line_start": 7,
+                      "line_stop": 7,
+                      "col_start": 18,
+                      "col_stop": 28,
+                      "path": "",
+                      "content": "  console.assert(x == 30u32);"
                     }
                   }
-                },
-                "span": {
-                  "line_start": 3,
-                  "line_stop": 3,
-                  "col_start": 3,
-                  "col_stop": 10,
-                  "path": ""
                 }
+              },
+              "span": {
+                "line_start": 7,
+                "line_stop": 7,
+                "col_start": 3,
+                "col_stop": 28,
+                "path": "",
+                "content": "  console.assert(x == 30u32);"
               }
             }
-          ],
-          "span": {
-            "line_start": 1,
-            "line_stop": 4,
-            "col_start": 17,
-            "col_stop": 2,
-            "path": ""
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let y = [1u8, 2u8];\\\"}\"}",
+                  "span": {
+                    "line_start": 9,
+                    "line_stop": 9,
+                    "col_start": 7,
+                    "col_stop": 8,
+                    "path": "",
+                    "content": "  let y = [1u8, 2u8];"
+                  }
+                }
+              ],
+              "type_": null,
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Integer": [
+                            "U8",
+                            "1",
+                            {
+                              "line_start": 9,
+                              "line_stop": 9,
+                              "col_start": 12,
+                              "col_stop": 15,
+                              "path": "",
+                              "content": "  let y = [1u8, 2u8];"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Integer": [
+                            "U8",
+                            "2",
+                            {
+                              "line_start": 9,
+                              "line_stop": 9,
+                              "col_start": 17,
+                              "col_stop": 20,
+                              "path": "",
+                              "content": "  let y = [1u8, 2u8];"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "span": {
+                    "line_start": 9,
+                    "line_stop": 9,
+                    "col_start": 11,
+                    "col_stop": 21,
+                    "path": "",
+                    "content": "  let y = [1u8, 2u8];"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 9,
+                "line_stop": 9,
+                "col_start": 3,
+                "col_stop": 21,
+                "path": "",
+                "content": "  let y = [1u8, 2u8];"
+              }
+            }
+          },
+          {
+            "Assign": {
+              "operation": "Assign",
+              "assignee": {
+                "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y[0] += 3u8;\\\"}\"}",
+                "accesses": [
+                  {
+                    "ArrayIndex": {
+                      "Value": {
+                        "Implicit": [
+                          "0",
+                          {
+                            "line_start": 10,
+                            "line_stop": 10,
+                            "col_start": 5,
+                            "col_stop": 6,
+                            "path": "",
+                            "content": "  y[0] += 3u8;"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "span": {
+                  "line_start": 10,
+                  "line_stop": 10,
+                  "col_start": 3,
+                  "col_stop": 7,
+                  "path": "",
+                  "content": "  y[0] += 3u8;"
+                }
+              },
+              "value": {
+                "Binary": {
+                  "left": {
+                    "ArrayAccess": {
+                      "array": {
+                        "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y[0] += 3u8;\\\"}\"}"
+                      },
+                      "index": {
+                        "Value": {
+                          "Implicit": [
+                            "0",
+                            {
+                              "line_start": 10,
+                              "line_stop": 10,
+                              "col_start": 5,
+                              "col_stop": 6,
+                              "path": "",
+                              "content": "  y[0] += 3u8;"
+                            }
+                          ]
+                        }
+                      },
+                      "span": {
+                        "line_start": 10,
+                        "line_stop": 10,
+                        "col_start": 3,
+                        "col_stop": 14,
+                        "path": "",
+                        "content": "  y[0] += 3u8;"
+                      }
+                    }
+                  },
+                  "right": {
+                    "Value": {
+                      "Integer": [
+                        "U8",
+                        "3",
+                        {
+                          "line_start": 10,
+                          "line_stop": 10,
+                          "col_start": 11,
+                          "col_stop": 14,
+                          "path": "",
+                          "content": "  y[0] += 3u8;"
+                        }
+                      ]
+                    }
+                  },
+                  "op": "Add",
+                  "span": {
+                    "line_start": 10,
+                    "line_stop": 10,
+                    "col_start": 3,
+                    "col_stop": 14,
+                    "path": "",
+                    "content": "  y[0] += 3u8;"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 10,
+                "line_stop": 10,
+                "col_start": 3,
+                "col_stop": 14,
+                "path": "",
+                "content": "  y[0] += 3u8;"
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Binary": {
+                    "left": {
+                      "ArrayAccess": {
+                        "array": {
+                          "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(y[0] == 4u8);\\\"}\"}"
+                        },
+                        "index": {
+                          "Value": {
+                            "Implicit": [
+                              "0",
+                              {
+                                "line_start": 11,
+                                "line_stop": 11,
+                                "col_start": 20,
+                                "col_stop": 21,
+                                "path": "",
+                                "content": "  console.assert(y[0] == 4u8);"
+                              }
+                            ]
+                          }
+                        },
+                        "span": {
+                          "line_start": 11,
+                          "line_stop": 11,
+                          "col_start": 18,
+                          "col_stop": 22,
+                          "path": "",
+                          "content": "  console.assert(y[0] == 4u8);"
+                        }
+                      }
+                    },
+                    "right": {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "4",
+                          {
+                            "line_start": 11,
+                            "line_stop": 11,
+                            "col_start": 26,
+                            "col_stop": 29,
+                            "path": "",
+                            "content": "  console.assert(y[0] == 4u8);"
+                          }
+                        ]
+                      }
+                    },
+                    "op": "Eq",
+                    "span": {
+                      "line_start": 11,
+                      "line_stop": 11,
+                      "col_start": 18,
+                      "col_stop": 29,
+                      "path": "",
+                      "content": "  console.assert(y[0] == 4u8);"
+                    }
+                  }
+                }
+              },
+              "span": {
+                "line_start": 11,
+                "line_stop": 11,
+                "col_start": 3,
+                "col_stop": 29,
+                "path": "",
+                "content": "  console.assert(y[0] == 4u8);"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let z = (1u8, 2u8);\\\"}\"}",
+                  "span": {
+                    "line_start": 13,
+                    "line_stop": 13,
+                    "col_start": 7,
+                    "col_stop": 8,
+                    "path": "",
+                    "content": "  let z = (1u8, 2u8);"
+                  }
+                }
+              ],
+              "type_": null,
+              "value": {
+                "TupleInit": {
+                  "elements": [
+                    {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "1",
+                          {
+                            "line_start": 13,
+                            "line_stop": 13,
+                            "col_start": 12,
+                            "col_stop": 15,
+                            "path": "",
+                            "content": "  let z = (1u8, 2u8);"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "2",
+                          {
+                            "line_start": 13,
+                            "line_stop": 13,
+                            "col_start": 17,
+                            "col_stop": 20,
+                            "path": "",
+                            "content": "  let z = (1u8, 2u8);"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "span": {
+                    "line_start": 13,
+                    "line_stop": 13,
+                    "col_start": 11,
+                    "col_stop": 21,
+                    "path": "",
+                    "content": "  let z = (1u8, 2u8);"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 13,
+                "line_stop": 13,
+                "col_start": 3,
+                "col_stop": 21,
+                "path": "",
+                "content": "  let z = (1u8, 2u8);"
+              }
+            }
+          },
+          {
+            "Assign": {
+              "operation": "Assign",
+              "assignee": {
+                "identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  z.1 += 3u8;\\\"}\"}",
+                "accesses": [
+                  {
+                    "Tuple": [
+                      {
+                        "value": "1"
+                      },
+                      {
+                        "line_start": 14,
+                        "line_stop": 14,
+                        "col_start": 3,
+                        "col_stop": 6,
+                        "path": "",
+                        "content": "  z.1 += 3u8;"
+                      }
+                    ]
+                  }
+                ],
+                "span": {
+                  "line_start": 14,
+                  "line_stop": 14,
+                  "col_start": 3,
+                  "col_stop": 6,
+                  "path": "",
+                  "content": "  z.1 += 3u8;"
+                }
+              },
+              "value": {
+                "Binary": {
+                  "left": {
+                    "TupleAccess": {
+                      "tuple": {
+                        "Identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  z.1 += 3u8;\\\"}\"}"
+                      },
+                      "index": {
+                        "value": "1"
+                      },
+                      "span": {
+                        "line_start": 14,
+                        "line_stop": 14,
+                        "col_start": 3,
+                        "col_stop": 13,
+                        "path": "",
+                        "content": "  z.1 += 3u8;"
+                      }
+                    }
+                  },
+                  "right": {
+                    "Value": {
+                      "Integer": [
+                        "U8",
+                        "3",
+                        {
+                          "line_start": 14,
+                          "line_stop": 14,
+                          "col_start": 10,
+                          "col_stop": 13,
+                          "path": "",
+                          "content": "  z.1 += 3u8;"
+                        }
+                      ]
+                    }
+                  },
+                  "op": "Add",
+                  "span": {
+                    "line_start": 14,
+                    "line_stop": 14,
+                    "col_start": 3,
+                    "col_stop": 13,
+                    "path": "",
+                    "content": "  z.1 += 3u8;"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 14,
+                "line_stop": 14,
+                "col_start": 3,
+                "col_stop": 13,
+                "path": "",
+                "content": "  z.1 += 3u8;"
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Binary": {
+                    "left": {
+                      "TupleAccess": {
+                        "tuple": {
+                          "Identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(z.1 == 5u8);\\\"}\"}"
+                        },
+                        "index": {
+                          "value": "1"
+                        },
+                        "span": {
+                          "line_start": 15,
+                          "line_stop": 15,
+                          "col_start": 18,
+                          "col_stop": 21,
+                          "path": "",
+                          "content": "  console.assert(z.1 == 5u8);"
+                        }
+                      }
+                    },
+                    "right": {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "5",
+                          {
+                            "line_start": 15,
+                            "line_stop": 15,
+                            "col_start": 25,
+                            "col_stop": 28,
+                            "path": "",
+                            "content": "  console.assert(z.1 == 5u8);"
+                          }
+                        ]
+                      }
+                    },
+                    "op": "Eq",
+                    "span": {
+                      "line_start": 15,
+                      "line_stop": 15,
+                      "col_start": 18,
+                      "col_stop": 28,
+                      "path": "",
+                      "content": "  console.assert(z.1 == 5u8);"
+                    }
+                  }
+                }
+              },
+              "span": {
+                "line_start": 15,
+                "line_stop": 15,
+                "col_start": 3,
+                "col_stop": 28,
+                "path": "",
+                "content": "  console.assert(z.1 == 5u8);"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8 };\\\"}\"}",
+                  "span": {
+                    "line_start": 17,
+                    "line_stop": 17,
+                    "col_start": 7,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  let foo = Foo { f: 6u8 };"
+                  }
+                }
+              ],
+              "type_": null,
+              "value": {
+                "CircuitInit": {
+                  "name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8 };\\\"}\"}",
+                  "members": [
+                    {
+                      "identifier": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8 };\\\"}\"}",
+                      "expression": {
+                        "Value": {
+                          "Integer": [
+                            "U8",
+                            "6",
+                            {
+                              "line_start": 17,
+                              "line_stop": 17,
+                              "col_start": 22,
+                              "col_stop": 25,
+                              "path": "",
+                              "content": "  let foo = Foo { f: 6u8 };"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "span": {
+                    "line_start": 17,
+                    "line_stop": 17,
+                    "col_start": 13,
+                    "col_stop": 27,
+                    "path": "",
+                    "content": "  let foo = Foo { f: 6u8 };"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 17,
+                "line_stop": 17,
+                "col_start": 3,
+                "col_stop": 27,
+                "path": "",
+                "content": "  let foo = Foo { f: 6u8 };"
+              }
+            }
+          },
+          {
+            "Assign": {
+              "operation": "Assign",
+              "assignee": {
+                "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":3,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}",
+                "accesses": [
+                  {
+                    "Member": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}"
+                  }
+                ],
+                "span": {
+                  "line_start": 18,
+                  "line_stop": 18,
+                  "col_start": 3,
+                  "col_stop": 8,
+                  "path": "",
+                  "content": "  foo.f += 2u8;"
+                }
+              },
+              "value": {
+                "Binary": {
+                  "left": {
+                    "CircuitMemberAccess": {
+                      "circuit": {
+                        "Identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":3,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}"
+                      },
+                      "name": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}",
+                      "span": {
+                        "line_start": 18,
+                        "line_stop": 18,
+                        "col_start": 3,
+                        "col_stop": 15,
+                        "path": "",
+                        "content": "  foo.f += 2u8;"
+                      }
+                    }
+                  },
+                  "right": {
+                    "Value": {
+                      "Integer": [
+                        "U8",
+                        "2",
+                        {
+                          "line_start": 18,
+                          "line_stop": 18,
+                          "col_start": 12,
+                          "col_stop": 15,
+                          "path": "",
+                          "content": "  foo.f += 2u8;"
+                        }
+                      ]
+                    }
+                  },
+                  "op": "Add",
+                  "span": {
+                    "line_start": 18,
+                    "line_stop": 18,
+                    "col_start": 3,
+                    "col_stop": 15,
+                    "path": "",
+                    "content": "  foo.f += 2u8;"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 18,
+                "line_stop": 18,
+                "col_start": 3,
+                "col_stop": 15,
+                "path": "",
+                "content": "  foo.f += 2u8;"
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Binary": {
+                    "left": {
+                      "CircuitMemberAccess": {
+                        "circuit": {
+                          "Identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(foo.f == 8u8);\\\"}\"}"
+                        },
+                        "name": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":22,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(foo.f == 8u8);\\\"}\"}",
+                        "span": {
+                          "line_start": 19,
+                          "line_stop": 19,
+                          "col_start": 18,
+                          "col_stop": 23,
+                          "path": "",
+                          "content": "  console.assert(foo.f == 8u8);"
+                        }
+                      }
+                    },
+                    "right": {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "8",
+                          {
+                            "line_start": 19,
+                            "line_stop": 19,
+                            "col_start": 27,
+                            "col_stop": 30,
+                            "path": "",
+                            "content": "  console.assert(foo.f == 8u8);"
+                          }
+                        ]
+                      }
+                    },
+                    "op": "Eq",
+                    "span": {
+                      "line_start": 19,
+                      "line_stop": 19,
+                      "col_start": 18,
+                      "col_stop": 30,
+                      "path": "",
+                      "content": "  console.assert(foo.f == 8u8);"
+                    }
+                  }
+                }
+              },
+              "span": {
+                "line_start": 19,
+                "line_stop": 19,
+                "col_start": 3,
+                "col_stop": 30,
+                "path": "",
+                "content": "  console.assert(foo.f == 8u8);"
+              }
+            }
           }
-        },
+        ],
         "span": {
-          "line_start": 1,
-          "line_stop": 4,
-          "col_start": 1,
+          "line_start": 4,
+          "line_stop": 20,
+          "col_start": 17,
           "col_stop": 2,
-          "path": ""
+          "path": "",
+          "content": "function main() {\n...\n} "
         }
+      },
+      "span": {
+        "line_start": 4,
+        "line_stop": 20,
+        "col_start": 1,
+        "col_stop": 2,
+        "path": "",
+        "content": "function main() {\n...\n} \n\n\n\n\n\n\n\n\n\n\n\n\n\n"
       }
     }
   }
-  
+}

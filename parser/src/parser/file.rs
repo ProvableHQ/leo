@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use tendril::format_tendril;
+
 use crate::KEYWORD_TOKENS;
 
 use super::*;
@@ -39,15 +41,15 @@ impl ParserContext {
                     circuits.insert(id, circuit);
                 }
                 Token::Function | Token::At => {
-                    let (id, function) = self.parse_function()?;
+                    let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
                 }
-                Token::Ident(ident) if ident == "test" => {
+                Token::Ident(ident) if ident.as_ref() == "test" => {
                     return Err(SyntaxError::DeprecatedError(DeprecatedError::test_function(
                         &token.span,
                     )));
                     // self.expect(Token::Test)?;
-                    // let (id, function) = self.parse_function()?;
+                    // let (id, function) = self.parse_function_declaration()?;
                     // tests.insert(id, TestFunction {
                     //     function,
                     //     input_file: None,
@@ -60,7 +62,7 @@ impl ParserContext {
                             Token::Import,
                             Token::Circuit,
                             Token::Function,
-                            Token::Ident("test".to_string()),
+                            Token::Ident("test".into()),
                             Token::At,
                         ],
                         &token.span,
@@ -83,11 +85,14 @@ impl ParserContext {
     pub fn parse_annotation(&mut self) -> SyntaxResult<Annotation> {
         let start = self.expect(Token::At)?;
         let name = self.expect_ident()?;
-        if name.name == "context" {
+        if name.name.as_ref() == "context" {
             return Err(SyntaxError::DeprecatedError(DeprecatedError::context_annotation(
                 &name.span,
             )));
         }
+
+        unexpected_whitespace(&start, &name.span, &name.name, "@")?;
+
         let end_span;
         let arguments = if self.eat(Token::LeftParen).is_some() {
             let mut args = Vec::new();
@@ -153,7 +158,7 @@ impl ParserContext {
                     token: Token::Ident(name.name),
                     span: name.span,
                 });
-                Ok(match self.parse_package_or_packages()? {
+                Ok(match self.parse_package_path()? {
                     PackageOrPackages::Package(p) => PackageAccess::SubPackage(Box::new(p)),
                     PackageOrPackages::Packages(p) => PackageAccess::Multiple(p),
                 })
@@ -186,25 +191,24 @@ impl ParserContext {
             match &self.peek()?.token {
                 Token::Minus => {
                     let span = self.expect(Token::Minus)?;
-                    base.name += "-";
                     base.span = base.span + span;
                     let next = self.expect_loose_identifier()?;
-                    base.name += &next.name;
+                    base.name = format_tendril!("{}-{}", base.name, next.name);
                     base.span = base.span + next.span;
                 }
                 Token::Int(_) => {
                     let (num, span) = self.eat_int().unwrap();
-                    base.name += &num.value;
+                    base.name = format_tendril!("{}{}", base.name, num.value);
                     base.span = base.span + span;
                 }
                 Token::Ident(_) => {
                     let next = self.expect_ident()?;
-                    base.name += &next.name;
+                    base.name = format_tendril!("{}{}", base.name, next.name);
                     base.span = base.span + next.span;
                 }
                 x if KEYWORD_TOKENS.contains(&x) => {
                     let next = self.expect_loose_identifier()?;
-                    base.name += &next.name;
+                    base.name = format_tendril!("{}{}", base.name, next.name);
                     base.span = base.span + next.span;
                 }
                 _ => break,
@@ -212,7 +216,7 @@ impl ParserContext {
         }
 
         // Return an error if the package name contains a keyword.
-        if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.to_string() == base.name) {
+        if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.to_string() == base.name.as_ref()) {
             return Err(SyntaxError::unexpected_str(token, "package name", &base.span));
         }
 
@@ -233,7 +237,7 @@ impl ParserContext {
     /// Returns a [`PackageOrPackages`] AST node if the next tokens represent a valid package import
     /// with accesses.
     ///
-    pub fn parse_package_or_packages(&mut self) -> SyntaxResult<PackageOrPackages> {
+    pub fn parse_package_path(&mut self) -> SyntaxResult<PackageOrPackages> {
         let package_name = self.parse_package_name()?;
         self.expect(Token::Dot)?;
         if self.peek()?.token == Token::LeftParen {
@@ -258,7 +262,7 @@ impl ParserContext {
     ///
     pub fn parse_import(&mut self) -> SyntaxResult<ImportStatement> {
         self.expect(Token::Import)?;
-        let package_or_packages = self.parse_package_or_packages()?;
+        let package_or_packages = self.parse_package_path()?;
         self.expect(Token::Semicolon)?;
         Ok(ImportStatement {
             span: package_or_packages.span().clone(),
@@ -273,7 +277,7 @@ impl ParserContext {
     pub fn parse_circuit_member(&mut self) -> SyntaxResult<CircuitMember> {
         let peeked = &self.peek()?.token;
         if peeked == &Token::Function || peeked == &Token::At {
-            let function = self.parse_function()?;
+            let function = self.parse_function_declaration()?;
             Ok(CircuitMember::CircuitFunction(function.1))
         } else {
             // circuit variable
@@ -307,11 +311,11 @@ impl ParserContext {
     ///
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
-    pub fn parse_function_input(&mut self) -> SyntaxResult<FunctionInput> {
+    pub fn parse_function_parameters(&mut self) -> SyntaxResult<FunctionInput> {
         if let Some(token) = self.eat(Token::Input) {
             return Ok(FunctionInput::InputKeyword(InputKeyword {
                 identifier: Identifier {
-                    name: token.token.to_string(),
+                    name: token.token.to_string().into(),
                     span: token.span,
                 },
             }));
@@ -320,22 +324,25 @@ impl ParserContext {
         let mutable = self.eat(Token::Mut);
         let mut name = if let Some(token) = self.eat(Token::LittleSelf) {
             Identifier {
-                name: token.token.to_string(),
+                name: token.token.to_string().into(),
                 span: token.span,
             }
         } else {
             self.expect_ident()?
         };
-        if name.name == "self" {
+        if name.name.as_ref() == "self" {
             if let Some(mutable) = &mutable {
+                // Handle `mut self`.
                 name.span = &mutable.span + &name.span;
-                name.name = "mut self".to_string();
+                name.name = "mut self".to_string().into();
                 return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
             } else if let Some(const_) = &const_ {
+                // Handle `const self`.
                 name.span = &const_.span + &name.span;
-                name.name = "const self".to_string();
+                name.name = "const self".to_string().into();
                 return Ok(FunctionInput::ConstSelfKeyword(ConstSelfKeyword { identifier: name }));
             }
+            // Handle `self`.
             return Ok(FunctionInput::SelfKeyword(SelfKeyword { identifier: name }));
         }
 
@@ -360,7 +367,7 @@ impl ParserContext {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     ///
-    pub fn parse_function(&mut self) -> SyntaxResult<(Identifier, Function)> {
+    pub fn parse_function_declaration(&mut self) -> SyntaxResult<(Identifier, Function)> {
         let mut annotations = Vec::new();
         while self.peek()?.token == Token::At {
             annotations.push(self.parse_annotation()?);
@@ -370,7 +377,7 @@ impl ParserContext {
         self.expect(Token::LeftParen)?;
         let mut inputs = Vec::new();
         while self.eat(Token::RightParen).is_none() {
-            let input = self.parse_function_input()?;
+            let input = self.parse_function_parameters()?;
             inputs.push(input);
             if self.eat(Token::Comma).is_none() {
                 self.expect(Token::RightParen)?;

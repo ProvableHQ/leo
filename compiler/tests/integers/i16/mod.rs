@@ -131,3 +131,11 @@ fn test_i16_console_assert() {
 fn test_i16_ternary() {
     TestI16::test_ternary();
 }
+
+#[test]
+fn test_no_space_between_literal() {
+    let program_string = include_str!("no_space_between_literal.leo");
+    let program = parse_program(program_string);
+
+    assert!(program.is_err());
+}

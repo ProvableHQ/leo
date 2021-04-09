@@ -37,16 +37,18 @@ pub type SyntaxResult<T> = Result<T, SyntaxError>;
 
 /// Creates a new program from a given file path and source code text.
 pub fn parse(path: &str, source: &str) -> SyntaxResult<Program> {
-    let mut tokens = ParserContext::new(crate::tokenize(path, source)?);
+    let mut tokens = ParserContext::new(crate::tokenize(path, source.into())?);
 
-    match tokens.parse_program() {
-        Ok(x) => Ok(x),
-        Err(mut e) => {
-            e.set_path(
-                path,
-                &source.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
-            );
-            Err(e)
-        }
+    tokens.parse_program()
+}
+
+pub fn unexpected_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> SyntaxResult<()> {
+    if left_span.col_stop != right_span.col_start {
+        let mut error_span = left_span + right_span;
+        error_span.col_start = left_span.col_stop - 1;
+        error_span.col_stop = right_span.col_start - 1;
+        return Err(SyntaxError::unexpected_whitespace(left, right, &error_span));
     }
+
+    Ok(())
 }

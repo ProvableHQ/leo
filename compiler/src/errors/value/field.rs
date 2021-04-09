@@ -23,19 +23,7 @@ pub enum FieldError {
     Error(#[from] FormattedError),
 }
 
-impl LeoError for FieldError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            FieldError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            FieldError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for FieldError {}
 
 impl FieldError {
     fn new_from_span(message: String, span: &Span) -> Self {
@@ -71,12 +59,6 @@ impl FieldError {
 
     pub fn no_inverse(field: String, span: &Span) -> Self {
         let message = format!("no multiplicative inverse found for field `{}`", field);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn synthesis_error(error: SynthesisError, span: &Span) -> Self {
-        let message = format!("compilation failed due to field synthesis error `{:?}`", error);
 
         Self::new_from_span(message, span)
     }

@@ -46,11 +46,11 @@ impl Command for Publish {
     type Output = Option<String>;
 
     /// Build program before publishing
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
         (Build {
             compiler_options: Default::default(),
         })
-        .execute()
+        .execute(context)
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {

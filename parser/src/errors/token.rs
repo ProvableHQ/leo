@@ -22,19 +22,7 @@ pub enum TokenError {
     Error(#[from] FormattedError),
 }
 
-impl LeoError for TokenError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            TokenError::Error(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            TokenError::Error(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for TokenError {}
 
 impl TokenError {
     fn new_from_span(message: String, span: &Span) -> Self {

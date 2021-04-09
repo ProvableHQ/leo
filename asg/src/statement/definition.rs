@@ -106,7 +106,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             scope
                 .variables
                 .borrow_mut()
-                .insert(variable.borrow().name.name.clone(), *variable);
+                .insert(variable.borrow().name.name.to_string(), *variable);
         }
 
         let statement = scope

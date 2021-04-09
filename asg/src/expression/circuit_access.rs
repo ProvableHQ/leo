@@ -67,7 +67,7 @@ impl<'a> ExpressionNode<'a> for CircuitAccessExpression<'a> {
             None // function target only for static
         } else {
             let members = self.circuit.get().members.borrow();
-            let member = members.get(&self.member.name)?;
+            let member = members.get(self.member.name.as_ref())?;
             match member {
                 CircuitMember::Variable(type_) => Some(type_.clone()),
                 CircuitMember::Function(_) => None,
@@ -112,7 +112,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
 
         // scoping refcell reference
         let found_member = {
-            if let Some(member) = circuit.members.borrow().get(&value.name.name) {
+            if let Some(member) = circuit.members.borrow().get(value.name.name.as_ref()) {
                 if let Some(expected_type) = &expected_type {
                     if let CircuitMember::Variable(type_) = &member {
                         let type_: Type = type_.clone();
@@ -136,10 +136,10 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
         } else if circuit.is_input_pseudo_circuit() {
             // add new member to implicit input
             if let Some(expected_type) = expected_type.map(PartialType::full).flatten() {
-                circuit
-                    .members
-                    .borrow_mut()
-                    .insert(value.name.name.clone(), CircuitMember::Variable(expected_type.clone()));
+                circuit.members.borrow_mut().insert(
+                    value.name.name.to_string(),
+                    CircuitMember::Variable(expected_type.clone()),
+                );
             } else {
                 return Err(AsgConvertError::input_ref_needs_type(
                     &circuit.name.borrow().name,
@@ -192,7 +192,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for Circuit
             ));
         }
 
-        if let Some(CircuitMember::Function(_)) = circuit.members.borrow().get(&value.name.name) {
+        if let Some(CircuitMember::Function(_)) = circuit.members.borrow().get(value.name.name.as_ref()) {
             // okay
         } else {
             return Err(AsgConvertError::unresolved_circuit_member(

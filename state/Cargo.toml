@@ -1,6 +1,6 @@
 [package]
 name = "leo-state"
-version = "1.2.3"
+version = "1.3.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "State parser of the Leo programming language"
 homepage = "https://aleo.org"
@@ -19,26 +19,25 @@ edition = "2018"
 
 [dependencies.leo-input]
 path = "../input"
-version = "1.2.3"
+version = "1.3.0"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.2.3"
+version = "1.3.0"
 
 [dependencies.snarkvm-algorithms]
-version = "0.2.1"
-#default-features = false
+version = "0.2.2"
 
 [dependencies.snarkvm-curves]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.2.1"
+version = "0.2.2"
 
 [dependencies.indexmap]
 version = "1.6.2"
@@ -54,7 +53,7 @@ version = "0.3"
 version = "1.0"
 
 [dev-dependencies.snarkvm-storage]
-version = "0.2.1"
+version = "0.2.2"
 
 [dev-dependencies.rand_core]
 version = "0.6.2"

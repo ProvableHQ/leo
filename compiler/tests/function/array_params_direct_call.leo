@@ -5,5 +5,5 @@ function main() {
 
     do_nothing(arr);
     do_nothing([...arr]);
-    do_nothing(arr[1u32..]);
+    do_nothing(arr[0u32..]);
 }

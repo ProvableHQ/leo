@@ -194,7 +194,7 @@ impl<'a> Scope<'a> {
                     .map(|x| self.resolve_ast_type(x))
                     .collect::<Result<Vec<_>, AsgConvertError>>()?,
             ),
-            Circuit(name) if name.name == "Self" => Type::Circuit(
+            Circuit(name) if name.name.as_ref() == "Self" => Type::Circuit(
                 self.resolve_circuit_self()
                     .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
             ),

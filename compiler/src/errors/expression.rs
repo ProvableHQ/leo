@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
-use leo_ast::{ArrayDimensions, FormattedError, Identifier, LeoError, PositiveNumber, Span};
+use leo_ast::{FormattedError, Identifier, LeoError, Span};
 use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
@@ -45,33 +45,7 @@ pub enum ExpressionError {
     ValueError(#[from] ValueError),
 }
 
-impl LeoError for ExpressionError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            ExpressionError::AddressError(error) => error.get_path(),
-            ExpressionError::BooleanError(error) => error.get_path(),
-            ExpressionError::Error(error) => error.get_path(),
-            ExpressionError::FieldError(error) => error.get_path(),
-            ExpressionError::FunctionError(error) => error.get_path(),
-            ExpressionError::GroupError(error) => error.get_path(),
-            ExpressionError::IntegerError(error) => error.get_path(),
-            ExpressionError::ValueError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            ExpressionError::AddressError(error) => error.set_path(path, contents),
-            ExpressionError::BooleanError(error) => error.set_path(path, contents),
-            ExpressionError::Error(error) => error.set_path(path, contents),
-            ExpressionError::FieldError(error) => error.set_path(path, contents),
-            ExpressionError::FunctionError(error) => error.set_path(path, contents),
-            ExpressionError::GroupError(error) => error.set_path(path, contents),
-            ExpressionError::IntegerError(error) => error.set_path(path, contents),
-            ExpressionError::ValueError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for ExpressionError {}
 
 impl ExpressionError {
     fn new_from_span(message: String, span: &Span) -> Self {
@@ -89,6 +63,18 @@ impl ExpressionError {
 
     pub fn cannot_evaluate(operation: String, span: &Span) -> Self {
         let message = format!("Mismatched types found for operation `{}`", operation);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_length_out_of_bounds(span: &Span) -> Self {
+        let message = "array length cannot be >= 2^32".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn array_index_out_of_legal_bounds(span: &Span) -> Self {
+        let message = "array index cannot be >= 2^32".to_string();
 
         Self::new_from_span(message, span)
     }
@@ -111,26 +97,20 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn index_out_of_bounds(index: usize, span: &Span) -> Self {
+    pub fn tuple_index_out_of_bounds(index: usize, span: &Span) -> Self {
         let message = format!("cannot access index {} of tuple out of bounds", index);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_dimensions(expected: &ArrayDimensions, actual: &ArrayDimensions, span: &Span) -> Self {
-        let message = format!(
-            "expected array dimensions {}, found array dimensions {}",
-            expected, actual
-        );
+    pub fn array_index_out_of_bounds(index: usize, span: &Span) -> Self {
+        let message = format!("cannot access index {} of array out of bounds", index);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_first_dimension(expected: &PositiveNumber, actual: &PositiveNumber, span: &Span) -> Self {
-        let message = format!(
-            "expected array dimension {}, found array dimension {}",
-            expected, actual
-        );
+    pub fn array_invalid_slice_length(span: &Span) -> Self {
+        let message = "illegal length of slice".to_string();
 
         Self::new_from_span(message, span)
     }
@@ -147,44 +127,14 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_spread(actual: String, span: &Span) -> Self {
-        let message = format!("spread should contain an array, found `{}`", actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn invalid_member_access(member: String, span: &Span) -> Self {
-        let message = format!("non-static member `{}` must be accessed using `.` syntax", member);
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn invalid_static_access(member: String, span: &Span) -> Self {
         let message = format!("static member `{}` must be accessed using `::` syntax", member);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn function_no_return(function: String, span: &Span) -> Self {
-        let message = format!("inline function call to `{}` did not return", function);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn self_keyword(span: &Span) -> Self {
-        let message = "cannot call keyword `Self` outside of a circuit function".to_string();
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn undefined_array(actual: String, span: &Span) -> Self {
         let message = format!("array `{}` must be declared before it is used in an expression", actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn undefined_tuple(actual: String, span: &Span) -> Self {
-        let message = format!("tuple `{}` must be declared before it is used in an expression", actual);
 
         Self::new_from_span(message, span)
     }
@@ -198,21 +148,6 @@ impl ExpressionError {
         Self::new_from_span(message, span)
     }
 
-    pub fn undefined_first_dimension(span: &Span) -> Self {
-        let message = "the first dimension of the array must be a number".to_string();
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn undefined_function(function: String, span: &Span) -> Self {
-        let message = format!(
-            "function `{}` must be declared before it is used in an inline expression",
-            function
-        );
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn undefined_identifier(identifier: Identifier) -> Self {
         let message = format!("Cannot find value `{}` in this scope", identifier.name);
 
@@ -221,24 +156,6 @@ impl ExpressionError {
 
     pub fn undefined_member_access(circuit: String, member: String, span: &Span) -> Self {
         let message = format!("Circuit `{}` has no member `{}`", circuit, member);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn undefined_static_access(circuit: String, member: String, span: &Span) -> Self {
-        let message = format!("Circuit `{}` has no static member `{}`", circuit, member);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn unexpected_array(expected: String, span: &Span) -> Self {
-        let message = format!("expected type `{}`, found array with elements", expected);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn unexpected_tuple(expected: String, actual: String, span: &Span) -> Self {
-        let message = format!("expected type `{}`, found tuple with values `{}`", expected, actual);
 
         Self::new_from_span(message, span)
     }

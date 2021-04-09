@@ -42,45 +42,21 @@ pub enum StatementError {
     ValueError(#[from] ValueError),
 }
 
-impl LeoError for StatementError {
-    fn get_path(&self) -> Option<&str> {
-        match self {
-            StatementError::AddressError(error) => error.get_path(),
-            StatementError::BooleanError(error) => error.get_path(),
-            StatementError::Error(error) => error.get_path(),
-            StatementError::ExpressionError(error) => error.get_path(),
-            StatementError::IntegerError(error) => error.get_path(),
-            StatementError::MacroError(error) => error.get_path(),
-            StatementError::ValueError(error) => error.get_path(),
-        }
-    }
-
-    fn set_path(&mut self, path: &str, contents: &[String]) {
-        match self {
-            StatementError::AddressError(error) => error.set_path(path, contents),
-            StatementError::BooleanError(error) => error.set_path(path, contents),
-            StatementError::Error(error) => error.set_path(path, contents),
-            StatementError::ExpressionError(error) => error.set_path(path, contents),
-            StatementError::IntegerError(error) => error.set_path(path, contents),
-            StatementError::MacroError(error) => error.set_path(path, contents),
-            StatementError::ValueError(error) => error.set_path(path, contents),
-        }
-    }
-}
+impl LeoError for StatementError {}
 
 impl StatementError {
     fn new_from_span(message: String, span: &Span) -> Self {
         StatementError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn arguments_type(expected: &Type, actual: &Type, span: &Span) -> Self {
-        let message = format!("expected return argument type `{}`, found type `{}`", expected, actual);
+    pub fn array_assign_index(span: &Span) -> Self {
+        let message = "Cannot assign single index to array of values".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn array_assign_index(span: &Span) -> Self {
-        let message = "Cannot assign single index to array of values".to_string();
+    pub fn array_assign_index_const(span: &Span) -> Self {
+        let message = "Cannot assign to non-const array index".to_string();
 
         Self::new_from_span(message, span)
     }
@@ -121,24 +97,6 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn immutable_assign(name: String, span: &Span) -> Self {
-        let message = format!("Cannot assign to immutable variable `{}`", name);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn immutable_circuit_function(name: String, span: &Span) -> Self {
-        let message = format!("Cannot mutate circuit function, `{}`", name);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn immutable_circuit_variable(name: String, span: &Span) -> Self {
-        let message = format!("Circuit member variable `{}` is immutable", name);
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn indicator_calculation(name: String, span: &Span) -> Self {
         let message = format!(
             "Constraint system failed to evaluate branch selection indicator `{}`",
@@ -151,15 +109,6 @@ impl StatementError {
     pub fn invalid_number_of_definitions(expected: usize, actual: usize, span: &Span) -> Self {
         let message = format!(
             "Multiple definition statement expected {} return values, found {} values",
-            expected, actual
-        );
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn invalid_number_of_returns(expected: usize, actual: usize, span: &Span) -> Self {
-        let message = format!(
-            "Function return statement expected {} return values, found {} values",
             expected, actual
         );
 
@@ -212,12 +161,6 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn tuple_type(type_: String, span: &Span) -> Self {
-        let message = format!("Expected tuple type, found type `{}`", type_);
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn unassigned(span: &Span) -> Self {
         let message = "Expected assignment of return values for expression".to_string();
 
@@ -238,6 +181,12 @@ impl StatementError {
 
     pub fn undefined_circuit_variable(name: String, span: &Span) -> Self {
         let message = format!("Attempted to assign to unknown circuit member variable `{}`", name);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn loop_index_const(span: &Span) -> Self {
+        let message = "iteration range must be const".to_string();
 
         Self::new_from_span(message, span)
     }
