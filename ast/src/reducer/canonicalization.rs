@@ -25,13 +25,19 @@ use crate::*;
 pub struct Canonicalizer {
     // If we are in a circuit keep track of the circuit name.
     circuit_name: Option<Identifier>,
+    in_circuit: bool,
+}
+
+impl Default for Canonicalizer {
+    fn default() -> Self {
+        Self {
+            circuit_name: None,
+            in_circuit: false,
+        }
+    }
 }
 
 impl Canonicalizer {
-    pub fn default() -> Self {
-        Self { circuit_name: None }
-    }
-
     fn is_self_type(&mut self, type_option: Option<&Type>) -> bool {
         matches!(type_option, Some(Type::SelfType))
     }
@@ -380,13 +386,15 @@ impl Canonicalizer {
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    fn reduce_type(
-        &mut self,
-        _type_: &Type,
-        new: Type,
-        in_circuit: bool,
-        span: &Span,
-    ) -> Result<Type, CanonicalizeError> {
+    fn in_circuit(&self) -> bool {
+        self.in_circuit
+    }
+
+    fn swap_in_circuit(&mut self) {
+        self.in_circuit = !self.in_circuit;
+    }
+
+    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type, CanonicalizeError> {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
@@ -407,7 +415,7 @@ impl ReconstructingReducer for Canonicalizer {
 
                 Ok(array)
             }
-            Type::SelfType if !in_circuit => Err(CanonicalizeError::big_self_outside_of_circuit(span)),
+            Type::SelfType if !self.in_circuit => Err(CanonicalizeError::big_self_outside_of_circuit(span)),
             _ => Ok(new.clone()),
         }
     }
@@ -416,7 +424,6 @@ impl ReconstructingReducer for Canonicalizer {
         &mut self,
         array_init: &ArrayInitExpression,
         element: Expression,
-        _in_circuit: bool,
     ) -> Result<ArrayInitExpression, CanonicalizeError> {
         if array_init.dimensions.is_zero() {
             return Err(CanonicalizeError::invalid_array_dimension_size(&array_init.span));
@@ -466,7 +473,6 @@ impl ReconstructingReducer for Canonicalizer {
         assign: &AssignStatement,
         assignee: Assignee,
         value: Expression,
-        _in_circuit: bool,
     ) -> Result<AssignStatement, CanonicalizeError> {
         match value {
             Expression::Value(value_expr) if assign.operation != AssignOperation::Assign => {
@@ -545,7 +551,6 @@ impl ReconstructingReducer for Canonicalizer {
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
-        _in_circuit: bool,
     ) -> Result<Function, CanonicalizeError> {
         let new_output = match output {
             None => Some(Type::Tuple(vec![])),

@@ -26,19 +26,19 @@ path = "../ast"
 version = "1.2.3"
 
 [dependencies.snarkvm-algorithms]
-version = "0.2.1"
+version = "0.2.2"
 #default-features = false
 
 [dependencies.snarkvm-curves]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.2.1"
+version = "0.2.2"
 
 [dependencies.indexmap]
 version = "1.6.2"
@@ -54,7 +54,7 @@ version = "0.3"
 version = "1.0"
 
 [dev-dependencies.snarkvm-storage]
-version = "0.2.1"
+version = "0.2.2"
 
 [dev-dependencies.rand_core]
 version = "0.6.2"

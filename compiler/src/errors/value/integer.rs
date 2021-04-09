@@ -16,7 +16,7 @@
 
 use leo_ast::{FormattedError, LeoError, Span};
 
-use snarkvm_gadgets::errors::SignedIntegerError;
+use snarkvm_gadgets::errors::{SignedIntegerError, UnsignedIntegerError};
 use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
@@ -34,6 +34,15 @@ impl IntegerError {
 
     pub fn signed(error: SignedIntegerError, span: &Span) -> Self {
         let message = format!("integer operation failed due to the signed integer error `{:?}`", error);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn unsigned(error: UnsignedIntegerError, span: &Span) -> Self {
+        let message = format!(
+            "integer operation failed due to the unsigned integer error `{:?}`",
+            error
+        );
 
         Self::new_from_span(message, span)
     }

@@ -46,8 +46,8 @@ impl Command for Publish {
     type Output = Option<String>;
 
     /// Build program before publishing
-    fn prelude(&self) -> Result<Self::Input> {
-        (Build {}).execute()
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
+        (Build {}).execute(context)
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
