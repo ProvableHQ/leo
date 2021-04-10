@@ -472,7 +472,7 @@ impl ReconstructingReducer for Canonicalizer {
             Expression::Value(value_expr) if assign.operation != AssignOperation::Assign => {
                 let mut left = Box::new(Expression::Identifier(assignee.identifier.clone()));
 
-                for access in assignee.accesses.iter().rev() {
+                for access in assignee.accesses.iter() {
                     match self.canonicalize_assignee_access(&access) {
                         AssigneeAccess::ArrayIndex(index) => {
                             left = Box::new(Expression::ArrayAccess(ArrayAccessExpression {
