@@ -147,7 +147,7 @@ fn split_tests_twoline(source: &str) -> Vec<String> {
         lines.push(line);
     }
     let last_test = lines.join("\n");
-    if last_test.trim().len() > 0 {
+    if !last_test.trim().is_empty() {
         out.push(last_test.trim().to_string());
     }
     out
@@ -173,7 +173,7 @@ fn not_fully_consumed(tokens: &mut ParserContext) -> Result<(), String> {
     let mut out = "did not consume all input: ".to_string();
     while tokens.has_next() {
         out.push_str(&tokens.expect_any().unwrap().to_string());
-        out.push_str("\n");
+        out.push('\n');
     }
     Err(out)
 }
@@ -244,13 +244,15 @@ fn emit_errors<T: PartialEq + ToString + serde::de::DeserializeOwned>(
             let expected_output: Option<T> =
                 expected_output.map(|x| serde_yaml::from_value(x).expect("test expectation deserialize failed"));
             // passed and should have
-            if expected_output.is_some() && output != expected_output.as_ref().unwrap() {
-                // invalid output
-                return Some(TestError::UnexpectedOutput {
-                    index: test_index,
-                    expected: expected_output.unwrap().to_string(),
-                    output: output.to_string(),
-                });
+            if let Some(expected_output) = expected_output.as_ref() {
+                if output != expected_output {
+                    // invalid output
+                    return Some(TestError::UnexpectedOutput {
+                        index: test_index,
+                        expected: expected_output.to_string(),
+                        output: output.to_string(),
+                    });
+                }
             }
             None
         }
@@ -262,13 +264,16 @@ fn emit_errors<T: PartialEq + ToString + serde::de::DeserializeOwned>(
         (Err(err), TestExpectationMode::Fail) => {
             let expected_output: Option<String> =
                 expected_output.map(|x| serde_yaml::from_value(x).expect("test expectation deserialize failed"));
-            if expected_output.is_some() && err != expected_output.as_ref().map(|x| &**x).unwrap() {
-                // invalid output
-                return Some(TestError::UnexpectedError {
-                    expected: expected_output.unwrap().to_string(),
-                    output: err.to_string(),
-                    index: test_index,
-                });
+            if let Some(expected_output) = expected_output.as_deref() {
+                // if expected_output.is_some() && err != expected_output.as_deref().unwrap() {
+                if err != expected_output {
+                    // invalid output
+                    return Some(TestError::UnexpectedError {
+                        expected: expected_output.to_string(),
+                        output: err.to_string(),
+                        index: test_index,
+                    });
+                }
             }
             None
         }
@@ -426,11 +431,10 @@ pub fn parser_tests() {
         let mut expectation_path = path.clone();
         expectation_path += ".out";
         let expectations: Option<TestExpectation> = if std::path::Path::new(&expectation_path).exists() {
-            if std::env::var("CLEAR_LEO_TEST_EXPECTATIONS")
+            if !std::env::var("CLEAR_LEO_TEST_EXPECTATIONS")
                 .unwrap_or_default()
                 .trim()
-                .len()
-                > 0
+                .is_empty()
             {
                 None
             } else {

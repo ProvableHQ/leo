@@ -51,8 +51,7 @@ impl ParserContext {
         ParserContext {
             end_span: tokens
                 .iter()
-                .filter(|x| !x.span.content.trim().is_empty())
-                .next()
+                .find(|x| !x.span.content.trim().is_empty())
                 .map(|x| x.span.clone())
                 .unwrap_or_default(),
             tokens,
