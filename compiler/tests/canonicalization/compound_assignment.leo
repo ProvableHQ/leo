@@ -27,4 +27,8 @@ function main() {
   let a = [[0u8; 1]; 4];
   a[2][0] += 1u8;
   console.assert(a[2][0] == 1u8);
+
+  let b = [0u8; (4, 1)];
+  b[2][0] += 1u8;
+  console.assert(a[2][0] == 1u8);
 }
