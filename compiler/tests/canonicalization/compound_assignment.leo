@@ -17,4 +17,8 @@ function main() {
   let foo = Foo { f: 6u8 };
   foo.f += 2u8;
   console.assert(foo.f == 8u8);
+
+  let complex = 2u8;
+  complex += 22u8 - 2u8+ 1u8;
+  console.assert(complex == 23u8);
 }

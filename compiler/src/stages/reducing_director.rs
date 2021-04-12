@@ -36,11 +36,13 @@ use leo_asg::{
     ConditionalStatement as AsgConditionalStatement,
     ConsoleFunction as AsgConsoleFunction,
     ConsoleStatement as AsgConsoleStatement,
+    ConstValue,
     Constant as AsgConstant,
     DefinitionStatement as AsgDefinitionStatement,
     Expression as AsgExpression,
     ExpressionStatement as AsgExpressionStatement,
     Function as AsgFunction,
+    GroupValue as AsgGroupValue,
     IterationStatement as AsgIterationStatement,
     ReturnStatement as AsgReturnStatement,
     Statement as AsgStatement,
@@ -79,6 +81,8 @@ use leo_ast::{
     ExpressionStatement as AstExpressionStatement,
     FormattedString,
     Function as AstFunction,
+    GroupTuple,
+    GroupValue as AstGroupValue,
     IterationStatement as AstIterationStatement,
     PositiveNumber,
     ReconstructingReducer,
@@ -144,10 +148,12 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
     ) -> Result<AstExpression, ReducerError> {
         let new = match (ast, asg) {
             // TODO what to do for the following:
-            // Ast::Identifier, Ast::Value, Asg::Constant, Asg::ValueRef
+            // Ast::Identifier, Asg::ValueRef
 
             // AsgExpression::Identifier(identifier) => AsgExpression::Identifier(self.reduce_identifier(&identifier)?),
-            // AsgExpression::Value(value) => AsgExpression::Value(self.reduce_value(&value)?),
+            (AstExpression::Value(value), AsgExpression::Constant(const_)) => {
+                AstExpression::Value(self.reduce_value(&value, &const_)?)
+            }
             (AstExpression::Binary(ast), AsgExpression::Binary(asg)) => {
                 AstExpression::Binary(self.reduce_binary(&ast, &asg)?)
             }
@@ -297,23 +303,6 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         self.ast_reducer.reduce_cast(ast, inner, target_type)
     }
 
-    pub fn reduce_constant(
-        &mut self,
-        ast: &ValueExpression,
-        _asg: &AsgConstant,
-    ) -> Result<ValueExpression, ReducerError> {
-        // TODO REDUCE GV
-        // Is this needed?
-        let new = match ast {
-            // AstConstant::Group(group_value) => {
-            //     AstConstant::Group(Box::new(self.reduce_group_value(&group_value)?))
-            // }
-            _ => ast.clone(),
-        };
-
-        self.ast_reducer.reduce_value(ast, new)
-    }
-
     pub fn reduce_circuit_member_access(
         &mut self,
         ast: &CircuitMemberAccessExpression,
@@ -416,6 +405,43 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         let inner = self.reduce_expression(&ast.inner, asg.inner.get())?;
 
         self.ast_reducer.reduce_unary(ast, inner, ast.op.clone())
+    }
+
+    pub fn reduce_value(&mut self, ast: &ValueExpression, asg: &AsgConstant) -> Result<ValueExpression, ReducerError> {
+        let mut new = ast.clone();
+
+        if self.options.type_inference_enabled {
+            if let ValueExpression::Implicit(tendril, span) = ast {
+                match &asg.value {
+                    ConstValue::Int(int) => {
+                        new = ValueExpression::Integer(int.get_int_type(), tendril.clone(), span.clone());
+                    }
+                    ConstValue::Group(group) => {
+                        let group_value = match group {
+                            AsgGroupValue::Single(_) => AstGroupValue::Single(tendril.clone(), span.clone()),
+                            AsgGroupValue::Tuple(x, y) => AstGroupValue::Tuple(GroupTuple {
+                                x: x.into(),
+                                y: y.into(),
+                                span: span.clone(),
+                            }),
+                        };
+                        new = ValueExpression::Group(Box::new(group_value));
+                    }
+                    ConstValue::Field(_) => {
+                        new = ValueExpression::Field(tendril.clone(), span.clone());
+                    }
+                    ConstValue::Address(_) => {
+                        new = ValueExpression::Address(tendril.clone(), span.clone());
+                    }
+                    ConstValue::Boolean(_) => {
+                        new = ValueExpression::Boolean(tendril.clone(), span.clone());
+                    }
+                    _ => unimplemented!(), // impossible?
+                }
+            }
+        }
+
+        self.ast_reducer.reduce_value(ast, new)
     }
 
     pub fn reduce_variable_ref(

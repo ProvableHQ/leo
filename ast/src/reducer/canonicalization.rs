@@ -38,6 +38,67 @@ impl Default for Canonicalizer {
 }
 
 impl Canonicalizer {
+    pub fn canonicalize_accesses(
+        &mut self,
+        start: Expression,
+        accesses: &[AssigneeAccess],
+        span: &Span,
+    ) -> Result<Box<Expression>, ReducerError> {
+        let mut left = Box::new(start);
+
+        for access in accesses.iter() {
+            match self.canonicalize_assignee_access(&access) {
+                AssigneeAccess::ArrayIndex(index) => {
+                    left = Box::new(Expression::ArrayAccess(ArrayAccessExpression {
+                        array: left,
+                        index: Box::new(index),
+                        span: span.clone(),
+                    }));
+                }
+                AssigneeAccess::Tuple(positive_number, _) => {
+                    left = Box::new(Expression::TupleAccess(TupleAccessExpression {
+                        tuple: left,
+                        index: positive_number,
+                        span: span.clone(),
+                    }));
+                }
+                AssigneeAccess::Member(identifier) => {
+                    left = Box::new(Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
+                        circuit: left,
+                        name: identifier,
+                        span: span.clone(),
+                    }));
+                }
+                _ => unimplemented!(), // No reason for someone to compute ArrayRanges.
+            }
+        }
+
+        Ok(left)
+    }
+
+    pub fn compound_operation_converstion(
+        &mut self,
+        operation: &AssignOperation,
+    ) -> Result<BinaryOperation, ReducerError> {
+        match operation {
+            AssignOperation::Assign => unimplemented!(), // Impossible
+            AssignOperation::Add => Ok(BinaryOperation::Add),
+            AssignOperation::Sub => Ok(BinaryOperation::Sub),
+            AssignOperation::Mul => Ok(BinaryOperation::Mul),
+            AssignOperation::Div => Ok(BinaryOperation::Div),
+            AssignOperation::Pow => Ok(BinaryOperation::Pow),
+            AssignOperation::Or => Ok(BinaryOperation::Or),
+            AssignOperation::And => Ok(BinaryOperation::And),
+            AssignOperation::BitOr => Ok(BinaryOperation::BitOr),
+            AssignOperation::BitAnd => Ok(BinaryOperation::BitAnd),
+            AssignOperation::BitXor => Ok(BinaryOperation::BitXor),
+            AssignOperation::Shr => Ok(BinaryOperation::Shr),
+            AssignOperation::ShrSigned => Ok(BinaryOperation::ShrSigned),
+            AssignOperation::Shl => Ok(BinaryOperation::Shl),
+            AssignOperation::Mod => Ok(BinaryOperation::Mod),
+        }
+    }
+
     fn is_self_type(&mut self, type_option: Option<&Type>) -> bool {
         matches!(type_option, Some(Type::SelfType))
     }
@@ -481,55 +542,37 @@ impl ReconstructingReducer for Canonicalizer {
         value: Expression,
     ) -> Result<AssignStatement, ReducerError> {
         match value {
+            Expression::Binary(binary_expr) if assign.operation != AssignOperation::Assign => {
+                let left = self.canonicalize_accesses(
+                    Expression::Identifier(assignee.identifier.clone()),
+                    &assignee.accesses,
+                    &assign.span,
+                )?;
+                let right = Box::new(Expression::Binary(binary_expr));
+                let op = self.compound_operation_converstion(&assign.operation)?;
+
+                let new_value = Expression::Binary(BinaryExpression {
+                    left,
+                    right,
+                    op,
+                    span: assign.span.clone(),
+                });
+
+                Ok(AssignStatement {
+                    operation: AssignOperation::Assign,
+                    assignee,
+                    value: new_value,
+                    span: assign.span.clone(),
+                })
+            }
             Expression::Value(value_expr) if assign.operation != AssignOperation::Assign => {
-                let mut left = Box::new(Expression::Identifier(assignee.identifier.clone()));
-
-                for access in assignee.accesses.iter().rev() {
-                    match self.canonicalize_assignee_access(&access) {
-                        AssigneeAccess::ArrayIndex(index) => {
-                            left = Box::new(Expression::ArrayAccess(ArrayAccessExpression {
-                                array: left,
-                                index: Box::new(index),
-                                span: assign.span.clone(),
-                            }));
-                        }
-                        AssigneeAccess::Tuple(positive_number, _) => {
-                            left = Box::new(Expression::TupleAccess(TupleAccessExpression {
-                                tuple: left,
-                                index: positive_number,
-                                span: assign.span.clone(),
-                            }));
-                        }
-                        AssigneeAccess::Member(identifier) => {
-                            left = Box::new(Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
-                                circuit: left,
-                                name: identifier,
-                                span: assign.span.clone(),
-                            }));
-                        }
-                        _ => unimplemented!(), // No reason for someone to compute ArrayRanges.
-                    }
-                }
-
+                let left = self.canonicalize_accesses(
+                    Expression::Identifier(assignee.identifier.clone()),
+                    &assignee.accesses,
+                    &assign.span,
+                )?;
                 let right = Box::new(Expression::Value(value_expr));
-
-                let op = match assign.operation {
-                    AssignOperation::Assign => unimplemented!(), // Imposible
-                    AssignOperation::Add => BinaryOperation::Add,
-                    AssignOperation::Sub => BinaryOperation::Sub,
-                    AssignOperation::Mul => BinaryOperation::Mul,
-                    AssignOperation::Div => BinaryOperation::Div,
-                    AssignOperation::Pow => BinaryOperation::Pow,
-                    AssignOperation::Or => BinaryOperation::Or,
-                    AssignOperation::And => BinaryOperation::And,
-                    AssignOperation::BitOr => BinaryOperation::BitOr,
-                    AssignOperation::BitAnd => BinaryOperation::BitAnd,
-                    AssignOperation::BitXor => BinaryOperation::BitXor,
-                    AssignOperation::Shr => BinaryOperation::Shr,
-                    AssignOperation::ShrSigned => BinaryOperation::ShrSigned,
-                    AssignOperation::Shl => BinaryOperation::Shl,
-                    AssignOperation::Mod => BinaryOperation::Mod,
-                };
+                let op = self.compound_operation_converstion(&assign.operation)?;
 
                 let new_value = Expression::Binary(BinaryExpression {
                     left,
