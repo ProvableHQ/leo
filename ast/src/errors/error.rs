@@ -121,8 +121,8 @@ fn test_error() {
         path: std::sync::Arc::new("file.leo".to_string()),
         line_start: 2,
         line_stop: 2,
-        col_start: 8,
-        col_stop: 9,
+        col_start: 9,
+        col_stop: 10,
         content: "let a = x;".into(),
         message: "undefined value `x`".to_string(),
     };
