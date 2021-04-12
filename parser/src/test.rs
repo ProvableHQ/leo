@@ -265,7 +265,6 @@ fn emit_errors<T: PartialEq + ToString + serde::de::DeserializeOwned>(
             let expected_output: Option<String> =
                 expected_output.map(|x| serde_yaml::from_value(x).expect("test expectation deserialize failed"));
             if let Some(expected_output) = expected_output.as_deref() {
-                // if expected_output.is_some() && err != expected_output.as_deref().unwrap() {
                 if err != expected_output {
                     // invalid output
                     return Some(TestError::UnexpectedError {
