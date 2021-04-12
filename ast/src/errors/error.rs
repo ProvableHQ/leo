@@ -130,7 +130,7 @@ fn test_error() {
     assert_eq!(
         err.to_string(),
         vec![
-            "    --> file.leo: 2:8",
+            "    --> file.leo: 2:9",
             "     |",
             "   2 | let a = x;",
             "     |         ^",
