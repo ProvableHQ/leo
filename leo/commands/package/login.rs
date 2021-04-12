@@ -59,34 +59,15 @@ impl Command for Login {
     }
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        // quick hack to check if user is already logged in. ;)
-        if context.api.auth_token().is_some() {
-            tracing::info!("You are already logged in");
-            return Ok(context.api.auth_token().unwrap());
-        };
-
-        let mut api = context.api;
+        let mut api = context.clone().api;
 
         // ...or trying to use arguments to either get token or user-pass
-        let token = match (self.token, self.user, self.pass) {
-            // Login using existing token, use get_profile route for that
-            (Some(token), _, _) => {
-                tracing::info!("Token passed, checking...");
-
-                api.set_auth_token(token.clone());
-
-                let is_ok = api.run_route(ProfileRoute {})?;
-                if !is_ok {
-                    return Err(anyhow!("Supplied token is incorrect"));
-                };
-
-                token
-            }
-
-            // Login using username and password
+        let (token, username) = match (self.token, self.user, self.pass) {
+            // Login using username and password if they were passed. Even if token already
+            // exists login procedure will be done first (we need that for expired credentials).
             (None, Some(email_username), Some(password)) => {
                 let login = LoginRoute {
-                    email_username,
+                    email_username: email_username.clone(),
                     password,
                 };
 
@@ -98,17 +79,48 @@ impl Command for Login {
                     return Err(anyhow!("Unable to get token"));
                 };
 
-                tok_opt.unwrap()
+                (tok_opt.unwrap(), email_username)
+            }
+
+            // Login with token, use get_profile route to verify that.
+            (Some(token), _, _) => {
+                tracing::info!("Token passed, checking...");
+
+                api.set_auth_token(token.clone());
+
+                match api.run_route(ProfileRoute {})? {
+                    Some(username) => (token, username),
+                    None => return Err(anyhow!("Supplied token is incorrect")),
+                }
             }
 
             // In case token or login/pass were not passed as arguments
-            (_, _, _) => return Err(anyhow!("No credentials provided")),
+            (_, _, _) => {
+                // Check locally stored token if there is.
+                let token = context.api.auth_token();
+
+                match token {
+                    Some(token) => {
+                        tracing::info!("Found locally stored credentials, verifying...");
+
+                        if let Some(username) = api.run_route(ProfileRoute {})? {
+                            (token, username)
+                        } else {
+                            remove_token_and_username()?;
+                            return Err(anyhow!(
+                                "Stored credentials are incorrect or expired, please login again"
+                            ));
+                        }
+                    }
+                    None => return Err(anyhow!("No credentials provided")),
+                }
+            }
         };
 
         // write token either after logging or if it was passed
-        write_token(token.as_str())?;
+        write_token_and_username(token.as_str(), username.as_str())?;
 
-        tracing::info!("Success! You are now logged in!");
+        tracing::info!("Success! You are logged in!");
 
         Ok(token)
     }
