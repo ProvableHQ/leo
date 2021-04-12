@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
+use crate::{commands::Command, config::*, context::Context};
 use leo_package::LeoPackage;
 
 use anyhow::{anyhow, Result};
@@ -43,6 +43,11 @@ impl Command for Init {
         // Derive the package directory path.
         let path = current_dir()?;
 
+        // Check that the current package directory path exists.
+        if !path.exists() {
+            return Err(anyhow!("Directory does not exist"));
+        }
+
         // Check that the given package name is valid.
         let package_name = path
             .file_stem()
@@ -53,12 +58,9 @@ impl Command for Init {
             return Err(anyhow!("Invalid Leo project name"));
         }
 
-        // Check that the current package directory path exists.
-        if !path.exists() {
-            return Err(anyhow!("Directory does not exist"));
-        }
+        let username = read_username().ok();
 
-        LeoPackage::initialize(&package_name, false, &path)?;
+        LeoPackage::initialize(&package_name, false, &path, username)?;
 
         Ok(())
     }

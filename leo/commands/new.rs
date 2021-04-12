@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
+use crate::{commands::Command, config::*, context::Context};
 use leo_package::LeoPackage;
 
 use anyhow::{anyhow, Result};
@@ -49,6 +49,8 @@ impl Command for New {
             return Err(anyhow!("Invalid Leo project name"));
         }
 
+        let username = read_username().ok();
+
         // Derive the package directory path.
         let mut path = current_dir()?;
         path.push(&package_name);
@@ -61,7 +63,7 @@ impl Command for New {
         // Create the package directory
         fs::create_dir_all(&path).map_err(|err| anyhow!("Could not create directory {}", err))?;
 
-        LeoPackage::initialize(&package_name, false, &path)?;
+        LeoPackage::initialize(&package_name, false, &path, username)?;
 
         Ok(())
     }
