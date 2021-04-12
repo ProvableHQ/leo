@@ -83,7 +83,7 @@ impl Ast {
     }
 
     /// Mutates the program ast by preforming canonicalization on it.
-    pub fn canonicalize(&mut self) -> Result<(), CanonicalizeError> {
+    pub fn canonicalize(&mut self) -> Result<(), ReducerError> {
         self.ast = ReconstructingDirector::new(Canonicalizer::default()).reduce_program(self.as_repr())?;
         Ok(())
     }

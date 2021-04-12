@@ -16,7 +16,7 @@
 
 use crate::errors::FunctionError;
 use leo_asg::{AsgConvertError, FormattedError};
-use leo_ast::{CanonicalizeError, LeoError};
+use leo_ast::{LeoError, ReducerError};
 use leo_input::InputParserError;
 use leo_parser::SyntaxError;
 use leo_state::LocalDataVerificationError;
@@ -56,7 +56,7 @@ pub enum CompilerError {
     AsgConvertError(#[from] AsgConvertError),
 
     #[error("{}", _0)]
-    CanonicalizeError(#[from] CanonicalizeError),
+    ReducerError(#[from] ReducerError),
 }
 
 impl LeoError for CompilerError {}

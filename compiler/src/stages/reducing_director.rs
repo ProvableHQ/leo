@@ -63,7 +63,6 @@ use leo_ast::{
     BinaryExpression as AstBinaryExpression,
     Block as AstBlockStatement,
     CallExpression as AstCallExpression,
-    CanonicalizeError,
     CastExpression as AstCastExpression,
     Circuit as AstCircuit,
     CircuitImpliedVariableDefinition,
@@ -71,6 +70,7 @@ use leo_ast::{
     CircuitMember as AstCircuitMember,
     CircuitMemberAccessExpression,
     CircuitStaticFunctionAccessExpression,
+    CombinerError,
     ConditionalStatement as AstConditionalStatement,
     ConsoleFunction as AstConsoleFunction,
     ConsoleStatement as AstConsoleStatement,
@@ -82,6 +82,7 @@ use leo_ast::{
     IterationStatement as AstIterationStatement,
     PositiveNumber,
     ReconstructingReducer,
+    ReducerError,
     ReturnStatement as AstReturnStatement,
     Span,
     SpreadOrExpression,
@@ -105,7 +106,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         Self { ast_reducer, options }
     }
 
-    pub fn reduce_type(&mut self, ast: &AstType, asg: &AsgType, span: &Span) -> Result<AstType, CanonicalizeError> {
+    pub fn reduce_type(&mut self, ast: &AstType, asg: &AsgType, span: &Span) -> Result<AstType, ReducerError> {
         let new = match (ast, asg) {
             (AstType::Array(ast_type, ast_dimensions), AsgType::Array(asg_type, asg_dimensions)) => {
                 if self.options.type_inference_enabled {
@@ -140,7 +141,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstExpression,
         asg: &AsgExpression,
-    ) -> Result<AstExpression, CanonicalizeError> {
+    ) -> Result<AstExpression, ReducerError> {
         let new = match (ast, asg) {
             // TODO what to do for the following:
             // Ast::Identifier, Ast::Value, Asg::Constant, Asg::ValueRef
@@ -199,7 +200,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstArrayAccessExpression,
         asg: &AsgArrayAccessExpression,
-    ) -> Result<AstArrayAccessExpression, CanonicalizeError> {
+    ) -> Result<AstArrayAccessExpression, ReducerError> {
         let array = self.reduce_expression(&ast.array, asg.array.get())?;
         let index = self.reduce_expression(&ast.index, asg.index.get())?;
 
@@ -210,7 +211,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstArrayInitExpression,
         asg: &AsgArrayInitExpression,
-    ) -> Result<AstArrayInitExpression, CanonicalizeError> {
+    ) -> Result<AstArrayInitExpression, ReducerError> {
         let element = self.reduce_expression(&ast.element, asg.element.get())?;
 
         self.ast_reducer.reduce_array_init(ast, element)
@@ -220,7 +221,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstArrayInlineExpression,
         asg: &AsgArrayInlineExpression,
-    ) -> Result<AstArrayInlineExpression, CanonicalizeError> {
+    ) -> Result<AstArrayInlineExpression, ReducerError> {
         let mut elements = vec![];
         for (ast_element, asg_element) in ast.elements.iter().zip(asg.elements.iter()) {
             let reduced_element = match ast_element {
@@ -242,7 +243,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstArrayRangeAccessExpression,
         asg: &AsgArrayRangeAccessExpression,
-    ) -> Result<AstArrayRangeAccessExpression, CanonicalizeError> {
+    ) -> Result<AstArrayRangeAccessExpression, ReducerError> {
         let array = self.reduce_expression(&ast.array, asg.array.get())?;
         let left = match (ast.left.as_ref(), asg.left.get()) {
             (Some(ast_left), Some(asg_left)) => Some(self.reduce_expression(ast_left, asg_left)?),
@@ -260,7 +261,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstBinaryExpression,
         asg: &AsgBinaryExpression,
-    ) -> Result<AstBinaryExpression, CanonicalizeError> {
+    ) -> Result<AstBinaryExpression, ReducerError> {
         let left = self.reduce_expression(&ast.left, asg.left.get())?;
         let right = self.reduce_expression(&ast.right, asg.right.get())?;
 
@@ -271,7 +272,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstCallExpression,
         asg: &AsgCallExpression,
-    ) -> Result<AstCallExpression, CanonicalizeError> {
+    ) -> Result<AstCallExpression, ReducerError> {
         // TODO FIGURE IT OUT
         // let function = self.reduce_expression(&ast.function, asg.function.get())?;
         // let target = asg.target.get().map(|exp| self.reduce_expression())
@@ -289,7 +290,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstCastExpression,
         asg: &AsgCastExpression,
-    ) -> Result<AstCastExpression, CanonicalizeError> {
+    ) -> Result<AstCastExpression, ReducerError> {
         let inner = self.reduce_expression(&ast.inner, &asg.inner.get())?;
         let target_type = self.reduce_type(&ast.target_type, &asg.target_type, &ast.span)?;
 
@@ -300,7 +301,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &ValueExpression,
         _asg: &AsgConstant,
-    ) -> Result<ValueExpression, CanonicalizeError> {
+    ) -> Result<ValueExpression, ReducerError> {
         // TODO REDUCE GV
         // Is this needed?
         let new = match ast {
@@ -317,7 +318,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &CircuitMemberAccessExpression,
         _asg: &AsgCircuitAccessExpression,
-    ) -> Result<CircuitMemberAccessExpression, CanonicalizeError> {
+    ) -> Result<CircuitMemberAccessExpression, ReducerError> {
         // TODO FIGURE IT OUT
         // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         // let name = self.reduce_identifier(&circuit_member_access.name)?;
@@ -332,7 +333,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &CircuitStaticFunctionAccessExpression,
         _asg: &AsgCircuitAccessExpression,
-    ) -> Result<CircuitStaticFunctionAccessExpression, CanonicalizeError> {
+    ) -> Result<CircuitStaticFunctionAccessExpression, ReducerError> {
         // TODO FIGURE IT OUT
         // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         // let name = self.reduce_identifier(&circuit_member_access.name)?;
@@ -347,7 +348,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &CircuitImpliedVariableDefinition,
         asg: &AsgExpression,
-    ) -> Result<CircuitImpliedVariableDefinition, CanonicalizeError> {
+    ) -> Result<CircuitImpliedVariableDefinition, ReducerError> {
         let expression = ast
             .expression
             .as_ref()
@@ -362,7 +363,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstCircuitInitExpression,
         asg: &AsgCircuitInitExpression,
-    ) -> Result<AstCircuitInitExpression, CanonicalizeError> {
+    ) -> Result<AstCircuitInitExpression, ReducerError> {
         let mut members = vec![];
         for (ast_member, asg_member) in ast.members.iter().zip(asg.values.iter()) {
             members.push(self.reduce_circuit_implied_variable_definition(ast_member, asg_member.1.get())?);
@@ -375,7 +376,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstTernaryExpression,
         asg: &AsgTernaryExpression,
-    ) -> Result<AstTernaryExpression, CanonicalizeError> {
+    ) -> Result<AstTernaryExpression, ReducerError> {
         let condition = self.reduce_expression(&ast.condition, asg.condition.get())?;
         let if_true = self.reduce_expression(&ast.if_true, asg.if_true.get())?;
         let if_false = self.reduce_expression(&ast.if_false, asg.if_false.get())?;
@@ -387,7 +388,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstTupleAccessExpression,
         asg: &AsgTupleAccessExpression,
-    ) -> Result<AstTupleAccessExpression, CanonicalizeError> {
+    ) -> Result<AstTupleAccessExpression, ReducerError> {
         let tuple = self.reduce_expression(&ast.tuple, asg.tuple_ref.get())?;
 
         self.ast_reducer.reduce_tuple_access(ast, tuple)
@@ -397,7 +398,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstTupleInitExpression,
         asg: &AsgTupleInitExpression,
-    ) -> Result<AstTupleInitExpression, CanonicalizeError> {
+    ) -> Result<AstTupleInitExpression, ReducerError> {
         let mut elements = vec![];
         for (ast_element, asg_element) in ast.elements.iter().zip(asg.elements.iter()) {
             let element = self.reduce_expression(ast_element, asg_element.get())?;
@@ -411,7 +412,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstUnaryExpression,
         asg: &AsgUnaryExpression,
-    ) -> Result<AstUnaryExpression, CanonicalizeError> {
+    ) -> Result<AstUnaryExpression, ReducerError> {
         let inner = self.reduce_expression(&ast.inner, asg.inner.get())?;
 
         self.ast_reducer.reduce_unary(ast, inner, ast.op.clone())
@@ -421,7 +422,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &ValueExpression,
         _asg: &AsgVariableRef,
-    ) -> Result<ValueExpression, CanonicalizeError> {
+    ) -> Result<ValueExpression, ReducerError> {
         // TODO FIGURE IT OUT
         let new = match ast {
             // ValueExpression::Group(group_value) => {
@@ -438,7 +439,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast_statement: &AstStatement,
         asg_statement: &AsgStatement,
-    ) -> Result<AstStatement, CanonicalizeError> {
+    ) -> Result<AstStatement, ReducerError> {
         let new = match (ast_statement, asg_statement) {
             (AstStatement::Assign(ast), AsgStatement::Assign(asg)) => {
                 AstStatement::Assign(self.reduce_assign(ast, asg)?)
@@ -472,7 +473,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstAssignAccess,
         asg: &AsgAssignAccess,
-    ) -> Result<AstAssignAccess, CanonicalizeError> {
+    ) -> Result<AstAssignAccess, ReducerError> {
         let new = match (ast, asg) {
             (AstAssignAccess::ArrayRange(ast_left, ast_right), AsgAssignAccess::ArrayRange(asg_left, asg_right)) => {
                 let left = match (ast_left.as_ref(), asg_left.get()) {
@@ -496,7 +497,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         self.ast_reducer.reduce_assignee_access(ast, new)
     }
 
-    pub fn reduce_assignee(&mut self, ast: &Assignee, asg: &[AsgAssignAccess]) -> Result<Assignee, CanonicalizeError> {
+    pub fn reduce_assignee(&mut self, ast: &Assignee, asg: &[AsgAssignAccess]) -> Result<Assignee, ReducerError> {
         let mut accesses = vec![];
         for (ast_access, asg_access) in ast.accesses.iter().zip(asg) {
             accesses.push(self.reduce_assign_access(ast_access, asg_access)?);
@@ -509,7 +510,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstAssignStatement,
         asg: &AsgAssignStatement,
-    ) -> Result<AstAssignStatement, CanonicalizeError> {
+    ) -> Result<AstAssignStatement, ReducerError> {
         let assignee = self.reduce_assignee(&ast.assignee, &asg.target_accesses)?;
         let value = self.reduce_expression(&ast.value, asg.value.get())?;
 
@@ -520,7 +521,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstBlockStatement,
         asg: &AsgBlockStatement,
-    ) -> Result<AstBlockStatement, CanonicalizeError> {
+    ) -> Result<AstBlockStatement, ReducerError> {
         let mut statements = vec![];
         for (ast_statement, asg_statement) in ast.statements.iter().zip(asg.statements.iter()) {
             statements.push(self.reduce_statement(ast_statement, asg_statement.get())?);
@@ -533,14 +534,15 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstConditionalStatement,
         asg: &AsgConditionalStatement,
-    ) -> Result<AstConditionalStatement, CanonicalizeError> {
+    ) -> Result<AstConditionalStatement, ReducerError> {
         let condition = self.reduce_expression(&ast.condition, asg.condition.get())?;
         let block;
         if let AsgStatement::Block(asg_block) = asg.result.get() {
             block = self.reduce_block(&ast.block, asg_block)?;
         } else {
-            // TODO throw error?
-            block = ast.block.clone();
+            return Err(ReducerError::from(CombinerError::asg_statement_not_block(
+                &asg.span.as_ref().unwrap(),
+            )));
         }
         let next = match (ast.next.as_ref(), asg.next.get()) {
             (Some(ast_next), Some(asg_next)) => Some(self.reduce_statement(ast_next, asg_next)?),
@@ -554,7 +556,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstConsoleStatement,
         asg: &AsgConsoleStatement,
-    ) -> Result<AstConsoleStatement, CanonicalizeError> {
+    ) -> Result<AstConsoleStatement, ReducerError> {
         let function = match (&ast.function, &asg.function) {
             (AstConsoleFunction::Assert(ast_expression), AsgConsoleFunction::Assert(asg_expression)) => {
                 AstConsoleFunction::Assert(self.reduce_expression(&ast_expression, asg_expression.get())?)
@@ -577,7 +579,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
                     AstConsoleFunction::Debug(_) => AstConsoleFunction::Debug(formatted),
                     AstConsoleFunction::Error(_) => AstConsoleFunction::Error(formatted),
                     AstConsoleFunction::Log(_) => AstConsoleFunction::Log(formatted),
-                    _ => unimplemented!(), // impossible
+                    _ => return Err(ReducerError::impossible_console_assert_call(&ast_format.span)),
                 }
             }
             _ => ast.function.clone(),
@@ -590,7 +592,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstDefinitionStatement,
         asg: &AsgDefinitionStatement,
-    ) -> Result<AstDefinitionStatement, CanonicalizeError> {
+    ) -> Result<AstDefinitionStatement, ReducerError> {
         let type_;
 
         if asg.variables.len() > 1 {
@@ -628,7 +630,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstExpressionStatement,
         asg: &AsgExpressionStatement,
-    ) -> Result<AstExpressionStatement, CanonicalizeError> {
+    ) -> Result<AstExpressionStatement, ReducerError> {
         let inner_expression = self.reduce_expression(&ast.expression, asg.expression.get())?;
         self.ast_reducer.reduce_expression_statement(ast, inner_expression)
     }
@@ -637,14 +639,16 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstIterationStatement,
         asg: &AsgIterationStatement,
-    ) -> Result<AstIterationStatement, CanonicalizeError> {
+    ) -> Result<AstIterationStatement, ReducerError> {
         let start = self.reduce_expression(&ast.start, asg.start.get())?;
         let stop = self.reduce_expression(&ast.stop, asg.stop.get())?;
         let block;
         if let AsgStatement::Block(asg_block) = asg.body.get() {
             block = self.reduce_block(&ast.block, asg_block)?;
         } else {
-            block = ast.block.clone();
+            return Err(ReducerError::from(CombinerError::asg_statement_not_block(
+                &asg.span.as_ref().unwrap(),
+            )));
         }
 
         self.ast_reducer
@@ -655,7 +659,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstReturnStatement,
         asg: &AsgReturnStatement,
-    ) -> Result<AstReturnStatement, CanonicalizeError> {
+    ) -> Result<AstReturnStatement, ReducerError> {
         let expression = self.reduce_expression(&ast.expression, asg.expression.get())?;
 
         self.ast_reducer.reduce_return(ast, expression)
@@ -665,7 +669,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &leo_ast::Program,
         asg: &leo_asg::Program,
-    ) -> Result<leo_ast::Program, leo_ast::CanonicalizeError> {
+    ) -> Result<leo_ast::Program, leo_ast::ReducerError> {
         self.ast_reducer.swap_in_circuit();
         let mut circuits = IndexMap::new();
         for ((ast_ident, ast_circuit), (_asg_ident, asg_circuit)) in ast.circuits.iter().zip(&asg.circuits) {
@@ -687,7 +691,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         )
     }
 
-    pub fn reduce_function(&mut self, ast: &AstFunction, asg: &AsgFunction) -> Result<AstFunction, CanonicalizeError> {
+    pub fn reduce_function(&mut self, ast: &AstFunction, asg: &AsgFunction) -> Result<AstFunction, ReducerError> {
         let output = ast
             .output
             .as_ref()
@@ -720,7 +724,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         &mut self,
         ast: &AstCircuitMember,
         asg: &AsgCircuitMember,
-    ) -> Result<AstCircuitMember, CanonicalizeError> {
+    ) -> Result<AstCircuitMember, ReducerError> {
         let new = match (ast, asg) {
             (AstCircuitMember::CircuitVariable(identifier, ast_type), AsgCircuitMember::Variable(asg_type)) => {
                 AstCircuitMember::CircuitVariable(
@@ -737,7 +741,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
         self.ast_reducer.reduce_circuit_member(ast, new)
     }
 
-    pub fn reduce_circuit(&mut self, ast: &AstCircuit, asg: &AsgCircuit) -> Result<AstCircuit, CanonicalizeError> {
+    pub fn reduce_circuit(&mut self, ast: &AstCircuit, asg: &AsgCircuit) -> Result<AstCircuit, ReducerError> {
         let mut members = vec![];
         for (ast_member, asg_member) in ast.members.iter().zip(asg.members.borrow().iter()) {
             members.push(self.reduce_circuit_member(ast_member, asg_member.1)?);

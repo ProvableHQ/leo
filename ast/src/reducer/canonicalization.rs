@@ -394,11 +394,13 @@ impl ReconstructingReducer for Canonicalizer {
         self.in_circuit = !self.in_circuit;
     }
 
-    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type, CanonicalizeError> {
+    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type, ReducerError> {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
-                    return Err(CanonicalizeError::invalid_array_dimension_size(span));
+                    return Err(ReducerError::from(CanonicalizeError::invalid_array_dimension_size(
+                        span,
+                    )));
                 }
 
                 let mut next = Type::Array(type_, ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
@@ -415,7 +417,9 @@ impl ReconstructingReducer for Canonicalizer {
 
                 Ok(array)
             }
-            Type::SelfType if !self.in_circuit => Err(CanonicalizeError::big_self_outside_of_circuit(span)),
+            Type::SelfType if !self.in_circuit => {
+                Err(ReducerError::from(CanonicalizeError::big_self_outside_of_circuit(span)))
+            }
             _ => Ok(new.clone()),
         }
     }
@@ -424,9 +428,11 @@ impl ReconstructingReducer for Canonicalizer {
         &mut self,
         array_init: &ArrayInitExpression,
         element: Expression,
-    ) -> Result<ArrayInitExpression, CanonicalizeError> {
+    ) -> Result<ArrayInitExpression, ReducerError> {
         if array_init.dimensions.is_zero() {
-            return Err(CanonicalizeError::invalid_array_dimension_size(&array_init.span));
+            return Err(ReducerError::from(CanonicalizeError::invalid_array_dimension_size(
+                &array_init.span,
+            )));
         }
 
         let element = Box::new(element);
@@ -473,7 +479,7 @@ impl ReconstructingReducer for Canonicalizer {
         assign: &AssignStatement,
         assignee: Assignee,
         value: Expression,
-    ) -> Result<AssignStatement, CanonicalizeError> {
+    ) -> Result<AssignStatement, ReducerError> {
         match value {
             Expression::Value(value_expr) if assign.operation != AssignOperation::Assign => {
                 let mut left = Box::new(Expression::Identifier(assignee.identifier.clone()));
@@ -551,7 +557,7 @@ impl ReconstructingReducer for Canonicalizer {
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
-    ) -> Result<Function, CanonicalizeError> {
+    ) -> Result<Function, ReducerError> {
         let new_output = match output {
             None => Some(Type::Tuple(vec![])),
             _ => output,
@@ -572,7 +578,7 @@ impl ReconstructingReducer for Canonicalizer {
         _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
-    ) -> Result<Circuit, CanonicalizeError> {
+    ) -> Result<Circuit, ReducerError> {
         self.circuit_name = Some(circuit_name.clone());
         let circ = Circuit {
             circuit_name,
