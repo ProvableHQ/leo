@@ -86,7 +86,7 @@ impl ZipFile {
         let file = &mut File::create(&path)?;
         let mut zip = ZipWriter::new(file);
         let options = FileOptions::default()
-            .compression_method(zip::CompressionMethod::Stored)
+            .compression_method(zip::CompressionMethod::Deflated)
             .unix_permissions(0o755);
 
         // Walk through files in directory and write desired ones to the zip file
