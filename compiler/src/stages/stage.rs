@@ -49,7 +49,7 @@ macro_rules! stage {
         }
 
         impl $stage_name {
-            pub fn stage_ast(ast: &AstProgram, asg: &AsgProgram) -> Result<Ast, ReducerError> {
+            pub fn stage_ast(&self, ast: &AstProgram, asg: &AsgProgram) -> Result<Ast, ReducerError> {
                 Ok(Ast::new(CombineAstAsgDirector::new(Self::default(), Options{})
                     .reduce_program(ast, asg)?))
             }

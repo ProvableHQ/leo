@@ -17,8 +17,8 @@
 use crate::{assert_satisfied, parse_program};
 #[allow(unused)]
 use leo_asg::{new_context, Asg, AsgContext};
-use leo_ast::{Ast, ReconstructingReducer};
-use leo_compiler::{CombineAstAsgDirector, CompilerOptions};
+use leo_ast::Ast;
+use leo_compiler::TypeInferenceStage;
 use leo_imports::ImportParser;
 use leo_parser::parser;
 
@@ -31,26 +31,6 @@ thread_local! {
 
 pub fn thread_leaked_context() -> AsgContext<'static> {
     THREAD_GLOBAL_CONTEXT.with(|f| *f)
-}
-
-struct TypeInferenceCombiner {
-    in_circuit: bool,
-}
-
-impl ReconstructingReducer for TypeInferenceCombiner {
-    fn in_circuit(&self) -> bool {
-        self.in_circuit
-    }
-
-    fn swap_in_circuit(&mut self) {
-        self.in_circuit = !self.in_circuit;
-    }
-}
-
-impl Default for TypeInferenceCombiner {
-    fn default() -> Self {
-        Self { in_circuit: false }
-    }
 }
 
 pub fn parse_program_ast(file_string: &str) -> Ast {
@@ -67,11 +47,9 @@ pub fn parse_program_ast(file_string: &str) -> Ast {
     let asg = Asg::new(thread_leaked_context(), &program, &mut ImportParser::default())
         .expect("Failed to create ASG from AST");
 
-    let new_ast = Ast::new(
-        CombineAstAsgDirector::new(TypeInferenceCombiner::default(), CompilerOptions::default())
-            .reduce_program(&ast.clone().into_repr(), &asg.into_repr())
-            .expect("Failed to convert ASG to AST"),
-    );
+    let new_ast = TypeInferenceStage::default()
+        .stage_ast(&program, &asg.into_repr())
+        .expect("Failed to produce type inference ast.");
 
     new_ast
 }
