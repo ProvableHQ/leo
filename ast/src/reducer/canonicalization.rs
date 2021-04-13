@@ -69,7 +69,7 @@ impl Canonicalizer {
                         span: span.clone(),
                     }));
                 }
-                _ => unimplemented!(), // No reason for someone to compute ArrayRanges.
+                _ => return Err(ReducerError::from(CombinerError::illegal_compound_array_access(&span))),
             }
         }
 
@@ -79,9 +79,10 @@ impl Canonicalizer {
     pub fn compound_operation_converstion(
         &mut self,
         operation: &AssignOperation,
+        span: &Span,
     ) -> Result<BinaryOperation, ReducerError> {
         match operation {
-            AssignOperation::Assign => unimplemented!(), // Impossible
+            AssignOperation::Assign => Err(ReducerError::from(CombinerError::illegal_compound_operation(&span))),
             AssignOperation::Add => Ok(BinaryOperation::Add),
             AssignOperation::Sub => Ok(BinaryOperation::Sub),
             AssignOperation::Mul => Ok(BinaryOperation::Mul),
@@ -549,7 +550,7 @@ impl ReconstructingReducer for Canonicalizer {
                     &assign.span,
                 )?;
                 let right = Box::new(Expression::Binary(binary_expr));
-                let op = self.compound_operation_converstion(&assign.operation)?;
+                let op = self.compound_operation_converstion(&assign.operation, &assign.span)?;
 
                 let new_value = Expression::Binary(BinaryExpression {
                     left,
@@ -572,7 +573,7 @@ impl ReconstructingReducer for Canonicalizer {
                     &assign.span,
                 )?;
                 let right = Box::new(Expression::Value(value_expr));
-                let op = self.compound_operation_converstion(&assign.operation)?;
+                let op = self.compound_operation_converstion(&assign.operation, &assign.span)?;
 
                 let new_value = Expression::Binary(BinaryExpression {
                     left,
