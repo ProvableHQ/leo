@@ -202,6 +202,10 @@ where
 
 /// Initialize logger with custom format and verbosity.
 pub fn init_logger(_app_name: &'static str, verbosity: usize) {
+    // This line enables Windows 10 ANSI coloring API.
+    #[cfg(target_family = "windows")]
+    ansi_term::enable_ansi_support();
+
     let subscriber = FmtSubscriber::builder()
         // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
         // will be written to stdout.
