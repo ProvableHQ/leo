@@ -25,6 +25,17 @@ pub struct CompilerOptions {
     pub type_inference_enabled: bool,
 }
 
+impl CompilerOptions {
+    pub fn new_all_false() -> Self {
+        Self {
+            canonicalization_enabled: false,
+            constant_folding_enabled: false,
+            dead_code_elimination_enabled: false,
+            type_inference_enabled: false,
+        }
+    }
+}
+
 impl Default for CompilerOptions {
     ///
     /// All compiler optimizations are enabled by default.

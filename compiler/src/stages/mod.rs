@@ -18,3 +18,6 @@
 
 pub mod reducing_director;
 pub use reducing_director::*;
+
+pub mod stage;
+pub use stage::*;

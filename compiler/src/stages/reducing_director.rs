@@ -16,7 +16,6 @@
 
 //! Compiles a Leo program from a file path.
 
-use crate::CompilerOptions;
 use indexmap::IndexMap;
 use leo_asg::{
     ArrayAccessExpression as AsgArrayAccessExpression,
@@ -100,20 +99,26 @@ use leo_ast::{
 };
 use tendril::StrTendril;
 
-pub struct CombineAstAsgDirector<R: ReconstructingReducer> {
-    ast_reducer: R,
-    options: CompilerOptions,
+pub trait CombinerOptions {
+    fn type_inference_enabled(&self) -> bool {
+        false
+    }
 }
 
-impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
-    pub fn new(ast_reducer: R, options: CompilerOptions) -> Self {
+pub struct CombineAstAsgDirector<R: ReconstructingReducer, O: CombinerOptions> {
+    ast_reducer: R,
+    options: O,
+}
+
+impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
+    pub fn new(ast_reducer: R, options: O) -> Self {
         Self { ast_reducer, options }
     }
 
     pub fn reduce_type(&mut self, ast: &AstType, asg: &AsgType, span: &Span) -> Result<AstType, ReducerError> {
         let new = match (ast, asg) {
             (AstType::Array(ast_type, ast_dimensions), AsgType::Array(asg_type, asg_dimensions)) => {
-                if self.options.type_inference_enabled {
+                if self.options.type_inference_enabled() {
                     AstType::Array(
                         Box::new(self.reduce_type(ast_type, asg_type, span)?),
                         ArrayDimensions(vec![PositiveNumber {
@@ -410,7 +415,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
     pub fn reduce_value(&mut self, ast: &ValueExpression, asg: &AsgConstant) -> Result<ValueExpression, ReducerError> {
         let mut new = ast.clone();
 
-        if self.options.type_inference_enabled {
+        if self.options.type_inference_enabled() {
             if let ValueExpression::Implicit(tendril, span) = ast {
                 match &asg.value {
                     ConstValue::Int(int) => {
@@ -631,7 +636,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
 
             type_ = match &ast.type_ {
                 Some(ast_type) => Some(self.reduce_type(&ast_type, &asg_type, &ast.span)?),
-                None if self.options.type_inference_enabled => Some((&asg_type).into()),
+                None if self.options.type_inference_enabled() => Some((&asg_type).into()),
                 _ => None,
             };
         } else {
@@ -639,7 +644,7 @@ impl<R: ReconstructingReducer> CombineAstAsgDirector<R> {
                 Some(ast_type) => {
                     Some(self.reduce_type(&ast_type, &asg.variables.first().unwrap().borrow().type_, &ast.span)?)
                 }
-                None if self.options.type_inference_enabled => {
+                None if self.options.type_inference_enabled() => {
                     Some((&asg.variables.first().unwrap().borrow().type_).into())
                 }
                 _ => None,
