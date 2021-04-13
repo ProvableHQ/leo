@@ -178,6 +178,9 @@ enum CommandOpts {
 }
 
 fn main() {
+    #[cfg(target_family = "windows")]
+    ansi_term::enable_ansi_support();
+
     // Read command line arguments.
     let opt = Opt::from_args();
 

@@ -1347,6 +1347,7 @@ dependencies = [
 name = "leo-lang"
 version = "1.3.0"
 dependencies = [
+ "ansi_term 0.12.1",
  "anyhow",
  "clap",
  "colored",
