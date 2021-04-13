@@ -152,10 +152,6 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         asg: &AsgExpression,
     ) -> Result<AstExpression, ReducerError> {
         let new = match (ast, asg) {
-            // TODO what to do for the following:
-            // Ast::Identifier, Asg::ValueRef
-
-            // AsgExpression::Identifier(identifier) => AsgExpression::Identifier(self.reduce_identifier(&identifier)?),
             (AstExpression::Value(value), AsgExpression::Constant(const_)) => {
                 AstExpression::Value(self.reduce_value(&value, &const_)?)
             }
@@ -313,11 +309,9 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         ast: &CircuitMemberAccessExpression,
         _asg: &AsgCircuitAccessExpression,
     ) -> Result<CircuitMemberAccessExpression, ReducerError> {
-        // TODO FIGURE IT OUT
         // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         // let name = self.reduce_identifier(&circuit_member_access.name)?;
         // let target = input.target.get().map(|e| self.reduce_expression(e));
-        // does it matter?
 
         self.ast_reducer
             .reduce_circuit_member_access(ast, *ast.circuit.clone(), ast.name.clone())
@@ -328,11 +322,9 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         ast: &CircuitStaticFunctionAccessExpression,
         _asg: &AsgCircuitAccessExpression,
     ) -> Result<CircuitStaticFunctionAccessExpression, ReducerError> {
-        // TODO FIGURE IT OUT
         // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         // let name = self.reduce_identifier(&circuit_member_access.name)?;
         // let target = input.target.get().map(|e| self.reduce_expression(e));
-        // does it matter?
 
         self.ast_reducer
             .reduce_circuit_static_fn_access(ast, *ast.circuit.clone(), ast.name.clone())
