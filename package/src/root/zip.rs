@@ -86,7 +86,7 @@ impl ZipFile {
         let file = &mut File::create(&path)?;
         let mut zip = ZipWriter::new(file);
         let options = FileOptions::default()
-            .compression_method(zip::CompressionMethod::Deflated)
+            .compression_method(zip::CompressionMethod::Stored)
             .unix_permissions(0o755);
 
         // Walk through files in directory and write desired ones to the zip file
@@ -106,7 +106,8 @@ impl ZipFile {
             // Write file or directory
             if path.is_file() {
                 tracing::info!("Adding file {:?} as {:?}", path, name);
-                zip.start_file(name.to_string_lossy(), options)?;
+                #[allow(deprecated)]
+                zip.start_file_from_path(name, options)?;
                 let mut f = File::open(path)?;
 
                 f.read_to_end(&mut buffer)?;
@@ -116,7 +117,8 @@ impl ZipFile {
                 // Only if not root Avoids path spec / warning
                 // and mapname conversion failed error on unzip
                 tracing::info!("Adding directory {:?} as {:?}", path, name);
-                zip.add_directory(name.to_string_lossy(), options)?;
+                #[allow(deprecated)]
+                zip.add_directory_from_path(name, options)?;
             }
         }
 
