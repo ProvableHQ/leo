@@ -1,0 +1,52 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    imports: []
+    circuits:
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"big_self.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"big_self.leo\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
+        members:
+          - CircuitFunction:
+              annotations: []
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"big_self.leo\\\",\\\"content\\\":\\\"    function x() -> Self {\\\"}\"}"
+              input: []
+              output: SelfType
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        CircuitInit:
+                          name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"big_self.leo\\\",\\\"content\\\":\\\"        return Self {};\\\"}\"}"
+                          members: []
+                          span:
+                            line_start: 5
+                            line_stop: 5
+                            col_start: 16
+                            col_stop: 23
+                            path: big_self.leo
+                            content: "        return Self {};"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 9
+                        col_stop: 23
+                        path: big_self.leo
+                        content: "        return Self {};"
+                span:
+                  line_start: 4
+                  line_stop: 6
+                  col_start: 26
+                  col_stop: 6
+                  path: big_self.leo
+                  content: "    function x() -> Self {\n...\n    }"
+              span:
+                line_start: 4
+                line_stop: 6
+                col_start: 5
+                col_stop: 6
+                path: big_self.leo
+                content: "    function x() -> Self {\n...\n    }"
+    functions: {}

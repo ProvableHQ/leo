@@ -1,0 +1,94 @@
+---
+namespace: ParseStatement
+expectation: Pass
+outputs:
+  - Expression:
+      expression:
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"expression.leo\\\",\\\"content\\\":\\\"expr;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 5
+        path: expression.leo
+        content: expr;
+  - Expression:
+      expression:
+        TupleInit:
+          elements: []
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 3
+            path: expression.leo
+            content: ();
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 3
+        path: expression.leo
+        content: ();
+  - Expression:
+      expression:
+        Binary:
+          left:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"expression.leo\\\",\\\"content\\\":\\\"x+y;\\\"}\"}"
+          right:
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"expression.leo\\\",\\\"content\\\":\\\"x+y;\\\"}\"}"
+          op: Add
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 4
+            path: expression.leo
+            content: x+y;
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 4
+        path: expression.leo
+        content: x+y;
+  - Expression:
+      expression:
+        TupleInit:
+          elements:
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"expression.leo\\\",\\\"content\\\":\\\"(x,y);\\\"}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"expression.leo\\\",\\\"content\\\":\\\"(x,y);\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 6
+            path: expression.leo
+            content: "(x,y);"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 6
+        path: expression.leo
+        content: "(x,y);"
+  - Expression:
+      expression:
+        Call:
+          function:
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"expression.leo\\\",\\\"content\\\":\\\"x();\\\"}\"}"
+          arguments: []
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 4
+            path: expression.leo
+            content: x();
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 4
+        path: expression.leo
+        content: x();

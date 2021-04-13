@@ -1,0 +1,1053 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Value:
+      Integer:
+        - I16
+        - "123"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: i16.leo
+          content: 123i16
+  - Value:
+      Implicit:
+        - "123"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 4
+          path: i16.leo
+          content: "123"
+  - Value:
+      Integer:
+        - I16
+        - "456"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: i16.leo
+          content: 456i16
+  - Value:
+      Integer:
+        - I16
+        - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 84
+          path: i16.leo
+          content: 87377802873778028737780287377802873778028737780287377802873778028737780287377802i16
+  - Value:
+      Integer:
+        - I16
+        - "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 404
+          path: i16.leo
+          content: 8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802i16
+  - Value:
+      Integer:
+        - I16
+        - "340130024"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 340130024i16
+  - Value:
+      Integer:
+        - I16
+        - "158951116"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 158951116i16
+  - Value:
+      Integer:
+        - I16
+        - "155529659"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 155529659i16
+  - Value:
+      Integer:
+        - I16
+        - "642023166"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 642023166i16
+  - Value:
+      Integer:
+        - I16
+        - "228481736"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 228481736i16
+  - Value:
+      Integer:
+        - I16
+        - "469712960"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 469712960i16
+  - Value:
+      Integer:
+        - I16
+        - "929437719"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 929437719i16
+  - Value:
+      Integer:
+        - I16
+        - "721072814"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 721072814i16
+  - Value:
+      Integer:
+        - I16
+        - "363254789"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 363254789i16
+  - Value:
+      Integer:
+        - I16
+        - "906732565"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 906732565i16
+  - Value:
+      Integer:
+        - I16
+        - "288246391"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 288246391i16
+  - Value:
+      Integer:
+        - I16
+        - "724940549"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 724940549i16
+  - Value:
+      Integer:
+        - I16
+        - "487101620"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 487101620i16
+  - Value:
+      Integer:
+        - I16
+        - "261373583"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 261373583i16
+  - Value:
+      Integer:
+        - I16
+        - "891163927"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 891163927i16
+  - Value:
+      Integer:
+        - I16
+        - "743967544"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 743967544i16
+  - Value:
+      Integer:
+        - I16
+        - "8372586"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 11
+          path: i16.leo
+          content: 8372586i16
+  - Value:
+      Integer:
+        - I16
+        - "461793278"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 461793278i16
+  - Value:
+      Integer:
+        - I16
+        - "806307045"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 806307045i16
+  - Value:
+      Integer:
+        - I16
+        - "122764546"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 122764546i16
+  - Value:
+      Integer:
+        - I16
+        - "356336181"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 356336181i16
+  - Value:
+      Integer:
+        - I16
+        - "158370903"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 158370903i16
+  - Value:
+      Integer:
+        - I16
+        - "774460877"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 774460877i16
+  - Value:
+      Integer:
+        - I16
+        - "557174131"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 557174131i16
+  - Value:
+      Integer:
+        - I16
+        - "492401267"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 492401267i16
+  - Value:
+      Integer:
+        - I16
+        - "893445620"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 893445620i16
+  - Value:
+      Integer:
+        - I16
+        - "957757048"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 957757048i16
+  - Value:
+      Integer:
+        - I16
+        - "721540649"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 721540649i16
+  - Value:
+      Integer:
+        - I16
+        - "390746493"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 390746493i16
+  - Value:
+      Integer:
+        - I16
+        - "211251725"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 211251725i16
+  - Value:
+      Integer:
+        - I16
+        - "938266114"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 938266114i16
+  - Value:
+      Integer:
+        - I16
+        - "156985870"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 156985870i16
+  - Value:
+      Integer:
+        - I16
+        - "703831126"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 703831126i16
+  - Value:
+      Integer:
+        - I16
+        - "729964155"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 729964155i16
+  - Value:
+      Integer:
+        - I16
+        - "988151305"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 988151305i16
+  - Value:
+      Integer:
+        - I16
+        - "320872435"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 320872435i16
+  - Value:
+      Integer:
+        - I16
+        - "719287167"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 719287167i16
+  - Value:
+      Integer:
+        - I16
+        - "152289486"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 152289486i16
+  - Value:
+      Integer:
+        - I16
+        - "740067975"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 740067975i16
+  - Value:
+      Integer:
+        - I16
+        - "728627816"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 728627816i16
+  - Value:
+      Integer:
+        - I16
+        - "385008978"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 385008978i16
+  - Value:
+      Integer:
+        - I16
+        - "553967635"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 553967635i16
+  - Value:
+      Integer:
+        - I16
+        - "71980713"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: i16.leo
+          content: 71980713i16
+  - Value:
+      Integer:
+        - I16
+        - "519444716"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 519444716i16
+  - Value:
+      Integer:
+        - I16
+        - "116499965"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 116499965i16
+  - Value:
+      Integer:
+        - I16
+        - "717422268"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 717422268i16
+  - Value:
+      Integer:
+        - I16
+        - "18966279"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: i16.leo
+          content: 18966279i16
+  - Value:
+      Integer:
+        - I16
+        - "22458638"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: i16.leo
+          content: 22458638i16
+  - Value:
+      Integer:
+        - I16
+        - "857282620"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 857282620i16
+  - Value:
+      Integer:
+        - I16
+        - "920675898"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 920675898i16
+  - Value:
+      Integer:
+        - I16
+        - "762235516"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 762235516i16
+  - Value:
+      Integer:
+        - I16
+        - "469018377"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 469018377i16
+  - Value:
+      Integer:
+        - I16
+        - "199986521"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 199986521i16
+  - Value:
+      Integer:
+        - I16
+        - "536679358"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 536679358i16
+  - Value:
+      Integer:
+        - I16
+        - "591399452"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 591399452i16
+  - Value:
+      Integer:
+        - I16
+        - "83083158"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: i16.leo
+          content: 83083158i16
+  - Value:
+      Integer:
+        - I16
+        - "599449051"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 599449051i16
+  - Value:
+      Integer:
+        - I16
+        - "445442318"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 445442318i16
+  - Value:
+      Integer:
+        - I16
+        - "585486590"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 585486590i16
+  - Value:
+      Integer:
+        - I16
+        - "209278800"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 209278800i16
+  - Value:
+      Integer:
+        - I16
+        - "873568117"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 873568117i16
+  - Value:
+      Integer:
+        - I16
+        - "664470940"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 664470940i16
+  - Value:
+      Integer:
+        - I16
+        - "465262783"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 465262783i16
+  - Value:
+      Integer:
+        - I16
+        - "605652874"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 605652874i16
+  - Value:
+      Integer:
+        - I16
+        - "376803940"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 376803940i16
+  - Value:
+      Integer:
+        - I16
+        - "965247040"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 965247040i16
+  - Value:
+      Integer:
+        - I16
+        - "598474509"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 598474509i16
+  - Value:
+      Integer:
+        - I16
+        - "845119918"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 845119918i16
+  - Value:
+      Integer:
+        - I16
+        - "648159133"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 648159133i16
+  - Value:
+      Integer:
+        - I16
+        - "669051032"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 669051032i16
+  - Value:
+      Integer:
+        - I16
+        - "800600261"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 800600261i16
+  - Value:
+      Integer:
+        - I16
+        - "434689764"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 434689764i16
+  - Value:
+      Integer:
+        - I16
+        - "520060080"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 520060080i16
+  - Value:
+      Integer:
+        - I16
+        - "804659385"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 804659385i16
+  - Value:
+      Integer:
+        - I16
+        - "537828058"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 537828058i16
+  - Value:
+      Integer:
+        - I16
+        - "716600292"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 716600292i16
+  - Value:
+      Integer:
+        - I16
+        - "387020273"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 387020273i16
+  - Value:
+      Integer:
+        - I16
+        - "199375617"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 199375617i16
+  - Value:
+      Integer:
+        - I16
+        - "680337189"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 680337189i16
+  - Value:
+      Integer:
+        - I16
+        - "818479931"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 818479931i16
+  - Value:
+      Integer:
+        - I16
+        - "893693281"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 893693281i16
+  - Value:
+      Integer:
+        - I16
+        - "87377802"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: i16.leo
+          content: 87377802i16
+  - Value:
+      Integer:
+        - I16
+        - "84699261"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: i16.leo
+          content: 84699261i16
+  - Value:
+      Integer:
+        - I16
+        - "292826090"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 292826090i16
+  - Value:
+      Integer:
+        - I16
+        - "569171405"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 569171405i16
+  - Value:
+      Integer:
+        - I16
+        - "387436237"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 387436237i16
+  - Value:
+      Integer:
+        - I16
+        - "150682190"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 150682190i16
+  - Value:
+      Integer:
+        - I16
+        - "888770419"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 888770419i16
+  - Value:
+      Integer:
+        - I16
+        - "824696431"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 824696431i16
+  - Value:
+      Integer:
+        - I16
+        - "765659803"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 765659803i16
+  - Value:
+      Integer:
+        - I16
+        - "270163693"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 270163693i16
+  - Value:
+      Integer:
+        - I16
+        - "427940240"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 427940240i16
+  - Value:
+      Integer:
+        - I16
+        - "504997332"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 504997332i16
+  - Value:
+      Integer:
+        - I16
+        - "337808338"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 337808338i16
+  - Value:
+      Integer:
+        - I16
+        - "907200008"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 907200008i16
+  - Value:
+      Integer:
+        - I16
+        - "757177889"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 757177889i16
+  - Value:
+      Integer:
+        - I16
+        - "696697188"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 696697188i16
+  - Value:
+      Integer:
+        - I16
+        - "41376051"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: i16.leo
+          content: 41376051i16
+  - Value:
+      Integer:
+        - I16
+        - "496293518"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 496293518i16
+  - Value:
+      Integer:
+        - I16
+        - "251218820"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: i16.leo
+          content: 251218820i16

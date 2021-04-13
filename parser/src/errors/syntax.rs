@@ -16,7 +16,7 @@
 
 use leo_ast::{FormattedError, LeoError, Span};
 
-use crate::{DeprecatedError, Token, TokenError};
+use crate::{DeprecatedError, SyntaxResult, Token, TokenError};
 
 #[derive(Debug, Error)]
 pub enum SyntaxError {
@@ -31,6 +31,17 @@ pub enum SyntaxError {
 }
 
 impl LeoError for SyntaxError {}
+
+pub fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> SyntaxResult<()> {
+    if left_span.col_stop != right_span.col_start {
+        let mut error_span = left_span + right_span;
+        error_span.col_start = left_span.col_stop - 1;
+        error_span.col_stop = right_span.col_start - 1;
+        return Err(SyntaxError::unexpected_whitespace(left, right, &error_span));
+    }
+
+    Ok(())
+}
 
 impl SyntaxError {
     fn new_from_span(message: String, span: &Span) -> Self {

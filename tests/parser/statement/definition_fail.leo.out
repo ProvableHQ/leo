@@ -1,0 +1,27 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "    --> test: 1:0\n     |\n   1 | let mut x = expr;\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | let mut x = ();\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | let mut x = x+y;\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | let mut x = (x,y);\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | let mut x = x();\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x = expr;\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x = ();\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x = x+y;\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x = (x,y);\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x = x();\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | let mut x: u32 = expr;\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | let mut x: u32 = ();\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | let mut x: u32 = x+y;\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | let mut x: u32 = (x,y);\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | let mut x: u32 = x();\n     |^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x: u32 = expr;\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x: u32 = ();\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x: u32 = x+y;\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x: u32 = (x,y);\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:0\n     |\n   1 | const mut x: u32 = x();\n     |^^^^^^^^^\n     |\n     = let mut = ... is deprecated. `let` keyword implies mutabality by default."
+  - "    --> test: 1:10\n     |\n   1 | let (x,y,,) = ();\n     |          ^\n     |\n     = expected 'ident', got ','"
+  - "    --> test: 1:6\n     |\n   1 | let (,x,y) = ();\n     |      ^\n     |\n     = expected 'ident', got ','"
+  - "    --> test: 1:8\n     |\n   1 | let (x,,y) = ();\n     |        ^\n     |\n     = expected 'ident', got ','"
