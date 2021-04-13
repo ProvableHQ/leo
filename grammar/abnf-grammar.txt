@@ -813,7 +813,7 @@ cast-expression = unary-expression
 ; i.e. 'a ** b ** c' must be parsed as '(a ** b) ** c'.
 
 exponential-expression = cast-expression
-                       / exponential-expression "**" cast-expression
+                       / cast-expression "**" exponential-expression
 
 ; Next in precedence come multiplication and division, both left-associative.
 
