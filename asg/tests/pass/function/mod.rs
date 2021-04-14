@@ -73,7 +73,7 @@ fn test_const_args_used() {
 fn test_const_args_fail() {
     let program_string = r#"
     function index(arr: [u8; 3], const value: u32) -> u8 {
-        return arr[value]
+        return arr[value];
     }
     
     function main(x_value: u32) {

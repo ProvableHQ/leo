@@ -8,4 +8,4 @@ return
 return 5
 
 return
-if x {} 
+if x {}

@@ -83,6 +83,14 @@ fn test_iteration_input() {
 }
 
 #[test]
+fn test_iteration_wrong_type() {
+    let program_string = include_str!("iteration_type_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
+}
+
+#[test]
 fn test_iteration_variable() {
     let program_string = include_str!("iteration_variable.leo");
     let program = parse_program(program_string).unwrap();
