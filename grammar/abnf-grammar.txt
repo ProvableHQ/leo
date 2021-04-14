@@ -446,12 +446,6 @@ identifier = letter *( letter / digit / "_" )   ; but not a keyword
 package-name = 1*( lowercase-letter / digit )
                *( "-" 1*( lowercase-letter / digit ) )
 
-; An address starts with 'aleo1'
-; and continues with exactly 58 lowercase letters and digits.
-; Thus an address always consists of 63 characters.
-
-address = %s"aleo1" 58( lowercase-letter / digit )
-
 ; A format string is a sequence of characters, other than double quote,
 ; surrounded by double quotes.
 ; Within a format string, sub-strings '{}' are distinguished as containers
@@ -466,9 +460,9 @@ address = %s"aleo1" 58( lowercase-letter / digit )
 
 format-string-container = "{}"
 
-not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF / %x5c%x22
+not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
 
-not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF / %x5c%x22
+not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
 
 format-string-element = not-double-quote-or-open-brace
                       / "{" not-double-quote-or-close-brace
@@ -536,10 +530,11 @@ product-group-literal = integer %s"group"
 
 boolean-literal = %s"true" / %s"false"
 
-; An address literal is an address wrapped into an indication of address,
-; to differentiate it from an identifier.
+; An address literal starts with 'aleo1'
+; and continues with exactly 58 lowercase letters and digits.
+; Thus an address always consists of 63 characters.
 
-address-literal = %s"address" "(" address ")"
+address-literal = %s"aleo1" 58( lowercase-letter / digit )
 
 ; The ones above are all the atomic literals
 ; (in the sense that they are tokens, without whitespace allowed in them),
