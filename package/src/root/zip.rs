@@ -106,7 +106,8 @@ impl ZipFile {
             // Write file or directory
             if path.is_file() {
                 tracing::info!("Adding file {:?} as {:?}", path, name);
-                zip.start_file(name.to_string_lossy(), options)?;
+                #[allow(deprecated)]
+                zip.start_file_from_path(name, options)?;
                 let mut f = File::open(path)?;
 
                 f.read_to_end(&mut buffer)?;
@@ -116,7 +117,8 @@ impl ZipFile {
                 // Only if not root Avoids path spec / warning
                 // and mapname conversion failed error on unzip
                 tracing::info!("Adding directory {:?} as {:?}", path, name);
-                zip.add_directory(name.to_string_lossy(), options)?;
+                #[allow(deprecated)]
+                zip.add_directory_from_path(name, options)?;
             }
         }
 
