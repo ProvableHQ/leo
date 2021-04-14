@@ -802,18 +802,13 @@ unary-expression = postfix-expression
                  / "!" unary-expression
                  / "-" unary-expression
 
-; Next in the operator precedence is casting.
-
-cast-expression = unary-expression
-                / cast-expression %s"as" type
-
 ; Next in the operator precedence is exponentiation,
 ; following mathematical practice.
 ; The current rule below makes exponentiation left-associative,
 ; i.e. 'a ** b ** c' must be parsed as '(a ** b) ** c'.
 
-exponential-expression = cast-expression
-                       / cast-expression "**" exponential-expression
+exponential-expression = unary-expression
+                       / unary-expression "**" exponential-expression
 
 ; Next in precedence come multiplication and division, both left-associative.
 
