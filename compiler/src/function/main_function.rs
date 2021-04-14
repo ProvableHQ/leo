@@ -35,17 +35,16 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
-        if function.has_input {
-            // let input_var = function.scope.
-            let asg_input = function
-                .scope
-                .resolve_input()
-                .expect("no input variable in scope when function is qualified");
+        let asg_input = function.scope.resolve_input();
 
-            let value =
-                self.allocate_input_keyword(cs, &function.name.borrow().span, &asg_input.container_circuit, input)?;
+        match asg_input {
+            Some(asg_input) => {
+                let value =
+                    self.allocate_input_keyword(cs, &function.name.borrow().span, &asg_input.container_circuit, input)?;
 
-            self.store(asg_input.container.borrow().id, value);
+                self.store(asg_input.container.borrow().id, value);
+            }
+            None => (),
         }
 
         match function.qualifier {

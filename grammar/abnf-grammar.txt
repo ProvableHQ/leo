@@ -973,10 +973,9 @@ function-declaration = *annotation %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
                        block
 
-function-parameters = self-parameter [ "," input-parameter ]
-                    / self-parameter "," function-inputs [ "," input-parameter ]
-                    / function-inputs [ "," input-parameter ]
-                    / input-parameter
+function-parameters = self-parameter
+                    / self-parameter "," function-inputs
+                    / function-inputs
 
 self-parameter = [ %s"mut" / %s"const" ] %s"self"
 

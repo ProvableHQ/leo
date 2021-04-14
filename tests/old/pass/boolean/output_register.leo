@@ -1,3 +1,3 @@
-function main(input) -> bool {
+function main() -> bool {
     return input.registers.r
 }
