@@ -885,7 +885,7 @@ expression-statement = expression ";"
 ; A return statement always takes an expression,
 ; and does not end with a semicolon.
 
-return-statement = %s"return" expression
+return-statement = %s"return" expression ";"
 
 ; There are two kinds of variable definition statements,
 ; which only differ in the starting keyword.

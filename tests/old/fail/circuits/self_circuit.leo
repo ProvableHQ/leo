@@ -1,6 +1,6 @@
 circuit Foo {
     static function new() -> Self {
-        return Self { }
+        return Self { };
     }
 }
 

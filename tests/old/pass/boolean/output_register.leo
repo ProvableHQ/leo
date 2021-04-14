@@ -1,3 +1,3 @@
 function main() -> bool {
-    return input.registers.r
+    return input.registers.r;
 }

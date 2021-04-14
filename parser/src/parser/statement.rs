@@ -167,7 +167,7 @@ impl ParserContext {
     pub fn parse_return_statement(&mut self) -> SyntaxResult<ReturnStatement> {
         let start = self.expect(Token::Return)?;
         let expr = self.parse_expression()?;
-        self.eat(Token::Semicolon);
+        self.expect(Token::Semicolon)?;
 
         Ok(ReturnStatement {
             span: &start + expr.span(),

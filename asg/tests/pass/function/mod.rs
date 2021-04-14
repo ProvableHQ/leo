@@ -32,7 +32,7 @@ fn test_iteration() {
 fn test_const_args() {
     let program_string = r#"
     function one(const value: u32) -> u32 {
-        return value + 1
+        return value + 1;
     }
     
     function main() {
@@ -52,7 +52,7 @@ fn test_const_args() {
 fn test_const_args_used() {
     let program_string = r#"
     function index(arr: [u8; 3], const value: u32) -> u8 {
-        return arr[value]
+        return arr[value];
     }
     
     function main() {

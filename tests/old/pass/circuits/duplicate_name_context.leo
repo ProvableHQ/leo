@@ -2,7 +2,7 @@ circuit Bar {
     b2: u32
 
     function add_five(z:u32) -> u32 {
-        return z+5u32
+        return z+5u32;
     }
 }
 

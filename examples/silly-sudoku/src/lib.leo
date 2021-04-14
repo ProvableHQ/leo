@@ -65,6 +65,6 @@ circuit SillySudoku {
         }
 
         // Returns true if all numbers 1-9 have been seen exactly once.
-        return result
+        return result;
     }
 }
