@@ -466,9 +466,15 @@ address = %s"aleo1" 58( lowercase-letter / digit )
 
 format-string-container = "{}"
 
-format-string = double-quote
-                   *( not-double-quote / format-string-container )
-                   double-quote
+not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF / %x5c%x22
+
+not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF / %x5c%x22
+
+format-string-element = not-double-quote-or-open-brace
+                      / "{" not-double-quote-or-close-brace
+                      / format-string-container
+
+format-string = double-quote *format-string-element double-quote
 
 ; Here is (part of this ABNF comment),
 ; an alternative way to specify format strings,
