@@ -756,7 +756,7 @@ array-expression = array-construction
 ; so they are syntactically identical but semantically different.
 
 circuit-construction = circuit-type "{"
-                       circuit-inline-element *( "," circuit-inline-element )
+                       circuit-inline-element *( "," circuit-inline-element ) [ "," ]
                        "}"
 
 circuit-inline-element = identifier ":" expression / identifier
