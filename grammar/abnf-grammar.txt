@@ -452,26 +452,26 @@ package-name = 1*( lowercase-letter / digit )
 
 address = %s"aleo1" 58( lowercase-letter / digit )
 
-; A formatted string is a sequence of characters, other than double quote,
+; A format string is a sequence of characters, other than double quote,
 ; surrounded by double quotes.
-; Within a formatted string, sub-strings '{}' are distinguished as containers
+; Within a format string, sub-strings '{}' are distinguished as containers
 ; (these are the ones that may be matched with values
 ; whose textual representation replaces the containers
 ; in the printed string).
 ; There is an implicit extra-grammatical requirements that
-; the explicit 'formatted-string-container' instances include
+; the explicit 'format-string-container' instances include
 ; all the occurrences of '{}' in the parsed character sequence:
 ; that is, there may not be two contiguous 'not-double-quote' instances
 ; that are '{' and '}'.
 
-formatted-string-container = "{}"
+format-string-container = "{}"
 
-formatted-string = double-quote
-                   *( not-double-quote / formatted-string-container )
+format-string = double-quote
+                   *( not-double-quote / format-string-container )
                    double-quote
 
 ; Here is (part of this ABNF comment),
-; an alternative way to specify formatted strings,
+; an alternative way to specify format strings,
 ; which captures the extra-grammatical requirement above in the grammar,
 ; but is more complicated:
 ;
@@ -479,11 +479,11 @@ formatted-string = double-quote
 ;
 ;  not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
 ;
-;  formatted-string-element = not-double-quote-or-open-brace
+;  format-string-element = not-double-quote-or-open-brace
 ;                           / "{" not-double-quote-or-close-brace
-;                           / formatted-string-container
+;                           / format-string-container
 ;
-;  formatted-string = double-quote *formatted-string-element double-quote
+;  format-string = double-quote *format-string-element double-quote
 ;
 ; It is not immediately clear which approach is better; there are tradeoffs.
 ; We may choose to adopt this one in future revisions of the grammar.
@@ -595,7 +595,7 @@ token = keyword
       / identifier
       / atomic-literal
       / package-name
-      / formatted-string
+      / format-string
       / annotation-name
       / symbol
 
@@ -936,8 +936,8 @@ assignment-statement = expression assignment-operator expression ";"
 ; The call may be an assertion or a print command.
 ; The former takes an expression (which must be boolean) as argument.
 ; The latter takes either no argument,
-; or a formatted string followed by expressions,
-; whose number must match the number of containers '{}' in the formatted string.
+; or a format string followed by expressions,
+; whose number must match the number of containers '{}' in the format string.
 ; Note that the console function names are identifiers, not keywords.
 ; There are three kinds of print commands.
 
@@ -950,7 +950,7 @@ assert-call = %s"assert" "(" expression ")"
 
 print-function = %s"debug" / %s"error" / %s"log"
 
-print-arguments = "(" [ formatted-string *( "," expression ) ] ")"
+print-arguments = "(" [ format-string *( "," expression ) ] ")"
 
 print-call = print-function print-arguments
 

@@ -222,13 +222,13 @@ impl ParserContext {
     }
 
     ///
-    /// Returns a [`FormattedString`] AST node if the next tokens represent a formatted string.
+    /// Returns a [`FormatString`] AST node if the next tokens represent a formatted string.
     ///
-    pub fn parse_formatted_string(&mut self) -> SyntaxResult<FormattedString> {
+    pub fn parse_formatted_string(&mut self) -> SyntaxResult<FormatString> {
         let start_span;
         let parts = match self.expect_any()? {
             SpannedToken {
-                token: Token::FormattedString(parts),
+                token: Token::FormatString(parts),
                 span,
             } => {
                 start_span = span;
@@ -242,12 +242,12 @@ impl ParserContext {
             parameters.push(param);
         }
 
-        Ok(FormattedString {
+        Ok(FormatString {
             parts: parts
                 .into_iter()
                 .map(|x| match x {
-                    crate::FormattedStringPart::Const(value) => FormattedStringPart::Const(value),
-                    crate::FormattedStringPart::Container => FormattedStringPart::Container,
+                    crate::FormatStringPart::Const(value) => FormatStringPart::Const(value),
+                    crate::FormatStringPart::Container => FormatStringPart::Container,
                 })
                 .collect(),
             span: &start_span + parameters.last().map(|x| x.span()).unwrap_or(&start_span),
