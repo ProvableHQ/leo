@@ -75,7 +75,7 @@ fn underline(mut start: usize, mut end: usize) -> String {
 
 impl fmt::Display for FormattedError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let underline = underline(self.col_start - 1, self.col_stop - 1);
+        let underline = underline(self.col_start, self.col_stop);
 
         write!(
             f,
@@ -99,7 +99,7 @@ impl fmt::Display for FormattedError {
 
         write!(
             f,
-            "{indent     } |  {underline}\n\
+            "{indent     } |{underline}\n\
              {indent     } |\n\
              {indent     } = {message}",
             indent = INDENT,
@@ -121,8 +121,8 @@ fn test_error() {
         path: std::sync::Arc::new("file.leo".to_string()),
         line_start: 2,
         line_stop: 2,
-        col_start: 8,
-        col_stop: 9,
+        col_start: 9,
+        col_stop: 10,
         content: "let a = x;".into(),
         message: "undefined value `x`".to_string(),
     };
@@ -130,7 +130,7 @@ fn test_error() {
     assert_eq!(
         err.to_string(),
         vec![
-            "    --> file.leo: 2:8",
+            "    --> file.leo: 2:9",
             "     |",
             "   2 | let a = x;",
             "     |         ^",

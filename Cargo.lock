@@ -138,11 +138,10 @@ checksum = "58946044516aa9dc922182e0d6e9d124a31aafe6b421614654eb27cf90cec09c"
 
 [[package]]
 name = "bincode"
-version = "1.3.2"
+version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d175dfa69e619905c4c3cdb7c3c203fa3bdd5d51184e3afdb2742c0280493772"
+checksum = "b1f45e9417d87227c7a56d22e471c6206462cba514c7590c09aff4cf6d1ddcad"
 dependencies = [
- "byteorder",
  "serde",
 ]
 
@@ -639,6 +638,12 @@ dependencies = [
  "redox_users",
  "winapi 0.3.9",
 ]
+
+[[package]]
+name = "dtoa"
+version = "0.4.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56899898ce76aaf4a0f24d914c97ea6ed976d42fec6ad33fcbb0a1103e07b2b0"
 
 [[package]]
 name = "either"
@@ -1241,7 +1246,7 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "leo-abnf"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "abnf",
  "anyhow",
@@ -1249,7 +1254,7 @@ dependencies = [
 
 [[package]]
 name = "leo-asg"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "criterion",
  "indexmap",
@@ -1265,14 +1270,14 @@ dependencies = [
 
 [[package]]
 name = "leo-asg-passes"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "leo-asg",
 ]
 
 [[package]]
 name = "leo-ast"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "anyhow",
  "criterion",
@@ -1287,7 +1292,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "bincode",
  "hex",
@@ -1322,7 +1327,7 @@ dependencies = [
 
 [[package]]
 name = "leo-imports"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "indexmap",
  "leo-asg",
@@ -1334,7 +1339,7 @@ dependencies = [
 
 [[package]]
 name = "leo-input"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "from-pest",
  "pest",
@@ -1346,8 +1351,9 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
+ "ansi_term 0.12.1",
  "anyhow",
  "clap",
  "colored",
@@ -1385,11 +1391,11 @@ dependencies = [
 
 [[package]]
 name = "leo-linter"
-version = "1.2.3"
+version = "1.3.0"
 
 [[package]]
 name = "leo-package"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "lazy_static",
  "serde",
@@ -1402,7 +1408,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "criterion",
  "indexmap",
@@ -1410,6 +1416,7 @@ dependencies = [
  "leo-ast",
  "serde",
  "serde_json",
+ "serde_yaml",
  "tendril",
  "thiserror",
  "tracing",
@@ -1417,7 +1424,7 @@ dependencies = [
 
 [[package]]
 name = "leo-state"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "indexmap",
  "leo-ast",
@@ -1435,7 +1442,7 @@ dependencies = [
 
 [[package]]
 name = "leo-synthesizer"
-version = "1.2.3"
+version = "1.3.0"
 dependencies = [
  "num-bigint",
  "serde",
@@ -1498,6 +1505,12 @@ dependencies = [
  "pkg-config",
  "vcpkg",
 ]
+
+[[package]]
+name = "linked-hash-map"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fb9b38af92608140b86b693604b9ffcc5824240a484d1ecd4795bacb2fe88f3"
 
 [[package]]
 name = "lock_api"
@@ -2253,9 +2266,9 @@ dependencies = [
 
 [[package]]
 name = "reqwest"
-version = "0.11.2"
+version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf12057f289428dbf5c591c74bf10392e4a8003f993405a902f20117019022d4"
+checksum = "2296f2fac53979e8ccbc4a1136b25dcefd37be9ed7e4a1f6b05a6029c84ff124"
 dependencies = [
  "base64",
  "bytes",
@@ -2507,6 +2520,18 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_yaml"
+version = "0.8.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "15654ed4ab61726bf918a39cb8d98a2e2995b002387807fa6ba58fdf7f59bb23"
+dependencies = [
+ "dtoa",
+ "linked-hash-map",
+ "serde",
+ "yaml-rust",
 ]
 
 [[package]]
@@ -3421,6 +3446,15 @@ name = "wyz"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "85e60b0d1b5f99db2556934e21937020776a5d31520bf169e851ac44e6420214"
+
+[[package]]
+name = "yaml-rust"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56c1936c4cc7a1c9ab21a1ebb602eb942ba868cbd44a99cb7cdc5892335e1c85"
+dependencies = [
+ "linked-hash-map",
+]
 
 [[package]]
 name = "zip"

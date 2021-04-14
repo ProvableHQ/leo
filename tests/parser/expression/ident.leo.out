@@ -1,0 +1,23 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"x\\\"}\"}"
+  - Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"X\\\"}\"}"
+  - Identifier: "{\"name\":\"xxx\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"xxx\\\"}\"}"
+  - Identifier: "{\"name\":\"XXX\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":4,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"XXX\\\"}\"}"
+  - Identifier: "{\"name\":\"x1\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":3,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"x1\\\"}\"}"
+  - Identifier: "{\"name\":\"xu32\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"xu32\\\"}\"}"
+  - Identifier: "{\"name\":\"testx\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"testx\\\"}\"}"
+  - Identifier: "{\"name\":\"truex\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"truex\\\"}\"}"
+  - Identifier: "{\"name\":\"TRUE\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"TRUE\\\"}\"}"
+  - Identifier: "{\"name\":\"testX\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"testX\\\"}\"}"
+  - Identifier: "{\"name\":\"letX\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"letX\\\"}\"}"
+  - Identifier: "{\"name\":\"constX\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":7,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"constX\\\"}\"}"
+  - Identifier: "{\"name\":\"test_test\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":10,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"test_test\\\"}\"}"
+  - Identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"self\\\"}\"}"
+  - Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"Self\\\"}\"}"
+  - Identifier: "{\"name\":\"input\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"input\\\"}\"}"
+  - Identifier: "{\"name\":\"selfX\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"selfX\\\"}\"}"
+  - Identifier: "{\"name\":\"SelfX\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":6,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"SelfX\\\"}\"}"
+  - Identifier: "{\"name\":\"inputX\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":7,\\\"path\\\":\\\"ident.leo\\\",\\\"content\\\":\\\"inputX\\\"}\"}"
