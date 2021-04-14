@@ -3,7 +3,7 @@ circuit TestMe {
 
     function test_me(mut self) -> u8 {
         self.x += 1;
-        return self.x
+        return self.x;
     }
 }
 

@@ -5,7 +5,7 @@ function iteration() -> u32 {
         a += 1;
     }
 
-    return a
+    return a;
 }
 
 function main() {

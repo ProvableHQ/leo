@@ -5,5 +5,5 @@ function main(
     u32,
     u32,
 ) {
-    return (a, b)
+    return (a, b);
 }

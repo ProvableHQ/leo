@@ -1,0 +1,7 @@
+---
+namespace: ParseStatement
+expectation: Fail
+outputs:
+  - "    --> test: 1:1\n     |\n   1 | return\n     | ^^^^^^\n     |\n     = unexpected EOF"
+  - "    --> test: 1:8\n     |\n   1 | return 5\n     |        ^\n     |\n     = unexpected EOF"
+  - "    --> test: 2:1\n     |\n   2 | if x {}\n     | ^^\n     |\n     = expected 'expression', got 'if'"
