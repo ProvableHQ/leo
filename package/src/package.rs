@@ -197,7 +197,12 @@ impl Package {
     }
 
     /// Creates a package at the given path
-    pub fn initialize(package_name: &str, is_lib: bool, path: &Path) -> Result<(), PackageError> {
+    pub fn initialize(
+        package_name: &str,
+        is_lib: bool,
+        path: &Path,
+        author: Option<String>,
+    ) -> Result<(), PackageError> {
         // First, verify that this directory is not already initialized as a Leo package.
         {
             if !Self::can_initialize(package_name, is_lib, path) {
@@ -210,7 +215,7 @@ impl Package {
         // Next, initialize this directory as a Leo package.
         {
             // Create the manifest file.
-            Manifest::new(&package_name)?.write_to(&path)?;
+            Manifest::new(&package_name, author)?.write_to(&path)?;
 
             // Verify that the .gitignore file does not exist.
             if !Gitignore::exists_at(&path) {
