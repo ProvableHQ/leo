@@ -222,9 +222,9 @@ workflows:
       - leo-login-logout:
           requires:
             - leo-executable
-      - leo-clone:
-          requires:
-            - leo-executable
+#      - leo-clone:
+#          requires:
+#            - leo-executable
       - leo-publish:
           requires:
             - leo-executable
