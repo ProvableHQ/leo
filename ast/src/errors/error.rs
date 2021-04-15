@@ -79,7 +79,7 @@ impl fmt::Display for FormattedError {
 
         write!(
             f,
-            "{indent     }--> {path}: {line_start}:{start}\n\
+            "{indent     }--> {path}:{line_start}:{start}\n\
              {indent     } |\n",
             indent = INDENT,
             path = &*self.path,
@@ -130,7 +130,7 @@ fn test_error() {
     assert_eq!(
         err.to_string(),
         vec![
-            "    --> file.leo: 2:9",
+            "    --> file.leo:2:9",
             "     |",
             "   2 | let a = x;",
             "     |         ^",
