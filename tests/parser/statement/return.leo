@@ -12,3 +12,6 @@ return ();
 return x+y;
 
 return (x,y);
+
+return
+5;

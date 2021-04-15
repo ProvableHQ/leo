@@ -17,8 +17,8 @@
 //! Evaluates a formatted string in a compiled Leo program.
 
 use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
-use leo_asg::FormattedString;
-use leo_ast::FormattedStringPart;
+use leo_asg::FormatString;
+use leo_ast::FormatStringPart;
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
@@ -26,13 +26,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn format<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        formatted: &FormattedString<'a>,
+        formatted: &FormatString<'a>,
     ) -> Result<String, ConsoleError> {
         // Check that containers and parameters match
         let container_count = formatted
             .parts
             .iter()
-            .filter(|x| matches!(x, FormattedStringPart::Container))
+            .filter(|x| matches!(x, FormatStringPart::Container))
             .count();
         if container_count != formatted.parameters.len() {
             return Err(ConsoleError::length(
@@ -51,8 +51,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let mut parameters = executed_containers.iter();
         for part in formatted.parts.iter() {
             match part {
-                FormattedStringPart::Const(c) => out.push(&**c),
-                FormattedStringPart::Container => out.push(&**parameters.next().unwrap()),
+                FormatStringPart::Const(c) => out.push(&**c),
+                FormatStringPart::Container => out.push(&**parameters.next().unwrap()),
             }
         }
 

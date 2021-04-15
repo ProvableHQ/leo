@@ -15,14 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
-use leo_ast::{ConsoleFunction as AstConsoleFunction, FormattedStringPart};
+use leo_ast::{ConsoleFunction as AstConsoleFunction, FormatStringPart};
 
 use std::cell::Cell;
 
 // TODO (protryon): Refactor to not require/depend on span
 #[derive(Clone)]
-pub struct FormattedString<'a> {
-    pub parts: Vec<FormattedStringPart>,
+pub struct FormatString<'a> {
+    pub parts: Vec<FormatStringPart>,
     pub parameters: Vec<Cell<&'a Expression<'a>>>,
     pub span: Span,
 }
@@ -30,9 +30,9 @@ pub struct FormattedString<'a> {
 #[derive(Clone)]
 pub enum ConsoleFunction<'a> {
     Assert(Cell<&'a Expression<'a>>),
-    Debug(FormattedString<'a>),
-    Error(FormattedString<'a>),
-    Log(FormattedString<'a>),
+    Debug(FormatString<'a>),
+    Error(FormatString<'a>),
+    Log(FormatString<'a>),
 }
 
 #[derive(Clone)]
@@ -48,16 +48,16 @@ impl<'a> Node for ConsoleStatement<'a> {
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::FormattedString> for FormattedString<'a> {
+impl<'a> FromAst<'a, leo_ast::FormatString> for FormatString<'a> {
     fn from_ast(
         scope: &'a Scope<'a>,
-        value: &leo_ast::FormattedString,
+        value: &leo_ast::FormatString,
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
         let expected_param_len = value
             .parts
             .iter()
-            .filter(|x| matches!(x, FormattedStringPart::Container))
+            .filter(|x| matches!(x, FormatStringPart::Container))
             .count();
         if value.parameters.len() != expected_param_len {
             // + 1 for formatting string as to not confuse user
@@ -71,7 +71,7 @@ impl<'a> FromAst<'a, leo_ast::FormattedString> for FormattedString<'a> {
         for parameter in value.parameters.iter() {
             parameters.push(Cell::new(<&Expression<'a>>::from_ast(scope, parameter, None)?));
         }
-        Ok(FormattedString {
+        Ok(FormatString {
             parts: value.parts.clone(),
             parameters,
             span: value.span.clone(),
@@ -79,9 +79,9 @@ impl<'a> FromAst<'a, leo_ast::FormattedString> for FormattedString<'a> {
     }
 }
 
-impl<'a> Into<leo_ast::FormattedString> for &FormattedString<'a> {
-    fn into(self) -> leo_ast::FormattedString {
-        leo_ast::FormattedString {
+impl<'a> Into<leo_ast::FormatString> for &FormatString<'a> {
+    fn into(self) -> leo_ast::FormatString {
+        leo_ast::FormatString {
             parts: self.parts.clone(),
             parameters: self.parameters.iter().map(|e| e.get().into()).collect(),
             span: self.span.clone(),
@@ -103,13 +103,13 @@ impl<'a> FromAst<'a, leo_ast::ConsoleStatement> for ConsoleStatement<'a> {
                     <&Expression<'a>>::from_ast(scope, expression, Some(Type::Boolean.into()))?,
                 )),
                 AstConsoleFunction::Debug(formatted_string) => {
-                    ConsoleFunction::Debug(FormattedString::from_ast(scope, formatted_string, None)?)
+                    ConsoleFunction::Debug(FormatString::from_ast(scope, formatted_string, None)?)
                 }
                 AstConsoleFunction::Error(formatted_string) => {
-                    ConsoleFunction::Error(FormattedString::from_ast(scope, formatted_string, None)?)
+                    ConsoleFunction::Error(FormatString::from_ast(scope, formatted_string, None)?)
                 }
                 AstConsoleFunction::Log(formatted_string) => {
-                    ConsoleFunction::Log(FormattedString::from_ast(scope, formatted_string, None)?)
+                    ConsoleFunction::Log(FormatString::from_ast(scope, formatted_string, None)?)
                 }
             },
         })

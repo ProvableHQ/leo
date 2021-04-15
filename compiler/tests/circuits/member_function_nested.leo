@@ -2,11 +2,11 @@ circuit Foo {
     x: u32,
 
     function add_x(self, y: u32) -> u32 {
-        return self.x + y
+        return self.x + y;
     }
 
     function call_add_x(self, y: u32) -> u32 {
-        return self.add_x(y)
+        return self.add_x(y);
     }
 }
 

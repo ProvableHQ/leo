@@ -32,6 +32,7 @@ use serde::{Deserialize, Serialize};
 
 pub const LEO_CREDENTIALS_FILE: &str = "credentials";
 pub const LEO_CONFIG_FILE: &str = "config.toml";
+pub const LEO_USERNAME_FILE: &str = "username";
 
 lazy_static! {
     pub static ref LEO_CONFIG_DIRECTORY: PathBuf = {
@@ -42,6 +43,11 @@ lazy_static! {
     pub static ref LEO_CREDENTIALS_PATH: PathBuf = {
         let mut path = LEO_CONFIG_DIRECTORY.to_path_buf();
         path.push(LEO_CREDENTIALS_FILE);
+        path
+    };
+    pub static ref LEO_USERNAME_PATH: PathBuf = {
+        let mut path = LEO_CONFIG_DIRECTORY.to_path_buf();
+        path.push(LEO_USERNAME_FILE);
         path
     };
     pub static ref LEO_CONFIG_PATH: PathBuf = {
@@ -129,7 +135,7 @@ impl Config {
     }
 }
 
-pub fn write_token(token: &str) -> Result<(), io::Error> {
+pub fn write_token_and_username(token: &str, username: &str) -> Result<(), io::Error> {
     let config_dir = LEO_CONFIG_DIRECTORY.clone();
 
     // Create Leo config directory if it not exists
@@ -139,6 +145,10 @@ pub fn write_token(token: &str) -> Result<(), io::Error> {
 
     let mut credentials = File::create(&LEO_CREDENTIALS_PATH.to_path_buf())?;
     credentials.write_all(&token.as_bytes())?;
+
+    let mut username_file = File::create(&LEO_USERNAME_PATH.to_path_buf())?;
+    username_file.write_all(&username.as_bytes())?;
+
     Ok(())
 }
 
@@ -149,7 +159,15 @@ pub fn read_token() -> Result<String, io::Error> {
     Ok(buf)
 }
 
-pub fn remove_token() -> Result<(), io::Error> {
+pub fn read_username() -> Result<String, io::Error> {
+    let mut username = File::open(&LEO_USERNAME_PATH.to_path_buf())?;
+    let mut buf = String::new();
+    username.read_to_string(&mut buf)?;
+    Ok(buf)
+}
+
+pub fn remove_token_and_username() -> Result<(), io::Error> {
     fs::remove_file(&LEO_CREDENTIALS_PATH.to_path_buf())?;
+    fs::remove_file(&LEO_USERNAME_PATH.to_path_buf())?;
     Ok(())
 }

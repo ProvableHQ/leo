@@ -47,7 +47,6 @@ pub struct Function<'a> {
     pub id: u32,
     pub name: RefCell<Identifier>,
     pub output: Type<'a>,
-    pub has_input: bool,
     pub arguments: IndexMap<String, Cell<&'a Variable<'a>>>,
     pub circuit: Cell<Option<&'a Circuit<'a>>>,
     pub span: Option<Span>,
@@ -77,16 +76,12 @@ impl<'a> Function<'a> {
             .transpose()?
             .unwrap_or_else(|| Type::Tuple(vec![]));
         let mut qualifier = FunctionQualifier::Static;
-        let mut has_input = false;
         let new_scope = scope.make_subscope();
 
         let mut arguments = IndexMap::new();
         {
             for input in value.input.iter() {
                 match input {
-                    FunctionInput::InputKeyword(_) => {
-                        has_input = true;
-                    }
                     FunctionInput::SelfKeyword(_) => {
                         qualifier = FunctionQualifier::SelfRef;
                     }
@@ -125,7 +120,6 @@ impl<'a> Function<'a> {
             id: scope.context.get_id(),
             name: RefCell::new(value.identifier.clone()),
             output,
-            has_input,
             arguments,
             circuit: Cell::new(None),
             body: Cell::new(None),

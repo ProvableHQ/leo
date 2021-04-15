@@ -2,7 +2,7 @@ circuit Foo {
     foo: u32,
 
     function bar() -> u32 {
-        return 1u32
+        return 1u32;
     }
 }
 

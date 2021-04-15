@@ -1,9 +1,9 @@
 function main (x: bool) -> bool {
     if false {
-        return x
+        return x;
     } else if x {
-        return false
+        return false;
     } else {
-        return false
+        return false;
     }
 }

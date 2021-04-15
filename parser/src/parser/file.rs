@@ -312,14 +312,6 @@ impl ParserContext {
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
     pub fn parse_function_parameters(&mut self) -> SyntaxResult<FunctionInput> {
-        if let Some(token) = self.eat(Token::Input) {
-            return Ok(FunctionInput::InputKeyword(InputKeyword {
-                identifier: Identifier {
-                    name: token.token.to_string().into(),
-                    span: token.span,
-                },
-            }));
-        }
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
         let mut name = if let Some(token) = self.eat(Token::LittleSelf) {

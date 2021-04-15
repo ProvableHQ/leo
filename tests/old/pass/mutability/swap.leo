@@ -3,7 +3,7 @@ function swap(a: [u32; 2], const i: u32, const j: u32) -> [u32; 2] {
     const t = a[i];
     a[i] = a[j];
     a[j] = t;
-    return a
+    return a;
 }
 
 function main() {
