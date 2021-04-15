@@ -70,13 +70,6 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         let (name, span) = (&statement.assignee.identifier.name, &statement.assignee.identifier.span);
 
         let variable = if name.as_ref() == "input" {
-            if let Some(function) = scope.resolve_current_function() {
-                if !function.has_input {
-                    return Err(AsgConvertError::unresolved_reference(name, &span));
-                }
-            } else {
-                return Err(AsgConvertError::unresolved_reference(name, &span));
-            }
             if let Some(input) = scope.resolve_input() {
                 input.container
             } else {

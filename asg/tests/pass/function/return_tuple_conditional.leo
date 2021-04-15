@@ -4,9 +4,9 @@ function tuple_conditional () -> (
     i64
 ) {
     if true {
-        return (1, 1)
+        return (1, 1);
     } else {
-        return (2, 2)
+        return (2, 2);
     }
 }
 

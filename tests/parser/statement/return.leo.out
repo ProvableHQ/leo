@@ -90,3 +90,21 @@ outputs:
         col_stop: 13
         path: return.leo
         content: "return (x,y);"
+  - Return:
+      expression:
+        Value:
+          Implicit:
+            - "5"
+            - line_start: 2
+              line_stop: 2
+              col_start: 1
+              col_stop: 2
+              path: return.leo
+              content: 5;
+      span:
+        line_start: 1
+        line_stop: 2
+        col_start: 1
+        col_stop: 2
+        path: return.leo
+        content: "return\n5;"

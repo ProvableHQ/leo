@@ -1,5 +1,5 @@
 function foo() -> (bool, bool) {
-    return (true, false)
+    return (true, false);
 }
 
 function main() {

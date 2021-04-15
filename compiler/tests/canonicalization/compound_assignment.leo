@@ -4,7 +4,7 @@ circuit Foo {
 
   function z (mut self) -> u16 {
     self.y.0 += 1u8;
-    return 1u16
+    return 1u16;
   }
 }
 function main() {

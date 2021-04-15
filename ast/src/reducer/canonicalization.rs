@@ -324,7 +324,7 @@ impl Canonicalizer {
                             .map(|parameter| self.canonicalize_expression(parameter))
                             .collect();
 
-                        let formatted = FormattedString {
+                        let formatted = FormatString {
                             parts: format.parts.clone(),
                             parameters,
                             span: format.span.clone(),

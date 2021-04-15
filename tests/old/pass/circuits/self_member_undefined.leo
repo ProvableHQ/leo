@@ -1,6 +1,6 @@
 circuit Foo {
     function bar() -> u32 {
-        return self.f
+        return self.f;
     }
 }
 

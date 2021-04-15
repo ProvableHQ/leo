@@ -2,7 +2,7 @@ circuit Foo {
     x: u32,
 
     function echo(self) -> u32 {
-        return self.x
+        return self.x;
     }
 }
 

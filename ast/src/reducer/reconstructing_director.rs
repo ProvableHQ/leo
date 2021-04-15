@@ -418,7 +418,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                     parameters.push(self.reduce_expression(parameter)?);
                 }
 
-                let formatted = FormattedString {
+                let formatted = FormatString {
                     parts: format.parts.clone(),
                     parameters,
                     span: format.span.clone(),

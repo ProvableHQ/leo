@@ -384,5 +384,5 @@ function main() {
     const x382: u8 = x381;
     const x383: u8 = x382;
 
-    return x383
+    return x383;
 }
