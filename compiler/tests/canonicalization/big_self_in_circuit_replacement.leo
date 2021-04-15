@@ -6,7 +6,7 @@ circuit Foo {
       x: 1u32
     };
 
-    return new
+    return new;
   }
 }
 

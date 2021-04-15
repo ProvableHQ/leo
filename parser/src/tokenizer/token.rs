@@ -20,16 +20,16 @@ use tendril::StrTendril;
 
 /// Parts of a formatted string for logging to the console.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum FormattedStringPart {
+pub enum FormatStringPart {
     Const(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Container,
 }
 
-impl fmt::Display for FormattedStringPart {
+impl fmt::Display for FormatStringPart {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            FormattedStringPart::Const(c) => write!(f, "{}", c),
-            FormattedStringPart::Container => write!(f, "{{}}"),
+            FormatStringPart::Const(c) => write!(f, "{}", c),
+            FormatStringPart::Container => write!(f, "{{}}"),
         }
     }
 }
@@ -41,7 +41,7 @@ pub enum Token {
     // Literals
     CommentLine(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     CommentBlock(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
-    FormattedString(Vec<FormattedStringPart>),
+    FormatString(Vec<FormatStringPart>),
     Ident(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Int(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     True,
@@ -204,7 +204,7 @@ impl fmt::Display for Token {
         match self {
             CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
-            FormattedString(parts) => {
+            FormatString(parts) => {
                 // todo escapes
                 write!(f, "\"")?;
                 for part in parts.iter() {

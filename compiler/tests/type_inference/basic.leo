@@ -1,7 +1,7 @@
 circuit Foo {}
 
 function two() -> u8 {
-  return 2u8
+  return 2u8;
 }
 
 function main() {

@@ -16,7 +16,7 @@ function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {
 
     console.log("The answer is {}.", result);
 
-    return result
+    return result;
 }
 
 // Tests that the `silly-sudoku` circuit outputs true on a correct answer.

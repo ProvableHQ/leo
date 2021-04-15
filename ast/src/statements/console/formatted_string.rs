@@ -21,19 +21,19 @@ use std::fmt;
 use tendril::StrTendril;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub enum FormattedStringPart {
+pub enum FormatStringPart {
     Const(#[serde(with = "crate::common::tendril_json")] StrTendril),
     Container,
 }
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct FormattedString {
-    pub parts: Vec<FormattedStringPart>,
+pub struct FormatString {
+    pub parts: Vec<FormatStringPart>,
     pub parameters: Vec<Expression>,
     pub span: Span,
 }
 
-impl fmt::Display for FormattedString {
+impl fmt::Display for FormatString {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -41,8 +41,8 @@ impl fmt::Display for FormattedString {
             self.parts
                 .iter()
                 .map(|x| match x {
-                    FormattedStringPart::Const(x) => x,
-                    FormattedStringPart::Container => "{}",
+                    FormatStringPart::Const(x) => x,
+                    FormatStringPart::Container => "{}",
                 })
                 .collect::<Vec<_>>()
                 .join("")
@@ -50,7 +50,7 @@ impl fmt::Display for FormattedString {
     }
 }
 
-impl Node for FormattedString {
+impl Node for FormatString {
     fn span(&self) -> &Span {
         &self.span
     }

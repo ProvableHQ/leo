@@ -446,32 +446,32 @@ identifier = letter *( letter / digit / "_" )   ; but not a keyword
 package-name = 1*( lowercase-letter / digit )
                *( "-" 1*( lowercase-letter / digit ) )
 
-; An address starts with 'aleo1'
-; and continues with exactly 58 lowercase letters and digits.
-; Thus an address always consists of 63 characters.
-
-address = %s"aleo1" 58( lowercase-letter / digit )
-
-; A formatted string is a sequence of characters, other than double quote,
+; A format string is a sequence of characters, other than double quote,
 ; surrounded by double quotes.
-; Within a formatted string, sub-strings '{}' are distinguished as containers
+; Within a format string, sub-strings '{}' are distinguished as containers
 ; (these are the ones that may be matched with values
 ; whose textual representation replaces the containers
 ; in the printed string).
 ; There is an implicit extra-grammatical requirements that
-; the explicit 'formatted-string-container' instances include
+; the explicit 'format-string-container' instances include
 ; all the occurrences of '{}' in the parsed character sequence:
 ; that is, there may not be two contiguous 'not-double-quote' instances
 ; that are '{' and '}'.
 
-formatted-string-container = "{}"
+format-string-container = "{}"
 
-formatted-string = double-quote
-                   *( not-double-quote / formatted-string-container )
-                   double-quote
+not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
+
+not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
+
+format-string-element = not-double-quote-or-open-brace
+                      / "{" not-double-quote-or-close-brace
+                      / format-string-container
+
+format-string = double-quote *format-string-element double-quote
 
 ; Here is (part of this ABNF comment),
-; an alternative way to specify formatted strings,
+; an alternative way to specify format strings,
 ; which captures the extra-grammatical requirement above in the grammar,
 ; but is more complicated:
 ;
@@ -479,11 +479,11 @@ formatted-string = double-quote
 ;
 ;  not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
 ;
-;  formatted-string-element = not-double-quote-or-open-brace
+;  format-string-element = not-double-quote-or-open-brace
 ;                           / "{" not-double-quote-or-close-brace
-;                           / formatted-string-container
+;                           / format-string-container
 ;
-;  formatted-string = double-quote *formatted-string-element double-quote
+;  format-string = double-quote *format-string-element double-quote
 ;
 ; It is not immediately clear which approach is better; there are tradeoffs.
 ; We may choose to adopt this one in future revisions of the grammar.
@@ -530,10 +530,11 @@ product-group-literal = integer %s"group"
 
 boolean-literal = %s"true" / %s"false"
 
-; An address literal is an address wrapped into an indication of address,
-; to differentiate it from an identifier.
+; An address literal starts with 'aleo1'
+; and continues with exactly 58 lowercase letters and digits.
+; Thus an address always consists of 63 characters.
 
-address-literal = %s"address" "(" address ")"
+address-literal = %s"aleo1" 58( lowercase-letter / digit )
 
 ; The ones above are all the atomic literals
 ; (in the sense that they are tokens, without whitespace allowed in them),
@@ -595,7 +596,7 @@ token = keyword
       / identifier
       / atomic-literal
       / package-name
-      / formatted-string
+      / format-string
       / annotation-name
       / symbol
 
@@ -756,7 +757,7 @@ array-expression = array-construction
 ; so they are syntactically identical but semantically different.
 
 circuit-construction = circuit-type "{"
-                       circuit-inline-element *( "," circuit-inline-element )
+                       circuit-inline-element *( "," circuit-inline-element ) [ "," ]
                        "}"
 
 circuit-inline-element = identifier ":" expression / identifier
@@ -802,18 +803,13 @@ unary-expression = postfix-expression
                  / "!" unary-expression
                  / "-" unary-expression
 
-; Next in the operator precedence is casting.
-
-cast-expression = unary-expression
-                / cast-expression %s"as" type
-
 ; Next in the operator precedence is exponentiation,
 ; following mathematical practice.
 ; The current rule below makes exponentiation left-associative,
 ; i.e. 'a ** b ** c' must be parsed as '(a ** b) ** c'.
 
-exponential-expression = cast-expression
-                       / cast-expression "**" exponential-expression
+exponential-expression = unary-expression
+                       / unary-expression "**" exponential-expression
 
 ; Next in precedence come multiplication and division, both left-associative.
 
@@ -890,7 +886,7 @@ expression-statement = expression ";"
 ; A return statement always takes an expression,
 ; and does not end with a semicolon.
 
-return-statement = %s"return" expression
+return-statement = %s"return" expression ";"
 
 ; There are two kinds of variable definition statements,
 ; which only differ in the starting keyword.
@@ -936,8 +932,8 @@ assignment-statement = expression assignment-operator expression ";"
 ; The call may be an assertion or a print command.
 ; The former takes an expression (which must be boolean) as argument.
 ; The latter takes either no argument,
-; or a formatted string followed by expressions,
-; whose number must match the number of containers '{}' in the formatted string.
+; or a format string followed by expressions,
+; whose number must match the number of containers '{}' in the format string.
 ; Note that the console function names are identifiers, not keywords.
 ; There are three kinds of print commands.
 
@@ -950,7 +946,7 @@ assert-call = %s"assert" "(" expression ")"
 
 print-function = %s"debug" / %s"error" / %s"log"
 
-print-arguments = "(" [ formatted-string *( "," expression ) ] ")"
+print-arguments = "(" [ format-string *( "," expression ) ] ")"
 
 print-call = print-function print-arguments
 
@@ -973,10 +969,9 @@ function-declaration = *annotation %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
                        block
 
-function-parameters = self-parameter [ "," input-parameter ]
-                    / self-parameter "," function-inputs [ "," input-parameter ]
-                    / function-inputs [ "," input-parameter ]
-                    / input-parameter
+function-parameters = self-parameter
+                    / self-parameter "," function-inputs
+                    / function-inputs
 
 self-parameter = [ %s"mut" / %s"const" ] %s"self"
 

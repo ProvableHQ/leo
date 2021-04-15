@@ -2,7 +2,7 @@ circuit Foo {
     x: u8
 
     function new(x: u8) -> Self {
-        return Self { x }
+        return Self { x };
     }
 }
 

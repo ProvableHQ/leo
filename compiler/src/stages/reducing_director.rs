@@ -78,7 +78,7 @@ use leo_ast::{
     DefinitionStatement as AstDefinitionStatement,
     Expression as AstExpression,
     ExpressionStatement as AstExpressionStatement,
-    FormattedString,
+    FormatString,
     Function as AstFunction,
     GroupTuple,
     GroupValue as AstGroupValue,
@@ -592,7 +592,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                     parameters.push(self.reduce_expression(&ast_parameter, asg_parameter.get())?);
                 }
 
-                let formatted = FormattedString {
+                let formatted = FormatString {
                     parts: ast_format.parts.clone(),
                     parameters,
                     span: ast_format.span.clone(),

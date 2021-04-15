@@ -19,7 +19,10 @@ use crate::{
     commands::Command,
     context::{Context, PACKAGE_MANAGER_URL},
 };
-use leo_package::{outputs::OutputsDirectory, root::ZipFile};
+use leo_package::{
+    outputs::OutputsDirectory,
+    root::{ZipFile, AUTHOR_PLACEHOLDER},
+};
 
 use anyhow::{anyhow, Result};
 use reqwest::{
@@ -70,11 +73,19 @@ impl Command for Publish {
         };
 
         let package_remote = manifest.get_package_remote().unwrap();
+        let username = package_remote.clone().author;
 
-        // Create the output directory
+        // Prevent most common error before accessing API.
+        if username == AUTHOR_PLACEHOLDER {
+            return Err(anyhow!(
+                "Package author is not set. Specify package author in [remote] section of Leo.toml"
+            ));
+        }
+
+        // Create the output directory.
         OutputsDirectory::create(&path)?;
 
-        // Create zip file
+        // Create zip file.
         let zip_file = ZipFile::new(&package_name);
         if zip_file.exists_at(&path) {
             tracing::debug!("Existing package zip file found. Clearing it to regenerate.");

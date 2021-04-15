@@ -71,7 +71,7 @@ impl<'a> ExpressionNode<'a> for CallExpression<'a> {
     }
 
     fn is_mut_ref(&self) -> bool {
-        false
+        true
     }
 
     fn const_value(&self) -> Option<ConstValue> {

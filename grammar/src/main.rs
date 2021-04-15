@@ -179,7 +179,7 @@ impl<'a> Processor<'a> {
 fn parse_abnf_node(node: &Node, sum: &mut Vec<String>) {
     match node {
         // these two are just vectors of rules
-        Node::Alternation(vec) | Node::Concatenation(vec) => {
+        Node::Alternatives(vec) | Node::Concatenation(vec) => {
             for node in vec {
                 parse_abnf_node(node, sum);
             }

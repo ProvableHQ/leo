@@ -20,7 +20,7 @@ use reqwest::{
     Method,
     StatusCode,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Trait describes API Routes and Request bodies, struct which implements
 /// Route MUST also support Serialize to be usable in Api::run_route(r: Route)
@@ -184,12 +184,18 @@ impl Route for Login {
 
 /// Handler for 'my_profile' route. Meant to be used to get profile details but
 /// in current application is used to check if user is logged in. Any non-200 response
-/// is treated as Unauthorized
+/// is treated as Unauthorized.
 #[derive(Serialize)]
 pub struct Profile {}
 
+#[derive(Deserialize)]
+pub struct ProfileResponse {
+    username: String,
+}
+
 impl Route for Profile {
-    type Output = bool;
+    // Some with Username is success, None is failure.
+    type Output = Option<String>;
 
     const AUTH: bool = true;
     const METHOD: Method = Method::GET;
@@ -197,6 +203,12 @@ impl Route for Profile {
 
     fn process(&self, res: Response) -> Result<Self::Output> {
         // this may be extended for more precise error handling
-        Ok(res.status() == 200)
+        let status = res.status();
+        if status == StatusCode::OK {
+            let body: ProfileResponse = res.json()?;
+            return Ok(Some(body.username));
+        }
+
+        Ok(None)
     }
 }

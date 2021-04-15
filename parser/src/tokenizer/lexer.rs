@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::tokenizer::{FormattedStringPart, Token};
+use crate::tokenizer::{FormatStringPart, Token};
 use leo_ast::Span;
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
@@ -125,11 +125,11 @@ impl Token {
                                 continue;
                             }
                             if start < i {
-                                segments.push(FormattedStringPart::Const(
+                                segments.push(FormatStringPart::Const(
                                     input_tendril.subtendril(start as u32, (i - start) as u32),
                                 ));
                             }
-                            segments.push(FormattedStringPart::Container);
+                            segments.push(FormatStringPart::Container);
                             start = i + 2;
                             i = start;
                             continue;
@@ -143,11 +143,11 @@ impl Token {
                     return (0, None);
                 }
                 if start < i {
-                    segments.push(FormattedStringPart::Const(
+                    segments.push(FormatStringPart::Const(
                         input_tendril.subtendril(start as u32, (i - start) as u32),
                     ));
                 }
-                return (i + 1, Some(Token::FormattedString(segments)));
+                return (i + 1, Some(Token::FormatString(segments)));
             }
             x if x.is_ascii_digit() => {
                 return Self::eat_integer(&input_tendril);

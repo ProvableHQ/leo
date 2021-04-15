@@ -118,7 +118,7 @@ pub trait MonoidalReducerStatement<'a, T: Monoid>: MonoidalReducerExpression<'a,
         condition.append(if_true).append_option(if_false)
     }
 
-    fn reduce_formatted_string(&mut self, input: &FormattedString<'a>, parameters: Vec<T>) -> T {
+    fn reduce_formatted_string(&mut self, input: &FormatString<'a>, parameters: Vec<T>) -> T {
         T::default().append_all(parameters.into_iter())
     }
 
