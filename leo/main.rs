@@ -58,6 +58,13 @@ struct Opt {
     #[structopt(
         long,
         global = true,
+        help = "Aleo PM API Url"
+    )]
+    api: Option<String>,
+
+    #[structopt(
+        long,
+        global = true,
         help = "Optional path to Leo program root folder",
         parse(from_os_str)
     )]
@@ -192,8 +199,8 @@ fn main() {
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
     let context = handle_error(match opt.path {
-        Some(path) => context::create_context(path),
-        None => context::get_context(),
+        Some(path) => context::create_context(path, opt.api),
+        None => context::get_context(opt.api),
     });
 
     handle_error(match opt.command {

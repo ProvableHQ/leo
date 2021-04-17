@@ -100,7 +100,7 @@ impl Api {
         };
 
         // only one error is possible here
-        let res = res.send().map_err(|_| anyhow!("Unable to connect to Aleo PM"))?;
+        let res = res.send().map_err(|_| anyhow!("Unable to connect to Aleo PM. Check URL if you specified custom API endpoint"))?;
 
         // where magic begins
         route.process(res)

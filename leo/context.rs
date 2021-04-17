@@ -48,19 +48,19 @@ impl Context {
 }
 
 /// Create a new context for the current directory.
-pub fn create_context(path: PathBuf) -> Result<Context> {
+pub fn create_context(path: PathBuf, api_url: Option<String>) -> Result<Context> {
     let token = config::read_token().ok();
 
-    let api = Api::new(PACKAGE_MANAGER_URL.to_string(), token);
+    let api = Api::new(api_url.unwrap_or(PACKAGE_MANAGER_URL.to_string()), token);
 
     Ok(Context { api, path: Some(path) })
 }
 
 /// Returns project context.
-pub fn get_context() -> Result<Context> {
+pub fn get_context(api_url: Option<String>) -> Result<Context> {
     let token = config::read_token().ok();
 
-    let api = Api::new(PACKAGE_MANAGER_URL.to_string(), token);
+    let api = Api::new(api_url.unwrap_or(PACKAGE_MANAGER_URL.to_string()), token);
 
     Ok(Context { api, path: None })
 }
