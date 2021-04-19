@@ -83,11 +83,3 @@ fn test_for_loop_and_compound() {
 
     assert_eq!(expected_ast, ast);
 }
-
-// #[test]
-// fn test_big_self_outside_circuit_fail() {
-//     // Check program is invalid.
-//     let program_string = include_str!("big_self_outside_circuit_fail.leo");
-//     let program = parse_program(program_string);
-//     assert!(program.is_err());
-// }
