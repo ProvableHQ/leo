@@ -16,14 +16,7 @@
 
 //! Compiles a Leo program from a file path.
 
-use crate::{
-    constraints::{generate_constraints, generate_test_constraints},
-    errors::CompilerError,
-    CompilerOptions,
-    GroupType,
-    OutputBytes,
-    OutputFile,
-};
+use crate::{CompilerOptions, GroupType, Output, OutputFile, constraints::{generate_constraints, generate_test_constraints}, errors::CompilerError};
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, FormattedError, Program as AsgProgram};
 use leo_ast::{Input, MainInput, Program as AstProgram};
@@ -264,7 +257,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     /// Synthesizes the circuit with program input to verify correctness.
     ///
-    pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<OutputBytes, CompilerError> {
+    pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<Output, CompilerError> {
         generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input)
     }
 
@@ -329,7 +322,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'
 
         // Write results to file
         let output_file = OutputFile::new(&package_name);
-        output_file.write(&output_directory, result.bytes()).unwrap();
+        output_file.write(&output_directory, result.to_string().as_bytes()).unwrap();
 
         Ok(())
     }

@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 512
+      num_constraints: 675
+      at: da107701a842d40fe2af68152622ca69aa3496c7952cdbeb1b5f4fe69b2661ab
+      bt: 192ca0dd8a20d69b443b952a7226e8c82936fedd2c9735d2b792883a01e46e3b
+      ct: 04609638ad65317edb75529646b34f10a846b39b3ddb783e4aeceddde17b79f9
+    output:
+      - input_file: u32_3.in
+        output:
+          registers:
+            a:
+              type: bool
+              value: "true"

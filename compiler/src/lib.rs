@@ -62,3 +62,6 @@ pub use stage::*;
 
 pub mod option;
 pub use option::*;
+
+#[cfg(test)]
+mod test;

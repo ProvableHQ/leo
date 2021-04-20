@@ -1,0 +1,3 @@
+[main]
+a: field = 1;
+b: field = -1;

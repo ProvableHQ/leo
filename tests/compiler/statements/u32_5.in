@@ -1,0 +1,5 @@
+[main]
+x: u32 = 5;
+
+[registers]
+a: bool = false;

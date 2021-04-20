@@ -49,6 +49,10 @@ version = "1.4.0"
 path = "../asg-passes"
 version = "1.4.0"
 
+[dependencies.leo-synthesizer]
+path = "../synthesizer"
+version = "1.4.0"
+
 [dependencies.snarkvm-curves]
 version = "0.2.2"
 default-features = false
@@ -116,6 +120,13 @@ default-features = false
 
 [dev-dependencies.tempfile]
 version = "3.0.4"
+
+[dev-dependencies.serde_yaml]
+version = "0.8"
+
+[dev-dependencies.leo-test-framework]
+path = "../test-framework"
+version = "1.4.0"
 
 [features]
 default = [ ]

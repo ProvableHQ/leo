@@ -1,0 +1,2 @@
+[constants]
+bad_name: bool = true;

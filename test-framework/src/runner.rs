@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use serde_yaml::Value;
-use std::path::{Path, PathBuf};
+use std::{collections::BTreeMap, path::{Path, PathBuf}};
 
 use crate::{error::*, fetch::find_tests, output::TestExpectation, test::*};
 
@@ -26,10 +26,17 @@ pub enum ParseType {
     Whole,
 }
 
+pub struct Test {
+    pub name: String,
+    pub content: String,
+    pub path: PathBuf,
+    pub config: BTreeMap<String, Value>,
+}
+
 pub trait Namespace {
     fn parse_type(&self) -> ParseType;
 
-    fn run_test(&self, test: &str) -> Result<Value, String>;
+    fn run_test(&self, test: Test) -> Result<Value, String>;
 }
 
 pub trait Runner {
@@ -55,7 +62,12 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
     for (path, content) in tests.into_iter() {
         let config = extract_test_config(&content);
         if config.is_none() {
-            panic!("missing configuration for {}", path);
+            //panic!("missing configuration for {}", path);
+            // fail_categories.push(TestFailure {
+            //     path,
+            //     errors: vec![TestError::MissingTestConfig],
+            // });
+            continue;
         }
         let config = config.unwrap();
         let namespace = runner.resolve_namespace(&config.namespace);
@@ -69,14 +81,21 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
         let mut expectation_path = expectation_dir.clone();
         expectation_path.push(expectation_category);
         expectation_path.push(relative_path.parent().expect("no parent dir for test"));
-        let mut test_name = relative_path
+        let mut expectation_name = relative_path
             .file_name()
             .expect("no file name for test")
             .to_str()
             .unwrap()
             .to_string();
-        test_name += ".out";
-        expectation_path.push(&test_name);
+            expectation_name += ".out";
+        expectation_path.push(&expectation_name);
+
+        let test_name = relative_path
+            .file_stem()
+            .expect("no file name for test")
+            .to_str()
+            .unwrap()
+            .to_string();
 
         let expectations: Option<TestExpectation> = if expectation_path.exists() {
             if !std::env::var("CLEAR_LEO_TEST_EXPECTATIONS")
@@ -120,13 +139,17 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
                 .as_mut()
                 .map(|x| x.next())
                 .flatten()
-                .map(|x| x.as_str())
-                .flatten();
-            let output = namespace.run_test(&test);
+                .cloned();
+            let output = namespace.run_test(Test {
+                name: test_name.clone(),
+                content: test.clone(),
+                path: path.into(),
+                config: config.extra.clone(),
+            });
             if let Some(error) = emit_errors(
                 output.as_ref().map_err(|x| &**x),
                 &config.expectation,
-                expected_output.map(|x| Value::String(x.to_string())),
+                expected_output,
                 i,
             ) {
                 fail_tests += 1;

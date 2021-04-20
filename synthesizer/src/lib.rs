@@ -20,6 +20,9 @@ pub use self::circuit_synthesizer::*;
 pub mod serialized_circuit;
 pub use self::serialized_circuit::*;
 
+pub mod summarized_circuit;
+pub use self::summarized_circuit::*;
+
 pub mod serialized_field;
 pub use self::serialized_field::*;
 

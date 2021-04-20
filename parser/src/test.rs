@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Expression, ExpressionStatement, Span, Statement, ValueExpression};
-use leo_test_framework::runner::{Namespace, ParseType, Runner};
+use leo_test_framework::{Test, runner::{Namespace, ParseType, Runner}};
 use serde_yaml::Value;
 use tokenizer::Token;
 
@@ -28,8 +28,8 @@ impl Namespace for TokenNamespace {
         ParseType::Line
     }
 
-    fn run_test(&self, test: &str) -> Result<Value, String> {
-        let output = tokenizer::tokenize("test", test.into());
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        let output = tokenizer::tokenize("test", test.content.into());
         output
             .map(|tokens| {
                 Value::String(
@@ -63,8 +63,8 @@ impl Namespace for ParseExpressionNamespace {
         ParseType::Line
     }
 
-    fn run_test(&self, test: &str) -> Result<Value, String> {
-        let tokenizer = tokenizer::tokenize("test", test.into()).map_err(|x| x.to_string())?;
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
         if tokenizer
             .iter()
             .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
@@ -91,8 +91,8 @@ impl Namespace for ParseStatementNamespace {
         ParseType::ContinuousLines
     }
 
-    fn run_test(&self, test: &str) -> Result<Value, String> {
-        let tokenizer = tokenizer::tokenize("test", test.into()).map_err(|x| x.to_string())?;
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
         if tokenizer
             .iter()
             .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
@@ -119,8 +119,8 @@ impl Namespace for ParseNamespace {
         ParseType::Whole
     }
 
-    fn run_test(&self, test: &str) -> Result<Value, String> {
-        let tokenizer = tokenizer::tokenize("test", test.into()).map_err(|x| x.to_string())?;
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
         let mut tokens = ParserContext::new(tokenizer);
 
         let parsed = tokens.parse_program().map_err(|x| x.to_string())?;

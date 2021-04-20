@@ -1,0 +1,5 @@
+[main]
+x: address = aleo18qgam03qe483tdrcc3fkqwpp38ehff4a2xma6lu7hams6lfpgcpq3dq05r;
+
+[registers]
+a: bool = false;

@@ -16,7 +16,7 @@
 
 //! Generates R1CS constraints for a compiled Leo program.
 
-use crate::{errors::CompilerError, ConstrainedProgram, GroupType, OutputBytes, OutputFile};
+use crate::{errors::CompilerError, ConstrainedProgram, GroupType, Output, OutputFile};
 use leo_asg::Program;
 use leo_ast::Input;
 use leo_input::LeoInputParser;
@@ -30,7 +30,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
     cs: &mut CS,
     program: &Program<'a>,
     input: &Input,
-) -> Result<OutputBytes, CompilerError> {
+) -> Result<Output, CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
 
     let main = {
@@ -121,7 +121,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
                 let output = result?;
                 let output_file = OutputFile::new(&output_file_name);
 
-                output_file.write(output_directory, output.bytes()).unwrap();
+                output_file.write(output_directory, output.to_string().as_bytes()).unwrap();
 
                 // increment passed tests
                 passed += 1;

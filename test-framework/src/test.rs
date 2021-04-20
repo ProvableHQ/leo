@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 // Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -24,6 +26,8 @@ pub enum TestExpectationMode {
 pub struct TestConfig {
     pub namespace: String,
     pub expectation: TestExpectationMode,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_yaml::Value>,
 }
 
 pub fn extract_test_config(source: &str) -> Option<TestConfig> {

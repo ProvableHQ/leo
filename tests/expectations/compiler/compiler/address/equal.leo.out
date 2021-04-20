@@ -1,0 +1,24 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 511
+      num_constraints: 511
+      at: 61e8ee994e9e7edc1f84fa3cbe8c421ade231189b9ddf6a9a75eeef9915c20f7
+      bt: 2194515882da93c79fa24d47c40fddc44f0284da25da7b89efb935c0ea7382f8
+      ct: a0736e8c8f3bb1c39a147348754e53dfd31fd76a1df9cd9960472841bcc531df
+    output:
+      - input_file: address1.in
+        output:
+          registers:
+            a:
+              type: bool
+              value: "true"
+      - input_file: address2.in
+        output:
+          registers:
+            a:
+              type: bool
+              value: "false"
