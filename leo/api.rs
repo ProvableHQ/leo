@@ -70,6 +70,10 @@ impl Api {
         }
     }
 
+    pub fn host(&self) -> &str {
+        &*self.host
+    }
+
     /// Get token for bearer auth, should be passed into Api through Context
     pub fn auth_token(&self) -> Option<String> {
         self.auth_token.clone()

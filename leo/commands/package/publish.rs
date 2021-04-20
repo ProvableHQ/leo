@@ -17,7 +17,7 @@
 use super::build::Build;
 use crate::{
     commands::Command,
-    context::{Context, PACKAGE_MANAGER_URL},
+    context::{Context},
 };
 use leo_package::{
     outputs::OutputsDirectory,
@@ -118,7 +118,7 @@ impl Command for Publish {
 
         // Make a request to publish a package
         let response = client
-            .post(format!("{}{}", PACKAGE_MANAGER_URL, PUBLISH_URL).as_str())
+            .post(format!("{}{}", context.api.host(), PUBLISH_URL).as_str())
             .headers(headers)
             .multipart(form_data)
             .send();
