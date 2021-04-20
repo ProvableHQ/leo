@@ -1,32 +1,18 @@
-Leo Library
+// Copyright (C) 2019-2021 Aleo Systems Inc.
+// This file is part of the Leo library.
 
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 
-Copyright (C) 2021 Aleo Systems Inc.
-
-
---------
-
-
-Format Note
------------
-
-The ABNF standard requires grammars to consist of lines terminated by CR LF
-(i.e. carriage return followed by line feed, DOS/Windows-style),
-as explained in the background on ABNF later in this file.
-This file's lines are therefore terminated by CR LF.
-To avoid losing this requirement across systems,
-this file is marked as 'text eol=crlf' in .gitattributes:
-this means that the file is textual, enabling visual diffs,
-but its lines will always be terminated by CR LF on any system.
-
-Note that this CR LF requirement only applies to the grammar files themselves.
-It does not apply to the lines of the languages described by the grammar.
-ABNF grammars may describe any kind of languages,
-with any kind of line terminators,
-or even without line terminators at all (e.g. for "binary" languages).
-
-
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 --------
 
 
@@ -1723,4 +1709,26 @@ Go to: _[import-declaration](#user-content-import-declaration), [circuit-declara
 <a name="file"></a>
 ```abnf
 file = *declaration
+```
 
+
+--------
+
+
+Format Note
+-----------
+
+The ABNF standard requires grammars to consist of lines terminated by CR LF
+(i.e. carriage return followed by line feed, DOS/Windows-style),
+as explained in the background on ABNF later in this file.
+This file's lines are therefore terminated by CR LF.
+To avoid losing this requirement across systems,
+this file is marked as 'text eol=crlf' in .gitattributes:
+this means that the file is textual, enabling visual diffs,
+but its lines will always be terminated by CR LF on any system.
+
+Note that this CR LF requirement only applies to the grammar files themselves.
+It does not apply to the lines of the languages described by the grammar.
+ABNF grammars may describe any kind of languages,
+with any kind of line terminators,
+or even without line terminators at all (e.g. for "binary" languages).
