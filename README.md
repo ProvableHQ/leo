@@ -95,9 +95,9 @@ This will generate an executable under the `./target/release` directory. To run 
 Use the Leo CLI to create a new project
 
 ```bash
-# create a new `hello_world` Leo project
-leo new hello_world
-cd hello_world
+# create a new `hello-world` Leo project
+leo new hello-world
+cd hello-world
 
 # build & setup & prove & verify
 leo run
