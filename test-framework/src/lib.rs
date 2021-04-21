@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+//! The test framework to run integration tests with Leo code text.
+//!
+//! This module contains the [`run_tests()`] method which runs all integration tests in the
+//! root [`tests/`] directory.
+//!
+//! To regenerate the tests after a syntax change or failing test, delete the [`tests/expectations/`]
+//! directory and run the [`parser_tests()`] test in [`parser/src/test.rs`].
+
 pub mod error;
 
 pub mod fetch;
