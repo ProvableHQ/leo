@@ -25,11 +25,78 @@ use crate::*;
 pub struct Canonicalizer {
     // If we are in a circuit keep track of the circuit name.
     circuit_name: Option<Identifier>,
+    in_circuit: bool,
+}
+
+impl Default for Canonicalizer {
+    fn default() -> Self {
+        Self {
+            circuit_name: None,
+            in_circuit: false,
+        }
+    }
 }
 
 impl Canonicalizer {
-    pub fn default() -> Self {
-        Self { circuit_name: None }
+    pub fn canonicalize_accesses(
+        &mut self,
+        start: Expression,
+        accesses: &[AssigneeAccess],
+        span: &Span,
+    ) -> Result<Box<Expression>, ReducerError> {
+        let mut left = Box::new(start);
+
+        for access in accesses.iter() {
+            match self.canonicalize_assignee_access(&access) {
+                AssigneeAccess::ArrayIndex(index) => {
+                    left = Box::new(Expression::ArrayAccess(ArrayAccessExpression {
+                        array: left,
+                        index: Box::new(index),
+                        span: span.clone(),
+                    }));
+                }
+                AssigneeAccess::Tuple(positive_number, _) => {
+                    left = Box::new(Expression::TupleAccess(TupleAccessExpression {
+                        tuple: left,
+                        index: positive_number,
+                        span: span.clone(),
+                    }));
+                }
+                AssigneeAccess::Member(identifier) => {
+                    left = Box::new(Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
+                        circuit: left,
+                        name: identifier,
+                        span: span.clone(),
+                    }));
+                }
+                _ => return Err(ReducerError::from(CombinerError::illegal_compound_array_range(&span))),
+            }
+        }
+
+        Ok(left)
+    }
+
+    pub fn compound_operation_converstion(
+        &mut self,
+        operation: &AssignOperation,
+    ) -> Result<BinaryOperation, ReducerError> {
+        match operation {
+            AssignOperation::Assign => unreachable!(),
+            AssignOperation::Add => Ok(BinaryOperation::Add),
+            AssignOperation::Sub => Ok(BinaryOperation::Sub),
+            AssignOperation::Mul => Ok(BinaryOperation::Mul),
+            AssignOperation::Div => Ok(BinaryOperation::Div),
+            AssignOperation::Pow => Ok(BinaryOperation::Pow),
+            AssignOperation::Or => Ok(BinaryOperation::Or),
+            AssignOperation::And => Ok(BinaryOperation::And),
+            AssignOperation::BitOr => Ok(BinaryOperation::BitOr),
+            AssignOperation::BitAnd => Ok(BinaryOperation::BitAnd),
+            AssignOperation::BitXor => Ok(BinaryOperation::BitXor),
+            AssignOperation::Shr => Ok(BinaryOperation::Shr),
+            AssignOperation::ShrSigned => Ok(BinaryOperation::ShrSigned),
+            AssignOperation::Shl => Ok(BinaryOperation::Shl),
+            AssignOperation::Mod => Ok(BinaryOperation::Mod),
+        }
     }
 
     fn is_self_type(&mut self, type_option: Option<&Type>) -> bool {
@@ -380,17 +447,21 @@ impl Canonicalizer {
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    fn reduce_type(
-        &mut self,
-        _type_: &Type,
-        new: Type,
-        in_circuit: bool,
-        span: &Span,
-    ) -> Result<Type, CanonicalizeError> {
+    fn in_circuit(&self) -> bool {
+        self.in_circuit
+    }
+
+    fn swap_in_circuit(&mut self) {
+        self.in_circuit = !self.in_circuit;
+    }
+
+    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type, ReducerError> {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
-                    return Err(CanonicalizeError::invalid_array_dimension_size(span));
+                    return Err(ReducerError::from(CanonicalizeError::invalid_array_dimension_size(
+                        span,
+                    )));
                 }
 
                 let mut next = Type::Array(type_, ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
@@ -407,7 +478,9 @@ impl ReconstructingReducer for Canonicalizer {
 
                 Ok(array)
             }
-            Type::SelfType if !in_circuit => Err(CanonicalizeError::big_self_outside_of_circuit(span)),
+            Type::SelfType if !self.in_circuit => {
+                Err(ReducerError::from(CanonicalizeError::big_self_outside_of_circuit(span)))
+            }
             _ => Ok(new.clone()),
         }
     }
@@ -416,10 +489,11 @@ impl ReconstructingReducer for Canonicalizer {
         &mut self,
         array_init: &ArrayInitExpression,
         element: Expression,
-        _in_circuit: bool,
-    ) -> Result<ArrayInitExpression, CanonicalizeError> {
+    ) -> Result<ArrayInitExpression, ReducerError> {
         if array_init.dimensions.is_zero() {
-            return Err(CanonicalizeError::invalid_array_dimension_size(&array_init.span));
+            return Err(ReducerError::from(CanonicalizeError::invalid_array_dimension_size(
+                &array_init.span,
+            )));
         }
 
         let element = Box::new(element);
@@ -466,58 +540,39 @@ impl ReconstructingReducer for Canonicalizer {
         assign: &AssignStatement,
         assignee: Assignee,
         value: Expression,
-        _in_circuit: bool,
-    ) -> Result<AssignStatement, CanonicalizeError> {
+    ) -> Result<AssignStatement, ReducerError> {
         match value {
+            Expression::Binary(binary_expr) if assign.operation != AssignOperation::Assign => {
+                let left = self.canonicalize_accesses(
+                    Expression::Identifier(assignee.identifier.clone()),
+                    &assignee.accesses,
+                    &assign.span,
+                )?;
+                let right = Box::new(Expression::Binary(binary_expr));
+                let op = self.compound_operation_converstion(&assign.operation)?;
+
+                let new_value = Expression::Binary(BinaryExpression {
+                    left,
+                    right,
+                    op,
+                    span: assign.span.clone(),
+                });
+
+                Ok(AssignStatement {
+                    operation: AssignOperation::Assign,
+                    assignee,
+                    value: new_value,
+                    span: assign.span.clone(),
+                })
+            }
             Expression::Value(value_expr) if assign.operation != AssignOperation::Assign => {
-                let mut left = Box::new(Expression::Identifier(assignee.identifier.clone()));
-
-                for access in assignee.accesses.iter() {
-                    match self.canonicalize_assignee_access(&access) {
-                        AssigneeAccess::ArrayIndex(index) => {
-                            left = Box::new(Expression::ArrayAccess(ArrayAccessExpression {
-                                array: left,
-                                index: Box::new(index),
-                                span: assign.span.clone(),
-                            }));
-                        }
-                        AssigneeAccess::Tuple(positive_number, _) => {
-                            left = Box::new(Expression::TupleAccess(TupleAccessExpression {
-                                tuple: left,
-                                index: positive_number,
-                                span: assign.span.clone(),
-                            }));
-                        }
-                        AssigneeAccess::Member(identifier) => {
-                            left = Box::new(Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
-                                circuit: left,
-                                name: identifier,
-                                span: assign.span.clone(),
-                            }));
-                        }
-                        _ => unimplemented!(), // No reason for someone to compute ArrayRanges.
-                    }
-                }
-
+                let left = self.canonicalize_accesses(
+                    Expression::Identifier(assignee.identifier.clone()),
+                    &assignee.accesses,
+                    &assign.span,
+                )?;
                 let right = Box::new(Expression::Value(value_expr));
-
-                let op = match assign.operation {
-                    AssignOperation::Assign => unimplemented!(), // Imposible
-                    AssignOperation::Add => BinaryOperation::Add,
-                    AssignOperation::Sub => BinaryOperation::Sub,
-                    AssignOperation::Mul => BinaryOperation::Mul,
-                    AssignOperation::Div => BinaryOperation::Div,
-                    AssignOperation::Pow => BinaryOperation::Pow,
-                    AssignOperation::Or => BinaryOperation::Or,
-                    AssignOperation::And => BinaryOperation::And,
-                    AssignOperation::BitOr => BinaryOperation::BitOr,
-                    AssignOperation::BitAnd => BinaryOperation::BitAnd,
-                    AssignOperation::BitXor => BinaryOperation::BitXor,
-                    AssignOperation::Shr => BinaryOperation::Shr,
-                    AssignOperation::ShrSigned => BinaryOperation::ShrSigned,
-                    AssignOperation::Shl => BinaryOperation::Shl,
-                    AssignOperation::Mod => BinaryOperation::Mod,
-                };
+                let op = self.compound_operation_converstion(&assign.operation)?;
 
                 let new_value = Expression::Binary(BinaryExpression {
                     left,
@@ -545,8 +600,7 @@ impl ReconstructingReducer for Canonicalizer {
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
-        _in_circuit: bool,
-    ) -> Result<Function, CanonicalizeError> {
+    ) -> Result<Function, ReducerError> {
         let new_output = match output {
             None => Some(Type::Tuple(vec![])),
             _ => output,
@@ -567,7 +621,7 @@ impl ReconstructingReducer for Canonicalizer {
         _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
-    ) -> Result<Circuit, CanonicalizeError> {
+    ) -> Result<Circuit, ReducerError> {
         self.circuit_name = Some(circuit_name.clone());
         let circ = Circuit {
             circuit_name,

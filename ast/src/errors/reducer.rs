@@ -14,54 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The compiler for Leo programs.
-//!
-//! The [`Compiler`] type compiles Leo programs into R1CS circuits.
+use crate::{CanonicalizeError, CombinerError, FormattedError, LeoError, Span};
 
-#![allow(clippy::module_inception)]
-#![allow(clippy::upper_case_acronyms)]
+#[derive(Debug, Error)]
+pub enum ReducerError {
+    #[error("{}", _0)]
+    Error(#[from] FormattedError),
 
-#[macro_use]
-extern crate thiserror;
+    #[error("{}", _0)]
+    CanonicalizeError(#[from] CanonicalizeError),
 
-pub mod compiler;
+    #[error("{}", _0)]
+    CombinerError(#[from] CombinerError),
+}
 
-pub mod console;
-pub use console::*;
+impl LeoError for ReducerError {}
 
-pub mod constraints;
-pub use constraints::*;
+impl ReducerError {
+    fn new_from_span(message: String, span: &Span) -> Self {
+        ReducerError::Error(FormattedError::new_from_span(message, span))
+    }
 
-pub mod definition;
+    pub fn impossible_console_assert_call(span: &Span) -> Self {
+        let message = "Console::Assert cannot be matched here, its handled in another case.".to_string();
 
-pub mod errors;
-
-pub mod expression;
-pub use expression::*;
-
-pub mod function;
-pub use function::*;
-
-pub mod output;
-pub use output::*;
-
-pub mod program;
-pub use program::*;
-
-pub mod statement;
-pub use statement::*;
-
-pub mod prelude;
-pub use prelude::*;
-
-pub mod value;
-pub use value::*;
-
-pub mod phase;
-pub use phase::*;
-
-pub mod phases;
-pub use phases::*;
-
-pub mod option;
-pub use option::*;
+        Self::new_from_span(message, span)
+    }
+}

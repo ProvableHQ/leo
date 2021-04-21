@@ -24,6 +24,9 @@ function main() {
   foo.f += 2u8;
   console.assert(foo.f == 8u8);
 
+  let complex = 2u8;
+  complex += 22u8 - 2u8+ 1u8;
+  console.assert(complex == 23u8);
   let a = [[0u8; 1]; 4];
   a[2][0] += 1u8;
   console.assert(a[2][0] == 1u8);

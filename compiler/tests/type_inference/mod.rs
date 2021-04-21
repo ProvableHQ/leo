@@ -14,9 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, parse_program, parse_program_with_input};
+use crate::{assert_satisfied, parse_program};
+#[allow(unused)]
+use leo_asg::{new_context, Asg, AsgContext};
 use leo_ast::Ast;
+use leo_compiler::TypeInferencePhase;
+use leo_imports::ImportParser;
 use leo_parser::parser;
+
+thread_local! {
+    static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
+        let leaked = Box::leak(Box::new(leo_asg::new_alloc_context()));
+        leo_asg::new_context(leaked)
+    }
+}
+
+pub fn thread_leaked_context() -> AsgContext<'static> {
+    THREAD_GLOBAL_CONTEXT.with(|f| *f)
+}
 
 pub fn parse_program_ast(file_string: &str) -> Ast {
     const TEST_PROGRAM_PATH: &str = "";
@@ -28,70 +43,43 @@ pub fn parse_program_ast(file_string: &str) -> Ast {
     );
     ast.canonicalize().expect("Failed to canonicalize program.");
 
-    ast
+    let program = ast.clone().into_repr();
+    let asg = Asg::new(thread_leaked_context(), &program, &mut ImportParser::default())
+        .expect("Failed to create ASG from AST");
+
+    let new_ast = TypeInferencePhase::default()
+        .phase_ast(&program, &asg.into_repr())
+        .expect("Failed to produce type inference ast.");
+
+    new_ast
 }
 
 #[test]
-fn test_big_self_in_circuit_replacement() {
+fn test_basic() {
     // Check program is valid.
-    let program_string = include_str!("big_self_in_circuit_replacement.leo");
+    let program_string = include_str!("basic.leo");
     let program = parse_program(program_string).unwrap();
     assert_satisfied(program);
 
     // Check we get expected ast.
     let ast = parse_program_ast(program_string);
-    let expected_json = include_str!("big_self_in_circuit_replacement.json");
+    let expected_json = include_str!("basic.json");
     let expected_ast: Ast = Ast::from_json_string(expected_json).expect("Unable to parse json.");
 
     assert_eq!(expected_ast, ast);
 }
 
 #[test]
-fn test_big_self_outside_circuit_fail() {
-    // Check program is invalid.
-    let program_string = include_str!("big_self_outside_circuit_fail.leo");
-    let program = parse_program(program_string);
-    assert!(program.is_err());
-}
-
-#[test]
-fn test_array_expansion() {
-    let program_string = include_str!("array_expansion.leo");
-    let input_string = include_str!("input/array_expansion.in");
-    let program = parse_program_with_input(program_string, input_string).unwrap();
-    assert_satisfied(program);
-
-    let ast = parse_program_ast(program_string);
-    let expected_json = include_str!("array_expansion.json");
-    let expected_ast: Ast = Ast::from_json_string(expected_json).expect("Unable to parse json.");
-
-    assert_eq!(expected_ast, ast);
-}
-
-#[test]
-fn test_array_size_zero_fail() {
-    let program_string = include_str!("array_size_zero_fail.leo");
-    let program = parse_program(program_string);
-    assert!(program.is_err());
-}
-
-#[test]
-fn test_compound_assignment() {
-    let program_string = include_str!("compound_assignment.leo");
+fn test_for_loop_and_compound() {
+    // Check program is valid.
+    let program_string = include_str!("for_loop_and_compound.leo");
     let program = parse_program(program_string).unwrap();
     assert_satisfied(program);
 
+    // Check we get expected ast.
     let ast = parse_program_ast(program_string);
-    let expected_json = include_str!("compound_assignment.json");
+    let expected_json = include_str!("for_loop_and_compound.json");
     let expected_ast: Ast = Ast::from_json_string(expected_json).expect("Unable to parse json.");
 
     assert_eq!(expected_ast, ast);
-}
-
-#[test]
-fn test_illegal_array_range_fail() {
-    // Check program is invalid.
-    let program_string = include_str!("illegal_array_range_fail.leo");
-    let program = parse_program(program_string);
-    assert!(program.is_err());
 }

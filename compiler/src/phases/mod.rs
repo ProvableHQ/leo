@@ -14,11 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod canonicalization;
-pub use canonicalization::*;
+//! Compiles a Leo program from a file path.
 
-mod reconstructing_reducer;
-pub use reconstructing_reducer::*;
+pub mod reducing_director;
+pub use reducing_director::*;
 
-mod reconstructing_director;
-pub use reconstructing_director::*;
+pub mod phase;
+pub use phase::*;

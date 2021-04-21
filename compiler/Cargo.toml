@@ -49,6 +49,9 @@ version = "1.4.0"
 path = "../asg-passes"
 version = "1.4.0"
 
+[dependencies.tendril]
+version = "0.4"
+
 [dependencies.snarkvm-curves]
 version = "0.2.2"
 default-features = false
