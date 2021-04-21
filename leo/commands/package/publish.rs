@@ -15,10 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::Build;
-use crate::{
-    commands::Command,
-    context::{Context},
-};
+use crate::{commands::Command, context::Context};
 use leo_package::{
     outputs::OutputsDirectory,
     root::{ZipFile, AUTHOR_PLACEHOLDER},

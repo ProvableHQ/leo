@@ -51,7 +51,7 @@ impl Context {
 pub fn create_context(path: PathBuf, api_url: Option<String>) -> Result<Context> {
     let token = config::read_token().ok();
 
-    let api = Api::new(api_url.unwrap_or(PACKAGE_MANAGER_URL.to_string()), token);
+    let api = Api::new(api_url.unwrap_or_else(|| PACKAGE_MANAGER_URL.to_string()), token);
 
     Ok(Context { api, path: Some(path) })
 }
@@ -60,7 +60,7 @@ pub fn create_context(path: PathBuf, api_url: Option<String>) -> Result<Context>
 pub fn get_context(api_url: Option<String>) -> Result<Context> {
     let token = config::read_token().ok();
 
-    let api = Api::new(api_url.unwrap_or(PACKAGE_MANAGER_URL.to_string()), token);
+    let api = Api::new(api_url.unwrap_or_else(|| PACKAGE_MANAGER_URL.to_string()), token);
 
     Ok(Context { api, path: None })
 }

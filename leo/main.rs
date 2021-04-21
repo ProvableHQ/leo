@@ -55,11 +55,7 @@ struct Opt {
     #[structopt(subcommand)]
     command: CommandOpts,
 
-    #[structopt(
-        long,
-        global = true,
-        help = "Aleo PM API Url"
-    )]
+    #[structopt(long, global = true, help = "Aleo PM API Url")]
     api: Option<String>,
 
     #[structopt(
