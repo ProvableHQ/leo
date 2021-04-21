@@ -19,7 +19,7 @@ use crate::{
     imports::ImportsDirectory,
     inputs::{InputFile, InputsDirectory, StateFile},
     root::{Gitignore, Manifest, README},
-    source::{LibraryFile, MainFile, SourceDirectory},
+    source::{MainFile, SourceDirectory},
 };
 
 use serde::Deserialize;
@@ -107,7 +107,7 @@ impl Package {
     }
 
     /// Returns `true` if a package is can be initialized at a given path.
-    pub fn can_initialize(package_name: &str, is_lib: bool, path: &Path) -> bool {
+    pub fn can_initialize(package_name: &str, path: &Path) -> bool {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
             return false;
@@ -122,32 +122,24 @@ impl Package {
             result = false;
         }
 
-        if is_lib {
-            // Check if the library file already exists.
-            if LibraryFile::exists_at(path) {
-                existing_files.push(LibraryFile::filename());
-                result = false;
-            }
-        } else {
-            // Check if the input file already exists.
-            let input_file = InputFile::new(&package_name);
-            if input_file.exists_at(path) {
-                existing_files.push(input_file.filename());
-                result = false;
-            }
+        // Check if the input file already exists.
+        let input_file = InputFile::new(&package_name);
+        if input_file.exists_at(path) {
+            existing_files.push(input_file.filename());
+            result = false;
+        }
 
-            // Check if the state file already exists.
-            let state_file = StateFile::new(&package_name);
-            if state_file.exists_at(path) {
-                existing_files.push(state_file.filename());
-                result = false;
-            }
+        // Check if the state file already exists.
+        let state_file = StateFile::new(&package_name);
+        if state_file.exists_at(path) {
+            existing_files.push(state_file.filename());
+            result = false;
+        }
 
-            // Check if the main file already exists.
-            if MainFile::exists_at(path) {
-                existing_files.push(MainFile::filename());
-                result = false;
-            }
+        // Check if the main file already exists.
+        if MainFile::exists_at(path) {
+            existing_files.push(MainFile::filename());
+            result = false;
         }
 
         if !existing_files.is_empty() {
@@ -158,7 +150,7 @@ impl Package {
     }
 
     /// Returns `true` if a package is initialized at the given path
-    pub fn is_initialized(package_name: &str, is_lib: bool, path: &Path) -> bool {
+    pub fn is_initialized(package_name: &str, path: &Path) -> bool {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
             return false;
@@ -169,43 +161,31 @@ impl Package {
             return false;
         }
 
-        if is_lib {
-            // Check if the library file exists.
-            if !LibraryFile::exists_at(&path) {
-                return false;
-            }
-        } else {
-            // Check if the input file exists.
-            let input_file = InputFile::new(&package_name);
-            if !input_file.exists_at(&path) {
-                return false;
-            }
+        // Check if the input file exists.
+        let input_file = InputFile::new(&package_name);
+        if !input_file.exists_at(&path) {
+            return false;
+        }
 
-            // Check if the state file exists.
-            let state_file = StateFile::new(&package_name);
-            if !state_file.exists_at(&path) {
-                return false;
-            }
+        // Check if the state file exists.
+        let state_file = StateFile::new(&package_name);
+        if !state_file.exists_at(&path) {
+            return false;
+        }
 
-            // Check if the main file exists.
-            if !MainFile::exists_at(&path) {
-                return false;
-            }
+        // Check if the main file exists.
+        if !MainFile::exists_at(&path) {
+            return false;
         }
 
         true
     }
 
     /// Creates a package at the given path
-    pub fn initialize(
-        package_name: &str,
-        is_lib: bool,
-        path: &Path,
-        author: Option<String>,
-    ) -> Result<(), PackageError> {
+    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<(), PackageError> {
         // First, verify that this directory is not already initialized as a Leo package.
         {
-            if !Self::can_initialize(package_name, is_lib, path) {
+            if !Self::can_initialize(package_name, path) {
                 return Err(PackageError::FailedToInitialize(
                     package_name.to_owned(),
                     path.as_os_str().to_owned(),
@@ -232,27 +212,21 @@ impl Package {
             // Create the source directory.
             SourceDirectory::create(&path)?;
 
-            // Create a new library or binary file.
-            if is_lib {
-                // Create the library file in the source directory.
-                LibraryFile::new(&package_name).write_to(&path)?;
-            } else {
-                // Create the input directory.
-                InputsDirectory::create(&path)?;
+            // Create the input directory.
+            InputsDirectory::create(&path)?;
 
-                // Create the input file in the inputs directory.
-                InputFile::new(&package_name).write_to(&path)?;
+            // Create the input file in the inputs directory.
+            InputFile::new(&package_name).write_to(&path)?;
 
-                // Create the state file in the inputs directory.
-                StateFile::new(&package_name).write_to(&path)?;
+            // Create the state file in the inputs directory.
+            StateFile::new(&package_name).write_to(&path)?;
 
-                // Create the main file in the source directory.
-                MainFile::new(&package_name).write_to(&path)?;
-            }
+            // Create the main file in the source directory.
+            MainFile::new(&package_name).write_to(&path)?;
         }
         // Next, verify that a valid Leo package has been initialized in this directory
         {
-            if !Self::is_initialized(package_name, is_lib, path) {
+            if !Self::is_initialized(package_name, path) {
                 return Err(PackageError::FailedToInitialize(
                     package_name.to_owned(),
                     path.as_os_str().to_owned(),

@@ -65,13 +65,8 @@ impl Command for Watch {
                 // See changes on the write event
                 Ok(DebouncedEvent::Write(_write)) => {
                     match (Build {}).execute(context.clone()) {
-                        Ok(_output) => {
-                            tracing::info!("Built successfully");
-                        }
-                        Err(e) => {
-                            // Syntax error
-                            tracing::error!("Error {:?}", e);
-                        }
+                        Ok(_output) => tracing::info!("Built successfully"),
+                        Err(e) => tracing::error!("Error {:?}", e),
                     };
                 }
                 // Other events

@@ -17,8 +17,5 @@
 pub mod directory;
 pub use directory::*;
 
-pub mod library;
-pub use library::*;
-
 pub mod main;
 pub use main::*;

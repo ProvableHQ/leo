@@ -156,6 +156,12 @@ version = "0.12.1"
 [dev-dependencies.rusty-hook]
 version = "0.11.2"
 
+[dev-dependencies.assert_cmd]
+version = "1.0.3"
+
+[dev-dependencies.testdir]
+version = "0.4.0"
+
 [features]
 default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]

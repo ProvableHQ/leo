@@ -55,12 +55,12 @@ impl Command for Init {
             .to_string_lossy()
             .to_string();
         if !LeoPackage::is_package_name_valid(&package_name) {
-            return Err(anyhow!("Invalid Leo project name"));
+            return Err(anyhow!("Invalid Leo project name: {}", package_name));
         }
 
         let username = read_username().ok();
 
-        LeoPackage::initialize(&package_name, false, &path, username)?;
+        LeoPackage::initialize(&package_name, &path, username)?;
 
         Ok(())
     }

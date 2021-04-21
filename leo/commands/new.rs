@@ -63,7 +63,7 @@ impl Command for New {
         // Create the package directory
         fs::create_dir_all(&path).map_err(|err| anyhow!("Could not create directory {}", err))?;
 
-        LeoPackage::initialize(&package_name, false, &path, username)?;
+        LeoPackage::initialize(&package_name, &path, username)?;
 
         Ok(())
     }
