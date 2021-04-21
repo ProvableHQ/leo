@@ -14,10 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Compiles a Leo program from a file path.
+use leo_asg::Program;
 
-pub mod reducing_director;
-pub use reducing_director::*;
-
-pub mod stage;
-pub use stage::*;
+pub trait ASGPhase {
+    fn apply(asg: &mut Program);
+}

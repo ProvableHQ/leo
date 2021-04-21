@@ -20,9 +20,9 @@ use crate::{CombineAstAsgDirector, CombinerOptions};
 use leo_asg::Program as AsgProgram;
 use leo_ast::{Ast, Program as AstProgram, ReconstructingReducer, ReducerError};
 
-macro_rules! stage {
-    ($stage_name:ident, $function:item) => {
-        pub struct $stage_name {
+macro_rules! phase {
+    ($phase_name:ident, $function:item) => {
+        pub struct $phase_name {
             in_circuit: bool,
         }
 
@@ -32,7 +32,7 @@ macro_rules! stage {
             $function
         }
 
-        impl ReconstructingReducer for $stage_name {
+        impl ReconstructingReducer for $phase_name {
             fn in_circuit(&self) -> bool {
                 self.in_circuit
             }
@@ -42,14 +42,14 @@ macro_rules! stage {
             }
         }
 
-        impl Default for $stage_name {
+        impl Default for $phase_name {
             fn default() -> Self {
                 Self { in_circuit: false }
             }
         }
 
-        impl $stage_name {
-            pub fn stage_ast(&self, ast: &AstProgram, asg: &AsgProgram) -> Result<Ast, ReducerError> {
+        impl $phase_name {
+            pub fn phase_ast(&self, ast: &AstProgram, asg: &AsgProgram) -> Result<Ast, ReducerError> {
                 Ok(Ast::new(CombineAstAsgDirector::new(Self::default(), Options{})
                     .reduce_program(ast, asg)?))
             }
@@ -57,8 +57,8 @@ macro_rules! stage {
     };
 }
 
-stage!(
-    TypeInferenceStage,
+phase!(
+    TypeInferencePhase,
     fn type_inference_enabled(&self) -> bool {
         true
     }

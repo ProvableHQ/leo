@@ -57,11 +57,11 @@ pub use prelude::*;
 pub mod value;
 pub use value::*;
 
-pub mod stage;
-pub use stage::*;
+pub mod phase;
+pub use phase::*;
 
-pub mod stages;
-pub use stages::*;
+pub mod phases;
+pub use phases::*;
 
 pub mod option;
 pub use option::*;
