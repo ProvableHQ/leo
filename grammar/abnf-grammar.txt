@@ -336,9 +336,16 @@ not-double-quote = %x0-22 / %x24-10FFFF   ; anything but "
 not-star = %x0-29 / %x2B-10FFFF   ; anything but *
 
 not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
-                                   ; anything but LF or CR
+                                   ; anything but <LF> or <CR>
 
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF   ; anything but * or /
+not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
+                                 ; anything but " or {
+
+not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
+                                  ; anything but " or }
+
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF
+                    ; anything but * or /
 
 ; Lines in Leo may be terminated via
 ; a single carriage return,
@@ -446,10 +453,6 @@ package-name = 1*( lowercase-letter / digit )
 ; in the printed string).
 
 format-string-container = "{}"
-
-not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
-
-not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
 
 format-string-element = not-double-quote-or-open-brace
                       / "{" not-double-quote-or-close-brace
@@ -996,16 +999,17 @@ file = *declaration
 ; Format Note
 ; -----------
 
-; The ABNF standard requires grammars to consist of lines terminated by CR LF
+; The ABNF standard requires grammars to consist of lines terminated by <CR><LF>
 ; (i.e. carriage return followed by line feed, DOS/Windows-style),
 ; as explained in the background on ABNF earlier in this file.
-; This file's lines are therefore terminated by CR LF.
+; This file's lines are therefore terminated by <CR><LF>.
 ; To avoid losing this requirement across systems,
 ; this file is marked as 'text eol=crlf' in .gitattributes:
 ; this means that the file is textual, enabling visual diffs,
-; but its lines will always be terminated by CR LF on any system.
+; but its lines will always be terminated by <CR><LF> on any system.
 
-; Note that this CR LF requirement only applies to the grammar files themselves.
+; Note that this <CR><LF> requirement only applies
+; to the grammar files themselves.
 ; It does not apply to the lines of the languages described by the grammar.
 ; ABNF grammars may describe any kind of languages,
 ; with any kind of line terminators,
