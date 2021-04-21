@@ -1413,6 +1413,7 @@ dependencies = [
  "indexmap",
  "lazy_static",
  "leo-ast",
+ "leo-test-framework",
  "serde",
  "serde_json",
  "serde_yaml",
@@ -1450,6 +1451,15 @@ dependencies = [
  "snarkvm-fields",
  "snarkvm-gadgets",
  "snarkvm-r1cs",
+]
+
+[[package]]
+name = "leo-test-framework"
+version = "1.4.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "serde_yaml",
 ]
 
 [[package]]

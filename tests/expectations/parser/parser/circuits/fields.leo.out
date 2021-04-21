@@ -1,0 +1,18 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    imports: []
+    circuits:
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
+        members:
+          - CircuitVariable:
+              - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
+              - IntegerType: U32
+          - CircuitVariable:
+              - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    y: u32,\\\"}\"}"
+              - IntegerType: U32
+    functions: {}
