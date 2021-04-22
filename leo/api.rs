@@ -22,25 +22,24 @@ use reqwest::{
 };
 use serde::{Deserialize, Serialize};
 
-/// Trait describes API Routes and Request bodies, struct which implements
-/// Route MUST also support Serialize to be usable in Api::run_route(r: Route)
+/// API Routes and Request bodies.
+/// Structs that implement Route MUST also support Serialize to be usable in Api::run_route(r: Route)
 pub trait Route {
-    /// Whether to use bearer auth or not. Some routes may have additional
-    /// features for logged-in users, so authorization token should be sent
-    /// if it is created of course
+    /// [`true`] if a route supports bearer authentication.
+    /// For example, the login route.
     const AUTH: bool;
 
-    /// HTTP method to use when requesting
+    /// The HTTP method to use when requesting.
     const METHOD: Method;
 
-    /// URL path without first forward slash (e.g. v1/package/fetch)
+    /// The URL path without the first forward slash (e.g. v1/package/fetch)
     const PATH: &'static str;
 
-    /// Output type for this route. For login it is simple - String
+    /// The output type for this route. For example, the login route output is [`String`].
     /// But for other routes may be more complex.
     type Output;
 
-    /// Process reqwest Response and turn it into Output
+    /// Process the reqwest Response and turn it into an Output.
     fn process(&self, res: Response) -> Result<Self::Output>;
 
     /// Transform specific status codes into correct errors for this route.
@@ -50,18 +49,18 @@ pub trait Route {
     }
 }
 
-/// REST API handler with reqwest::blocking inside
+/// REST API handler with reqwest::blocking inside.
 #[derive(Clone, Debug)]
 pub struct Api {
     host: String,
     client: Client,
-    /// Authorization token for API requests
+    /// Authorization token for API requests.
     auth_token: Option<String>,
 }
 
 impl Api {
-    /// Create new instance of API, set host and Client is going to be
-    /// created and set automatically
+    /// Returns a new instance of API.
+    /// The set host and Client are created automatically.
     pub fn new(host: String, auth_token: Option<String>) -> Api {
         Api {
             client: Client::new(),
@@ -74,18 +73,19 @@ impl Api {
         &*self.host
     }
 
-    /// Get token for bearer auth, should be passed into Api through Context
+    /// Returns the token for bearer auth, otherwise None.
+    /// The [`auth_token`] should be passed into the Api through Context.
     pub fn auth_token(&self) -> Option<String> {
         self.auth_token.clone()
     }
 
-    /// Set authorization token for future requests
+    /// Set the authorization token for future requests.
     pub fn set_auth_token(&mut self, token: String) {
         self.auth_token = Some(token);
     }
 
     /// Run specific route struct. Turn struct into request body
-    /// and use type constants and Route implementation to get request params
+    /// and use type constants and Route implementation to get request params.
     pub fn run_route<T>(&self, route: T) -> Result<T::Output>
     where
         T: Route,
@@ -104,9 +104,9 @@ impl Api {
         };
 
         // only one error is possible here
-        let res = res
-            .send()
-            .map_err(|_| anyhow!("Unable to connect to Aleo PM. Check URL if you specified custom API endpoint"))?;
+        let res = res.send().map_err(|_| {
+            anyhow!("Unable to connect to Aleo PM. If you specified custom API endpoint, then check the URL for errors")
+        })?;
 
         // where magic begins
         route.process(res)
@@ -189,7 +189,7 @@ impl Route for Login {
 }
 
 /// Handler for 'my_profile' route. Meant to be used to get profile details but
-/// in current application is used to check if user is logged in. Any non-200 response
+/// in the current application it is used to check if the user is logged in. Any non-200 response
 /// is treated as Unauthorized.
 #[derive(Serialize)]
 pub struct Profile {}
