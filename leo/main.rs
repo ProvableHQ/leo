@@ -55,7 +55,7 @@ struct Opt {
     #[structopt(subcommand)]
     command: CommandOpts,
 
-    #[structopt(global = true, help = "URL to custom Aleo PM backend", env = "APM_URL")]
+    #[structopt(help = "Custom Aleo PM backend URL", env = "APM_URL")]
     api: Option<String>,
 
     #[structopt(
