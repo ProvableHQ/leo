@@ -55,6 +55,9 @@ struct Opt {
     #[structopt(subcommand)]
     command: CommandOpts,
 
+    #[structopt(help = "Custom Aleo PM backend URL", env = "APM_URL")]
+    api: Option<String>,
+
     #[structopt(
         long,
         global = true,
@@ -192,8 +195,8 @@ fn main() {
     // Get custom root folder and create context for it.
     // If not specified, default context will be created in cwd.
     let context = handle_error(match opt.path {
-        Some(path) => context::create_context(path),
-        None => context::get_context(),
+        Some(path) => context::create_context(path, opt.api),
+        None => context::get_context(opt.api),
     });
 
     handle_error(match opt.command {
