@@ -149,7 +149,7 @@ impl Route for Fetch {
             // TODO: we should return 404 on not found author/package
             // and return BAD_REQUEST if data format is incorrect or some of the arguments
             // were not passed
-            StatusCode::NOT_FOUND => anyhow!("Package is hidden"),
+            StatusCode::NOT_FOUND => anyhow!("Package not found"),
             _ => anyhow!("Unknown API error: {}", status),
         }
     }
