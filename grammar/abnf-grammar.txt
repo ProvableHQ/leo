@@ -318,15 +318,15 @@ character = %x0-10FFFF   ; any Unicode code point
 
 ; We give names to certain ASCII characters.
 
-horizontal-tab = %x9
+horizontal-tab = %x9   ; <HT>
 
-line-feed = %xA
+line-feed = %xA   ; <LF>
 
-carriage-return = %xD
+carriage-return = %xD   ; <CR>
 
-space = %x20
+space = %x20   ; <SP>
 
-double-quote = %x22
+double-quote = %x22   ; "
 
 ; We give names to complements of certain ASCII characters.
 ; These consist of all the Unicode characters except for one or two.
