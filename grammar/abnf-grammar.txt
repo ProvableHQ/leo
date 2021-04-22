@@ -53,59 +53,59 @@
 
 ; Instead of BNF's angle-bracket notation for nonterminals,
 ; ABNF uses case-insensitive names consisting of letters, digits, and dashes,
-; e.g. HTTP-message and IPv6address.
+; e.g. `HTTP-message` and `IPv6address`.
 ; ABNF includes an angle-bracket notation for prose descriptions,
-; e.g. <host, see [RFC3986], Section 3.2.2>,
+; e.g. `<host, see [RFC3986], Section 3.2.2>`,
 ; usable as last resort in the definiens of a nonterminal.
 
 ; While BNF allows arbitrary terminals,
 ; ABNF uses only natural numbers as terminals,
 ; and denotes them via:
 ; (i) binary, decimal, or hexadecimal sequences,
-; e.g. %b1.11.1010, %d1.3.10, and %x.1.3.A
-; all denote the sequence of terminals '1 3 10';
+; e.g. `%b1.11.1010`, `%d1.3.10`, and `%x.1.3.A`
+; all denote the sequence of terminals [1, 3, 10];
 ; (ii) binary, decimal, or hexadecimal ranges,
-; e.g. %x30-39 denotes any singleton sequence of terminals
-; 'n' with 48 <= n <= 57 (an ASCII digit);
+; e.g. `%x30-39` denotes any singleton sequence of terminals
+; [_n_] with 48 <= _n_ <= 57 (an ASCII digit);
 ; (iii) case-sensitive ASCII strings,
-; e.g. %s"Ab" denotes the sequence of terminals '65 98';
+; e.g. `%s"Ab"` denotes the sequence of terminals [65, 98];
 ; and (iv) case-insensitive ASCII strings,
-; e.g. %i"ab", or just "ab", denotes
+; e.g. `%i"ab"`, or just `"ab"`, denotes
 ; any sequence of terminals among
-; '65 66',
-; '65 98',
-; '97 66', and
-; '97 98'.
+; [65, 66],
+; [65, 98],
+; [97, 66], and
+; [97, 98].
 ; ABNF terminals in suitable sets represent ASCII or Unicode characters.
 
-; ABNF allows repetition prefixes n*m,
-; where n and m are natural numbers in decimal notation;
+; ABNF allows repetition prefixes `n*m`,
+; where `n` and `m` are natural numbers in decimal notation;
 ; if absent,
-; n defaults to 0, and
-; m defaults to infinity.
+; `n` defaults to 0, and
+; `m` defaults to infinity.
 ; For example,
-; 1*4HEXDIG denotes one to four HEXDIGs,
-; *3DIGIT denotes up to three DIGITs, and
-; 1*OCTET denotes one or more OCTETs.
-; A single n prefix
-; abbreviates n*n,
-; e.g. 3DIGIT denotes three DIGITs.
+; `1*4HEXDIG` denotes one to four `HEXDIG`s,
+; `*3DIGIT` denotes up to three `DIGIT`s, and
+; `1*OCTET` denotes one or more `OCTET`s.
+; A single `n` prefix
+; abbreviates `n*n`,
+; e.g. `3DIGIT` denotes three `DIGIT`s.
 
-; Instead of BNF's |, ABNF uses / to separate alternatives.
+; Instead of BNF's `|`, ABNF uses `/` to separate alternatives.
 ; Repetition prefixes have precedence over juxtapositions,
-; which have precedence over /.
+; which have precedence over `/`.
 ; Round brackets group things and override the aforementioned precedence rules,
-; e.g. *(WSP / CRLF WSP) denotes sequences of terminals
+; e.g. `*(WSP / CRLF WSP)` denotes sequences of terminals
 ; obtained by repeating, zero or more times,
-; either (i) a WSP or (ii) a CRLF followed by a WSP.
+; either (i) a `WSP` or (ii) a `CRLF` followed by a `WSP`.
 ; Square brackets also group things but make them optional,
-; e.g. [":" port] is equivalent to 0*1(":" port).
+; e.g. `[":" port]` is equivalent to `0*1(":" port)`.
 
-; Instead of BNF's ::=, ABNF uses = to define nonterminals,
-; and =/ to incrementally add alternatives
+; Instead of BNF's `::=`, ABNF uses `=` to define nonterminals,
+; and `=/` to incrementally add alternatives
 ; to previously defined nonterminals.
-; For example, the rule BIT = "0" / "1"
-; is equivalent to BIT = "0" followed by BIT =/ "1".
+; For example, the rule `BIT = "0" / "1"`
+; is equivalent to `BIT = "0"` followed by `BIT =/ "1"`.
 
 ; The syntax of ABNF itself is formally specified in ABNF
 ; (in Section 4 of the aforementioned RFC 5234,
@@ -125,7 +125,7 @@
 ; This ABNF grammar consists of two (sub-)grammars:
 ; (i) a lexical grammar that describes how
 ; sequence of characters are parsed into tokens, and
-; (ii) a syntactic grammar that described how
+; (ii) a syntactic grammar that describes how
 ; tokens are parsed into expressions, statements, etc.
 ; The adjectives 'lexical' and 'syntactic' are
 ; the same ones used in the Java language reference,
@@ -180,8 +180,8 @@
 ;        / additive-expression "-" multiplicative-expression
 ;
 ; These rules tell us
-; that the additive operators '+' and '-' have lower precedence
-; than the multiplicative operators '*' and '/',
+; that the additive operators `+` and `-` have lower precedence
+; than the multiplicative operators `*` and `/`,
 ; and that both the additive and multiplicative operators associate to the left.
 ; This may be best understood via the examples given below.
 
@@ -239,7 +239,7 @@
 ; This ABNF grammar uses nonterminal names
 ; that consist of complete English words, separated by dashes,
 ; and that describe the construct the way it is in English.
-; For instance, we use the name 'conditional-statement'
+; For instance, we use the name `conditional-statement`
 ; to describe conditional statements.
 
 ; At the same time, this grammar establishes
@@ -284,8 +284,8 @@
 
 ; A Leo file is a finite sequence of Unicode characters,
 ; represented as Unicode code points,
-; which are numbers in the range form 0 to 10FFFFh.
-; These are captured by the ABNF rule 'character' below.
+; which are numbers in the range from 0 to 10FFFFh.
+; These are captured by the ABNF rule `character` below.
 
 ; The lexical grammar defines how, at least conceptually,
 ; the sequence of characters is turned into
@@ -293,20 +293,20 @@
 ; these entities are all defined by the grammar rules below.
 
 ; As stated, the lexical grammar alone is ambiguous.
-; For example, the sequence of characters '**' (i.e. two stars)
-; could be equally parsed as two '*' symbol tokens or one '**' symbol token
-; (see rule for 'symbol' below).
-; As another example, the sequence or characters '<CR><LF>'
+; For example, the sequence of characters `**` (i.e. two stars)
+; could be equally parsed as two `*` symbol tokens or one `**` symbol token
+; (see rule for `symbol` below).
+; As another example, the sequence or characters `<CR><LF>`
 ; (i.e. carriage return followed by line feed)
 ; could be equally parsed as two line terminators or one
-; (see rule for 'newline').
+; (see rule for `newline`).
 
 ; Thus, as often done in language syntax definitions,
 ; the lexical grammar is disambiguated by
 ; the extra-grammatical requirement that
 ; the longest possible sequence of characters is always parsed.
-; This way, '**' must be parsed as one '**' symbol token,
-; and '<CR><LF>' must be parsed as one line terminator.
+; This way, `**` must be parsed as one `**` symbol token,
+; and `<CR><LF>` must be parsed as one line terminator.
 
 ; As mentioned above, a character is any Unicode code point.
 ; This grammar does not say how those are encoded in files (e.g. UTF-8):
@@ -318,15 +318,15 @@ character = %x0-10FFFF   ; any Unicode code point
 
 ; We give names to certain ASCII characters.
 
-horizontal-tab = %x9
+horizontal-tab = %x9   ; <HT>
 
-line-feed = %xA
+line-feed = %xA   ; <LF>
 
-carriage-return = %xD
+carriage-return = %xD   ; <CR>
 
-space = %x20
+space = %x20   ; <SP>
 
-double-quote = %x22
+double-quote = %x22   ; "
 
 ; We give names to complements of certain ASCII characters.
 ; These consist of all the Unicode characters except for one or two.
@@ -362,12 +362,12 @@ newline = line-feed / carriage-return / carriage-return line-feed
 whitespace = space / horizontal-tab / newline
 
 ; There are two kinds of comments in Leo, as in other languages.
-; One is block comments of the form '/* ... */',
-; and the other is end-of-line comments of the form '// ...'.
-; The first kind start at '/*' and end at the first '*/',
+; One is block comments of the form `/* ... */`,
+; and the other is end-of-line comments of the form `// ...`.
+; The first kind start at `/*` and end at the first `*/`,
 ; possibly spanning multiple (partial) lines;
 ; these do no nest.
-; The second kind start at '//' and extend till the end of the line.
+; The second kind start at `//` and extend till the end of the line.
 ; The rules about comments given below are similar to
 ; the ones used in the Java language reference.
 
@@ -447,7 +447,7 @@ package-name = 1*( lowercase-letter / digit )
 
 ; A format string is a sequence of characters, other than double quote,
 ; surrounded by double quotes.
-; Within a format string, sub-strings '{}' are distinguished as containers
+; Within a format string, sub-strings `{}` are distinguished as containers
 ; (these are the ones that may be matched with values
 ; whose textual representation replaces the containers
 ; in the printed string).
@@ -460,17 +460,17 @@ format-string-element = not-double-quote-or-open-brace
 
 format-string = double-quote *format-string-element double-quote
 
-; Annotations have names, which are identifiers immediately preceded by '@'.
+; Annotations have names, which are identifiers immediately preceded by `@`.
 
 annotation-name = "@" identifier
 
 ; A natural (number) is a sequence of one or more digits.
-; We allow leading zeros, e.g. '007'.
+; We allow leading zeros, e.g. `007`.
 
 natural = 1*digit
 
 ; An integer (number) is either a natural or its negation.
-; We allow leading zeros also in negative numbers, e.g. '-007'.
+; We allow leading zeros also in negative numbers, e.g. `-007`.
 
 integer = [ "-" ] natural
 
@@ -502,7 +502,7 @@ product-group-literal = integer %s"group"
 
 boolean-literal = %s"true" / %s"false"
 
-; An address literal starts with 'aleo1'
+; An address literal starts with `aleo1`
 ; and continues with exactly 58 lowercase letters and digits.
 ; Thus an address always consists of 63 characters.
 
@@ -521,12 +521,12 @@ atomic-literal = untyped-literal
                / address-literal
 
 ; After defining the (mostly) alphanumeric tokens above,
-; it remains to define tokens for non-alphanumeric symbols such as "+" and "(".
+; it remains to define tokens for non-alphanumeric symbols such as `+` and `(`.
 ; Different programming languages used different terminologies for these,
 ; e.g. operators, separators, punctuators, etc.
-; Here we use 'symbol', for all of them.
+; Here we use `symbol`, for all of them.
 ; We also include a token consisting of
-; a closing parenthesis immediately followed by 'group':
+; a closing parenthesis `)` immediately followed by `group`:
 ; as defined in the syntactic grammar,
 ; this is the final part of an affine group literal;
 ; even though it includes letters,
@@ -538,7 +538,7 @@ atomic-literal = untyped-literal
 ;
 ;  equality-operator = "=="
 ;
-; and defining 'symbol' in terms of those
+; and defining `symbol` in terms of those
 ;
 ;  symbol = ... / equality-operator / ...
 ;
@@ -547,7 +547,7 @@ atomic-literal = untyped-literal
 ; namely the exact names of some of these token.
 ; On the other hand, at least some of them are perhaps simple enough
 ; that they could be just described in terms of their symbols,
-; e.g. 'double dot', 'question mark', etc.
+; e.g. double dot, question mark, etc.
 
 symbol = "!" / "&&" / "||"
        / "==" / "!="
@@ -612,7 +612,7 @@ address-type = %s"address"
 
 scalar-type =  boolean-type / arithmetic-type / address-type
 
-; Circuit types are denoted by identifiers and the keyword 'Self'.
+; Circuit types are denoted by identifiers and the keyword `Self`.
 ; The latter is only allowed inside a circuit definition,
 ; to denote the circuit being defined.
 
@@ -663,7 +663,7 @@ affine-group-literal = "(" group-coordinate "," group-coordinate %s")group"
 literal = atomic-literal / affine-group-literal
 
 ; The following rule is not directly referenced in the rules for expressions
-; (which reference 'literal' instead),
+; (which reference `literal` instead),
 ; but it is useful to establish terminology:
 ; a group literal is either a product group literal or an affine group literal.
 
@@ -702,7 +702,7 @@ tuple-expression = tuple-construction
 ; Array expressions construct arrays.
 ; There are two kinds:
 ; one lists the element expressions (at least one),
-; including spreads (via '...') which are arrays being spliced in;
+; including spreads (via `...`) which are arrays being spliced in;
 ; the other repeats (the value of) a single expression
 ; across one or more dimensions.
 
@@ -729,7 +729,8 @@ array-expression = array-construction
 ; so they are syntactically identical but semantically different.
 
 circuit-construction = circuit-type "{"
-                       circuit-inline-element *( "," circuit-inline-element ) [ "," ]
+                       circuit-inline-element
+                       *( "," circuit-inline-element ) [ "," ]
                        "}"
 
 circuit-inline-element = identifier ":" expression / identifier
@@ -777,8 +778,8 @@ unary-expression = postfix-expression
 
 ; Next in the operator precedence is exponentiation,
 ; following mathematical practice.
-; The current rule below makes exponentiation left-associative,
-; i.e. 'a ** b ** c' must be parsed as '(a ** b) ** c'.
+; The current rule below makes exponentiation right-associative,
+; i.e. `a ** b ** c` must be parsed as `a ** (b ** c)`.
 
 exponential-expression = unary-expression
                        / unary-expression "**" exponential-expression
@@ -855,8 +856,7 @@ block = "{" *statement "}"
 
 expression-statement = expression ";"
 
-; A return statement always takes an expression,
-; and does not end with a semicolon.
+; A return statement always takes an expression, and ends with a semicolon.
 
 return-statement = %s"return" expression ";"
 
@@ -892,20 +892,20 @@ conditional-statement = branch
 loop-statement = %s"for" identifier %s"in" expression ".." expression block
 
 ; An assignment statement is straightforward.
-; Based on the operator, the assignment may be simple (i.e. '=')
+; Based on the operator, the assignment may be simple (i.e. `=`)
 ; or compound (i.e. combining assignment with an arithmetic operation).
 
 assignment-operator = "=" / "+=" / "-=" / "*=" / "/=" / "**="
 
 assignment-statement = expression assignment-operator expression ";"
 
-; Console statements start with the 'console' keyword,
+; Console statements start with the `console` keyword,
 ; followed by a console function call.
 ; The call may be an assertion or a print command.
 ; The former takes an expression (which must be boolean) as argument.
 ; The latter takes either no argument,
 ; or a format string followed by expressions,
-; whose number must match the number of containers '{}' in the format string.
+; whose number must match the number of containers `{}` in the format string.
 ; Note that the console function names are identifiers, not keywords.
 ; There are three kinds of print commands.
 
@@ -922,7 +922,7 @@ print-arguments = "(" [ format-string *( "," expression ) ] ")"
 
 print-call = print-function print-arguments
 
-; An annotation consists of an annotation name (which starts with '@')
+; An annotation consists of an annotation name (which starts with `@`)
 ; with optional annotation arguments, which are identifiers.
 ; Note that no parentheses are used if there are no arguments.
 
@@ -934,8 +934,7 @@ annotation = annotation-name
 ; In general, a function input consists of an identifier and a type,
 ; with an optional 'const' modifier.
 ; Additionally, functions inside circuits
-; may start with a 'mut self' or 'const self' or 'self' parameter.
-; Furthermore, any function may end with an 'input' parameter.
+; may start with a `mut self` or `const self` or `self` parameter.
 
 function-declaration = *annotation %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
@@ -950,8 +949,6 @@ self-parameter = [ %s"mut" / %s"const" ] %s"self"
 function-inputs = function-input *( "," function-input )
 
 function-input = [ %s"const" ] identifier ":" type
-
-input-parameter = %s"input"
 
 ; A circuit member variable declaration consists of an identifier and a type.
 ; A circuit member function declaration consists of a function declaration.
@@ -969,7 +966,7 @@ member-function-declaration = function-declaration
 circuit-declaration = *annotation %s"circuit" identifier
                       "{" member-declaration *( "," member-declaration ) "}"
 
-; An import declaration consists of the 'import' keyword
+; An import declaration consists of the `import` keyword
 ; followed by a package path, which may be one of the following:
 ; a single wildcard;
 ; an identifier, optionally followed by a local renamer;
@@ -999,16 +996,17 @@ file = *declaration
 ; Format Note
 ; -----------
 
-; The ABNF standard requires grammars to consist of lines terminated by <CR><LF>
+; The ABNF standard requires grammars
+; to consist of lines terminated by `<CR><LF>`
 ; (i.e. carriage return followed by line feed, DOS/Windows-style),
 ; as explained in the background on ABNF earlier in this file.
-; This file's lines are therefore terminated by <CR><LF>.
+; This file's lines are therefore terminated by `<CR><LF>`.
 ; To avoid losing this requirement across systems,
-; this file is marked as 'text eol=crlf' in .gitattributes:
+; this file is marked as `text eol=crlf` in `.gitattributes`:
 ; this means that the file is textual, enabling visual diffs,
-; but its lines will always be terminated by <CR><LF> on any system.
+; but its lines will always be terminated by `<CR><LF>` on any system.
 
-; Note that this <CR><LF> requirement only applies
+; Note that this `<CR><LF>` requirement only applies
 ; to the grammar files themselves.
 ; It does not apply to the lines of the languages described by the grammar.
 ; ABNF grammars may describe any kind of languages,
