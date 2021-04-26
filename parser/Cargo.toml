@@ -54,6 +54,10 @@ version = "0.3"
 [dev-dependencies.serde_yaml]
 version = "0.8"
 
+[dev-dependencies.leo-test-framework]
+path = "../test-framework"
+version = "1.4.0"
+
 [features]
 default = [ ]
 ci_skip = [ ]

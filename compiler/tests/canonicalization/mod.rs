@@ -87,3 +87,11 @@ fn test_compound_assignment() {
 
     assert_eq!(expected_ast, ast);
 }
+
+#[test]
+fn test_illegal_array_range_fail() {
+    // Check program is invalid.
+    let program_string = include_str!("illegal_array_range_fail.leo");
+    let program = parse_program(program_string);
+    assert!(program.is_err());
+}
