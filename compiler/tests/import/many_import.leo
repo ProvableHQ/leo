@@ -5,7 +5,7 @@ import test-import.( // local import
 
 import bar.( // imports directory import
     Bar,
-    baz.(Baz, Bazzar),
+    baz.(Baz, Bazzar, ONE),
     bat.bat.Bat,
 );
 
@@ -23,4 +23,5 @@ function main() {
     const car = Car { c: 1u32 };
 
     console.assert(car.c == 1u32);
+    console.assert(ONE == 1u8);
 }

@@ -64,8 +64,6 @@ pub struct Program<'a> {
     /// Maps circuit name => circuit code block.
     pub circuits: IndexMap<String, &'a Circuit<'a>>,
 
-    // pub global_consts: IndexMap<String, (Identifier, &'a ExpressionStatement<'a>)>,
-    /// Bindings for names and additional program context.
     pub scope: &'a Scope<'a>,
 }
 
@@ -182,8 +180,7 @@ impl<'a> Program<'a> {
 
         let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
         let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
-        //TODO: Do we want to import global consts?
-        // let imported_global_consts: IndexMap<String, &'a GlobalConst<'a>> = IndexMap::new();
+        let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
 
         // Prepare locally relevant scope of imports.
         for (package, symbol, span) in imported_symbols.into_iter() {
@@ -196,12 +193,15 @@ impl<'a> Program<'a> {
                 ImportSymbol::All => {
                     imported_functions.extend(resolved_package.functions.clone().into_iter());
                     imported_circuits.extend(resolved_package.circuits.clone().into_iter());
+                    imported_global_consts.extend(resolved_package.global_consts.clone().into_iter());
                 }
                 ImportSymbol::Direct(name) => {
                     if let Some(function) = resolved_package.functions.get(&name) {
                         imported_functions.insert(name.clone(), *function);
                     } else if let Some(circuit) = resolved_package.circuits.get(&name) {
                         imported_circuits.insert(name.clone(), *circuit);
+                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
+                        imported_global_consts.insert(name.clone(), *global_const);
                     } else {
                         return Err(AsgConvertError::unresolved_import(
                             &*format!("{}.{}", pretty_package, name),
@@ -214,6 +214,8 @@ impl<'a> Program<'a> {
                         imported_functions.insert(alias.clone(), *function);
                     } else if let Some(circuit) = resolved_package.circuits.get(&name) {
                         imported_circuits.insert(alias.clone(), *circuit);
+                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
+                        imported_global_consts.insert(alias.clone(), *global_const);
                     } else {
                         return Err(AsgConvertError::unresolved_import(
                             &*format!("{}.{}", pretty_package, name),
@@ -231,7 +233,7 @@ impl<'a> Program<'a> {
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(imported_functions),
-            global_consts: RefCell::new(IndexMap::new()),
+            global_consts: RefCell::new(imported_global_consts),
             circuits: RefCell::new(imported_circuits),
             function: Cell::new(None),
             input: Cell::new(None),
