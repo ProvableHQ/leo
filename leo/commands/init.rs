@@ -18,7 +18,6 @@ use crate::{commands::Command, config::*, context::Context};
 use leo_package::LeoPackage;
 
 use anyhow::{anyhow, Result};
-use std::env::current_dir;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -39,9 +38,9 @@ impl Command for Init {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Derive the package directory path.
-        let path = current_dir()?;
+        let path = context.dir()?;
 
         // Check that the current package directory path exists.
         if !path.exists() {

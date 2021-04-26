@@ -53,7 +53,7 @@ jobs:
       - run:
           name: Run tests
           no_output_timeout: 30m
-          command: LEO=/home/circleci/project/project/bin/leo cargo test --all
+          command: cargo test --all
       - persist_to_workspace:
           root: ~/
           paths: project/
@@ -71,7 +71,7 @@ jobs:
       - run:
           name: Run tests
           no_output_timeout: 30m
-          command: LEO=/home/circleci/project/project/bin/leo cargo test --all
+          command: cargo test --all
       - clear_environment:
           cache_key: leo-nightly-cache
 
@@ -214,13 +214,9 @@ workflows:
   version: 2
   main-workflow:
     jobs:
+      - rust-stable
+      - rust-nightly
       - leo-executable
-      - rust-stable:
-          requires:
-            - leo-executable  
-      - rust-nightly:
-          requires:
-            - leo-executable
       - leo-new:
           requires:
             - leo-executable

@@ -18,12 +18,12 @@ use crate::{commands::Command, config::*, context::Context};
 use leo_package::LeoPackage;
 
 use anyhow::{anyhow, Result};
-use std::{env::current_dir, fs};
+use std::fs;
 use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Create new Leo project
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, PartialEq)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct New {
     #[structopt(name = "NAME", help = "Set package name")]
@@ -42,7 +42,7 @@ impl Command for New {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Check that the given package name is valid.
         let package_name = self.name;
         if !LeoPackage::is_package_name_valid(&package_name) {
@@ -52,7 +52,7 @@ impl Command for New {
         let username = read_username().ok();
 
         // Derive the package directory path.
-        let mut path = current_dir()?;
+        let mut path = context.dir()?;
         path.push(&package_name);
 
         // Verify the package directory path does not exist yet.
