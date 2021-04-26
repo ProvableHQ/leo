@@ -23,7 +23,7 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Create new Leo project
-#[derive(StructOpt, Debug, PartialEq)]
+#[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct New {
     #[structopt(name = "NAME", help = "Set package name")]
