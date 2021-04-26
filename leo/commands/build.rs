@@ -55,9 +55,9 @@ impl Default for BuildOptions {
     }
 }
 
-impl Into<CompilerOptions> for BuildOptions {
-    fn into(self) -> CompilerOptions {
-        if self.disable_all_optimizations {
+impl From<BuildOptions> for CompilerOptions {
+    fn from(options: BuildOptions) -> Self {
+        if !options.disable_all_optimizations {
             CompilerOptions {
                 canonicalization_enabled: true,
                 constant_folding_enabled: true,
@@ -66,8 +66,8 @@ impl Into<CompilerOptions> for BuildOptions {
         } else {
             CompilerOptions {
                 canonicalization_enabled: true,
-                constant_folding_enabled: !self.disable_constant_folding,
-                dead_code_elimination_enabled: !self.disable_code_elimination,
+                constant_folding_enabled: !options.disable_constant_folding,
+                dead_code_elimination_enabled: !options.disable_code_elimination,
             }
         }
     }
