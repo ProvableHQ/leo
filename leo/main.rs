@@ -181,9 +181,11 @@ enum CommandOpts {
 }
 
 fn main() {
-    // Read command line arguments.
-    let opt = Opt::from_args();
+    handle_error(run_with_args(Opt::from_args()))
+}
 
+/// Run command with custom build arguments.
+fn run_with_args(opt: Opt) -> Result<(), Error> {
     if !opt.quiet {
         // Init logger with optional debug flag.
         logger::init_logger("leo", match opt.debug {
@@ -199,7 +201,7 @@ fn main() {
         None => context::get_context(opt.api),
     });
 
-    handle_error(match opt.command {
+    match opt.command {
         CommandOpts::Init { command } => command.try_execute(context),
         CommandOpts::New { command } => command.try_execute(context),
         CommandOpts::Build { command } => command.try_execute(context),
@@ -220,7 +222,7 @@ fn main() {
 
         CommandOpts::Lint { command } => command.try_execute(context),
         CommandOpts::Deploy { command } => command.try_execute(context),
-    });
+    }
 }
 
 fn handle_error<T>(res: Result<T, Error>) -> T {
@@ -230,5 +232,142 @@ fn handle_error<T>(res: Result<T, Error>) -> T {
             eprintln!("Error: {}", err);
             exit(1);
         }
+    }
+}
+
+#[cfg(test)]
+mod cli_tests {
+    use crate::{run_with_args, Opt};
+
+    use anyhow::Error;
+    use std::path::PathBuf;
+    use structopt::StructOpt;
+    use test_dir::{DirBuilder, FileType, TestDir};
+
+    // Runs Command from cmd-like argument "leo run --arg1 --arg2".
+    fn run_cmd(args: &str, path: &Option<PathBuf>) -> Result<(), Error> {
+        let args = args.split(' ').collect::<Vec<&str>>();
+        let mut opts = Opt::from_iter_safe(args)?;
+
+        if path.is_some() {
+            opts.path = path.clone();
+        }
+
+        if !opts.debug {
+            // turn off tracing for all tests
+            opts.quiet = true;
+        }
+
+        run_with_args(opts)
+    }
+
+    // Create a test directory with name.
+    fn testdir(name: &str) -> TestDir {
+        TestDir::temp().create(name, FileType::Dir)
+    }
+
+    #[test]
+    fn global_options() {
+        let path = Some(PathBuf::from("examples/pedersen-hash"));
+
+        assert!(run_cmd("leo build", &path).is_ok());
+        assert!(run_cmd("leo -q build", &path).is_ok());
+
+        assert!(run_cmd("leo --path ../../examples/no-directory-there build", &None).is_err());
+        assert!(run_cmd("leo -v build", &None).is_err());
+    }
+
+    #[test]
+    fn global_options_fail() {
+        assert!(run_cmd("leo --path ../../examples/no-directory-there build", &None).is_err());
+        assert!(run_cmd("leo -v build", &None).is_err());
+    }
+
+    #[test]
+    fn init() {
+        let dir = testdir("test");
+        let path = Some(dir.path("test"));
+
+        assert!(run_cmd("leo init", &path).is_ok());
+        assert!(run_cmd("leo init", &path).is_err()); // 2nd time
+    }
+
+    #[test]
+    fn init_fail() {
+        let dir = testdir("incorrect_name");
+        let path = Some(dir.path("incorrect_name"));
+        let fake = Some(PathBuf::from("no_such_directory"));
+
+        assert!(run_cmd("leo init", &fake).is_err());
+        assert!(run_cmd("leo init", &path).is_err());
+    }
+
+    #[test]
+    fn new() {
+        let dir = testdir("new");
+        let path = Some(dir.path("new"));
+
+        assert!(run_cmd("leo new test", &path).is_ok());
+        assert!(run_cmd("leo new test", &path).is_err()); // 2nd time 
+        assert!(run_cmd("leo new wrong_name", &path).is_err());
+    }
+
+    #[test]
+    #[should_panic]
+    fn unimplemented() {
+        assert!(run_cmd("leo lint", &None).is_err());
+        assert!(run_cmd("leo deploy", &None).is_err());
+    }
+
+    #[test]
+    fn clean() {
+        let path = &Some(PathBuf::from("examples/pedersen-hash"));
+
+        assert!(run_cmd("leo build", path).is_ok());
+        assert!(run_cmd("leo clean", path).is_ok());
+    }
+
+    #[test]
+    fn setup_prove_run_clean() {
+        let dir = testdir("test");
+        let path = dir.path("test");
+
+        assert!(run_cmd("leo new setup-test", &Some(path.clone())).is_ok());
+
+        let setup_path = &Some(path.join("setup-test"));
+
+        assert!(run_cmd("leo setup", setup_path).is_ok());
+        assert!(run_cmd("leo setup", setup_path).is_ok());
+        assert!(run_cmd("leo setup --skip-key-check", setup_path).is_ok());
+        assert!(run_cmd("leo prove --skip-key-check", setup_path).is_ok());
+        assert!(run_cmd("leo run --skip-key-check", setup_path).is_ok());
+        assert!(run_cmd("leo clean", setup_path).is_ok());
+    }
+
+    #[test]
+    fn test_missing_file() {
+        let dir = testdir("test");
+        let path = dir.path("test");
+
+        assert!(run_cmd("leo new test-file-missing", &Some(path.clone())).is_ok());
+
+        let path = path.join("test-file-missing");
+        let file = path.join("src/main.leo");
+        let path = Some(path);
+
+        assert!(run_cmd("leo test", &path).is_ok());
+        std::fs::remove_file(&file).unwrap();
+        assert!(run_cmd("leo test", &path).is_err());
+    }
+
+    #[test]
+    #[ignore] // ignore until imports path is fixed #875
+    fn test_sudoku() {
+        let path = &Some(PathBuf::from("examples/silly-sudoku"));
+
+        assert!(run_cmd("leo build", path).is_ok());
+        assert!(run_cmd("leo test", path).is_ok());
+        assert!(run_cmd("leo test -f src/lib.leo", path).is_ok());
+        assert!(run_cmd("leo test -f src/main.leo", path).is_ok());
     }
 }
