@@ -20,7 +20,7 @@ use test_dir::{DirBuilder, FileType, TestDir};
 
 /// Create Command from given arguments and CWD.
 fn command(args: &str, cwd: Option<PathBuf>) -> Command {
-    let args = args.split(" ").collect::<Vec<&str>>();
+    let args = args.split(' ').collect::<Vec<&str>>();
     let mut cmd = Command::cargo_bin("leo").unwrap();
 
     if let Some(cwd) = cwd {
@@ -74,7 +74,7 @@ fn new() {
 
     expect_success("new test", dir.clone());
     expect_fail("new test", dir.clone()); // duplicate
-    expect_fail("new wrong_name123123", dir.clone());
+    expect_fail("new wrong_name123123", dir);
 }
 
 #[test]
@@ -123,6 +123,6 @@ fn test_missing_file() {
     let path = path.path("test");
 
     expect_success("new missing-file-test", Some(path.clone()));
-    std::fs::remove_file(&path.clone().join("missing-file-test/src/main.leo")).unwrap();
+    std::fs::remove_file(&path.join("missing-file-test/src/main.leo")).unwrap();
     expect_fail("test", Some(path.join("missing-file")));
 }
