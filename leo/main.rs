@@ -361,13 +361,12 @@ mod cli_tests {
     }
 
     #[test]
-    #[ignore] // ignore until imports path is fixed #875
     fn test_sudoku() {
         let path = &Some(PathBuf::from("examples/silly-sudoku"));
 
         assert!(run_cmd("leo build", path).is_ok());
         assert!(run_cmd("leo test", path).is_ok());
-        assert!(run_cmd("leo test -f src/lib.leo", path).is_ok());
-        assert!(run_cmd("leo test -f src/main.leo", path).is_ok());
+        assert!(run_cmd("leo test -f examples/silly-sudoku/src/lib.leo", path).is_ok());
+        assert!(run_cmd("leo test -f examples/silly-sudoku/src/main.leo", path).is_ok());
     }
 }

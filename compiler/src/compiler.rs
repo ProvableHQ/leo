@@ -229,7 +229,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
         // Create a new symbol table from the program, imported_programs, and program_input.
-        let asg = Asg::new(self.context, &self.program, &mut leo_imports::ImportParser::default())?;
+        let asg = Asg::new(
+            self.context,
+            &self.program,
+            &mut leo_imports::ImportParser::new(self.main_file_path.clone()),
+        )?;
 
         tracing::debug!("ASG generation complete");
 
