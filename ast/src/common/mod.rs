@@ -23,9 +23,6 @@ pub use const_self_keyword::*;
 pub mod identifier;
 pub use identifier::*;
 
-pub mod input_keyword;
-pub use input_keyword::*;
-
 pub mod mut_self_keyword;
 pub use mut_self_keyword::*;
 

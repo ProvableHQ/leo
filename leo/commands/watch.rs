@@ -72,13 +72,8 @@ impl Command for Watch {
                     })
                     .execute(context.clone())
                     {
-                        Ok(_output) => {
-                            tracing::info!("Built successfully");
-                        }
-                        Err(e) => {
-                            // Syntax error
-                            tracing::error!("Error {:?}", e);
-                        }
+                        Ok(_output) => tracing::info!("Built successfully"),
+                        Err(e) => tracing::error!("Error {:?}", e),
                     };
                 }
                 // Other events

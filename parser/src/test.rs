@@ -14,93 +14,137 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use leo_ast::{Expression, ExpressionStatement, Span, Statement, ValueExpression};
+use leo_test_framework::runner::{Namespace, ParseType, Runner};
+use serde_yaml::Value;
+use tokenizer::Token;
 
-use crate::SyntaxError;
+use crate::{tokenizer, ParserContext};
 
-struct TestFailure {
-    path: String,
-    error: SyntaxError,
+struct TokenNamespace;
+
+impl Namespace for TokenNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Line
+    }
+
+    fn run_test(&self, test: &str) -> Result<Value, String> {
+        let output = tokenizer::tokenize("test", test.into());
+        output
+            .map(|tokens| {
+                Value::String(
+                    tokens
+                        .into_iter()
+                        .map(|x| x.to_string())
+                        .collect::<Vec<String>>()
+                        .join(","),
+                )
+            })
+            .map_err(|x| x.to_string())
+    }
 }
 
-pub fn find_tests<T: AsRef<Path>>(path: T, out: &mut Vec<(String, String)>) {
-    for entry in fs::read_dir(path).expect("fail to read tests").into_iter() {
-        let entry = entry.expect("fail to read tests").path();
-        if entry.is_dir() {
-            find_tests(entry.as_path(), out);
-            continue;
-        } else if entry.extension().map(|x| x.to_str()).flatten().unwrap_or_default() != "leo" {
-            continue;
+fn not_fully_consumed(tokens: &mut ParserContext) -> Result<(), String> {
+    if !tokens.has_next() {
+        return Ok(());
+    }
+    let mut out = "did not consume all input: ".to_string();
+    while tokens.has_next() {
+        out.push_str(&tokens.expect_any().unwrap().to_string());
+        out.push('\n');
+    }
+    Err(out)
+}
+
+struct ParseExpressionNamespace;
+
+impl Namespace for ParseExpressionNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Line
+    }
+
+    fn run_test(&self, test: &str) -> Result<Value, String> {
+        let tokenizer = tokenizer::tokenize("test", test.into()).map_err(|x| x.to_string())?;
+        if tokenizer
+            .iter()
+            .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
+        {
+            return Ok(serde_yaml::to_value(&Expression::Value(ValueExpression::Implicit(
+                "".into(),
+                Span::default(),
+            )))
+            .expect("serialization failed"));
         }
-        let content = fs::read_to_string(entry.as_path()).expect("failed to read test");
-        out.push((entry.as_path().to_str().unwrap_or_default().to_string(), content));
+        let mut tokens = ParserContext::new(tokenizer);
+
+        let parsed = tokens.parse_expression().map_err(|x| x.to_string())?;
+        not_fully_consumed(&mut tokens)?;
+
+        Ok(serde_yaml::to_value(&parsed).expect("serialization failed"))
+    }
+}
+
+struct ParseStatementNamespace;
+
+impl Namespace for ParseStatementNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::ContinuousLines
+    }
+
+    fn run_test(&self, test: &str) -> Result<Value, String> {
+        let tokenizer = tokenizer::tokenize("test", test.into()).map_err(|x| x.to_string())?;
+        if tokenizer
+            .iter()
+            .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
+        {
+            return Ok(serde_yaml::to_value(&Statement::Expression(ExpressionStatement {
+                expression: Expression::Value(ValueExpression::Implicit("".into(), Span::default())),
+                span: Span::default(),
+            }))
+            .expect("serialization failed"));
+        }
+        let mut tokens = ParserContext::new(tokenizer);
+
+        let parsed = tokens.parse_statement().map_err(|x| x.to_string())?;
+        not_fully_consumed(&mut tokens)?;
+
+        Ok(serde_yaml::to_value(&parsed).expect("serialization failed"))
+    }
+}
+
+struct ParseNamespace;
+
+impl Namespace for ParseNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Whole
+    }
+
+    fn run_test(&self, test: &str) -> Result<Value, String> {
+        let tokenizer = tokenizer::tokenize("test", test.into()).map_err(|x| x.to_string())?;
+        let mut tokens = ParserContext::new(tokenizer);
+
+        let parsed = tokens.parse_program().map_err(|x| x.to_string())?;
+        not_fully_consumed(&mut tokens)?;
+
+        Ok(serde_yaml::to_value(&parsed).expect("serialization failed"))
+    }
+}
+
+struct TestRunner;
+
+impl Runner for TestRunner {
+    fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>> {
+        Some(match name {
+            "Parse" => Box::new(ParseNamespace),
+            "ParseStatement" => Box::new(ParseStatementNamespace),
+            "ParseExpression" => Box::new(ParseExpressionNamespace),
+            "Token" => Box::new(TokenNamespace),
+            _ => return None,
+        })
     }
 }
 
 #[test]
-pub fn parser_pass_tests() {
-    let mut pass = 0;
-    let mut fail = Vec::new();
-    let mut tests = Vec::new();
-    let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_dir.push("../tests/pass/parse/");
-    find_tests(&test_dir, &mut tests);
-    for (path, content) in tests.into_iter() {
-        match crate::parse(&path, &content) {
-            Ok(_) => {
-                pass += 1;
-            }
-            Err(e) => {
-                fail.push(TestFailure { path, error: e });
-            }
-        }
-    }
-    if !fail.is_empty() {
-        for (i, fail) in fail.iter().enumerate() {
-            println!(
-                "\n\n-----------------TEST #{} FAILED (and shouldn't have)-----------------",
-                i + 1
-            );
-            println!("File: {}", fail.path);
-            println!("{}", fail.error);
-        }
-        panic!("failed {}/{} tests", fail.len(), fail.len() + pass);
-    } else {
-        println!("passed {}/{} tests", pass, pass);
-    }
-}
-
-#[test]
-pub fn parser_fail_tests() {
-    let mut pass = 0;
-    let mut fail = Vec::new();
-    let mut tests = Vec::new();
-    let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    test_dir.push("../tests/fail/parse/");
-    find_tests(&test_dir, &mut tests);
-    for (path, content) in tests.into_iter() {
-        match crate::parse(&path, &content) {
-            Ok(_) => {
-                fail.push(path);
-            }
-            Err(_e) => {
-                pass += 1;
-            }
-        }
-    }
-    if !fail.is_empty() {
-        for (i, fail) in fail.iter().enumerate() {
-            println!(
-                "\n\n-----------------TEST #{} PASSED (and shouldn't have)-----------------",
-                i + 1
-            );
-            println!("File: {}", fail);
-        }
-        panic!("failed {}/{} tests", fail.len(), fail.len() + pass);
-    } else {
-        println!("passed {}/{} tests", pass, pass);
-    }
+pub fn parser_tests() {
+    leo_test_framework::run_tests(&TestRunner, "parser");
 }

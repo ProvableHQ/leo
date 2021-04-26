@@ -404,7 +404,7 @@ impl ParserContext {
             match token.token {
                 Token::LeftSquare => {
                     if self.eat(Token::DotDot).is_some() {
-                        let right = if self.peek()?.token != Token::RightSquare {
+                        let right = if self.peek_token().as_ref() != &Token::RightSquare {
                             Some(Box::new(self.parse_expression()?))
                         } else {
                             None
@@ -422,7 +422,7 @@ impl ParserContext {
 
                     let left = self.parse_expression()?;
                     if self.eat(Token::DotDot).is_some() {
-                        let right = if self.peek()?.token != Token::RightSquare {
+                        let right = if self.peek_token().as_ref() != &Token::RightSquare {
                             Some(Box::new(self.parse_expression()?))
                         } else {
                             None
@@ -554,7 +554,7 @@ impl ParserContext {
     /// tuple initialization expression.
     ///
     pub fn parse_tuple_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
-        if let Some((left, right, span)) = self.eat_group_partial()? {
+        if let Some((left, right, span)) = self.eat_group_partial().transpose()? {
             return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
                 GroupTuple {
                     span,
@@ -625,6 +625,10 @@ impl ParserContext {
                 }
                 if elements.len() == 1 {
                     self.expect(Token::Comma)?;
+                    if let Some(token) = self.eat(Token::RightSquare) {
+                        end_span = token.span;
+                        break;
+                    }
                 }
                 elements.push(self.parse_spread_or_expression()?);
                 if self.eat(Token::Comma).is_none() {
@@ -658,21 +662,21 @@ impl ParserContext {
                         token: Token::Field,
                         span: type_span,
                     }) => {
-                        unexpected_whitespace(&span, &type_span, &value, "field")?;
+                        assert_no_whitespace(&span, &type_span, &value, "field")?;
                         Expression::Value(ValueExpression::Field(value, span + type_span))
                     }
                     Some(SpannedToken {
                         token: Token::Group,
                         span: type_span,
                     }) => {
-                        unexpected_whitespace(&span, &type_span, &value, "group")?;
+                        assert_no_whitespace(&span, &type_span, &value, "group")?;
                         Expression::Value(ValueExpression::Group(Box::new(GroupValue::Single(
                             value,
                             span + type_span,
                         ))))
                     }
                     Some(SpannedToken { token, span: type_span }) => {
-                        unexpected_whitespace(&span, &type_span, &value, &token.to_string())?;
+                        assert_no_whitespace(&span, &type_span, &value, &token.to_string())?;
                         Expression::Value(ValueExpression::Integer(
                             Self::token_to_int_type(token).expect("unknown int type token"),
                             value,
@@ -685,27 +689,11 @@ impl ParserContext {
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
             Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
             Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
-            Token::Address => {
-                self.expect(Token::LeftParen)?;
-                let value = self.expect_any()?;
-                let value = if let SpannedToken {
-                    token: Token::AddressLit(value),
-                    ..
-                } = value
-                {
-                    value
-                } else {
-                    return Err(SyntaxError::unexpected_str(&value.token, "address", &value.span));
-                };
-
-                let end = self.expect(Token::RightParen)?;
-                Expression::Value(ValueExpression::Address(value, span + end))
-            }
             Token::LeftParen => self.parse_tuple_expression(&span)?,
             Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
-                if !self.fuzzy_struct_state && self.peek()?.token == Token::LeftCurly {
+                if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)
@@ -716,7 +704,7 @@ impl ParserContext {
                     name: token.to_string().into(),
                     span,
                 };
-                if !self.fuzzy_struct_state && self.peek()?.token == Token::LeftCurly {
+                if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {
                     self.parse_circuit_expression(ident)?
                 } else {
                     Expression::Identifier(ident)

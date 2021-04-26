@@ -2,7 +2,7 @@ circuit PedersenHash {
     parameters: [u32; 512]
 
     function new(parameters: [u32; 512]) -> Self {
-        return Self { parameters: parameters }
+        return Self { parameters: parameters };
     }
 
     function hash(self, bits: [bool; 512]) -> u32 {
@@ -11,7 +11,7 @@ circuit PedersenHash {
             const base = bits[i] ? self.parameters[i] : 0u32;
             digest += base;
         }
-        return digest
+        return digest;
     }
 }
 

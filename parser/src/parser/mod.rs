@@ -20,16 +20,16 @@
 //! method to create a new program ast.
 
 mod context;
-use context::*;
+pub use context::*;
 
-mod expression;
-mod file;
-mod statement;
-mod type_;
+pub mod expression;
+pub mod file;
+pub mod statement;
+pub mod type_;
 
 use std::unimplemented;
 
-use crate::{tokenizer::*, DeprecatedError, SyntaxError, Token};
+use crate::{errors::assert_no_whitespace, tokenizer::*, DeprecatedError, SyntaxError, Token};
 use indexmap::IndexMap;
 use leo_ast::*;
 
@@ -40,15 +40,4 @@ pub fn parse(path: &str, source: &str) -> SyntaxResult<Program> {
     let mut tokens = ParserContext::new(crate::tokenize(path, source.into())?);
 
     tokens.parse_program()
-}
-
-pub fn unexpected_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> SyntaxResult<()> {
-    if left_span.col_stop != right_span.col_start {
-        let mut error_span = left_span + right_span;
-        error_span.col_start = left_span.col_stop - 1;
-        error_span.col_stop = right_span.col_start - 1;
-        return Err(SyntaxError::unexpected_whitespace(left, right, &error_span));
-    }
-
-    Ok(())
 }

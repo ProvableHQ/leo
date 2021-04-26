@@ -167,7 +167,7 @@ impl ParserContext {
     pub fn parse_return_statement(&mut self) -> SyntaxResult<ReturnStatement> {
         let start = self.expect(Token::Return)?;
         let expr = self.parse_expression()?;
-        self.eat(Token::Comma);
+        self.expect(Token::Semicolon)?;
 
         Ok(ReturnStatement {
             span: &start + expr.span(),
@@ -222,13 +222,13 @@ impl ParserContext {
     }
 
     ///
-    /// Returns a [`FormattedString`] AST node if the next tokens represent a formatted string.
+    /// Returns a [`FormatString`] AST node if the next tokens represent a formatted string.
     ///
-    pub fn parse_formatted_string(&mut self) -> SyntaxResult<FormattedString> {
+    pub fn parse_formatted_string(&mut self) -> SyntaxResult<FormatString> {
         let start_span;
         let parts = match self.expect_any()? {
             SpannedToken {
-                token: Token::FormattedString(parts),
+                token: Token::FormatString(parts),
                 span,
             } => {
                 start_span = span;
@@ -242,12 +242,12 @@ impl ParserContext {
             parameters.push(param);
         }
 
-        Ok(FormattedString {
+        Ok(FormatString {
             parts: parts
                 .into_iter()
                 .map(|x| match x {
-                    crate::FormattedStringPart::Const(value) => FormattedStringPart::Const(value),
-                    crate::FormattedStringPart::Container => FormattedStringPart::Container,
+                    crate::FormatStringPart::Const(value) => FormatStringPart::Const(value),
+                    crate::FormatStringPart::Container => FormatStringPart::Container,
                 })
                 .collect(),
             span: &start_span + parameters.last().map(|x| x.span()).unwrap_or(&start_span),
@@ -316,10 +316,17 @@ impl ParserContext {
         let mut variable_names = Vec::new();
         if self.eat(Token::LeftParen).is_some() {
             variable_names.push(self.parse_variable_name(&declare)?);
+            let mut eaten_ending = false;
             while self.eat(Token::Comma).is_some() {
+                if self.eat(Token::RightParen).is_some() {
+                    eaten_ending = true;
+                    break;
+                }
                 variable_names.push(self.parse_variable_name(&declare)?);
             }
-            self.expect(Token::RightParen)?;
+            if !eaten_ending {
+                self.expect(Token::RightParen)?;
+            }
         } else {
             variable_names.push(self.parse_variable_name(&declare)?);
         }

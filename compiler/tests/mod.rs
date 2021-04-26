@@ -37,6 +37,7 @@ pub mod mutability;
 pub mod statements;
 pub mod syntax;
 pub mod tuples;
+pub mod type_inference;
 
 use leo_asg::{new_alloc_context, new_context, AsgContext};
 use leo_ast::{InputValue, MainInput};

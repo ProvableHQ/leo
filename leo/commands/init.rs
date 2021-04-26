@@ -14,11 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
+use crate::{commands::Command, config::*, context::Context};
 use leo_package::LeoPackage;
 
 use anyhow::{anyhow, Result};
-use std::env::current_dir;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -39,9 +38,14 @@ impl Command for Init {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Derive the package directory path.
-        let path = current_dir()?;
+        let path = context.dir()?;
+
+        // Check that the current package directory path exists.
+        if !path.exists() {
+            return Err(anyhow!("Directory does not exist"));
+        }
 
         // Check that the given package name is valid.
         let package_name = path
@@ -50,15 +54,12 @@ impl Command for Init {
             .to_string_lossy()
             .to_string();
         if !LeoPackage::is_package_name_valid(&package_name) {
-            return Err(anyhow!("Invalid Leo project name"));
+            return Err(anyhow!("Invalid Leo project name: {}", package_name));
         }
 
-        // Check that the current package directory path exists.
-        if !path.exists() {
-            return Err(anyhow!("Directory does not exist"));
-        }
+        let username = read_username().ok();
 
-        LeoPackage::initialize(&package_name, false, &path)?;
+        LeoPackage::initialize(&package_name, &path, username)?;
 
         Ok(())
     }

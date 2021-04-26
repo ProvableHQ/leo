@@ -1,3 +1,3 @@
-function main(input) -> [u8; 3] {
-    return input.registers.r
+function main() -> [u8; 3] {
+    return input.registers.r;
 }

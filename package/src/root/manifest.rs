@@ -26,6 +26,7 @@ use std::{
 };
 
 pub const MANIFEST_FILENAME: &str = "Leo.toml";
+pub const AUTHOR_PLACEHOLDER: &str = "[AUTHOR]";
 
 #[derive(Clone, Deserialize)]
 pub struct Remote {
@@ -39,10 +40,10 @@ pub struct Manifest {
 }
 
 impl Manifest {
-    pub fn new(package_name: &str) -> Result<Self, ManifestError> {
+    pub fn new(package_name: &str, author: Option<String>) -> Result<Self, ManifestError> {
         Ok(Self {
             project: Package::new(package_name)?,
-            remote: None,
+            remote: author.map(|author| Remote { author }),
         })
     }
 
@@ -90,6 +91,11 @@ impl Manifest {
     }
 
     fn template(&self) -> String {
+        let author = self
+            .remote
+            .clone()
+            .map_or(AUTHOR_PLACEHOLDER.to_string(), |remote| remote.author);
+
         format!(
             r#"[project]
 name = "{name}"
@@ -98,9 +104,10 @@ description = "The {name} package"
 license = "MIT"
 
 [remote]
-author = "[AUTHOR]" # Add your Aleo Package Manager username, team's name, or organization's name.
+author = "{author}" # Add your Aleo Package Manager username, team's name, or organization's name.
 "#,
-            name = self.project.name
+            name = self.project.name,
+            author = author
         )
     }
 }

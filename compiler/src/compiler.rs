@@ -219,6 +219,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         // Use the parser to construct the abstract syntax tree (ast).
 
         let mut ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
+
         // Preform compiler optimization via canonicalizing AST if its enabled.
         if self.options.canonicalization_enabled {
             ast.canonicalize()?;

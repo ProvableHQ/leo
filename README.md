@@ -95,9 +95,9 @@ This will generate an executable under the `./target/release` directory. To run 
 Use the Leo CLI to create a new project
 
 ```bash
-# create a new `hello_world` Leo project
-leo new hello_world
-cd hello_world
+# create a new `hello-world` Leo project
+leo new hello-world
+cd hello-world
 
 # build & setup & prove & verify
 leo run
@@ -113,6 +113,7 @@ Congratulations! You've just run your first Leo program.
 
 * [Hello World - Next Steps](https://developer.aleo.org/developer/getting_started/hello_world)
 * [Leo Language Documentation](https://developer.aleo.org/developer/language/layout)
+* [Leo ABNF Grammar](./grammar/README.md)
 * [Leo CLI Documentation](https://developer.aleo.org/developer/cli/new)
 * [Homepage](https://developer.aleo.org/developer/getting_started/overview)
 

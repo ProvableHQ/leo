@@ -33,8 +33,8 @@ pub struct LeoPackage;
 
 impl LeoPackage {
     /// Initializes a Leo package at the given path.
-    pub fn initialize(package_name: &str, is_lib: bool, path: &Path) -> Result<(), PackageError> {
-        package::Package::initialize(package_name, is_lib, path)
+    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<(), PackageError> {
+        package::Package::initialize(package_name, path, author)
     }
 
     /// Returns `true` if the given Leo package name is valid.
