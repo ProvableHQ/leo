@@ -215,10 +215,10 @@ workflows:
   main-workflow:
     jobs:
       - leo-executable
-      - rust-stable
+      - rust-stable:
           requires:
             - leo-executable  
-      - rust-nightly
+      - rust-nightly:
           requires:
             - leo-executable
       - leo-new:
