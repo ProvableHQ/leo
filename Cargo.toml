@@ -160,8 +160,8 @@ version = "0.11.2"
 [dev-dependencies.assert_cmd]
 version = "1.0.3"
 
-[dev-dependencies.testdir]
-version = "0.4.0"
+[dev-dependencies.test_dir]
+version = "0.1.0"
 
 [features]
 default = [ ]

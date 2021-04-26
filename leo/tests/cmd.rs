@@ -16,7 +16,7 @@
 
 use assert_cmd::Command;
 use std::path::PathBuf;
-use testdir::testdir;
+use test_dir::{DirBuilder, FileType, TestDir};
 
 /// Create Command from given arguments and CWD.
 fn command(args: &str, cwd: Option<PathBuf>) -> Command {
@@ -51,7 +51,8 @@ fn test_global_options() {
 
 #[test]
 fn init() {
-    let dir = Some(testdir!());
+    let dir = TestDir::temp().create("init", FileType::Dir);
+    let dir = Some(dir.path("init"));
 
     expect_success("init", dir.clone());
     expect_fail("init", dir); // can't do twice
@@ -59,7 +60,8 @@ fn init() {
 
 #[test]
 fn init_fail() {
-    let dir = Some(testdir!()); // directory is named /init_fail - as test name
+    let dir = TestDir::temp().create("incorrect_name", FileType::Dir);
+    let dir = Some(dir.path("incorrect_name"));
 
     expect_fail("init", Some("directory-doesnt-exist".into()));
     expect_fail("init", dir);
@@ -67,7 +69,8 @@ fn init_fail() {
 
 #[test]
 fn new() {
-    let dir = Some(testdir!());
+    let dir = TestDir::temp().create("new", FileType::Dir);
+    let dir = Some(dir.path("new"));
 
     expect_success("new test", dir.clone());
     expect_fail("new test", dir.clone()); // duplicate
@@ -88,18 +91,20 @@ fn clean() {
 
 #[test]
 fn setup_prove_run_clean() {
-    let dir = testdir!();
+    let dir = TestDir::temp().create("test", FileType::Dir);
+    let dir = dir.path("test");
 
     expect_success("new setup", Some(dir.clone()));
 
-    let dir = Some(dir.join("setup"));
+    // 'cd' into newly created setup directory
+    let new_dir = Some(dir.join("setup"));
 
-    expect_success("setup", dir.clone());
-    expect_success("setup", dir.clone());
-    expect_success("setup --skip-key-check", dir.clone());
-    expect_success("prove --skip-key-check", dir.clone());
-    expect_success("run --skip-key-check", dir.clone());
-    expect_success("clean", dir);
+    expect_success("setup", new_dir.clone());
+    expect_success("setup", new_dir.clone());
+    expect_success("setup --skip-key-check", new_dir.clone());
+    expect_success("prove --skip-key-check", new_dir.clone());
+    expect_success("run --skip-key-check", new_dir.clone());
+    expect_success("clean", new_dir);
 }
 
 #[test]
@@ -114,7 +119,8 @@ fn test_sudoku() {
 
 #[test]
 fn test_missing_file() {
-    let path = testdir!();
+    let path = TestDir::temp().create("test", FileType::Dir);
+    let path = path.path("test");
 
     expect_success("new missing-file-test", Some(path.clone()));
     std::fs::remove_file(&path.clone().join("missing-file-test/src/main.leo")).unwrap();
