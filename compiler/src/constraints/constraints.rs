@@ -85,10 +85,17 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
         let input_pair = match input_file {
             Some(file_id) => {
                 let file_name = file_id.clone();
+                let file_name_kebab = file_name.to_string().replace("_", "-");
 
+                // transform "test_name" into "test-name"
                 output_file_name = file_name.to_string();
 
-                match input.pairs.get(file_name.as_ref()) {
+                // searches for test_input (snake case) or for test-input (kebab case)
+                match input
+                    .pairs
+                    .get(&file_name_kebab)
+                    .or_else(|| input.pairs.get(&file_name_kebab))
+                {
                     Some(pair) => pair.to_owned(),
                     None => return Err(CompilerError::InvalidTestContext(file_name.to_string())),
                 }
