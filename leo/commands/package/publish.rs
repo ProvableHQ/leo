@@ -15,10 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::Build;
-use crate::{
-    commands::Command,
-    context::{Context, PACKAGE_MANAGER_URL},
-};
+use crate::{commands::Command, context::Context};
 use leo_package::{
     outputs::OutputsDirectory,
     root::{ZipFile, AUTHOR_PLACEHOLDER},
@@ -118,7 +115,7 @@ impl Command for Publish {
 
         // Make a request to publish a package
         let response = client
-            .post(format!("{}{}", PACKAGE_MANAGER_URL, PUBLISH_URL).as_str())
+            .post(format!("{}{}", context.api.host(), PUBLISH_URL).as_str())
             .headers(headers)
             .multipart(form_data)
             .send();
