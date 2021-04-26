@@ -352,7 +352,7 @@ mod cli_tests {
         assert!(run_cmd("leo new test-file-missing", &Some(path.clone())).is_ok());
 
         let path = path.join("test-file-missing");
-        let file = path.clone().join("src/main.leo");
+        let file = path.join("src/main.leo");
         let path = Some(path);
 
         assert!(run_cmd("leo test", &path).is_ok());
