@@ -67,7 +67,7 @@ impl<'a> ExpressionNode<'a> for CircuitInitExpression<'a> {
     }
 
     fn is_mut_ref(&self) -> bool {
-        false
+        true
     }
 
     fn const_value(&self) -> Option<ConstValue> {

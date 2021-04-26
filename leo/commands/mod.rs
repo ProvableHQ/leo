@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::context::{get_context, Context};
+use crate::context::Context;
 
 use anyhow::Result;
 use std::time::Instant;
@@ -72,11 +72,6 @@ pub trait Command {
     /// this field may be left empty.
     type Output;
 
-    /// Returns the project context, which is defined as the current directory.
-    fn context(&self) -> Result<Context> {
-        get_context()
-    }
-
     /// Adds a span to the logger via `tracing::span`.
     /// Because of the specifics of the macro implementation, it is not possible
     /// to set the span name with a non-literal i.e. a dynamic variable even if this
@@ -86,7 +81,7 @@ pub trait Command {
     }
 
     /// Runs the prelude and returns the Input of the current command.
-    fn prelude(&self) -> Result<Self::Input>
+    fn prelude(&self, context: Context) -> Result<Self::Input>
     where
         Self: std::marker::Sized;
 
@@ -98,11 +93,11 @@ pub trait Command {
 
     /// A wrapper around the `apply` method.
     /// This function sets up tracing, timing, and the context.
-    fn execute(self) -> Result<Self::Output>
+    fn execute(self, context: Context) -> Result<Self::Output>
     where
         Self: std::marker::Sized,
     {
-        let input = self.prelude()?;
+        let input = self.prelude(context.clone())?;
 
         // Create the span for this command.
         let span = self.log_span();
@@ -110,8 +105,6 @@ pub trait Command {
 
         // Calculate the execution time for this command.
         let timer = Instant::now();
-
-        let context = self.context()?;
         let out = self.apply(context, input);
 
         drop(span);
@@ -127,10 +120,10 @@ pub trait Command {
     /// Executes command but empty the result. Comes in handy where there's a
     /// need to make match arms compatible while keeping implementation-specific
     /// output possible. Errors however are all of the type Error
-    fn try_execute(self) -> Result<()>
+    fn try_execute(self, context: Context) -> Result<()>
     where
         Self: std::marker::Sized,
     {
-        self.execute().map(|_| Ok(()))?
+        self.execute(context).map(|_| Ok(()))?
     }
 }

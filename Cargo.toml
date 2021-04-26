@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "1.2.3"
+version = "1.4.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
@@ -27,6 +27,7 @@ path = "leo/main.rs"
 [workspace]
 members = [
   "asg",
+  "asg-passes",
   "ast",
   "compiler",
   "grammar",
@@ -37,55 +38,54 @@ members = [
   "parser",
   "state",
   "synthesizer",
-  "asg-passes",
+  "test-framework"
 ]
 
 [dependencies.leo-ast]
 path = "./ast"
-version = "1.2.3"
+version = "1.4.0"
 
 [dependencies.leo-compiler]
 path = "./compiler"
-version = "1.2.3"
+version = "1.4.0"
 
 [dependencies.leo-imports]
 path = "./imports"
-version = "1.2.3"
+version = "1.4.0"
 
 [dependencies.leo-input]
 path = "./input"
-version = "1.2.3"
+version = "1.4.0"
 
 [dependencies.leo-package]
 path = "./package"
-version = "1.2.3"
+version = "1.4.0"
 
 [dependencies.leo-state]
 path = "./state"
-version = "1.2.3"
+version = "1.4.0"
 
 [dependencies.leo-synthesizer]
 path = "./synthesizer"
-version = "1.2.3"
+version = "1.4.0"
 
 [dependencies.snarkvm-algorithms]
-version = "0.2.1"
-#default-features = false
+version = "0.2.2"
 
 [dependencies.snarkvm-curves]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-r1cs]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.2.1"
+version = "0.2.2"
 
 [dependencies.anyhow]
 version = "1.0"
@@ -112,7 +112,7 @@ version = "0.3.1"
 version = "1.4.0"
 
 [dependencies.notify]
-version = "4.0.15"
+version = "4.0.16"
 
 [dependencies.rand]
 version = "0.8"
@@ -121,7 +121,7 @@ version = "0.8"
 version = "0.6.2"
 
 [dependencies.reqwest]
-version = "0.11.2"
+version = "0.11.3"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
@@ -151,12 +151,22 @@ features = [ "fmt" ]
 [dependencies.zip]
 version = "0.5"
 
+[target."cfg(windows)".dependencies.ansi_term]
+version = "0.12.1"
+
 [dev-dependencies.rusty-hook]
 version = "0.11.2"
+
+[dev-dependencies.assert_cmd]
+version = "1.0.3"
+
+[dev-dependencies.test_dir]
+version = "0.1.0"
 
 [features]
 default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
+noconfig = [ ]
 
 [profile.release]
 opt-level = 3

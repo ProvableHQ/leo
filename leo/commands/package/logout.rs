@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, config::remove_token, context::Context};
+use crate::{commands::Command, config::remove_token_and_username, context::Context};
 
 use anyhow::Result;
 use std::io::ErrorKind;
@@ -34,14 +34,14 @@ impl Command for Logout {
         tracing::span!(tracing::Level::INFO, "Logout")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
         Ok(())
     }
 
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         // the only error we're interested here is NotFound
         // however err in this case can also be of kind PermissionDenied or other
-        if let Err(err) = remove_token() {
+        if let Err(err) = remove_token_and_username() {
             match err.kind() {
                 ErrorKind::NotFound => {
                     tracing::info!("you are not logged in");

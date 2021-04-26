@@ -1,6 +1,6 @@
 [package]
 name = "leo-ast"
-version = "1.2.3"
+version = "1.4.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Core AST of the Leo programming language"
 homepage = "https://aleo.org"
@@ -19,7 +19,7 @@ edition = "2018"
 
 [dependencies.leo-input]
 path = "../input"
-version = "1.2.3"
+version = "1.4.0"
 
 [dependencies.indexmap]
 version = "1.6.2"
@@ -30,7 +30,7 @@ version = "2.0"
 
 [dependencies.serde]
 version = "1.0"
-features = ["derive", "rc"]
+features = [ "derive", "rc" ]
 
 [dependencies.serde_json]
 version = "1.0"

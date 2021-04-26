@@ -21,7 +21,7 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 /// Setting for automatic updates of Leo
-#[derive(Debug, StructOpt, PartialEq)]
+#[derive(Debug, StructOpt)]
 pub enum Automatic {
     Automatic {
         #[structopt(name = "bool", help = "Boolean value: true or false", parse(try_from_str))]
@@ -54,7 +54,7 @@ impl Command for Update {
         tracing::span!(tracing::Level::INFO, "Updating")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
         Ok(())
     }
 

@@ -1,6 +1,6 @@
 [package]
 name = "leo-asg-passes"
-version = "1.2.3"
+version = "1.4.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
@@ -13,7 +13,7 @@ keywords = [
   "zero-knowledge"
 ]
 categories = [ "cryptography::cryptocurrencies", "web-programming" ]
-include = [ "Cargo.toml", "leo", "README.md", "LICENSE.md" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
@@ -22,4 +22,4 @@ path = "src/lib.rs"
 
 [dependencies.leo-asg]
 path = "../asg"
-version = "1.2.3"
+version = "1.4.0"

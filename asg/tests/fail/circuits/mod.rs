@@ -55,7 +55,7 @@ fn test_mut_member_function_fail() {
     let program_string = r#"
         circuit Foo {
             function echo(mut self, x: u32) -> u32 {
-                return x
+                return x;
             }
         }
         

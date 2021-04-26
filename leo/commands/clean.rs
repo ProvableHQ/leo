@@ -35,7 +35,7 @@ impl Command for Clean {
         tracing::span!(tracing::Level::INFO, "Cleaning")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
         Ok(())
     }
 

@@ -13,24 +13,18 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use std::{ffi::OsString, io};
+use std::ffi::OsString;
 
 #[derive(Debug, Error)]
 pub enum PackageError {
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
 
-    #[error("`{}` creating: {}", _0, _1)]
-    Creating(&'static str, io::Error),
-
     #[error("Failed to initialize package {:?} ({:?})", _0, _1)]
     FailedToInitialize(String, OsString),
 
     #[error("Invalid project name: {:?}", _0)]
     InvalidPackageName(String),
-
-    #[error("`{}` metadata: {}", _0, _1)]
-    Removing(&'static str, io::Error),
 }
 
 impl From<std::io::Error> for PackageError {

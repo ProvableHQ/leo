@@ -120,7 +120,7 @@ pub trait StatementVisitor<'a>: ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_formatted_string(&mut self, input: &FormattedString<'a>) -> VisitResult {
+    fn visit_formatted_string(&mut self, input: &FormatString<'a>) -> VisitResult {
         Default::default()
     }
 

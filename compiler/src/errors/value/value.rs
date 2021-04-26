@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{AddressError, BooleanError, FieldError, GroupError, IntegerError};
-use leo_ast::{FormattedError, LeoError, Span};
+use leo_ast::{FormattedError, LeoError};
 
 #[derive(Debug, Error)]
 pub enum ValueError {
@@ -39,21 +39,3 @@ pub enum ValueError {
 }
 
 impl LeoError for ValueError {}
-
-impl ValueError {
-    fn new_from_span(message: String, span: &Span) -> Self {
-        ValueError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    pub fn implicit(value: String, span: &Span) -> Self {
-        let message = format!("explicit type needed for `{}`", value);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn implicit_group(span: &Span) -> Self {
-        let message = "group coordinates should be in (x, y)group format".to_string();
-
-        Self::new_from_span(message, span)
-    }
-}

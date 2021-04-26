@@ -1,5 +1,5 @@
 function foo() -> field {
-    return myGlobal
+    return myGlobal;
 }
 
 function main() {

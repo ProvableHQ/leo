@@ -132,3 +132,11 @@ fn test_i128_assert_eq() {
 fn test_i128_ternary() {
     TestI128::test_ternary();
 }
+
+#[test]
+fn test_no_space_between_literal() {
+    let program_string = include_str!("no_space_between_literal.leo");
+    let program = parse_program(program_string);
+
+    assert!(program.is_err());
+}

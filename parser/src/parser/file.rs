@@ -97,12 +97,7 @@ impl ParserContext {
             )));
         }
 
-        if start.col_stop != name.span.col_start {
-            let mut error_span = &start + &name.span;
-            error_span.col_start = start.col_stop - 1;
-            error_span.col_stop = name.span.col_start - 1;
-            return Err(SyntaxError::unexpected_whitespace("@", &name.name, &error_span));
-        }
+        assert_no_whitespace(&start, &name.span, &name.name, "@")?;
 
         let end_span;
         let arguments = if self.eat(Token::LeftParen).is_some() {
@@ -164,7 +159,7 @@ impl ParserContext {
             Ok(PackageAccess::Star(span))
         } else {
             let name = self.expect_ident()?;
-            if self.peek()?.token == Token::Dot {
+            if self.peek_token().as_ref() == &Token::Dot {
                 self.backtrack(SpannedToken {
                     token: Token::Ident(name.name),
                     span: name.span,
@@ -199,7 +194,7 @@ impl ParserContext {
 
         // Build the rest of the package name including dashes.
         loop {
-            match &self.peek()?.token {
+            match &self.peek_token().as_ref() {
                 Token::Minus => {
                     let span = self.expect(Token::Minus)?;
                     base.span = base.span + span;
@@ -323,14 +318,6 @@ impl ParserContext {
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
     pub fn parse_function_parameters(&mut self) -> SyntaxResult<FunctionInput> {
-        if let Some(token) = self.eat(Token::Input) {
-            return Ok(FunctionInput::InputKeyword(InputKeyword {
-                identifier: Identifier {
-                    name: token.token.to_string().into(),
-                    span: token.span,
-                },
-            }));
-        }
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
         let mut name = if let Some(token) = self.eat(Token::LittleSelf) {
@@ -380,7 +367,7 @@ impl ParserContext {
     ///
     pub fn parse_function_declaration(&mut self) -> SyntaxResult<(Identifier, Function)> {
         let mut annotations = Vec::new();
-        while self.peek()?.token == Token::At {
+        while self.peek_token().as_ref() == &Token::At {
             annotations.push(self.parse_annotation()?);
         }
         let start = self.expect(Token::Function)?;

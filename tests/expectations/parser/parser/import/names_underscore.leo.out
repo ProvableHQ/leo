@@ -1,0 +1,37 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    imports:
+      - package_or_packages:
+          Package:
+            name: "{\"name\":\"hello_world\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import hello_world.foo;\\\"}\"}"
+            access:
+              Symbol:
+                symbol: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import hello_world.foo;\\\"}\"}"
+                alias: ~
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 20
+                  col_stop: 23
+                  path: test
+                  content: import hello_world.foo;
+            span:
+              line_start: 3
+              line_stop: 3
+              col_start: 8
+              col_stop: 23
+              path: test
+              content: import hello_world.foo;
+        span:
+          line_start: 3
+          line_stop: 3
+          col_start: 8
+          col_stop: 23
+          path: test
+          content: import hello_world.foo;
+    circuits: {}
+    functions: {}

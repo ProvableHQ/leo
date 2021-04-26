@@ -17,9 +17,6 @@
 mod canonicalization;
 pub use canonicalization::*;
 
-mod errors;
-pub use errors::*;
-
 mod reconstructing_reducer;
 pub use reconstructing_reducer::*;
 

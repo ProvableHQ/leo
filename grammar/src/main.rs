@@ -179,7 +179,7 @@ impl<'a> Processor<'a> {
 fn parse_abnf_node(node: &Node, sum: &mut Vec<String>) {
     match node {
         // these two are just vectors of rules
-        Node::Alternation(vec) | Node::Concatenation(vec) => {
+        Node::Alternatives(vec) | Node::Concatenation(vec) => {
             for node in vec {
                 parse_abnf_node(node, sum);
             }
@@ -198,13 +198,10 @@ fn main() -> Result<()> {
     // Take Leo ABNF grammar file.
     let grammar = include_str!("../abnf-grammar.txt");
 
-    // A. Coglio's proposal for %s syntax for case-sensitive statements has not been implemented
-    // in this library, so we need to remove all occurrences of %s in the grammar file.
-    // Link to this proposal: https://www.kestrel.edu/people/coglio/vstte18.pdf
-    let grammar = &str::replace(grammar, "%s", "");
-
     // Parse ABNF to get list of all definitions.
-    let parsed = abnf::rulelist(grammar).map_err(|e| {
+    // Rust ABNF does not provide support for `%s` (case sensitive strings, part of
+    // the standard); so we need to remove all occurrences before parsing.
+    let parsed = abnf::rulelist(&str::replace(grammar, "%s", "")).map_err(|e| {
         eprintln!("{}", &e);
         anyhow::anyhow!(e)
     })?;

@@ -1,6 +1,6 @@
 [package]
 name = "leo-synthesizer"
-version = "1.2.3"
+version = "1.4.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Circuit synthesizer of the Leo programming language"
 homepage = "https://aleo.org"
@@ -18,19 +18,18 @@ license = "GPL-3.0"
 edition = "2018"
 
 [dependencies.snarkvm-curves]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-fields]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.2.1"
-default-features = false
+version = "0.2.2"
 
 [dependencies.snarkvm-r1cs]
-version = "0.2.1"
+version = "0.2.2"
 default-features = false
 
 [dependencies.num-bigint]

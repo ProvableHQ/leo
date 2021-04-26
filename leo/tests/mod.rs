@@ -14,9 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::path::PathBuf;
-
 use anyhow::Result;
+use std::path::PathBuf;
 
 use crate::{
     commands::{
@@ -152,7 +151,7 @@ pub fn leo_update_and_update_automatic() -> Result<()> {
 /// Create context for Pedersen Hash example
 fn context() -> Result<Context> {
     let path = PathBuf::from(&PEDERSEN_HASH_PATH);
-    let context = create_context(path)?;
+    let context = create_context(path, None)?;
 
     Ok(context)
 }

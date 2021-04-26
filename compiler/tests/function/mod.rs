@@ -211,3 +211,11 @@ fn test_array_params_direct_call() {
 
     assert_satisfied(program);
 }
+
+#[test]
+fn test_duplicate_function_definition() {
+    let program_string = include_str!("duplicate_definition.leo");
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
+}

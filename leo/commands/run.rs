@@ -40,9 +40,9 @@ impl Command for Run {
         tracing::span!(tracing::Level::INFO, "Verifying")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
         let skip_key_check = self.skip_key_check;
-        (Prove { skip_key_check }).execute()
+        (Prove { skip_key_check }).execute(context)
     }
 
     fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {

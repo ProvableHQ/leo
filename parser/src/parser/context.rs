@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::unimplemented;
+use std::{borrow::Cow, unimplemented};
 
-use crate::{tokenizer::*, SyntaxError, SyntaxResult, Token, KEYWORD_TOKENS};
+use crate::{assert_no_whitespace, tokenizer::*, SyntaxError, SyntaxResult, Token, KEYWORD_TOKENS};
 use leo_ast::*;
 use tendril::format_tendril;
 
@@ -49,7 +49,11 @@ impl ParserContext {
             .filter(|x| !matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
             .collect();
         ParserContext {
-            end_span: tokens.last().map(|x| x.span.clone()).unwrap_or_default(),
+            end_span: tokens
+                .iter()
+                .find(|x| !x.span.content.trim().is_empty())
+                .map(|x| x.span.clone())
+                .unwrap_or_default(),
             tokens,
             fuzzy_struct_state: false,
         }
@@ -67,6 +71,14 @@ impl ParserContext {
     ///
     pub fn peek(&self) -> SyntaxResult<&SpannedToken> {
         self.tokens.last().ok_or_else(|| self.eof())
+    }
+
+    pub fn peek_token(&self) -> Cow<'_, Token> {
+        self.tokens
+            .last()
+            .map(|x| &x.token)
+            .map(Cow::Borrowed)
+            .unwrap_or_else(|| Cow::Owned(Token::Eof))
     }
 
     // pub fn peek_oneof(&self, token: &[Token]) -> SyntaxResult<&SpannedToken> {
@@ -140,15 +152,21 @@ impl ParserContext {
     /// the next token is not a [`GroupCoordinate`].
     ///
     fn peek_group_coordinate(&self, i: &mut usize) -> Option<GroupCoordinate> {
-        let token = self.tokens.get(*i)?;
+        if *i < 1 {
+            return None;
+        }
+        let token = self.tokens.get(*i - 1)?;
         *i -= 1;
         Some(match &token.token {
             Token::Add => GroupCoordinate::SignHigh,
-            Token::Minus => match self.tokens.get(*i) {
+            Token::Minus if *i > 0 => match self.tokens.get(*i - 1) {
                 Some(SpannedToken {
                     token: Token::Int(value),
                     span,
                 }) => {
+                    if *i < 1 {
+                        return None;
+                    }
                     *i -= 1;
                     GroupCoordinate::Number(format_tendril!("-{}", value), span.clone())
                 }
@@ -164,11 +182,17 @@ impl ParserContext {
     /// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
     /// or [None] if the next token is not a [`GroupCoordinate`].
     ///
-    pub fn eat_group_partial(&mut self) -> Option<(GroupCoordinate, GroupCoordinate, Span)> {
-        let mut i = self.tokens.len() - 1;
-        let start_span = self.tokens.get(i)?.span.clone();
+    pub fn eat_group_partial(&mut self) -> Option<SyntaxResult<(GroupCoordinate, GroupCoordinate, Span)>> {
+        let mut i = self.tokens.len();
+        if i < 1 {
+            return None;
+        }
+        let start_span = self.tokens.get(i - 1)?.span.clone();
         let first = self.peek_group_coordinate(&mut i)?;
-        match self.tokens.get(i) {
+        if i < 1 {
+            return None;
+        }
+        match self.tokens.get(i - 1) {
             Some(SpannedToken {
                 token: Token::Comma, ..
             }) => {
@@ -179,19 +203,27 @@ impl ParserContext {
             }
         }
         let second = self.peek_group_coordinate(&mut i)?;
-        match self.tokens.get(i) {
+        if i < 1 {
+            return None;
+        }
+        let right_paren_span;
+        match self.tokens.get(i - 1) {
             Some(SpannedToken {
                 token: Token::RightParen,
-                ..
+                span,
             }) => {
+                right_paren_span = span.clone();
                 i -= 1;
             }
             _ => {
                 return None;
             }
         }
+        if i < 1 {
+            return None;
+        }
         let end_span;
-        match self.tokens.get(i) {
+        match self.tokens.get(i - 1) {
             Some(SpannedToken {
                 token: Token::Group,
                 span,
@@ -204,8 +236,16 @@ impl ParserContext {
             }
         }
 
-        self.tokens.drain((i + 1)..);
-        Some((first, second, start_span + end_span))
+        self.tokens.drain(i..);
+        if let Err(e) = assert_no_whitespace(
+            &right_paren_span,
+            &end_span,
+            &format!("({},{})", first, second),
+            "group",
+        ) {
+            return Some(Err(e));
+        }
+        Some(Ok((first, second, start_span + end_span)))
     }
 
     ///

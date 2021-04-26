@@ -36,7 +36,7 @@ fn test_function_rename() {
             a += 1;
         }
     
-        return a
+        return a;
     }
     
     function main() {
@@ -63,7 +63,7 @@ fn test_imports() {
     }
     
     function foo() -> u32 {
-      return 1u32
+      return 1u32;
     }
   "#;
     imports

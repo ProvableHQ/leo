@@ -32,8 +32,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         left: &'a Expression<'a>,
         right: &'a Expression<'a>,
     ) -> Result<ConstrainedValuePair<'a, F, G>, ExpressionError> {
-        let resolved_left = self.enforce_expression(cs, left)?;
-        let resolved_right = self.enforce_expression(cs, right)?;
+        let resolved_left = {
+            let mut left_namespace = cs.ns(|| "left".to_string());
+            self.enforce_expression(&mut left_namespace, left)?
+        };
+
+        let resolved_right = {
+            let mut right_namespace = cs.ns(|| "right".to_string());
+            self.enforce_expression(&mut right_namespace, right)?
+        };
 
         Ok((resolved_left, resolved_right))
     }

@@ -74,6 +74,7 @@ pub trait ReconstructingReducerExpression<'a> {
             left: Cell::new(left),
             right: Cell::new(right),
             span: input.span,
+            length: input.length,
         })
     }
 
@@ -273,10 +274,10 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
 
     fn reduce_formatted_string(
         &mut self,
-        input: FormattedString<'a>,
+        input: FormatString<'a>,
         parameters: Vec<&'a Expression<'a>>,
-    ) -> FormattedString<'a> {
-        FormattedString {
+    ) -> FormatString<'a> {
+        FormatString {
             span: input.span,
             parts: input.parts,
             parameters: parameters.into_iter().map(Cell::new).collect(),
@@ -292,7 +293,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
         })
     }
 
-    fn reduce_console_log(&mut self, input: ConsoleStatement<'a>, argument: FormattedString<'a>) -> Statement<'a> {
+    fn reduce_console_log(&mut self, input: ConsoleStatement<'a>, argument: FormatString<'a>) -> Statement<'a> {
         assert!(!matches!(input.function, ConsoleFunction::Assert(_)));
         Statement::Console(ConsoleStatement {
             parent: input.parent,

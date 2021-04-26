@@ -243,7 +243,7 @@ impl<'a, R: ReconstructingReducerStatement<'a>> ReconstructingDirector<'a, R> {
             .reduce_conditional_statement(input, condition, if_true, if_false)
     }
 
-    pub fn reduce_formatted_string(&mut self, input: FormattedString<'a>) -> FormattedString<'a> {
+    pub fn reduce_formatted_string(&mut self, input: FormatString<'a>) -> FormatString<'a> {
         let parameters = input
             .parameters
             .iter()

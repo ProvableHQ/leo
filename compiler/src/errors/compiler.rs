@@ -14,16 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::{ExpressionError, FunctionError, ImportError, OutputBytesError, OutputFileError, StatementError};
+use crate::errors::{ExpressionError, FunctionError, ImportError, StatementError};
 use leo_asg::{AsgConvertError, FormattedError};
-use leo_ast::{CanonicalizeError, LeoError};
-use leo_imports::ImportParserError;
+use leo_ast::{LeoError, ReducerError};
 use leo_input::InputParserError;
 use leo_parser::SyntaxError;
 use leo_state::LocalDataVerificationError;
 
-use bincode::Error as SerdeError;
-use std::{ffi::OsString, path::PathBuf};
+use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
@@ -40,9 +38,6 @@ pub enum CompilerError {
     ImportError(#[from] ImportError),
 
     #[error("{}", _0)]
-    ImportParserError(#[from] ImportParserError),
-
-    #[error("{}", _0)]
     InputParserError(#[from] InputParserError),
 
     #[error("Cannot find input files with context name `{}`", _0)]
@@ -54,14 +49,8 @@ pub enum CompilerError {
     #[error("Cannot read from the provided file path '{:?}': {}", _0, _1)]
     FileReadError(PathBuf, std::io::Error),
 
-    #[error("Cannot parse file string `{:?}`", _0)]
-    FileStringError(OsString),
-
     #[error("{}", _0)]
     LocalDataVerificationError(#[from] LocalDataVerificationError),
-
-    #[error("`main` function not found")]
-    NoMain,
 
     #[error("`main` must be a function")]
     NoMainFunction,
@@ -70,19 +59,10 @@ pub enum CompilerError {
     NoTestInput,
 
     #[error("{}", _0)]
-    OutputError(#[from] OutputFileError),
-
-    #[error("{}", _0)]
-    OutputStringError(#[from] OutputBytesError),
-
-    #[error("{}", _0)]
-    SerdeError(#[from] SerdeError),
-
-    #[error("{}", _0)]
     AsgConvertError(#[from] AsgConvertError),
 
     #[error("{}", _0)]
-    CanonicalizeError(#[from] CanonicalizeError),
+    ReducerError(#[from] ReducerError),
 
     #[error("{}", _0)]
     StatementError(#[from] StatementError),

@@ -45,19 +45,35 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     let start_index = start
                         .get()
                         .map(|start| self.enforce_index(cs, start, &span))
+                        .transpose()?
+                        .map(|x| {
+                            x.to_usize()
+                                .ok_or_else(|| StatementError::array_assign_index_const(&span))
+                        })
                         .transpose()?;
-                    let stop_index = stop.get().map(|stop| self.enforce_index(cs, stop, &span)).transpose()?;
+                    let stop_index = stop
+                        .get()
+                        .map(|stop| self.enforce_index(cs, stop, &span))
+                        .transpose()?
+                        .map(|x| {
+                            x.to_usize()
+                                .ok_or_else(|| StatementError::array_assign_index_const(&span))
+                        })
+                        .transpose()?;
                     Ok(ResolvedAssigneeAccess::ArrayRange(start_index, stop_index))
                 }
                 AssignAccess::ArrayIndex(index) => {
-                    let index = self.enforce_index(cs, index.get(), &span)?;
+                    let index = self
+                        .enforce_index(cs, index.get(), &span)?
+                        .to_usize()
+                        .ok_or_else(|| StatementError::array_assign_index_const(&span))?;
 
                     Ok(ResolvedAssigneeAccess::ArrayIndex(index))
                 }
                 AssignAccess::Tuple(index) => Ok(ResolvedAssigneeAccess::Tuple(*index, span.clone())),
                 AssignAccess::Member(identifier) => Ok(ResolvedAssigneeAccess::Member(identifier.clone())),
             })
-            .collect::<Result<Vec<_>, crate::errors::ExpressionError>>()?;
+            .collect::<Result<Vec<_>, StatementError>>()?;
 
         let variable = assignee.target_variable.get().borrow();
 

@@ -54,7 +54,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
         statement: &leo_ast::IterationStatement,
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
-        let expected_index_type = Some(PartialType::Integer(None, Some(IntegerType::U32)));
+        let expected_index_type = Some(PartialType::Integer(Some(IntegerType::U32), None));
         let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone())?;
         let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type)?;
 

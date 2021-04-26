@@ -49,8 +49,8 @@ impl Command for Setup {
         tracing::span!(tracing::Level::INFO, "Setup")
     }
 
-    fn prelude(&self) -> Result<Self::Input> {
-        (Build {}).execute()
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
+        (Build {}).execute(context)
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
@@ -58,8 +58,7 @@ impl Command for Setup {
         let package_name = context.manifest()?.get_package_name();
 
         // Check if leo build failed
-        let (program, checksum_differs) =
-            input.ok_or_else(|| anyhow!("Unable to build, check that main file exists"))?;
+        let (program, checksum_differs) = input;
 
         // Check if a proving key and verification key already exists
         let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)

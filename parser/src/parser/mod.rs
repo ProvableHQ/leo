@@ -20,16 +20,16 @@
 //! method to create a new program ast.
 
 mod context;
-use context::*;
+pub use context::*;
 
-mod expression;
-mod file;
-mod statement;
-mod type_;
+pub mod expression;
+pub mod file;
+pub mod statement;
+pub mod type_;
 
 use std::unimplemented;
 
-use crate::{tokenizer::*, DeprecatedError, SyntaxError, Token};
+use crate::{errors::assert_no_whitespace, tokenizer::*, DeprecatedError, SyntaxError, Token};
 use indexmap::IndexMap;
 use leo_ast::*;
 

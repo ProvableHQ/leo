@@ -51,15 +51,31 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let start_index = left
                     .get()
                     .map(|start| self.enforce_index(cs, start, span))
+                    .transpose()?
+                    .map(|x| {
+                        x.to_usize()
+                            .ok_or_else(|| StatementError::array_assign_index_const(span))
+                    })
                     .transpose()?;
-                let stop_index = right.get().map(|stop| self.enforce_index(cs, stop, span)).transpose()?;
+                let stop_index = right
+                    .get()
+                    .map(|stop| self.enforce_index(cs, stop, span))
+                    .transpose()?
+                    .map(|x| {
+                        x.to_usize()
+                            .ok_or_else(|| StatementError::array_assign_index_const(span))
+                    })
+                    .transpose()?;
 
                 output.push(ResolvedAssigneeAccess::ArrayRange(start_index, stop_index));
                 Ok(inner)
             }
             Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
                 let inner = self.prepare_mut_access(cs, array.get(), span, output)?;
-                let index = self.enforce_index(cs, index.get(), span)?;
+                let index = self
+                    .enforce_index(cs, index.get(), span)?
+                    .to_usize()
+                    .ok_or_else(|| StatementError::array_assign_index_const(span))?;
 
                 output.push(ResolvedAssigneeAccess::ArrayIndex(index));
                 Ok(inner)

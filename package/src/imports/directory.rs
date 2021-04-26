@@ -33,20 +33,6 @@ impl ImportsDirectory {
         fs::create_dir_all(&path).map_err(ImportsDirectoryError::Creating)
     }
 
-    /// Removes the directory at the provided path.
-    pub fn remove(path: &Path) -> Result<(), ImportsDirectoryError> {
-        let mut path = Cow::from(path);
-        if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
-            path.to_mut().push(IMPORTS_DIRECTORY_NAME);
-        }
-
-        if path.exists() {
-            fs::remove_dir_all(&path).map_err(ImportsDirectoryError::Removing)?;
-        }
-
-        Ok(())
-    }
-
     /// Removes an imported package in the imports directory at the provided path.
     pub fn remove_import(path: &Path, package_name: &str) -> Result<(), ImportsDirectoryError> {
         let mut path = Cow::from(path);

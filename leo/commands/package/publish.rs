@@ -15,11 +15,11 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::Build;
-use crate::{
-    commands::Command,
-    context::{Context, PACKAGE_MANAGER_URL},
+use crate::{commands::Command, context::Context};
+use leo_package::{
+    outputs::OutputsDirectory,
+    root::{ZipFile, AUTHOR_PLACEHOLDER},
 };
-use leo_package::{outputs::OutputsDirectory, root::ZipFile};
 
 use anyhow::{anyhow, Result};
 use reqwest::{
@@ -46,8 +46,8 @@ impl Command for Publish {
     type Output = Option<String>;
 
     /// Build program before publishing
-    fn prelude(&self) -> Result<Self::Input> {
-        (Build {}).execute()
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
+        (Build {}).execute(context)
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
@@ -70,11 +70,19 @@ impl Command for Publish {
         };
 
         let package_remote = manifest.get_package_remote().unwrap();
+        let username = package_remote.clone().author;
 
-        // Create the output directory
+        // Prevent most common error before accessing API.
+        if username == AUTHOR_PLACEHOLDER {
+            return Err(anyhow!(
+                "Package author is not set. Specify package author in [remote] section of Leo.toml"
+            ));
+        }
+
+        // Create the output directory.
         OutputsDirectory::create(&path)?;
 
-        // Create zip file
+        // Create zip file.
         let zip_file = ZipFile::new(&package_name);
         if zip_file.exists_at(&path) {
             tracing::debug!("Existing package zip file found. Clearing it to regenerate.");
@@ -107,7 +115,7 @@ impl Command for Publish {
 
         // Make a request to publish a package
         let response = client
-            .post(format!("{}{}", PACKAGE_MANAGER_URL, PUBLISH_URL).as_str())
+            .post(format!("{}{}", context.api.host(), PUBLISH_URL).as_str())
             .headers(headers)
             .multipart(form_data)
             .send();
