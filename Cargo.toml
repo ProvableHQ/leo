@@ -160,7 +160,7 @@ version = "0.11.2"
 version = "1.0.3"
 
 [dev-dependencies.testdir]
-version = "0.3.1"
+version = "0.4.0"
 
 [features]
 default = [ ]
