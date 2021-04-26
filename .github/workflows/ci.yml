@@ -114,10 +114,11 @@ jobs:
           override: true
           components: rustfmt
 
-      - name: Build Leo binary
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
+      - name: Install Leo binary and set env
+        run: |
+          cargo install --path .
+          export LEO=$(which leo)
+          printenv      
 
       - name: Test
         uses: actions-rs/cargo@v1

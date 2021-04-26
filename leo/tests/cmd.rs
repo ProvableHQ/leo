@@ -21,7 +21,7 @@ use test_dir::{DirBuilder, FileType, TestDir};
 /// Create Command from given arguments and CWD.
 fn command(args: &str, cwd: Option<PathBuf>) -> Command {
     let args = args.split(' ').collect::<Vec<&str>>();
-    let mut cmd = Command::cargo_bin("leo").unwrap();
+    let mut cmd = Command::cargo_bin("leo").unwrap_or_else(|_| Command::new(std::env::var("LEO").unwrap()));
 
     if let Some(cwd) = cwd {
         cmd.current_dir(cwd);
