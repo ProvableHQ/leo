@@ -19,6 +19,7 @@
 //! The [`Compiler`] type compiles Leo programs into R1CS circuits.
 
 #![allow(clippy::module_inception)]
+#![allow(clippy::upper_case_acronyms)]
 
 #[macro_use]
 extern crate thiserror;
