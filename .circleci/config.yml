@@ -50,13 +50,10 @@ jobs:
       - checkout
       - setup_environment:
           cache_key: leo-stable-cache
-      - build:
-          name: Build leo binary
-          command: cargo build
       - run:
           name: Run tests
           no_output_timeout: 30m
-          command: cargo test --all
+          command: cargo build && cargo test --all
       - persist_to_workspace:
           root: ~/
           paths: project/
@@ -71,13 +68,10 @@ jobs:
       - checkout
       - setup_environment:
           cache_key: leo-nightly-cache
-      - build:
-          name: Build leo binary
-          command: cargo build
       - run:
           name: Run tests
           no_output_timeout: 30m
-          command: cargo test --all
+          command: cargo build && cargo test --all
       - clear_environment:
           cache_key: leo-nightly-cache
 
