@@ -27,7 +27,7 @@ use std::{collections::HashMap, path::PathBuf};
 /// Default is JSON, but publish route uses FormData
 #[derive(Clone, Debug)]
 pub enum ContentType {
-    JSON,
+    Json,
     FormData,
 }
 
@@ -113,7 +113,7 @@ impl Api {
         // add body for POST and PUT requests
         if T::METHOD == Method::POST || T::METHOD == Method::PUT {
             res = match T::CONTENT_TYPE {
-                ContentType::JSON => res.json(&route),
+                ContentType::Json => res.json(&route),
                 ContentType::FormData => {
                     let form = route
                         .to_form()
@@ -157,7 +157,7 @@ impl Route for Fetch {
     type Output = Response;
 
     const AUTH: bool = true;
-    const CONTENT_TYPE: ContentType = ContentType::JSON;
+    const CONTENT_TYPE: ContentType = ContentType::Json;
     const METHOD: Method = Method::POST;
     const PATH: &'static str = "api/package/fetch";
 
@@ -194,7 +194,7 @@ impl Route for Login {
     type Output = Response;
 
     const AUTH: bool = false;
-    const CONTENT_TYPE: ContentType = ContentType::JSON;
+    const CONTENT_TYPE: ContentType = ContentType::Json;
     const METHOD: Method = Method::POST;
     const PATH: &'static str = "api/account/authenticate";
 
@@ -283,7 +283,7 @@ impl Route for Profile {
     type Output = Option<String>;
 
     const AUTH: bool = true;
-    const CONTENT_TYPE: ContentType = ContentType::JSON;
+    const CONTENT_TYPE: ContentType = ContentType::Json;
     const METHOD: Method = Method::GET;
     const PATH: &'static str = "api/account/my_profile";
 
