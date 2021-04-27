@@ -18,6 +18,7 @@ use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
+    CompilerOptions,
 };
 use leo_package::{
     inputs::*,
@@ -32,10 +33,53 @@ use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
 
-/// Compile and build program command
+/// Compiler Options wrapper for Build command. Also used by other commands which
+/// require Build command output as their input.
+#[derive(StructOpt, Clone, Debug)]
+pub struct BuildOptions {
+    #[structopt(long, help = "Disable constant folding compiler optimization")]
+    pub disable_constant_folding: bool,
+    #[structopt(long, help = "Disable dead code elimination compiler optimization")]
+    pub disable_code_elimination: bool,
+    #[structopt(long, help = "Disable all compiler optimizations")]
+    pub disable_all_optimizations: bool,
+}
+
+impl Default for BuildOptions {
+    fn default() -> Self {
+        Self {
+            disable_constant_folding: true,
+            disable_code_elimination: true,
+            disable_all_optimizations: true,
+        }
+    }
+}
+
+impl From<BuildOptions> for CompilerOptions {
+    fn from(options: BuildOptions) -> Self {
+        if !options.disable_all_optimizations {
+            CompilerOptions {
+                canonicalization_enabled: true,
+                constant_folding_enabled: true,
+                dead_code_elimination_enabled: true,
+            }
+        } else {
+            CompilerOptions {
+                canonicalization_enabled: true,
+                constant_folding_enabled: !options.disable_constant_folding,
+                dead_code_elimination_enabled: !options.disable_code_elimination,
+            }
+        }
+    }
+}
+
+/// Compile and build program command.
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Build {}
+pub struct Build {
+    #[structopt(flatten)]
+    pub(crate) compiler_options: BuildOptions,
+}
 
 impl Command for Build {
     type Input = ();
@@ -53,13 +97,13 @@ impl Command for Build {
         let path = context.dir()?;
         let package_name = context.manifest()?.get_package_name();
 
-        // Sanitize the package path to the root directory
+        // Sanitize the package path to the root directory.
         let mut package_path = path.clone();
         if package_path.is_file() {
             package_path.pop();
         }
 
-        // Construct the path to the output directory
+        // Construct the path to the output directory.
         let mut output_directory = package_path.clone();
         output_directory.push(OUTPUTS_DIRECTORY_NAME);
 
@@ -97,6 +141,7 @@ impl Command for Build {
             &state_string,
             &state_path,
             thread_leaked_context(),
+            Some(self.compiler_options.into()),
         )?;
 
         // Compute the current program checksum

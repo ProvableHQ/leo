@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::build::Build;
+use super::build::{Build, BuildOptions};
 use crate::{commands::Command, context::Context};
 
 use std::{sync::mpsc::channel, time::Duration};
@@ -33,6 +33,9 @@ pub struct Watch {
     /// Set up watch interval
     #[structopt(short, long, default_value = "3")]
     interval: u64,
+
+    #[structopt(flatten)]
+    compiler_options: BuildOptions,
 }
 
 impl Command for Watch {
@@ -64,7 +67,11 @@ impl Command for Watch {
             match rx.recv() {
                 // See changes on the write event
                 Ok(DebouncedEvent::Write(_write)) => {
-                    match (Build {}).execute(context.clone()) {
+                    match (Build {
+                        compiler_options: self.compiler_options.clone(),
+                    })
+                    .execute(context.clone())
+                    {
                         Ok(_output) => tracing::info!("Built successfully"),
                         Err(e) => tracing::error!("Error {:?}", e),
                     };

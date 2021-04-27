@@ -79,6 +79,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         main_file_path: PathBuf,
         output_directory: PathBuf,
         context: AsgContext<'a>,
+        options: Option<CompilerOptions>,
     ) -> Self {
         Self {
             program_name: package_name.clone(),
@@ -88,7 +89,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             program_input: Input::new(),
             asg: None,
             context,
-            options: CompilerOptions::default(),
+            options: options.unwrap_or_default(),
             _engine: PhantomData,
             _group: PhantomData,
         }
@@ -106,8 +107,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         main_file_path: PathBuf,
         output_directory: PathBuf,
         context: AsgContext<'a>,
+        options: Option<CompilerOptions>,
     ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name, main_file_path, output_directory, context);
+        let mut compiler = Self::new(package_name, main_file_path, output_directory, context, options);
 
         compiler.parse_program()?;
 
@@ -136,8 +138,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         state_string: &str,
         state_path: &Path,
         context: AsgContext<'a>,
+        options: Option<CompilerOptions>,
     ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name, main_file_path, output_directory, context);
+        let mut compiler = Self::new(package_name, main_file_path, output_directory, context, options);
 
         compiler.parse_input(input_string, input_path, state_string, state_path)?;
 

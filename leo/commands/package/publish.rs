@@ -47,7 +47,10 @@ impl Command for Publish {
 
     /// Build program before publishing
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        (Build {}).execute(context)
+        (Build {
+            compiler_options: Default::default(),
+        })
+        .execute(context)
     }
 
     fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
