@@ -676,7 +676,7 @@ group-literal = product-group-literal / affine-group-literal
 ; and the (left or right) associativity of binary operators.
 
 ; The primary expressions are self-contained in a way,
-; i.e. they have clear deliminations:
+; i.e. they have clear delimitations:
 ; Some consist of single tokens,
 ; while others have explicit endings.
 ; Primary expressions also include parenthesized expressions,
