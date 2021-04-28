@@ -359,6 +359,23 @@ mod cli_tests {
     }
 
     #[test]
+    fn test_import() {
+        let dir = testdir("test");
+        let path = dir.path("test");
+
+        assert!(run_cmd("leo new import", &Some(path.clone())).is_ok());
+
+        let import_path = &Some(path.join("import"));
+
+        assert!(run_cmd("leo add no-package/definitely-no", import_path).is_err());
+        assert!(run_cmd("leo add justice-league/u8u32", import_path).is_ok());
+        assert!(run_cmd("leo remove u8u32", import_path).is_ok());
+        assert!(run_cmd("leo add --author justice-league --package u8u32", import_path).is_ok());
+        assert!(run_cmd("leo remove u8u32", import_path).is_ok());
+        assert!(run_cmd("leo remove u8u32", import_path).is_err());
+    }
+
+    #[test]
     fn test_missing_file() {
         let dir = testdir("test");
         let path = dir.path("test");
