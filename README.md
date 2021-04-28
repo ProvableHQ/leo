@@ -8,7 +8,7 @@
     <a href="https://github.com/AleoHQ/leo/actions"><img src="https://github.com/AleoHQ/leo/workflows/CI/badge.svg"></a>
     <a href="https://codecov.io/gh/AleoHQ/leo"><img src="https://codecov.io/gh/AleoHQ/leo/branch/master/graph/badge.svg?token=S6MWO60SYL"/></a>
     <a href="https://app.bors.tech/repositories/31738"><img src="https://bors.tech/images/badge_small.svg" alt="Bors enabled"></a>
-    <a href="https://discord.gg/TTexWvt"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
+    <a href="https://discord.gg/5v2ynrw2ds"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
 </p>
 
 Leo is a functional, statically-typed programming language built for writing private applications.
