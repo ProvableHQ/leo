@@ -4,6 +4,8 @@ function two() -> u8 {
   return 2u8;
 }
 
+const ONE = 1u8;
+
 function main() {
   const a = 1u8;
   const b = 1field;

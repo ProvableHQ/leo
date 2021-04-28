@@ -842,7 +842,8 @@ expression = conditional-expression
 
 statement = expression-statement
           / return-statement
-          / variable-definition-statement
+          / variable-declaration
+          / constant-declaration
           / conditional-statement
           / loop-statement
           / assignment-statement
@@ -866,9 +867,9 @@ return-statement = %s"return" expression ";"
 ; in all cases, there is just one optional type
 ; and just one initializing expression.
 
-variable-definition-statement = ( %s"let" / %s"const" )
-                                identifier-or-identifiers
-                                [ ":" type ] "=" expression ";"
+variable-declaration = %s"let" identifier-or-identifiers [ ":" type ] "=" expression ";"
+constant-declaration = %s"const" identifier-or-identifiers [ ":" type ] "=" expression ";"
+
 
 identifier-or-identifiers = identifier
                           / "(" identifier 1*( "," identifier ) ")"
@@ -988,6 +989,7 @@ package-path = "*"
 declaration = import-declaration
             / function-declaration
             / circuit-declaration
+            / constant-declaration
 
 file = *declaration
 

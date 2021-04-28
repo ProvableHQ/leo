@@ -159,6 +159,10 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         Default::default()
     }
 
+    fn visit_global_const(&mut self, input: &'a DefinitionStatement<'a>) -> VisitResult {
+        Default::default()
+    }
+
     fn visit_program(&mut self, input: &Program<'a>) -> VisitResult {
         Default::default()
     }

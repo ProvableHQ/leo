@@ -398,6 +398,7 @@ pub trait ReconstructingReducer {
         imports: Vec<ImportStatement>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
+        global_consts: IndexMap<String, DefinitionStatement>,
     ) -> Result<Program, ReducerError> {
         Ok(Program {
             name: program.name.clone(),
@@ -405,6 +406,7 @@ pub trait ReconstructingReducer {
             imports,
             circuits,
             functions,
+            global_consts,
         })
     }
 

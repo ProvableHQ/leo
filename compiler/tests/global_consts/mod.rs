@@ -14,16 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Stores all defined names in a compiled Leo program.
+use crate::{assert_satisfied, expect_compiler_error, parse_program};
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::Variable;
 
-use snarkvm_fields::PrimeField;
+#[test]
+fn test_global_consts() {
+    let program_string = include_str!("global_consts.leo");
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn store_definition(&mut self, variable: &Variable, value: ConstrainedValue<'a, F, G>) {
-        let variable = variable.borrow();
-        self.store(variable.id, value);
-    }
+    let program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_modify_global_const() {
+    let program_string = include_str!("modify_global_const.leo");
+
+    let program = parse_program(program_string).unwrap();
+
+    assert!(parse_program(program_string).is_err());
 }

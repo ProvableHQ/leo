@@ -705,12 +705,19 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             functions.insert(ast_ident.clone(), self.reduce_function(ast_function, asg_function)?);
         }
 
+        let mut global_consts = IndexMap::new();
+        for ((ast_str, ast_definition), (_asg_str, asg_definition)) in ast.global_consts.iter().zip(&asg.global_consts)
+        {
+            global_consts.insert(ast_str.clone(), self.reduce_definition(ast_definition, asg_definition)?);
+        }
+
         self.ast_reducer.reduce_program(
             ast,
             ast.expected_input.clone(),
             ast.imports.clone(),
             circuits,
             functions,
+            global_consts,
         )
     }
 

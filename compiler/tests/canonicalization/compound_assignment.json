@@ -2,6 +2,7 @@
   "name": "",
   "expected_input": [],
   "imports": [],
+  "global_consts": {},
   "circuits": {
     "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}": {
       "circuit_name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}",

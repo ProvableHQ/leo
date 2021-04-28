@@ -24,7 +24,17 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
-use crate::{ArenaNode, AsgContext, AsgConvertError, ImportResolver, Input, Scope};
+use crate::{
+    node::FromAst,
+    ArenaNode,
+    AsgContext,
+    AsgConvertError,
+    DefinitionStatement,
+    ImportResolver,
+    Input,
+    Scope,
+    Statement,
+};
 use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
 
 use indexmap::IndexMap;
@@ -48,10 +58,12 @@ pub struct Program<'a> {
     /// Maps function name => function code block.
     pub functions: IndexMap<String, &'a Function<'a>>,
 
+    /// Maps global constant name => global const code block.
+    pub global_consts: IndexMap<String, &'a DefinitionStatement<'a>>,
+
     /// Maps circuit name => circuit code block.
     pub circuits: IndexMap<String, &'a Circuit<'a>>,
 
-    /// Bindings for names and additional program context.
     pub scope: &'a Scope<'a>,
 }
 
@@ -168,6 +180,7 @@ impl<'a> Program<'a> {
 
         let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
         let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
+        let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
 
         // Prepare locally relevant scope of imports.
         for (package, symbol, span) in imported_symbols.into_iter() {
@@ -180,12 +193,15 @@ impl<'a> Program<'a> {
                 ImportSymbol::All => {
                     imported_functions.extend(resolved_package.functions.clone().into_iter());
                     imported_circuits.extend(resolved_package.circuits.clone().into_iter());
+                    imported_global_consts.extend(resolved_package.global_consts.clone().into_iter());
                 }
                 ImportSymbol::Direct(name) => {
                     if let Some(function) = resolved_package.functions.get(&name) {
                         imported_functions.insert(name.clone(), *function);
                     } else if let Some(circuit) = resolved_package.circuits.get(&name) {
                         imported_circuits.insert(name.clone(), *circuit);
+                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
+                        imported_global_consts.insert(name.clone(), *global_const);
                     } else {
                         return Err(AsgConvertError::unresolved_import(
                             &*format!("{}.{}", pretty_package, name),
@@ -198,6 +214,8 @@ impl<'a> Program<'a> {
                         imported_functions.insert(alias.clone(), *function);
                     } else if let Some(circuit) = resolved_package.circuits.get(&name) {
                         imported_circuits.insert(alias.clone(), *circuit);
+                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
+                        imported_global_consts.insert(alias.clone(), *global_const);
                     } else {
                         return Err(AsgConvertError::unresolved_import(
                             &*format!("{}.{}", pretty_package, name),
@@ -208,17 +226,18 @@ impl<'a> Program<'a> {
             }
         }
 
-        let import_scope = match context.arena.alloc(ArenaNode::Scope(Scope {
+        let import_scope = match context.arena.alloc(ArenaNode::Scope(Box::new(Scope {
             context,
             id: context.get_id(),
             parent_scope: Cell::new(None),
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(imported_functions),
+            global_consts: RefCell::new(imported_global_consts),
             circuits: RefCell::new(imported_circuits),
             function: Cell::new(None),
             input: Cell::new(None),
-        })) {
+        }))) {
             ArenaNode::Scope(c) => c,
             _ => unimplemented!(),
         };
@@ -231,6 +250,7 @@ impl<'a> Program<'a> {
             circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
+            global_consts: RefCell::new(IndexMap::new()),
             circuits: RefCell::new(IndexMap::new()),
             function: Cell::new(None),
         });
@@ -258,7 +278,29 @@ impl<'a> Program<'a> {
             scope.functions.borrow_mut().insert(name.name.to_string(), function);
         }
 
+        for (name, global_const) in program.global_consts.iter() {
+            global_const
+                .variable_names
+                .iter()
+                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name.to_string())));
+            let gc = <&Statement<'a>>::from_ast(scope, global_const, None)?;
+            if let Statement::Definition(gc) = gc {
+                scope.global_consts.borrow_mut().insert(name.clone(), gc);
+            }
+        }
+
         // Load concrete definitions.
+        let mut global_consts = IndexMap::new();
+        for (name, global_const) in program.global_consts.iter() {
+            global_const
+                .variable_names
+                .iter()
+                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name.to_string())));
+            let asg_global_const = *scope.global_consts.borrow().get(name).unwrap();
+
+            global_consts.insert(name.clone(), asg_global_const);
+        }
+
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
@@ -290,6 +332,7 @@ impl<'a> Program<'a> {
             id: context.get_id(),
             name: program.name.clone(),
             functions,
+            global_consts,
             circuits,
             imported_modules: resolved_packages
                 .into_iter()
@@ -340,6 +383,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
 
     let mut all_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
     let mut all_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
+    let mut all_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
     let mut identifiers = InternalIdentifierGenerator { next: 0 };
     for (_, program) in all_programs.into_iter() {
         for (name, circuit) in program.circuits.iter() {
@@ -355,6 +399,11 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             };
             function.name.borrow_mut().name = identifier.clone().into();
             all_functions.insert(identifier, *function);
+        }
+
+        for (name, global_const) in program.global_consts.iter() {
+            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
+            all_global_consts.insert(identifier, *global_const);
         }
     }
 
@@ -380,6 +429,20 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             .into_iter()
             .map(|(_, circuit)| (circuit.name.borrow().clone(), circuit.into()))
             .collect(),
+        global_consts: all_global_consts
+            .into_iter()
+            .map(|(_, global_const)| {
+                (
+                    global_const
+                        .variables
+                        .iter()
+                        .fold("".to_string(), |joined, variable_name| {
+                            format!("{}, {}", joined, variable_name.borrow().name.name)
+                        }),
+                    global_const.into(),
+                )
+            })
+            .collect(),
     }
 }
 
@@ -398,6 +461,21 @@ impl<'a> Into<leo_ast::Program> for &Program<'a> {
                 .functions
                 .iter()
                 .map(|(_, function)| (function.name.borrow().clone(), (*function).into()))
+                .collect(),
+            global_consts: self
+                .global_consts
+                .iter()
+                .map(|(_, global_const)| {
+                    (
+                        global_const
+                            .variables
+                            .iter()
+                            .fold("".to_string(), |joined, variable_name| {
+                                format!("{}, {}", joined, variable_name.borrow().name.name)
+                            }),
+                        (*global_const).into(),
+                    )
+                })
                 .collect(),
         }
     }

@@ -16,4 +16,5 @@ function main() {
     const car = Car { c: 1u32 };
 
     console.assert(car.c == 1u32);
+    console.assert(ONE == 1u8);
 }

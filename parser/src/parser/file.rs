@@ -28,6 +28,7 @@ impl ParserContext {
         let mut imports = Vec::new();
         let mut circuits = IndexMap::new();
         let mut functions = IndexMap::new();
+        let mut global_consts = IndexMap::new();
         // let mut tests = IndexMap::new();
 
         while self.has_next() {
@@ -55,6 +56,10 @@ impl ParserContext {
                     //     input_file: None,
                     // });
                 }
+                Token::Const => {
+                    let (name, global_const) = self.parse_global_const_declaration()?;
+                    global_consts.insert(name, global_const);
+                }
                 _ => {
                     return Err(SyntaxError::unexpected(
                         &token.token,
@@ -76,6 +81,7 @@ impl ParserContext {
             imports,
             circuits,
             functions,
+            global_consts,
         })
     }
 
@@ -390,5 +396,21 @@ impl ParserContext {
             span: start + block.span.clone(),
             block,
         }))
+    }
+
+    ///
+    /// Returns an [`(String, DefinitionStatement)`] AST node if the next tokens represent a global
+    /// const definition statement and assignment.
+    ///
+    pub fn parse_global_const_declaration(&mut self) -> SyntaxResult<(String, DefinitionStatement)> {
+        let statement = self.parse_definition_statement()?;
+        let variable_names = statement
+            .variable_names
+            .iter()
+            .map(|variable_name| variable_name.identifier.name.to_string())
+            .collect::<Vec<String>>()
+            .join(",");
+
+        Ok((variable_names, statement))
     }
 }

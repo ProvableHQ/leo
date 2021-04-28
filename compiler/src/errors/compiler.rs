@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::FunctionError;
+use crate::errors::{ExpressionError, FunctionError, ImportError, StatementError};
 use leo_asg::{AsgConvertError, FormattedError};
 use leo_ast::{LeoError, ReducerError};
 use leo_input::InputParserError;
@@ -30,6 +30,12 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     AsgPassError(FormattedError),
+
+    #[error("{}", _0)]
+    ExpressionError(#[from] ExpressionError),
+
+    #[error("{}", _0)]
+    ImportError(#[from] ImportError),
 
     #[error("{}", _0)]
     InputParserError(#[from] InputParserError),
@@ -57,6 +63,9 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     ReducerError(#[from] ReducerError),
+
+    #[error("{}", _0)]
+    StatementError(#[from] StatementError),
 }
 
 impl LeoError for CompilerError {}
