@@ -15,26 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::Build;
-use crate::{commands::Command, context::Context};
+use crate::{api::Publish as PublishRoute, commands::Command, context::Context};
 use leo_package::{
     outputs::OutputsDirectory,
     root::{ZipFile, AUTHOR_PLACEHOLDER},
 };
 
 use anyhow::{anyhow, Result};
-use reqwest::{
-    blocking::{multipart::Form, Client},
-    header::{HeaderMap, HeaderValue},
-};
-use serde::Deserialize;
 use structopt::StructOpt;
-
-pub const PUBLISH_URL: &str = "v1/package/publish";
-
-#[derive(Deserialize)]
-struct ResponseJson {
-    package_id: String,
-}
 
 /// Publish package to Aleo Package Manager
 #[derive(StructOpt, Debug)]
@@ -43,7 +31,7 @@ pub struct Publish {}
 
 impl Command for Publish {
     type Input = <Build as Command>::Output;
-    type Output = Option<String>;
+    type Output = String;
 
     /// Build program before publishing
     fn prelude(&self, context: Context) -> Result<Self::Input> {
@@ -90,58 +78,19 @@ impl Command for Publish {
         if zip_file.exists_at(&path) {
             tracing::debug!("Existing package zip file found. Clearing it to regenerate.");
             // Remove the existing package zip file
-            ZipFile::new(&package_name).remove(&path)?;
+            zip_file.remove(&path)?;
         }
-
         zip_file.write(&path)?;
 
-        let form_data = Form::new()
-            .text("name", package_name.clone())
-            .text("remote", format!("{}/{}", package_remote.author, package_name))
-            .text("version", package_version)
-            .file("file", zip_file.get_file_path(&path))?;
+        // Make an API request with zip file and package data.
+        let package_id = context.api.run_route(PublishRoute {
+            name: package_name.clone(),
+            remote: format!("{}/{}", package_remote.author, package_name),
+            version: package_version,
+            file: zip_file.get_file_path(&path).into(),
+        })?;
 
-        // Client for make POST request
-        let client = Client::new();
-
-        let token = context
-            .api
-            .auth_token()
-            .ok_or_else(|| anyhow!("Login before publishing package: try leo login --help"))?;
-
-        // Headers for request to publish package
-        let mut headers = HeaderMap::new();
-        headers.insert(
-            "Authorization",
-            HeaderValue::from_str(&format!("{} {}", "Bearer", token)).unwrap(),
-        );
-
-        // Make a request to publish a package
-        let response = client
-            .post(format!("{}{}", context.api.host(), PUBLISH_URL).as_str())
-            .headers(headers)
-            .multipart(form_data)
-            .send();
-
-        // Get a response result
-        let result: ResponseJson = match response {
-            Ok(json_result) => {
-                let text = json_result.text()?;
-
-                match serde_json::from_str(&text) {
-                    Ok(json) => json,
-                    Err(_) => {
-                        return Err(anyhow!("Package not published: {}", text));
-                    }
-                }
-            }
-            Err(error) => {
-                tracing::warn!("{:?}", error);
-                return Err(anyhow!("Connection unavailable"));
-            }
-        };
-
-        tracing::info!("Package published successfully with id: {}", result.package_id);
-        Ok(Some(result.package_id))
+        tracing::info!("Package published successfully with id: {}", &package_id);
+        Ok(package_id)
     }
 }

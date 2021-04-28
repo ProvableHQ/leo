@@ -16,11 +16,20 @@
 
 use anyhow::{anyhow, Error, Result};
 use reqwest::{
-    blocking::{Client, Response},
+    blocking::{multipart::Form, Client, Response},
     Method,
     StatusCode,
 };
 use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, path::PathBuf};
+
+/// Format to use.
+/// Default is JSON, but publish route uses FormData
+#[derive(Clone, Debug)]
+pub enum ContentType {
+    Json,
+    FormData,
+}
 
 /// API Routes and Request bodies.
 /// Structs that implement Route MUST also support Serialize to be usable in Api::run_route(r: Route)
@@ -35,12 +44,20 @@ pub trait Route {
     /// The URL path without the first forward slash (e.g. v1/package/fetch)
     const PATH: &'static str;
 
+    /// Content type: JSON or Multipart/FormData. Only usable in POST/PUT queries.
+    const CONTENT_TYPE: ContentType;
+
     /// The output type for this route. For example, the login route output is [`String`].
     /// But for other routes may be more complex.
     type Output;
 
     /// Process the reqwest Response and turn it into an Output.
     fn process(&self, res: Response) -> Result<Self::Output>;
+
+    /// Represent self as a form data for multipart (ContentType::FormData) requests.
+    fn to_form(&self) -> Option<Form> {
+        None
+    }
 
     /// Transform specific status codes into correct errors for this route.
     /// For example 404 on package fetch should mean that 'Package is not found'
@@ -95,7 +112,16 @@ impl Api {
 
         // add body for POST and PUT requests
         if T::METHOD == Method::POST || T::METHOD == Method::PUT {
-            res = res.json(&route);
+            res = match T::CONTENT_TYPE {
+                ContentType::Json => res.json(&route),
+                ContentType::FormData => {
+                    let form = route
+                        .to_form()
+                        .unwrap_or_else(|| unimplemented!("to_form is not implemented for this route"));
+
+                    res.multipart(form)
+                }
+            }
         };
 
         // if Route::Auth is true and token is present - pass it
@@ -131,6 +157,7 @@ impl Route for Fetch {
     type Output = Response;
 
     const AUTH: bool = true;
+    const CONTENT_TYPE: ContentType = ContentType::Json;
     const METHOD: Method = Method::POST;
     const PATH: &'static str = "api/package/fetch";
 
@@ -167,6 +194,7 @@ impl Route for Login {
     type Output = Response;
 
     const AUTH: bool = false;
+    const CONTENT_TYPE: ContentType = ContentType::Json;
     const METHOD: Method = Method::POST;
     const PATH: &'static str = "api/account/authenticate";
 
@@ -188,6 +216,57 @@ impl Route for Login {
     }
 }
 
+#[derive(Serialize)]
+pub struct Publish {
+    pub name: String,
+    pub remote: String,
+    pub version: String,
+    pub file: PathBuf,
+}
+
+#[derive(Deserialize)]
+pub struct PublishResponse {
+    package_id: String,
+}
+
+impl Route for Publish {
+    type Output = String;
+
+    const AUTH: bool = true;
+    const CONTENT_TYPE: ContentType = ContentType::FormData;
+    const METHOD: Method = Method::POST;
+    const PATH: &'static str = "api/package/publish";
+
+    fn to_form(&self) -> Option<Form> {
+        Form::new()
+            .text("name", self.name.clone())
+            .text("remote", self.remote.clone())
+            .text("version", self.version.clone())
+            .file("file", self.file.clone())
+            .ok()
+    }
+
+    fn process(&self, res: Response) -> Result<Self::Output> {
+        let status = res.status();
+
+        if status == StatusCode::OK {
+            let body: PublishResponse = res.json()?;
+            Ok(body.package_id)
+        } else {
+            let res: HashMap<String, String> = res.json()?;
+            Err(match status {
+                StatusCode::BAD_REQUEST => anyhow!("{}", res.get("message").unwrap()),
+                StatusCode::UNAUTHORIZED => anyhow!("You are not logged in. Please use `leo login` to login"),
+                StatusCode::FAILED_DEPENDENCY => anyhow!("This package version is already published"),
+                StatusCode::INTERNAL_SERVER_ERROR => {
+                    anyhow!("Server error, please contact us at https://github.com/AleoHQ/leo/issues")
+                }
+                _ => anyhow!("Unknown status code"),
+            })
+        }
+    }
+}
+
 /// Handler for 'my_profile' route. Meant to be used to get profile details but
 /// in the current application it is used to check if the user is logged in. Any non-200 response
 /// is treated as Unauthorized.
@@ -204,6 +283,7 @@ impl Route for Profile {
     type Output = Option<String>;
 
     const AUTH: bool = true;
+    const CONTENT_TYPE: ContentType = ContentType::Json;
     const METHOD: Method = Method::GET;
     const PATH: &'static str = "api/account/my_profile";
 
