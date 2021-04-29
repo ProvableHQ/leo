@@ -33,6 +33,10 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
 ) -> Result<OutputBytes, CompilerError> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
 
+    for (_, global_const) in program.global_consts.iter() {
+        resolved_program.enforce_definition_statement(cs, global_const)?;
+    }
+
     let main = {
         let program = program;
         program.functions.get("main").cloned()

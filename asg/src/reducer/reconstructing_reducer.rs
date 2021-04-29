@@ -383,12 +383,22 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
         input
     }
 
+    fn reduce_global_const(
+        &mut self,
+        input: &'a DefinitionStatement<'a>,
+        value: &'a Expression<'a>,
+    ) -> &'a DefinitionStatement<'a> {
+        input.value.set(value);
+        input
+    }
+
     fn reduce_program(
         &mut self,
         input: Program<'a>,
         imported_modules: Vec<(String, Program<'a>)>,
         functions: Vec<(String, &'a Function<'a>)>,
         circuits: Vec<(String, &'a Circuit<'a>)>,
+        global_consts: Vec<(String, &'a DefinitionStatement<'a>)>,
     ) -> Program<'a> {
         Program {
             context: input.context,
@@ -398,6 +408,7 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
             functions: functions.into_iter().collect(),
             circuits: circuits.into_iter().collect(),
             scope: input.scope,
+            global_consts: global_consts.into_iter().collect(),
         }
     }
 }

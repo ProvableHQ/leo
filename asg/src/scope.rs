@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgContext, AsgConvertError, Circuit, Function, Input, Type, Variable};
+use crate::{AsgContext, AsgConvertError, Circuit, DefinitionStatement, Function, Input, Type, Variable};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -41,6 +41,9 @@ pub struct Scope<'a> {
 
     /// Maps function name => function.
     pub functions: RefCell<IndexMap<String, &'a Function<'a>>>,
+
+    /// Maps global constant name => global const code block.
+    pub global_consts: RefCell<IndexMap<String, &'a DefinitionStatement<'a>>>,
 
     /// Maps circuit name => circuit.
     pub circuits: RefCell<IndexMap<String, &'a Circuit<'a>>>,
@@ -161,6 +164,7 @@ impl<'a> Scope<'a> {
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
             circuits: RefCell::new(IndexMap::new()),
+            global_consts: RefCell::new(IndexMap::new()),
             function: Cell::new(None),
             input: Cell::new(None),
         })

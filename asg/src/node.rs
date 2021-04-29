@@ -44,7 +44,7 @@ pub(super) trait FromAst<'a, T: leo_ast::Node + 'static>: Sized {
 
 pub enum ArenaNode<'a> {
     Expression(Expression<'a>),
-    Scope(Scope<'a>),
+    Scope(Box<Scope<'a>>),
     Statement(Statement<'a>),
     Variable(Variable<'a>),
     Circuit(Circuit<'a>),

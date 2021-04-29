@@ -5,3 +5,5 @@ circuit Baz {
 circuit Bazzar {
     a: u32
 }
+
+const ONE: u8 = 1;
