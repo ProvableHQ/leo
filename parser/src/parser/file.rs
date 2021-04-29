@@ -310,27 +310,28 @@ impl ParserContext {
     }
 
     ///
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
-    /// or circuit member function.
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
     ///
     pub fn parse_member_variable_declaration(&mut self) -> SyntaxResult<(CircuitMember, bool)> {
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
 
-        let peeked = &self.peek()?;
-        let peeked_token = &peeked.token;
-
-        if peeked_token == &Token::Function || peeked_token == &Token::At || peeked_token == &Token::RightCurly {
+        let peeked = &self.peek()?.token;
+        if peeked == &Token::Function || peeked == &Token::At || peeked == &Token::RightCurly {
             return Ok((CircuitMember::CircuitVariable(name, type_), true));
+        } else if peeked == &Token::Comma || peeked == &Token::Semicolon {
+            let peeked = &self.peek_next()?.token;
+            if peeked == &Token::Function || peeked == &Token::At || peeked == &Token::RightCurly {
+                return Ok((CircuitMember::CircuitVariable(name, type_), true));
+            }
         }
 
         Ok((CircuitMember::CircuitVariable(name, type_), false))
     }
 
     ///
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
-    /// or circuit member function.
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
     ///
     pub fn parse_member_function_declaration(&mut self) -> SyntaxResult<CircuitMember> {
         let peeked = &self.peek()?;

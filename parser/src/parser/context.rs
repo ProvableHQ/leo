@@ -67,6 +67,13 @@ impl ParserContext {
     }
 
     ///
+    /// Returns a reference to the next next token or error if it does not exist.
+    ///
+    pub fn peek_next(&self) -> SyntaxResult<&SpannedToken> {
+        self.tokens.get(self.tokens.len() - 2).ok_or_else(|| self.eof())
+    }
+
+    ///
     /// Returns a reference to the next token or error if it does not exist.
     ///
     pub fn peek(&self) -> SyntaxResult<&SpannedToken> {

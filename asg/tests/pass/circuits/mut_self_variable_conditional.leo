@@ -5,7 +5,7 @@ function main() {
 }
 
 circuit Foo {
-    a: u32
+    a: u32;
 
     function bar(mut self) {
         if true {

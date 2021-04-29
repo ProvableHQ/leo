@@ -31,4 +31,5 @@ outputs:
           path: test
           content: import test-import.*;
     circuits: {}
+    global_consts: {}
     functions: {}

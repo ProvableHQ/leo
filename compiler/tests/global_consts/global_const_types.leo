@@ -10,8 +10,8 @@ const foo = Foo { width: 10, height: 20 };
 const uno = uno();
 
 circuit Foo {
-    width: u32,
-    height: u32,
+    width: u32;
+    height: u32;
 }
 
 function uno() -> u32 {

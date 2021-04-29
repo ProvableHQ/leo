@@ -1,5 +1,5 @@
 circuit PedersenHash {
-    parameters: [group; 256],
+    parameters: [group; 256];
 
     // Instantiates a Pedersen hash circuit
     function new(parameters: [group; 256]) -> Self {

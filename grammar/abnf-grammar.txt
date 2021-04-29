@@ -946,7 +946,7 @@ member-function-declaration = function-declaration
 ; as consisting of member variables and functions.
 
 circuit-declaration = *annotation %s"circuit" identifier
-                      "{" *member-variable-declaration *member-function-declaration "}"
+                      "{" [ member-variable-declaration ] *member-function-declaration "}"
 
 ; An import declaration consists of the `import` keyword
 ; followed by a package path, which may be one of the following:

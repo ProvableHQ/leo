@@ -1,9 +1,9 @@
 /*
 namespace: Parse
-expectation: Pass
+expectation: Fail
 */
 
 circuit X {
-    x: u32;
+    x: u32
     y: u32
 }

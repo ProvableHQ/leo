@@ -1,6 +1,6 @@
 circuit Foo {
-  f: u8,
-  y: (u8, u8),
+  f: u8;
+  y: (u8, u8);
 
   function z (mut self) -> u16 {
     self.y.0 += 1u8;

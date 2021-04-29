@@ -1,5 +1,5 @@
 circuit PedersenHash {
-    parameters: [u32; 512]
+    parameters: [u32; 512];
 
     function new(parameters: [u32; 512]) -> Self {
         return Self { parameters: parameters };

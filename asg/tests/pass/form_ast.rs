@@ -58,8 +58,8 @@ fn test_imports() {
     let mut imports = crate::mocked_resolver(&context);
     let test_import = r#"
     circuit Point {
-      x: u32
-      y: u32
+      x: u32;
+      y: u32;
     }
     
     function foo() -> u32 {
