@@ -1,0 +1,91 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: snarkvm-curves
+    versions:
+    - 0.0.3
+    - 0.0.4
+    - 0.0.5
+    - 0.0.6
+    - 0.2.1
+    - 0.2.2
+  - dependency-name: snarkvm-utilities
+    versions:
+    - 0.0.3
+    - 0.0.4
+    - 0.0.5
+    - 0.0.6
+    - 0.2.1
+    - 0.2.2
+  - dependency-name: snarkvm-fields
+    versions:
+    - 0.2.1
+    - 0.2.2
+  - dependency-name: tracing-subscriber
+    versions:
+    - 0.2.17
+  - dependency-name: console
+    versions:
+    - 0.14.1
+  - dependency-name: num-bigint
+    versions:
+    - 0.3.2
+  - dependency-name: serde_json
+    versions:
+    - 1.0.64
+  - dependency-name: hex
+    versions:
+    - 0.4.3
+  - dependency-name: zip
+    versions:
+    - 0.5.11
+  - dependency-name: snarkvm-errors
+    versions:
+    - 0.0.3
+    - 0.0.4
+    - 0.0.5
+    - 0.0.6
+  - dependency-name: snarkvm-storage
+    versions:
+    - 0.0.3
+    - 0.0.4
+    - 0.0.5
+    - 0.0.6
+  - dependency-name: snarkvm-objects
+    versions:
+    - 0.0.4
+    - 0.0.5
+    - 0.0.6
+  - dependency-name: snarkvm-models
+    versions:
+    - 0.0.3
+    - 0.0.4
+    - 0.0.5
+    - 0.0.6
+  - dependency-name: snarkvm-dpc
+    versions:
+    - 0.0.3
+    - 0.0.6
+  - dependency-name: snarkvm-algorithms
+    versions:
+    - 0.0.3
+    - 0.0.4
+    - 0.0.5
+    - 0.0.6
+  - dependency-name: snarkvm-gadgets
+    versions:
+    - 0.0.4
+    - 0.0.5
+    - 0.0.6
+  - dependency-name: rand
+    versions:
+    - 0.8.3
+  - dependency-name: rand_xorshift
+    versions:
+    - 0.3.0
