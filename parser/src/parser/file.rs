@@ -280,18 +280,59 @@ impl ParserContext {
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function.
     ///
-    pub fn parse_circuit_member(&mut self) -> SyntaxResult<CircuitMember> {
-        let peeked = &self.peek()?.token;
-        if peeked == &Token::Function || peeked == &Token::At {
+    pub fn parse_circuit_declaration(&mut self) -> SyntaxResult<Vec<CircuitMember>> {
+        let mut members = Vec::new();
+        while self.eat(Token::RightCurly).is_none() {
+            let peeked = &self.peek()?.token;
+
+            if !(peeked == &Token::Function || peeked == &Token::At) {
+                let variable = self.parse_member_variable_declaration()?;
+                members.push(variable);
+            } else {
+                let function = self.parse_member_function_declaration()?;
+                members.push(function);
+            }
+        }
+
+        Ok(members)
+    }
+
+    ///
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
+    /// or circuit member function.
+    ///
+    pub fn parse_member_variable_declaration(&mut self) -> SyntaxResult<CircuitMember> {
+        let name = self.expect_ident()?;
+        self.expect(Token::Colon)?;
+        let type_ = self.parse_type()?.0;
+
+        self.expect_oneof(&[Token::Comma, Token::Semicolon])?;
+
+        Ok(CircuitMember::CircuitVariable(name, type_))
+    }
+
+    ///
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
+    /// or circuit member function.
+    ///
+    pub fn parse_member_function_declaration(&mut self) -> SyntaxResult<CircuitMember> {
+        let peeked = &self.peek()?;
+        let peeked_token = &peeked.token;
+        if peeked_token == &Token::Function || peeked_token == &Token::At {
             let function = self.parse_function_declaration()?;
             Ok(CircuitMember::CircuitFunction(function.1))
         } else {
-            // circuit variable
-            let name = self.expect_ident()?;
-            self.expect(Token::Colon)?;
-            let type_ = self.parse_type()?.0;
-            self.eat(Token::Comma);
-            Ok(CircuitMember::CircuitVariable(name, type_))
+            Err(SyntaxError::unexpected(
+                peeked_token,
+                &[
+                    Token::Import,
+                    Token::Circuit,
+                    Token::Function,
+                    Token::Ident("test".into()),
+                    Token::At,
+                ],
+                &peeked.span,
+            ))
         }
     }
 
@@ -303,11 +344,8 @@ impl ParserContext {
         self.expect(Token::Circuit)?;
         let name = self.expect_ident()?;
         self.expect(Token::LeftCurly)?;
-        let mut members = Vec::new();
-        while self.eat(Token::RightCurly).is_none() {
-            let member = self.parse_circuit_member()?;
-            members.push(member);
-        }
+        let members = self.parse_circuit_declaration()?;
+
         Ok((name.clone(), Circuit {
             circuit_name: name,
             members,
