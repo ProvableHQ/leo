@@ -938,7 +938,7 @@ function-input = [ %s"const" ] identifier ":" type
 ; A circuit member variable declaration consists of an identifier and a type.
 ; A circuit member function declaration consists of a function declaration.
 
-member-variable-declaration = identifier ":" type ( "," / ";" )
+member-variable-declaration = *(identifier ":" type ( "," / ";" )) identifier ":" type ( [ "," ] / ";" )
 
 member-function-declaration = function-declaration
 

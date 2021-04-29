@@ -282,12 +282,24 @@ impl ParserContext {
     ///
     pub fn parse_circuit_declaration(&mut self) -> SyntaxResult<Vec<CircuitMember>> {
         let mut members = Vec::new();
+        let peeked = &self.peek()?.token;
+        let mut last_variable = peeked == &Token::Function || peeked == &Token::At;
         while self.eat(Token::RightCurly).is_none() {
-            let peeked = &self.peek()?.token;
-
-            if !(peeked == &Token::Function || peeked == &Token::At) {
-                let variable = self.parse_member_variable_declaration()?;
+            if !last_variable {
+                let (variable, last) = self.parse_member_variable_declaration()?;
                 members.push(variable);
+
+                if !last {
+                    self.expect_oneof(&[Token::Comma, Token::Semicolon])?;
+                } else {
+                    last_variable = last;
+                    let peeked = &self.peek()?.token;
+                    if peeked == &Token::Semicolon {
+                        self.expect(Token::Semicolon)?;
+                    } else {
+                        self.eat(Token::Comma);
+                    }
+                }
             } else {
                 let function = self.parse_member_function_declaration()?;
                 members.push(function);
@@ -301,14 +313,19 @@ impl ParserContext {
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function.
     ///
-    pub fn parse_member_variable_declaration(&mut self) -> SyntaxResult<CircuitMember> {
+    pub fn parse_member_variable_declaration(&mut self) -> SyntaxResult<(CircuitMember, bool)> {
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
 
-        self.expect_oneof(&[Token::Comma, Token::Semicolon])?;
+        let peeked = &self.peek()?;
+        let peeked_token = &peeked.token;
 
-        Ok(CircuitMember::CircuitVariable(name, type_))
+        if peeked_token == &Token::Function || peeked_token == &Token::At || peeked_token == &Token::RightCurly {
+            return Ok((CircuitMember::CircuitVariable(name, type_), true));
+        }
+
+        Ok((CircuitMember::CircuitVariable(name, type_), false))
     }
 
     ///
@@ -324,13 +341,7 @@ impl ParserContext {
         } else {
             Err(SyntaxError::unexpected(
                 peeked_token,
-                &[
-                    Token::Import,
-                    Token::Circuit,
-                    Token::Function,
-                    Token::Ident("test".into()),
-                    Token::At,
-                ],
+                &[Token::Function, Token::At],
                 &peeked.span,
             ))
         }
