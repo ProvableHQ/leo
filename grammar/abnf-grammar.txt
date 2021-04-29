@@ -533,22 +533,6 @@ atomic-literal = untyped-literal
 ; it seems appropriate to still consider it a symbol,
 ; particularly since it starts with a proper symbol.
 
-; We could give names to all of these symbols,
-; via rules such as
-;
-;  equality-operator = "=="
-;
-; and defining `symbol` in terms of those
-;
-;  symbol = ... / equality-operator / ...
-;
-; This may or may not make the grammar more readable,
-; but it would help establish a terminology in the grammar,
-; namely the exact names of some of these token.
-; On the other hand, at least some of them are perhaps simple enough
-; that they could be just described in terms of their symbols,
-; e.g. double dot, question mark, etc.
-
 symbol = "!" / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
