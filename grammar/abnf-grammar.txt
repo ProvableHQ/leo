@@ -938,7 +938,7 @@ function-input = [ %s"const" ] identifier ":" type
 ; A circuit member variable declaration consists of an identifier and a type.
 ; A circuit member function declaration consists of a function declaration.
 
-member-variable-declaration = *(identifier ":" type ( "," / ";" )) identifier ":" type ( [ "," ] / ";" )
+member-variable-declarations = *(identifier ":" type ( "," / ";" )) identifier ":" type ( [ "," ] / ";" )
 
 member-function-declaration = function-declaration
 
@@ -946,7 +946,7 @@ member-function-declaration = function-declaration
 ; as consisting of member variables and functions.
 
 circuit-declaration = *annotation %s"circuit" identifier
-                      "{" [ member-variable-declaration ] *member-function-declaration "}"
+                      "{" [ member-variable-declarations ] *member-function-declaration "}"
 
 ; An import declaration consists of the `import` keyword
 ; followed by a package path, which may be one of the following:
