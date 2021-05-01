@@ -845,15 +845,19 @@ expression-statement = expression ";"
 
 return-statement = %s"return" expression ";"
 
-; There are two kinds of variable definition statements,
+; There are variable declarations and constant declarations,
 ; which only differ in the starting keyword.
-; The variables are either a single one or a tuple of two or more;
+; These declarations are also statements.
+; The names of the variables or constants are
+; either a single one or a tuple of two or more;
 ; in all cases, there is just one optional type
 ; and just one initializing expression.
 
-variable-declaration = %s"let" identifier-or-identifiers [ ":" type ] "=" expression ";"
-constant-declaration = %s"const" identifier-or-identifiers [ ":" type ] "=" expression ";"
+variable-declaration = %s"let" identifier-or-identifiers [ ":" type ]
+                       "=" expression ";"
 
+constant-declaration = %s"const" identifier-or-identifiers [ ":" type ]
+                       "=" expression ";"
 
 identifier-or-identifiers = identifier
                           / "(" identifier 1*( "," identifier ) ")"
@@ -969,6 +973,8 @@ package-path = "*"
              / "(" package-path *( "," package-path ) [","] ")"
 
 ; Finally, we define a file as a sequence of zero or more declarations.
+; We allow constant declarations at the top level, for global constants.
+; Currently variable declarations are disallowed at the top level.
 
 declaration = import-declaration
             / function-declaration
