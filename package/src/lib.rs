@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -33,8 +33,13 @@ pub struct LeoPackage;
 
 impl LeoPackage {
     /// Initializes a Leo package at the given path.
-    pub fn initialize(package_name: &str, is_lib: bool, path: &Path) -> Result<(), PackageError> {
-        package::Package::initialize(package_name, is_lib, path)
+    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<(), PackageError> {
+        package::Package::initialize(package_name, path, author)
+    }
+
+    /// Returns `true` if the given Leo package name is valid.
+    pub fn is_package_name_valid(package_name: &str) -> bool {
+        package::Package::is_package_name_valid(package_name)
     }
 
     /// Removes an imported Leo package

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,146 +14,115 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    cli::*,
-    cli_types::*,
-    commands::BuildCommand,
-    errors::{CLIError, RunError},
-};
+use super::build::{Build, BuildOptions};
+use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
-use leo_package::{
-    outputs::{ProvingKeyFile, VerificationKeyFile},
-    root::Manifest,
-    source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
-};
+use leo_package::outputs::{ProvingKeyFile, VerificationKeyFile};
 
-use snarkvm_algorithms::snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey};
-use snarkvm_curves::bls12_377::{Bls12_377, Fr};
-use snarkvm_models::algorithms::snark::SNARK;
-
-use clap::ArgMatches;
+use anyhow::{anyhow, Result};
 use rand::thread_rng;
-use std::{convert::TryFrom, env::current_dir, time::Instant};
+use snarkvm_algorithms::{
+    snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey},
+    traits::snark::SNARK,
+};
+use snarkvm_curves::bls12_377::{Bls12_377, Fr};
+use structopt::StructOpt;
+use tracing::span::Span;
 
-#[derive(Debug)]
-pub struct SetupCommand;
+/// Executes the setup command for a Leo program
+#[derive(StructOpt, Debug)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Setup {
+    #[structopt(long = "skip-key-check", help = "Skip key verification")]
+    pub(crate) skip_key_check: bool,
 
-impl CLI for SetupCommand {
-    type Options = ();
+    #[structopt(flatten)]
+    pub(crate) compiler_options: BuildOptions,
+}
+
+impl Command for Setup {
+    type Input = <Build as Command>::Output;
     type Output = (
-        Compiler<Fr, EdwardsGroupType>,
+        Compiler<'static, Fr, EdwardsGroupType>,
         Parameters<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );
 
-    const ABOUT: AboutType = "Run a program setup";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "setup";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
-
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
-        Ok(())
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Setup")
     }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Get the package name
-        let path = current_dir()?;
-        let package_name = Manifest::try_from(path.as_path())?.get_package_name();
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
+        (Build {
+            compiler_options: self.compiler_options.clone(),
+        })
+        .execute(context)
+    }
 
-        match BuildCommand::output(options)? {
-            Some((program, checksum_differs)) => {
-                // Begin "Setup" context for console logging
-                let span = tracing::span!(tracing::Level::INFO, "Setup");
-                let enter = span.enter();
+    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
-                // Check if a proving key and verification key already exists
-                let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
-                    && VerificationKeyFile::new(&package_name).exists_at(&path);
+        // Check if leo build failed
+        let (program, checksum_differs) = input;
 
-                // If keys do not exist or the checksum differs, run the program setup
-                // If keys do not exist or the checksum differs, run the program setup
-                let (end, proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
-                    tracing::info!("Starting...");
+        // Check if a proving key and verification key already exists
+        let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
+            && VerificationKeyFile::new(&package_name).exists_at(&path);
 
-                    // Start the timer for setup
-                    let setup_start = Instant::now();
+        // If keys do not exist or the checksum differs, run the program setup
+        let (proving_key, prepared_verifying_key) = if !keys_exist || checksum_differs {
+            tracing::info!("Starting...");
 
-                    // Run the program setup operation
-                    let rng = &mut thread_rng();
-                    let (proving_key, prepared_verifying_key) =
-                        Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng).unwrap();
+            // Run the program setup operation
+            let rng = &mut thread_rng();
+            let (proving_key, prepared_verifying_key) =
+                Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng)
+                    .map_err(|_| anyhow!("{}", "Unable to setup, see command output for more details"))?;
 
-                    // End the timer
-                    let end = setup_start.elapsed().as_millis();
+            // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
+            // Write the proving key file to the output directory
+            let proving_key_file = ProvingKeyFile::new(&package_name);
+            tracing::info!("Saving proving key ({:?})", proving_key_file.full_path(&path));
+            let mut proving_key_bytes = vec![];
+            proving_key.write(&mut proving_key_bytes)?;
+            let _ = proving_key_file.write_to(&path, &proving_key_bytes)?;
+            tracing::info!("Complete");
 
-                    // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
-                    // Write the proving key file to the output directory
-                    let proving_key_file = ProvingKeyFile::new(&package_name);
-                    tracing::info!("Saving proving key ({:?})", proving_key_file.full_path(&path));
-                    let mut proving_key_bytes = vec![];
-                    proving_key.write(&mut proving_key_bytes)?;
-                    let _ = proving_key_file.write_to(&path, &proving_key_bytes)?;
-                    tracing::info!("Complete");
+            // Write the verification key file to the output directory
+            let verification_key_file = VerificationKeyFile::new(&package_name);
+            tracing::info!("Saving verification key ({:?})", verification_key_file.full_path(&path));
+            let mut verification_key = vec![];
+            proving_key.vk.write(&mut verification_key)?;
+            let _ = verification_key_file.write_to(&path, &verification_key)?;
+            tracing::info!("Complete");
 
-                    // Write the verification key file to the output directory
-                    let verification_key_file = VerificationKeyFile::new(&package_name);
-                    tracing::info!("Saving verification key ({:?})", verification_key_file.full_path(&path));
-                    let mut verification_key = vec![];
-                    proving_key.vk.write(&mut verification_key)?;
-                    let _ = verification_key_file.write_to(&path, &verification_key)?;
-                    tracing::info!("Complete");
+            (proving_key, prepared_verifying_key)
+        } else {
+            tracing::info!("Detected saved setup");
 
-                    (end, proving_key, prepared_verifying_key)
-                } else {
-                    tracing::info!("Detected saved setup");
+            // Read the proving key file from the output directory
+            tracing::info!("Loading proving key...");
 
-                    // Start the timer for setup
-                    let setup_start = Instant::now();
-
-                    // Read the proving key file from the output directory
-                    tracing::info!("Loading proving key...");
-                    let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
-                    let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), true)?;
-                    tracing::info!("Complete");
-
-                    // Read the verification key file from the output directory
-                    tracing::info!("Loading verification key...");
-                    let verifying_key_bytes = VerificationKeyFile::new(&package_name).read_from(&path)?;
-                    let verifying_key = VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice())?;
-
-                    // Derive the prepared verifying key file from the verifying key
-                    let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);
-                    tracing::info!("Complete");
-
-                    // End the timer
-                    let end = setup_start.elapsed().as_millis();
-
-                    (end, proving_key, prepared_verifying_key)
-                };
-
-                // Drop "Setup" context for console logging
-                drop(enter);
-
-                // Begin "Done" context for console logging
-                tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-                    tracing::info!("Finished in {:?} milliseconds\n", end);
-                });
-
-                Ok((program, proving_key, prepared_verifying_key))
+            if self.skip_key_check {
+                tracing::info!("Skipping curve check");
             }
-            None => {
-                let mut main_file_path = path;
-                main_file_path.push(SOURCE_DIRECTORY_NAME);
-                main_file_path.push(MAIN_FILENAME);
+            let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
+            let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), !self.skip_key_check)?;
+            tracing::info!("Complete");
 
-                Err(CLIError::RunError(RunError::MainFileDoesNotExist(
-                    main_file_path.into_os_string(),
-                )))
-            }
-        }
+            // Read the verification key file from the output directory
+            tracing::info!("Loading verification key...");
+            let verifying_key_bytes = VerificationKeyFile::new(&package_name).read_from(&path)?;
+            let verifying_key = VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice())?;
+
+            // Derive the prepared verifying key file from the verifying key
+            let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);
+            tracing::info!("Complete");
+
+            (proving_key, prepared_verifying_key)
+        };
+
+        Ok((program, proving_key, prepared_verifying_key))
     }
 }

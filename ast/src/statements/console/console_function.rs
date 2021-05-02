@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,59 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, FormattedString};
-use leo_grammar::console::{
-    ConsoleAssert as GrammarConsoleAssert,
-    ConsoleDebug as GrammarConsoleDebug,
-    ConsoleError as GrammarConsoleError,
-    ConsoleFunction as GrammarConsoleFunction,
-    ConsoleLog as GrammarConsoleLog,
-};
+use crate::{Expression, FormatString, Node, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum ConsoleFunction {
     Assert(Expression),
-    Debug(FormattedString),
-    Error(FormattedString),
-    Log(FormattedString),
-}
-
-impl<'ast> From<GrammarConsoleFunction<'ast>> for ConsoleFunction {
-    fn from(console_function: GrammarConsoleFunction<'ast>) -> Self {
-        match console_function {
-            GrammarConsoleFunction::Assert(assert) => ConsoleFunction::from(assert),
-            GrammarConsoleFunction::Debug(debug) => ConsoleFunction::from(debug),
-            GrammarConsoleFunction::Error(error) => ConsoleFunction::from(error),
-            GrammarConsoleFunction::Log(log) => ConsoleFunction::from(log),
-        }
-    }
-}
-
-impl<'ast> From<GrammarConsoleAssert<'ast>> for ConsoleFunction {
-    fn from(assert: GrammarConsoleAssert<'ast>) -> Self {
-        ConsoleFunction::Assert(Expression::from(assert.expression))
-    }
-}
-
-impl<'ast> From<GrammarConsoleDebug<'ast>> for ConsoleFunction {
-    fn from(debug: GrammarConsoleDebug<'ast>) -> Self {
-        ConsoleFunction::Debug(FormattedString::from(debug.string))
-    }
-}
-
-impl<'ast> From<GrammarConsoleError<'ast>> for ConsoleFunction {
-    fn from(error: GrammarConsoleError<'ast>) -> Self {
-        ConsoleFunction::Error(FormattedString::from(error.string))
-    }
-}
-
-impl<'ast> From<GrammarConsoleLog<'ast>> for ConsoleFunction {
-    fn from(log: GrammarConsoleLog<'ast>) -> Self {
-        ConsoleFunction::Log(FormattedString::from(log.string))
-    }
+    Debug(FormatString),
+    Error(FormatString),
+    Log(FormatString),
 }
 
 impl fmt::Display for ConsoleFunction {
@@ -76,6 +34,26 @@ impl fmt::Display for ConsoleFunction {
             ConsoleFunction::Debug(debug) => write!(f, "debug({})", debug),
             ConsoleFunction::Error(error) => write!(f, "error{})", error),
             ConsoleFunction::Log(log) => write!(f, "log({})", log),
+        }
+    }
+}
+
+impl Node for ConsoleFunction {
+    fn span(&self) -> &Span {
+        match self {
+            ConsoleFunction::Assert(assert) => assert.span(),
+            ConsoleFunction::Debug(formatted) | ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => {
+                &formatted.span
+            }
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        match self {
+            ConsoleFunction::Assert(assert) => assert.set_span(span),
+            ConsoleFunction::Debug(formatted) | ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => {
+                formatted.set_span(span)
+            }
         }
     }
 }

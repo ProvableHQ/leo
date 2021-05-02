@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,7 +20,10 @@ use crate::errors::OutputFileError;
 
 use std::{
     borrow::Cow,
-    fs::{self, File},
+    fs::{
+        File,
+        {self},
+    },
     io::Write,
     path::Path,
 };
@@ -37,19 +40,6 @@ impl OutputFile {
         Self {
             package_name: package_name.to_string(),
         }
-    }
-
-    pub fn exists_at(&self, path: &Path) -> bool {
-        let path = self.setup_file_path(path);
-        path.exists()
-    }
-
-    /// Reads the output register variables from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<String, OutputFileError> {
-        let path = self.setup_file_path(path);
-
-        let output = fs::read_to_string(&path).map_err(|_| OutputFileError::FileReadError(path.into_owned()))?;
-        Ok(output)
     }
 
     /// Writes output to a file.
@@ -83,5 +73,28 @@ impl OutputFile {
                 .push(format!("{}{}", self.package_name, OUTPUT_FILE_EXTENSION));
         }
         path
+    }
+}
+
+#[cfg(test)]
+mod test_output_file {
+    use crate::{OutputFile, OUTPUTS_DIRECTORY_NAME};
+    use std::{error::Error, fs};
+
+    #[test]
+    fn test_all() -> Result<(), Box<dyn Error>> {
+        let dir = tempfile::tempdir()?;
+        let file = OutputFile::new("test");
+        let path = dir.path();
+
+        assert!(file.write(path, Default::default()).is_err());
+        assert!(!(file.remove(path)?));
+
+        fs::create_dir(dir.path().join(OUTPUTS_DIRECTORY_NAME))?;
+
+        assert!(file.write(path, Default::default()).is_ok());
+        assert!(file.remove(path)?);
+
+        Ok(())
     }
 }

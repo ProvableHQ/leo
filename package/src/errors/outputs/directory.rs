@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,30 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{ffi::OsString, fs::FileType, io};
+use std::io;
 
 #[derive(Debug, Error)]
 pub enum OutputsDirectoryError {
     #[error("creating: {}", _0)]
     Creating(io::Error),
-
-    #[error("file entry getting: {}", _0)]
-    GettingFileEntry(io::Error),
-
-    #[error("file {:?} extension getting", _0)]
-    GettingFileExtension(OsString),
-
-    #[error("file {:?} type getting: {}", _0, _1)]
-    GettingFileType(OsString, io::Error),
-
-    #[error("invalid file {:?} extension: {:?}", _0, _1)]
-    InvalidFileExtension(OsString, OsString),
-
-    #[error("invalid file {:?} type: {:?}", _0, _1)]
-    InvalidFileType(OsString, FileType),
-
-    #[error("reading: {}", _0)]
-    Reading(io::Error),
 
     #[error("removing: {}", _0)]
     Removing(io::Error),

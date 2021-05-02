@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -22,201 +22,158 @@ use crate::{
     logical::*,
     program::ConstrainedProgram,
     relational::*,
-    value::{boolean::input::new_bool_constant, implicit::*, ConstrainedValue},
-    Address,
+    resolve_core_circuit,
+    value::{Address, ConstrainedValue, Integer},
     FieldType,
     GroupType,
-    Integer,
 };
-use leo_ast::{expression::*, Expression, Type};
+use leo_asg::{expression::*, ConstValue, Expression, Node, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+    pub(crate) fn enforce_const_value<CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        value: &ConstValue,
+        span: &Span,
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+        Ok(match value {
+            ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.to_string(), span)?),
+            ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
+            ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), span)?),
+            ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),
+            ConstValue::Int(value) => ConstrainedValue::Integer(Integer::new(value)),
+            ConstValue::Tuple(values) => ConstrainedValue::Tuple(
+                values
+                    .iter()
+                    .map(|x| self.enforce_const_value(cs, x, span))
+                    .collect::<Result<Vec<_>, _>>()?,
+            ),
+            ConstValue::Array(values) => ConstrainedValue::Array(
+                values
+                    .iter()
+                    .map(|x| self.enforce_const_value(cs, x, span))
+                    .collect::<Result<Vec<_>, _>>()?,
+            ),
+        })
+    }
+
     pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        expression: Expression,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+        expression: &'a Expression<'a>,
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+        let span = &expression.span().cloned().unwrap_or_default();
         match expression {
+            // Cast
+            Expression::Cast(_) => unimplemented!("casts not implemented"),
+
             // Variables
-            Expression::Identifier(unresolved_variable) => {
-                self.evaluate_identifier(file_scope, function_scope, expected_type, unresolved_variable)
-            }
+            Expression::VariableRef(variable_ref) => self.evaluate_ref(variable_ref),
 
             // Values
-            Expression::Value(ValueExpression::Address(address, span)) => {
-                Ok(ConstrainedValue::Address(Address::constant(address, &span)?))
-            }
-            Expression::Value(ValueExpression::Boolean(boolean, span)) => {
-                Ok(ConstrainedValue::Boolean(new_bool_constant(boolean, &span)?))
-            }
-            Expression::Value(ValueExpression::Field(field, span)) => {
-                Ok(ConstrainedValue::Field(FieldType::constant(field, &span)?))
-            }
-            Expression::Value(ValueExpression::Group(group_element)) => {
-                Ok(ConstrainedValue::Group(G::constant(*group_element)?))
-            }
-            Expression::Value(ValueExpression::Implicit(value, span)) => {
-                Ok(enforce_number_implicit(expected_type, value, &span)?)
-            }
-            Expression::Value(ValueExpression::Integer(type_, integer, span)) => Ok(ConstrainedValue::Integer(
-                Integer::new(expected_type, &type_, integer, &span)?,
-            )),
+            Expression::Constant(Constant { value, .. }) => self.enforce_const_value(cs, value, span),
 
             // Binary operations
-            Expression::Binary(BinaryExpression { left, right, op, span }) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    if op.class() == BinaryOperationClass::Numeric {
-                        expected_type
-                    } else {
-                        None
-                    },
-                    *left,
-                    *right,
-                    &span,
-                )?;
+            Expression::Binary(BinaryExpression {
+                left, right, operation, ..
+            }) => {
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(cs, left.get(), right.get())?;
 
-                match op {
-                    BinaryOperation::Add => enforce_add(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Sub => enforce_sub(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Mul => enforce_mul(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Div => enforce_div(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Pow => enforce_pow(cs, resolved_left, resolved_right, &span),
+                match operation {
+                    BinaryOperation::Add => enforce_add(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Sub => enforce_sub(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Mul => enforce_mul(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Div => enforce_div(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Pow => enforce_pow(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Or => {
-                        enforce_or(cs, resolved_left, resolved_right, &span).map_err(ExpressionError::BooleanError)
+                        enforce_or(cs, resolved_left, resolved_right, span).map_err(ExpressionError::BooleanError)
                     }
                     BinaryOperation::And => {
-                        enforce_and(cs, resolved_left, resolved_right, &span).map_err(ExpressionError::BooleanError)
+                        enforce_and(cs, resolved_left, resolved_right, span).map_err(ExpressionError::BooleanError)
                     }
-                    BinaryOperation::Eq => evaluate_eq(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, &span)?, span)
+                    BinaryOperation::Eq => evaluate_eq(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, span)?, span)
                         .map_err(ExpressionError::BooleanError),
-                    BinaryOperation::Ge => evaluate_ge(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Gt => evaluate_gt(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Le => evaluate_le(cs, resolved_left, resolved_right, &span),
-                    BinaryOperation::Lt => evaluate_lt(cs, resolved_left, resolved_right, &span),
+                    BinaryOperation::Ge => evaluate_ge(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Gt => evaluate_gt(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Le => evaluate_le(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Lt => evaluate_lt(cs, resolved_left, resolved_right, span),
+                    _ => unimplemented!("unimplemented binary operator"),
                 }
             }
 
             // Unary operations
-            Expression::Unary(UnaryExpression { inner, op, span }) => match op {
+            Expression::Unary(UnaryExpression { inner, operation, .. }) => match operation {
                 UnaryOperation::Negate => {
-                    let resolved_inner =
-                        self.enforce_expression(cs, file_scope, function_scope, expected_type, *inner)?;
-                    enforce_negate(cs, resolved_inner, &span)
+                    let resolved_inner = self.enforce_expression(cs, inner.get())?;
+                    enforce_negate(cs, resolved_inner, span)
                 }
-                UnaryOperation::Not => Ok(evaluate_not(
-                    self.enforce_operand(cs, file_scope, function_scope, expected_type, *inner, &span)?,
-                    span,
-                )?),
+                UnaryOperation::Not => Ok(evaluate_not(self.enforce_expression(cs, inner.get())?, span)?),
+                _ => unimplemented!("unimplemented unary operator"),
             },
 
-            Expression::Conditional(ConditionalExpression {
+            Expression::Ternary(TernaryExpression {
                 condition,
                 if_true,
                 if_false,
-                span,
-            }) => self.enforce_conditional_expression(
-                cs,
-                file_scope,
-                function_scope,
-                expected_type,
-                *condition,
-                *if_true,
-                *if_false,
-                &span,
-            ),
+                ..
+            }) => self.enforce_conditional_expression(cs, condition.get(), if_true.get(), if_false.get(), span),
 
             // Arrays
-            Expression::ArrayInline(ArrayInlineExpression { elements, span }) => {
-                self.enforce_array(cs, file_scope, function_scope, expected_type, elements, span)
+            Expression::ArrayInline(ArrayInlineExpression { elements, .. }) => {
+                self.enforce_array(cs, &elements[..], span)
             }
-            Expression::ArrayInit(ArrayInitExpression {
-                element,
-                dimensions,
-                span,
-            }) => self.enforce_array_initializer(
-                cs,
-                file_scope,
-                function_scope,
-                expected_type,
-                *element,
-                dimensions,
-                span,
-            ),
-            Expression::ArrayAccess(ArrayAccessExpression { array, index, span }) => {
-                self.enforce_array_access(cs, file_scope, function_scope, expected_type, *array, *index, &span)
+            Expression::ArrayInit(ArrayInitExpression { element, len, .. }) => {
+                self.enforce_array_initializer(cs, element.get(), *len)
+            }
+            Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
+                self.enforce_array_access(cs, array.get(), index.get(), span)
             }
             Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
                 array,
                 left,
                 right,
-                span,
-            }) => self.enforce_array_range_access(
-                cs,
-                file_scope,
-                function_scope,
-                expected_type,
-                *array,
-                left.map(|x| *x),
-                right.map(|x| *x),
-                &span,
-            ),
+                length,
+                ..
+            }) => self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), *length, span),
 
             // Tuples
-            Expression::TupleInit(TupleInitExpression { elements, span }) => {
-                self.enforce_tuple(cs, file_scope, function_scope, expected_type, elements, span)
-            }
-            Expression::TupleAccess(TupleAccessExpression { tuple, index, span }) => {
-                self.enforce_tuple_access(cs, file_scope, function_scope, expected_type, *tuple, index, &span)
+            Expression::TupleInit(TupleInitExpression { elements, .. }) => self.enforce_tuple(cs, &elements[..]),
+            Expression::TupleAccess(TupleAccessExpression { tuple_ref, index, .. }) => {
+                self.enforce_tuple_access(cs, tuple_ref.get(), *index, span)
             }
 
             // Circuits
-            Expression::CircuitInit(CircuitInitExpression { name, members, span }) => {
-                self.enforce_circuit(cs, file_scope, function_scope, name, members, span)
-            }
-            Expression::CircuitMemberAccess(CircuitMemberAccessExpression { circuit, name, span }) => {
-                self.enforce_circuit_access(cs, file_scope, function_scope, expected_type, *circuit, name, span)
-            }
-            Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression { circuit, name, span }) => {
-                self.enforce_circuit_static_access(cs, file_scope, function_scope, expected_type, *circuit, name, span)
-            }
+            Expression::CircuitInit(expr) => self.enforce_circuit(cs, expr, span),
+            Expression::CircuitAccess(expr) => self.enforce_circuit_access(cs, expr),
 
             // Functions
             Expression::Call(CallExpression {
                 function,
+                target,
                 arguments,
-                span,
-            }) => match *function {
-                Expression::Identifier(id) if id.is_core() => self.enforce_core_circuit_call_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expected_type,
-                    id.name,
-                    arguments,
-                    span,
-                ),
-                function => self.enforce_function_call_expression(
-                    cs,
-                    file_scope,
-                    function_scope,
-                    expected_type,
-                    function,
-                    arguments,
-                    span,
-                ),
-            },
+                ..
+            }) => {
+                if let Some(circuit) = function.get().circuit.get() {
+                    let core_mapping = circuit.core_mapping.borrow();
+                    if let Some(core_mapping) = core_mapping.as_deref() {
+                        let core_circuit = resolve_core_circuit::<F, G>(core_mapping);
+                        return self.enforce_core_circuit_call_expression(
+                            cs,
+                            &core_circuit,
+                            function.get(),
+                            target.get(),
+                            &arguments[..],
+                            span,
+                        );
+                    }
+                }
+                self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], span)
+            }
         }
     }
 }

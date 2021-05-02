@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Node, Span, Type};
-use leo_grammar::functions::FunctionInput as GrammarFunctionInput;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -23,25 +22,18 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FunctionInputVariable {
     pub identifier: Identifier,
+    pub const_: bool,
     pub mutable: bool,
     pub type_: Type,
     pub span: Span,
 }
 
-impl<'ast> From<GrammarFunctionInput<'ast>> for FunctionInputVariable {
-    fn from(parameter: GrammarFunctionInput<'ast>) -> Self {
-        FunctionInputVariable {
-            identifier: Identifier::from(parameter.identifier),
-            mutable: parameter.mutable.is_some(),
-            type_: Type::from(parameter.type_),
-            span: Span::from(parameter.span),
-        }
-    }
-}
-
 impl FunctionInputVariable {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // mut var: bool
+        if self.const_ {
+            write!(f, "const ")?;
+        }
         if self.mutable {
             write!(f, "mut ")?;
         }

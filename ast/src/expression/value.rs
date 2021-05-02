@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,18 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use tendril::StrTendril;
+
 use super::*;
 use crate::GroupTuple;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ValueExpression {
     // todo: deserialize values here
-    Address(String, Span),
-    Boolean(String, Span),
-    Field(String, Span),
+    Address(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Boolean(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Field(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
     Group(Box<GroupValue>),
-    Implicit(String, Span),
-    Integer(IntegerType, String, Span),
+    Implicit(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Integer(
+        IntegerType,
+        #[serde(with = "crate::common::tendril_json")] StrTendril,
+        Span,
+    ),
 }
 
 impl fmt::Display for ValueExpression {

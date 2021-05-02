@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,40 +16,33 @@
 
 //! Enforces array access in a compiled Leo program.
 
-use crate::{errors::ExpressionError, parse_index, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, PositiveNumber, Span, Type};
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{Expression, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_tuple_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        tuple: Expression,
-        index: PositiveNumber,
+        tuple: &'a Expression<'a>,
+        index: usize,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         // Get the tuple values.
-        let tuple = match self.enforce_operand(cs, file_scope, function_scope, expected_type, tuple, &span)? {
+        let tuple = match self.enforce_expression(cs, tuple)? {
             ConstrainedValue::Tuple(tuple) => tuple,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span.to_owned())),
+            value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
         };
 
-        // Parse the tuple index.
-        let index_usize = parse_index(&index, &span)?;
-
         // Check for out of bounds access.
-        if index_usize > tuple.len() - 1 {
-            return Err(ExpressionError::index_out_of_bounds(index_usize, span.to_owned()));
+        if index > tuple.len() - 1 {
+            // probably safe to be a panic here
+            return Err(ExpressionError::tuple_index_out_of_bounds(index, span));
         }
 
-        Ok(tuple[index_usize].to_owned())
+        Ok(tuple[index].to_owned())
     }
 }

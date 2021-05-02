@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,8 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ImportSymbol, Package, Span};
-use leo_grammar::imports::PackageAccess as GrammarPackageAccess;
+use crate::{ImportSymbol, Node, Package, Packages, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -25,18 +24,25 @@ pub enum PackageAccess {
     Star(Span),
     SubPackage(Box<Package>),
     Symbol(ImportSymbol),
-    Multiple(Vec<PackageAccess>),
+    Multiple(Packages),
 }
 
-impl<'ast> From<GrammarPackageAccess<'ast>> for PackageAccess {
-    fn from(access: GrammarPackageAccess<'ast>) -> Self {
-        match access {
-            GrammarPackageAccess::Star(star) => PackageAccess::Star(Span::from(star.span)),
-            GrammarPackageAccess::SubPackage(package) => PackageAccess::SubPackage(Box::new(Package::from(*package))),
-            GrammarPackageAccess::Symbol(symbol) => PackageAccess::Symbol(ImportSymbol::from(symbol)),
-            GrammarPackageAccess::Multiple(accesses) => {
-                PackageAccess::Multiple(accesses.into_iter().map(PackageAccess::from).collect())
-            }
+impl Node for PackageAccess {
+    fn span(&self) -> &Span {
+        match self {
+            PackageAccess::Star(span) => span,
+            PackageAccess::SubPackage(package) => &package.span,
+            PackageAccess::Symbol(package) => &package.span,
+            PackageAccess::Multiple(package) => &package.span,
+        }
+    }
+
+    fn set_span(&mut self, span: Span) {
+        match self {
+            PackageAccess::Star(package) => *package = span,
+            PackageAccess::SubPackage(package) => package.span = span,
+            PackageAccess::Symbol(package) => package.span = span,
+            PackageAccess::Multiple(package) => package.span = span,
         }
     }
 }
@@ -47,11 +53,11 @@ impl PackageAccess {
             PackageAccess::Star(ref _span) => write!(f, "*"),
             PackageAccess::SubPackage(ref package) => write!(f, "{}", package),
             PackageAccess::Symbol(ref symbol) => write!(f, "{}", symbol),
-            PackageAccess::Multiple(ref accesses) => {
+            PackageAccess::Multiple(ref packages) => {
                 write!(f, "(")?;
-                for (i, access) in accesses.iter().enumerate() {
+                for (i, access) in packages.accesses.iter().enumerate() {
                     write!(f, "{}", access)?;
-                    if i < accesses.len() - 1 {
+                    if i < packages.accesses.len() - 1 {
                         write!(f, ", ")?;
                     }
                 }

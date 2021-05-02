@@ -1,3 +1,3 @@
 function main(registers) -> field {
-    return registers.r
+    return registers.r;
 }

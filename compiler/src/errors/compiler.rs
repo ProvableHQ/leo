@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,24 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::{FunctionError, ImportError, OutputBytesError, OutputFileError};
-use leo_grammar::ParserError;
-use leo_imports::ImportParserError;
+use crate::errors::{ExpressionError, FunctionError, ImportError, StatementError};
+use leo_asg::{AsgConvertError, FormattedError};
+use leo_ast::{LeoError, ReducerError};
 use leo_input::InputParserError;
+use leo_parser::SyntaxError;
 use leo_state::LocalDataVerificationError;
-use leo_symbol_table::SymbolTableError;
-use leo_type_inference::TypeInferenceError;
 
-use bincode::Error as SerdeError;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
     #[error("{}", _0)]
-    ImportError(#[from] ImportError),
+    SyntaxError(#[from] SyntaxError),
 
     #[error("{}", _0)]
-    ImportParserError(#[from] ImportParserError),
+    AsgPassError(FormattedError),
+
+    #[error("{}", _0)]
+    ExpressionError(#[from] ExpressionError),
+
+    #[error("{}", _0)]
+    ImportError(#[from] ImportError),
 
     #[error("{}", _0)]
     InputParserError(#[from] InputParserError),
@@ -42,14 +46,11 @@ pub enum CompilerError {
     #[error("{}", _0)]
     FunctionError(#[from] FunctionError),
 
-    #[error("Cannot read from the provided file path - {:?}", _0)]
-    FileReadError(PathBuf),
+    #[error("Cannot read from the provided file path '{:?}': {}", _0, _1)]
+    FileReadError(PathBuf, std::io::Error),
 
     #[error("{}", _0)]
     LocalDataVerificationError(#[from] LocalDataVerificationError),
-
-    #[error("`main` function not found")]
-    NoMain,
 
     #[error("`main` must be a function")]
     NoMainFunction,
@@ -58,32 +59,13 @@ pub enum CompilerError {
     NoTestInput,
 
     #[error("{}", _0)]
-    OutputError(#[from] OutputFileError),
+    AsgConvertError(#[from] AsgConvertError),
 
     #[error("{}", _0)]
-    OutputStringError(#[from] OutputBytesError),
+    ReducerError(#[from] ReducerError),
 
     #[error("{}", _0)]
-    ParserError(#[from] ParserError),
-
-    #[error("{}", _0)]
-    SerdeError(#[from] SerdeError),
-
-    #[error("{}", _0)]
-    SymbolTableError(#[from] SymbolTableError),
-    #[error("{}", _0)]
-    TypeInferenceError(#[from] TypeInferenceError),
+    StatementError(#[from] StatementError),
 }
 
-impl CompilerError {
-    pub fn set_path(&mut self, path: &Path) {
-        match self {
-            CompilerError::InputParserError(error) => error.set_path(path),
-            CompilerError::FunctionError(error) => error.set_path(path),
-            CompilerError::OutputStringError(error) => error.set_path(path),
-            CompilerError::SymbolTableError(error) => error.set_path(path),
-            CompilerError::TypeInferenceError(error) => error.set_path(path),
-            _ => {}
-        }
-    }
-}
+impl LeoError for CompilerError {}

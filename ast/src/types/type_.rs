@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ArrayDimensions, Identifier, IntegerType};
-use leo_grammar::types::{ArrayType, CircuitType, DataType, TupleType, Type as GrammarType};
 use leo_input::types::{
     ArrayType as InputArrayType,
     DataType as InputDataType,
@@ -98,55 +97,6 @@ impl Type {
                 .zip(right)
                 .all(|(left_type, right_type)| left_type.eq_flat(right_type)),
             _ => false,
-        }
-    }
-}
-
-/// pest ast -> Explicit Type for defining circuit members and function params
-
-impl From<DataType> for Type {
-    fn from(data_type: DataType) -> Self {
-        match data_type {
-            DataType::Address(_type) => Type::Address,
-            DataType::Boolean(_type) => Type::Boolean,
-            DataType::Field(_type) => Type::Field,
-            DataType::Group(_type) => Type::Group,
-            DataType::Integer(_type) => Type::IntegerType(IntegerType::from(_type)),
-        }
-    }
-}
-
-impl<'ast> From<ArrayType<'ast>> for Type {
-    fn from(array_type: ArrayType<'ast>) -> Self {
-        let element_type = Box::new(Type::from(*array_type.type_));
-        let dimensions = ArrayDimensions::from(array_type.dimensions);
-
-        Type::Array(element_type, dimensions)
-    }
-}
-
-impl<'ast> From<TupleType<'ast>> for Type {
-    fn from(tuple_type: TupleType<'ast>) -> Self {
-        let types = tuple_type.types.into_iter().map(Type::from).collect();
-
-        Type::Tuple(types)
-    }
-}
-
-impl<'ast> From<CircuitType<'ast>> for Type {
-    fn from(circuit_type: CircuitType<'ast>) -> Self {
-        Type::Circuit(Identifier::from(circuit_type.identifier))
-    }
-}
-
-impl<'ast> From<GrammarType<'ast>> for Type {
-    fn from(type_: GrammarType<'ast>) -> Self {
-        match type_ {
-            GrammarType::Basic(type_) => Type::from(type_),
-            GrammarType::Array(type_) => Type::from(type_),
-            GrammarType::Tuple(type_) => Type::from(type_),
-            GrammarType::Circuit(type_) => Type::from(type_),
-            GrammarType::SelfType(_type) => Type::SelfType,
         }
     }
 }

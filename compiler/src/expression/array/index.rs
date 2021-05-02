@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,26 +16,21 @@
 
 //! Enforces an array index expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, IntegerType, Span, Type};
+use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType, Integer};
+use leo_asg::{Expression, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_index<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        index: Expression,
+        index: &'a Expression<'a>,
         span: &Span,
-    ) -> Result<usize, ExpressionError> {
-        let expected_type = Some(Type::IntegerType(IntegerType::U32));
-        match self.enforce_operand(cs, file_scope, function_scope, expected_type, index, &span)? {
-            ConstrainedValue::Integer(number) => Ok(number.to_usize(span)?),
+    ) -> Result<Integer, ExpressionError> {
+        match self.enforce_expression(cs, index)? {
+            ConstrainedValue::Integer(number) => Ok(number),
             value => Err(ExpressionError::invalid_index(value.to_string(), span)),
         }
     }

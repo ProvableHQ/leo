@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{common::Identifier, PackageAccess, Span};
-use leo_grammar::imports::Package as GrammarPackage;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -25,16 +24,6 @@ pub struct Package {
     pub name: Identifier,
     pub access: PackageAccess,
     pub span: Span,
-}
-
-impl<'ast> From<GrammarPackage<'ast>> for Package {
-    fn from(package: GrammarPackage<'ast>) -> Self {
-        Package {
-            name: Identifier::from(package.name),
-            access: PackageAccess::from(package.access),
-            span: Span::from(package.span),
-        }
-    }
 }
 
 impl Package {

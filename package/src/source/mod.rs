@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,9 +16,6 @@
 
 pub mod directory;
 pub use directory::*;
-
-pub mod library;
-pub use library::*;
 
 pub mod main;
 pub use main::*;

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -220,4 +220,17 @@ fn test_multiple_returns() {
     let program = parse_program_with_input(program_string, registers_zero_string).unwrap();
 
     output_zero(program);
+}
+
+#[test]
+fn test_cond_switch() {
+    let input_string = include_str!("input/cond_switch.in");
+    let program_string = include_str!("cond_switch.leo");
+    let expect_output = include_bytes!("output/cond_switch.out");
+
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    let actual_output = get_output(program);
+
+    assert_eq!(expect_output, actual_output.bytes().as_slice());
 }

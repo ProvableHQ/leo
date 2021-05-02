@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,6 +16,7 @@
 
 use crate::{
     assert_satisfied,
+    expect_asg_error,
     expect_compiler_error,
     get_output,
     parse_program,
@@ -63,6 +64,14 @@ fn test_inline() {
     let program_string = include_str!("inline.leo");
     let input_string = include_str!("input/three_ones.in");
     let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_nested() {
+    let program_string = include_str!("nested.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }
@@ -150,17 +159,17 @@ fn test_input_tuple_3x2_fail() {
 #[test]
 fn test_multi_fail_initializer() {
     let program_string = include_str!("multi_fail_initializer.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
 fn test_multi_inline_fail() {
     let program_string = include_str!("multi_fail_inline.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -174,9 +183,9 @@ fn test_multi_initializer() {
 #[test]
 fn test_multi_initializer_fail() {
     let program_string = include_str!("multi_initializer_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -190,9 +199,9 @@ fn test_nested_3x2_value() {
 #[test]
 fn test_nested_3x2_value_fail() {
     let program_string = include_str!("nested_3x2_value_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -206,9 +215,9 @@ fn test_tuple_3x2_value() {
 #[test]
 fn test_tuple_3x2_value_fail() {
     let program_string = include_str!("tuple_3x2_value_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -258,9 +267,9 @@ fn test_type_nested_value_nested_3x2() {
 #[test]
 fn test_type_nested_value_nested_3x2_fail() {
     let program_string = include_str!("type_nested_value_nested_3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -274,9 +283,9 @@ fn test_type_nested_value_nested_4x3x2() {
 #[test]
 fn test_type_nested_value_nested_4x3x2_fail() {
     let program_string = include_str!("type_nested_value_nested_4x3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -290,9 +299,9 @@ fn test_type_nested_value_tuple_3x2() {
 #[test]
 fn test_type_nested_value_tuple_3x2_fail() {
     let program_string = include_str!("type_nested_value_tuple_3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -306,9 +315,9 @@ fn test_type_nested_value_tuple_4x3x2() {
 #[test]
 fn test_type_nested_value_tuple_4x3x2_fail() {
     let program_string = include_str!("type_nested_value_tuple_4x3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -322,9 +331,9 @@ fn test_type_tuple_value_nested_3x2() {
 #[test]
 fn test_type_tuple_value_nested_3x2_fail() {
     let program_string = include_str!("type_tuple_value_nested_3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -338,9 +347,9 @@ fn test_type_tuple_value_nested_4x3x2() {
 #[test]
 fn test_type_tuple_value_nested_4x3x2_fail() {
     let program_string = include_str!("type_tuple_value_nested_4x3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -354,9 +363,9 @@ fn test_type_tuple_value_tuple_3x2() {
 #[test]
 fn test_type_tuple_value_tuple_3x2_fail() {
     let program_string = include_str!("type_tuple_value_tuple_3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -370,9 +379,9 @@ fn test_type_tuple_value_tuple_4x3x2() {
 #[test]
 fn test_type_tuple_value_tuple_4x3x2_fail() {
     let program_string = include_str!("type_tuple_value_tuple_4x3x2_fail.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    let _err = expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 // Tests for nested multi-dimensional arrays as input to the program
@@ -521,4 +530,187 @@ fn test_input_type_tuple_value_tuple_4x3x2_fail() {
     let syntax_error = parse_program_with_input(program_string, input_string).is_err();
 
     assert!(syntax_error);
+}
+
+#[test]
+fn test_variable_slice_fail() {
+    let program_string = include_str!("variable_slice_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
+}
+
+#[test]
+fn test_array_index() {
+    let program_string = r#"
+    function main(i: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert(2 == b[i]);
+        console.assert(3 == b[2]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 1;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_array_index_bounds_fail() {
+    let program_string = r#"
+    function main(i: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert(2 == b[i]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 4;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_const_array_index_bounds_fail() {
+    let program_string = r#"
+    function main() {
+        let b = [1u8, 2, 3, 4];
+        const i: u32 = 4;
+    
+        console.assert(2 == b[i]);
+    }
+    "#;
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
+}
+
+#[test]
+fn test_array_range_index() {
+    let program_string = r#"
+    function main(i: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([1u8, 2] == b[0..i]);
+        console.assert([3u8, 4] == b[i..4]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 2;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_array_range_index_dyn() {
+    let program_string = r#"
+    function main(i: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([1u8, 2] == b[..i]);
+        console.assert([3u8, 4] == b[i..]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 2;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_array_range_index_full_dyn() {
+    let program_string = r#"
+    function main(i: u32, y: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([3u8, 4] == b[i..y]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 2;
+    y: u32 = 4;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_array_range_index_out_of_bounds_fail() {
+    let program_string = r#"
+    function main() {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([1, 2] == b[3..5]);
+    }
+    "#;
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
+}
+
+#[test]
+fn test_array_range_index_invalid_bounds_fail() {
+    let program_string = r#"
+    function main() {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([1, 2] == b[2..1]);
+    }
+    "#;
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
+}
+
+#[test]
+fn test_array_range_index_full_dyn_resized_fail() {
+    let program_string = r#"
+    function main(i: u32, y: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([3u8, 4] == b[i..y]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 1;
+    y: u32 = 4;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    expect_compiler_error(program);
+}
+
+#[test]
+fn test_array_range_index_full_dyn_bounds_fail() {
+    let program_string = r#"
+    function main(i: u32, y: u32) {
+        let b = [1u8, 2, 3, 4];
+    
+        console.assert([3u8, 4] == b[i..y]);
+    }
+    "#;
+    let input_string = r#"
+    [main]
+    i: u32 = 3;
+    y: u32 = 5;
+    "#;
+    let program = parse_program_with_input(program_string, input_string).unwrap();
+
+    expect_compiler_error(program);
 }

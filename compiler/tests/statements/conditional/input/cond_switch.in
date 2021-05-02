@@ -1,0 +1,5 @@
+[main]
+x: bool = true;
+
+[registers]
+r: bool = false;

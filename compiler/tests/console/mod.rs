@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,7 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, expect_compiler_error, generate_main_input, parse_program, parse_program_with_input};
+use crate::{
+    assert_satisfied,
+    expect_asg_error,
+    expect_compiler_error,
+    generate_main_input,
+    parse_program,
+    parse_program_with_input,
+};
 use leo_ast::InputValue;
 
 #[test]
@@ -49,27 +56,27 @@ fn test_log_parameter_many() {
 }
 
 #[test]
-fn test_log_parameter_fail_unknown() {
-    let program_string = include_str!("log_parameter_fail_unknown.leo");
-    let program = parse_program(program_string).unwrap();
-
-    expect_compiler_error(program);
-}
-
-#[test]
 fn test_log_parameter_fail_empty() {
     let program_string = include_str!("log_parameter_fail_empty.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
 }
 
 #[test]
 fn test_log_parameter_fail_none() {
     let program_string = include_str!("log_parameter_fail_empty.leo");
-    let program = parse_program(program_string).unwrap();
+    let error = parse_program(program_string).err().unwrap();
 
-    expect_compiler_error(program);
+    expect_asg_error(error);
+}
+
+#[test]
+fn test_log_parameter_fail_unknown() {
+    let program_string = include_str!("log_parameter_fail_unknown.leo");
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
 }
 
 #[test]
@@ -89,7 +96,7 @@ fn test_log_conditional() {
     let program_string = include_str!("log_conditional.leo");
     let input_equal_string = include_str!("input/input_equal.in");
 
-    let program = parse_program_with_input(program_string.clone(), input_equal_string).unwrap();
+    let program = parse_program_with_input(program_string, input_equal_string).unwrap();
 
     assert_satisfied(program);
 

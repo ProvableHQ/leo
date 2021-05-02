@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -25,9 +25,8 @@ use crate::errors::{
     StatementError,
     ValueError,
 };
-use leo_ast::{Error as FormattedError, Span};
-
-use std::path::Path;
+use leo_asg::AsgConvertError;
+use leo_ast::{FormattedError, LeoError, Span};
 
 #[derive(Debug, Error)]
 pub enum FunctionError {
@@ -60,54 +59,83 @@ pub enum FunctionError {
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
+
+    #[error("{}", _0)]
+    ImportASGError(#[from] AsgConvertError),
 }
 
-impl FunctionError {
-    pub fn set_path(&mut self, path: &Path) {
-        match self {
-            FunctionError::AddressError(error) => error.set_path(path),
-            FunctionError::BooleanError(error) => error.set_path(path),
-            FunctionError::ExpressionError(error) => error.set_path(path),
-            FunctionError::Error(error) => error.set_path(path),
-            FunctionError::FieldError(error) => error.set_path(path),
-            FunctionError::GroupError(error) => error.set_path(path),
-            FunctionError::IntegerError(error) => error.set_path(path),
-            FunctionError::OutputStringError(error) => error.set_path(path),
-            FunctionError::StatementError(error) => error.set_path(path),
-            FunctionError::ValueError(error) => error.set_path(path),
-        }
-    }
+impl LeoError for FunctionError {}
 
-    fn new_from_span(message: String, span: Span) -> Self {
+impl FunctionError {
+    fn new_from_span(message: String, span: &Span) -> Self {
         FunctionError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn invalid_array(actual: String, span: Span) -> Self {
+    pub fn input_type_mismatch(expected: String, actual: String, variable: String, span: &Span) -> Self {
+        let message = format!(
+            "Expected input variable `{}` to be type `{}`, found type `{}`",
+            variable, expected, actual
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn expected_const_input(variable: String, span: &Span) -> Self {
+        let message = format!(
+            "Expected input variable `{}` to be constant. Move input variable `{}` to [constants] section of input file",
+            variable, variable
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn expected_non_const_input(variable: String, span: &Span) -> Self {
+        let message = format!(
+            "Expected input variable `{}` to be non-constant. Move input variable `{}` to [main] section of input file",
+            variable, variable
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_array(actual: String, span: &Span) -> Self {
         let message = format!("Expected function input array, found `{}`", actual);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn invalid_tuple(actual: String, span: Span) -> Self {
+    pub fn invalid_input_array_dimensions(expected: usize, actual: usize, span: &Span) -> Self {
+        let message = format!(
+            "Input array dimensions mismatch expected {}, found array dimensions {}",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn tuple_size_mismatch(expected: usize, actual: usize, span: &Span) -> Self {
+        let message = format!(
+            "Input tuple size mismatch expected {}, found tuple with length {}",
+            expected, actual
+        );
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_tuple(actual: String, span: &Span) -> Self {
         let message = format!("Expected function input tuple, found `{}`", actual);
 
         Self::new_from_span(message, span)
     }
 
-    pub fn return_arguments_length(expected: usize, actual: usize, span: Span) -> Self {
-        let message = format!("function expected {} returns, found {} returns", expected, actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn return_argument_type(expected: String, actual: String, span: Span) -> Self {
-        let message = format!("Expected function return type `{}`, found `{}`", expected, actual);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn input_not_found(expected: String, span: Span) -> Self {
+    pub fn input_not_found(expected: String, span: &Span) -> Self {
         let message = format!("main function input {} not found", expected);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn double_input_declaration(input_name: String, span: &Span) -> Self {
+        let message = format!("Input variable {} declared twice", input_name);
 
         Self::new_from_span(message, span)
     }

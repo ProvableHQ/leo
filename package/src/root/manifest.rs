@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -26,6 +26,7 @@ use std::{
 };
 
 pub const MANIFEST_FILENAME: &str = "Leo.toml";
+pub const AUTHOR_PLACEHOLDER: &str = "[AUTHOR]";
 
 #[derive(Clone, Deserialize)]
 pub struct Remote {
@@ -39,11 +40,11 @@ pub struct Manifest {
 }
 
 impl Manifest {
-    pub fn new(package_name: &str) -> Self {
-        Self {
-            project: Package::new(package_name),
-            remote: None,
-        }
+    pub fn new(package_name: &str, author: Option<String>) -> Result<Self, ManifestError> {
+        Ok(Self {
+            project: Package::new(package_name)?,
+            remote: author.map(|author| Remote { author }),
+        })
     }
 
     pub fn filename() -> String {
@@ -90,6 +91,11 @@ impl Manifest {
     }
 
     fn template(&self) -> String {
+        let author = self
+            .remote
+            .clone()
+            .map_or(AUTHOR_PLACEHOLDER.to_string(), |remote| remote.author);
+
         format!(
             r#"[project]
 name = "{name}"
@@ -98,9 +104,10 @@ description = "The {name} package"
 license = "MIT"
 
 [remote]
-author = "[AUTHOR]" # Add your Aleo Package Manager username, team's name, or organization's name.
+author = "{author}" # Add your Aleo Package Manager username, team's name, or organization's name.
 "#,
-            name = self.project.name
+            name = self.project.name,
+            author = author
         )
     }
 }
@@ -214,6 +221,6 @@ author = "{author}"
         }
 
         // Read the toml file
-        Ok(toml::from_str(&final_toml).map_err(|error| ManifestError::Parsing(MANIFEST_FILENAME, error))?)
+        toml::from_str(&final_toml).map_err(|error| ManifestError::Parsing(MANIFEST_FILENAME, error))
     }
 }

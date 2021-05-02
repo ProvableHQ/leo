@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,45 +17,40 @@
 //! Enforces a conditional expression in a compiled Leo program.
 
 use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_ast::{Expression, Span, Type};
+use leo_asg::{Expression, Span};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::select::CondSelectGadget},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::select::CondSelectGadget;
+use snarkvm_r1cs::ConstraintSystem;
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce ternary conditional expression
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_conditional_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        expected_type: Option<Type>,
-        conditional: Expression,
-        first: Expression,
-        second: Expression,
+        conditional: &'a Expression<'a>,
+        first: &'a Expression<'a>,
+        second: &'a Expression<'a>,
         span: &Span,
-    ) -> Result<ConstrainedValue<F, G>, ExpressionError> {
-        let conditional_value =
-            match self.enforce_expression(cs, file_scope, function_scope, Some(Type::Boolean), conditional)? {
-                ConstrainedValue::Boolean(resolved) => resolved,
-                value => return Err(ExpressionError::conditional_boolean(value.to_string(), span.to_owned())),
-            };
+    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+        let conditional_value = match self.enforce_expression(cs, conditional)? {
+            ConstrainedValue::Boolean(resolved) => resolved,
+            value => return Err(ExpressionError::conditional_boolean(value.to_string(), span)),
+        };
 
-        let first_value = self.enforce_operand(cs, file_scope, function_scope, expected_type.clone(), first, span)?;
+        let first_value = self.enforce_expression(cs, first)?;
 
-        let second_value = self.enforce_operand(cs, file_scope, function_scope, expected_type, second, span)?;
+        let second_value = self.enforce_expression(cs, second)?;
 
         let unique_namespace = cs.ns(|| {
             format!(
                 "select {} or {} {}:{}",
-                first_value, second_value, span.line, span.start
+                first_value, second_value, span.line_start, span.col_start
             )
         });
 
         ConstrainedValue::conditionally_select(unique_namespace, &conditional_value, &first_value, &second_value)
-            .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, span.to_owned()))
+            .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, span))
     }
 }

@@ -1,0 +1,43 @@
+[package]
+name = "leo-synthesizer"
+version = "1.4.0"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "Circuit synthesizer of the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2018"
+
+[dependencies.snarkvm-curves]
+version = "0.2.2"
+default-features = false
+
+[dependencies.snarkvm-fields]
+version = "0.2.2"
+default-features = false
+
+[dependencies.snarkvm-gadgets]
+version = "0.2.2"
+
+[dependencies.snarkvm-r1cs]
+version = "0.2.2"
+default-features = false
+
+[dependencies.num-bigint]
+version = "0.4"
+
+[dependencies.serde]
+version = "1.0"
+features = [ "derive" ]
+
+[dependencies.serde_json]
+version = "1.0"

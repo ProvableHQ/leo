@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,11 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 // allow the use of EdwardsTestCompiler::parse_program_from_string for tests
+
 #![allow(deprecated)]
 
 pub mod address;
 pub mod array;
 pub mod boolean;
+pub mod canonicalization;
 pub mod circuits;
 pub mod compiler;
 pub mod console;
@@ -35,7 +37,9 @@ pub mod mutability;
 pub mod statements;
 pub mod syntax;
 pub mod tuples;
+pub mod type_inference;
 
+use leo_asg::{new_alloc_context, new_context, AsgContext};
 use leo_ast::{InputValue, MainInput};
 use leo_compiler::{
     compiler::Compiler,
@@ -47,22 +51,28 @@ use leo_compiler::{
 use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
 
 use snarkvm_curves::edwards_bls12::Fq;
-use snarkvm_models::gadgets::r1cs::TestConstraintSystem;
+use snarkvm_r1cs::TestConstraintSystem;
 
 use std::path::PathBuf;
 
 pub const TEST_OUTPUT_DIRECTORY: &str = "/output/";
 const EMPTY_FILE: &str = "";
 
-pub type EdwardsTestCompiler = Compiler<Fq, EdwardsGroupType>;
-pub type EdwardsConstrainedValue = ConstrainedValue<Fq, EdwardsGroupType>;
+pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
+pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
+
+//convenience function for tests, leaks memory
+pub(crate) fn make_test_context() -> AsgContext<'static> {
+    let allocator = Box::leak(Box::new(new_alloc_context()));
+    new_context(allocator)
+}
 
 fn new_compiler() -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let path = PathBuf::from("/test/src/main.leo");
     let output_dir = PathBuf::from(TEST_OUTPUT_DIRECTORY);
 
-    EdwardsTestCompiler::new(program_name, path, output_dir)
+    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None)
 }
 
 pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
@@ -146,7 +156,7 @@ pub fn parse_program_with_input_and_state(
 pub(crate) fn get_output(program: EdwardsTestCompiler) -> OutputBytes {
     // synthesize the circuit on the test constraint system
     let mut cs = TestConstraintSystem::<Fq>::new();
-    let output = program.generate_constraints_helper(&mut cs).unwrap();
+    let output = program.compile_constraints(&mut cs).unwrap();
 
     // assert the constraint system is satisfied
     assert!(cs.is_satisfied());
@@ -164,15 +174,11 @@ pub(crate) fn assert_satisfied(program: EdwardsTestCompiler) {
 
 pub(crate) fn expect_compiler_error(program: EdwardsTestCompiler) -> CompilerError {
     let mut cs = TestConstraintSystem::<Fq>::new();
-    program.generate_constraints_helper(&mut cs).unwrap_err()
+    program.compile_constraints(&mut cs).unwrap_err()
 }
 
-pub(crate) fn expect_type_inference_error(error: CompilerError) {
-    assert!(matches!(error, CompilerError::TypeInferenceError(_)))
-}
-
-pub(crate) fn expect_symbol_table_error(error: CompilerError) {
-    assert!(matches!(error, CompilerError::SymbolTableError(_)))
+pub(crate) fn expect_asg_error(error: CompilerError) {
+    assert!(matches!(error, CompilerError::AsgConvertError(_)))
 }
 
 pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> MainInput {
@@ -185,6 +191,7 @@ pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> Mai
     main_input
 }
 
+#[allow(clippy::unnecessary_wraps)] // consumers expect an optional value
 pub(crate) fn generate_test_input_u32(number: u32) -> Option<InputValue> {
     Some(InputValue::Integer(
         IntegerType::Unsigned(UnsignedIntegerType::U32Type(U32Type {})),

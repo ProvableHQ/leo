@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,77 +14,390 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_lang::{cli::*, commands::*, errors::CLIError, logger, updater::Updater};
+pub mod api;
+pub mod commands;
+pub mod config;
+pub mod context;
+pub mod logger;
+pub mod updater;
 
-use clap::{App, AppSettings, Arg};
+use commands::{
+    package::{Add, Clone, Login, Logout, Publish, Remove},
+    Build,
+    Clean,
+    Command,
+    Deploy,
+    Init,
+    Lint,
+    New,
+    Prove,
+    Run,
+    Setup,
+    Test,
+    Update,
+    Watch,
+};
 
-#[cfg_attr(tarpaulin, skip)]
-fn main() -> Result<(), CLIError> {
-    let app = App::new("leo")
-        .version(include_str!("./leo-version"))
-        .about("Leo compiler and package manager")
-        .author("The Aleo Team <hello@aleo.org>")
-        .settings(&[
-            AppSettings::ColoredHelp,
-            AppSettings::DisableHelpSubcommand,
-            AppSettings::DisableVersion,
-        ])
-        .args(&[Arg::with_name("debug")
-            .short("d")
-            .long("debug")
-            .help("Enables debugging mode")
-            .global(true)])
-        .subcommands(vec![
-            NewCommand::new().display_order(0),
-            InitCommand::new().display_order(1),
-            BuildCommand::new().display_order(2),
-            WatchCommand::new().display_order(3),
-            TestCommand::new().display_order(4),
-            SetupCommand::new().display_order(5),
-            ProveCommand::new().display_order(6),
-            RunCommand::new().display_order(7),
-            LoginCommand::new().display_order(8),
-            AddCommand::new().display_order(9),
-            RemoveCommand::new().display_order(10),
-            PublishCommand::new().display_order(11),
-            DeployCommand::new().display_order(12),
-            CleanCommand::new().display_order(13),
-            LintCommand::new().display_order(14),
-            UpdateCommand::new().display_order(15),
-        ])
-        .set_term_width(0);
+use anyhow::Error;
+use std::{path::PathBuf, process::exit};
+use structopt::{clap::AppSettings, StructOpt};
 
-    let mut help = app.clone();
-    let arguments = app.get_matches();
+/// CLI Arguments entry point - includes global parameters and subcommands
+#[derive(StructOpt, Debug)]
+#[structopt(name = "leo", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
+struct Opt {
+    #[structopt(short, global = true, help = "Print additional information for debugging")]
+    debug: bool,
 
-    match arguments.subcommand() {
-        ("new", Some(arguments)) => NewCommand::process(arguments),
-        ("init", Some(arguments)) => InitCommand::process(arguments),
-        ("build", Some(arguments)) => BuildCommand::process(arguments),
-        ("watch", Some(arguments)) => WatchCommand::process(arguments),
-        ("test", Some(arguments)) => TestCommand::process(arguments),
-        ("setup", Some(arguments)) => SetupCommand::process(arguments),
-        ("prove", Some(arguments)) => ProveCommand::process(arguments),
-        ("run", Some(arguments)) => RunCommand::process(arguments),
-        ("login", Some(arguments)) => LoginCommand::process(arguments),
-        ("add", Some(arguments)) => AddCommand::process(arguments),
-        ("remove", Some(arguments)) => RemoveCommand::process(arguments),
-        ("publish", Some(arguments)) => PublishCommand::process(arguments),
-        ("deploy", Some(arguments)) => DeployCommand::process(arguments),
-        ("clean", Some(arguments)) => CleanCommand::process(arguments),
-        ("lint", Some(arguments)) => LintCommand::process(arguments),
-        ("update", Some(arguments)) => UpdateCommand::process(arguments),
-        _ => {
-            // Set logging environment
-            match arguments.is_present("debug") {
-                true => logger::init_logger("leo", 2),
-                false => logger::init_logger("leo", 1),
-            }
+    #[structopt(short, global = true, help = "Suppress CLI output")]
+    quiet: bool,
 
-            Updater::print_cli();
+    #[structopt(subcommand)]
+    command: CommandOpts,
 
-            help.print_help()?;
-            Ok(())
+    #[structopt(help = "Custom Aleo PM backend URL", env = "APM_URL")]
+    api: Option<String>,
+
+    #[structopt(
+        long,
+        global = true,
+        help = "Optional path to Leo program root folder",
+        parse(from_os_str)
+    )]
+    path: Option<PathBuf>,
+}
+
+///Leo compiler and package manager
+#[derive(StructOpt, Debug)]
+#[structopt(setting = AppSettings::ColoredHelp)]
+enum CommandOpts {
+    #[structopt(about = "Create a new Leo package in an existing directory")]
+    Init {
+        #[structopt(flatten)]
+        command: Init,
+    },
+
+    #[structopt(about = "Create a new Leo package in a new directory")]
+    New {
+        #[structopt(flatten)]
+        command: New,
+    },
+
+    #[structopt(about = "Compile the current package as a program")]
+    Build {
+        #[structopt(flatten)]
+        command: Build,
+    },
+
+    #[structopt(about = "Run a program setup")]
+    Setup {
+        #[structopt(flatten)]
+        command: Setup,
+    },
+
+    #[structopt(about = "Run the program and produce a proof")]
+    Prove {
+        #[structopt(flatten)]
+        command: Prove,
+    },
+
+    #[structopt(about = "Run a program with input variables")]
+    Run {
+        #[structopt(flatten)]
+        command: Run,
+    },
+
+    #[structopt(about = "Clean the output directory")]
+    Clean {
+        #[structopt(flatten)]
+        command: Clean,
+    },
+
+    #[structopt(about = "Watch for changes of Leo source files")]
+    Watch {
+        #[structopt(flatten)]
+        command: Watch,
+    },
+
+    #[structopt(about = "Update Leo to the latest version")]
+    Update {
+        #[structopt(flatten)]
+        command: Update,
+    },
+
+    #[structopt(about = "Compile and run all tests in the current package")]
+    Test {
+        #[structopt(flatten)]
+        command: Test,
+    },
+
+    #[structopt(about = "Import a package from the Aleo Package Manager")]
+    Add {
+        #[structopt(flatten)]
+        command: Add,
+    },
+
+    #[structopt(about = "Clone a package from the Aleo Package Manager")]
+    Clone {
+        #[structopt(flatten)]
+        command: Clone,
+    },
+
+    #[structopt(about = "Login to the Aleo Package Manager")]
+    Login {
+        #[structopt(flatten)]
+        command: Login,
+    },
+
+    #[structopt(about = "Logout of the Aleo Package Manager")]
+    Logout {
+        #[structopt(flatten)]
+        command: Logout,
+    },
+
+    #[structopt(about = "Publish the current package to the Aleo Package Manager")]
+    Publish {
+        #[structopt(flatten)]
+        command: Publish,
+    },
+
+    #[structopt(about = "Uninstall a package from the current package")]
+    Remove {
+        #[structopt(flatten)]
+        command: Remove,
+    },
+
+    #[structopt(about = "Lints the Leo files in the package (*)")]
+    Lint {
+        #[structopt(flatten)]
+        command: Lint,
+    },
+
+    #[structopt(about = "Deploy the current package as a program to the network (*)")]
+    Deploy {
+        #[structopt(flatten)]
+        command: Deploy,
+    },
+}
+
+fn main() {
+    handle_error(run_with_args(Opt::from_args()))
+}
+
+/// Run command with custom build arguments.
+fn run_with_args(opt: Opt) -> Result<(), Error> {
+    if !opt.quiet {
+        // Init logger with optional debug flag.
+        logger::init_logger("leo", match opt.debug {
+            false => 1,
+            true => 2,
+        });
+    }
+
+    // Get custom root folder and create context for it.
+    // If not specified, default context will be created in cwd.
+    let context = handle_error(match opt.path {
+        Some(path) => context::create_context(path, opt.api),
+        None => context::get_context(opt.api),
+    });
+
+    match opt.command {
+        CommandOpts::Init { command } => command.try_execute(context),
+        CommandOpts::New { command } => command.try_execute(context),
+        CommandOpts::Build { command } => command.try_execute(context),
+        CommandOpts::Setup { command } => command.try_execute(context),
+        CommandOpts::Prove { command } => command.try_execute(context),
+        CommandOpts::Test { command } => command.try_execute(context),
+        CommandOpts::Run { command } => command.try_execute(context),
+        CommandOpts::Clean { command } => command.try_execute(context),
+        CommandOpts::Watch { command } => command.try_execute(context),
+        CommandOpts::Update { command } => command.try_execute(context),
+
+        CommandOpts::Add { command } => command.try_execute(context),
+        CommandOpts::Clone { command } => command.try_execute(context),
+        CommandOpts::Login { command } => command.try_execute(context),
+        CommandOpts::Logout { command } => command.try_execute(context),
+        CommandOpts::Publish { command } => command.try_execute(context),
+        CommandOpts::Remove { command } => command.try_execute(context),
+
+        CommandOpts::Lint { command } => command.try_execute(context),
+        CommandOpts::Deploy { command } => command.try_execute(context),
+    }
+}
+
+fn handle_error<T>(res: Result<T, Error>) -> T {
+    match res {
+        Ok(t) => t,
+        Err(err) => {
+            eprintln!("Error: {}", err);
+            exit(1);
         }
+    }
+}
+
+#[cfg(test)]
+mod cli_tests {
+    use crate::{run_with_args, Opt};
+
+    use anyhow::Error;
+    use std::path::PathBuf;
+    use structopt::StructOpt;
+    use test_dir::{DirBuilder, FileType, TestDir};
+
+    // Runs Command from cmd-like argument "leo run --arg1 --arg2".
+    fn run_cmd(args: &str, path: &Option<PathBuf>) -> Result<(), Error> {
+        let args = args.split(' ').collect::<Vec<&str>>();
+        let mut opts = Opt::from_iter_safe(args)?;
+
+        if path.is_some() {
+            opts.path = path.clone();
+        }
+
+        if !opts.debug {
+            // turn off tracing for all tests
+            opts.quiet = true;
+        }
+
+        run_with_args(opts)
+    }
+
+    // Create a test directory with name.
+    fn testdir(name: &str) -> TestDir {
+        TestDir::temp().create(name, FileType::Dir)
+    }
+
+    #[test]
+    fn global_options() {
+        let path = Some(PathBuf::from("examples/pedersen-hash"));
+
+        assert!(run_cmd("leo build", &path).is_ok());
+        assert!(run_cmd("leo -q build", &path).is_ok());
+
+        assert!(run_cmd("leo --path ../../examples/no-directory-there build", &None).is_err());
+        assert!(run_cmd("leo -v build", &None).is_err());
+    }
+
+    #[test]
+    fn global_options_fail() {
+        assert!(run_cmd("leo --path ../../examples/no-directory-there build", &None).is_err());
+        assert!(run_cmd("leo -v build", &None).is_err());
+    }
+
+    #[test]
+    fn init() {
+        let dir = testdir("test");
+        let path = Some(dir.path("test"));
+
+        assert!(run_cmd("leo init", &path).is_ok());
+        assert!(run_cmd("leo init", &path).is_err()); // 2nd time
+    }
+
+    #[test]
+    fn init_fail() {
+        let dir = testdir("incorrect_name");
+        let path = Some(dir.path("incorrect_name"));
+        let fake = Some(PathBuf::from("no_such_directory"));
+
+        assert!(run_cmd("leo init", &fake).is_err());
+        assert!(run_cmd("leo init", &path).is_err());
+    }
+
+    #[test]
+    fn new() {
+        let dir = testdir("new");
+        let path = Some(dir.path("new"));
+
+        assert!(run_cmd("leo new test", &path).is_ok());
+        assert!(run_cmd("leo new test", &path).is_err()); // 2nd time 
+        assert!(run_cmd("leo new wrong_name", &path).is_err());
+    }
+
+    #[test]
+    #[should_panic]
+    fn unimplemented() {
+        assert!(run_cmd("leo lint", &None).is_err());
+        assert!(run_cmd("leo deploy", &None).is_err());
+    }
+
+    #[test]
+    fn clean() {
+        let path = &Some(PathBuf::from("examples/pedersen-hash"));
+
+        assert!(run_cmd("leo build", path).is_ok());
+        assert!(run_cmd("leo clean", path).is_ok());
+    }
+
+    #[test]
+    fn build_optimizations() {
+        let dir = testdir("build-test");
+        let path = dir.path("build-test");
+
+        assert!(run_cmd("leo new setup-test", &Some(path.clone())).is_ok());
+
+        let build_path = &Some(path.join("setup-test"));
+
+        assert!(run_cmd("leo build --disable-all-optimizations", build_path).is_ok());
+        assert!(run_cmd("leo build --disable-code-elimination", build_path).is_ok());
+        assert!(run_cmd("leo build --disable-constant-folding", build_path).is_ok());
+    }
+
+    #[test]
+    fn setup_prove_run_clean() {
+        let dir = testdir("test");
+        let path = dir.path("test");
+
+        assert!(run_cmd("leo new setup-test", &Some(path.clone())).is_ok());
+
+        let setup_path = &Some(path.join("setup-test"));
+
+        assert!(run_cmd("leo setup", setup_path).is_ok());
+        assert!(run_cmd("leo setup", setup_path).is_ok());
+        assert!(run_cmd("leo setup --skip-key-check", setup_path).is_ok());
+        assert!(run_cmd("leo prove --skip-key-check", setup_path).is_ok());
+        assert!(run_cmd("leo run --skip-key-check", setup_path).is_ok());
+        assert!(run_cmd("leo clean", setup_path).is_ok());
+    }
+
+    #[test]
+    fn test_import() {
+        let dir = testdir("test");
+        let path = dir.path("test");
+
+        assert!(run_cmd("leo new import", &Some(path.clone())).is_ok());
+
+        let import_path = &Some(path.join("import"));
+
+        assert!(run_cmd("leo add no-package/definitely-no", import_path).is_err());
+        assert!(run_cmd("leo add justice-league/u8u32", import_path).is_ok());
+        assert!(run_cmd("leo remove u8u32", import_path).is_ok());
+        assert!(run_cmd("leo add --author justice-league --package u8u32", import_path).is_ok());
+        assert!(run_cmd("leo remove u8u32", import_path).is_ok());
+        assert!(run_cmd("leo remove u8u32", import_path).is_err());
+    }
+
+    #[test]
+    fn test_missing_file() {
+        let dir = testdir("test");
+        let path = dir.path("test");
+
+        assert!(run_cmd("leo new test-file-missing", &Some(path.clone())).is_ok());
+
+        let path = path.join("test-file-missing");
+        let file = path.join("src/main.leo");
+        let path = Some(path);
+
+        assert!(run_cmd("leo test", &path).is_ok());
+        std::fs::remove_file(&file).unwrap();
+        assert!(run_cmd("leo test", &path).is_err());
+    }
+
+    #[test]
+    fn test_sudoku() {
+        let path = &Some(PathBuf::from("examples/silly-sudoku"));
+
+        assert!(run_cmd("leo build", path).is_ok());
+        assert!(run_cmd("leo test", path).is_ok());
+        assert!(run_cmd("leo test -f examples/silly-sudoku/src/lib.leo", path).is_ok());
+        assert!(run_cmd("leo test -f examples/silly-sudoku/src/main.leo", path).is_ok());
     }
 }

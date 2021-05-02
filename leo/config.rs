@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,22 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::CLIError;
-
-use dirs::home_dir;
-use lazy_static::lazy_static;
-use serde::{Deserialize, Serialize};
 use std::{
-    fs::{self, create_dir_all, File},
+    fs::{
+        create_dir_all,
+        File,
+        {self},
+    },
     io,
     io::prelude::*,
     path::{Path, PathBuf},
 };
 
-pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
+use anyhow::Error;
+use dirs::home_dir;
+use lazy_static::lazy_static;
+use serde::{Deserialize, Serialize};
 
 pub const LEO_CREDENTIALS_FILE: &str = "credentials";
 pub const LEO_CONFIG_FILE: &str = "config.toml";
+pub const LEO_USERNAME_FILE: &str = "username";
 
 lazy_static! {
     pub static ref LEO_CONFIG_DIRECTORY: PathBuf = {
@@ -40,6 +43,11 @@ lazy_static! {
     pub static ref LEO_CREDENTIALS_PATH: PathBuf = {
         let mut path = LEO_CONFIG_DIRECTORY.to_path_buf();
         path.push(LEO_CREDENTIALS_FILE);
+        path
+    };
+    pub static ref LEO_USERNAME_PATH: PathBuf = {
+        let mut path = LEO_CONFIG_DIRECTORY.to_path_buf();
+        path.push(LEO_USERNAME_FILE);
         path
     };
     pub static ref LEO_CONFIG_PATH: PathBuf = {
@@ -75,7 +83,7 @@ impl Default for Config {
 
 impl Config {
     /// Read the config from the `config.toml` file
-    pub fn read_config() -> Result<Self, CLIError> {
+    pub fn read_config() -> Result<Self, Error> {
         let config_dir = LEO_CONFIG_DIRECTORY.clone();
         let config_path = LEO_CONFIG_PATH.clone();
 
@@ -112,7 +120,7 @@ impl Config {
     }
 
     /// Update the `automatic` configuration in the `config.toml` file.
-    pub fn set_update_automatic(automatic: bool) -> Result<(), CLIError> {
+    pub fn set_update_automatic(automatic: bool) -> Result<(), Error> {
         let mut config = Self::read_config()?;
 
         if config.update.automatic != automatic {
@@ -127,7 +135,7 @@ impl Config {
     }
 }
 
-pub fn write_token(token: &str) -> Result<(), io::Error> {
+pub fn write_token_and_username(token: &str, username: &str) -> Result<(), io::Error> {
     let config_dir = LEO_CONFIG_DIRECTORY.clone();
 
     // Create Leo config directory if it not exists
@@ -137,6 +145,10 @@ pub fn write_token(token: &str) -> Result<(), io::Error> {
 
     let mut credentials = File::create(&LEO_CREDENTIALS_PATH.to_path_buf())?;
     credentials.write_all(&token.as_bytes())?;
+
+    let mut username_file = File::create(&LEO_USERNAME_PATH.to_path_buf())?;
+    username_file.write_all(&username.as_bytes())?;
+
     Ok(())
 }
 
@@ -145,4 +157,17 @@ pub fn read_token() -> Result<String, io::Error> {
     let mut buf = String::new();
     credentials.read_to_string(&mut buf)?;
     Ok(buf)
+}
+
+pub fn read_username() -> Result<String, io::Error> {
+    let mut username = File::open(&LEO_USERNAME_PATH.to_path_buf())?;
+    let mut buf = String::new();
+    username.read_to_string(&mut buf)?;
+    Ok(buf)
+}
+
+pub fn remove_token_and_username() -> Result<(), io::Error> {
+    fs::remove_file(&LEO_CREDENTIALS_PATH.to_path_buf())?;
+    fs::remove_file(&LEO_USERNAME_PATH.to_path_buf())?;
+    Ok(())
 }

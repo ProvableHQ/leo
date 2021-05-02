@@ -1,0 +1,26 @@
+import test-import.( // local import
+    Point,
+    foo,
+);
+
+import bar.( // imports directory import
+    Bar,
+    baz.(Baz, Bazzar),
+    bat.bat.Bat,
+);
+
+import car.Car; // imports directory import
+
+function main() {
+    const point = Point { x: 1u32, y: 1u32 };
+    const foo = foo();
+
+    const bar = Bar { r: 1u32 };
+    const baz = Baz { z: 1u32 };
+    const bazzar = Bazzar { a: 1u32 };
+    const bat = Bat { t: 1u32 };
+
+    const car = Car { c: 1u32 };
+
+    console.assert(car.c == 1u32);
+}

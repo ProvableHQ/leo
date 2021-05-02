@@ -1,0 +1,246 @@
+version: 2.1
+commands:
+  setup_environment:
+    description: "Setup environment"
+    parameters:
+      cache_key:
+        type: string
+        default: leo-stable-cache
+    steps:
+      - run: set -e
+      - setup_remote_docker
+      - run:
+          name: Prepare environment and install dependencies
+          command: |
+            export SCCACHE_CACHE_SIZE=200M
+            export WORK_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
+            export SCCACHE_DIR="$CIRCLE_WORKING_DIRECTORY/.cache/sccache"
+            mkdir -p "$CIRCLE_WORKING_DIRECTORY/.bin"
+            wget https://github.com/mozilla/sccache/releases/download/0.2.13/sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz
+            tar -C "$CIRCLE_WORKING_DIRECTORY/.bin" -xvf sccache-0.2.13-x86_64-unknown-linux-musl.tar.gz
+            mv $CIRCLE_WORKING_DIRECTORY/.bin/sccache-0.2.13-x86_64-unknown-linux-musl/sccache $CIRCLE_WORKING_DIRECTORY/.bin/sccache
+            export PATH="$PATH:$CIRCLE_WORKING_DIRECTORY/.bin"
+            export RUSTC_WRAPPER="sccache"
+            rm -rf "$CIRCLE_WORKING_DIRECTORY/.cargo/registry"
+            sudo apt-get update && sudo apt-get install -y clang llvm-dev llvm pkg-config xz-utils make libssl-dev libssl-dev
+      - restore_cache:
+          keys:
+            - << parameters.cache_key >>
+  clear_environment:
+    description: "Clear environment"
+    parameters:
+      cache_key:
+        type: string
+        default: leo-stable-cache
+    steps:
+      - run: (sccache -s||true)
+      - run: set +e
+      - save_cache:
+          key: << parameters.cache_key >>
+          paths:
+            - .cache/sccache
+            - .cargo
+jobs:
+
+  rust-stable:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - checkout
+      - setup_environment:
+          cache_key: leo-stable-cache
+      - run:
+          name: Build and run tests
+          no_output_timeout: 30m
+          command: cargo test --all
+      - persist_to_workspace:
+          root: ~/
+          paths: project/
+      - clear_environment:
+          cache_key: leo-stable-cache
+
+  rust-nightly:
+    docker:
+      - image: howardwu/snarkos-ci:2021-03-25
+    resource_class: xlarge
+    steps:
+      - checkout
+      - setup_environment:
+          cache_key: leo-nightly-cache
+      - run:
+          name: Build and test
+          no_output_timeout: 30m
+          command: cargo test --all
+      - clear_environment:
+          cache_key: leo-nightly-cache
+
+  leo-executable:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - checkout
+      - setup_environment:
+          cache_key: leo-executable-cache
+      - run:
+          name: Build and install Leo
+          no_output_timeout: 30m
+          command: cargo install --path . --root . --locked
+      - persist_to_workspace:
+          root: ~/
+          paths: project/
+      - clear_environment:
+          cache_key: leo-executable-cache
+
+  leo-new:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo new
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-new.sh
+
+  leo-init:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo init
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-init.sh
+
+  leo-clean:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo clean
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-clean.sh
+
+  leo-setup:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo setup
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-setup.sh
+
+  leo-add-remove:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo add & remove
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-add-remove.sh
+
+  leo-check-constraints:
+    docker:
+      - image: cimg/rust:1.50.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo check constraints for Pedersen Hash
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-check-constraints.sh
+
+  leo-login-logout:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo login & logout
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-login-logout.sh
+
+  leo-clone:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo clone
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-clone.sh
+
+  leo-publish:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo publish
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-publish.sh
+
+workflows:
+  version: 2
+  main-workflow:
+    jobs:
+      - rust-stable
+      - rust-nightly
+      - leo-executable
+      - leo-new:
+          requires:
+            - leo-executable
+      - leo-init:
+          requires:
+            - leo-executable
+      - leo-clean:
+          requires:
+            - leo-executable
+      - leo-setup:
+          requires:
+            - leo-executable
+      - leo-add-remove:
+          requires:
+            - leo-executable
+      - leo-check-constraints:
+          requires:
+            - leo-executable
+      - leo-login-logout:
+          requires:
+            - leo-executable
+      - leo-clone:
+          requires:
+            - leo-executable
+      - leo-publish:
+          requires:
+            - leo-executable

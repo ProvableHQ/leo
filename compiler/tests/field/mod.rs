@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -64,6 +64,22 @@ fn test_negate() {
 
         assert_satisfied(program)
     }
+}
+
+#[test]
+fn test_field() {
+    let program_string = include_str!("field.leo");
+    let mut program = parse_program(program_string).unwrap();
+
+    assert_satisfied(program)
+}
+
+#[test]
+fn test_no_space_between_literal() {
+    let program_string = include_str!("no_space_between_literal.leo");
+    let mut program = parse_program(program_string).unwrap();
+
+    expect_compiler_error(program)
 }
 
 #[test]

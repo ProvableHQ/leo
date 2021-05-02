@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,65 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    cli::*,
-    cli_types::*,
-    commands::BuildCommand,
-    errors::{CLIError, RunError},
-};
-use leo_package::{
-    root::Manifest,
-    source::{MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
-};
+use crate::{commands::Command, context::Context};
 
-use clap::ArgMatches;
-use std::{convert::TryFrom, env::current_dir};
+use anyhow::Result;
+use structopt::StructOpt;
+use tracing::span::Span;
 
-#[derive(Debug)]
-pub struct LintCommand;
+/// Lint Leo code command
+#[derive(StructOpt, Debug)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Lint {}
 
-impl CLI for LintCommand {
-    type Options = ();
+impl Command for Lint {
+    type Input = ();
     type Output = ();
 
-    const ABOUT: AboutType = "Lints the Leo files in the package (*)";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "lint";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Linting")
+    }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
         Ok(())
     }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Begin "Linting" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Linting");
-        let _enter = span.enter();
-
-        let path = current_dir()?;
-
-        match BuildCommand::output(options)? {
-            Some((_program, _checksum_differs)) => {
-                // Get the package name
-                let _package_name = Manifest::try_from(path.as_path())?.get_package_name();
-
-                tracing::error!("Unimplemented - `leo lint`");
-
-                Ok(())
-            }
-            None => {
-                let mut main_file_path = path;
-                main_file_path.push(SOURCE_DIRECTORY_NAME);
-                main_file_path.push(MAIN_FILENAME);
-
-                Err(CLIError::RunError(RunError::MainFileDoesNotExist(
-                    main_file_path.into_os_string(),
-                )))
-            }
-        }
+    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+        unimplemented!("Lint command has not been implemented yet");
     }
 }

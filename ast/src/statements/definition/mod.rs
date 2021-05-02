@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -24,7 +24,6 @@ pub use variable_name::*;
 
 mod declare;
 pub use declare::*;
-use leo_grammar::statements::DefinitionStatement as GrammarDefinitionStatement;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct DefinitionStatement {
@@ -57,27 +56,6 @@ impl fmt::Display for DefinitionStatement {
             write!(f, ": {}", self.type_.as_ref().unwrap())?;
         }
         write!(f, " = {};", self.value)
-    }
-}
-
-impl<'ast> From<GrammarDefinitionStatement<'ast>> for DefinitionStatement {
-    fn from(statement: GrammarDefinitionStatement<'ast>) -> Self {
-        let variable_names = statement
-            .variables
-            .names
-            .into_iter()
-            .map(VariableName::from)
-            .collect::<Vec<_>>();
-
-        let type_ = statement.variables.type_.map(Type::from);
-
-        DefinitionStatement {
-            declaration_type: Declare::from(statement.declare),
-            variable_names,
-            type_,
-            value: Expression::from(statement.expression),
-            span: Span::from(statement.span),
-        }
     }
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, FunctionInput, Identifier, Node, Span, Type};
-use leo_grammar::functions::Function as GrammarFunction;
+use crate::{Annotation, Block, FunctionInput, Identifier, Node, Span, Type};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Function {
+    pub annotations: Vec<Annotation>,
     pub identifier: Identifier,
     pub input: Vec<FunctionInput>,
     pub output: Option<Type>,
@@ -36,24 +36,6 @@ impl PartialEq for Function {
 }
 
 impl Eq for Function {}
-
-impl<'ast> From<GrammarFunction<'ast>> for Function {
-    fn from(function: GrammarFunction<'ast>) -> Self {
-        let function_name = Identifier::from(function.identifier);
-
-        let parameters = function.parameters.into_iter().map(FunctionInput::from).collect();
-        let returns = function.returns.map(Type::from);
-        let block = Block::from(function.block);
-
-        Function {
-            identifier: function_name,
-            input: parameters,
-            output: returns,
-            block,
-            span: Span::from(function.span),
-        }
-    }
-}
 
 impl Function {
     pub fn get_name(&self) -> &str {

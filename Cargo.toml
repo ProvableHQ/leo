@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "1.0.8"
+version = "1.4.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
@@ -26,70 +26,72 @@ path = "leo/main.rs"
 
 [workspace]
 members = [
+  "asg",
+  "asg-passes",
   "ast",
   "compiler",
-  "core",
-  "gadgets",
   "grammar",
   "imports",
   "input",
   "linter",
   "package",
+  "parser",
   "state",
-  "symbol-table",
-  "type-inference"
+  "synthesizer",
+  "test-framework"
 ]
 
 [dependencies.leo-ast]
 path = "./ast"
-version = "1.0.8"
+version = "1.4.0"
 
 [dependencies.leo-compiler]
 path = "./compiler"
-version = "1.0.8"
-
-[dependencies.leo-gadgets]
-path = "./gadgets"
-version = "1.0.8"
+version = "1.4.0"
 
 [dependencies.leo-imports]
 path = "./imports"
-version = "1.0.8"
+version = "1.4.0"
 
 [dependencies.leo-input]
 path = "./input"
-version = "1.0.8"
+version = "1.4.0"
 
 [dependencies.leo-package]
 path = "./package"
-version = "1.0.8"
+version = "1.4.0"
 
 [dependencies.leo-state]
 path = "./state"
-version = "1.0.8"
+version = "1.4.0"
+
+[dependencies.leo-synthesizer]
+path = "./synthesizer"
+version = "1.4.0"
 
 [dependencies.snarkvm-algorithms]
-version = "0.0.2"
-default-features = false
+version = "0.2.2"
 
 [dependencies.snarkvm-curves]
-version = "0.0.2"
-default-features = false
-
-[dependencies.snarkvm-errors]
-version = "0.0.2"
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.0.2"
+version = "0.2.2"
 default-features = false
 
-[dependencies.snarkvm-models]
-version = "0.0.2"
+[dependencies.snarkvm-r1cs]
+version = "0.2.2"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.0.2"
+version = "0.2.2"
+
+[dependencies.anyhow]
+version = "1.0"
+
+[dependencies.structopt]
+version = "0.3"
 
 [dependencies.clap]
 version = "2.33.3"
@@ -98,7 +100,7 @@ version = "2.33.3"
 version = "2.0"
 
 [dependencies.dirs]
-version = "3.0.1"
+version = "3.0.2"
 
 [dependencies.console]
 version = "0.14.0"
@@ -110,23 +112,20 @@ version = "0.3.1"
 version = "1.4.0"
 
 [dependencies.notify]
-version = "4.0.15"
-
-[dependencies.num-bigint]
-version = "0.3"
+version = "4.0.16"
 
 [dependencies.rand]
-version = "0.7"
+version = "0.8"
 
 [dependencies.rand_core]
-version = "0.6.1"
+version = "0.6.2"
 
 [dependencies.reqwest]
-version = "0.11.0"
+version = "0.11.3"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
-version = "0.22.0"
+version = "0.26.0"
 features = [ "archive-zip" ]
 
 [dependencies.serde]
@@ -152,12 +151,22 @@ features = [ "fmt" ]
 [dependencies.zip]
 version = "0.5"
 
+[target."cfg(windows)".dependencies.ansi_term]
+version = "0.12.1"
+
 [dev-dependencies.rusty-hook]
 version = "0.11.2"
+
+[dev-dependencies.assert_cmd]
+version = "1.0.3"
+
+[dev-dependencies.test_dir]
+version = "0.1.0"
 
 [features]
 default = [ ]
 ci_skip = [ "leo-compiler/ci_skip" ]
+noconfig = [ ]
 
 [profile.release]
 opt-level = 3

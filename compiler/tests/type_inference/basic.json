@@ -1,0 +1,1008 @@
+{
+  "name": "",
+  "expected_input": [],
+  "imports": [],
+  "circuits": {
+    "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {}\\\"}\"}": {
+      "circuit_name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {}\\\"}\"}",
+      "members": []
+    }
+  },
+  "global_consts": {
+    "ONE": {
+      "declaration_type": "Const",
+      "variable_names": [
+        {
+          "mutable": false,
+          "identifier": "{\"name\":\"ONE\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"const ONE = 1u8;\\\"}\"}",
+          "span": {
+            "line_start": 7,
+            "line_stop": 7,
+            "col_start": 7,
+            "col_stop": 10,
+            "path": "",
+            "content": "const ONE = 1u8;"
+          }
+        }
+      ],
+      "type_": {
+        "IntegerType": "U8"
+      },
+      "value": {
+        "Value": {
+          "Integer": [
+            "U8",
+            "1",
+            {
+              "line_start": 7,
+              "line_stop": 7,
+              "col_start": 13,
+              "col_stop": 16,
+              "path": "",
+              "content": "const ONE = 1u8;"
+            }
+          ]
+        }
+      },
+      "span": {
+        "line_start": 7,
+        "line_stop": 7,
+        "col_start": 1,
+        "col_stop": 16,
+        "path": "",
+        "content": "const ONE = 1u8;"
+      }
+    }
+  },
+  "functions": {
+    "{\"name\":\"two\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function two() -> u8 {\\\"}\"}": {
+      "annotations": [],
+      "identifier": "{\"name\":\"two\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function two() -> u8 {\\\"}\"}",
+      "input": [],
+      "output": {
+        "IntegerType": "U8"
+      },
+      "block": {
+        "statements": [
+          {
+            "Return": {
+              "expression": {
+                "Value": {
+                  "Integer": [
+                    "U8",
+                    "2",
+                    {
+                      "line_start": 4,
+                      "line_stop": 4,
+                      "col_start": 10,
+                      "col_stop": 13,
+                      "path": "",
+                      "content": "  return 2u8;"
+                    }
+                  ]
+                }
+              },
+              "span": {
+                "line_start": 4,
+                "line_stop": 4,
+                "col_start": 3,
+                "col_stop": 13,
+                "path": "",
+                "content": "  return 2u8;"
+              }
+            }
+          }
+        ],
+        "span": {
+          "line_start": 3,
+          "line_stop": 5,
+          "col_start": 22,
+          "col_stop": 2,
+          "path": "",
+          "content": "function two() -> u8 {\n...\n}"
+        }
+      },
+      "span": {
+        "line_start": 3,
+        "line_stop": 5,
+        "col_start": 1,
+        "col_stop": 2,
+        "path": "",
+        "content": "function two() -> u8 {\n...\n}"
+      }
+    },
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}": {
+      "annotations": [],
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}",
+      "input": [],
+      "output": {
+        "Tuple": []
+      },
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const a = 1u8;\\\"}\"}",
+                  "span": {
+                    "line_start": 10,
+                    "line_stop": 10,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const a = 1u8;"
+                  }
+                }
+              ],
+              "type_": {
+                "IntegerType": "U8"
+              },
+              "value": {
+                "Value": {
+                  "Integer": [
+                    "U8",
+                    "1",
+                    {
+                      "line_start": 10,
+                      "line_stop": 10,
+                      "col_start": 13,
+                      "col_stop": 16,
+                      "path": "",
+                      "content": "  const a = 1u8;"
+                    }
+                  ]
+                }
+              },
+              "span": {
+                "line_start": 10,
+                "line_stop": 10,
+                "col_start": 3,
+                "col_stop": 16,
+                "path": "",
+                "content": "  const a = 1u8;"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const b = 1field;\\\"}\"}",
+                  "span": {
+                    "line_start": 11,
+                    "line_stop": 11,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const b = 1field;"
+                  }
+                }
+              ],
+              "type_": "Field",
+              "value": {
+                "Value": {
+                  "Field": [
+                    "1",
+                    {
+                      "line_start": 11,
+                      "line_stop": 11,
+                      "col_start": 13,
+                      "col_stop": 19,
+                      "path": "",
+                      "content": "  const b = 1field;"
+                    }
+                  ]
+                }
+              },
+              "span": {
+                "line_start": 11,
+                "line_stop": 11,
+                "col_start": 3,
+                "col_stop": 19,
+                "path": "",
+                "content": "  const b = 1field;"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const c = 1group;\\\"}\"}",
+                  "span": {
+                    "line_start": 12,
+                    "line_stop": 12,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const c = 1group;"
+                  }
+                }
+              ],
+              "type_": "Group",
+              "value": {
+                "Value": {
+                  "Group": {
+                    "Single": [
+                      "1",
+                      {
+                        "line_start": 12,
+                        "line_stop": 12,
+                        "col_start": 13,
+                        "col_stop": 19,
+                        "path": "",
+                        "content": "  const c = 1group;"
+                      }
+                    ]
+                  }
+                }
+              },
+              "span": {
+                "line_start": 12,
+                "line_stop": 12,
+                "col_start": 3,
+                "col_stop": 19,
+                "path": "",
+                "content": "  const c = 1group;"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const d = (0, 1)group;\\\"}\"}",
+                  "span": {
+                    "line_start": 13,
+                    "line_stop": 13,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const d = (0, 1)group;"
+                  }
+                }
+              ],
+              "type_": "Group",
+              "value": {
+                "Value": {
+                  "Group": {
+                    "Tuple": {
+                      "x": {
+                        "Number": [
+                          "0",
+                          {
+                            "line_start": 13,
+                            "line_stop": 13,
+                            "col_start": 14,
+                            "col_stop": 15,
+                            "path": "",
+                            "content": "  const d = (0, 1)group;"
+                          }
+                        ]
+                      },
+                      "y": {
+                        "Number": [
+                          "1",
+                          {
+                            "line_start": 13,
+                            "line_stop": 13,
+                            "col_start": 17,
+                            "col_stop": 18,
+                            "path": "",
+                            "content": "  const d = (0, 1)group;"
+                          }
+                        ]
+                      },
+                      "span": {
+                        "line_start": 13,
+                        "line_stop": 13,
+                        "col_start": 14,
+                        "col_stop": 24,
+                        "path": "",
+                        "content": "  const d = (0, 1)group;"
+                      }
+                    }
+                  }
+                }
+              },
+              "span": {
+                "line_start": 13,
+                "line_stop": 13,
+                "col_start": 3,
+                "col_stop": 24,
+                "path": "",
+                "content": "  const d = (0, 1)group;"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"e\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const e = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;\\\"}\"}",
+                  "span": {
+                    "line_start": 14,
+                    "line_stop": 14,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const e = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+                  }
+                }
+              ],
+              "type_": "Address",
+              "value": {
+                "Value": {
+                  "Address": [
+                    "aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8",
+                    {
+                      "line_start": 14,
+                      "line_stop": 14,
+                      "col_start": 13,
+                      "col_stop": 76,
+                      "path": "",
+                      "content": "  const e = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+                    }
+                  ]
+                }
+              },
+              "span": {
+                "line_start": 14,
+                "line_stop": 14,
+                "col_start": 3,
+                "col_stop": 76,
+                "path": "",
+                "content": "  const e = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const f = two();\\\"}\"}",
+                  "span": {
+                    "line_start": 15,
+                    "line_stop": 15,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const f = two();"
+                  }
+                }
+              ],
+              "type_": {
+                "IntegerType": "U8"
+              },
+              "value": {
+                "Call": {
+                  "function": {
+                    "Identifier": "{\"name\":\"two\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const f = two();\\\"}\"}"
+                  },
+                  "arguments": [],
+                  "span": {
+                    "line_start": 15,
+                    "line_stop": 15,
+                    "col_start": 13,
+                    "col_stop": 18,
+                    "path": "",
+                    "content": "  const f = two();"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 15,
+                "line_stop": 15,
+                "col_start": 3,
+                "col_stop": 18,
+                "path": "",
+                "content": "  const f = two();"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"g\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const g = [0u8; (3, 2)];\\\"}\"}",
+                  "span": {
+                    "line_start": 16,
+                    "line_stop": 16,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const g = [0u8; (3, 2)];"
+                  }
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "Array": [
+                      {
+                        "IntegerType": "U8"
+                      },
+                      [
+                        {
+                          "value": "2"
+                        }
+                      ]
+                    ]
+                  },
+                  [
+                    {
+                      "value": "3"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInit": {
+                  "element": {
+                    "ArrayInit": {
+                      "element": {
+                        "Value": {
+                          "Integer": [
+                            "U8",
+                            "0",
+                            {
+                              "line_start": 16,
+                              "line_stop": 16,
+                              "col_start": 14,
+                              "col_stop": 17,
+                              "path": "",
+                              "content": "  const g = [0u8; (3, 2)];"
+                            }
+                          ]
+                        }
+                      },
+                      "dimensions": [
+                        {
+                          "value": "2"
+                        }
+                      ],
+                      "span": {
+                        "line_start": 16,
+                        "line_stop": 16,
+                        "col_start": 13,
+                        "col_stop": 26,
+                        "path": "",
+                        "content": "  const g = [0u8; (3, 2)];"
+                      }
+                    }
+                  },
+                  "dimensions": [
+                    {
+                      "value": "3"
+                    }
+                  ],
+                  "span": {
+                    "line_start": 16,
+                    "line_stop": 16,
+                    "col_start": 13,
+                    "col_stop": 26,
+                    "path": "",
+                    "content": "  const g = [0u8; (3, 2)];"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 16,
+                "line_stop": 16,
+                "col_start": 3,
+                "col_stop": 26,
+                "path": "",
+                "content": "  const g = [0u8; (3, 2)];"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"h\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const h = [[0u8; 3]; 2];\\\"}\"}",
+                  "span": {
+                    "line_start": 17,
+                    "line_stop": 17,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const h = [[0u8; 3]; 2];"
+                  }
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "Array": [
+                      {
+                        "IntegerType": "U8"
+                      },
+                      [
+                        {
+                          "value": "3"
+                        }
+                      ]
+                    ]
+                  },
+                  [
+                    {
+                      "value": "2"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInit": {
+                  "element": {
+                    "ArrayInit": {
+                      "element": {
+                        "Value": {
+                          "Integer": [
+                            "U8",
+                            "0",
+                            {
+                              "line_start": 17,
+                              "line_stop": 17,
+                              "col_start": 15,
+                              "col_stop": 18,
+                              "path": "",
+                              "content": "  const h = [[0u8; 3]; 2];"
+                            }
+                          ]
+                        }
+                      },
+                      "dimensions": [
+                        {
+                          "value": "3"
+                        }
+                      ],
+                      "span": {
+                        "line_start": 17,
+                        "line_stop": 17,
+                        "col_start": 14,
+                        "col_stop": 22,
+                        "path": "",
+                        "content": "  const h = [[0u8; 3]; 2];"
+                      }
+                    }
+                  },
+                  "dimensions": [
+                    {
+                      "value": "2"
+                    }
+                  ],
+                  "span": {
+                    "line_start": 17,
+                    "line_stop": 17,
+                    "col_start": 13,
+                    "col_stop": 26,
+                    "path": "",
+                    "content": "  const h = [[0u8; 3]; 2];"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 17,
+                "line_stop": 17,
+                "col_start": 3,
+                "col_stop": 26,
+                "path": "",
+                "content": "  const h = [[0u8; 3]; 2];"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const i = [1u8, 1u8, 1u8];\\\"}\"}",
+                  "span": {
+                    "line_start": 18,
+                    "line_stop": 18,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const i = [1u8, 1u8, 1u8];"
+                  }
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "IntegerType": "U8"
+                  },
+                  [
+                    {
+                      "value": "3"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Integer": [
+                            "U8",
+                            "1",
+                            {
+                              "line_start": 18,
+                              "line_stop": 18,
+                              "col_start": 14,
+                              "col_stop": 17,
+                              "path": "",
+                              "content": "  const i = [1u8, 1u8, 1u8];"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Integer": [
+                            "U8",
+                            "1",
+                            {
+                              "line_start": 18,
+                              "line_stop": 18,
+                              "col_start": 19,
+                              "col_stop": 22,
+                              "path": "",
+                              "content": "  const i = [1u8, 1u8, 1u8];"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Integer": [
+                            "U8",
+                            "1",
+                            {
+                              "line_start": 18,
+                              "line_stop": 18,
+                              "col_start": 24,
+                              "col_stop": 27,
+                              "path": "",
+                              "content": "  const i = [1u8, 1u8, 1u8];"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "span": {
+                    "line_start": 18,
+                    "line_stop": 18,
+                    "col_start": 13,
+                    "col_stop": 28,
+                    "path": "",
+                    "content": "  const i = [1u8, 1u8, 1u8];"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 18,
+                "line_stop": 18,
+                "col_start": 3,
+                "col_stop": 28,
+                "path": "",
+                "content": "  const i = [1u8, 1u8, 1u8];"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"j\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const j = true;\\\"}\"}",
+                  "span": {
+                    "line_start": 19,
+                    "line_stop": 19,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const j = true;"
+                  }
+                }
+              ],
+              "type_": "Boolean",
+              "value": {
+                "Value": {
+                  "Boolean": [
+                    "true",
+                    {
+                      "line_start": 19,
+                      "line_stop": 19,
+                      "col_start": 13,
+                      "col_stop": 17,
+                      "path": "",
+                      "content": "  const j = true;"
+                    }
+                  ]
+                }
+              },
+              "span": {
+                "line_start": 19,
+                "line_stop": 19,
+                "col_start": 3,
+                "col_stop": 17,
+                "path": "",
+                "content": "  const j = true;"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"k\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const k = (1u8, 1u8);\\\"}\"}",
+                  "span": {
+                    "line_start": 20,
+                    "line_stop": 20,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const k = (1u8, 1u8);"
+                  }
+                }
+              ],
+              "type_": {
+                "Tuple": [
+                  {
+                    "IntegerType": "U8"
+                  },
+                  {
+                    "IntegerType": "U8"
+                  }
+                ]
+              },
+              "value": {
+                "TupleInit": {
+                  "elements": [
+                    {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "1",
+                          {
+                            "line_start": 20,
+                            "line_stop": 20,
+                            "col_start": 14,
+                            "col_stop": 17,
+                            "path": "",
+                            "content": "  const k = (1u8, 1u8);"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "1",
+                          {
+                            "line_start": 20,
+                            "line_stop": 20,
+                            "col_start": 19,
+                            "col_stop": 22,
+                            "path": "",
+                            "content": "  const k = (1u8, 1u8);"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "span": {
+                    "line_start": 20,
+                    "line_stop": 20,
+                    "col_start": 13,
+                    "col_stop": 23,
+                    "path": "",
+                    "content": "  const k = (1u8, 1u8);"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 20,
+                "line_stop": 20,
+                "col_start": 3,
+                "col_stop": 23,
+                "path": "",
+                "content": "  const k = (1u8, 1u8);"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"l\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const l = (1u8, 1u8, true);\\\"}\"}",
+                  "span": {
+                    "line_start": 21,
+                    "line_stop": 21,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const l = (1u8, 1u8, true);"
+                  }
+                }
+              ],
+              "type_": {
+                "Tuple": [
+                  {
+                    "IntegerType": "U8"
+                  },
+                  {
+                    "IntegerType": "U8"
+                  },
+                  "Boolean"
+                ]
+              },
+              "value": {
+                "TupleInit": {
+                  "elements": [
+                    {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "1",
+                          {
+                            "line_start": 21,
+                            "line_stop": 21,
+                            "col_start": 14,
+                            "col_stop": 17,
+                            "path": "",
+                            "content": "  const l = (1u8, 1u8, true);"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "1",
+                          {
+                            "line_start": 21,
+                            "line_stop": 21,
+                            "col_start": 19,
+                            "col_stop": 22,
+                            "path": "",
+                            "content": "  const l = (1u8, 1u8, true);"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "Value": {
+                        "Boolean": [
+                          "true",
+                          {
+                            "line_start": 21,
+                            "line_stop": 21,
+                            "col_start": 24,
+                            "col_stop": 28,
+                            "path": "",
+                            "content": "  const l = (1u8, 1u8, true);"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "span": {
+                    "line_start": 21,
+                    "line_stop": 21,
+                    "col_start": 13,
+                    "col_stop": 29,
+                    "path": "",
+                    "content": "  const l = (1u8, 1u8, true);"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 21,
+                "line_stop": 21,
+                "col_start": 3,
+                "col_stop": 29,
+                "path": "",
+                "content": "  const l = (1u8, 1u8, true);"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"m\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const m = Foo {};\\\"}\"}",
+                  "span": {
+                    "line_start": 22,
+                    "line_stop": 22,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const m = Foo {};"
+                  }
+                }
+              ],
+              "type_": {
+                "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {}\\\"}\"}"
+              },
+              "value": {
+                "CircuitInit": {
+                  "name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const m = Foo {};\\\"}\"}",
+                  "members": [],
+                  "span": {
+                    "line_start": 22,
+                    "line_stop": 22,
+                    "col_start": 13,
+                    "col_stop": 19,
+                    "path": "",
+                    "content": "  const m = Foo {};"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 22,
+                "line_stop": 22,
+                "col_start": 3,
+                "col_stop": 19,
+                "path": "",
+                "content": "  const m = Foo {};"
+              }
+            }
+          }
+        ],
+        "span": {
+          "line_start": 9,
+          "line_stop": 23,
+          "col_start": 17,
+          "col_stop": 2,
+          "path": "",
+          "content": "function main() {\n...\n}"
+        }
+      },
+      "span": {
+        "line_start": 9,
+        "line_stop": 23,
+        "col_start": 1,
+        "col_stop": 2,
+        "path": "",
+        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n"
+      }
+    }
+  }
+}

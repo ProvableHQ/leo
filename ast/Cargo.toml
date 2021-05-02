@@ -1,6 +1,6 @@
 [package]
 name = "leo-ast"
-version = "1.0.8"
+version = "1.4.0"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Core AST of the Leo programming language"
 homepage = "https://aleo.org"
@@ -17,25 +17,12 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
-[[bin]]
-name = "leo_ast"
-path = "src/main.rs"
-
-[[bench]]
-name = "leo_ast"
-path = "benches/leo_ast.rs"
-harness = false
-
-[dependencies.leo-grammar]
-path = "../grammar"
-version = "1.0.8"
-
 [dependencies.leo-input]
 path = "../input"
-version = "1.0.8"
+version = "1.4.0"
 
 [dependencies.indexmap]
-version = "1.6.1"
+version = "1.6.2"
 features = [ "serde-1" ]
 
 [dependencies.pest]
@@ -43,13 +30,23 @@ version = "2.0"
 
 [dependencies.serde]
 version = "1.0"
+features = [ "derive", "rc" ]
 
 [dependencies.serde_json]
 version = "1.0"
+
+[dependencies.anyhow]
+version = "1.0"
+
+[dependencies.thiserror]
+version = "1.0"
+
+[dependencies.tendril]
+version = "0.4"
 
 [dev-dependencies.criterion]
 version = "0.3"
 
 [features]
 default = [ ]
-ci_skip = [ "leo-grammar/ci_skip" ]
+ci_skip = [ ]

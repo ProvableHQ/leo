@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,9 +20,6 @@ use std::{io, path::PathBuf};
 pub enum OutputFileError {
     #[error("{}: {}", _0, _1)]
     Crate(&'static str, String),
-
-    #[error("creating: {}", _0)]
-    Creating(io::Error),
 
     #[error("Cannot read from the provided file path - {:?}", _0)]
     FileReadError(PathBuf),

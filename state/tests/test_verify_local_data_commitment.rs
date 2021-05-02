@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -18,18 +18,19 @@ use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_state::verify_local_data_commitment;
 
-use snarkvm_dpc::base_dpc::{instantiated::*, record_payload::RecordPayload, DPC};
-use snarkvm_models::{
-    algorithms::{CommitmentScheme, CRH},
-    dpc::Record,
-    objects::AccountScheme,
+use snarkvm_algorithms::traits::{CommitmentScheme, CRH};
+use snarkvm_dpc::{
+    base_dpc::{instantiated::*, record_payload::RecordPayload, DPC},
+    Account,
+    AccountScheme,
+    Record,
 };
-use snarkvm_objects::Account;
 use snarkvm_utilities::{bytes::ToBytes, to_bytes};
 
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
-use snarkvm_models::dpc::DPCScheme;
+use snarkvm_dpc::DPCScheme;
 use snarkvm_storage::Ledger;
 
 // TODO (Collin): Update input to reflect new parameter ordering.
@@ -98,7 +99,7 @@ fn test_generate_values_from_dpc() {
     let payload: [u8; 32] = rng.gen();
 
     let old_record = DPC::generate_record(
-        system_parameters.clone(),
+        &system_parameters,
         sn_nonce,
         dummy_account.address,
         false,

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -21,7 +21,10 @@ use crate::{errors::ChecksumFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 use serde::Deserialize;
 use std::{
     borrow::Cow,
-    fs::{self, File},
+    fs::{
+        File,
+        {self},
+    },
     io::Write,
     path::Path,
 };
@@ -49,7 +52,7 @@ impl ChecksumFile {
     pub fn read_from(&self, path: &Path) -> Result<String, ChecksumFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read_to_string(&path).map_err(|_| ChecksumFileError::FileReadError(path.into_owned()))?)
+        fs::read_to_string(&path).map_err(|_| ChecksumFileError::FileReadError(path.into_owned()))
     }
 
     /// Writes the given checksum to a file.

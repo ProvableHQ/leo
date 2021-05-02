@@ -1,5 +1,5 @@
 <p align="center">
-    <img width="1412" src="./.resources/leo.png">
+    <img width="1412" src="https://cdn.aleo.org/leo/banner.png">
 </p>
 
 <h1 align="center">The Leo Programming Language</h1>
@@ -7,7 +7,8 @@
 <p align="center">
     <a href="https://github.com/AleoHQ/leo/actions"><img src="https://github.com/AleoHQ/leo/workflows/CI/badge.svg"></a>
     <a href="https://codecov.io/gh/AleoHQ/leo"><img src="https://codecov.io/gh/AleoHQ/leo/branch/master/graph/badge.svg?token=S6MWO60SYL"/></a>
-    <a href="https://discord.gg/TTexWvt"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
+    <a href="https://app.bors.tech/repositories/31738"><img src="https://bors.tech/images/badge_small.svg" alt="Bors enabled"></a>
+    <a href="https://discord.gg/5v2ynrw2ds"><img src="https://img.shields.io/discord/700454073459015690?logo=discord"/></a>
 </p>
 
 Leo is a functional, statically-typed programming language built for writing private applications.
@@ -26,6 +27,7 @@ Leo is a functional, statically-typed programming language built for writing pri
 
 
 ## 1. Overview
+
 Welcome to the Leo programming language.
 
 Leo provides a high-level language that abstracts low-level cryptographic concepts and makes it easy to 
@@ -93,9 +95,9 @@ This will generate an executable under the `./target/release` directory. To run 
 Use the Leo CLI to create a new project
 
 ```bash
-# create a new `hello_world` Leo project
-leo new hello_world
-cd hello_world
+# create a new `hello-world` Leo project
+leo new hello-world
+cd hello-world
 
 # build & setup & prove & verify
 leo run
@@ -111,6 +113,7 @@ Congratulations! You've just run your first Leo program.
 
 * [Hello World - Next Steps](https://developer.aleo.org/developer/getting_started/hello_world)
 * [Leo Language Documentation](https://developer.aleo.org/developer/language/layout)
+* [Leo ABNF Grammar](./grammar/README.md)
 * [Leo CLI Documentation](https://developer.aleo.org/developer/cli/new)
 * [Homepage](https://developer.aleo.org/developer/getting_started/overview)
 

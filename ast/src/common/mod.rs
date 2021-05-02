@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,11 +17,11 @@
 pub mod array_dimensions;
 pub use array_dimensions::*;
 
+pub mod const_self_keyword;
+pub use const_self_keyword::*;
+
 pub mod identifier;
 pub use identifier::*;
-
-pub mod input_keyword;
-pub use input_keyword::*;
 
 pub mod mut_self_keyword;
 pub use mut_self_keyword::*;
@@ -37,3 +37,7 @@ pub use span::*;
 
 pub mod spread_or_expression;
 pub use spread_or_expression::*;
+
+pub mod tendril_json;
+
+pub mod vec_tendril_json;

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,9 +16,10 @@
 
 use crate::{
     assert_satisfied,
+    expect_asg_error,
     expect_compiler_error,
     generate_main_input,
-    integers::{expect_computation_error, expect_parsing_error, IntegerTester},
+    integers::{expect_computation_error, IntegerTester},
     parse_program,
 };
 use leo_ast::InputValue;
@@ -130,4 +131,12 @@ fn test_i128_assert_eq() {
 #[test]
 fn test_i128_ternary() {
     TestI128::test_ternary();
+}
+
+#[test]
+fn test_no_space_between_literal() {
+    let program_string = include_str!("no_space_between_literal.leo");
+    let program = parse_program(program_string);
+
+    assert!(program.is_err());
 }

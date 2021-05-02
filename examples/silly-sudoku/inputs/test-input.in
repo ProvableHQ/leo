@@ -1,0 +1,14 @@
+// The program input for tmp-test/src/main.leo
+[main]
+puzzle: [u8; (3, 3)] = [[1, 0, 5],
+                        [0, 2, 0],
+                        [7, 0, 0]];
+
+answer: [u8; (3, 3)] = [[1, 4, 5],
+                        [3, 2, 6],
+                        [7, 8, 9]];
+
+expected: bool = true;
+
+[registers]
+r: bool = false;

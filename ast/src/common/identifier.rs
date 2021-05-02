@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,26 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{InputKeyword, MutSelfKeyword, SelfKeyword, Span};
-use leo_grammar::{
-    annotations::AnnotationArgument,
-    common::{
-        Identifier as GrammarIdentifier,
-        KeywordOrIdentifier,
-        MutSelfKeyword as GrammarMutSelfKeyword,
-        SelfKeyword as GrammarSelfKeyword,
-        SelfKeywordOrIdentifier,
-    },
-    expressions::CircuitName,
-    functions::InputKeyword as GrammarInputKeyword,
-    imports::PackageName as GrammarPackageName,
-    types::SelfType,
-};
+use crate::Span;
 use leo_input::common::Identifier as InputIdentifier;
+use tendril::StrTendril;
 
 use crate::Node;
 use serde::{
-    de::{self, Visitor},
+    de::{
+        Visitor,
+        {self},
+    },
     Deserialize,
     Deserializer,
     Serialize,
@@ -52,7 +42,7 @@ use std::{
 /// to reflect the new struct instantiation.
 #[derive(Clone)]
 pub struct Identifier {
-    pub name: String,
+    pub name: StrTendril,
     pub span: Span,
 }
 
@@ -67,47 +57,17 @@ impl Node for Identifier {
 }
 
 impl Identifier {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: StrTendril) -> Self {
         Self {
             name,
             span: Span::default(),
         }
     }
 
-    pub fn new_with_span(name: &str, span: &Span) -> Self {
+    pub fn new_with_span(name: &str, span: Span) -> Self {
         Self {
-            name: name.to_owned(),
-            span: span.to_owned(),
-        }
-    }
-
-    pub fn is_self_type(&self) -> bool {
-        self.name == "Self"
-    }
-
-    pub fn is_self(&self) -> bool {
-        self.is_self_type() || self.name == "self"
-    }
-
-    pub fn is_core(&self) -> bool {
-        self.name.starts_with('#')
-    }
-}
-
-impl<'ast> From<GrammarIdentifier<'ast>> for Identifier {
-    fn from(identifier: GrammarIdentifier<'ast>) -> Self {
-        Self {
-            name: identifier.value,
-            span: Span::from(identifier.span),
-        }
-    }
-}
-
-impl<'ast> From<GrammarPackageName<'ast>> for Identifier {
-    fn from(name: GrammarPackageName<'ast>) -> Self {
-        Self {
-            name: name.value,
-            span: Span::from(name.span),
+            name: name.into(),
+            span,
         }
     }
 }
@@ -115,108 +75,8 @@ impl<'ast> From<GrammarPackageName<'ast>> for Identifier {
 impl<'ast> From<InputIdentifier<'ast>> for Identifier {
     fn from(identifier: InputIdentifier<'ast>) -> Self {
         Self {
-            name: identifier.value,
+            name: identifier.value.into(),
             span: Span::from(identifier.span),
-        }
-    }
-}
-
-impl<'ast> From<AnnotationArgument<'ast>> for Identifier {
-    fn from(argument: AnnotationArgument<'ast>) -> Self {
-        Self {
-            name: argument.value,
-            span: Span::from(argument.span),
-        }
-    }
-}
-
-impl<'ast> From<KeywordOrIdentifier<'ast>> for Identifier {
-    fn from(name: KeywordOrIdentifier<'ast>) -> Self {
-        match name {
-            KeywordOrIdentifier::SelfKeywordOrIdentifier(keyword) => Identifier::from(keyword),
-            KeywordOrIdentifier::SelfType(self_type) => Identifier::from(self_type),
-            KeywordOrIdentifier::Input(keyword) => Identifier::from(keyword),
-        }
-    }
-}
-
-impl<'ast> From<SelfKeywordOrIdentifier<'ast>> for Identifier {
-    fn from(name: SelfKeywordOrIdentifier<'ast>) -> Self {
-        match name {
-            SelfKeywordOrIdentifier::Identifier(identifier) => Identifier::from(identifier),
-            SelfKeywordOrIdentifier::SelfKeyword(keyword) => Identifier::from(keyword),
-        }
-    }
-}
-
-impl<'ast> From<GrammarSelfKeyword<'ast>> for Identifier {
-    fn from(grammar: GrammarSelfKeyword<'ast>) -> Self {
-        Self {
-            name: grammar.keyword,
-            span: Span::from(grammar.span),
-        }
-    }
-}
-
-impl From<SelfKeyword> for Identifier {
-    fn from(keyword: SelfKeyword) -> Self {
-        Self {
-            name: keyword.to_string(),
-            span: keyword.span,
-        }
-    }
-}
-
-impl<'ast> From<GrammarMutSelfKeyword<'ast>> for Identifier {
-    fn from(grammar: GrammarMutSelfKeyword<'ast>) -> Self {
-        Self {
-            name: grammar.to_string(),
-            span: Span::from(grammar.span),
-        }
-    }
-}
-
-impl From<MutSelfKeyword> for Identifier {
-    fn from(keyword: MutSelfKeyword) -> Self {
-        Self {
-            name: keyword.to_string(),
-            span: keyword.span,
-        }
-    }
-}
-
-impl<'ast> From<GrammarInputKeyword<'ast>> for Identifier {
-    fn from(grammar: GrammarInputKeyword<'ast>) -> Self {
-        Self {
-            name: grammar.keyword,
-            span: Span::from(grammar.span),
-        }
-    }
-}
-
-impl From<InputKeyword> for Identifier {
-    fn from(keyword: InputKeyword) -> Self {
-        Self {
-            name: keyword.to_string(),
-            span: keyword.span,
-        }
-    }
-}
-
-impl<'ast> From<CircuitName<'ast>> for Identifier {
-    fn from(name: CircuitName<'ast>) -> Self {
-        match name {
-            CircuitName::SelfType(self_type) => Identifier::from(self_type),
-            CircuitName::Identifier(identifier) => Identifier::from(identifier),
-        }
-    }
-}
-
-impl<'ast> From<SelfType<'ast>> for Identifier {
-    fn from(self_type: SelfType<'ast>) -> Self {
-        Self {
-            name: self_type.keyword,
-            span: Span::from(self_type.span),
         }
     }
 }
@@ -256,7 +116,7 @@ impl Serialize for Identifier {
 
         // Load the struct elements into a BTreeMap (to preserve serialized ordering of keys).
         let mut key: BTreeMap<String, String> = BTreeMap::new();
-        key.insert("name".to_string(), self.name.clone());
+        key.insert("name".to_string(), self.name.to_string());
         key.insert("span".to_string(), to_json_string(&self.span)?);
 
         // Convert the serialized object into a string for use as a key.
@@ -297,7 +157,10 @@ impl<'de> Deserialize<'de> for Identifier {
                     None => return Err(E::custom("missing 'span' in serialized Identifier struct")),
                 };
 
-                Ok(Identifier { name, span })
+                Ok(Identifier {
+                    name: name.into(),
+                    span,
+                })
             }
         }
 

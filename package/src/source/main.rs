@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -68,7 +68,7 @@ impl MainFile {
             r#"// The '{}' main function.
 function main(a: u32, b: u32) -> u32 {{
     let c: u32 = a + b;
-    return c
+    return c;
 }}
 "#,
             self.package_name

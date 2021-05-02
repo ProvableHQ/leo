@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Identifier};
-use leo_grammar::circuits::CircuitVariable;
 
 use serde::{Deserialize, Serialize};
 
@@ -23,13 +22,4 @@ use serde::{Deserialize, Serialize};
 pub struct CircuitVariableDefinition {
     pub identifier: Identifier,
     pub expression: Expression,
-}
-
-impl<'ast> From<CircuitVariable<'ast>> for CircuitVariableDefinition {
-    fn from(member: CircuitVariable<'ast>) -> Self {
-        CircuitVariableDefinition {
-            identifier: Identifier::from(member.identifier),
-            expression: Expression::from(member.expression),
-        }
-    }
 }

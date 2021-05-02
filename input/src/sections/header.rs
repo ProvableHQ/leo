@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 use crate::{
     ast::Rule,
     common::Identifier,
-    sections::{Main, Record, Registers, State, StateLeaf},
+    sections::{Constants, Main, Record, Registers, State, StateLeaf},
 };
 
 use pest::Span;
@@ -27,6 +27,7 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq)]
 #[pest_ast(rule(Rule::header))]
 pub enum Header<'ast> {
+    Constants(Constants<'ast>),
     Main(Main<'ast>),
     Record(Record<'ast>),
     Registers(Registers<'ast>),
@@ -38,6 +39,7 @@ pub enum Header<'ast> {
 impl<'ast> Header<'ast> {
     pub fn span(self) -> Span<'ast> {
         match self {
+            Header::Constants(constants) => constants.span,
             Header::Main(main) => main.span,
             Header::Record(record) => record.span,
             Header::Registers(registers) => registers.span,
@@ -51,6 +53,7 @@ impl<'ast> Header<'ast> {
 impl<'ast> fmt::Display for Header<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            Header::Constants(_constants) => write!(f, "constants"),
             Header::Main(_main) => write!(f, "main"),
             Header::Record(_record) => write!(f, "record"),
             Header::Registers(_registers) => write!(f, "registers"),

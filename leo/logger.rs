@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,14 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::{fmt, sync::Once};
+
 use colored::Colorize;
-use std::fmt;
 use tracing::{event::Event, subscriber::Subscriber};
 use tracing_subscriber::{
     fmt::{format::*, time::*, FmtContext, FormattedFields},
     registry::LookupSpan,
     FmtSubscriber,
 };
+
+static START: Once = Once::new();
 
 #[derive(Debug, Clone)]
 pub struct Format<F = Full, T = SystemTime> {
@@ -157,7 +160,12 @@ where
     N: for<'a> FormatFields<'a> + 'static,
     T: FormatTime,
 {
-    fn format_event(&self, ctx: &FmtContext<'_, S, N>, writer: &mut dyn fmt::Write, event: &Event<'_>) -> fmt::Result {
+    fn format_event(
+        &self,
+        context: &FmtContext<'_, S, N>,
+        writer: &mut dyn fmt::Write,
+        event: &Event<'_>,
+    ) -> fmt::Result {
         let meta = event.metadata();
 
         if self.display_level {
@@ -173,7 +181,7 @@ where
 
             let mut message = "".to_string();
 
-            let scope = ctx.scope();
+            let scope = context.scope();
             for span in scope {
                 message += span.metadata().name();
 
@@ -189,13 +197,17 @@ where
             write!(writer, "{:>10} ", colored_string(meta.level(), &message)).expect("Error writing event");
         }
 
-        ctx.format_fields(writer, event)?;
+        context.format_fields(writer, event)?;
         writeln!(writer)
     }
 }
 
 /// Initialize logger with custom format and verbosity.
 pub fn init_logger(_app_name: &'static str, verbosity: usize) {
+    // This line enables Windows 10 ANSI coloring API.
+    #[cfg(target_family = "windows")]
+    ansi_term::enable_ansi_support();
+
     let subscriber = FmtSubscriber::builder()
         // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
         // will be written to stdout.
@@ -210,5 +222,8 @@ pub fn init_logger(_app_name: &'static str, verbosity: usize) {
         .event_format(Format::default())
         .finish();
 
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+    // call this line only once per process. needed for tests using same thread
+    START.call_once(|| {
+        tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+    });
 }

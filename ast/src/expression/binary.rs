@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -31,6 +31,13 @@ pub enum BinaryOperation {
     Gt,
     Le,
     Lt,
+    BitOr,
+    BitAnd,
+    BitXor,
+    Shr,
+    ShrSigned,
+    Shl,
+    Mod,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -55,6 +62,13 @@ impl AsRef<str> for BinaryOperation {
             BinaryOperation::Gt => ">",
             BinaryOperation::Le => "<=",
             BinaryOperation::Lt => "<",
+            BinaryOperation::BitOr => "|",
+            BinaryOperation::BitAnd => "&",
+            BinaryOperation::BitXor => "^",
+            BinaryOperation::Shr => ">>",
+            BinaryOperation::ShrSigned => ">>>",
+            BinaryOperation::Shl => "<<",
+            BinaryOperation::Mod => "%",
         }
     }
 }
@@ -66,6 +80,13 @@ impl BinaryOperation {
             | BinaryOperation::Sub
             | BinaryOperation::Mul
             | BinaryOperation::Div
+            | BinaryOperation::BitOr
+            | BinaryOperation::BitAnd
+            | BinaryOperation::BitXor
+            | BinaryOperation::Shr
+            | BinaryOperation::ShrSigned
+            | BinaryOperation::Shl
+            | BinaryOperation::Mod
             | BinaryOperation::Pow => BinaryOperationClass::Numeric,
             BinaryOperation::Or
             | BinaryOperation::And

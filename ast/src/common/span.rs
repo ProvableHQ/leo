@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,62 +14,107 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use pest::Span as GrammarSpan;
+use std::{fmt, sync::Arc};
+
 use serde::{Deserialize, Serialize};
-use std::hash::{Hash, Hasher};
+use tendril::StrTendril;
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Span {
-    /// text of input string
-    pub text: String,
-    /// program line
-    pub line: usize,
-    /// start column
-    pub start: usize,
-    /// end column
-    pub end: usize,
+    pub line_start: usize,
+    pub line_stop: usize,
+    pub col_start: usize,
+    pub col_stop: usize,
+    pub path: Arc<String>,
+    #[serde(with = "crate::common::tendril_json")]
+    pub content: StrTendril,
 }
 
-impl PartialEq for Span {
-    fn eq(&self, other: &Self) -> bool {
-        self.line == other.line && self.start == other.start && self.end == other.end
-    }
-}
-
-impl Eq for Span {}
-
-impl Hash for Span {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.line.hash(state);
-        self.start.hash(state);
-        self.end.hash(state);
-    }
-}
-
-impl Span {
-    pub fn from_internal_string(value: &str) -> Span {
-        Span {
-            text: value.to_string(),
-            line: 0,
-            start: 0,
-            end: 0,
+impl fmt::Display for Span {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.line_start == self.line_stop {
+            write!(f, "{}:{}-{}", self.line_start, self.col_start, self.col_stop)
+        } else {
+            write!(
+                f,
+                "{}:{}-{}:{}",
+                self.line_start, self.col_start, self.line_stop, self.col_stop
+            )
         }
     }
 }
 
-impl<'ast> From<GrammarSpan<'ast>> for Span {
-    fn from(span: GrammarSpan<'ast>) -> Self {
-        let mut text = " ".to_string();
-        let line_col = span.start_pos().line_col();
-        let end = span.end_pos().line_col().1;
+impl<'ast> From<pest::Span<'ast>> for Span {
+    fn from(span: pest::Span) -> Self {
+        let start = span.start_pos().line_col();
+        let end = span.end_pos().line_col();
 
-        text.push_str(span.start_pos().line_of().trim_end());
+        Span {
+            line_start: start.0,
+            line_stop: end.0,
+            col_start: start.1,
+            col_stop: end.1,
+            path: Arc::new(String::new()),
+            content: span.as_str().into(),
+        }
+    }
+}
 
-        Self {
-            text,
-            line: line_col.0,
-            start: line_col.1,
-            end,
+impl std::ops::Add for &Span {
+    type Output = Span;
+
+    fn add(self, other: &Span) -> Span {
+        self.clone() + other.clone()
+    }
+}
+
+impl std::ops::Add for Span {
+    type Output = Self;
+
+    #[allow(clippy::comparison_chain)]
+    fn add(self, other: Self) -> Self {
+        if self.line_start == other.line_stop {
+            Span {
+                line_start: self.line_start,
+                line_stop: self.line_stop,
+                col_start: self.col_start.min(other.col_start),
+                col_stop: self.col_stop.max(other.col_stop),
+                path: self.path,
+                content: self.content,
+            }
+        } else {
+            let mut new_content = vec![];
+            let self_lines = self.content.lines().collect::<Vec<_>>();
+            let other_lines = other.content.lines().collect::<Vec<_>>();
+            for line in self.line_start.min(other.line_start)..self.line_stop.max(other.line_stop) + 1 {
+                if line >= self.line_start && line <= self.line_stop {
+                    new_content.push(self_lines.get(line - self.line_start).copied().unwrap_or_default());
+                } else if line >= other.line_start && line <= other.line_stop {
+                    new_content.push(other_lines.get(line - other.line_start).copied().unwrap_or_default());
+                } else if new_content.last().map(|x| *x != "...").unwrap_or(true) {
+                    new_content.push("...");
+                }
+            }
+            let new_content = new_content.join("\n").into();
+            if self.line_start < other.line_stop {
+                Span {
+                    line_start: self.line_start,
+                    line_stop: other.line_stop,
+                    col_start: self.col_start,
+                    col_stop: other.col_stop,
+                    path: self.path,
+                    content: new_content,
+                }
+            } else {
+                Span {
+                    line_start: other.line_start,
+                    line_stop: self.line_stop,
+                    col_start: other.col_start,
+                    col_stop: self.col_stop,
+                    path: self.path,
+                    content: new_content,
+                }
+            }
         }
     }
 }

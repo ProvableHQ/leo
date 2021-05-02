@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@ use leo_state::verify_record_commitment;
 
 use snarkvm_dpc::base_dpc::instantiated::*;
 
-use rand::SeedableRng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
 // TODO (Collin): Update input to reflect new parameter ordering.

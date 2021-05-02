@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -31,20 +31,6 @@ impl ImportsDirectory {
         }
 
         fs::create_dir_all(&path).map_err(ImportsDirectoryError::Creating)
-    }
-
-    /// Removes the directory at the provided path.
-    pub fn remove(path: &Path) -> Result<(), ImportsDirectoryError> {
-        let mut path = Cow::from(path);
-        if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
-            path.to_mut().push(IMPORTS_DIRECTORY_NAME);
-        }
-
-        if path.exists() {
-            fs::remove_dir_all(&path).map_err(ImportsDirectoryError::Removing)?;
-        }
-
-        Ok(())
     }
 
     /// Removes an imported package in the imports directory at the provided path.

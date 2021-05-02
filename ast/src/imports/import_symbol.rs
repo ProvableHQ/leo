@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Span};
-use leo_grammar::imports::ImportSymbol as GrammarImportSymbol;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -25,16 +24,6 @@ pub struct ImportSymbol {
     pub symbol: Identifier,
     pub alias: Option<Identifier>,
     pub span: Span,
-}
-
-impl<'ast> From<GrammarImportSymbol<'ast>> for ImportSymbol {
-    fn from(symbol: GrammarImportSymbol<'ast>) -> Self {
-        ImportSymbol {
-            symbol: Identifier::from(symbol.value),
-            alias: symbol.alias.map(Identifier::from),
-            span: Span::from(symbol.span),
-        }
-    }
 }
 
 impl fmt::Display for ImportSymbol {
@@ -62,7 +51,7 @@ impl ImportSymbol {
     pub fn star(span: &Span) -> Self {
         Self {
             symbol: Identifier {
-                name: "*".to_string(),
+                name: "*".into(),
                 span: span.clone(),
             },
             alias: None,
@@ -71,6 +60,6 @@ impl ImportSymbol {
     }
 
     pub fn is_star(&self) -> bool {
-        self.symbol.name.eq("*")
+        self.symbol.name.as_ref().eq("*")
     }
 }

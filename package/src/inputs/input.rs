@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -21,7 +21,10 @@ use crate::{errors::InputFileError, inputs::INPUTS_DIRECTORY_NAME};
 use serde::Deserialize;
 use std::{
     borrow::Cow,
-    fs::{self, File},
+    fs::{
+        File,
+        {self},
+    },
     io::Write,
     path::Path,
 };

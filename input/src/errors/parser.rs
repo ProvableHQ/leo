@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -28,11 +28,7 @@ use pest::{
     error::{Error, ErrorVariant},
     Span,
 };
-use std::{
-    num::ParseIntError,
-    path::{Path, PathBuf},
-    str::ParseBoolError,
-};
+use std::{num::ParseIntError, path::PathBuf, str::ParseBoolError};
 
 #[derive(Debug, Error)]
 pub enum InputParserError {
@@ -56,12 +52,12 @@ pub enum InputParserError {
 }
 
 impl InputParserError {
-    pub fn set_path(&mut self, path: &Path) {
+    pub fn set_path(&mut self, path: &str, _content: &[String]) {
         if let InputParserError::SyntaxError(error) = self {
             let new_error: Error<Rule> = match error {
                 InputSyntaxError::Error(error) => {
                     let new_error = error.clone();
-                    new_error.with_path(path.to_str().unwrap())
+                    new_error.with_path(path)
                 }
             };
 
@@ -71,13 +67,17 @@ impl InputParserError {
         }
     }
 
-    fn new_from_span(message: String, span: Span) -> Self {
-        let error = Error::new_from_span(ErrorVariant::CustomError { message }, span);
+    pub fn get_path(&self) -> Option<&str> {
+        None
+    }
+
+    fn new_from_span(message: String, span: &Span) -> Self {
+        let error = Error::new_from_span(ErrorVariant::CustomError { message }, span.to_owned());
 
         InputParserError::SyntaxError(InputSyntaxError::from(error))
     }
 
-    pub fn array_index(actual: String, span: Span) -> Self {
+    pub fn array_index(actual: String, span: &Span) -> Self {
         let message = format!("Expected constant number for array index, found `{}`", actual);
 
         Self::new_from_span(message, span)
@@ -86,27 +86,26 @@ impl InputParserError {
     pub fn implicit_type(data_type: DataType, implicit: NumberValue) -> Self {
         let message = format!("expected `{}`, found `{}`", data_type, implicit);
 
-        Self::new_from_span(message, implicit.span().clone())
+        Self::new_from_span(message, implicit.span())
     }
 
     pub fn implicit_group(number: NumberValue) -> Self {
         let message = format!("group coordinates should be in (x, y)group format, found `{}`", number);
 
-        Self::new_from_span(message, number.span().clone())
+        Self::new_from_span(message, number.span())
     }
 
     pub fn data_type_mismatch(data_type: DataType, value: Value) -> Self {
         let message = format!("expected data type `{}`, found `{}`", data_type, value);
-        let span = value.span().to_owned();
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, value.span())
     }
 
     pub fn expression_type_mismatch(type_: Type, expression: Expression) -> Self {
         let message = format!("expected expression type `{}`, found `{}`", type_, expression);
         let span = expression.span().to_owned();
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, &span)
     }
 
     pub fn array_inline_length(number: usize, array: ArrayInlineExpression) -> Self {
@@ -117,10 +116,10 @@ impl InputParserError {
         );
         let span = array.span.to_owned();
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, &span)
     }
 
-    pub fn array_init_length(expected: Vec<usize>, actual: Vec<usize>, span: Span) -> Self {
+    pub fn array_init_length(expected: Vec<usize>, actual: Vec<usize>, span: &Span) -> Self {
         let message = format!(
             "expected an array with a fixed size of {:?} elements, found one with {:?} elements",
             expected, actual
@@ -133,21 +132,21 @@ impl InputParserError {
         let message = format!("the section header `{}` is not valid in an input `.in` file", header);
         let span = header.span();
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, &span)
     }
 
     pub fn public_section(header: Header) -> Self {
         let message = format!("the section header `{}` is not a public section", header);
         let span = header.span();
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, &span)
     }
 
     pub fn private_section(header: Header) -> Self {
         let message = format!("the section header `{}` is not a private section", header);
         let span = header.span();
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, &span)
     }
 
     pub fn table(table: Table) -> Self {
@@ -156,16 +155,16 @@ impl InputParserError {
             table
         );
 
-        Self::new_from_span(message, table.span)
+        Self::new_from_span(message, &table.span)
     }
 
-    pub fn tuple_length(expected: usize, actual: usize, span: Span) -> Self {
+    pub fn tuple_length(expected: usize, actual: usize, span: &Span) -> Self {
         let message = format!(
             "expected a tuple with {} elements, found a tuple with {} elements",
             expected, actual
         );
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, &span)
     }
 
     pub fn section(header: Header) -> Self {
@@ -175,7 +174,7 @@ impl InputParserError {
         );
         let span = header.span();
 
-        Self::new_from_span(message, span)
+        Self::new_from_span(message, &span)
     }
 }
 

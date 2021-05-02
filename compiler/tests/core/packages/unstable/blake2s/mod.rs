@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 
 use crate::{
     assert_satisfied,
-    expect_type_inference_error,
+    expect_asg_error,
     generate_main_input,
     get_output,
     parse_program,
@@ -25,17 +25,17 @@ use crate::{
 
 use leo_ast::InputValue;
 use leo_input::types::{IntegerType, U8Type, UnsignedIntegerType};
-use rand::{Rng, SeedableRng};
+use rand::Rng;
+use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
-use snarkvm_algorithms::prf::blake2s::Blake2s as B2SPRF;
-use snarkvm_models::algorithms::PRF;
+use snarkvm_algorithms::{prf::blake2s::Blake2s as B2SPRF, traits::PRF};
 
 #[test]
 fn test_arguments_length_fail() {
     let program_string = include_str!("arguments_length_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]
@@ -43,7 +43,7 @@ fn test_arguments_type_fail() {
     let program_string = include_str!("arguments_type_fail.leo");
     let error = parse_program(program_string).err().unwrap();
 
-    expect_type_inference_error(error);
+    expect_asg_error(error);
 }
 
 #[test]

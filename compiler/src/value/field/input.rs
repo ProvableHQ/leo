@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,41 +16,54 @@
 
 //! Methods to enforce constraints on input field values in a compiled Leo program.
 
-use crate::{errors::FieldError, value::ConstrainedValue, FieldType, GroupType};
+use crate::{errors::FieldError, number_string_typing, value::ConstrainedValue, FieldType, GroupType};
 use leo_ast::{InputValue, Span};
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::alloc::AllocGadget},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
-pub(crate) fn allocate_field<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     option: Option<String>,
     span: &Span,
 ) -> Result<FieldType<F>, FieldError> {
-    FieldType::alloc(
-        cs.ns(|| format!("`{}: field` {}:{}", name, span.line, span.start)),
-        || option.ok_or(SynthesisError::AssignmentMissing),
-    )
-    .map_err(|_| FieldError::missing_field(format!("{}: field", name), span.to_owned()))
+    match option {
+        Some(string) => {
+            let number_info = number_string_typing(&string);
+
+            match number_info {
+                (number, neg) if neg => FieldType::alloc(
+                    cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
+                    || Some(number).ok_or(SynthesisError::AssignmentMissing),
+                )
+                .map(|value| value.negate(cs, span))
+                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span))?,
+                (number, _) => FieldType::alloc(
+                    cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
+                    || Some(number).ok_or(SynthesisError::AssignmentMissing),
+                )
+                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span)),
+            }
+        }
+        None => Err(FieldError::missing_field(format!("{}: field", name), span)),
+    }
 }
 
-pub(crate) fn field_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub(crate) fn field_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, FieldError> {
+) -> Result<ConstrainedValue<'a, F, G>, FieldError> {
     // Check that the parameter value is the correct type
     let option = match input_value {
         Some(input) => {
             if let InputValue::Field(string) = input {
                 Some(string)
             } else {
-                return Err(FieldError::invalid_field(input.to_string(), span.to_owned()));
+                return Err(FieldError::invalid_field(input.to_string(), span));
             }
         }
         None => None,

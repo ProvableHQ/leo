@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,88 +16,92 @@
 
 //! Generates R1CS constraints for a compiled Leo program.
 
-use crate::{
-    errors::CompilerError,
-    new_scope,
-    ConstrainedProgram,
-    ConstrainedValue,
-    GroupType,
-    OutputBytes,
-    OutputFile,
-};
-use leo_ast::{Input, Program};
-use leo_imports::ImportParser;
+use crate::{errors::CompilerError, ConstrainedProgram, GroupType, OutputBytes, OutputFile};
+use leo_asg::Program;
+use leo_ast::Input;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::{ConstraintSystem, TestConstraintSystem},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::{ConstraintSystem, TestConstraintSystem};
 use std::path::Path;
 
-pub fn generate_constraints<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    program: &Program,
+    program: &Program<'a>,
     input: &Input,
-    imported_programs: &ImportParser,
 ) -> Result<OutputBytes, CompilerError> {
-    let mut resolved_program = ConstrainedProgram::<F, G>::new();
-    let program_name = program.get_name();
-    let main_function_name = new_scope(&program_name, "main");
+    let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
 
-    resolved_program.store_definitions(program, imported_programs)?;
+    for (_, global_const) in program.global_consts.iter() {
+        resolved_program.enforce_definition_statement(cs, global_const)?;
+    }
 
-    let main = resolved_program.get(&main_function_name).ok_or(CompilerError::NoMain)?;
+    let main = {
+        let program = program;
+        program.functions.get("main").cloned()
+    };
 
-    match main.clone() {
-        ConstrainedValue::Function(_circuit_identifier, function) => {
-            let result = resolved_program.enforce_main_function(cs, &program_name, *function, input)?;
+    match main {
+        Some(function) => {
+            let result = resolved_program.enforce_main_function(cs, &function, input)?;
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),
     }
 }
 
-pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
-    program: Program,
+pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
+    program: &Program<'a>,
     input: InputPairs,
-    imported_programs: &ImportParser,
-    main_file_path: &Path,
     output_directory: &Path,
 ) -> Result<(u32, u32), CompilerError> {
-    let mut resolved_program = ConstrainedProgram::<F, G>::new();
-    let program_name = program.get_name();
-
-    let tests = program.tests.clone();
-
-    // Store definitions
-    resolved_program.store_definitions(&program, imported_programs)?;
+    let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
+    let program_name = program.name.clone();
 
     // Get default input
     let default = input.pairs.get(&program_name);
 
+    let tests = program
+        .functions
+        .iter()
+        .filter(|(_name, func)| func.is_test())
+        .collect::<Vec<_>>();
     tracing::info!("Running {} tests", tests.len());
 
     // Count passed and failed tests
     let mut passed = 0;
     let mut failed = 0;
 
-    for (test_name, test) in tests.into_iter() {
+    for (test_name, function) in tests.into_iter() {
         let cs = &mut TestConstraintSystem::<F>::new();
         let full_test_name = format!("{}::{}", program_name.clone(), test_name);
         let mut output_file_name = program_name.clone();
 
+        let input_file = function
+            .annotations
+            .iter()
+            .find(|x| x.name.name.as_ref() == "test")
+            .unwrap()
+            .arguments
+            .get(0);
         // get input file name from annotation or use test_name
-        let input_pair = match test.input_file {
+        let input_pair = match input_file {
             Some(file_id) => {
-                let file_name = file_id.name;
+                let file_name = file_id.clone();
+                let file_name_kebab = file_name.to_string().replace("_", "-");
 
-                output_file_name = file_name.clone();
+                // transform "test_name" into "test-name"
+                output_file_name = file_name.to_string();
 
-                match input.pairs.get(&file_name) {
+                // searches for test_input (snake case) or for test-input (kebab case)
+                match input
+                    .pairs
+                    .get(&file_name_kebab)
+                    .or_else(|| input.pairs.get(&file_name_kebab))
+                {
                     Some(pair) => pair.to_owned(),
-                    None => return Err(CompilerError::InvalidTestContext(file_name)),
+                    None => return Err(CompilerError::InvalidTestContext(file_name.to_string())),
                 }
             }
             None => default.ok_or(CompilerError::NoTestInput)?,
@@ -117,10 +121,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
 
         // run test function on new program with input
         let result = resolved_program.enforce_main_function(
-            cs,
-            &program_name,
-            test.function,
-            &input, // pass program input into every test
+            cs, function, &input, // pass program input into every test
         );
 
         match (result.is_ok(), cs.is_satisfied()) {
@@ -144,8 +145,7 @@ pub fn generate_test_constraints<F: Field + PrimeField, G: GroupType<F>>(
             }
             (false, _) => {
                 // Set file location of error
-                let mut error = result.unwrap_err();
-                error.set_path(main_file_path);
+                let error = result.unwrap_err();
 
                 tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
 

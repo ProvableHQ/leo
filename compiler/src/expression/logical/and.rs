@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,31 +17,30 @@
 //! Enforces a logical `&&` operator in a resolved Leo program.
 
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
-use leo_ast::Span;
+use leo_asg::Span;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{r1cs::ConstraintSystem, utilities::boolean::Boolean},
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_r1cs::ConstraintSystem;
 
-pub fn enforce_and<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub fn enforce_and<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
-    left: ConstrainedValue<F, G>,
-    right: ConstrainedValue<F, G>,
+    left: ConstrainedValue<'a, F, G>,
+    right: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, BooleanError> {
+) -> Result<ConstrainedValue<'a, F, G>, BooleanError> {
     let name = format!("{} && {}", left, right);
 
     if let (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) = (left, right) {
         let result = Boolean::and(
-            cs.ns(|| format!("{} {}:{}", name, span.line, span.start)),
+            cs.ns(|| format!("{} {}:{}", name, span.line_start, span.col_start)),
             &left_bool,
             &right_bool,
         )
-        .map_err(|e| BooleanError::cannot_enforce("&&".to_string(), e, span.to_owned()))?;
+        .map_err(|e| BooleanError::cannot_enforce("&&".to_string(), e, span))?;
 
         return Ok(ConstrainedValue::Boolean(result));
     }
 
-    Err(BooleanError::cannot_evaluate(name, span.to_owned()))
+    Err(BooleanError::cannot_evaluate(name, span))
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,30 +16,14 @@
 
 //! Stores all defined names in a compiled Leo program.
 
-use crate::{
-    program::{new_scope, ConstrainedProgram},
-    value::ConstrainedValue,
-    GroupType,
-};
-use leo_ast::Identifier;
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::Variable;
 
-use snarkvm_models::curves::{Field, PrimeField};
+use snarkvm_fields::PrimeField;
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
-    pub fn store_definition(
-        &mut self,
-        function_scope: &str,
-        mutable: bool,
-        identifier: Identifier,
-        mut value: ConstrainedValue<F, G>,
-    ) {
-        // Store with given mutability
-        if mutable {
-            value = ConstrainedValue::Mutable(Box::new(value));
-        }
-
-        let variable_program_identifier = new_scope(function_scope, &identifier.name);
-
-        self.store(variable_program_identifier, value);
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+    pub fn store_definition(&mut self, variable: &Variable, value: ConstrainedValue<'a, F, G>) {
+        let variable = variable.borrow();
+        self.store(variable.id, value);
     }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -21,7 +21,10 @@ use crate::{errors::ProvingKeyFileError, outputs::OUTPUTS_DIRECTORY_NAME};
 use serde::Deserialize;
 use std::{
     borrow::Cow,
-    fs::{self, File},
+    fs::{
+        File,
+        {self},
+    },
     io::Write,
     path::Path,
 };
@@ -53,7 +56,7 @@ impl ProvingKeyFile {
     pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, ProvingKeyFileError> {
         let path = self.setup_file_path(path);
 
-        Ok(fs::read(&path).map_err(|_| ProvingKeyFileError::FileReadError(path.into_owned()))?)
+        fs::read(&path).map_err(|_| ProvingKeyFileError::FileReadError(path.into_owned()))
     }
 
     /// Writes the given proving key to a file.

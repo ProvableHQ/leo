@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,11 +17,12 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{load_annotation, Circuit, Function, FunctionInput, Identifier, ImportStatement, TestFunction};
-use leo_grammar::{definitions::Definition, files::File};
+use crate::{Circuit, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+use std::fmt;
+
 /// Stores the Leo program abstract syntax tree.
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Program {
@@ -29,61 +30,33 @@ pub struct Program {
     pub expected_input: Vec<FunctionInput>,
     pub imports: Vec<ImportStatement>,
     pub circuits: IndexMap<Identifier, Circuit>,
+    pub global_consts: IndexMap<String, DefinitionStatement>,
     pub functions: IndexMap<Identifier, Function>,
-    pub tests: IndexMap<Identifier, TestFunction>,
 }
 
-const MAIN_FUNCTION_NAME: &str = "main";
+impl AsRef<Program> for Program {
+    fn as_ref(&self) -> &Program {
+        self
+    }
+}
 
-impl<'ast> Program {
-    //! Logic to convert from an abstract syntax tree (ast) representation to a Leo program.
-    pub fn from(program_name: &str, program_ast: &File<'ast>) -> Self {
-        let mut imports = vec![];
-        let mut circuits = IndexMap::new();
-        let mut functions = IndexMap::new();
-        let mut tests = IndexMap::new();
-        let mut expected_input = vec![];
-
-        program_ast
-            .definitions
-            .to_owned()
-            .into_iter()
-            .for_each(|definition| match definition {
-                Definition::Import(import) => imports.push(ImportStatement::from(import)),
-                Definition::Circuit(circuit) => {
-                    circuits.insert(Identifier::from(circuit.identifier.clone()), Circuit::from(circuit));
-                }
-                Definition::Function(function_def) => {
-                    let function = Function::from(function_def);
-                    if function.identifier.name.eq(MAIN_FUNCTION_NAME) {
-                        expected_input = function.input.clone();
-                    }
-                    functions.insert(function.identifier.clone(), function);
-                }
-                Definition::TestFunction(test_def) => {
-                    let test = TestFunction::from(test_def);
-                    tests.insert(test.function.identifier.clone(), test);
-                }
-                Definition::Annotated(annotated_definition) => {
-                    load_annotation(
-                        annotated_definition,
-                        &mut imports,
-                        &mut circuits,
-                        &mut functions,
-                        &mut tests,
-                        &mut expected_input,
-                    );
-                }
-            });
-
-        Self {
-            name: program_name.to_string(),
-            expected_input,
-            imports,
-            circuits,
-            functions,
-            tests,
+impl fmt::Display for Program {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for import in self.imports.iter() {
+            import.fmt(f)?;
+            writeln!(f,)?;
         }
+        writeln!(f,)?;
+        for (_, circuit) in self.circuits.iter() {
+            circuit.fmt(f)?;
+            writeln!(f,)?;
+        }
+        writeln!(f,)?;
+        for (_, function) in self.functions.iter() {
+            function.fmt(f)?;
+            writeln!(f,)?;
+        }
+        write!(f, "")
     }
 }
 
@@ -94,8 +67,8 @@ impl Program {
             expected_input: vec![],
             imports: vec![],
             circuits: IndexMap::new(),
+            global_consts: IndexMap::new(),
             functions: IndexMap::new(),
-            tests: IndexMap::new(),
         }
     }
 

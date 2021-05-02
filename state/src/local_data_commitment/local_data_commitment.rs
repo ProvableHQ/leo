@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,32 +17,34 @@
 use crate::{verify_record_commitment, LocalDataVerificationError, StateLeafValues, StateValues};
 use leo_ast::Input as AstInput;
 
-use snarkvm_algorithms::commitment_tree::CommitmentMerklePath;
-use snarkvm_dpc::base_dpc::{
-    instantiated::{Components, LocalDataCRH, LocalDataCommitment},
-    parameters::SystemParameters,
+use snarkvm_algorithms::{
+    commitment_tree::CommitmentMerklePath,
+    traits::{CommitmentScheme, CRH},
 };
-use snarkvm_models::{
-    algorithms::{CommitmentScheme, CRH},
-    dpc::DPCComponents,
+use snarkvm_dpc::{
+    base_dpc::{
+        instantiated::{Components, LocalDataCRH, LocalDataCommitment},
+        parameters::SystemParameters,
+    },
+    traits::DPCComponents,
 };
 use snarkvm_utilities::{bytes::ToBytes, to_bytes, FromBytes};
 
 use std::convert::TryFrom;
 
 /// Returns `true` if the path to the local data commitment leaf is a valid path in the record
-/// commitment merkle tree.
+/// commitment Merkle tree.
 pub fn verify_local_data_commitment(
     system_parameters: &SystemParameters<Components>,
     ast_input: &AstInput,
 ) -> Result<bool, LocalDataVerificationError> {
-    // verify record commitment.
+    // Verify record commitment.
     let typed_record = ast_input.get_record();
     let dpc_record_values = verify_record_commitment(system_parameters, typed_record)?;
     let record_commitment: Vec<u8> = dpc_record_values.commitment;
     let record_serial_number: Vec<u8> = dpc_record_values.serial_number;
 
-    // parse typed state values.
+    // Parse typed state values.
     let typed_state = ast_input.get_state();
     let state_values = StateValues::try_from(typed_state)?;
     let leaf_index: u32 = state_values.leaf_index;

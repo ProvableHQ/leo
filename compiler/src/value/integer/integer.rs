@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,28 +16,22 @@
 
 //! Conversion of integer declarations to constraints in Leo.
 use crate::{errors::IntegerError, IntegerTrait};
-use leo_ast::{InputValue, IntegerType, Span, Type};
-use leo_gadgets::{
-    arithmetic::*,
-    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
-    signed_integer::*,
-};
+use leo_asg::{ConstInt, IntegerType, Span};
+use leo_ast::InputValue;
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            uint::*,
-        },
-    },
+use snarkvm_fields::{Field, PrimeField};
+use snarkvm_gadgets::traits::utilities::{
+    alloc::AllocGadget,
+    arithmetic::{Add, Div, Mul, Neg, Pow, Sub},
+    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+    boolean::Boolean,
+    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+    int::{Int128, Int16, Int32, Int64, Int8},
+    select::CondSelectGadget,
+    uint::{Sub as UIntSub, *},
 };
-use std::fmt;
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
+use std::{convert::TryInto, fmt};
 
 /// An integer type enum wrapping the integer value.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd)]
@@ -72,134 +66,54 @@ impl Integer {
     ///
     /// Checks that the expression is equal to the expected type if given.
     ///
-    pub fn new(
-        expected_type: Option<Type>,
-        actual_integer_type: &IntegerType,
-        string: String,
-        span: &Span,
-    ) -> Result<Self, IntegerError> {
-        // Check expected type if given.
-        if let Some(type_) = expected_type {
-            // Check expected type is an integer.
-            match type_ {
-                Type::IntegerType(expected_integer_type) => {
-                    // Check expected integer type == actual integer type
-                    if expected_integer_type.ne(actual_integer_type) {
-                        return Err(IntegerError::invalid_integer_type(
-                            &expected_integer_type,
-                            actual_integer_type,
-                            span.to_owned(),
-                        ));
-                    }
-                }
-                type_ => return Err(IntegerError::invalid_type(&type_, span.to_owned())),
-            }
-        }
-
-        // Return a new constant integer.
-        Self::new_constant(actual_integer_type, string, span)
-    }
-
-    ///
-    /// Returns a new integer value from an expression.
-    ///
-    /// The returned integer value is "constant" and is not allocated in the constraint system.
-    ///
-    pub fn new_constant(integer_type: &IntegerType, string: String, span: &Span) -> Result<Self, IntegerError> {
-        match integer_type {
-            IntegerType::U8 => {
-                let number = string
-                    .parse::<u8>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U8(UInt8::constant(number)))
-            }
-            IntegerType::U16 => {
-                let number = string
-                    .parse::<u16>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U16(UInt16::constant(number)))
-            }
-            IntegerType::U32 => {
-                let number = string
-                    .parse::<u32>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U32(UInt32::constant(number)))
-            }
-            IntegerType::U64 => {
-                let number = string
-                    .parse::<u64>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U64(UInt64::constant(number)))
-            }
-            IntegerType::U128 => {
-                let number = string
-                    .parse::<u128>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::U128(UInt128::constant(number)))
-            }
-
-            IntegerType::I8 => {
-                let number = string
-                    .parse::<i8>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I8(Int8::constant(number)))
-            }
-            IntegerType::I16 => {
-                let number = string
-                    .parse::<i16>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I16(Int16::constant(number)))
-            }
-            IntegerType::I32 => {
-                let number = string
-                    .parse::<i32>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I32(Int32::constant(number)))
-            }
-            IntegerType::I64 => {
-                let number = string
-                    .parse::<i64>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I64(Int64::constant(number)))
-            }
-            IntegerType::I128 => {
-                let number = string
-                    .parse::<i128>()
-                    .map_err(|_| IntegerError::invalid_integer(string, span.to_owned()))?;
-
-                Ok(Integer::I128(Int128::constant(number)))
-            }
+    pub fn new(value: &ConstInt) -> Self {
+        match value {
+            ConstInt::U8(i) => Integer::U8(UInt8::constant(*i)),
+            ConstInt::U16(i) => Integer::U16(UInt16::constant(*i)),
+            ConstInt::U32(i) => Integer::U32(UInt32::constant(*i)),
+            ConstInt::U64(i) => Integer::U64(UInt64::constant(*i)),
+            ConstInt::U128(i) => Integer::U128(UInt128::constant(*i)),
+            ConstInt::I8(i) => Integer::I8(Int8::constant(*i)),
+            ConstInt::I16(i) => Integer::I16(Int16::constant(*i)),
+            ConstInt::I32(i) => Integer::I32(Int32::constant(*i)),
+            ConstInt::I64(i) => Integer::I64(Int64::constant(*i)),
+            ConstInt::I128(i) => Integer::I128(Int128::constant(*i)),
         }
     }
 
     pub fn get_bits(&self) -> Vec<Boolean> {
         let integer = self;
-        match_integer!(integer => integer.get_bits())
+        match_integer!(integer => integer.to_bits_le())
     }
+
+    // pub fn get_bits_typed(&self) -> (Vec<Boolean>, IntegerType) {
+    //     let integer = self;
+    //     (match_integer!(integer => integer.to_bits_le()), self.get_type())
+    // }
+
+    // pub fn from_bits_typed(type_: &IntegerType, bits: &[Boolean]) -> Integer {
+    //     match type_ {
+    //         IntegerType::U8 => Integer::U8(UInt8::from_bits_le(bits)),
+    //         IntegerType::U16 => Integer::U16(UInt16::from_bits_le(bits)),
+    //         IntegerType::U32 => Integer::U32(UInt32::from_bits_le(bits)),
+    //         IntegerType::U64 => Integer::U64(UInt64::from_bits_le(bits)),
+    //         IntegerType::U128 => Integer::U128(UInt128::from_bits_le(bits)),
+    //         IntegerType::I8 => Integer::I8(Int8::from_bits_le(bits)),
+    //         IntegerType::I16 => Integer::I16(Int16::from_bits_le(bits)),
+    //         IntegerType::I32 => Integer::I32(Int32::from_bits_le(bits)),
+    //         IntegerType::I64 => Integer::I64(Int64::from_bits_le(bits)),
+    //         IntegerType::I128 => Integer::I128(Int128::from_bits_le(bits)),
+    //     }
+    // }
 
     pub fn get_value(&self) -> Option<String> {
         let integer = self;
         match_integer!(integer => integer.get_value())
     }
 
-    pub fn to_usize(&self, span: &Span) -> Result<usize, IntegerError> {
+    pub fn to_usize(&self) -> Option<usize> {
         let unsigned_integer = self;
-        let value_option: Option<String> = match_unsigned_integer!(unsigned_integer => unsigned_integer.get_value());
-
-        let value = value_option.ok_or_else(|| IntegerError::invalid_index(span.to_owned()))?;
-        let value_usize = value
-            .parse::<usize>()
-            .map_err(|_| IntegerError::invalid_integer(value, span.to_owned()))?;
-        Ok(value_usize)
+        match_unsigned_integer!(unsigned_integer => unsigned_integer.value.map(|num| num.try_into().ok()).flatten())
     }
 
     pub fn get_type(&self) -> IntegerType {
@@ -220,158 +134,29 @@ impl Integer {
 
     pub fn allocate_type<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        integer_type: IntegerType,
+        integer_type: &IntegerType,
         name: &str,
         option: Option<String>,
         span: &Span,
     ) -> Result<Self, IntegerError> {
         Ok(match integer_type {
-            IntegerType::U8 => {
-                let u8_option = option.map(|s| {
-                    s.parse::<u8>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
+            IntegerType::U8 => allocate_type!(u8, UInt8, Integer::U8, cs, name, option, span),
+            IntegerType::U16 => allocate_type!(u16, UInt16, Integer::U16, cs, name, option, span),
+            IntegerType::U32 => allocate_type!(u32, UInt32, Integer::U32, cs, name, option, span),
+            IntegerType::U64 => allocate_type!(u64, UInt64, Integer::U64, cs, name, option, span),
+            IntegerType::U128 => allocate_type!(u128, UInt128, Integer::U128, cs, name, option, span),
 
-                let u8_result = UInt8::alloc(cs.ns(|| format!("`{}: u8` {}:{}", name, span.line, span.start)), || {
-                    u8_option.ok_or(SynthesisError::AssignmentMissing)
-                })
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u8", name), span.to_owned()))?;
-
-                Integer::U8(u8_result)
-            }
-            IntegerType::U16 => {
-                let u16_option = option.map(|s| {
-                    s.parse::<u16>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
-                let u16_result = UInt16::alloc(
-                    cs.ns(|| format!("`{}: u16` {}:{}", name, span.line, span.start)),
-                    || u16_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u16", name), span.to_owned()))?;
-
-                Integer::U16(u16_result)
-            }
-            IntegerType::U32 => {
-                let u32_option = option.map(|s| {
-                    s.parse::<u32>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
-                let u32_result = UInt32::alloc(
-                    cs.ns(|| format!("`{}: u32` {}:{}", name, span.line, span.start)),
-                    || u32_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u32", name), span.to_owned()))?;
-
-                Integer::U32(u32_result)
-            }
-            IntegerType::U64 => {
-                let u64_option = option.map(|s| {
-                    s.parse::<u64>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
-                let u64_result = UInt64::alloc(
-                    cs.ns(|| format!("`{}: u64` {}:{}", name, span.line, span.start)),
-                    || u64_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u64", name), span.to_owned()))?;
-
-                Integer::U64(u64_result)
-            }
-            IntegerType::U128 => {
-                let u128_option = option.map(|s| {
-                    s.parse::<u128>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
-                let u128_result = UInt128::alloc(
-                    cs.ns(|| format!("`{}: u128` {}:{}", name, span.line, span.start)),
-                    || u128_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: u128", name), span.to_owned()))?;
-
-                Integer::U128(u128_result)
-            }
-
-            IntegerType::I8 => {
-                let i8_option = option.map(|s| {
-                    s.parse::<i8>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
-                let i8_result = Int8::alloc(cs.ns(|| format!("`{}: i8` {}:{}", name, span.line, span.start)), || {
-                    i8_option.ok_or(SynthesisError::AssignmentMissing)
-                })
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i8", name), span.to_owned()))?;
-
-                Integer::I8(i8_result)
-            }
-            IntegerType::I16 => {
-                let i16_option = option.map(|s| {
-                    s.parse::<i16>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
-                let i16_result = Int16::alloc(
-                    cs.ns(|| format!("`{}: i16` {}:{}", name, span.line, span.start)),
-                    || i16_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i16", name), span.to_owned()))?;
-
-                Integer::I16(i16_result)
-            }
-            IntegerType::I32 => {
-                let i32_option = option.map(|s| {
-                    s.parse::<i32>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
-                let i32_result = Int32::alloc(
-                    cs.ns(|| format!("`{}: i32` {}:{}", name, span.line, span.start)),
-                    || i32_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i32", name), span.to_owned()))?;
-
-                Integer::I32(i32_result)
-            }
-            IntegerType::I64 => {
-                let i64_option = option.map(|s| {
-                    s.parse::<i64>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
-                let i64_result = Int64::alloc(
-                    cs.ns(|| format!("`{}: i64` {}:{}", name, span.line, span.start)),
-                    || i64_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i64", name), span.to_owned()))?;
-
-                Integer::I64(i64_result)
-            }
-            IntegerType::I128 => {
-                let i128_option = option.map(|s| {
-                    s.parse::<i128>()
-                        .map_err(|_| IntegerError::invalid_integer(s, span.to_owned()))
-                        .unwrap()
-                });
-                let i128_result = Int128::alloc(
-                    cs.ns(|| format!("`{}: i128` {}:{}", name, span.line, span.start)),
-                    || i128_option.ok_or(SynthesisError::AssignmentMissing),
-                )
-                .map_err(|_| IntegerError::missing_integer(format!("{}: i128", name), span.to_owned()))?;
-
-                Integer::I128(i128_result)
-            }
+            IntegerType::I8 => allocate_type!(i8, Int8, Integer::I8, cs, name, option, span),
+            IntegerType::I16 => allocate_type!(i16, Int16, Integer::I16, cs, name, option, span),
+            IntegerType::I32 => allocate_type!(i32, Int32, Integer::I32, cs, name, option, span),
+            IntegerType::I64 => allocate_type!(i64, Int64, Integer::I64, cs, name, option, span),
+            IntegerType::I128 => allocate_type!(i128, Int128, Integer::I128, cs, name, option, span),
         })
     }
 
     pub fn from_input<F: Field, CS: ConstraintSystem<F>>(
         cs: &mut CS,
-        integer_type: IntegerType,
+        integer_type: &IntegerType,
         name: &str,
         integer_value: Option<InputValue>,
         span: &Span,
@@ -382,7 +167,7 @@ impl Integer {
                 if let InputValue::Integer(_type_, number) = input {
                     Some(number)
                 } else {
-                    return Err(IntegerError::invalid_integer(input.to_string(), span.to_owned()));
+                    return Err(IntegerError::invalid_integer(input.to_string(), span));
                 }
             }
             None => None,
@@ -391,102 +176,102 @@ impl Integer {
         Self::allocate_type(cs, integer_type, name, option, span)
     }
 
-    pub fn negate<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn negate<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         span: &Span,
     ) -> Result<Self, IntegerError> {
-        let unique_namespace = format!("enforce -{} {}:{}", self, span.line, span.start);
+        let unique_namespace = format!("enforce -{} {}:{}", self, span.line_start, span.col_start);
 
         let a = self;
 
         let result = match_signed_integer!(a, span => a.neg(cs.ns(|| unique_namespace)));
 
-        result.ok_or_else(|| IntegerError::negate_operation(span.to_owned()))
+        result.ok_or_else(|| IntegerError::negate_operation(span))
     }
 
-    pub fn add<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn add<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
         span: &Span,
     ) -> Result<Self, IntegerError> {
-        let unique_namespace = format!("enforce {} + {} {}:{}", self, other, span.line, span.start);
+        let unique_namespace = format!("enforce {} + {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
         let b = other;
 
         let result = match_integers_span!((a, b), span => a.add(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("+".to_string(), span.to_owned()))
+        result.ok_or_else(|| IntegerError::binary_operation("+".to_string(), span))
     }
 
-    pub fn sub<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn sub<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
         span: &Span,
     ) -> Result<Self, IntegerError> {
-        let unique_namespace = format!("enforce {} - {} {}:{}", self, other, span.line, span.start);
+        let unique_namespace = format!("enforce {} - {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
         let b = other;
 
         let result = match_integers_span!((a, b), span => a.sub(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("-".to_string(), span.to_owned()))
+        result.ok_or_else(|| IntegerError::binary_operation("-".to_string(), span))
     }
 
-    pub fn mul<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn mul<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
         span: &Span,
     ) -> Result<Self, IntegerError> {
-        let unique_namespace = format!("enforce {} * {} {}:{}", self, other, span.line, span.start);
+        let unique_namespace = format!("enforce {} * {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
         let b = other;
 
         let result = match_integers_span!((a, b), span => a.mul(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("*".to_string(), span.to_owned()))
+        result.ok_or_else(|| IntegerError::binary_operation("*".to_string(), span))
     }
 
-    pub fn div<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn div<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
         span: &Span,
     ) -> Result<Self, IntegerError> {
-        let unique_namespace = format!("enforce {} ÷ {} {}:{}", self, other, span.line, span.start);
+        let unique_namespace = format!("enforce {} ÷ {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
         let b = other;
 
         let result = match_integers_span!((a, b), span => a.div(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("÷".to_string(), span.to_owned()))
+        result.ok_or_else(|| IntegerError::binary_operation("÷".to_string(), span))
     }
 
-    pub fn pow<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+    pub fn pow<F: PrimeField, CS: ConstraintSystem<F>>(
         self,
         cs: &mut CS,
         other: Self,
         span: &Span,
     ) -> Result<Self, IntegerError> {
-        let unique_namespace = format!("enforce {} ** {} {}:{}", self, other, span.line, span.start);
+        let unique_namespace = format!("enforce {} ** {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
         let b = other;
 
         let result = match_integers_span!((a, b), span => a.pow(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("**".to_string(), span.to_owned()))
+        result.ok_or_else(|| IntegerError::binary_operation("**".to_string(), span))
     }
 }
 
-impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
+impl<F: PrimeField> EvaluateEqGadget<F> for Integer {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         let a = self;
         let b = other;
@@ -497,7 +282,7 @@ impl<F: Field + PrimeField> EvaluateEqGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
+impl<F: PrimeField> EvaluateLtGadget<F> for Integer {
     fn less_than<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
         let a = self;
         let b = other;
@@ -507,11 +292,11 @@ impl<F: Field + PrimeField> EvaluateLtGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField> ComparatorGadget<F> for Integer {}
+impl<F: PrimeField> ComparatorGadget<F> for Integer {}
 
-impl<F: Field + PrimeField> EqGadget<F> for Integer {}
+impl<F: PrimeField> EqGadget<F> for Integer {}
 
-impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
+impl<F: PrimeField> ConditionalEqGadget<F> for Integer {
     fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
         &self,
         cs: CS,
@@ -531,7 +316,7 @@ impl<F: Field + PrimeField> ConditionalEqGadget<F> for Integer {
     }
 }
 
-impl<F: Field + PrimeField> CondSelectGadget<F> for Integer {
+impl<F: PrimeField> CondSelectGadget<F> for Integer {
     fn conditionally_select<CS: ConstraintSystem<F>>(
         cs: CS,
         cond: &Boolean,

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,46 +17,45 @@
 //! Evaluates a formatted string in a compiled Leo program.
 
 use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
-use leo_ast::FormattedString;
+use leo_asg::FormatString;
+use leo_ast::FormatStringPart;
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
-
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn format<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        file_scope: &str,
-        function_scope: &str,
-        formatted: FormattedString,
+        formatted: &FormatString<'a>,
     ) -> Result<String, ConsoleError> {
         // Check that containers and parameters match
-        if formatted.containers.len() != formatted.parameters.len() {
+        let container_count = formatted
+            .parts
+            .iter()
+            .filter(|x| matches!(x, FormatStringPart::Container))
+            .count();
+        if container_count != formatted.parameters.len() {
             return Err(ConsoleError::length(
-                formatted.containers.len(),
+                container_count,
                 formatted.parameters.len(),
-                formatted.span,
+                &formatted.span,
             ));
         }
 
-        // Trim starting double quote `"`
-        let mut string = formatted.string.as_str();
-        string = string.trim_start_matches('\"');
-
-        // Trim everything after the ending double quote `"`
-        let string = string.split('\"').next().unwrap();
-
-        // Insert the parameter for each container `{}`
-        let mut result = string.to_string();
-
-        for parameter in formatted.parameters.into_iter() {
-            let parameter_value = self.enforce_expression(cs, file_scope, function_scope, None, parameter)?;
-
-            result = result.replacen("{}", &parameter_value.to_string(), 1);
+        let mut executed_containers = Vec::with_capacity(formatted.parameters.len());
+        for parameter in formatted.parameters.iter() {
+            executed_containers.push(self.enforce_expression(cs, parameter.get())?.to_string());
         }
 
-        Ok(result)
+        let mut out = vec![];
+        let mut parameters = executed_containers.iter();
+        for part in formatted.parts.iter() {
+            match part {
+                FormatStringPart::Const(c) => out.push(&**c),
+                FormatStringPart::Container => out.push(&**parameters.next().unwrap()),
+            }
+        }
+
+        Ok(out.join(""))
     }
 }

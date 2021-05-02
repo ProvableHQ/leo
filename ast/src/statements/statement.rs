@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,8 +16,6 @@
 
 use crate::{ConditionalStatement, Node, Span};
 
-use leo_grammar::statements::Statement as GrammarStatement;
-
 use super::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -33,21 +31,6 @@ pub enum Statement {
     Console(ConsoleStatement),
     Expression(ExpressionStatement),
     Block(Block),
-}
-
-impl<'ast> From<GrammarStatement<'ast>> for Statement {
-    fn from(statement: GrammarStatement<'ast>) -> Self {
-        match statement {
-            GrammarStatement::Return(statement) => Statement::Return(ReturnStatement::from(statement)),
-            GrammarStatement::Definition(statement) => Statement::Definition(DefinitionStatement::from(statement)),
-            GrammarStatement::Assign(statement) => Statement::Assign(AssignStatement::from(statement)),
-            GrammarStatement::Conditional(statement) => Statement::Conditional(ConditionalStatement::from(statement)),
-            GrammarStatement::Iteration(statement) => Statement::Iteration(IterationStatement::from(statement)),
-            GrammarStatement::Console(statement) => Statement::Console(ConsoleStatement::from(statement)),
-            GrammarStatement::Expression(statement) => Statement::Expression(ExpressionStatement::from(statement)),
-            GrammarStatement::Block(statement) => Statement::Block(Block::from(statement)),
-        }
-    }
 }
 
 impl fmt::Display for Statement {

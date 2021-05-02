@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -13,7 +13,6 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
 #[macro_use]
 extern crate pest_derive;
 #[macro_use]
@@ -41,7 +40,7 @@ pub struct LeoInputParser;
 impl LeoInputParser {
     /// Reads in the given file path into a string.
     pub fn load_file(file_path: &Path) -> Result<String, InputParserError> {
-        Ok(fs::read_to_string(file_path).map_err(|_| InputParserError::FileReadError(file_path.to_owned()))?)
+        fs::read_to_string(file_path).map_err(|_| InputParserError::FileReadError(file_path.to_owned()))
     }
 
     /// Parses the input file and constructs a syntax tree.

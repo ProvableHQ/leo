@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,9 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ExpressionError;
-use leo_ast::{Error as FormattedError, Span};
-
-use std::path::Path;
+use leo_ast::{FormattedError, LeoError, Span};
 
 #[derive(Debug, Error)]
 pub enum ConsoleError {
@@ -28,19 +26,14 @@ pub enum ConsoleError {
     Expression(#[from] ExpressionError),
 }
 
-impl ConsoleError {
-    pub fn set_path(&mut self, path: &Path) {
-        match self {
-            ConsoleError::Expression(error) => error.set_path(path),
-            ConsoleError::Error(error) => error.set_path(path),
-        }
-    }
+impl LeoError for ConsoleError {}
 
-    fn new_from_span(message: String, span: Span) -> Self {
+impl ConsoleError {
+    fn new_from_span(message: String, span: &Span) -> Self {
         ConsoleError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn length(containers: usize, parameters: usize, span: Span) -> Self {
+    pub fn length(containers: usize, parameters: usize, span: &Span) -> Self {
         let message = format!(
             "Formatter given {} containers and found {} parameters",
             containers, parameters
@@ -49,21 +42,22 @@ impl ConsoleError {
         Self::new_from_span(message, span)
     }
 
-    pub fn assertion_depends_on_input(span: Span) -> Self {
-        let message =
-            "console.assert() failed to evaluate. This error is caused by empty input file values".to_string();
+    pub fn assertion_depends_on_input(span: &Span) -> Self {
+        let message = "console.assert() does not produce constraints and cannot use inputs. \
+        Assertions should only be used in @test functions"
+            .to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn assertion_failed(expression: String, span: Span) -> Self {
-        let message = format!("Assertion `{}` failed", expression);
+    pub fn assertion_failed(span: &Span) -> Self {
+        let message = "Assertion failed".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn assertion_must_be_boolean(expression: String, span: Span) -> Self {
-        let message = format!("Assertion expression `{}` must evaluate to a boolean value", expression);
+    pub fn assertion_must_be_boolean(span: &Span) -> Self {
+        let message = "Assertion expression must evaluate to a boolean value".to_string();
 
         Self::new_from_span(message, span)
     }

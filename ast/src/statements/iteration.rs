@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,6 @@
 
 use crate::{Block, Expression, Identifier, Node, Span};
 
-use leo_grammar::statements::ForStatement;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -36,18 +35,6 @@ impl fmt::Display for IterationStatement {
             "for {} in {}..{} {}",
             self.variable, self.start, self.stop, self.block
         )
-    }
-}
-
-impl<'ast> From<ForStatement<'ast>> for IterationStatement {
-    fn from(statement: ForStatement<'ast>) -> Self {
-        IterationStatement {
-            variable: Identifier::from(statement.index),
-            start: Expression::from(statement.start),
-            stop: Expression::from(statement.stop),
-            block: Block::from(statement.block),
-            span: Span::from(statement.span),
-        }
     }
 }
 

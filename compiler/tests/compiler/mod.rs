@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -27,7 +27,8 @@ static MAIN_FILE_NAME: &str = "tests/compiler/main.leo";
 fn test_parse_program_from_string() {
     // Parse program from string with compiler.
     let program_string = include_str!("main.leo");
-    let mut compiler_no_path = EdwardsTestCompiler::new("".to_string(), PathBuf::new(), PathBuf::new());
+    let context = crate::make_test_context();
+    let mut compiler_no_path = EdwardsTestCompiler::new("".to_string(), PathBuf::new(), PathBuf::new(), context, None);
 
     compiler_no_path.parse_program_from_string(program_string).unwrap();
 
@@ -36,7 +37,7 @@ fn test_parse_program_from_string() {
     local.push(MAIN_FILE_NAME);
 
     let compiler_with_path =
-        EdwardsTestCompiler::parse_program_without_input("".to_string(), local, PathBuf::new()).unwrap();
+        EdwardsTestCompiler::parse_program_without_input("".to_string(), local, PathBuf::new(), context, None).unwrap();
 
     // Compare output bytes.
     let expected_output = get_output(compiler_no_path);

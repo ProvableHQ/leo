@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,31 +15,44 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
+use leo_asg::{AsgConvertError, Circuit, CircuitMember};
 use leo_ast::{Identifier, InputValue, Parameter};
 
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::r1cs::ConstraintSystem,
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_r1cs::ConstraintSystem;
 
 use indexmap::IndexMap;
 
-impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
+impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn allocate_input_section<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         identifier: Identifier,
+        expected_type: &'a Circuit<'a>,
         section: IndexMap<Parameter, Option<InputValue>>,
-    ) -> Result<ConstrainedValue<F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
         let mut members = Vec::with_capacity(section.len());
 
         // Allocate each section definition as a circuit member value
-
         for (parameter, option) in section.into_iter() {
+            let section_members = expected_type.members.borrow();
+            let expected_type = match section_members.get(parameter.variable.name.as_ref()) {
+                Some(CircuitMember::Variable(inner)) => inner,
+                _ => continue, // present, but unused
+            };
+            let declared_type = self.asg.scope.resolve_ast_type(&parameter.type_)?;
+            if !expected_type.is_assignable_from(&declared_type) {
+                return Err(AsgConvertError::unexpected_type(
+                    &expected_type.to_string(),
+                    Some(&declared_type.to_string()),
+                    &identifier.span,
+                )
+                .into());
+            }
             let member_name = parameter.variable.clone();
             let member_value = self.allocate_main_function_input(
                 cs,
-                parameter.type_,
+                &declared_type,
                 &parameter.variable.name,
                 option,
                 &parameter.span,
@@ -51,6 +64,6 @@ impl<F: Field + PrimeField, G: GroupType<F>> ConstrainedProgram<F, G> {
 
         // Return section as circuit expression
 
-        Ok(ConstrainedValue::CircuitExpression(identifier, members))
+        Ok(ConstrainedValue::CircuitExpression(expected_type, members))
     }
 }

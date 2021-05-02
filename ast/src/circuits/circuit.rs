@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CircuitMember, Identifier};
-use leo_grammar::circuits::Circuit as GrammarCircuit;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,15 +23,6 @@ use std::fmt;
 pub struct Circuit {
     pub circuit_name: Identifier,
     pub members: Vec<CircuitMember>,
-}
-
-impl<'ast> From<GrammarCircuit<'ast>> for Circuit {
-    fn from(circuit: GrammarCircuit<'ast>) -> Self {
-        let circuit_name = Identifier::from(circuit.identifier);
-        let members = circuit.members.into_iter().map(CircuitMember::from).collect();
-
-        Self { circuit_name, members }
-    }
 }
 
 impl Circuit {
@@ -46,6 +36,12 @@ impl Circuit {
 }
 
 impl fmt::Debug for Circuit {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.format(f)
+    }
+}
+
+impl fmt::Display for Circuit {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.format(f)
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConsoleFunction, Node, Span};
-use leo_grammar::console::ConsoleFunctionCall as GrammarConsoleFunctionCall;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,15 +23,6 @@ use std::fmt;
 pub struct ConsoleStatement {
     pub function: ConsoleFunction,
     pub span: Span,
-}
-
-impl<'ast> From<GrammarConsoleFunctionCall<'ast>> for ConsoleStatement {
-    fn from(console: GrammarConsoleFunctionCall<'ast>) -> Self {
-        ConsoleStatement {
-            function: ConsoleFunction::from(console.function),
-            span: Span::from(console.span),
-        }
-    }
 }
 
 impl fmt::Display for ConsoleStatement {

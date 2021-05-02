@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,5 +16,6 @@
 
 mod program_input;
 mod program_input_and_program_state;
+mod program_input_constants;
 mod program_registers;
 mod program_state;

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Block, Expression, Node, Span, Statement};
-use leo_grammar::statements::{ConditionalNestedOrEndStatement, ConditionalStatement as GrammarConditionalStatement};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -26,25 +25,6 @@ pub struct ConditionalStatement {
     pub block: Block,
     pub next: Option<Box<Statement>>,
     pub span: Span,
-}
-
-impl<'ast> From<GrammarConditionalStatement<'ast>> for ConditionalStatement {
-    fn from(statement: GrammarConditionalStatement<'ast>) -> Self {
-        ConditionalStatement {
-            condition: Expression::from(statement.condition),
-            block: Block::from(statement.block),
-            next: statement
-                .next
-                .map(|nested_statement| match nested_statement {
-                    ConditionalNestedOrEndStatement::Nested(conditional_statement) => {
-                        Statement::Conditional(ConditionalStatement::from(*conditional_statement))
-                    }
-                    ConditionalNestedOrEndStatement::End(block) => Statement::Block(Block::from(block)),
-                })
-                .map(Box::new),
-            span: Span::from(statement.span),
-        }
-    }
 }
 
 impl fmt::Display for ConditionalStatement {

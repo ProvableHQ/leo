@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,9 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{AddressError, BooleanError, FieldError, GroupError, IntegerError};
-use leo_ast::{Error as FormattedError, Span};
-
-use std::path::Path;
+use leo_ast::{FormattedError, LeoError};
 
 #[derive(Debug, Error)]
 pub enum ValueError {
@@ -40,31 +38,4 @@ pub enum ValueError {
     IntegerError(#[from] IntegerError),
 }
 
-impl ValueError {
-    pub fn set_path(&mut self, path: &Path) {
-        match self {
-            ValueError::AddressError(error) => error.set_path(path),
-            ValueError::BooleanError(error) => error.set_path(path),
-            ValueError::Error(error) => error.set_path(path),
-            ValueError::FieldError(error) => error.set_path(path),
-            ValueError::GroupError(error) => error.set_path(path),
-            ValueError::IntegerError(error) => error.set_path(path),
-        }
-    }
-
-    fn new_from_span(message: String, span: Span) -> Self {
-        ValueError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    pub fn implicit(value: String, span: Span) -> Self {
-        let message = format!("explicit type needed for `{}`", value);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn implicit_group(span: Span) -> Self {
-        let message = "group coordinates should be in (x, y)group format".to_string();
-
-        Self::new_from_span(message, span)
-    }
-}
+impl LeoError for ValueError {}

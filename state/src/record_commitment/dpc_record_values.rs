@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -17,8 +17,7 @@
 use crate::{utilities::*, DPCRecordValuesError};
 use leo_ast::Record as AstRecord;
 
-use snarkvm_dpc::base_dpc::instantiated::Components;
-use snarkvm_objects::AccountAddress;
+use snarkvm_dpc::{base_dpc::instantiated::Components, AccountAddress};
 
 use std::{convert::TryFrom, str::FromStr};
 

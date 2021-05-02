@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -16,7 +16,6 @@
 
 use crate::{Expression, Node, Span};
 
-use leo_grammar::statements::ExpressionStatement as GrammarExpressionStatement;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -29,16 +28,6 @@ pub struct ExpressionStatement {
 impl fmt::Display for ExpressionStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{};", self.expression)
-    }
-}
-
-impl<'ast> From<GrammarExpressionStatement<'ast>> for ExpressionStatement {
-    fn from(statement: GrammarExpressionStatement<'ast>) -> Self {
-        // why do we have this span-setting logic?
-        let span = Span::from(statement.span);
-        let mut expression = Expression::from(statement.expression);
-        expression.set_span(span.clone());
-        ExpressionStatement { expression, span }
     }
 }
 

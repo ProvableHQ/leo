@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -27,3 +27,6 @@ pub use self::main_function::*;
 
 pub mod result;
 pub use self::result::*;
+
+pub mod mut_target;
+pub use self::mut_target::*;

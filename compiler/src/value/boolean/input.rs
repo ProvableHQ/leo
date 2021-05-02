@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -19,49 +19,36 @@
 use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_ast::{InputValue, Span};
 
-use snarkvm_errors::gadgets::SynthesisError;
-use snarkvm_models::{
-    curves::{Field, PrimeField},
-    gadgets::{
-        r1cs::ConstraintSystem,
-        utilities::{alloc::AllocGadget, boolean::Boolean},
-    },
-};
+use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::traits::utilities::{alloc::AllocGadget, boolean::Boolean};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
-pub(crate) fn new_bool_constant(string: String, span: &Span) -> Result<Boolean, BooleanError> {
-    let boolean = string
-        .parse::<bool>()
-        .map_err(|_| BooleanError::invalid_boolean(string, span.to_owned()))?;
-
-    Ok(Boolean::constant(boolean))
-}
-
-pub(crate) fn allocate_bool<F: Field + PrimeField, CS: ConstraintSystem<F>>(
+pub(crate) fn allocate_bool<F: PrimeField, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     option: Option<bool>,
     span: &Span,
 ) -> Result<Boolean, BooleanError> {
     Boolean::alloc(
-        cs.ns(|| format!("`{}: bool` {}:{}", name, span.line, span.start)),
+        cs.ns(|| format!("`{}: bool` {}:{}", name, span.line_start, span.col_start)),
         || option.ok_or(SynthesisError::AssignmentMissing),
     )
-    .map_err(|_| BooleanError::missing_boolean(format!("{}: bool", name), span.to_owned()))
+    .map_err(|_| BooleanError::missing_boolean(format!("{}: bool", name), span))
 }
 
-pub(crate) fn bool_from_input<F: Field + PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+pub(crate) fn bool_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<F, G>, BooleanError> {
+) -> Result<ConstrainedValue<'a, F, G>, BooleanError> {
     // Check that the input value is the correct type
     let option = match input_value {
         Some(input) => {
             if let InputValue::Boolean(bool) = input {
                 Some(bool)
             } else {
-                return Err(BooleanError::invalid_boolean(name.to_owned(), span.to_owned()));
+                return Err(BooleanError::invalid_boolean(name.to_owned(), span));
             }
         }
         None => None,

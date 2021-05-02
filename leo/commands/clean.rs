@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -14,45 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{cli::*, cli_types::*, errors::CLIError};
-use leo_package::{
-    outputs::{ChecksumFile, ProofFile, ProvingKeyFile, VerificationKeyFile},
-    root::Manifest,
-};
-
-use clap::ArgMatches;
+use crate::{commands::Command, context::Context};
 use leo_compiler::OutputFile;
-use leo_package::outputs::CircuitFile;
-use std::{convert::TryFrom, env::current_dir};
+use leo_package::outputs::{ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, VerificationKeyFile};
 
-#[derive(Debug)]
-pub struct CleanCommand;
+use anyhow::Result;
+use structopt::StructOpt;
+use tracing::span::Span;
 
-impl CLI for CleanCommand {
-    type Options = ();
+/// Clean outputs folder command
+#[derive(StructOpt, Debug)]
+#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
+pub struct Clean {}
+
+impl Command for Clean {
+    type Input = ();
     type Output = ();
 
-    const ABOUT: AboutType = "Clean the output directory";
-    const ARGUMENTS: &'static [ArgumentType] = &[];
-    const FLAGS: &'static [FlagType] = &[];
-    const NAME: NameType = "clean";
-    const OPTIONS: &'static [OptionType] = &[];
-    const SUBCOMMANDS: &'static [SubCommandType] = &[];
+    fn log_span(&self) -> Span {
+        tracing::span!(tracing::Level::INFO, "Cleaning")
+    }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn parse(_arguments: &ArgMatches) -> Result<Self::Options, CLIError> {
+    fn prelude(&self, _: Context) -> Result<Self::Input> {
         Ok(())
     }
 
-    #[cfg_attr(tarpaulin, skip)]
-    fn output(_options: Self::Options) -> Result<Self::Output, CLIError> {
-        // Begin "Clean" context for console logging
-        let span = tracing::span!(tracing::Level::INFO, "Cleaning");
-        let enter = span.enter();
-
-        // Get the package name
-        let path = current_dir()?;
-        let package_name = Manifest::try_from(path.as_path())?.get_package_name();
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+        let path = context.dir()?;
+        let package_name = context.manifest()?.get_package_name();
 
         // Remove the checksum from the output directory
         ChecksumFile::new(&package_name).remove(&path)?;
@@ -71,14 +60,6 @@ impl CLI for CleanCommand {
 
         // Remove the proof from the output directory
         ProofFile::new(&package_name).remove(&path)?;
-
-        // Drop "Compiling" context for console logging
-        drop(enter);
-
-        // Begin "Done" context for console logging
-        tracing::span!(tracing::Level::INFO, "Done").in_scope(|| {
-            tracing::info!("Program workspace cleaned\n");
-        });
 
         Ok(())
     }

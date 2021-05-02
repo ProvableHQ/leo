@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,13 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    assert_satisfied,
-    expect_compiler_error,
-    expect_synthesis_error,
-    field::field_to_decimal_string,
-    generate_main_input,
-    parse_program,
-    parse_program_with_input,
+    assert_satisfied, expect_compiler_error, expect_synthesis_error, field::field_to_decimal_string,
+    generate_main_input, parse_program, parse_program_with_input,
 };
 use leo_ast::{GroupCoordinate, GroupTuple, GroupValue, InputValue, Span};
 
@@ -44,10 +39,18 @@ pub fn group_element_to_input_value(g: EdwardsAffine) -> GroupValue {
     };
 
     GroupValue::Tuple(GroupTuple {
-        x: GroupCoordinate::Number(x, fake_span.clone()),
-        y: GroupCoordinate::Number(y, fake_span.clone()),
+        x: GroupCoordinate::Number(x, fake_span),
+        y: GroupCoordinate::Number(y, fake_span),
         span: fake_span,
     })
+}
+
+#[test]
+fn test_no_space_between_literal() {
+    let program_string = include_str!("no_space_between_literal.leo");
+    let mut program = parse_program(program_string).unwrap();
+
+    expect_compiler_error(program)
 }
 
 #[test]
@@ -391,5 +394,14 @@ fn test_ternary() {
 
     program.set_main_input(main_input);
 
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_positive_and_negative() {
+    let program_string = include_str!("positive_and_negative.leo");
+
+    let program = parse_program(program_string).unwrap();
+    
     assert_satisfied(program);
 }

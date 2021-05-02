@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Aleo Systems Inc.
+// Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
 // The Leo library is free software: you can redistribute it and/or modify
@@ -15,9 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ValueError;
-use leo_ast::{Error as FormattedError, Span, Type};
-
-use std::path::Path;
+use leo_asg::{AsgConvertError, Type};
+use leo_ast::{FormattedError, LeoError, Span};
 
 #[derive(Debug, Error)]
 pub enum OutputBytesError {
@@ -26,27 +25,25 @@ pub enum OutputBytesError {
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
+
+    #[error("{}", _0)]
+    AsgConvertError(#[from] AsgConvertError),
 }
 
-impl OutputBytesError {
-    pub fn set_path(&mut self, path: &Path) {
-        match self {
-            OutputBytesError::Error(error) => error.set_path(path),
-            OutputBytesError::ValueError(error) => error.set_path(path),
-        }
-    }
+impl LeoError for OutputBytesError {}
 
-    fn new_from_span(message: String, span: Span) -> Self {
+impl OutputBytesError {
+    fn new_from_span(message: String, span: &Span) -> Self {
         OutputBytesError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn not_enough_registers(span: Span) -> Self {
+    pub fn not_enough_registers(span: &Span) -> Self {
         let message = "number of input registers must be greater than or equal to output registers".to_string();
 
         Self::new_from_span(message, span)
     }
 
-    pub fn mismatched_output_types(left: Type, right: Type, span: Span) -> Self {
+    pub fn mismatched_output_types(left: &Type, right: &Type, span: &Span) -> Self {
         let message = format!(
             "Mismatched types. Expected register output type `{}`, found type `{}`.",
             left, right
