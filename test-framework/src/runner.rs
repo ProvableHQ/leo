@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use serde_yaml::Value;
-use std::{collections::BTreeMap, path::{Path, PathBuf}};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+};
 
 use crate::{error::*, fetch::find_tests, output::TestExpectation, test::*};
 
@@ -87,7 +90,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             .to_str()
             .unwrap()
             .to_string();
-            expectation_name += ".out";
+        expectation_name += ".out";
         expectation_path.push(&expectation_name);
 
         let test_name = relative_path
@@ -135,11 +138,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
         let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
         for (i, test) in tests.into_iter().enumerate() {
-            let expected_output = expected_output
-                .as_mut()
-                .map(|x| x.next())
-                .flatten()
-                .cloned();
+            let expected_output = expected_output.as_mut().map(|x| x.next()).flatten().cloned();
             let output = namespace.run_test(Test {
                 name: test_name.clone(),
                 content: test.clone(),

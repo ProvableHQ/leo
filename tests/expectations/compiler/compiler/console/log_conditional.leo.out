@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 127
+      num_constraints: 127
+      at: e0e639bf48906da80759e2f98e3205a68a63ae175dcd7c198fe3bf6b1650a84e
+      bt: 6b92443726163ac0fc32f7c9edace0ec8369e793d24105d93d121cb0bd5c3128
+      ct: 7cb2d3f0ccfb9a2e747c6a05bdb52812c4539c836ff62c4e555fac13ef2084d4
+    output:
+      - input_file: inputs/input_unequal.in
+        output:
+          registers: {}
+      - input_file: inputs/input_equal.in
+        output:
+          registers: {}

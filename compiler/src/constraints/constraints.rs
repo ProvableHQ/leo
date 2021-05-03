@@ -121,7 +121,9 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
                 let output = result?;
                 let output_file = OutputFile::new(&output_file_name);
 
-                output_file.write(output_directory, output.to_string().as_bytes()).unwrap();
+                output_file
+                    .write(output_directory, output.to_string().as_bytes())
+                    .unwrap();
 
                 // increment passed tests
                 passed += 1;

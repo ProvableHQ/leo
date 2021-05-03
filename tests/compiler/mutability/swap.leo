@@ -1,3 +1,15 @@
+/*
+namespace: Compile
+expectation: Pass
+inputs:
+ - swap.in: |
+    [main]
+    arr: [u32; 2] = [10, 8];
+
+    [registers]
+    r0: bool = false;
+*/
+
 // Swap two elements of an array.
 function swap(a: [u32; 2], const i: u32, const j: u32) -> [u32; 2] {
     const t = a[i];
@@ -6,15 +18,10 @@ function swap(a: [u32; 2], const i: u32, const j: u32) -> [u32; 2] {
     return a;
 }
 
-function main() {
-    let arr: [u32; 2] = [0, 1];
+function main(arr: [u32; 2]) -> bool {
     const expected: [u32; 2] = [1, 0];
-
-    // Do swap.
     const actual = swap(arr, 0, 1);
-
-    // Check result.
-    for i in 0..2 {
-        console.assert(expected[i] == actual[i]);
-    }
+    
+    // Do swap.
+    return expected[0] == actual[0] && expected[1] == actual[1];
 }

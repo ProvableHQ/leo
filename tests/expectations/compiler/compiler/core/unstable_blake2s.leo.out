@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 0
+      num_constraints: 0
+      at: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+      bt: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+      ct: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    output:
+      - input_file: blake.in
+        output:
+          registers:
+            r0:
+              type: "[u8; 32]"
+              value: "[213, 24, 235, 180, 216, 116, 28, 65, 88, 162, 204, 6, 23, 8, 66, 112, 214, 239, 242, 134, 165, 39, 172, 247, 65, 130, 155, 2, 97, 147, 14, 57]"

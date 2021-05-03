@@ -1,5 +1,3 @@
-use std::collections::BTreeMap;
-
 // Copyright (C) 2019-2021 Aleo Systems Inc.
 // This file is part of the Leo library.
 
@@ -15,6 +13,8 @@ use std::collections::BTreeMap;
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+use std::collections::BTreeMap;
 
 #[derive(serde::Serialize, serde::Deserialize, PartialEq, Debug, Clone)]
 pub enum TestExpectationMode {

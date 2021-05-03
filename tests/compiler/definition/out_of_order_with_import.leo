@@ -1,7 +1,14 @@
-test function fake_test() {}
+/*
+namespace: Compile
+expectation: Pass
+*/
+
+@test 
+function fake_test() {}
 
 function main() {}
 
-import test_import.foo;
+// use core import to test import order
+import core.unstable.blake2s.Blake2s;
 
 circuit Foo {}

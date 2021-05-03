@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /test/src/main.leo:8:12\n     |\n   8 |     return a == 0u32;\n     |            ^^^^^^^^^\n     |\n     = unexpected type, expected: '()', received: 'bool'"

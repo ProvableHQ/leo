@@ -1,3 +1,19 @@
+// Copyright (C) 2019-2021 Aleo Systems Inc.
+// This file is part of the Leo library.
+
+// The Leo library is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// The Leo library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
@@ -11,7 +27,6 @@ pub struct SummarizedCircuit {
 
     // pub public_variables: String,
     // pub private_variables: String,
-
     pub at: String,
     pub bt: String,
     pub ct: String,
@@ -34,12 +49,9 @@ impl From<SerializedCircuit> for SummarizedCircuit {
             //     .expect("failed to serialize public_variables")),
             // private_variables: hash_field(&serde_json::to_string(&other.private_variables)
             //     .expect("failed to serialize private_variables")),
-            at: hash_field(&serde_json::to_string(&other.at)
-                .expect("failed to serialize at")),   
-            bt: hash_field(&serde_json::to_string(&other.bt)
-                .expect("failed to serialize bt")),   
-            ct: hash_field(&serde_json::to_string(&other.ct)
-                .expect("failed to serialize ct")),   
+            at: hash_field(&serde_json::to_string(&other.at).expect("failed to serialize at")),
+            bt: hash_field(&serde_json::to_string(&other.bt).expect("failed to serialize bt")),
+            ct: hash_field(&serde_json::to_string(&other.ct).expect("failed to serialize ct")),
         }
     }
 }

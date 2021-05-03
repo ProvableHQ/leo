@@ -10,13 +10,13 @@ outputs:
       bt: 2194515882da93c79fa24d47c40fddc44f0284da25da7b89efb935c0ea7382f8
       ct: a0736e8c8f3bb1c39a147348754e53dfd31fd76a1df9cd9960472841bcc531df
     output:
-      - input_file: address1.in
+      - input_file: inputs/address1.in
         output:
           registers:
             a:
               type: bool
               value: "true"
-      - input_file: address2.in
+      - input_file: inputs/address2.in
         output:
           registers:
             a:

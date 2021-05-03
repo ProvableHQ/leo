@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 @test
 function fake_test() {}
 

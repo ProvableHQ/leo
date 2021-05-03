@@ -2,8 +2,8 @@
 namespace: Compile
 expectation: Pass
 input_file:
- - address1.in
- - address2.in
+ - inputs/address1.in
+ - inputs/address2.in
 */
 
 function main(x: address) -> bool {

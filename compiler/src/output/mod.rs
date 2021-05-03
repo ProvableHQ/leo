@@ -110,8 +110,6 @@ impl Output {
             });
         }
 
-        Ok(Output {
-            registers,
-        })
+        Ok(Output { registers })
     }
 }

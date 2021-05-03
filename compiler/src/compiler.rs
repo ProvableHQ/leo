@@ -16,7 +16,14 @@
 
 //! Compiles a Leo program from a file path.
 
-use crate::{CompilerOptions, GroupType, Output, OutputFile, constraints::{generate_constraints, generate_test_constraints}, errors::CompilerError};
+use crate::{
+    constraints::{generate_constraints, generate_test_constraints},
+    errors::CompilerError,
+    CompilerOptions,
+    GroupType,
+    Output,
+    OutputFile,
+};
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, FormattedError, Program as AsgProgram};
 use leo_ast::{Input, MainInput, Program as AstProgram};
@@ -322,7 +329,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'
 
         // Write results to file
         let output_file = OutputFile::new(&package_name);
-        output_file.write(&output_directory, result.to_string().as_bytes()).unwrap();
+        output_file
+            .write(&output_directory, result.to_string().as_bytes())
+            .unwrap();
 
         Ok(())
     }

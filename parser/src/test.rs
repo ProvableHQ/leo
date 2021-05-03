@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Expression, ExpressionStatement, Span, Statement, ValueExpression};
-use leo_test_framework::{Test, runner::{Namespace, ParseType, Runner}};
+use leo_test_framework::{
+    runner::{Namespace, ParseType, Runner},
+    Test,
+};
 use serde_yaml::Value;
 use tokenizer::Token;
 
