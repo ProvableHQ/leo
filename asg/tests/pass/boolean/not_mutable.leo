@@ -1,4 +1,4 @@
 function main () {
-    let b = false;
+    const b = false;
     const a = !b;
 }

@@ -172,6 +172,16 @@ impl AsgConvertError {
         )
     }
 
+    pub fn invalid_const_assign(name: &str, span: &Span) -> Self {
+        Self::new_from_span(
+            format!(
+                "failed to create const variable(s) '{}' with non constant values.",
+                name
+            ),
+            span,
+        )
+    }
+
     pub fn duplicate_function_definition(name: &str, span: &Span) -> Self {
         Self::new_from_span(
             format!("a function named \"{}\" already exists in this scope", name),

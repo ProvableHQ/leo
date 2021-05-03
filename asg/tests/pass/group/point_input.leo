@@ -1,3 +1,3 @@
 function main(a: group) {
-    const b = a;
+    let b = a;
 }
