@@ -1,4 +1,8 @@
-// Adding the `mut` keyword makes a circuit variable mutable.
+/*
+namespace: Compile
+expectation: Fail
+*/
+
 circuit Foo {
     function bar() {}
 }

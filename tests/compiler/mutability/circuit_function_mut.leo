@@ -1,9 +1,21 @@
-// Adding the `mut` keyword makes a circuit variable mutable.
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 circuit Foo {
-    function bar() {}
+    x: u32
+
+    function foo(mut self) {
+        self.x = 10;
+    }
 }
+
 
 function main() {
     let a = Foo { x: 1 };
-    a.bar = 0;
+    
+    a.foo();
+
+    console.assert(a.x == 10u32);
 }

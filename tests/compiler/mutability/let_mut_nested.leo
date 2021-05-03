@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 function main () {
     let x = 2u8;
     let y = x;

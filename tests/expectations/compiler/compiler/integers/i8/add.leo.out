@@ -1,0 +1,15 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 84
+      num_constraints: 85
+      at: ba62118a12c05f58b2123b680ac6ae62e348ecc5f6f05bf7a280aa2f0227568a
+      bt: 85916f4efb04caeb618ad35bc96528d6aeffd742b574cb93ed22ffcd46c87751
+      ct: 846591a223fd860defb812adf90d4d103f16e168465e64986ac960819b4fae52
+    output:
+      - input_file: i8.in
+        output:
+          registers: {}

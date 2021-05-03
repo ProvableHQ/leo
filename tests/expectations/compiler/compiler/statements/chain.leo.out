@@ -10,19 +10,19 @@ outputs:
       bt: 3ae01a0af5534bca6ad67bd2609a5370a4982c7f6d17fb8c285054c3d08f9c4f
       ct: 67836f65a02c595fcbf6d6a6d223a15e138d99a542390693ac4f582d073869e6
     output:
-      - input_file: u32_3.in
+      - input_file: inputs/u32_3.in
         output:
           registers:
             a:
               type: bool
               value: "true"
-      - input_file: u32_5.in
+      - input_file: inputs/u32_5.in
         output:
           registers:
             a:
               type: bool
               value: "false"
-      - input_file: u32_6.in
+      - input_file: inputs/u32_6.in
         output:
           registers:
             a:

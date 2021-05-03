@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 function main () {
     let x = 100i8;
     if false {

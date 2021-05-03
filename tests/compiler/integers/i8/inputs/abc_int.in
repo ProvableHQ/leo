@@ -1,0 +1,4 @@
+[main]
+a: i8 = 1;
+b: i8 = 2;
+c: bool = true;

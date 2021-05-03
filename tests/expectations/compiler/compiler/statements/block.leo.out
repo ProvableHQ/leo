@@ -10,7 +10,7 @@ outputs:
       bt: 54bbc6eb42c38f8bbb12360c98b483e782f47c2875d6b88b6ae2b7cd70220cf8
       ct: 52022ccbdc5119e02384f852f21e0ed0b6d729cb1cd18aea031f73037e467755
     output:
-      - input_file: u32_3.in
+      - input_file: inputs/u32_3.in
         output:
           registers:
             a:

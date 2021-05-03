@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /test/src/main.leo:4:13\n     |\n   4 |   const i = 1 i8;\n     |             ^\n     |\n     = Unexpected white space between terms 1 and i8"

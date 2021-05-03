@@ -1,4 +1,8 @@
-// Adding the `mut` keyword makes an array variable mutable.
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 function main() {
     let a = [(1u32, 2u32)];
     a[0u32].1 = 3u32;

@@ -10,13 +10,13 @@ outputs:
       bt: 6c9fd7d4b3947c363bdb576b2c2c827c3ebfe4c3b56eda2abb8a37e436b69638
       ct: c0d39de2b3b1c321288b265a4f0e72c13da3b07b0f5d61d14b66215440c56a42
     output:
-      - input_file: u32_3.in
+      - input_file: inputs/u32_3.in
         output:
           registers:
             a:
               type: bool
               value: "true"
-      - input_file: u32_5.in
+      - input_file: inputs/u32_5.in
         output:
           registers:
             a:
