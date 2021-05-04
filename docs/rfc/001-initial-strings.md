@@ -6,7 +6,7 @@
 - Collin Chin
 - Alessandro Coglio
 - Eric McCarthy
-- Pratyush Misra
+- Pratyush Mishra
 - Jon Pavlik
 - Damir Shamanaev
 - Damon Sicore
