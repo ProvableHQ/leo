@@ -45,9 +45,9 @@ to a future more flexible type of resizable strings.
 Strings (and characters) are common in programming languages.
 Use cases for Leo include
 simple ones like URLs and token ticker symbols,
-and more complex ones like
-edit distance in strings representing proteins
-and zero-knowledge proofs of occurrences of patterns in textual logs.
+and more complex ones like Bech32 encoding,
+edit distance in strings representing proteins,
+and zero-knowledge proofs of occurrences or absences of patterns in textual logs.
 _[TODO: Add more use cases if needed.]_
 
 # Design
@@ -87,6 +87,9 @@ We also allow Unicode escapes of the form `'\u{X}'`,
 where `X` is a sequence of one or more hex digits
 (both uppercase and lowercase letters are allowed)
 whose value must be between 0 and 10FFFFh.
+Note that the literal character is assembled by the compiler---for
+creating literals there is no need for the circuit to know
+which codepoints are disallowed.
 _[TODO: Do we want a different notation for Unicode escapes?
 Note that the `{` `}` delimiters are motivated by the fact that
 there may be a varying number of hex digits in this notation.]_
@@ -103,13 +106,13 @@ Existing array operations, such as element and range access,
 apply to these strings without the need of language extensions.
 
 To ease the common use case of writing a string value in the code,
-we add a new kind of literals for strings (i.e. character arrays),
+we add a new kind of literal for strings (i.e. character arrays),
 consisting of a sequence of one or more single characters or escapes
 surrounded by double quotes;
 this is just syntactic sugar.
 Any single Unicode character except double quote is allowed,
 e.g. `""`, `"Aleo"`, `"it's"`, and `"x + y"`.
-Double quotes must be escaped with backslash, e.g. `"say \"hi\"'`;
+Double quotes must be escaped with backslash, e.g. `"say \"hi\""`;
 backslashes must be escaped as well, e.g. `"c:\\dir"`.
 We allow the same backslash escapes allowed for character literals
 (see the section on characters above).
@@ -117,7 +120,7 @@ _[TODO: There is a difference in the treatment of single and double quotes:
 the former are allowed in string literals but not character literals,
 while the latter are allowed in character literals but not string literals;
 this asymmetry is also present in Java.
-However, for simplicity we may symmetrically disallow
+However, for simplicity we may want to symmetrically disallow
 both single and double quotes in both character and string literals.]_
 We also allow the same Unicode escapes allowed in character literals,
 (described in the section on characters above).
@@ -141,7 +144,23 @@ a richer type for strings,
 as disccused in the section about future extensions below.
 
 _[TODO: Which (initial) built-in or library operations
-do we want to provide for `[char; N]` values?]_
+do we want to provide for `[char; N]` values that are not already
+available with the existing array operations?]_
+* uint8 to [char; 2] hexstring, .., uint128 to [char; 32] hexstring
+* field element to [char; 64] hexstring. (Application can test leading zeros and slice them out if it needs to return, say, a 40-hex-digit string)
+* [TODO: more?]
+
+## Input and Output of Literal Characters and Strings
+
+Since UTF-8 is a standard encoding, it would make sense for
+the literal characters and strings in the .in file
+to be automatically converted to UTF-32 by the Leo compiler.
+However, the size of a string can be confusing, since multiple
+Unicode code points can be composed into a single glyph which
+then appears to be a single character.  If a parameter of type `[char; 10]`
+[if that is the syntax we decide on] is passed a literal string 
+of a different size, the error message should explain that the 
+size must be the number of codepoints needed to encode the string.
 
 ## Format Strings
 
@@ -153,6 +172,7 @@ In other words, a console print call
 will simply take a string literal as first argument,
 which will be interpreted as a format string
 according to the semantics of console print calls.
+The internal UTF-32 string will be translated to UTF-8 for output.
 
 ## Compilation to R1CS
 
