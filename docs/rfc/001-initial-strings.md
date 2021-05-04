@@ -146,14 +146,14 @@ as disccused in the section about future extensions below.
 _[TODO: Which (initial) built-in or library operations
 do we want to provide for `[char; N]` values that are not already
 available with the existing array operations?]_
-* u8 to [char; 2] hexstring, .., u128 to [char; 32] hexstring
-* field element to [char; 64] hexstring. (Application can test leading zeros and slice them out if it needs to return, say, a 40-hex-digit string)
-* [TODO: more?]
+* `u8` to `[char; 2]` hexstring, .., `u128` to `[char; 32]` hexstring
+* field element to `[char; 64]` hexstring. (Application can test leading zeros and slice them out if it needs to return, say, a 40-hex-digit string)
+* _[TODO: more?]_
 
 ## Input and Output of Literal Characters and Strings
 
 Since UTF-8 is a standard encoding, it would make sense for
-the literal characters and strings in the .in file
+the literal characters and strings in the `.in` file
 to be automatically converted to UTF-32 by the Leo compiler.
 However, the size of a string can be confusing, since multiple
 Unicode code points can be composed into a single glyph which
