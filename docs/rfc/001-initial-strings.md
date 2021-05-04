@@ -84,15 +84,16 @@ We allow other backslash escapes
 for commonly used characters that are not otherwise easily denoted,
 namely _[TODO: Decide which other escapes we want to allow, e.g. `'\n'`.]_
 We also allow Unicode escapes of the form `'\u{X}'`,
-where `X` is a sequence of one or more hex digits
+where `X` is a sequence of one to six hex digits
 (both uppercase and lowercase letters are allowed)
-whose value must be between 0 and 10FFFFh.
+whose value must be between 0 and 10FFFF, inclusive.
 Note that the literal character is assembled by the compiler---for
 creating literals there is no need for the circuit to know
 which codepoints are disallowed.
 _[TODO: Do we want a different notation for Unicode escapes?
 Note that the `{` `}` delimiters are motivated by the fact that
 there may be a varying number of hex digits in this notation.]_
+This notation is supported by both Javascript and Rust.
 
 _[TODO: Which (initial) built-in or library operations
 do we want to provide for `char` values?]_
