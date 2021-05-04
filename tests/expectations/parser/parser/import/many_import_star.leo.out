@@ -161,4 +161,5 @@ outputs:
           path: test
           content: import car.*;         // imports directory import
     circuits: {}
+    global_consts: {}
     functions: {}

@@ -176,6 +176,7 @@ impl Token {
             b'(' => return (1, Some(Token::LeftParen)),
             b')' => return (1, Some(Token::RightParen)),
             b'_' => return (1, Some(Token::Underscore)),
+            b'$' => return (1, Some(Token::Dollar)),
             b'*' => {
                 if let Some(len) = eat(input, "**") {
                     if let Some(inner_len) = eat(&input[len..], "=") {
@@ -307,6 +308,7 @@ impl Token {
                 ident.len(),
                 Some(match &*ident {
                     x if x.starts_with("aleo1") => Token::AddressLit(ident),
+                    "$" => Token::Address,
                     "address" => Token::Address,
                     "as" => Token::As,
                     "bool" => Token::Bool,

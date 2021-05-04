@@ -688,9 +688,16 @@ impl ParserContext {
             }
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
             Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
-            Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
             Token::LeftParen => self.parse_tuple_expression(&span)?,
             Token::LeftSquare => self.parse_array_expression(&span)?,
+            Token::Dollar => {
+                let SpannedToken { token, span } = self.expect_any()?;
+                if let Token::AddressLit(value) = token {
+                    return Ok(Expression::Value(ValueExpression::Address(value, span)));
+                } else {
+                    return Err(SyntaxError::unexpected_str(&token, "expression", &span));
+                }
+            }
             Token::Ident(name) => {
                 let ident = Identifier { name, span };
                 if !self.fuzzy_struct_state && self.peek_token().as_ref() == &Token::LeftCurly {

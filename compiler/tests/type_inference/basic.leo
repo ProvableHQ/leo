@@ -11,7 +11,7 @@ function main() {
   const b = 1field;
   const c = 1group;
   const d = (0, 1)group;
-  const e = aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
+  const e = $aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8;
   const f = two();
   const g = [0u8; (3, 2)];
   const h = [[0u8; 3]; 2];

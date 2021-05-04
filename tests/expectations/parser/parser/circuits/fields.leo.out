@@ -15,4 +15,5 @@ outputs:
           - CircuitVariable:
               - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    y: u32,\\\"}\"}"
               - IntegerType: U32
+    global_consts: {}
     functions: {}

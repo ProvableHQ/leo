@@ -132,4 +132,5 @@ outputs:
           path: test
           content: "import bar.( // imports directory import\n...\n    bat.bat.Bat,"
     circuits: {}
+    global_consts: {}
     functions: {}
