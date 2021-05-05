@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use super::build::BuildOptions;
 use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
@@ -37,6 +38,9 @@ use tracing::span::Span;
 pub struct Test {
     #[structopt(short = "f", long = "file", name = "file")]
     pub(crate) files: Vec<PathBuf>,
+
+    #[structopt(flatten)]
+    pub(crate) compiler_options: BuildOptions,
 }
 
 impl Command for Test {
@@ -107,6 +111,7 @@ impl Command for Test {
                 file_path,
                 output_directory.clone(),
                 thread_leaked_context(),
+                Some(self.compiler_options.clone().into()),
             )?;
 
             let temporary_program = program;

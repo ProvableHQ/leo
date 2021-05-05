@@ -100,7 +100,7 @@ version = "2.33.3"
 version = "2.0"
 
 [dependencies.dirs]
-version = "3.0.1"
+version = "3.0.2"
 
 [dependencies.console]
 version = "0.14.0"
@@ -156,6 +156,12 @@ version = "0.12.1"
 
 [dev-dependencies.rusty-hook]
 version = "0.11.2"
+
+[dev-dependencies.assert_cmd]
+version = "1.0.3"
+
+[dev-dependencies.test_dir]
+version = "0.1.0"
 
 [features]
 default = [ ]

@@ -26,6 +26,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn evaluate_ref(&mut self, variable_ref: &VariableRef) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         // Evaluate the identifier name in the current function scope
         let variable = variable_ref.variable.borrow();
+
         let result_value = if let Some(value) = self.get(variable.id) {
             value.clone()
         } else {

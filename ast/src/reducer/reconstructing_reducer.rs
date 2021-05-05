@@ -20,34 +20,26 @@ use indexmap::IndexMap;
 // Needed to fix clippy bug.
 #[allow(clippy::redundant_closure)]
 pub trait ReconstructingReducer {
-    fn reduce_type(
-        &mut self,
-        _type_: &Type,
-        new: Type,
-        _in_circuit: bool,
-        _span: &Span,
-    ) -> Result<Type, CanonicalizeError> {
+    fn in_circuit(&self) -> bool;
+    fn swap_in_circuit(&mut self);
+
+    fn reduce_type(&mut self, _type_: &Type, new: Type, _span: &Span) -> Result<Type, ReducerError> {
         Ok(new)
     }
 
     // Expressions
-    fn reduce_expression(
-        &mut self,
-        _expression: &Expression,
-        new: Expression,
-        _in_circuit: bool,
-    ) -> Result<Expression, CanonicalizeError> {
+    fn reduce_expression(&mut self, _expression: &Expression, new: Expression) -> Result<Expression, ReducerError> {
         Ok(new)
     }
 
-    fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier, CanonicalizeError> {
+    fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier, ReducerError> {
         Ok(Identifier {
             name: identifier.name.clone(),
             span: identifier.span.clone(),
         })
     }
 
-    fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> Result<GroupTuple, CanonicalizeError> {
+    fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> Result<GroupTuple, ReducerError> {
         Ok(GroupTuple {
             x: group_tuple.x.clone(),
             y: group_tuple.y.clone(),
@@ -55,11 +47,7 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_group_value(
-        &mut self,
-        _group_value: &GroupValue,
-        new: GroupValue,
-    ) -> Result<GroupValue, CanonicalizeError> {
+    fn reduce_group_value(&mut self, _group_value: &GroupValue, new: GroupValue) -> Result<GroupValue, ReducerError> {
         Ok(new)
     }
 
@@ -67,7 +55,7 @@ pub trait ReconstructingReducer {
         &mut self,
         _value: &ValueExpression,
         new: ValueExpression,
-    ) -> Result<ValueExpression, CanonicalizeError> {
+    ) -> Result<ValueExpression, ReducerError> {
         Ok(new)
     }
 
@@ -77,8 +65,7 @@ pub trait ReconstructingReducer {
         left: Expression,
         right: Expression,
         op: BinaryOperation,
-        _in_circuit: bool,
-    ) -> Result<BinaryExpression, CanonicalizeError> {
+    ) -> Result<BinaryExpression, ReducerError> {
         Ok(BinaryExpression {
             left: Box::new(left),
             right: Box::new(right),
@@ -92,8 +79,7 @@ pub trait ReconstructingReducer {
         unary: &UnaryExpression,
         inner: Expression,
         op: UnaryOperation,
-        _in_circuit: bool,
-    ) -> Result<UnaryExpression, CanonicalizeError> {
+    ) -> Result<UnaryExpression, ReducerError> {
         Ok(UnaryExpression {
             inner: Box::new(inner),
             op,
@@ -107,8 +93,7 @@ pub trait ReconstructingReducer {
         condition: Expression,
         if_true: Expression,
         if_false: Expression,
-        _in_circuit: bool,
-    ) -> Result<TernaryExpression, CanonicalizeError> {
+    ) -> Result<TernaryExpression, ReducerError> {
         Ok(TernaryExpression {
             condition: Box::new(condition),
             if_true: Box::new(if_true),
@@ -122,8 +107,7 @@ pub trait ReconstructingReducer {
         cast: &CastExpression,
         inner: Expression,
         target_type: Type,
-        _in_circuit: bool,
-    ) -> Result<CastExpression, CanonicalizeError> {
+    ) -> Result<CastExpression, ReducerError> {
         Ok(CastExpression {
             inner: Box::new(inner),
             target_type,
@@ -135,8 +119,7 @@ pub trait ReconstructingReducer {
         &mut self,
         array_inline: &ArrayInlineExpression,
         elements: Vec<SpreadOrExpression>,
-        _in_circuit: bool,
-    ) -> Result<ArrayInlineExpression, CanonicalizeError> {
+    ) -> Result<ArrayInlineExpression, ReducerError> {
         Ok(ArrayInlineExpression {
             elements,
             span: array_inline.span.clone(),
@@ -147,8 +130,7 @@ pub trait ReconstructingReducer {
         &mut self,
         array_init: &ArrayInitExpression,
         element: Expression,
-        _in_circuit: bool,
-    ) -> Result<ArrayInitExpression, CanonicalizeError> {
+    ) -> Result<ArrayInitExpression, ReducerError> {
         Ok(ArrayInitExpression {
             element: Box::new(element),
             dimensions: array_init.dimensions.clone(),
@@ -161,8 +143,7 @@ pub trait ReconstructingReducer {
         array_access: &ArrayAccessExpression,
         array: Expression,
         index: Expression,
-        _in_circuit: bool,
-    ) -> Result<ArrayAccessExpression, CanonicalizeError> {
+    ) -> Result<ArrayAccessExpression, ReducerError> {
         Ok(ArrayAccessExpression {
             array: Box::new(array),
             index: Box::new(index),
@@ -176,8 +157,7 @@ pub trait ReconstructingReducer {
         array: Expression,
         left: Option<Expression>,
         right: Option<Expression>,
-        _in_circuit: bool,
-    ) -> Result<ArrayRangeAccessExpression, CanonicalizeError> {
+    ) -> Result<ArrayRangeAccessExpression, ReducerError> {
         Ok(ArrayRangeAccessExpression {
             array: Box::new(array),
             left: left.map(|expr| Box::new(expr)),
@@ -190,8 +170,7 @@ pub trait ReconstructingReducer {
         &mut self,
         tuple_init: &TupleInitExpression,
         elements: Vec<Expression>,
-        _in_circuit: bool,
-    ) -> Result<TupleInitExpression, CanonicalizeError> {
+    ) -> Result<TupleInitExpression, ReducerError> {
         Ok(TupleInitExpression {
             elements,
             span: tuple_init.span.clone(),
@@ -202,8 +181,7 @@ pub trait ReconstructingReducer {
         &mut self,
         tuple_access: &TupleAccessExpression,
         tuple: Expression,
-        _in_circuit: bool,
-    ) -> Result<TupleAccessExpression, CanonicalizeError> {
+    ) -> Result<TupleAccessExpression, ReducerError> {
         Ok(TupleAccessExpression {
             tuple: Box::new(tuple),
             index: tuple_access.index.clone(),
@@ -216,8 +194,7 @@ pub trait ReconstructingReducer {
         _variable: &CircuitImpliedVariableDefinition,
         identifier: Identifier,
         expression: Option<Expression>,
-        _in_circuit: bool,
-    ) -> Result<CircuitImpliedVariableDefinition, CanonicalizeError> {
+    ) -> Result<CircuitImpliedVariableDefinition, ReducerError> {
         Ok(CircuitImpliedVariableDefinition { identifier, expression })
     }
 
@@ -226,8 +203,7 @@ pub trait ReconstructingReducer {
         circuit_init: &CircuitInitExpression,
         name: Identifier,
         members: Vec<CircuitImpliedVariableDefinition>,
-        _in_circuit: bool,
-    ) -> Result<CircuitInitExpression, CanonicalizeError> {
+    ) -> Result<CircuitInitExpression, ReducerError> {
         Ok(CircuitInitExpression {
             name,
             members,
@@ -240,8 +216,7 @@ pub trait ReconstructingReducer {
         circuit_member_access: &CircuitMemberAccessExpression,
         circuit: Expression,
         name: Identifier,
-        _in_circuit: bool,
-    ) -> Result<CircuitMemberAccessExpression, CanonicalizeError> {
+    ) -> Result<CircuitMemberAccessExpression, ReducerError> {
         Ok(CircuitMemberAccessExpression {
             circuit: Box::new(circuit),
             name,
@@ -254,8 +229,7 @@ pub trait ReconstructingReducer {
         circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
         circuit: Expression,
         name: Identifier,
-        _in_circuit: bool,
-    ) -> Result<CircuitStaticFunctionAccessExpression, CanonicalizeError> {
+    ) -> Result<CircuitStaticFunctionAccessExpression, ReducerError> {
         Ok(CircuitStaticFunctionAccessExpression {
             circuit: Box::new(circuit),
             name,
@@ -268,8 +242,7 @@ pub trait ReconstructingReducer {
         call: &CallExpression,
         function: Expression,
         arguments: Vec<Expression>,
-        _in_circuit: bool,
-    ) -> Result<CallExpression, CanonicalizeError> {
+    ) -> Result<CallExpression, ReducerError> {
         Ok(CallExpression {
             function: Box::new(function),
             arguments,
@@ -278,12 +251,7 @@ pub trait ReconstructingReducer {
     }
 
     // Statements
-    fn reduce_statement(
-        &mut self,
-        _statement: &Statement,
-        new: Statement,
-        _in_circuit: bool,
-    ) -> Result<Statement, CanonicalizeError> {
+    fn reduce_statement(&mut self, _statement: &Statement, new: Statement) -> Result<Statement, ReducerError> {
         Ok(new)
     }
 
@@ -291,8 +259,7 @@ pub trait ReconstructingReducer {
         &mut self,
         return_statement: &ReturnStatement,
         expression: Expression,
-        _in_circuit: bool,
-    ) -> Result<ReturnStatement, CanonicalizeError> {
+    ) -> Result<ReturnStatement, ReducerError> {
         Ok(ReturnStatement {
             expression,
             span: return_statement.span.clone(),
@@ -303,7 +270,7 @@ pub trait ReconstructingReducer {
         &mut self,
         variable_name: &VariableName,
         identifier: Identifier,
-    ) -> Result<VariableName, CanonicalizeError> {
+    ) -> Result<VariableName, ReducerError> {
         Ok(VariableName {
             mutable: variable_name.mutable,
             identifier,
@@ -317,8 +284,7 @@ pub trait ReconstructingReducer {
         variable_names: Vec<VariableName>,
         type_: Option<Type>,
         value: Expression,
-        _in_circuit: bool,
-    ) -> Result<DefinitionStatement, CanonicalizeError> {
+    ) -> Result<DefinitionStatement, ReducerError> {
         Ok(DefinitionStatement {
             declaration_type: definition.declaration_type.clone(),
             variable_names,
@@ -332,8 +298,7 @@ pub trait ReconstructingReducer {
         &mut self,
         _access: &AssigneeAccess,
         new: AssigneeAccess,
-        _in_circuit: bool,
-    ) -> Result<AssigneeAccess, CanonicalizeError> {
+    ) -> Result<AssigneeAccess, ReducerError> {
         Ok(new)
     }
 
@@ -342,8 +307,7 @@ pub trait ReconstructingReducer {
         assignee: &Assignee,
         identifier: Identifier,
         accesses: Vec<AssigneeAccess>,
-        _in_circuit: bool,
-    ) -> Result<Assignee, CanonicalizeError> {
+    ) -> Result<Assignee, ReducerError> {
         Ok(Assignee {
             identifier,
             accesses,
@@ -356,8 +320,7 @@ pub trait ReconstructingReducer {
         assign: &AssignStatement,
         assignee: Assignee,
         value: Expression,
-        _in_circuit: bool,
-    ) -> Result<AssignStatement, CanonicalizeError> {
+    ) -> Result<AssignStatement, ReducerError> {
         Ok(AssignStatement {
             operation: assign.operation.clone(),
             assignee,
@@ -372,8 +335,7 @@ pub trait ReconstructingReducer {
         condition: Expression,
         block: Block,
         statement: Option<Statement>,
-        _in_circuit: bool,
-    ) -> Result<ConditionalStatement, CanonicalizeError> {
+    ) -> Result<ConditionalStatement, ReducerError> {
         Ok(ConditionalStatement {
             condition,
             block,
@@ -389,8 +351,7 @@ pub trait ReconstructingReducer {
         start: Expression,
         stop: Expression,
         block: Block,
-        _in_circuit: bool,
-    ) -> Result<IterationStatement, CanonicalizeError> {
+    ) -> Result<IterationStatement, ReducerError> {
         Ok(IterationStatement {
             variable,
             start,
@@ -404,8 +365,7 @@ pub trait ReconstructingReducer {
         &mut self,
         console: &ConsoleStatement,
         function: ConsoleFunction,
-        _in_circuit: bool,
-    ) -> Result<ConsoleStatement, CanonicalizeError> {
+    ) -> Result<ConsoleStatement, ReducerError> {
         Ok(ConsoleStatement {
             function,
             span: console.span.clone(),
@@ -416,20 +376,14 @@ pub trait ReconstructingReducer {
         &mut self,
         expression_statement: &ExpressionStatement,
         expression: Expression,
-        _in_circuit: bool,
-    ) -> Result<ExpressionStatement, CanonicalizeError> {
+    ) -> Result<ExpressionStatement, ReducerError> {
         Ok(ExpressionStatement {
             expression,
             span: expression_statement.span.clone(),
         })
     }
 
-    fn reduce_block(
-        &mut self,
-        block: &Block,
-        statements: Vec<Statement>,
-        _in_circuit: bool,
-    ) -> Result<Block, CanonicalizeError> {
+    fn reduce_block(&mut self, block: &Block, statements: Vec<Statement>) -> Result<Block, ReducerError> {
         Ok(Block {
             statements,
             span: block.span.clone(),
@@ -444,13 +398,15 @@ pub trait ReconstructingReducer {
         imports: Vec<ImportStatement>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
-    ) -> Result<Program, CanonicalizeError> {
+        global_consts: IndexMap<String, DefinitionStatement>,
+    ) -> Result<Program, ReducerError> {
         Ok(Program {
             name: program.name.clone(),
             expected_input,
             imports,
             circuits,
             functions,
+            global_consts,
         })
     }
 
@@ -459,8 +415,7 @@ pub trait ReconstructingReducer {
         variable: &FunctionInputVariable,
         identifier: Identifier,
         type_: Type,
-        _in_circuit: bool,
-    ) -> Result<FunctionInputVariable, CanonicalizeError> {
+    ) -> Result<FunctionInputVariable, ReducerError> {
         Ok(FunctionInputVariable {
             identifier,
             const_: variable.const_,
@@ -474,8 +429,7 @@ pub trait ReconstructingReducer {
         &mut self,
         _input: &FunctionInput,
         new: FunctionInput,
-        _in_circuit: bool,
-    ) -> Result<FunctionInput, CanonicalizeError> {
+    ) -> Result<FunctionInput, ReducerError> {
         Ok(new)
     }
 
@@ -483,7 +437,7 @@ pub trait ReconstructingReducer {
         &mut self,
         _package_or_packages: &PackageOrPackages,
         new: PackageOrPackages,
-    ) -> Result<PackageOrPackages, CanonicalizeError> {
+    ) -> Result<PackageOrPackages, ReducerError> {
         Ok(new)
     }
 
@@ -491,7 +445,7 @@ pub trait ReconstructingReducer {
         &mut self,
         import: &ImportStatement,
         package_or_packages: PackageOrPackages,
-    ) -> Result<ImportStatement, CanonicalizeError> {
+    ) -> Result<ImportStatement, ReducerError> {
         Ok(ImportStatement {
             package_or_packages,
             span: import.span.clone(),
@@ -502,7 +456,7 @@ pub trait ReconstructingReducer {
         &mut self,
         _circuit_member: &CircuitMember,
         new: CircuitMember,
-    ) -> Result<CircuitMember, CanonicalizeError> {
+    ) -> Result<CircuitMember, ReducerError> {
         Ok(new)
     }
 
@@ -511,15 +465,11 @@ pub trait ReconstructingReducer {
         _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
-    ) -> Result<Circuit, CanonicalizeError> {
+    ) -> Result<Circuit, ReducerError> {
         Ok(Circuit { circuit_name, members })
     }
 
-    fn reduce_annotation(
-        &mut self,
-        annotation: &Annotation,
-        name: Identifier,
-    ) -> Result<Annotation, CanonicalizeError> {
+    fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation, ReducerError> {
         Ok(Annotation {
             span: annotation.span.clone(),
             name,
@@ -536,8 +486,7 @@ pub trait ReconstructingReducer {
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
-        _in_circuit: bool,
-    ) -> Result<Function, CanonicalizeError> {
+    ) -> Result<Function, ReducerError> {
         Ok(Function {
             identifier,
             annotations,

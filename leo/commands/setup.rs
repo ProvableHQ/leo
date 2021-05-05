@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::build::Build;
+use super::build::{Build, BuildOptions};
 use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::outputs::{ProvingKeyFile, VerificationKeyFile};
@@ -35,6 +35,9 @@ use tracing::span::Span;
 pub struct Setup {
     #[structopt(long = "skip-key-check", help = "Skip key verification")]
     pub(crate) skip_key_check: bool,
+
+    #[structopt(flatten)]
+    pub(crate) compiler_options: BuildOptions,
 }
 
 impl Command for Setup {
@@ -50,7 +53,10 @@ impl Command for Setup {
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
-        (Build {}).execute(context)
+        (Build {
+            compiler_options: self.compiler_options.clone(),
+        })
+        .execute(context)
     }
 
     fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
@@ -58,8 +64,7 @@ impl Command for Setup {
         let package_name = context.manifest()?.get_package_name();
 
         // Check if leo build failed
-        let (program, checksum_differs) =
-            input.ok_or_else(|| anyhow!("Unable to build, check that main file exists"))?;
+        let (program, checksum_differs) = input;
 
         // Check if a proving key and verification key already exists
         let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)

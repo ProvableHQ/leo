@@ -18,7 +18,7 @@ use crate::{commands::Command, config::*, context::Context};
 use leo_package::LeoPackage;
 
 use anyhow::{anyhow, Result};
-use std::{env::current_dir, fs};
+use std::fs;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -42,7 +42,7 @@ impl Command for New {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Check that the given package name is valid.
         let package_name = self.name;
         if !LeoPackage::is_package_name_valid(&package_name) {
@@ -52,7 +52,7 @@ impl Command for New {
         let username = read_username().ok();
 
         // Derive the package directory path.
-        let mut path = current_dir()?;
+        let mut path = context.dir()?;
         path.push(&package_name);
 
         // Verify the package directory path does not exist yet.
@@ -63,7 +63,7 @@ impl Command for New {
         // Create the package directory
         fs::create_dir_all(&path).map_err(|err| anyhow!("Could not create directory {}", err))?;
 
-        LeoPackage::initialize(&package_name, false, &path, username)?;
+        LeoPackage::initialize(&package_name, &path, username)?;
 
         Ok(())
     }

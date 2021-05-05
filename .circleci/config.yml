@@ -158,6 +158,19 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-add-remove.sh
 
+  leo-check-constraints:
+    docker:
+      - image: cimg/rust:1.50.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo check constraints for Pedersen Hash
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-check-constraints.sh
+
   leo-login-logout:
     docker:
       - image: cimg/rust:1.51.0
@@ -171,18 +184,18 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-login-logout.sh
 
-#  leo-clone:
-#    docker:
-#      - image: cimg/rust:1.51.0
-#    resource_class: xlarge
-#    steps:
-#      - attach_workspace:
-#          at: /home/circleci/project/
-#      - run:
-#          name: leo clone
-#          command: |
-#            export LEO=/home/circleci/project/project/bin/leo
-#            ./project/.circleci/leo-clone.sh
+  leo-clone:
+    docker:
+      - image: cimg/rust:1.51.0
+    resource_class: xlarge
+    steps:
+      - attach_workspace:
+          at: /home/circleci/project/
+      - run:
+          name: leo clone
+          command: |
+            export LEO=/home/circleci/project/project/bin/leo
+            ./project/.circleci/leo-clone.sh
 
   leo-publish:
     docker:
@@ -219,12 +232,15 @@ workflows:
       - leo-add-remove:
           requires:
             - leo-executable
+      - leo-check-constraints:
+          requires:
+            - leo-executable
       - leo-login-logout:
           requires:
             - leo-executable
-#      - leo-clone:
-#          requires:
-#            - leo-executable
+      - leo-clone:
+          requires:
+            - leo-executable
       - leo-publish:
           requires:
             - leo-executable

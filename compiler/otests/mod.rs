@@ -37,6 +37,7 @@ pub mod mutability;
 pub mod statements;
 pub mod syntax;
 pub mod tuples;
+pub mod type_inference;
 
 use leo_asg::{new_alloc_context, new_context, AsgContext};
 use leo_ast::{InputValue, MainInput};
@@ -71,7 +72,7 @@ fn new_compiler() -> EdwardsTestCompiler {
     let path = PathBuf::from("/test/src/main.leo");
     let output_dir = PathBuf::from(TEST_OUTPUT_DIRECTORY);
 
-    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context())
+    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None)
 }
 
 pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {

@@ -1,30 +1,18 @@
-Leo Library
+Copyright (C) 2019-2021 Aleo Systems Inc.
+This file is part of the Leo library.
 
+The Leo library is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
+The Leo library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
 
-Copyright (C) 2021 Aleo Systems Inc.
-
-
---------
-
-
-Format Note
------------
-
-The ABNF standard requires grammars to consist of lines terminated by CR LF
-(i.e. carriage return followed by line feed, DOS/Windows-style),
-as explained in the background on ABNF later in this file.
-This file's lines are therefore terminated by CR LF.
-To avoid losing this requirement across systems,
-this file is marked as 'text eol=crlf' in .gitattributes:
-this means that the file is textual, enabling visual diffs,
-but its lines will always be terminated by CR LF on any system.
-
-Note that this CR LF requirement only applies to the grammar files themselves.
-It does not apply to the lines of the languages described by the grammar.
-ABNF grammars may describe any kind of languages,
-with any kind of line terminators,
-or even without line terminators at all (e.g. for "binary" languages).
+You should have received a copy of the GNU General Public License
+along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 
 --------
@@ -69,59 +57,59 @@ without going beyond context-free grammars.
 
 Instead of BNF's angle-bracket notation for nonterminals,
 ABNF uses case-insensitive names consisting of letters, digits, and dashes,
-e.g. HTTP-message and IPv6address.
+e.g. `HTTP-message` and `IPv6address`.
 ABNF includes an angle-bracket notation for prose descriptions,
-e.g. <host, see [RFC3986], Section 3.2.2>,
+e.g. `<host, see [RFC3986], Section 3.2.2>`,
 usable as last resort in the definiens of a nonterminal.
 
 While BNF allows arbitrary terminals,
 ABNF uses only natural numbers as terminals,
 and denotes them via:
 (i) binary, decimal, or hexadecimal sequences,
-e.g. %b1.11.1010, %d1.3.10, and %x.1.3.A
-all denote the sequence of terminals '1 3 10';
+e.g. `%b1.11.1010`, `%d1.3.10`, and `%x.1.3.A`
+all denote the sequence of terminals [1, 3, 10];
 (ii) binary, decimal, or hexadecimal ranges,
-e.g. %x30-39 denotes any singleton sequence of terminals
-'n' with 48 <= n <= 57 (an ASCII digit);
+e.g. `%x30-39` denotes any singleton sequence of terminals
+[_n_] with 48 <= _n_ <= 57 (an ASCII digit);
 (iii) case-sensitive ASCII strings,
-e.g. %s"Ab" denotes the sequence of terminals '65 98';
+e.g. `%s"Ab"` denotes the sequence of terminals [65, 98];
 and (iv) case-insensitive ASCII strings,
-e.g. %i"ab", or just "ab", denotes
+e.g. `%i"ab"`, or just `"ab"`, denotes
 any sequence of terminals among
-'65 66',
-'65 98',
-'97 66', and
-'97 98'.
+[65, 66],
+[65, 98],
+[97, 66], and
+[97, 98].
 ABNF terminals in suitable sets represent ASCII or Unicode characters.
 
-ABNF allows repetition prefixes n*m,
-where n and m are natural numbers in decimal notation;
+ABNF allows repetition prefixes `n*m`,
+where `n` and `m` are natural numbers in decimal notation;
 if absent,
-n defaults to 0, and
-m defaults to infinity.
+`n` defaults to 0, and
+`m` defaults to infinity.
 For example,
-1*4HEXDIG denotes one to four HEXDIGs,
-*3DIGIT denotes up to three DIGITs, and
-1*OCTET denotes one or more OCTETs.
-A single n prefix
-abbreviates n*n,
-e.g. 3DIGIT denotes three DIGITs.
+`1*4HEXDIG` denotes one to four `HEXDIG`s,
+`*3DIGIT` denotes up to three `DIGIT`s, and
+`1*OCTET` denotes one or more `OCTET`s.
+A single `n` prefix
+abbreviates `n*n`,
+e.g. `3DIGIT` denotes three `DIGIT`s.
 
-Instead of BNF's |, ABNF uses / to separate alternatives.
+Instead of BNF's `|`, ABNF uses `/` to separate alternatives.
 Repetition prefixes have precedence over juxtapositions,
-which have precedence over /.
+which have precedence over `/`.
 Round brackets group things and override the aforementioned precedence rules,
-e.g. *(WSP / CRLF WSP) denotes sequences of terminals
+e.g. `*(WSP / CRLF WSP)` denotes sequences of terminals
 obtained by repeating, zero or more times,
-either (i) a WSP or (ii) a CRLF followed by a WSP.
+either (i) a `WSP` or (ii) a `CRLF` followed by a `WSP`.
 Square brackets also group things but make them optional,
-e.g. [":" port] is equivalent to 0*1(":" port).
+e.g. `[":" port]` is equivalent to `0*1(":" port)`.
 
-Instead of BNF's ::=, ABNF uses = to define nonterminals,
-and =/ to incrementally add alternatives
+Instead of BNF's `::=`, ABNF uses `=` to define nonterminals,
+and `=/` to incrementally add alternatives
 to previously defined nonterminals.
-For example, the rule BIT = "0" / "1"
-is equivalent to BIT = "0" followed by BIT =/ "1".
+For example, the rule `BIT = "0" / "1"`
+is equivalent to `BIT = "0"` followed by `BIT =/ "1"`.
 
 The syntax of ABNF itself is formally specified in ABNF
 (in Section 4 of the aforementioned RFC 5234,
@@ -143,7 +131,7 @@ Structure
 This ABNF grammar consists of two (sub-)grammars:
 (i) a lexical grammar that describes how
 sequence of characters are parsed into tokens, and
-(ii) a syntactic grammar that described how
+(ii) a syntactic grammar that describes how
 tokens are parsed into expressions, statements, etc.
 The adjectives 'lexical' and 'syntactic' are
 the same ones used in the Java language reference,
@@ -210,8 +198,8 @@ additive-expression =
 
 
 These rules tell us
-that the additive operators '+' and '-' have lower precedence
-than the multiplicative operators '*' and '/',
+that the additive operators `+` and `-` have lower precedence
+than the multiplicative operators `*` and `/`,
 and that both the additive and multiplicative operators associate to the left.
 This may be best understood via the examples given below.
 
@@ -307,7 +295,7 @@ Naming Convention
 This ABNF grammar uses nonterminal names
 that consist of complete English words, separated by dashes,
 and that describe the construct the way it is in English.
-For instance, we use the name 'conditional-statement'
+For instance, we use the name `conditional-statement`
 to describe conditional statements.
 
 At the same time, this grammar establishes
@@ -366,8 +354,8 @@ Lexical Grammar
 
 A Leo file is a finite sequence of Unicode characters,
 represented as Unicode code points,
-which are numbers in the range form 0 to 10FFFFh.
-These are captured by the ABNF rule 'character' below.
+which are numbers in the range from 0 to 10FFFFh.
+These are captured by the ABNF rule `character` below.
 
 The lexical grammar defines how, at least conceptually,
 the sequence of characters is turned into
@@ -375,20 +363,20 @@ a sequence of tokens, comments, and whitespaces:
 these entities are all defined by the grammar rules below.
 
 As stated, the lexical grammar alone is ambiguous.
-For example, the sequence of characters '**' (i.e. two stars)
-could be equally parsed as two '*' symbol tokens or one '**' symbol token
-(see rule for 'symbol' below).
-As another example, the sequence or characters '<CR><LF>'
+For example, the sequence of characters `**` (i.e. two stars)
+could be equally parsed as two `*` symbol tokens or one `**` symbol token
+(see rule for `symbol` below).
+As another example, the sequence or characters `<CR><LF>`
 (i.e. carriage return followed by line feed)
 could be equally parsed as two line terminators or one
-(see rule for 'newline').
+(see rule for `newline`).
 
 Thus, as often done in language syntax definitions,
 the lexical grammar is disambiguated by
 the extra-grammatical requirement that
 the longest possible sequence of characters is always parsed.
-This way, '**' must be parsed as one '**' symbol token,
-and '<CR><LF>' must be parsed as one line terminator.
+This way, `**` must be parsed as one `**` symbol token,
+and `<CR><LF>` must be parsed as one line terminator.
 
 As mentioned above, a character is any Unicode code point.
 This grammar does not say how those are encoded in files (e.g. UTF-8):
@@ -405,27 +393,27 @@ We give names to certain ASCII characters.
 
 <a name="horizontal-tab"></a>
 ```abnf
-horizontal-tab = %x9
+horizontal-tab = %x9   ; <HT>
 ```
 
 <a name="line-feed"></a>
 ```abnf
-line-feed = %xA
+line-feed = %xA   ; <LF>
 ```
 
 <a name="carriage-return"></a>
 ```abnf
-carriage-return = %xD
+carriage-return = %xD   ; <CR>
 ```
 
 <a name="space"></a>
 ```abnf
-space = %x20
+space = %x20   ; <SP>
 ```
 
 <a name="double-quote"></a>
 ```abnf
-double-quote = %x22
+double-quote = %x22   ; "
 ```
 
 We give names to complements of certain ASCII characters.
@@ -444,12 +432,25 @@ not-star = %x0-29 / %x2B-10FFFF   ; anything but *
 <a name="not-line-feed-or-carriage-return"></a>
 ```abnf
 not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
-                                   ; anything but LF or CR
+                                   ; anything but <LF> or <CR>
+```
+
+<a name="not-double-quote-or-open-brace"></a>
+```abnf
+not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
+                                 ; anything but " or {
+```
+
+<a name="not-double-quote-or-close-brace"></a>
+```abnf
+not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
+                                  ; anything but " or }
 ```
 
 <a name="not-star-or-slash"></a>
 ```abnf
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF   ; anything but * or /
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF
+                    ; anything but * or /
 ```
 
 Lines in Leo may be terminated via
@@ -475,16 +476,16 @@ Line terminators form whitespace, along with spaces and horizontal tabs.
 whitespace = space / horizontal-tab / newline
 ```
 
-Go to: _[newline](#user-content-newline), [space](#user-content-space), [horizontal-tab](#user-content-horizontal-tab)_;
+Go to: _[space](#user-content-space), [newline](#user-content-newline), [horizontal-tab](#user-content-horizontal-tab)_;
 
 
 There are two kinds of comments in Leo, as in other languages.
-One is block comments of the form '/* ... */',
-and the other is end-of-line comments of the form '// ...'.
-The first kind start at '/*' and end at the first '*/',
+One is block comments of the form `/* ... */`,
+and the other is end-of-line comments of the form `// ...`.
+The first kind start at `/*` and end at the first `*/`,
 possibly spanning multiple (partial) lines;
 these do no nest.
-The second kind start at '//' and extend till the end of the line.
+The second kind start at `//` and extend till the end of the line.
 The rules about comments given below are similar to
 the ones used in the Java language reference.
 
@@ -493,7 +494,7 @@ the ones used in the Java language reference.
 comment = block-comment / end-of-line-comment
 ```
 
-Go to: _[end-of-line-comment](#user-content-end-of-line-comment), [block-comment](#user-content-block-comment)_;
+Go to: _[block-comment](#user-content-block-comment), [end-of-line-comment](#user-content-end-of-line-comment)_;
 
 
 <a name="block-comment"></a>
@@ -510,7 +511,7 @@ rest-of-block-comment = "*" rest-of-block-comment-after-star
                       / not-star rest-of-block-comment
 ```
 
-Go to: _[not-star](#user-content-not-star), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star), [rest-of-block-comment](#user-content-rest-of-block-comment)_;
+Go to: _[rest-of-block-comment](#user-content-rest-of-block-comment), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star), [not-star](#user-content-not-star)_;
 
 
 <a name="rest-of-block-comment-after-star"></a>
@@ -520,7 +521,7 @@ rest-of-block-comment-after-star = "/"
                                  / not-star-or-slash rest-of-block-comment
 ```
 
-Go to: _[rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star), [not-star-or-slash](#user-content-not-star-or-slash), [rest-of-block-comment](#user-content-rest-of-block-comment)_;
+Go to: _[rest-of-block-comment](#user-content-rest-of-block-comment), [not-star-or-slash](#user-content-not-star-or-slash), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star)_;
 
 
 <a name="end-of-line-comment"></a>
@@ -595,16 +596,19 @@ lowercase-letter = %x61-7A   ; a-z
 letter = uppercase-letter / lowercase-letter
 ```
 
-Go to: _[uppercase-letter](#user-content-uppercase-letter), [lowercase-letter](#user-content-lowercase-letter)_;
+Go to: _[lowercase-letter](#user-content-lowercase-letter), [uppercase-letter](#user-content-uppercase-letter)_;
 
 
 An identifier is a non-empty sequence of letters, digits, and underscores,
 starting with a letter.
-It must not be a keyword: this is an extra-grammatical constraint.
+It must not be a keyword: this is an extra-grammatical requirement.
+It must also not be or start with `aleo1`,
+because that is used for address literals:
+this is another extra-grammatical requirement.
 
 <a name="identifier"></a>
 ```abnf
-identifier = letter *( letter / digit / "_" )   ; but not a keyword
+identifier = letter *( letter / digit / "_" )   ; but not a keyword or aleo1...
 ```
 
 Go to: _[letter](#user-content-letter)_;
@@ -621,29 +625,14 @@ package-name = 1*( lowercase-letter / digit )
 
 A format string is a sequence of characters, other than double quote,
 surrounded by double quotes.
-Within a format string, sub-strings '{}' are distinguished as containers
+Within a format string, sub-strings `{}` are distinguished as containers
 (these are the ones that may be matched with values
 whose textual representation replaces the containers
 in the printed string).
-There is an implicit extra-grammatical requirements that
-the explicit 'format-string-container' instances include
-all the occurrences of '{}' in the parsed character sequence:
-that is, there may not be two contiguous 'not-double-quote' instances
-that are '{' and '}'.
 
 <a name="format-string-container"></a>
 ```abnf
 format-string-container = "{}"
-```
-
-<a name="not-double-quote-or-open-brace"></a>
-```abnf
-not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
-```
-
-<a name="not-double-quote-or-close-brace"></a>
-```abnf
-not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
 ```
 
 <a name="format-string-element"></a>
@@ -653,7 +642,7 @@ format-string-element = not-double-quote-or-open-brace
                       / format-string-container
 ```
 
-Go to: _[not-double-quote-or-open-brace](#user-content-not-double-quote-or-open-brace), [format-string-container](#user-content-format-string-container), [not-double-quote-or-close-brace](#user-content-not-double-quote-or-close-brace)_;
+Go to: _[format-string-container](#user-content-format-string-container), [not-double-quote-or-open-brace](#user-content-not-double-quote-or-open-brace), [not-double-quote-or-close-brace](#user-content-not-double-quote-or-close-brace)_;
 
 
 <a name="format-string"></a>
@@ -664,43 +653,7 @@ format-string = double-quote *format-string-element double-quote
 Go to: _[double-quote](#user-content-double-quote)_;
 
 
-Here is (part of this ABNF comment),
-an alternative way to specify format strings,
-which captures the extra-grammatical requirement above in the grammar,
-but is more complicated:
-
-
-
-```
-not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
-```
-
-
-
-```
-not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
-```
-
-
-
-```
-format-string-element = not-double-quote-or-open-brace
-                         / "{" not-double-quote-or-close-brace
-                         / format-string-container
-```
-
-
-
-```
-format-string = double-quote *format-string-element double-quote
-```
-
-
-
-It is not immediately clear which approach is better; there are tradeoffs.
-We may choose to adopt this one in future revisions of the grammar.
-
-Annotations have names, which are identifiers immediately preceded by '@'.
+Annotations have names, which are identifiers immediately preceded by `@`.
 
 <a name="annotation-name"></a>
 ```abnf
@@ -711,7 +664,7 @@ Go to: _[identifier](#user-content-identifier)_;
 
 
 A natural (number) is a sequence of one or more digits.
-We allow leading zeros, e.g. '007'.
+We allow leading zeros, e.g. `007`.
 
 <a name="natural"></a>
 ```abnf
@@ -719,7 +672,7 @@ natural = 1*digit
 ```
 
 An integer (number) is either a natural or its negation.
-We allow leading zeros also in negative numbers, e.g. '-007'.
+We allow leading zeros also in negative numbers, e.g. `-007`.
 
 <a name="integer"></a>
 ```abnf
@@ -790,7 +743,7 @@ Boolean literals are the usual two.
 boolean-literal = %s"true" / %s"false"
 ```
 
-An address literal starts with 'aleo1'
+An address literal starts with `aleo1`
 and continues with exactly 58 lowercase letters and digits.
 Thus an address always consists of 63 characters.
 
@@ -814,49 +767,21 @@ atomic-literal = untyped-literal
                / address-literal
 ```
 
-Go to: _[product-group-literal](#user-content-product-group-literal), [untyped-literal](#user-content-untyped-literal), [signed-literal](#user-content-signed-literal), [field-literal](#user-content-field-literal), [boolean-literal](#user-content-boolean-literal), [address-literal](#user-content-address-literal), [unsigned-literal](#user-content-unsigned-literal)_;
+Go to: _[product-group-literal](#user-content-product-group-literal), [signed-literal](#user-content-signed-literal), [unsigned-literal](#user-content-unsigned-literal), [field-literal](#user-content-field-literal), [boolean-literal](#user-content-boolean-literal), [untyped-literal](#user-content-untyped-literal), [address-literal](#user-content-address-literal)_;
 
 
 After defining the (mostly) alphanumeric tokens above,
-it remains to define tokens for non-alphanumeric symbols such as "+" and "(".
+it remains to define tokens for non-alphanumeric symbols such as `+` and `(`.
 Different programming languages used different terminologies for these,
 e.g. operators, separators, punctuators, etc.
-Here we use 'symbol', for all of them.
+Here we use `symbol`, for all of them.
 We also include a token consisting of
-a closing parenthesis immediately followed by 'group':
+a closing parenthesis `)` immediately followed by `group`:
 as defined in the syntactic grammar,
 this is the final part of an affine group literal;
 even though it includes letters,
 it seems appropriate to still consider it a symbol,
 particularly since it starts with a proper symbol.
-
-We could give names to all of these symbols,
-via rules such as
-
-
-
-```
-equality-operator = "=="
-```
-
-
-
-and defining 'symbol' in terms of those
-
-
-
-```
-symbol = ... / equality-operator / ...
-```
-
-
-
-This may or may not make the grammar more readable,
-but it would help establish a terminology in the grammar,
-namely the exact names of some of these token.
-On the other hand, at least some of them are perhaps simple enough
-that they could be just described in terms of their symbols,
-e.g. 'double dot', 'question mark', etc.
 
 <a name="symbol"></a>
 ```abnf
@@ -887,7 +812,7 @@ token = keyword
       / symbol
 ```
 
-Go to: _[package-name](#user-content-package-name), [annotation-name](#user-content-annotation-name), [atomic-literal](#user-content-atomic-literal), [format-string](#user-content-format-string), [keyword](#user-content-keyword), [symbol](#user-content-symbol), [identifier](#user-content-identifier)_;
+Go to: _[package-name](#user-content-package-name), [annotation-name](#user-content-annotation-name), [format-string](#user-content-format-string), [keyword](#user-content-keyword), [atomic-literal](#user-content-atomic-literal), [identifier](#user-content-identifier), [symbol](#user-content-symbol)_;
 
 
 
@@ -923,7 +848,7 @@ signed-type = %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128"
 integer-type = unsigned-type / signed-type
 ```
 
-Go to: _[unsigned-type](#user-content-unsigned-type), [signed-type](#user-content-signed-type)_;
+Go to: _[signed-type](#user-content-signed-type), [unsigned-type](#user-content-unsigned-type)_;
 
 
 The integer types, along with the field and group types,
@@ -965,10 +890,10 @@ address-type = %s"address"
 scalar-type =  boolean-type / arithmetic-type / address-type
 ```
 
-Go to: _[address-type](#user-content-address-type), [boolean-type](#user-content-boolean-type), [arithmetic-type](#user-content-arithmetic-type)_;
+Go to: _[arithmetic-type](#user-content-arithmetic-type), [address-type](#user-content-address-type), [boolean-type](#user-content-boolean-type)_;
 
 
-Circuit types are denoted by identifiers and the keyword 'Self'.
+Circuit types are denoted by identifiers and the keyword `Self`.
 The latter is only allowed inside a circuit definition,
 to denote the circuit being defined.
 
@@ -982,7 +907,7 @@ self-type = %s"Self"
 circuit-type = identifier / self-type
 ```
 
-Go to: _[self-type](#user-content-self-type), [identifier](#user-content-identifier)_;
+Go to: _[identifier](#user-content-identifier), [self-type](#user-content-self-type)_;
 
 
 A tuple type consists of zero, two, or more component types.
@@ -1005,7 +930,7 @@ or a tuple of one or more dimensions.
 array-type = "[" type ";" array-dimensions "]"
 ```
 
-Go to: _[array-dimensions](#user-content-array-dimensions), [type](#user-content-type)_;
+Go to: _[type](#user-content-type), [array-dimensions](#user-content-array-dimensions)_;
 
 
 <a name="array-dimensions"></a>
@@ -1026,7 +951,7 @@ i.e. types whose values contain (sub-)values
 aggregate-type = tuple-type / array-type / circuit-type
 ```
 
-Go to: _[array-type](#user-content-array-type), [circuit-type](#user-content-circuit-type), [tuple-type](#user-content-tuple-type)_;
+Go to: _[tuple-type](#user-content-tuple-type), [array-type](#user-content-array-type), [circuit-type](#user-content-circuit-type)_;
 
 
 Scalar and aggregate types form all the types.
@@ -1036,7 +961,7 @@ Scalar and aggregate types form all the types.
 type = scalar-type / aggregate-type
 ```
 
-Go to: _[scalar-type](#user-content-scalar-type), [aggregate-type](#user-content-aggregate-type)_;
+Go to: _[aggregate-type](#user-content-aggregate-type), [scalar-type](#user-content-scalar-type)_;
 
 
 The lexical grammar given earlier defines product group literals.
@@ -1076,7 +1001,7 @@ Go to: _[affine-group-literal](#user-content-affine-group-literal), [atomic-lite
 
 
 The following rule is not directly referenced in the rules for expressions
-(which reference 'literal' instead),
+(which reference `literal` instead),
 but it is useful to establish terminology:
 a group literal is either a product group literal or an affine group literal.
 
@@ -1095,7 +1020,7 @@ of operators and other expression constructs,
 and the (left or right) associativity of binary operators.
 
 The primary expressions are self-contained in a way,
-i.e. they have clear deliminations:
+i.e. they have clear delimitations:
 Some consist of single tokens,
 while others have explicit endings.
 Primary expressions also include parenthesized expressions,
@@ -1114,7 +1039,7 @@ primary-expression = identifier
                    / circuit-expression
 ```
 
-Go to: _[identifier](#user-content-identifier), [literal](#user-content-literal), [array-expression](#user-content-array-expression), [expression](#user-content-expression), [tuple-expression](#user-content-tuple-expression), [circuit-expression](#user-content-circuit-expression)_;
+Go to: _[tuple-expression](#user-content-tuple-expression), [identifier](#user-content-identifier), [expression](#user-content-expression), [array-expression](#user-content-array-expression), [circuit-expression](#user-content-circuit-expression), [literal](#user-content-literal)_;
 
 
 Tuple expressions construct tuples.
@@ -1139,7 +1064,7 @@ Go to: _[tuple-construction](#user-content-tuple-construction)_;
 Array expressions construct arrays.
 There are two kinds:
 one lists the element expressions (at least one),
-including spreads (via '...') which are arrays being spliced in;
+including spreads (via `...`) which are arrays being spliced in;
 the other repeats (the value of) a single expression
 across one or more dimensions.
 
@@ -1198,11 +1123,12 @@ so they are syntactically identical but semantically different.
 <a name="circuit-construction"></a>
 ```abnf
 circuit-construction = circuit-type "{"
-                       circuit-inline-element *( "," circuit-inline-element ) [ "," ]
+                       circuit-inline-element
+                       *( "," circuit-inline-element ) [ "," ]
                        "}"
 ```
 
-Go to: _[circuit-type](#user-content-circuit-type), [circuit-inline-element](#user-content-circuit-inline-element)_;
+Go to: _[circuit-inline-element](#user-content-circuit-inline-element), [circuit-type](#user-content-circuit-type)_;
 
 
 <a name="circuit-inline-element"></a>
@@ -1210,7 +1136,7 @@ Go to: _[circuit-type](#user-content-circuit-type), [circuit-inline-element](#us
 circuit-inline-element = identifier ":" expression / identifier
 ```
 
-Go to: _[identifier](#user-content-identifier), [expression](#user-content-expression)_;
+Go to: _[expression](#user-content-expression), [identifier](#user-content-identifier)_;
 
 
 <a name="circuit-expression"></a>
@@ -1261,7 +1187,7 @@ postfix-expression = primary-expression
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```
 
-Go to: _[circuit-type](#user-content-circuit-type), [natural](#user-content-natural), [postfix-expression](#user-content-postfix-expression), [primary-expression](#user-content-primary-expression), [identifier](#user-content-identifier), [function-arguments](#user-content-function-arguments), [expression](#user-content-expression)_;
+Go to: _[function-arguments](#user-content-function-arguments), [postfix-expression](#user-content-postfix-expression), [natural](#user-content-natural), [circuit-type](#user-content-circuit-type), [expression](#user-content-expression), [identifier](#user-content-identifier), [primary-expression](#user-content-primary-expression)_;
 
 
 Unary operators have the highest operator precedence.
@@ -1280,8 +1206,8 @@ Go to: _[postfix-expression](#user-content-postfix-expression), [unary-expressio
 
 Next in the operator precedence is exponentiation,
 following mathematical practice.
-The current rule below makes exponentiation left-associative,
-i.e. 'a ** b ** c' must be parsed as '(a ** b) ** c'.
+The current rule below makes exponentiation right-associative,
+i.e. `a ** b ** c` must be parsed as `a ** (b ** c)`.
 
 <a name="exponential-expression"></a>
 ```abnf
@@ -1301,7 +1227,7 @@ multiplicative-expression = exponential-expression
                           / multiplicative-expression "/" exponential-expression
 ```
 
-Go to: _[multiplicative-expression](#user-content-multiplicative-expression), [exponential-expression](#user-content-exponential-expression)_;
+Go to: _[exponential-expression](#user-content-exponential-expression), [multiplicative-expression](#user-content-multiplicative-expression)_;
 
 
 Then there are addition and subtraction, both left-assocative.
@@ -1376,7 +1302,7 @@ conditional-expression = disjunctive-expression
                          ":" conditional-expression
 ```
 
-Go to: _[conditional-expression](#user-content-conditional-expression), [expression](#user-content-expression), [disjunctive-expression](#user-content-disjunctive-expression)_;
+Go to: _[expression](#user-content-expression), [conditional-expression](#user-content-conditional-expression), [disjunctive-expression](#user-content-disjunctive-expression)_;
 
 
 Those above are all the expressions.
@@ -1400,7 +1326,8 @@ Blocks are possibly empty sequences of statements surrounded by curly braces.
 ```abnf
 statement = expression-statement
           / return-statement
-          / variable-definition-statement
+          / variable-declaration
+          / constant-declaration
           / conditional-statement
           / loop-statement
           / assignment-statement
@@ -1408,7 +1335,7 @@ statement = expression-statement
           / block
 ```
 
-Go to: _[return-statement](#user-content-return-statement), [variable-definition-statement](#user-content-variable-definition-statement), [assignment-statement](#user-content-assignment-statement), [console-statement](#user-content-console-statement), [expression-statement](#user-content-expression-statement), [loop-statement](#user-content-loop-statement), [conditional-statement](#user-content-conditional-statement), [block](#user-content-block)_;
+Go to: _[expression-statement](#user-content-expression-statement), [return-statement](#user-content-return-statement), [assignment-statement](#user-content-assignment-statement), [block](#user-content-block), [loop-statement](#user-content-loop-statement), [constant-declaration](#user-content-constant-declaration), [conditional-statement](#user-content-conditional-statement), [console-statement](#user-content-console-statement), [variable-declaration](#user-content-variable-declaration)_;
 
 
 <a name="block"></a>
@@ -1427,8 +1354,7 @@ expression-statement = expression ";"
 Go to: _[expression](#user-content-expression)_;
 
 
-A return statement always takes an expression,
-and does not end with a semicolon.
+A return statement always takes an expression, and ends with a semicolon.
 
 <a name="return-statement"></a>
 ```abnf
@@ -1438,20 +1364,30 @@ return-statement = %s"return" expression ";"
 Go to: _[expression](#user-content-expression)_;
 
 
-There are two kinds of variable definition statements,
+There are variable declarations and constant declarations,
 which only differ in the starting keyword.
-The variables are either a single one or a tuple of two or more;
+These declarations are also statements.
+The names of the variables or constants are
+either a single one or a tuple of two or more;
 in all cases, there is just one optional type
 and just one initializing expression.
 
-<a name="variable-definition-statement"></a>
+<a name="variable-declaration"></a>
 ```abnf
-variable-definition-statement = ( %s"let" / %s"const" )
-                                identifier-or-identifiers
-                                [ ":" type ] "=" expression ";"
+variable-declaration = %s"let" identifier-or-identifiers [ ":" type ]
+                       "=" expression ";"
 ```
 
 Go to: _[type](#user-content-type), [identifier-or-identifiers](#user-content-identifier-or-identifiers), [expression](#user-content-expression)_;
+
+
+<a name="constant-declaration"></a>
+```abnf
+constant-declaration = %s"const" identifier-or-identifiers [ ":" type ]
+                       "=" expression ";"
+```
+
+Go to: _[expression](#user-content-expression), [type](#user-content-type), [identifier-or-identifiers](#user-content-identifier-or-identifiers)_;
 
 
 <a name="identifier-or-identifiers"></a>
@@ -1474,7 +1410,7 @@ Note that blocks are required in all branches, not merely statements.
 branch = %s"if" expression block
 ```
 
-Go to: _[expression](#user-content-expression), [block](#user-content-block)_;
+Go to: _[block](#user-content-block), [expression](#user-content-expression)_;
 
 
 <a name="conditional-statement"></a>
@@ -1484,7 +1420,7 @@ conditional-statement = branch
                       / branch %s"else" conditional-statement
 ```
 
-Go to: _[branch](#user-content-branch), [conditional-statement](#user-content-conditional-statement), [block](#user-content-block)_;
+Go to: _[block](#user-content-block), [branch](#user-content-branch), [conditional-statement](#user-content-conditional-statement)_;
 
 
 A loop statement implicitly defines a loop variable
@@ -1500,7 +1436,7 @@ Go to: _[identifier](#user-content-identifier), [expression](#user-content-expre
 
 
 An assignment statement is straightforward.
-Based on the operator, the assignment may be simple (i.e. '=')
+Based on the operator, the assignment may be simple (i.e. `=`)
 or compound (i.e. combining assignment with an arithmetic operation).
 
 <a name="assignment-operator"></a>
@@ -1513,16 +1449,16 @@ assignment-operator = "=" / "+=" / "-=" / "*=" / "/=" / "**="
 assignment-statement = expression assignment-operator expression ";"
 ```
 
-Go to: _[assignment-operator](#user-content-assignment-operator), [expression](#user-content-expression)_;
+Go to: _[expression](#user-content-expression), [assignment-operator](#user-content-assignment-operator)_;
 
 
-Console statements start with the 'console' keyword,
+Console statements start with the `console` keyword,
 followed by a console function call.
 The call may be an assertion or a print command.
 The former takes an expression (which must be boolean) as argument.
 The latter takes either no argument,
 or a format string followed by expressions,
-whose number must match the number of containers '{}' in the format string.
+whose number must match the number of containers `{}` in the format string.
 Note that the console function names are identifiers, not keywords.
 There are three kinds of print commands.
 
@@ -1540,7 +1476,7 @@ console-call = assert-call
              / print-call
 ```
 
-Go to: _[assert-call](#user-content-assert-call), [print-call](#user-content-print-call)_;
+Go to: _[print-call](#user-content-print-call), [assert-call](#user-content-assert-call)_;
 
 
 <a name="assert-call"></a>
@@ -1572,7 +1508,7 @@ print-call = print-function print-arguments
 Go to: _[print-function](#user-content-print-function), [print-arguments](#user-content-print-arguments)_;
 
 
-An annotation consists of an annotation name (which starts with '@')
+An annotation consists of an annotation name (which starts with `@`)
 with optional annotation arguments, which are identifiers.
 Note that no parentheses are used if there are no arguments.
 
@@ -1582,7 +1518,7 @@ annotation = annotation-name
              [ "(" identifier *( "," identifier ) ")" ]
 ```
 
-Go to: _[identifier](#user-content-identifier), [annotation-name](#user-content-annotation-name)_;
+Go to: _[annotation-name](#user-content-annotation-name), [identifier](#user-content-identifier)_;
 
 
 A function declaration defines a function.
@@ -1590,8 +1526,7 @@ The output type is optional, defaulting to the empty tuple type.
 In general, a function input consists of an identifier and a type,
 with an optional 'const' modifier.
 Additionally, functions inside circuits
-may start with a 'mut self' or 'const self' or 'self' parameter.
-Furthermore, any function may end with an 'input' parameter.
+may start with a `mut self` or `const self` or `self` parameter.
 
 <a name="function-declaration"></a>
 ```abnf
@@ -1600,7 +1535,7 @@ function-declaration = *annotation %s"function" identifier
                        block
 ```
 
-Go to: _[function-parameters](#user-content-function-parameters), [block](#user-content-block), [type](#user-content-type), [identifier](#user-content-identifier)_;
+Go to: _[block](#user-content-block), [identifier](#user-content-identifier), [function-parameters](#user-content-function-parameters), [type](#user-content-type)_;
 
 
 <a name="function-parameters"></a>
@@ -1631,13 +1566,8 @@ Go to: _[function-input](#user-content-function-input)_;
 function-input = [ %s"const" ] identifier ":" type
 ```
 
-Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
+Go to: _[type](#user-content-type), [identifier](#user-content-identifier)_;
 
-
-<a name="input-parameter"></a>
-```abnf
-input-parameter = %s"input"
-```
 
 A circuit member variable declaration consists of an identifier and a type.
 A circuit member function declaration consists of a function declaration.
@@ -1648,7 +1578,7 @@ member-declaration = member-variable-declaration
                    / member-function-declaration
 ```
 
-Go to: _[member-variable-declaration](#user-content-member-variable-declaration), [member-function-declaration](#user-content-member-function-declaration)_;
+Go to: _[member-function-declaration](#user-content-member-function-declaration), [member-variable-declaration](#user-content-member-variable-declaration)_;
 
 
 <a name="member-variable-declaration"></a>
@@ -1676,10 +1606,10 @@ circuit-declaration = *annotation %s"circuit" identifier
                       "{" member-declaration *( "," member-declaration ) "}"
 ```
 
-Go to: _[member-declaration](#user-content-member-declaration), [identifier](#user-content-identifier)_;
+Go to: _[identifier](#user-content-identifier), [member-declaration](#user-content-member-declaration)_;
 
 
-An import declaration consists of the 'import' keyword
+An import declaration consists of the `import` keyword
 followed by a package path, which may be one of the following:
 a single wildcard;
 an identifier, optionally followed by a local renamer;
@@ -1691,7 +1621,7 @@ to be followed by a comma, for convenience.
 
 <a name="import-declaration"></a>
 ```abnf
-import-declaration = %s"import" package-path
+import-declaration = %s"import" package-path ";"
 ```
 
 Go to: _[package-path](#user-content-package-path)_;
@@ -1705,22 +1635,50 @@ package-path = "*"
              / "(" package-path *( "," package-path ) [","] ")"
 ```
 
-Go to: _[package-path](#user-content-package-path), [identifier](#user-content-identifier), [package-name](#user-content-package-name)_;
+Go to: _[identifier](#user-content-identifier), [package-path](#user-content-package-path), [package-name](#user-content-package-name)_;
 
 
 Finally, we define a file as a sequence of zero or more declarations.
+We allow constant declarations at the top level, for global constants.
+Currently variable declarations are disallowed at the top level.
 
 <a name="declaration"></a>
 ```abnf
 declaration = import-declaration
             / function-declaration
             / circuit-declaration
+            / constant-declaration
 ```
 
-Go to: _[import-declaration](#user-content-import-declaration), [circuit-declaration](#user-content-circuit-declaration), [function-declaration](#user-content-function-declaration)_;
+Go to: _[constant-declaration](#user-content-constant-declaration), [import-declaration](#user-content-import-declaration), [function-declaration](#user-content-function-declaration), [circuit-declaration](#user-content-circuit-declaration)_;
 
 
 <a name="file"></a>
 ```abnf
 file = *declaration
+```
+
+
+--------
+
+
+Format Note
+-----------
+
+The ABNF standard requires grammars
+to consist of lines terminated by `<CR><LF>`
+(i.e. carriage return followed by line feed, DOS/Windows-style),
+as explained in the background on ABNF earlier in this file.
+This file's lines are therefore terminated by `<CR><LF>`.
+To avoid losing this requirement across systems,
+this file is marked as `text eol=crlf` in `.gitattributes`:
+this means that the file is textual, enabling visual diffs,
+but its lines will always be terminated by `<CR><LF>` on any system.
+
+Note that this `<CR><LF>` requirement only applies
+to the grammar files themselves.
+It does not apply to the lines of the languages described by the grammar.
+ABNF grammars may describe any kind of languages,
+with any kind of line terminators,
+or even without line terminators at all (e.g. for "binary" languages).
 

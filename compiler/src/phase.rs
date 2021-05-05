@@ -16,6 +16,6 @@
 
 use leo_asg::Program;
 
-pub trait ASGStage {
+pub trait ASGPhase {
     fn apply(asg: &mut Program);
 }

@@ -18,7 +18,7 @@ use crate::errors::ImportParserError;
 use leo_asg::{AsgContext, AsgConvertError, ImportResolver, Program, Span};
 
 use indexmap::{IndexMap, IndexSet};
-use std::env::current_dir;
+use std::path::PathBuf;
 
 /// Stores imported packages.
 ///
@@ -26,11 +26,21 @@ use std::env::current_dir;
 /// directory, foreign in the imports directory, or part of the core package list.
 #[derive(Clone, Default)]
 pub struct ImportParser<'a> {
+    program_path: PathBuf,
     partial_imports: IndexSet<String>,
     imports: IndexMap<String, Program<'a>>,
 }
 
-//todo: handle relative imports relative to file...
+impl<'a> ImportParser<'a> {
+    pub fn new(program_path: PathBuf) -> Self {
+        ImportParser {
+            program_path,
+            partial_imports: Default::default(),
+            imports: Default::default(),
+        }
+    }
+}
+
 impl<'a> ImportResolver<'a> for ImportParser<'a> {
     fn resolve_package(
         &mut self,
@@ -46,8 +56,7 @@ impl<'a> ImportResolver<'a> for ImportParser<'a> {
             return Ok(Some(program.clone()));
         }
         let mut imports = Self::default();
-        let path =
-            current_dir().map_err(|x| -> AsgConvertError { ImportParserError::current_directory_error(x).into() })?;
+        let path = self.program_path.clone();
 
         self.partial_imports.insert(full_path.clone());
         let program = imports

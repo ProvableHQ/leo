@@ -16,32 +16,48 @@
 
 use anyhow::{anyhow, Error, Result};
 use reqwest::{
-    blocking::{Client, Response},
+    blocking::{multipart::Form, Client, Response},
     Method,
     StatusCode,
 };
 use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, path::PathBuf};
 
-/// Trait describes API Routes and Request bodies, struct which implements
-/// Route MUST also support Serialize to be usable in Api::run_route(r: Route)
+/// Format to use.
+/// Default is JSON, but publish route uses FormData
+#[derive(Clone, Debug)]
+pub enum ContentType {
+    Json,
+    FormData,
+}
+
+/// API Routes and Request bodies.
+/// Structs that implement Route MUST also support Serialize to be usable in Api::run_route(r: Route)
 pub trait Route {
-    /// Whether to use bearer auth or not. Some routes may have additional
-    /// features for logged-in users, so authorization token should be sent
-    /// if it is created of course
+    /// [`true`] if a route supports bearer authentication.
+    /// For example, the login route.
     const AUTH: bool;
 
-    /// HTTP method to use when requesting
+    /// The HTTP method to use when requesting.
     const METHOD: Method;
 
-    /// URL path without first forward slash (e.g. v1/package/fetch)
+    /// The URL path without the first forward slash (e.g. v1/package/fetch)
     const PATH: &'static str;
 
-    /// Output type for this route. For login it is simple - String
+    /// Content type: JSON or Multipart/FormData. Only usable in POST/PUT queries.
+    const CONTENT_TYPE: ContentType;
+
+    /// The output type for this route. For example, the login route output is [`String`].
     /// But for other routes may be more complex.
     type Output;
 
-    /// Process reqwest Response and turn it into Output
+    /// Process the reqwest Response and turn it into an Output.
     fn process(&self, res: Response) -> Result<Self::Output>;
+
+    /// Represent self as a form data for multipart (ContentType::FormData) requests.
+    fn to_form(&self) -> Option<Form> {
+        None
+    }
 
     /// Transform specific status codes into correct errors for this route.
     /// For example 404 on package fetch should mean that 'Package is not found'
@@ -50,18 +66,18 @@ pub trait Route {
     }
 }
 
-/// REST API handler with reqwest::blocking inside
+/// REST API handler with reqwest::blocking inside.
 #[derive(Clone, Debug)]
 pub struct Api {
     host: String,
     client: Client,
-    /// Authorization token for API requests
+    /// Authorization token for API requests.
     auth_token: Option<String>,
 }
 
 impl Api {
-    /// Create new instance of API, set host and Client is going to be
-    /// created and set automatically
+    /// Returns a new instance of API.
+    /// The set host and Client are created automatically.
     pub fn new(host: String, auth_token: Option<String>) -> Api {
         Api {
             client: Client::new(),
@@ -70,18 +86,23 @@ impl Api {
         }
     }
 
-    /// Get token for bearer auth, should be passed into Api through Context
+    pub fn host(&self) -> &str {
+        &*self.host
+    }
+
+    /// Returns the token for bearer auth, otherwise None.
+    /// The [`auth_token`] should be passed into the Api through Context.
     pub fn auth_token(&self) -> Option<String> {
         self.auth_token.clone()
     }
 
-    /// Set authorization token for future requests
+    /// Set the authorization token for future requests.
     pub fn set_auth_token(&mut self, token: String) {
         self.auth_token = Some(token);
     }
 
     /// Run specific route struct. Turn struct into request body
-    /// and use type constants and Route implementation to get request params
+    /// and use type constants and Route implementation to get request params.
     pub fn run_route<T>(&self, route: T) -> Result<T::Output>
     where
         T: Route,
@@ -91,7 +112,16 @@ impl Api {
 
         // add body for POST and PUT requests
         if T::METHOD == Method::POST || T::METHOD == Method::PUT {
-            res = res.json(&route);
+            res = match T::CONTENT_TYPE {
+                ContentType::Json => res.json(&route),
+                ContentType::FormData => {
+                    let form = route
+                        .to_form()
+                        .unwrap_or_else(|| unimplemented!("to_form is not implemented for this route"));
+
+                    res.multipart(form)
+                }
+            }
         };
 
         // if Route::Auth is true and token is present - pass it
@@ -100,7 +130,9 @@ impl Api {
         };
 
         // only one error is possible here
-        let res = res.send().map_err(|_| anyhow!("Unable to connect to Aleo PM"))?;
+        let res = res.send().map_err(|_| {
+            anyhow!("Unable to connect to Aleo PM. If you specified custom API endpoint, then check the URL for errors")
+        })?;
 
         // where magic begins
         route.process(res)
@@ -125,6 +157,7 @@ impl Route for Fetch {
     type Output = Response;
 
     const AUTH: bool = true;
+    const CONTENT_TYPE: ContentType = ContentType::Json;
     const METHOD: Method = Method::POST;
     const PATH: &'static str = "api/package/fetch";
 
@@ -143,7 +176,7 @@ impl Route for Fetch {
             // TODO: we should return 404 on not found author/package
             // and return BAD_REQUEST if data format is incorrect or some of the arguments
             // were not passed
-            StatusCode::NOT_FOUND => anyhow!("Package is hidden"),
+            StatusCode::NOT_FOUND => anyhow!("Package not found"),
             _ => anyhow!("Unknown API error: {}", status),
         }
     }
@@ -161,6 +194,7 @@ impl Route for Login {
     type Output = Response;
 
     const AUTH: bool = false;
+    const CONTENT_TYPE: ContentType = ContentType::Json;
     const METHOD: Method = Method::POST;
     const PATH: &'static str = "api/account/authenticate";
 
@@ -182,8 +216,59 @@ impl Route for Login {
     }
 }
 
+#[derive(Serialize)]
+pub struct Publish {
+    pub name: String,
+    pub remote: String,
+    pub version: String,
+    pub file: PathBuf,
+}
+
+#[derive(Deserialize)]
+pub struct PublishResponse {
+    package_id: String,
+}
+
+impl Route for Publish {
+    type Output = String;
+
+    const AUTH: bool = true;
+    const CONTENT_TYPE: ContentType = ContentType::FormData;
+    const METHOD: Method = Method::POST;
+    const PATH: &'static str = "api/package/publish";
+
+    fn to_form(&self) -> Option<Form> {
+        Form::new()
+            .text("name", self.name.clone())
+            .text("remote", self.remote.clone())
+            .text("version", self.version.clone())
+            .file("file", self.file.clone())
+            .ok()
+    }
+
+    fn process(&self, res: Response) -> Result<Self::Output> {
+        let status = res.status();
+
+        if status == StatusCode::OK {
+            let body: PublishResponse = res.json()?;
+            Ok(body.package_id)
+        } else {
+            let res: HashMap<String, String> = res.json()?;
+            Err(match status {
+                StatusCode::BAD_REQUEST => anyhow!("{}", res.get("message").unwrap()),
+                StatusCode::UNAUTHORIZED => anyhow!("You are not logged in. Please use `leo login` to login"),
+                StatusCode::FAILED_DEPENDENCY => anyhow!("This package version is already published"),
+                StatusCode::INTERNAL_SERVER_ERROR => {
+                    anyhow!("Server error, please contact us at https://github.com/AleoHQ/leo/issues")
+                }
+                _ => anyhow!("Unknown status code"),
+            })
+        }
+    }
+}
+
 /// Handler for 'my_profile' route. Meant to be used to get profile details but
-/// in current application is used to check if user is logged in. Any non-200 response
+/// in the current application it is used to check if the user is logged in. Any non-200 response
 /// is treated as Unauthorized.
 #[derive(Serialize)]
 pub struct Profile {}
@@ -198,6 +283,7 @@ impl Route for Profile {
     type Output = Option<String>;
 
     const AUTH: bool = true;
+    const CONTENT_TYPE: ContentType = ContentType::Json;
     const METHOD: Method = Method::GET;
     const PATH: &'static str = "api/account/my_profile";
 
