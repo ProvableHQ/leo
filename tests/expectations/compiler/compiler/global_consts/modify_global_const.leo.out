@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/global_consts/modify_global_const.leo:7:5\n     |\n   7 |     basic = 2u32;\n     |     ^^^^^^^^^^^^\n     |\n     = illegal assignment to immutable variable 'basic'"

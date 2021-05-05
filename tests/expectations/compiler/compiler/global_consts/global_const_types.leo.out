@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 95
+      num_constraints: 95
+      at: 8db8901199024f620eff3a2a9d95e74862d07f8413a6fef789347f012de915ce
+      bt: 134fe0b804695f759f665fe6754e85dc3556cb7c4fd7fca0e78ed2f55d048873
+      ct: 8770257f9e15fb2972e7ca01e77f3d4d0303033d75d9e990b7065a3096ce9cfb
+    output:
+      - input_file: globals.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "false"

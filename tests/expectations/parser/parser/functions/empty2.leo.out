@@ -1,0 +1,31 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    imports: []
+    circuits: {}
+    global_consts: {}
+    functions:
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x() {}\\\"}\"}":
+        annotations: []
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x() {}\\\"}\"}"
+        input: []
+        output: ~
+        block:
+          statements: []
+          span:
+            line_start: 3
+            line_stop: 3
+            col_start: 14
+            col_stop: 16
+            path: test
+            content: "function x() {}"
+        span:
+          line_start: 3
+          line_stop: 3
+          col_start: 1
+          col_stop: 16
+          path: test
+          content: "function x() {}"
