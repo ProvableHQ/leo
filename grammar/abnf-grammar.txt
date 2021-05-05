@@ -968,7 +968,7 @@ circuit-declaration = *annotation %s"circuit" identifier
 ; Note that we allow the last element of the parenthesized list
 ; to be followed by a comma, for convenience.
 
-import-declaration = %s"import" package-path ";"
+import-declaration = %s"import" package-name "." package-path ";"
 
 package-path = "*"
              / identifier [ %s"as" identifier ]

@@ -136,7 +136,7 @@ impl ParserContext {
     /// Returns a vector of [`PackageAccess`] AST nodes if the next tokens represent package access
     /// expressions within an import statement.
     ///
-    pub fn parse_package_accesses(&mut self) -> SyntaxResult<Vec<PackageAccess>> {
+    pub fn parse_package_accesses(&mut self, span: &Span) -> SyntaxResult<Vec<PackageAccess>> {
         let mut out = Vec::new();
         self.expect(Token::LeftParen)?;
         while self.eat(Token::RightParen).is_none() {
@@ -147,6 +147,11 @@ impl ParserContext {
                 break;
             }
         }
+
+        if out.is_empty() {
+            return Err(SyntaxError::invalid_import_list(span));
+        }
+
         Ok(out)
     }
 
@@ -156,7 +161,7 @@ impl ParserContext {
     ///
     pub fn parse_package_access(&mut self) -> SyntaxResult<PackageAccess> {
         if let Some(SpannedToken { span, .. }) = self.eat(Token::Mul) {
-            Ok(PackageAccess::Star(span))
+            Ok(PackageAccess::Star { span })
         } else {
             let name = self.expect_ident()?;
             if self.peek_token().as_ref() == &Token::Dot {
@@ -247,7 +252,7 @@ impl ParserContext {
         let package_name = self.parse_package_name()?;
         self.expect(Token::Dot)?;
         if self.peek()?.token == Token::LeftParen {
-            let accesses = self.parse_package_accesses()?;
+            let accesses = self.parse_package_accesses(&package_name.span)?;
             Ok(PackageOrPackages::Packages(Packages {
                 span: &package_name.span + accesses.last().map(|x| x.span()).unwrap_or(&package_name.span),
                 name: package_name,

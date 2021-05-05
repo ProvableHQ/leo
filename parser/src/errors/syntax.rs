@@ -48,6 +48,10 @@ impl SyntaxError {
         SyntaxError::Error(FormattedError::new_from_span(message, span))
     }
 
+    pub fn invalid_import_list(span: &Span) -> Self {
+        Self::new_from_span("Cannot import empty list".to_string(), span)
+    }
+
     pub fn unexpected_eof(span: &Span) -> Self {
         Self::new_from_span("unexpected EOF".to_string(), span)
     }
