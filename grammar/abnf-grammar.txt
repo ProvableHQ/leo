@@ -506,7 +506,7 @@ boolean-literal = %s"true" / %s"false"
 ; and continues with exactly 58 lowercase letters and digits.
 ; Thus an address always consists of 63 characters.
 
-address-literal = %s"aleo1" 58( lowercase-letter / digit )
+address-literal = "$" %s"aleo1" 58( lowercase-letter / digit )
 
 ; The ones above are all the atomic literals
 ; (in the sense that they are tokens, without whitespace allowed in them),
@@ -542,7 +542,7 @@ symbol = "!" / "&&" / "||"
        / "[" / "]"
        / "{" / "}"
        / "," / "." / ".." / "..." / ";" / ":" / "::" / "?"
-       / "->" / "_"
+       / "->" / "_" / "$"
        / %s")group"
 
 ; Everything defined above, other than comments and whitespace,

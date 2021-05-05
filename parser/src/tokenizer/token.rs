@@ -160,7 +160,6 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Circuit,
     Token::Console,
     Token::Const,
-    Token::Dollar,
     Token::Else,
     Token::False,
     Token::Field,

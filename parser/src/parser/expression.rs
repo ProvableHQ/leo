@@ -695,7 +695,7 @@ impl ParserContext {
                 if let Token::AddressLit(value) = token {
                     return Ok(Expression::Value(ValueExpression::Address(value, span)));
                 } else {
-                    return Err(SyntaxError::unexpected_str(&token, "expression", &span));
+                    return Err(SyntaxError::unexpected_str(&token, "Identifier", &span));
                 }
             }
             Token::Ident(name) => {

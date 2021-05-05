@@ -12,3 +12,4 @@ outputs:
   - "'aleo2qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9' @ 1:1-64"
   - "'bleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9' @ 1:1-64"
   - "'$' @ 1:1-2"
+  - "'$' @ 1:1-2,'blue42' @ 1:2-8"

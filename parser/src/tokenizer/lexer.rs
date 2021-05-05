@@ -308,7 +308,7 @@ impl Token {
                 ident.len(),
                 Some(match &*ident {
                     x if x.starts_with("aleo1") => Token::AddressLit(ident),
-                    "$" => Token::Address,
+                    "$" => Token::Dollar,
                     "address" => Token::Address,
                     "as" => Token::As,
                     "bool" => Token::Bool,
