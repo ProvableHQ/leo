@@ -292,7 +292,7 @@ impl ParserContext {
                 members.push(variable);
 
                 let peeked = &self.peek()?;
-                if &peeked.token == &Token::Semicolon {
+                if peeked.token == Token::Semicolon {
                     if commas {
                         return Err(SyntaxError::mixed_commas_and_semicolons(&peeked.span));
                     }
