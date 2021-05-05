@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Fail
+*/
+
 circuit Foo {
     x: u8
 }

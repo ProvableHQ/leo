@@ -10,6 +10,6 @@ outputs:
       bt: 0b017985fe9a0650c67351f1cc247871e9cc9e8c907f2cb47791c5ae1a5b324a
       ct: 3fb41ccb74d402bc413944e9eb543a7333552052b7781eb257d2b861659d5a09
     output:
-      - input_file: i16.in
+      - input_file: i8.in
         output:
           registers: {}

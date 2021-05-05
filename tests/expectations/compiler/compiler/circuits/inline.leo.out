@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 32
+      num_constraints: 32
+      at: 4f36fe54f989d60bb9c279120800f4f44596c2efb7ba703669d4c4d591569780
+      bt: d378030968a64801f66d95699329086ca17e676d8bffcf73f6b431cbda7c7005
+      ct: dbd098af6556ed79650d149b1691be336a46f8bad6f327e942508dd11342575e
+    output:
+      - input_file: inline.in
+        output:
+          registers:
+            r0:
+              type: u32
+              value: "100"

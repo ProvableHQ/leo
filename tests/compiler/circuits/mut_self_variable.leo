@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 circuit Foo {
     a: u8,
 

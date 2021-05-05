@@ -1,3 +1,12 @@
+/*
+namespace: Compile
+expectation: Pass
+inputs:
+ - member.in: |
+    [registers]
+    r0: bool = false;  
+*/
+
 circuit Foo {
     foo: u32,
 
@@ -6,10 +15,9 @@ circuit Foo {
     }
 }
 
-function main() {
+function main() -> bool {
     const a = Foo { foo: 1 };
-
     const b = a.foo + Foo::bar();
 
-    console.assert(b == 2u32);
+    return b == 2u32;
 }

@@ -1,13 +1,27 @@
+/*
+namespace: Compile
+expectation: Pass
+inputs:
+ - func_circ.in: |
+    [main]
+    a: u32 = 100;
+
+    [registers]
+    r0: bool = false;
+*/
+
 circuit Foo {
     a: u32,
 }
 
 circuit Bar {
-    function bar() {
-        const f = Foo { a: 0u32 };
+    function bar(a: u32) -> u32 {
+        const f = Foo { a: a };
+        return f.a;
     }
 }
 
-function main() {
-    const b = Bar::bar();
+function main(a: u32) -> bool {
+    const b = Bar::bar(a);
+    return a == b;
 }

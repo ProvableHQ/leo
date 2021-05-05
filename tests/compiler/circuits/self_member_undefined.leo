@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Fail
+*/
+
 circuit Foo {
     function bar() -> u32 {
         return self.f;

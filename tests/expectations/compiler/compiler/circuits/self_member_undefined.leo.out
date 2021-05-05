@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /test/src/main.leo:11:17\n     |\n  11 |     const err = foo.bar();\n     |                 ^^^^^^^\n     |\n     = cannot call static function 'bar' of circuit 'Foo' from target"

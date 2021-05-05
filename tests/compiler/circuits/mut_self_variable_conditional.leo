@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 function main() {
     let f = Foo { a: 0u32 };
 

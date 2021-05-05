@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /test/src/main.leo:8:19\n     |\n   8 |     let f = Foo { a: 0u8 };\n     |                   ^\n     |\n     = extra circuit member 'a' for initialization of circuit 'Foo' is not allowed"

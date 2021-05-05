@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /test/src/main.leo:10:17\n     |\n  10 |     const err = Foo.echo(1u32); // Invalid, echo is a static function and must be accessed using `::`\n     |                 ^^^\n     |\n     = failed to resolve variable reference 'Foo'"

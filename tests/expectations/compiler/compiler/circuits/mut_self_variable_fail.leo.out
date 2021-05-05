@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /test/src/main.leo:7:9\n     |\n   7 |         self.a = new;\n     |         ^^^^^^^^^^^^\n     |\n     = illegal assignment to immutable variable 'self'"

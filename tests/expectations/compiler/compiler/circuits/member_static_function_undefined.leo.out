@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /test/src/main.leo:10:17\n     |\n  10 |     const err = Foo::echoed(1u32);\n     |                 ^^^^^^^^^^^\n     |\n     = illegal reference to non-existant member 'echoed' of circuit 'Foo'"

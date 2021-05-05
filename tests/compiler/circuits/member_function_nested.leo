@@ -1,3 +1,15 @@
+/*
+namespace: Compile
+expectation: Pass
+inputs:
+ - inline.in: |
+    [main]
+    x: u32 = 10;
+
+    [registers]
+    r0: bool = false;  
+*/
+
 circuit Foo {
     x: u32,
 
@@ -10,9 +22,9 @@ circuit Foo {
     }
 }
 
-function main() {
-    const a = Foo { x: 1u32 };
+function main(x: u32) -> bool {
+    const a = Foo { x };
     const b = a.add_x(1u32);
 
-    console.assert(b == 2u32);
+    return b == x + 1;
 }
