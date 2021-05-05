@@ -36,16 +36,15 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
     new_context(allocator)
 }
 
-fn new_compiler() -> EdwardsTestCompiler {
+fn new_compiler(path: PathBuf) -> EdwardsTestCompiler {
     let program_name = "test".to_string();
-    let path = PathBuf::from("/test/src/main.leo");
     let output_dir = PathBuf::from("/output/");
 
     EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None)
 }
 
-pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler();
+pub(crate) fn parse_program(program_string: &str, cwd: PathBuf) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler(cwd);
 
     compiler.parse_program_from_string(program_string)?;
 
@@ -72,7 +71,21 @@ impl Namespace for CompileNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        let parsed = parse_program(&test.content).map_err(|x| x.to_string())?;
+        // Check for CWD option:
+        // ``` cwd: import ```
+        // When set, uses different working directory for current file.
+        // If not, uses file path as current working directory.
+        let cwd = test
+            .config
+            .get("cwd")
+            .map(|val| {
+                let mut cwd = test.path.clone();
+                cwd.pop();
+                cwd.join(&val.as_str().unwrap())
+            })
+            .unwrap_or(test.path.clone());
+
+        let parsed = parse_program(&test.content, cwd).map_err(|x| x.to_string())?;
 
         // (name, content)
         let mut inputs = vec![];

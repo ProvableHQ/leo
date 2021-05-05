@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /test/src/main.leo:4:5\n     |\n   4 |     Self::main();\n     |     ^^^^\n     |\n     = failed to resolve circuit: 'Self'"
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/circuits/self_fail.leo:4:5\n     |\n   4 |     Self::main();\n     |     ^^^^\n     |\n     = failed to resolve circuit: 'Self'"

@@ -1,3 +1,10 @@
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+cwd: imports
+*/
+
 import test-import.( // local import
     Point,
     foo,
@@ -11,7 +18,7 @@ import bar.( // imports directory import
 
 import car.Car; // imports directory import
 
-function main() {
+function main() -> bool {
     const point = Point { x: 1u32, y: 1u32 };
     const foo = foo();
 
@@ -22,5 +29,5 @@ function main() {
 
     const car = Car { c: 1u32 };
 
-    console.assert(car.c == 1u32);
+    return car.c == 1u32;
 }

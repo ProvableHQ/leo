@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /test/src/main.leo:5:15\n     |\n   5 |     const b = -a;\n     |               ^^\n     |\n     = integer operation failed due to the signed integer error `Overflow`"
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/integers/i8/negate_min.leo:5:15\n     |\n   5 |     const b = -a;\n     |               ^^\n     |\n     = integer operation failed due to the signed integer error `Overflow`"

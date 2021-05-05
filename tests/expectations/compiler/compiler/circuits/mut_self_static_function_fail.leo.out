@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /test/src/main.leo:9:9\n     |\n   9 |         self.bar = new;\n     |         ^^^^^^^^^^^^^^\n     |\n     = attempt to assign to function 'bar'"
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/circuits/mut_self_static_function_fail.leo:9:9\n     |\n   9 |         self.bar = new;\n     |         ^^^^^^^^^^^^^^\n     |\n     = attempt to assign to function 'bar'"

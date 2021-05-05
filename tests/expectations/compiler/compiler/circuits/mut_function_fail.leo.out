@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /test/src/main.leo:12:5\n     |\n  12 |     f.bar = 1u8;\n     |     ^^^^^^^^^^^\n     |\n     = attempt to assign to function 'bar'"
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/circuits/mut_function_fail.leo:12:5\n     |\n  12 |     f.bar = 1u8;\n     |     ^^^^^^^^^^^\n     |\n     = attempt to assign to function 'bar'"

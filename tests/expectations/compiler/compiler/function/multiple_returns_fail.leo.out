@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /test/src/main.leo:4:5\n     |\n   4 |     if true {\n   5 | ...\n   6 |     }\n     |     ^\n     |\n     = function 'main' failed to validate return path: 'cannot have asymmetrical return in if statement'"
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/function/multiple_returns_fail.leo:4:5\n     |\n   4 |     if true {\n   5 | ...\n   6 |     }\n     |     ^\n     |\n     = function 'main' failed to validate return path: 'cannot have asymmetrical return in if statement'"

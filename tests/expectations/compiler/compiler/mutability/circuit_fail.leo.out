@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /test/src/main.leo:10:5\n     |\n  10 |     a.x = 0;\n     |     ^^^^^^^\n     |\n     = illegal assignment to immutable variable 'a'"
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/mutability/circuit_fail.leo:10:5\n     |\n  10 |     a.x = 0;\n     |     ^^^^^^^\n     |\n     = illegal assignment to immutable variable 'a'"

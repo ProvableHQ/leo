@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /test/src/main.leo:6:5\n     |\n   6 |     a = 0;\n     |     ^^^^^\n     |\n     = illegal assignment to immutable variable 'a'"
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/mutability/const.leo:6:5\n     |\n   6 |     a = 0;\n     |     ^^^^^\n     |\n     = illegal assignment to immutable variable 'a'"

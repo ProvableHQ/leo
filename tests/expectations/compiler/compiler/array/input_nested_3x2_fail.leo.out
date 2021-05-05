@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /test/src/main.leo:4:37\n     |\n   4 |     console.assert(a == [[0u8; 2]; 3)]); // This should be written the right way as this test is for the input file.\n     |                                     ^\n     |\n     = expected ']' -- got ')'"
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/array/input_nested_3x2_fail.leo:4:37\n     |\n   4 |     console.assert(a == [[0u8; 2]; 3)]); // This should be written the right way as this test is for the input file.\n     |                                     ^\n     |\n     = expected ']' -- got ')'"
