@@ -74,6 +74,13 @@ impl SyntaxError {
         )
     }
 
+    pub fn mixed_commas_and_semicolons(span: &Span) -> Self {
+        Self::new_from_span(
+            "Cannot mix use of commas and semi-colons for circuit member variable declarations.".to_string(),
+            span,
+        )
+    }
+
     pub fn unexpected_ident(got: &str, expected: &[&str], span: &Span) -> Self {
         Self::new_from_span(
             format!(

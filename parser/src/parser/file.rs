@@ -284,21 +284,32 @@ impl ParserContext {
         let mut members = Vec::new();
         let peeked = &self.peek()?.token;
         let mut last_variable = peeked == &Token::Function || peeked == &Token::At;
+        let (mut semi_colons, mut commas) = (false, false);
         while self.eat(Token::RightCurly).is_none() {
             if !last_variable {
                 let (variable, last) = self.parse_member_variable_declaration()?;
+
                 members.push(variable);
 
-                if !last {
-                    self.expect_oneof(&[Token::Comma, Token::Semicolon])?;
-                } else {
-                    last_variable = last;
-                    let peeked = &self.peek()?.token;
-                    if peeked == &Token::Semicolon {
-                        self.expect(Token::Semicolon)?;
-                    } else {
-                        self.eat(Token::Comma);
+                let peeked = &self.peek()?;
+                if &peeked.token == &Token::Semicolon {
+                    if commas {
+                        return Err(SyntaxError::mixed_commas_and_semicolons(&peeked.span));
                     }
+
+                    semi_colons = true;
+                    self.expect(Token::Semicolon)?;
+                } else {
+                    if semi_colons {
+                        return Err(SyntaxError::mixed_commas_and_semicolons(&peeked.span));
+                    }
+
+                    commas = true;
+                    self.eat(Token::Comma);
+                }
+
+                if last {
+                    last_variable = last;
                 }
             } else {
                 let function = self.parse_member_function_declaration()?;
