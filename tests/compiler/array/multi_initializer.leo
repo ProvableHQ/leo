@@ -1,7 +1,12 @@
-function main() {
-    const a: [u8; (2, 2, 2)] = [1u8; (2, 2, 2)];
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+*/
 
+function main(y: bool) -> bool {
+    const a: [u8; (2, 2, 2)] = [1u8; (2, 2, 2)];
     const b: [u8; (2, 2, 2)] = [[[1u8; 2]; 2]; 2];
 
-    console.assert(a == b);
+    return a == b == y;
 }

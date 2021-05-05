@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/array/type_fail.leo:5:19\n     |\n   5 |     const a: [u8; -2] = [0u32; 2];\n     |                   ^\n     |\n     = expected '(' -- got '-'"

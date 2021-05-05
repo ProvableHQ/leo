@@ -1,0 +1,24 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 119
+      num_constraints: 143
+      at: ae3e8a95d339433e8a11fc7a54536b8f56abacc03cffa1c4f4be8fa32bc4da8b
+      bt: 43972815ec9d0ab821613fde2cd6a5df9ee42f50758a27a0fed6dc111b44f3ee
+      ct: 5ed7a755b881aa851f3d3e966a4bd18dd48ce59be71b4ada39c9c891f8297201
+    output:
+      - input_file: input/registers_ones.in
+        output:
+          registers:
+            r:
+              type: "[u8; 3]"
+              value: "[3, 2, 1]"
+      - input_file: input/registers_zeros.in
+        output:
+          registers:
+            r:
+              type: "[u8; 3]"
+              value: "[1, 2, 3]"

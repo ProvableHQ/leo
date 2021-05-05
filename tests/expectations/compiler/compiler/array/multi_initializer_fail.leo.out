@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/array/multi_initializer_fail.leo:4:31\n     |\n   4 |     const arr: [u8; (2, 2)] = [1u8; (2, 1)]; // incorrect dimensions\n     |                               ^^^^^^^^^^^^^\n     |\n     = unexpected type, expected: 'array of length 2', received: 'array of length 1'"

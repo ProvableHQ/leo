@@ -1,2 +1,5 @@
 [main]
 a: [u8; (3, 2)] = [0u8; (3, 2)];
+
+[registers]
+x: bool = false;
