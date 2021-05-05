@@ -12,4 +12,7 @@ outputs:
     output:
       - input_file: input/main_array.in
         output:
-          registers: {}
+          registers:
+            r0:
+              type: bool
+              value: "true"

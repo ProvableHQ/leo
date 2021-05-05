@@ -4,7 +4,7 @@ expectation: Pass
 input_file: input/main_array.in
 */
 
-function main(const x: [i16; 1]) {
+function main(const x: [i16; 1]) -> bool {
     console.log("{}", x);
-    console.assert(x[0] == 0);
+    return x[0] == 0;
 }
