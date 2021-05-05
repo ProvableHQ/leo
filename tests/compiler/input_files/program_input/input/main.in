@@ -1,2 +1,5 @@
 [main]
 a: bool = true;
+
+[registers]
+r0: bool = true;

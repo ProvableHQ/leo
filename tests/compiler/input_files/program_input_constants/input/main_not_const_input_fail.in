@@ -1,2 +1,0 @@
-[main]
-a: bool = true; // expecting const a, not main a

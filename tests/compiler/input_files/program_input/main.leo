@@ -1,3 +1,9 @@
-function main(a: bool) {
-    console.assert(a == true);
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/main.in
+*/
+
+function main(a: bool) -> bool {
+    return a == true;
 }

@@ -1,4 +1,9 @@
-function main(const a: bool, const b: bool) {
-    console.assert(a == true);
-    console.assert(b == false);
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/main_multiple.in
+*/
+
+function main(const a: bool, const b: bool) -> bool {
+    return a != b;
 }
