@@ -1,9 +1,15 @@
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+*/
+
 function one() -> bool {
     return true;
 }
 
-function main() {
+function main() -> bool {
     const a = one() && one();
 
-    console.assert(a == true);
+    return a == true;
 }

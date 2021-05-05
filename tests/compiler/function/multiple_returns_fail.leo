@@ -1,4 +1,10 @@
-function main () -> i8 {
+/*
+namespace: Compile
+expectation: Fail
+input_file: input/dummy.in
+*/
+
+function main() -> i8 {
     if true {
         return 1i8;   //ignored
     }

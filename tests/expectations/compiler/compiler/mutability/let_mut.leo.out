@@ -1,5 +1,18 @@
 ---
 namespace: Compile
-expectation: Fail
+expectation: Pass
 outputs:
-  - "    --> /test/src/main.leo:8:12\n     |\n   8 |     return a == 0u32;\n     |            ^^^^^^^^^\n     |\n     = unexpected type, expected: '()', received: 'bool'"
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 0
+      num_constraints: 0
+      at: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+      bt: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+      ct: 4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+    output:
+      - input_file: input/dummy.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

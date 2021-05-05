@@ -1,0 +1,9 @@
+[main]
+a: bool = true;
+arr: [u32; 2] = [10, 8];
+
+[constants]
+b: bool = true;
+
+[registers]
+r0: bool = true;

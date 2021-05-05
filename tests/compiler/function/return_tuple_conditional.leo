@@ -1,7 +1,13 @@
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/integers.in
+*/
+
 // Returns a tuple using a conditional "if" statement.
 function tuple_conditional () -> (
-    i64,
-    i64
+    u32,
+    u32
 ) {
     if true {
         return (1, 1);
@@ -10,6 +16,6 @@ function tuple_conditional () -> (
     }
 }
 
-function main() {
-    const t = tuple_conditional();
+function main() -> (u32, u32) {
+    return tuple_conditional();
 }

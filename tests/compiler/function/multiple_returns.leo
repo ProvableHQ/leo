@@ -1,10 +1,15 @@
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+*/
+
 function tuple() -> (bool, bool) {
     return (true, false);
 }
 
-function main() {
+function main() -> bool {
     const (a, b) = tuple();
 
-    console.assert(a == true);
-    console.assert(b == false);
+    return a == true && b == false;
 }

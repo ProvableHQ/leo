@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 function do_nothing(arr: [u32; 2]) {}
 
 function main() {

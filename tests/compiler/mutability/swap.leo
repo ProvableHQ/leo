@@ -1,13 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - swap.in: |
-    [main]
-    arr: [u32; 2] = [10, 8];
-
-    [registers]
-    r0: bool = false;
+input_file: input/dummy.in
 */
 
 // Swap two elements of an array.

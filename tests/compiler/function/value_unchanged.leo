@@ -1,3 +1,9 @@
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+*/
+
 // Functions input in leo are pass-by-value.
 //
 // Program execution:
@@ -11,9 +17,9 @@ function bad_mutate(x: u32) {
     x = 0; // <- does not change `a`
 }
 
-function main() {
+function main() -> bool {
     const a = 1u32;
     bad_mutate(a);
 
-    console.assert(a == 1u32); // <- value `a` is still `1u32`
+    return a == 1u32; // <- value `a` is still `1u32`
 }

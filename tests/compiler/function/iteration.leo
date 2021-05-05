@@ -1,13 +1,19 @@
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+*/
+
 function one() -> u32 {
     return 1u32;
 }
 
-function main() {
+function main() -> bool {
     let a = 0u32;
 
     for i in 0..10 {
         a += one();
     }
 
-    console.assert(a == 10u32);
+    return a == 10u32;
 }

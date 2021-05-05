@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /test/src/main.leo:5:5\n     |\n   5 |     my_function();\n     |     ^^^^^^^^^^^\n     |\n     = failed to resolve function: 'my_function'"

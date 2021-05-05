@@ -1,10 +1,12 @@
 /*
 namespace: Compile
 expectation: Pass
+input_file: input/dummy.in
 */
 
-function main () {
+function main() -> bool {
     let x = 2u8;
     let y = x;
     const z = y / 2u8;
+    return z == 1;
 }

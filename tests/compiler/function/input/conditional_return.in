@@ -1,5 +1,0 @@
-[main]
-x: u8 = 1u8;
-
-[registers]
-x: u8 = 0;

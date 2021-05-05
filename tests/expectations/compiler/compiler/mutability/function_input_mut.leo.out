@@ -10,6 +10,9 @@ outputs:
       bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
       ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
     output:
-      - input_file: mut.in
+      - input_file: input/dummy.in
         output:
-          registers: {}
+          registers:
+            r0:
+              type: bool
+              value: "true"

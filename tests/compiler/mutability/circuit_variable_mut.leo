@@ -1,6 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
+input_file: input/dummy.in
 */
 
 circuit Foo {
@@ -8,9 +9,9 @@ circuit Foo {
 }
 
 // Using let makes a circuit variable mutable.
-function main() {
+function main() -> bool{
     let a = Foo { x: 1 };
     a.x = 0;
 
-    console.assert(a.x == 0u32);
+    return a.x == 0u32;
 }

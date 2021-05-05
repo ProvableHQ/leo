@@ -12,7 +12,4 @@ outputs:
     output:
       - input_file: input/dummy.in
         output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
+          registers: {}

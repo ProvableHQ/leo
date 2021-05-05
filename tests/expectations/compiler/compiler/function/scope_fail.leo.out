@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /test/src/main.leo:5:12\n     |\n   5 |     return myGlobal;\n     |            ^^^^^^^^\n     |\n     = failed to resolve variable reference 'myGlobal'"

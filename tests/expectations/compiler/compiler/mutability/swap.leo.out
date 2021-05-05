@@ -10,7 +10,7 @@ outputs:
       bt: 16d04f802c27d778734e07a0126cae3f096bc4e2e0b4362fe5687a338f1dece5
       ct: acfbc6fdb7a3696d43be3cd62939a9731cb8b11c215564c52b3c67343cbda41f
     output:
-      - input_file: swap.in
+      - input_file: input/dummy.in
         output:
           registers:
             r0:

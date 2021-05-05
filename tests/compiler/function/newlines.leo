@@ -1,3 +1,9 @@
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/integers.in
+*/
+
 function main(
     a: u32,
     b: u32,

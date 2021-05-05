@@ -1,3 +1,9 @@
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+*/
+
 function iteration() -> u32 {
     let a = 0u32;
 
@@ -8,8 +14,8 @@ function iteration() -> u32 {
     return a;
 }
 
-function main() {
+function main() -> bool {
     const total = iteration() + iteration();
 
-    console.assert(total == 20);
+    return total == 20;
 }

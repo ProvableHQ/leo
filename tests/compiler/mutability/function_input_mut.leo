@@ -1,15 +1,12 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - mut.in: |
-    [main]
-    a: bool = false;
+input_file: input/dummy.in
 */
 
 // Function input are mutable by default.
-function main(a: bool) {
+function main(a: bool) -> bool {
     a = true;
 
-    console.assert(a == true);
+    return a == true;
 }

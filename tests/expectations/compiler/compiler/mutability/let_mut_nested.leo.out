@@ -10,6 +10,9 @@ outputs:
       bt: 3402e051d99a4c5be395811da2585d8a57577a0e8307aff01ddfe38b238e03ec
       ct: d5dcfd364897254307770e70351a0fba77b2db59351d48fedfaa02aff5307e50
     output:
-      - input_file: empty
+      - input_file: input/dummy.in
         output:
-          registers: {}
+          registers:
+            r0:
+              type: bool
+              value: "true"

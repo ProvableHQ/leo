@@ -1,13 +1,10 @@
 /*
 namespace: Compile
 expectation: Fail
-inputs:
- - const.in: |
-    [constants]
-    a: bool = true;
+input_file: input/dummy.in
 */
 
 // Const function input are immutable.
-function main(const a: bool) {
+function main(const b: bool) {
     a = false;
 }
