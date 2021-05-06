@@ -21,7 +21,7 @@ DRAFT
 The purpose of this proposal is to provide initial support for strings in Leo.
 Since strings are sequences of characters,
 the proposal inextricably also involves characters.
-This proposal is described as 'initial'
+This proposal is described as 'initial,'
 because it provides some basic features that we may extend in the future;
 the initial features should be sufficiently simple and conservative
 that they should not limit the design of the future features.
@@ -61,7 +61,7 @@ with a discussion of possible future extensions.
 
 ## Characters
 
-We add a new scalar type `char` for characters.
+We add a new scalar type, `char` for characters.
 In accord with Leo's strong typing,
 this new type is separate from all the other scalar types.
 
@@ -76,19 +76,26 @@ there is no notion of Unicode encoding (e.g. UTF-8) that applies here.
 We add a new kind of literals for characters,
 consisting of single characters or escapes,
 surrounded by single quotes.
-Any single Unicode character except single quote is allowed,
+Any single Unicode character except a single quote is allowed,
 e.g. `'a'`, `'*'`, and `'"'`.
-Single quotes must be escaped with backslash, i.e. `'\''`;
+Single quotes must be escaped with a backslash, i.e. `'\''`;
 backslashes must be escaped as well, i.e. `'\\'`
 We allow other backslash escapes
 for commonly used characters that are not otherwise easily denoted,
 namely _[TODO: Decide which other escapes we want to allow, e.g. `'\n'`.]_
+* `\n`
+* `\r`
+* `\t`
+* `\0`
+* `\'`
+* `\"`
+  
 We also allow Unicode escapes of the form `'\u{X}'`,
 where `X` is a sequence of one to six hex digits
 (both uppercase and lowercase letters are allowed)
 whose value must be between 0 and 10FFFF, inclusive.
 Note that the literal character is assembled by the compiler---for
-creating literals there is no need for the circuit to know
+creating literals, there is no need for the circuit to know
 which codepoints are disallowed.
 _[TODO: Do we want a different notation for Unicode escapes?
 Note that the `{` `}` delimiters are motivated by the fact that
@@ -97,11 +104,20 @@ This notation is supported by both Javascript and Rust.
 
 _[TODO: Which (initial) built-in or library operations
 do we want to provide for `char` values?]_
+- [ ] is_alphabetic - Returns `true` if the `char` has the `Alphabetic` property.
+- [ ] is_ascii - Returns `true` if the `char` is in the `ASCII` range.
+- [ ] is_ascii_alphabetic - Returns `true` if the `char` is in the `ASCII Alphabetic` range.
+- [ ] is_lowercase - Returns `true` if the `char` has the `Lowercase` property.
+- [ ] is_numeric - Returns `true` if the `char` has one of the general categories for numbers.
+- [ ] is_uppercase - Returns `true` if the `char` has the `Uppercase` property.
+- [ ] is_whitespace - Returns `true` if the `char` has the `White_Space` property.
+- [ ] to_digit - Converts the `char` to the given `radix` format.
+
 
 ## Strings
 
 In this initial design proposal, we do not introduce any new type for strings.
-Instead, we rely on the fact that Leo already has arrays,
+Instead, we rely on the fact that Leo already has arrays
 and that arrays of characters can be regarded as strings.
 Existing array operations, such as element and range access,
 apply to these strings without the need of language extensions.
@@ -113,7 +129,7 @@ surrounded by double quotes;
 this is just syntactic sugar.
 Any single Unicode character except double quote is allowed,
 e.g. `""`, `"Aleo"`, `"it's"`, and `"x + y"`.
-Double quotes must be escaped with backslash, e.g. `"say \"hi\""`;
+Double quotes must be escaped with a backslash, e.g. `"say \"hi\""`;
 backslashes must be escaped as well, e.g. `"c:\\dir"`.
 We allow the same backslash escapes allowed for character literals
 (see the section on characters above).
@@ -121,9 +137,9 @@ _[TODO: There is a difference in the treatment of single and double quotes:
 the former are allowed in string literals but not character literals,
 while the latter are allowed in character literals but not string literals;
 this asymmetry is also present in Java.
-However, for simplicity we may want to symmetrically disallow
+However, for simplicity, we may want to symmetrically disallow
 both single and double quotes in both character and string literals.]_
-We also allow the same Unicode escapes allowed in character literals,
+We also allow the same Unicode escapes allowed in character literals
 (described in the section on characters above).
 In any case, the type of a string literal is `[char; N]`,
 where `N` is the length of the string measured in characters,
@@ -132,7 +148,7 @@ Note that there is no notion of Unicode encoding (e.g. UTF-8)
 that applies to string literals.
 
 The rationale for not introducing a new type for strings initially,
-and instead piggyback on the existing array types and operations,
+and instead, piggyback on the existing array types and operations,
 is twofold.
 First, it is an economical design
 that lets us reuse the existing array machinery,
@@ -142,21 +158,27 @@ and at the R1CS compilation level
 Second, it leaves the door open to providing,
 in a future design iteration,
 a richer type for strings,
-as disccused in the section about future extensions below.
+as discussed in the section about future extensions below.
 
 _[TODO: Which (initial) built-in or library operations
 do we want to provide for `[char; N]` values that are not already
 available with the existing array operations?]_
-* `u8` to `[char; 2]` hexstring, .., `u128` to `[char; 32]` hexstring
-* field element to `[char; 64]` hexstring. (Application can test leading zeros and slice them out if it needs to return, say, a 40-hex-digit string)
-* _[TODO: more?]_
+- [ ] `u8` to `[char; 2]` hexstring, .., `u128` to `[char; 32]` hexstring
+- [ ] field element to `[char; 64]` hexstring. (Application can test leading zeros and slice them out if it needs to return, say, a 40-hex-digit string)
+- [ ] len - Returns the length of the `string`.
+- [ ] is_empty - Returns `true` if the `string` is empty.
+- [ ] pop - Pops a `char` to the `string`.
+- [ ] push - Pushes a `char` to the `string`.
+- [ ] append - Appends a `string` to the `string`.
+- [ ] clear - Empties the `string`.
+- [ ] _[TODO: more?]_
 
 ## Input and Output of Literal Characters and Strings
 
 Since UTF-8 is a standard encoding, it would make sense for
 the literal characters and strings in the `.in` file
 to be automatically converted to UTF-32 by the Leo compiler.
-However, the size of a string can be confusing, since multiple
+However, the size of a string can be confusing since multiple
 Unicode code points can be composed into a single glyph which
 then appears to be a single character.  If a parameter of type `[char; 10]`
 [if that is the syntax we decide on] is passed a literal string 
@@ -170,16 +192,16 @@ usable exclusively as first arguments of console print calls.
 This proposal eliminates this very specific notion,
 which is subsumed by the string literals described above.
 In other words, a console print call
-will simply take a string literal as first argument,
+will take a string literal as the first argument,
 which will be interpreted as a format string
 according to the semantics of console print calls.
 The internal UTF-32 string will be translated to UTF-8 for output.
 
 ## Compilation to R1CS
 
-So far the discussion has been independent from R1CS
+So far, the discussion has been independent from R1CS
 (except for a brief reference when discussing the rationale behind the design).
-This is intentional, because the syntax and semantics of Leo
+This is intentional because the syntax and semantics of Leo
 should be understandable independently from the compilation of Leo to R1CS.
 However, compilation to R1CS is a critical consideration
 that affects the design of Leo.
@@ -207,10 +229,10 @@ suitable array inline construction expressions.
 ## Future Extensions
 
 As alluded to in the section about design above,
-for now we are avoiding the introduction of a string type,
+for now, we are avoiding the introduction of a string type,
 isomorphic to but separate from character arrays,
 because we may want to introduce later a more flexible type of strings,
-in particular one that supports resizing.
+in particular, one that supports resizing.
 This may be realized via a built-in or library circuit type
 that includes a character array and a fill index.
 This may be a special case of a built-in or library circuit type
@@ -241,7 +263,7 @@ to/from common formats, e.g. UTF-8.
 # Alternatives
 
 We could avoid the new `char` type altogether,
-and instead rely on the existing `u32` to represent Unicode code points,
+and instead, rely on the existing `u32` to represent Unicode code points,
 and provide character-oriented operations on `u32` values.
 (Note that both `u8` and `u16` are too small for 10FFFFh,
 and that signed integer types include negative integers
@@ -255,7 +277,7 @@ All in all, introducing a new type for characters
 is consistent with Leo's strong typing approach.
 Furthermore, for compilation to R1CS, `u32`,
 even if restricted to the number of bits needed for Unicode code points,
-is less efficient than the field representation described earlier,
+is less efficient than the field representation described earlier
 because `u32` requires a field element for each bit.
 
 Instead of representing strings as character arrays,
@@ -265,9 +287,9 @@ These strings would be isomorphic to, but distinct form, character arrays.
 However, for compilation to R1CS, it would be necessary to
 perform the same kind of known-size analysis on strings
 that is already performed on arrays,
-possibly necessitating to include a size as part of the type, i.e. `string(N)`,
+possibly necessitating to include size as part of the type, i.e. `string(N)`,
 which is obviously isomorphic to `[char; N]`.
-Thus, using character arrays avoids the duplication.
+Thus, using character arrays avoids duplication.
 Furthermore, as noted in the section on future extensions,
 this leaves the door open to
 introducing a future type `string` for resizable strings.

@@ -511,7 +511,7 @@ rest-of-block-comment = "*" rest-of-block-comment-after-star
                       / not-star rest-of-block-comment
 ```
 
-Go to: _[not-star](#user-content-not-star), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star), [rest-of-block-comment](#user-content-rest-of-block-comment)_;
+Go to: _[rest-of-block-comment](#user-content-rest-of-block-comment), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star), [not-star](#user-content-not-star)_;
 
 
 <a name="rest-of-block-comment-after-star"></a>
@@ -521,7 +521,7 @@ rest-of-block-comment-after-star = "/"
                                  / not-star-or-slash rest-of-block-comment
 ```
 
-Go to: _[not-star-or-slash](#user-content-not-star-or-slash), [rest-of-block-comment](#user-content-rest-of-block-comment), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star)_;
+Go to: _[rest-of-block-comment](#user-content-rest-of-block-comment), [not-star-or-slash](#user-content-not-star-or-slash), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star)_;
 
 
 <a name="end-of-line-comment"></a>
@@ -596,16 +596,19 @@ lowercase-letter = %x61-7A   ; a-z
 letter = uppercase-letter / lowercase-letter
 ```
 
-Go to: _[uppercase-letter](#user-content-uppercase-letter), [lowercase-letter](#user-content-lowercase-letter)_;
+Go to: _[lowercase-letter](#user-content-lowercase-letter), [uppercase-letter](#user-content-uppercase-letter)_;
 
 
 An identifier is a non-empty sequence of letters, digits, and underscores,
 starting with a letter.
-It must not be a keyword: this is an extra-grammatical constraint.
+It must not be a keyword: this is an extra-grammatical requirement.
+It must also not be or start with `aleo1`,
+because that is used for address literals:
+this is another extra-grammatical requirement.
 
 <a name="identifier"></a>
 ```abnf
-identifier = letter *( letter / digit / "_" )   ; but not a keyword
+identifier = letter *( letter / digit / "_" )   ; but not a keyword or aleo1...
 ```
 
 Go to: _[letter](#user-content-letter)_;
@@ -639,7 +642,7 @@ format-string-element = not-double-quote-or-open-brace
                       / format-string-container
 ```
 
-Go to: _[not-double-quote-or-open-brace](#user-content-not-double-quote-or-open-brace), [format-string-container](#user-content-format-string-container), [not-double-quote-or-close-brace](#user-content-not-double-quote-or-close-brace)_;
+Go to: _[format-string-container](#user-content-format-string-container), [not-double-quote-or-open-brace](#user-content-not-double-quote-or-open-brace), [not-double-quote-or-close-brace](#user-content-not-double-quote-or-close-brace)_;
 
 
 <a name="format-string"></a>
@@ -764,7 +767,7 @@ atomic-literal = untyped-literal
                / address-literal
 ```
 
-Go to: _[product-group-literal](#user-content-product-group-literal), [unsigned-literal](#user-content-unsigned-literal), [signed-literal](#user-content-signed-literal), [untyped-literal](#user-content-untyped-literal), [field-literal](#user-content-field-literal), [boolean-literal](#user-content-boolean-literal), [address-literal](#user-content-address-literal)_;
+Go to: _[product-group-literal](#user-content-product-group-literal), [signed-literal](#user-content-signed-literal), [unsigned-literal](#user-content-unsigned-literal), [field-literal](#user-content-field-literal), [boolean-literal](#user-content-boolean-literal), [untyped-literal](#user-content-untyped-literal), [address-literal](#user-content-address-literal)_;
 
 
 After defining the (mostly) alphanumeric tokens above,
@@ -809,7 +812,7 @@ token = keyword
       / symbol
 ```
 
-Go to: _[symbol](#user-content-symbol), [format-string](#user-content-format-string), [package-name](#user-content-package-name), [identifier](#user-content-identifier), [keyword](#user-content-keyword), [atomic-literal](#user-content-atomic-literal), [annotation-name](#user-content-annotation-name)_;
+Go to: _[package-name](#user-content-package-name), [annotation-name](#user-content-annotation-name), [format-string](#user-content-format-string), [keyword](#user-content-keyword), [atomic-literal](#user-content-atomic-literal), [identifier](#user-content-identifier), [symbol](#user-content-symbol)_;
 
 
 
@@ -845,7 +848,7 @@ signed-type = %s"i8" / %s"i16" / %s"i32" / %s"i64" / %s"i128"
 integer-type = unsigned-type / signed-type
 ```
 
-Go to: _[unsigned-type](#user-content-unsigned-type), [signed-type](#user-content-signed-type)_;
+Go to: _[signed-type](#user-content-signed-type), [unsigned-type](#user-content-unsigned-type)_;
 
 
 The integer types, along with the field and group types,
@@ -866,7 +869,7 @@ group-type = %s"group"
 arithmetic-type = integer-type / field-type / group-type
 ```
 
-Go to: _[integer-type](#user-content-integer-type), [group-type](#user-content-group-type), [field-type](#user-content-field-type)_;
+Go to: _[integer-type](#user-content-integer-type), [field-type](#user-content-field-type), [group-type](#user-content-group-type)_;
 
 
 The arithmetic types, along with the boolean and address types,
@@ -887,7 +890,7 @@ address-type = %s"address"
 scalar-type =  boolean-type / arithmetic-type / address-type
 ```
 
-Go to: _[boolean-type](#user-content-boolean-type), [address-type](#user-content-address-type), [arithmetic-type](#user-content-arithmetic-type)_;
+Go to: _[arithmetic-type](#user-content-arithmetic-type), [address-type](#user-content-address-type), [boolean-type](#user-content-boolean-type)_;
 
 
 Circuit types are denoted by identifiers and the keyword `Self`.
@@ -948,7 +951,7 @@ i.e. types whose values contain (sub-)values
 aggregate-type = tuple-type / array-type / circuit-type
 ```
 
-Go to: _[circuit-type](#user-content-circuit-type), [tuple-type](#user-content-tuple-type), [array-type](#user-content-array-type)_;
+Go to: _[tuple-type](#user-content-tuple-type), [array-type](#user-content-array-type), [circuit-type](#user-content-circuit-type)_;
 
 
 Scalar and aggregate types form all the types.
@@ -1036,7 +1039,7 @@ primary-expression = identifier
                    / circuit-expression
 ```
 
-Go to: _[expression](#user-content-expression), [array-expression](#user-content-array-expression), [identifier](#user-content-identifier), [literal](#user-content-literal), [tuple-expression](#user-content-tuple-expression), [circuit-expression](#user-content-circuit-expression)_;
+Go to: _[tuple-expression](#user-content-tuple-expression), [identifier](#user-content-identifier), [expression](#user-content-expression), [array-expression](#user-content-array-expression), [circuit-expression](#user-content-circuit-expression), [literal](#user-content-literal)_;
 
 
 Tuple expressions construct tuples.
@@ -1097,7 +1100,7 @@ Go to: _[expression](#user-content-expression), [array-dimensions](#user-content
 array-construction = array-inline-construction / array-repeat-construction
 ```
 
-Go to: _[array-inline-construction](#user-content-array-inline-construction), [array-repeat-construction](#user-content-array-repeat-construction)_;
+Go to: _[array-repeat-construction](#user-content-array-repeat-construction), [array-inline-construction](#user-content-array-inline-construction)_;
 
 
 <a name="array-expression"></a>
@@ -1125,7 +1128,7 @@ circuit-construction = circuit-type "{"
                        "}"
 ```
 
-Go to: _[circuit-type](#user-content-circuit-type), [circuit-inline-element](#user-content-circuit-inline-element)_;
+Go to: _[circuit-inline-element](#user-content-circuit-inline-element), [circuit-type](#user-content-circuit-type)_;
 
 
 <a name="circuit-inline-element"></a>
@@ -1133,7 +1136,7 @@ Go to: _[circuit-type](#user-content-circuit-type), [circuit-inline-element](#us
 circuit-inline-element = identifier ":" expression / identifier
 ```
 
-Go to: _[identifier](#user-content-identifier), [expression](#user-content-expression)_;
+Go to: _[expression](#user-content-expression), [identifier](#user-content-identifier)_;
 
 
 <a name="circuit-expression"></a>
@@ -1212,7 +1215,7 @@ exponential-expression = unary-expression
                        / unary-expression "**" exponential-expression
 ```
 
-Go to: _[exponential-expression](#user-content-exponential-expression), [unary-expression](#user-content-unary-expression)_;
+Go to: _[unary-expression](#user-content-unary-expression), [exponential-expression](#user-content-exponential-expression)_;
 
 
 Next in precedence come multiplication and division, both left-associative.
@@ -1224,7 +1227,7 @@ multiplicative-expression = exponential-expression
                           / multiplicative-expression "/" exponential-expression
 ```
 
-Go to: _[multiplicative-expression](#user-content-multiplicative-expression), [exponential-expression](#user-content-exponential-expression)_;
+Go to: _[exponential-expression](#user-content-exponential-expression), [multiplicative-expression](#user-content-multiplicative-expression)_;
 
 
 Then there are addition and subtraction, both left-assocative.
@@ -1236,7 +1239,7 @@ additive-expression = multiplicative-expression
                     / additive-expression "-" multiplicative-expression
 ```
 
-Go to: _[additive-expression](#user-content-additive-expression), [multiplicative-expression](#user-content-multiplicative-expression)_;
+Go to: _[multiplicative-expression](#user-content-multiplicative-expression), [additive-expression](#user-content-additive-expression)_;
 
 
 Next in the precedence order are ordering relations.
@@ -1275,7 +1278,7 @@ conjunctive-expression = equality-expression
                        / conjunctive-expression "&&" equality-expression
 ```
 
-Go to: _[conjunctive-expression](#user-content-conjunctive-expression), [equality-expression](#user-content-equality-expression)_;
+Go to: _[equality-expression](#user-content-equality-expression), [conjunctive-expression](#user-content-conjunctive-expression)_;
 
 
 Next come disjunctive expressions, left-associative.
@@ -1286,7 +1289,7 @@ disjunctive-expression = conjunctive-expression
                        / disjunctive-expression "||" conjunctive-expression
 ```
 
-Go to: _[conjunctive-expression](#user-content-conjunctive-expression), [disjunctive-expression](#user-content-disjunctive-expression)_;
+Go to: _[disjunctive-expression](#user-content-disjunctive-expression), [conjunctive-expression](#user-content-conjunctive-expression)_;
 
 
 Finally we have conditional expressions.
@@ -1299,7 +1302,7 @@ conditional-expression = disjunctive-expression
                          ":" conditional-expression
 ```
 
-Go to: _[expression](#user-content-expression), [disjunctive-expression](#user-content-disjunctive-expression), [conditional-expression](#user-content-conditional-expression)_;
+Go to: _[expression](#user-content-expression), [conditional-expression](#user-content-conditional-expression), [disjunctive-expression](#user-content-disjunctive-expression)_;
 
 
 Those above are all the expressions.
@@ -1332,7 +1335,7 @@ statement = expression-statement
           / block
 ```
 
-Go to: _[return-statement](#user-content-return-statement), [assignment-statement](#user-content-assignment-statement), [conditional-statement](#user-content-conditional-statement), [variable-declaration](#user-content-variable-declaration), [constant-declaration](#user-content-constant-declaration), [expression-statement](#user-content-expression-statement), [loop-statement](#user-content-loop-statement), [console-statement](#user-content-console-statement), [block](#user-content-block)_;
+Go to: _[expression-statement](#user-content-expression-statement), [return-statement](#user-content-return-statement), [assignment-statement](#user-content-assignment-statement), [block](#user-content-block), [loop-statement](#user-content-loop-statement), [constant-declaration](#user-content-constant-declaration), [conditional-statement](#user-content-conditional-statement), [console-statement](#user-content-console-statement), [variable-declaration](#user-content-variable-declaration)_;
 
 
 <a name="block"></a>
@@ -1375,7 +1378,7 @@ variable-declaration = %s"let" identifier-or-identifiers [ ":" type ]
                        "=" expression ";"
 ```
 
-Go to: _[identifier-or-identifiers](#user-content-identifier-or-identifiers), [type](#user-content-type), [expression](#user-content-expression)_;
+Go to: _[type](#user-content-type), [identifier-or-identifiers](#user-content-identifier-or-identifiers), [expression](#user-content-expression)_;
 
 
 <a name="constant-declaration"></a>
@@ -1384,7 +1387,7 @@ constant-declaration = %s"const" identifier-or-identifiers [ ":" type ]
                        "=" expression ";"
 ```
 
-Go to: _[expression](#user-content-expression), [identifier-or-identifiers](#user-content-identifier-or-identifiers), [type](#user-content-type)_;
+Go to: _[expression](#user-content-expression), [type](#user-content-type), [identifier-or-identifiers](#user-content-identifier-or-identifiers)_;
 
 
 <a name="identifier-or-identifiers"></a>
@@ -1407,7 +1410,7 @@ Note that blocks are required in all branches, not merely statements.
 branch = %s"if" expression block
 ```
 
-Go to: _[expression](#user-content-expression), [block](#user-content-block)_;
+Go to: _[block](#user-content-block), [expression](#user-content-expression)_;
 
 
 <a name="conditional-statement"></a>
@@ -1417,7 +1420,7 @@ conditional-statement = branch
                       / branch %s"else" conditional-statement
 ```
 
-Go to: _[branch](#user-content-branch), [conditional-statement](#user-content-conditional-statement), [block](#user-content-block)_;
+Go to: _[block](#user-content-block), [branch](#user-content-branch), [conditional-statement](#user-content-conditional-statement)_;
 
 
 A loop statement implicitly defines a loop variable
@@ -1429,7 +1432,7 @@ The body is a block.
 loop-statement = %s"for" identifier %s"in" expression ".." expression block
 ```
 
-Go to: _[expression](#user-content-expression), [identifier](#user-content-identifier), [block](#user-content-block)_;
+Go to: _[identifier](#user-content-identifier), [expression](#user-content-expression), [block](#user-content-block)_;
 
 
 An assignment statement is straightforward.
@@ -1446,7 +1449,7 @@ assignment-operator = "=" / "+=" / "-=" / "*=" / "/=" / "**="
 assignment-statement = expression assignment-operator expression ";"
 ```
 
-Go to: _[assignment-operator](#user-content-assignment-operator), [expression](#user-content-expression)_;
+Go to: _[expression](#user-content-expression), [assignment-operator](#user-content-assignment-operator)_;
 
 
 Console statements start with the `console` keyword,
@@ -1532,7 +1535,7 @@ function-declaration = *annotation %s"function" identifier
                        block
 ```
 
-Go to: _[block](#user-content-block), [function-parameters](#user-content-function-parameters), [type](#user-content-type), [identifier](#user-content-identifier)_;
+Go to: _[block](#user-content-block), [identifier](#user-content-identifier), [function-parameters](#user-content-function-parameters), [type](#user-content-type)_;
 
 
 <a name="function-parameters"></a>
@@ -1542,7 +1545,7 @@ function-parameters = self-parameter
                     / function-inputs
 ```
 
-Go to: _[function-inputs](#user-content-function-inputs), [self-parameter](#user-content-self-parameter)_;
+Go to: _[self-parameter](#user-content-self-parameter), [function-inputs](#user-content-function-inputs)_;
 
 
 <a name="self-parameter"></a>
@@ -1563,7 +1566,7 @@ Go to: _[function-input](#user-content-function-input)_;
 function-input = [ %s"const" ] identifier ":" type
 ```
 
-Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
+Go to: _[type](#user-content-type), [identifier](#user-content-identifier)_;
 
 
 A circuit member variable declaration consists of an identifier and a type.
@@ -1583,7 +1586,7 @@ Go to: _[member-function-declaration](#user-content-member-function-declaration)
 member-variable-declaration = identifier ":" type
 ```
 
-Go to: _[type](#user-content-type), [identifier](#user-content-identifier)_;
+Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
 
 
 <a name="member-function-declaration"></a>
@@ -1618,7 +1621,7 @@ to be followed by a comma, for convenience.
 
 <a name="import-declaration"></a>
 ```abnf
-import-declaration = %s"import" package-path
+import-declaration = %s"import" package-path ";"
 ```
 
 Go to: _[package-path](#user-content-package-path)_;
@@ -1632,7 +1635,7 @@ package-path = "*"
              / "(" package-path *( "," package-path ) [","] ")"
 ```
 
-Go to: _[package-path](#user-content-package-path), [package-name](#user-content-package-name), [identifier](#user-content-identifier)_;
+Go to: _[identifier](#user-content-identifier), [package-path](#user-content-package-path), [package-name](#user-content-package-name)_;
 
 
 Finally, we define a file as a sequence of zero or more declarations.
@@ -1647,7 +1650,7 @@ declaration = import-declaration
             / constant-declaration
 ```
 
-Go to: _[import-declaration](#user-content-import-declaration), [circuit-declaration](#user-content-circuit-declaration), [constant-declaration](#user-content-constant-declaration), [function-declaration](#user-content-function-declaration)_;
+Go to: _[constant-declaration](#user-content-constant-declaration), [import-declaration](#user-content-import-declaration), [function-declaration](#user-content-function-declaration), [circuit-declaration](#user-content-circuit-declaration)_;
 
 
 <a name="file"></a>
