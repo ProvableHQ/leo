@@ -47,6 +47,14 @@ fn test_ternary_basic() {
     assert_satisfied(program);
 }
 
+#[test]
+fn test_ternary_non_const_conditional_fail() {
+    let program_string = include_str!("ternary_non_const_conditional_fail.leo");
+    let error = parse_program(program_string).err().unwrap();
+
+    expect_asg_error(error);
+}
+
 // Iteration for i {start}..{stop} { statements }
 
 #[test]

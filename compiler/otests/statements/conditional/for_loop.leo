@@ -7,7 +7,7 @@ function main(a: bool) {
         }
     }
 
-    const r: u32 = a ? 6 : 0;
+    let r: u32 = a ? 6 : 0;
 
     console.assert(r == b);
 }
