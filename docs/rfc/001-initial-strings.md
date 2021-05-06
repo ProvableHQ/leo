@@ -114,6 +114,25 @@ do we want to provide for `char` values?]_
 - [ ] to_digit - Converts the `char` to the given `radix` format.
 
 
+This code sample illustrates 3 ways of defining characters: character literal, escaped symbol
+and unicode escapes as hex. 
+
+```js
+function main() -> [char; 5] {
+
+    // using char literals to form an array 
+    const world: [char; 5] = ['w', 'o', 'r', 'l', 'd'];
+    
+    // escaped characters
+    const escaped: [char; 4] = ['\n', '\t', '\\', '\''];
+
+    // unicode escapes - using emoji character 😊
+    const smiling_face: char = '\u{1F60A}';
+
+    return [smiling_face, ...escaped]; 
+}
+```
+
 ## Strings
 
 In this initial design proposal, we do not introduce any new type for strings.
@@ -172,6 +191,23 @@ available with the existing array operations?]_
 - [ ] append - Appends a `string` to the `string`.
 - [ ] clear - Empties the `string`.
 - [ ] _[TODO: more?]_
+
+Following code shows string literal and it's actual transformation into array of
+characters as well as possible array-like operations on strings: concatenation and comparison.
+
+```js
+function main() -> bool {
+    // double quotes create char array from string
+    let hello: [char; 5] = "hello"; 
+    let world: [char; 5] = ['w','o','r','l','d'];
+
+    // string concatenation can be performed using array syntax
+    let hello_world: [char; 11] = [...hello, ' ', ...world];
+
+    // string comparison is also implemented via array type
+    return hello_world == "hello world";
+}
+```
 
 ## Input and Output of Literal Characters and Strings
 
