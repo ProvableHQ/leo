@@ -1,3 +1,3 @@
 circuit Bar {
-    r: u32
+    r: u32;
 }

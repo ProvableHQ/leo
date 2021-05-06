@@ -34,4 +34,5 @@ outputs:
           path: test
           content: import hello_world.foo;
     circuits: {}
+    global_consts: {}
     functions: {}

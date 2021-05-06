@@ -1,3 +1,3 @@
 circuit Bat {
-    t: u32
+    t: u32;
 }

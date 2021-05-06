@@ -1,5 +1,5 @@
 circuit Foo {
-    x: u8
+    x: u8;
 }
 
 function main() {

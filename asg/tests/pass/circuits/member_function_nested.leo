@@ -1,5 +1,5 @@
 circuit Foo {
-    x: u32,
+    x: u32;
 
     function add_x(self, y: u32) -> u32 {
         return self.x + y;

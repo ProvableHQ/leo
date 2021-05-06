@@ -34,4 +34,5 @@ outputs:
           path: test
           content: import a.b as bar;
     circuits: {}
+    global_consts: {}
     functions: {}

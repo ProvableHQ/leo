@@ -87,4 +87,5 @@ outputs:
                 col_stop: 6
                 path: test
                 content: "    function y() {\n...\n    }"
+    global_consts: {}
     functions: {}

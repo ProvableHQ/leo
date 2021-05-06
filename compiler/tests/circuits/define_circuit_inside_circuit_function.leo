@@ -1,5 +1,5 @@
 circuit Foo {
-    a: u32,
+    a: u32;
 }
 
 circuit Bar {

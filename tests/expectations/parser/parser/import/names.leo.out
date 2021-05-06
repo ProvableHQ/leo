@@ -90,4 +90,5 @@ outputs:
           path: test
           content: import hello-world.hello;
     circuits: {}
+    global_consts: {}
     functions: {}
