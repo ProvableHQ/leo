@@ -1,4 +1,10 @@
-function main() {
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+*/
+
+function main(y: bool) -> bool {
     const a = [[[0u8, 0u8], [0u8, 0u8], [0u8, 0u8]],
                [[0u8, 0u8], [0u8, 0u8], [0u8, 0u8]],
                [[0u8, 0u8], [0u8, 0u8], [0u8, 0u8]],
@@ -6,5 +12,5 @@ function main() {
 
     const b: [[[u8; 2]; 3]; 4] = [0; (4, 3, 2)]; // initializer
 
-    console.assert(a == b);
+    return a == b == y;
 }
