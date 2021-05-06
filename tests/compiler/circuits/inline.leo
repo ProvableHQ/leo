@@ -15,6 +15,6 @@ circuit Foo {
 }
 
 function main(x: u32) -> u32 {
-    const a = Foo { x: x };
+    let a = Foo { x: x };
     return a.x;
 }

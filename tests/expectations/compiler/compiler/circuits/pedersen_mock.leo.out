@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 33854
-      num_constraints: 50750
-      at: ef530d618c6915bbff2137e7f057b1135dacbdd02e8d4be420320999724633ad
-      bt: 4ec9fd3915bf2762cb32a7f7805918c1b976ca6c59852f505089fd23c0f321b7
-      ct: e13fb652749582faae780837f6de4900f3b6c7202289d2219a543bfdd4f6836e
+      num_private_variables: 33823
+      num_constraints: 50719
+      at: 894e21b7ca1c178a167a94f174b4ea0d37b102b394100a15c92e78e16a87acdf
+      bt: 6756180897cb6c9fe53fce913fd9ad1c77a5b537b805da2c7f42de0473d12c94
+      ct: 2f2e90dcee9f8a28e7a9fd4ee37093e4d247d07e4ab97937ecd0ba60ec5dd903
     output:
       - input_file: pedersen.in
         output:

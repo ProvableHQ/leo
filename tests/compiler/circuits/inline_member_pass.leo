@@ -4,6 +4,9 @@ expectation: Pass
 inputs:
  - inline.in: |
     [main]
+    y: bool = true;
+
+    [constants]
     x: u8 = 10;
 
     [registers]
@@ -18,9 +21,9 @@ circuit Foo {
     }
 }
 
-function main(x: u8) -> bool {
+function main(const x: u8, y: bool) -> bool {
     const a = Foo { x };
     const b = Foo::new(x);
 
-    return b.x == a.x;
+    return b.x == a.x == y;
 }

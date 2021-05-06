@@ -16,12 +16,12 @@ circuit Foo {
 
 circuit Bar {
     function bar(a: u32) -> u32 {
-        const f = Foo { a: a };
+        let f = Foo { a: a };
         return f.a;
     }
 }
 
 function main(a: u32) -> bool {
-    const b = Bar::bar(a);
+    let b = Bar::bar(a);
     return a == b;
 }

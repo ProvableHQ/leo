@@ -13,7 +13,7 @@ function main(x: u32) -> bool {
         }
     }
 
-    const r: u32 = x == 3 ? 6 : 0;
+    let r: u32 = x == 3 ? 6 : 0;
 
     return r == b;
 }

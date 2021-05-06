@@ -23,8 +23,8 @@ circuit Foo {
 }
 
 function main(x: u32) -> bool {
-    const a = Foo { x };
-    const b = a.add_x(1u32);
+    let a = Foo { x };
+    let b = a.add_x(1u32);
 
     return b == x + 1;
 }

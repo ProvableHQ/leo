@@ -44,20 +44,26 @@ pub struct Output {
 
 impl fmt::Display for Output {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "[{}]\n", REGISTERS_VARIABLE_NAME)?;
+        writeln!(f, "[{}]", REGISTERS_VARIABLE_NAME)?;
         // format: "token_id: u64 = 1u64;"
         for (name, register) in self.registers.iter() {
-            write!(f, "{}: {} = {};\n", name, register.type_, register.value)?;
+            writeln!(f, "{}: {} = {};", name, register.type_, register.value)?;
         }
         Ok(())
     }
 }
 
-impl Into<OutputBytes> for Output {
-    fn into(self) -> OutputBytes {
-        OutputBytes::from(self.to_string().into_bytes())
-    }
-}
+// impl Into<OutputBytes> for Output {
+//     fn into(self) -> OutputBytes {
+//         OutputBytes::from(self.to_string().into_bytes())
+//     }
+// }
+
+// impl From<Output> for OutputBytes {
+//     fn from(a: Output) -> Self {
+
+//     }
+// }
 
 impl Output {
     pub fn new<'a, F: PrimeField, G: GroupType<F>>(
