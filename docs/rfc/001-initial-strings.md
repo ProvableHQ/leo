@@ -111,6 +111,8 @@ do we want to provide for `char` values?]_
 - [ ] is_uppercase - Returns `true` if the `char` has the `Uppercase` property.
 - [ ] is_whitespace - Returns `true` if the `char` has the `White_Space` property.
 - [ ] to_digit - Converts the `char` to the given `radix` format.
+- [ ] to_uppercase - Converts lowercase to uppercase, leaving others unchanged.
+- [ ] to_lowercaser - Converts uppercase to lowercase, leaving others unchanged.
 
 It seems fairly natural to convert between `char` values
 and `u8` or `u16` or `u32` values, under suitable range conditions;
