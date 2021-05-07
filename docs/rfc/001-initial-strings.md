@@ -135,16 +135,16 @@ and Unicode escapes as hex.
 ```js
 function main() -> [char; 5] {
 
-    // using char literals to form an array 
+    // using char literals to form an array
     const world: [char; 5] = ['w', 'o', 'r', 'l', 'd'];
-    
+
     // escaped characters
     const escaped: [char; 4] = ['\n', '\t', '\\', '\''];
 
     // unicode escapes - using emoji character 😊
     const smiling_face: char = '\u{1F60A}';
 
-    return [smiling_face, ...escaped]; 
+    return [smiling_face, ...escaped];
 }
 ```
 
@@ -221,7 +221,7 @@ concatenation and comparison.
 ```js
 function main() -> bool {
     // double quotes create char array from string
-    let hello: [char; 5] = "hello"; 
+    let hello: [char; 5] = "hello";
     let world: [char; 5] = ['w','o','r','l','d'];
 
     // string concatenation can be performed using array syntax
@@ -240,8 +240,8 @@ to be automatically converted to UTF-32 by the Leo compiler.
 However, the size of a string can be confusing since multiple
 Unicode code points can be composed into a single glyph which
 then appears to be a single character.  If a parameter of type `[char; 10]`
-[if that is the syntax we decide on] is passed a literal string 
-of a different size, the error message should explain that the 
+[if that is the syntax we decide on] is passed a literal string
+of a different size, the error message should explain that the
 size must be the number of codepoints needed to encode the string.
 
 ## Format Strings
@@ -301,7 +301,7 @@ both below `(p-1)/2`, via the constraints
 (b2) (1 - b2) = 0
 ...
 ```
-that take the different, double it, and convert to bits.
+that take the difference, double it, and convert to bits.
 If `x >= y`, the difference is below `(p-1)/2`,
 and doubling results in an even number below `p`,
 with therefore `b0 = 0`.
