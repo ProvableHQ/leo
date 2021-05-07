@@ -98,6 +98,8 @@ _[TODO: Do we want a different notation for Unicode escapes?
 Note that the `{` `}` delimiters are motivated by the fact that
 there may be a varying number of hex digits in this notation.]_
 This notation is supported by both Javascript and Rust.
+_[TODO: Do we also want to support, as in Rust, escapes `\xXY`
+where `X` is an octal digit and `Y` is a hex digit?]_
 
 _[TODO: Which (initial) built-in or library operations
 do we want to provide for `char` values?]_
