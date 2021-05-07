@@ -1,6 +1,6 @@
 circuit Point {
-  x: u32
-  y: u32
+  x: u32;
+  y: u32;
 }
 
 function foo() -> u32 {

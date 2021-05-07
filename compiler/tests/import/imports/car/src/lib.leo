@@ -1,3 +1,3 @@
 circuit Car {
-    c: u32
+    c: u32;
 }

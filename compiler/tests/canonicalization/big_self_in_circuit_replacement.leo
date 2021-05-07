@@ -1,5 +1,5 @@
 circuit Foo {
-  x: u32
+  x: u32;
 
   function new() -> Self {
     let new: Self = Self {

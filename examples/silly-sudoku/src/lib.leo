@@ -16,7 +16,7 @@
 circuit SillySudoku {
     // The starting grid values for the Sudoku puzzle.
     // Unset cells on the puzzle grid are set to 0.
-    puzzle_grid: [u8; (3, 3)],
+    puzzle_grid: [u8; (3, 3)];
 
     /**
      * Returns true if a given Sudoku answer is correct.

@@ -13,7 +13,7 @@ outputs:
               - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
               - IntegerType: U32
           - CircuitVariable:
-              - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    y: u32,\\\"}\"}"
+              - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    y: u32\\\"}\"}"
               - IntegerType: U32
           - CircuitFunction:
               annotations: []

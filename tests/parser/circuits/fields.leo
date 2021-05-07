@@ -4,6 +4,6 @@ expectation: Pass
 */
 
 circuit X {
-    x: u32,
-    y: u32,
+    x: u32;
+    y: u32;
 }

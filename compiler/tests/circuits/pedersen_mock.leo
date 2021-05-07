@@ -1,14 +1,14 @@
 circuit PedersenHash {
-    parameters: [u32; 512]
+    parameters: [u32; 512];
 
-    function new(parameters: [u32; 512]) -> Self {
+    function new(const parameters: [u32; 512]) -> Self {
         return Self { parameters: parameters };
     }
 
-    function hash(self, bits: [bool; 512]) -> u32 {
+    function hash(self, const bits: [bool; 512]) -> u32 {
         let digest: u32 = 0;
         for i in 0..512 {
-            const base = bits[i] ? self.parameters[i] : 0u32;
+            let base = bits[i] ? self.parameters[i] : 0u32;
             digest += base;
         }
         return digest;
