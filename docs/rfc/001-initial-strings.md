@@ -28,7 +28,7 @@ that they should not limit the design of the future features.
 
 This proposal adds a new scalar type for characters
 along with a new kind of literals to denote characters.
-A string is then simply as an array of characters,
+A string is then simply an array of characters,
 but this proposal also adds a new kind of literals to denote strings
 more directly than via character array construction expressions.
 Along with equality and inequality, which always apply to every Leo type,
@@ -54,10 +54,7 @@ _[TODO: Add more use cases if needed.]_
 
 Since strings are sequences of characters,
 a design for strings inextricably also involves a design for characters.
-Thus, we first present a design for characters, then for strings.
-After that, we discuss the relation with Leo's existing format strings.
-We conclude this design section
-with a discussion of possible future extensions.
+Thus, we first present a design for both characters and strings.
 
 ## Characters
 
@@ -66,7 +63,7 @@ In accord with Leo's strong typing,
 this new type is separate from all the other scalar types.
 
 The set of values of type `char` is isomorphic to
-the set of Unicode code points from 0 to 10FFFFh (both inclusive).
+the set of Unicode code points from 0 to 10FFFF (both inclusive).
 That is, we support Unicode characters, more precisely code points
 (this may include some invalid code points,
 but it is simpler to allow every code point in that range).
@@ -83,13 +80,13 @@ backslashes must be escaped as well, i.e. `'\\'`
 We allow other backslash escapes
 for commonly used characters that are not otherwise easily denoted,
 namely _[TODO: Decide which other escapes we want to allow, e.g. `'\n'`.]_
-* `\n`
-* `\r`
-* `\t`
-* `\0`
-* `\'`
-* `\"`
-  
+* `\n` for code point 10 (line feed)
+* `\r` for code point 13 (carriage return)
+* `\t` for core point 9 (horizontal tab)
+* `\0` for code point 0 (the null character)
+* `\'` for code point 39 (single quote)
+* `\"` for code point 34 (double quote)
+
 We also allow Unicode escapes of the form `'\u{X}'`,
 where `X` is a sequence of one to six hex digits
 (both uppercase and lowercase letters are allowed)
@@ -101,6 +98,15 @@ _[TODO: Do we want a different notation for Unicode escapes?
 Note that the `{` `}` delimiters are motivated by the fact that
 there may be a varying number of hex digits in this notation.]_
 This notation is supported by both Javascript and Rust.
+_[TODO: Do we also want to support, as in Rust, escapes `\xXY`
+where `X` is an octal digit and `Y` is a hex digit?]_
+
+The equality operators `==` and `!=` are automatically available for `char`.
+Given that characters are essentially code points,
+it may be also natural to support
+the ordering operators `<`, `<=`, `>`, and `>=`.
+_[TODO: This is useful to check that a character is in a range, for instance.
+Another approach is to use conversions to integers and compare the integers.]_
 
 _[TODO: Which (initial) built-in or library operations
 do we want to provide for `char` values?]_
@@ -112,24 +118,33 @@ do we want to provide for `char` values?]_
 - [ ] is_uppercase - Returns `true` if the `char` has the `Uppercase` property.
 - [ ] is_whitespace - Returns `true` if the `char` has the `White_Space` property.
 - [ ] to_digit - Converts the `char` to the given `radix` format.
+- [ ] from_digit - Inverse of to_digit.
+- [ ] to_uppercase - Converts lowercase to uppercase, leaving others unchanged.
+- [ ] to_lowercase - Converts uppercase to lowercase, leaving others unchanged.
 
+It seems fairly natural to convert between `char` values
+and `u8` or `u16` or `u32` values, under suitable range conditions;
+perhaps also between `char` values and
+(non-negative) `i8` or `i16` or `i32` values.
+This will be accomplished as part of the type casting extension of Leo.
+_[TODO: are we okay with deferring these operations to type casting?]_
 
 This code sample illustrates 3 ways of defining characters: character literal, escaped symbol
-and unicode escapes as hex. 
+and Unicode escapes as hex.
 
 ```js
 function main() -> [char; 5] {
 
-    // using char literals to form an array 
+    // using char literals to form an array
     const world: [char; 5] = ['w', 'o', 'r', 'l', 'd'];
-    
+
     // escaped characters
     const escaped: [char; 4] = ['\n', '\t', '\\', '\''];
 
     // unicode escapes - using emoji character 😊
     const smiling_face: char = '\u{1F60A}';
 
-    return [smiling_face, ...escaped]; 
+    return [smiling_face, ...escaped];
 }
 ```
 
@@ -192,13 +207,21 @@ available with the existing array operations?]_
 - [ ] clear - Empties the `string`.
 - [ ] _[TODO: more?]_
 
-Following code shows string literal and it's actual transformation into array of
-characters as well as possible array-like operations on strings: concatenation and comparison.
+Given the natural conversions between `char` values and integer values
+discussed earlier,
+it may be natural to also support element-wise conversions
+between strings and arrays of integers.
+This will be accomplished, if desired,
+as part of the type casting extensions of Leo.
+
+The following code shows a string literal and its actual transformation into an
+array of characters as well as possible array-like operations on strings:
+concatenation and comparison.
 
 ```js
 function main() -> bool {
     // double quotes create char array from string
-    let hello: [char; 5] = "hello"; 
+    let hello: [char; 5] = "hello";
     let world: [char; 5] = ['w','o','r','l','d'];
 
     // string concatenation can be performed using array syntax
@@ -217,8 +240,8 @@ to be automatically converted to UTF-32 by the Leo compiler.
 However, the size of a string can be confusing since multiple
 Unicode code points can be composed into a single glyph which
 then appears to be a single character.  If a parameter of type `[char; 10]`
-[if that is the syntax we decide on] is passed a literal string 
-of a different size, the error message should explain that the 
+[if that is the syntax we decide on] is passed a literal string
+of a different size, the error message should explain that the
 size must be the number of codepoints needed to encode the string.
 
 ## Format Strings
@@ -245,10 +268,10 @@ This section discusses R1CS compilation considerations
 for this proposal for characters and strings.
 
 Values of type `char` can be represented directly as field elements,
-since the prime of the field is (much) larger than 10FFFFh.
+since the prime of the field is (much) larger than 10FFFF.
 This is more efficient than using a bit representation of characters.
 By construction, field elements that represent `char` values
-are never above 10FFFFh.
+are never above 10FFFF.
 Note that `field` and `char` remain separate types in Leo:
 it is only in the compilation to R1CS
 that everything is reduced to field elements.
@@ -261,6 +284,35 @@ necessary for the flattening to R1CS,
 applies to strings without exception.
 String literals are just syntactic sugar for
 suitable array inline construction expressions.
+
+_[TODO: We need to discuss which SnarkVM gadgets we need
+to compile the operations on characters and strings.]_
+
+There are at least two approaches to implementing
+ordering operations `<` and `<=` on `char` values.
+Recalling that characters are represented as field values
+that are (well) below `(p-1)/2` where `p` is the prime,
+we can compare two field values `x` and `y`,
+both below `(p-1)/2`, via the constraints
+```
+(2) (x - y) = (b0 + 2*b1 + 4*b2 + ...)
+(b0) (1 - b0) = 0
+(b1) (1 - b1) = 0
+(b2) (1 - b2) = 0
+...
+```
+that take the difference, double it, and convert to bits.
+If `x >= y`, the difference is below `(p-1)/2`,
+and doubling results in an even number below `p`,
+with therefore `b0 = 0`.
+If `x < y`, the difference is above `(p-1)/2` (when reduced modulo `p`),
+and doubling results in an odd number when reduced modulo `p`,
+with therefore `b0 = 1`.
+Note that we need one variable and one constraint for every bit of `p`.
+The other approach is to convert the `x` and `y` to bits
+and compare them as integers;
+in this case we only need 21 bits for each.
+We need more analysis to determine which approach is more efficient.
 
 ## Future Extensions
 
@@ -295,17 +347,18 @@ But the need to support characters and strings justifies the extra complexity.
 With the ability of Leo programs to process strings,
 it may be useful to have external tools that convert Leo strings
 to/from common formats, e.g. UTF-8.
+See the discussion of input files in the design section.
 
 # Alternatives
 
 We could avoid the new `char` type altogether,
 and instead, rely on the existing `u32` to represent Unicode code points,
 and provide character-oriented operations on `u32` values.
-(Note that both `u8` and `u16` are too small for 10FFFFh,
+(Note that both `u8` and `u16` are too small for 10FFFF,
 and that signed integer types include negative integers
 which are not Unicode code points:
 this makes `u32` the obvious choice.)
-However, many values of type `u32` are above 10FFFFh,
+However, many values of type `u32` are above 10FFFF,
 and many operations on `u32` do not really make sense on code points.
 We would probably want a notation for character literals anyhow,
 which could be (arguably mis)used for non-character unsigned integers.
