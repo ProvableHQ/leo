@@ -2,14 +2,12 @@
 namespace: Token
 expectation: Pass
 outputs:
-  - "'$' @ 1:1-2,'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8' @ 1:2-65"
-  - "'$' @ 1:1-2,'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j9' @ 1:2-65"
-  - "'$' @ 1:1-2,'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9' @ 1:2-65"
-  - "'$' @ 1:1-2,'aleo1aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8st' @ 1:2-65"
+  - "'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8' @ 1:1-65"
+  - "'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j9' @ 1:1-65"
+  - "'aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9' @ 1:1-65"
+  - "'aleo1aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8st' @ 1:1-65"
   - "'ALEO1' @ 1:1-6"
   - "'Aleo1' @ 1:1-6"
   - "'aleO1' @ 1:1-6"
   - "'aleo2qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9' @ 1:1-64"
   - "'bleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9' @ 1:1-64"
-  - "'$' @ 1:1-2"
-  - "'$' @ 1:1-2,'blue42' @ 1:2-8"

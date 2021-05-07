@@ -87,7 +87,6 @@ pub enum Token {
     Question,
     Arrow,
     Underscore,
-    Dollar,
 
     // Syntactic Grammr
     // Types
@@ -257,7 +256,6 @@ impl fmt::Display for Token {
             Question => write!(f, "?"),
             Arrow => write!(f, "->"),
             Underscore => write!(f, "_"),
-            Dollar => write!(f, "$"),
 
             U8 => write!(f, "u8"),
             U16 => write!(f, "u16"),

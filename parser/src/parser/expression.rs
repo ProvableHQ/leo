@@ -690,18 +690,8 @@ impl ParserContext {
             Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
             Token::LeftParen => self.parse_tuple_expression(&span)?,
             Token::LeftSquare => self.parse_array_expression(&span)?,
-            Token::Dollar => {
-                let SpannedToken {
-                    token,
-                    span: inner_span,
-                } = self.expect_any()?;
-
-                if let Token::AddressLit(value) = token {
-                    assert_no_whitespace(&span, &inner_span, "$", &value)?;
-                    return Ok(Expression::Value(ValueExpression::Address(value, inner_span)));
-                } else {
-                    return Err(SyntaxError::unexpected_str(&token, "Identifier", &inner_span));
-                }
+            Token::AddressLit(address) => {
+                return Ok(Expression::Value(ValueExpression::Address(address, span)));
             }
             Token::Ident(name) => {
                 let ident = Identifier { name, span };

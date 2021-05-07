@@ -7,7 +7,7 @@ outputs:
         - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
         - line_start: 1
           line_stop: 1
-          col_start: 2
+          col_start: 1
           col_stop: 65
           path: test
           content: $aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
@@ -16,7 +16,7 @@ outputs:
         - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j9
         - line_start: 1
           line_stop: 1
-          col_start: 2
+          col_start: 1
           col_stop: 65
           path: test
           content: $aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j9
@@ -25,7 +25,7 @@ outputs:
         - aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9
         - line_start: 1
           line_stop: 1
-          col_start: 2
+          col_start: 1
           col_stop: 65
           path: test
           content: $aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57d9
@@ -34,7 +34,7 @@ outputs:
         - aleo1aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8st
         - line_start: 1
           line_stop: 1
-          col_start: 2
+          col_start: 1
           col_stop: 65
           path: test
           content: $aleo1aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8st
