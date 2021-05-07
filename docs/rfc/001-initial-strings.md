@@ -110,6 +110,13 @@ do we want to provide for `char` values?]_
 - [ ] is_whitespace - Returns `true` if the `char` has the `White_Space` property.
 - [ ] to_digit - Converts the `char` to the given `radix` format.
 
+It seems fairly natural to convert between `char` values
+and `u8` or `u16` or `u32` values, under suitable range conditions;
+perhaps also between `char` values and
+(non-negative) `i8` or `i16` or `i32` values.
+This will be accomplished as part of the type casting extension of Leo.
+_[TODO: are we okay with deferring these operations to type casting?]_
+
 This code sample illustrates 3 ways of defining characters: character literal, escaped symbol
 and Unicode escapes as hex.
 
@@ -187,6 +194,13 @@ available with the existing array operations?]_
 - [ ] append - Appends a `string` to the `string`.
 - [ ] clear - Empties the `string`.
 - [ ] _[TODO: more?]_
+
+Given the natural conversions between `char` values and integer values
+discussed earlier,
+it may be natural to also support element-wise conversions
+between strings and arrays of integers.
+This will be accomplished, if desired,
+as part of the type casting extensions of Leo.
 
 The following code shows a string literal and its actual transformation into an
 array of characters as well as possible array-like operations on strings:
