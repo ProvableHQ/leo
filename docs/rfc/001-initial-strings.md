@@ -285,7 +285,7 @@ applies to strings without exception.
 String literals are just syntactic sugar for
 suitable array inline construction expressions.
 
-_[TODO: Here we probably need to discuss which R1CS gadgets we need
+_[TODO: We need to discuss which SnarkVM gadgets we need
 to compile the operations on characters and strings.]_
 
 There are at least two approaches to implementing
