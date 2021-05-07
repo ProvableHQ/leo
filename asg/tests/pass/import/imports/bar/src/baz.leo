@@ -1,7 +1,7 @@
 circuit Baz {
-    z: u32
+    z: u32;
 }
 
 circuit Bazzar {
-    a: u32
+    a: u32;
 }

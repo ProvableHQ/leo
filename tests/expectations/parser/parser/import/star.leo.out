@@ -10,12 +10,13 @@ outputs:
             name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import test-import.*;\\\"}\"}"
             access:
               Star:
-                line_start: 3
-                line_stop: 3
-                col_start: 20
-                col_stop: 21
-                path: test
-                content: import test-import.*;
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 20
+                  col_stop: 21
+                  path: test
+                  content: import test-import.*;
             span:
               line_start: 3
               line_stop: 3
@@ -31,4 +32,5 @@ outputs:
           path: test
           content: import test-import.*;
     circuits: {}
+    global_consts: {}
     functions: {}

@@ -1,5 +1,5 @@
 function main(a: bool, b: bool) {
-    const c = a ? true : false;
+    let c = a ? true : false;
 
-    const d = c == b;
+    let d = c == b;
 }

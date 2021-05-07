@@ -10,12 +10,13 @@ outputs:
             name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import test-import.*; // local import\\\"}\"}"
             access:
               Star:
-                line_start: 3
-                line_stop: 3
-                col_start: 20
-                col_stop: 21
-                path: test
-                content: import test-import.*; // local import
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 20
+                  col_stop: 21
+                  path: test
+                  content: import test-import.*; // local import
             span:
               line_start: 3
               line_stop: 3
@@ -35,12 +36,13 @@ outputs:
             name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import bar.*;         // imports directory import\\\"}\"}"
             access:
               Star:
-                line_start: 5
-                line_stop: 5
-                col_start: 12
-                col_stop: 13
-                path: test
-                content: import bar.*;         // imports directory import
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 12
+                  col_stop: 13
+                  path: test
+                  content: import bar.*;         // imports directory import
             span:
               line_start: 5
               line_stop: 5
@@ -63,12 +65,13 @@ outputs:
                 name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\"}\"}"
                 access:
                   Star:
-                    line_start: 6
-                    line_stop: 6
-                    col_start: 16
-                    col_stop: 17
-                    path: test
-                    content: import bar.baz.*;     // imports directory import
+                    span:
+                      line_start: 6
+                      line_stop: 6
+                      col_start: 16
+                      col_stop: 17
+                      path: test
+                      content: import bar.baz.*;     // imports directory import
                 span:
                   line_start: 6
                   line_stop: 6
@@ -101,12 +104,13 @@ outputs:
                     name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
                     access:
                       Star:
-                        line_start: 7
-                        line_stop: 7
-                        col_start: 20
-                        col_stop: 21
-                        path: test
-                        content: import bar.bat.bat.*; // imports directory import
+                        span:
+                          line_start: 7
+                          line_stop: 7
+                          col_start: 20
+                          col_stop: 21
+                          path: test
+                          content: import bar.bat.bat.*; // imports directory import
                     span:
                       line_start: 7
                       line_stop: 7
@@ -140,12 +144,13 @@ outputs:
             name: "{\"name\":\"car\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import car.*;         // imports directory import\\\"}\"}"
             access:
               Star:
-                line_start: 8
-                line_stop: 8
-                col_start: 12
-                col_stop: 13
-                path: test
-                content: import car.*;         // imports directory import
+                span:
+                  line_start: 8
+                  line_stop: 8
+                  col_start: 12
+                  col_stop: 13
+                  path: test
+                  content: import car.*;         // imports directory import
             span:
               line_start: 8
               line_stop: 8
@@ -161,4 +166,5 @@ outputs:
           path: test
           content: import car.*;         // imports directory import
     circuits: {}
+    global_consts: {}
     functions: {}

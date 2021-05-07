@@ -49,4 +49,5 @@ outputs:
                 col_stop: 6
                 path: test
                 content: "    function x(self) {\n...\n    }"
+    global_consts: {}
     functions: {}

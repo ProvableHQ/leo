@@ -75,6 +75,17 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
 
         let value = <&Expression<'a>>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;
 
+        if matches!(statement.declaration_type, leo_ast::Declare::Const) && !value.is_consty() {
+            let var_names = statement
+                .variable_names
+                .iter()
+                .map(ToString::to_string)
+                .collect::<Vec<String>>()
+                .join(" ,");
+
+            return Err(AsgConvertError::invalid_const_assign(&var_names, &statement.span));
+        }
+
         let type_ = type_.or_else(|| value.get_type());
 
         let mut output_types = vec![];
