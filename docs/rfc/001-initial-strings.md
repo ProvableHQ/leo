@@ -28,7 +28,7 @@ that they should not limit the design of the future features.
 
 This proposal adds a new scalar type for characters
 along with a new kind of literals to denote characters.
-A string is then simply as an array of characters,
+A string is then simply an array of characters,
 but this proposal also adds a new kind of literals to denote strings
 more directly than via character array construction expressions.
 Along with equality and inequality, which always apply to every Leo type,
@@ -54,10 +54,7 @@ _[TODO: Add more use cases if needed.]_
 
 Since strings are sequences of characters,
 a design for strings inextricably also involves a design for characters.
-Thus, we first present a design for characters, then for strings.
-After that, we discuss the relation with Leo's existing format strings.
-We conclude this design section
-with a discussion of possible future extensions.
+Thus, we first present a design for both characters and strings.
 
 ## Characters
 
@@ -66,7 +63,7 @@ In accord with Leo's strong typing,
 this new type is separate from all the other scalar types.
 
 The set of values of type `char` is isomorphic to
-the set of Unicode code points from 0 to 10FFFFh (both inclusive).
+the set of Unicode code points from 0 to 10FFFF (both inclusive).
 That is, we support Unicode characters, more precisely code points
 (this may include some invalid code points,
 but it is simpler to allow every code point in that range).
@@ -83,13 +80,13 @@ backslashes must be escaped as well, i.e. `'\\'`
 We allow other backslash escapes
 for commonly used characters that are not otherwise easily denoted,
 namely _[TODO: Decide which other escapes we want to allow, e.g. `'\n'`.]_
-* `\n`
-* `\r`
-* `\t`
-* `\0`
-* `\'`
-* `\"`
-  
+* `\n` for code point 10 (line feed)
+* `\r` for code point 13 (carriage return)
+* `\t` for core point 9 (horizontal tab)
+* `\0` for code point 0 (the null character)
+* `\'` for code point 39 (single quote)
+* `\"` for code point 34 (double quote)
+
 We also allow Unicode escapes of the form `'\u{X}'`,
 where `X` is a sequence of one to six hex digits
 (both uppercase and lowercase letters are allowed)
@@ -113,9 +110,8 @@ do we want to provide for `char` values?]_
 - [ ] is_whitespace - Returns `true` if the `char` has the `White_Space` property.
 - [ ] to_digit - Converts the `char` to the given `radix` format.
 
-
 This code sample illustrates 3 ways of defining characters: character literal, escaped symbol
-and unicode escapes as hex. 
+and Unicode escapes as hex.
 
 ```js
 function main() -> [char; 5] {
@@ -192,8 +188,9 @@ available with the existing array operations?]_
 - [ ] clear - Empties the `string`.
 - [ ] _[TODO: more?]_
 
-Following code shows string literal and it's actual transformation into array of
-characters as well as possible array-like operations on strings: concatenation and comparison.
+The following code shows a string literal and its actual transformation into an
+array of characters as well as possible array-like operations on strings:
+concatenation and comparison.
 
 ```js
 function main() -> bool {
@@ -245,10 +242,10 @@ This section discusses R1CS compilation considerations
 for this proposal for characters and strings.
 
 Values of type `char` can be represented directly as field elements,
-since the prime of the field is (much) larger than 10FFFFh.
+since the prime of the field is (much) larger than 10FFFF.
 This is more efficient than using a bit representation of characters.
 By construction, field elements that represent `char` values
-are never above 10FFFFh.
+are never above 10FFFF.
 Note that `field` and `char` remain separate types in Leo:
 it is only in the compilation to R1CS
 that everything is reduced to field elements.
@@ -295,17 +292,18 @@ But the need to support characters and strings justifies the extra complexity.
 With the ability of Leo programs to process strings,
 it may be useful to have external tools that convert Leo strings
 to/from common formats, e.g. UTF-8.
+See the discussion of input files in the design section.
 
 # Alternatives
 
 We could avoid the new `char` type altogether,
 and instead, rely on the existing `u32` to represent Unicode code points,
 and provide character-oriented operations on `u32` values.
-(Note that both `u8` and `u16` are too small for 10FFFFh,
+(Note that both `u8` and `u16` are too small for 10FFFF,
 and that signed integer types include negative integers
 which are not Unicode code points:
 this makes `u32` the obvious choice.)
-However, many values of type `u32` are above 10FFFFh,
+However, many values of type `u32` are above 10FFFF,
 and many operations on `u32` do not really make sense on code points.
 We would probably want a notation for character literals anyhow,
 which could be (arguably mis)used for non-character unsigned integers.
