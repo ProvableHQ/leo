@@ -101,6 +101,13 @@ This notation is supported by both Javascript and Rust.
 _[TODO: Do we also want to support, as in Rust, escapes `\xXY`
 where `X` is an octal digit and `Y` is a hex digit?]_
 
+The equality operators `==` and `!=` are automatically available for `char`.
+Given that characters are essentially code points,
+it may be also natural to support
+the ordering operators `<`, `<=`, `>`, and `>=`.
+_[TODO: This is useful to check that a character is in a range, for instance.
+Another approach is to use conversions to integers and compare the integers.]_
+
 _[TODO: Which (initial) built-in or library operations
 do we want to provide for `char` values?]_
 - [ ] is_alphabetic - Returns `true` if the `char` has the `Alphabetic` property.
@@ -111,8 +118,9 @@ do we want to provide for `char` values?]_
 - [ ] is_uppercase - Returns `true` if the `char` has the `Uppercase` property.
 - [ ] is_whitespace - Returns `true` if the `char` has the `White_Space` property.
 - [ ] to_digit - Converts the `char` to the given `radix` format.
+- [ ] from_digit - Inverse of to_digit.
 - [ ] to_uppercase - Converts lowercase to uppercase, leaving others unchanged.
-- [ ] to_lowercaser - Converts uppercase to lowercase, leaving others unchanged.
+- [ ] to_lowercase - Converts uppercase to lowercase, leaving others unchanged.
 
 It seems fairly natural to convert between `char` values
 and `u8` or `u16` or `u32` values, under suitable range conditions;
@@ -276,6 +284,35 @@ necessary for the flattening to R1CS,
 applies to strings without exception.
 String literals are just syntactic sugar for
 suitable array inline construction expressions.
+
+_[TODO: Here we probably need to discuss which R1CS gadgets we need
+to compile the operations on characters and strings.]_
+
+There are at least two approaches to implementing
+ordering operations `<` and `<=` on `char` values.
+Recalling that characters are represented as field values
+that are (well) below `(p-1)/2` where `p` is the prime,
+we can compare two field values `x` and `y`,
+both below `(p-1)/2`, via the constraints
+```
+(2) (x - y) = (b0 + 2*b1 + 4*b2 + ...)
+(b0) (1 - b0) = 0
+(b1) (1 - b1) = 0
+(b2) (1 - b2) = 0
+...
+```
+that take the different, double it, and convert to bits.
+If `x >= y`, the difference is below `(p-1)/2`,
+and doubling results in an even number below `p`,
+with therefore `b0 = 0`.
+If `x < y`, the difference is above `(p-1)/2` (when reduced modulo `p`),
+and doubling results in an odd number when reduced modulo `p`,
+with therefore `b0 = 1`.
+Note that we need one variable and one constraint for every bit of `p`.
+The other approach is to convert the `x` and `y` to bits
+and compare them as integers;
+in this case we only need 21 bits for each.
+We need more analysis to determine which approach is more efficient.
 
 ## Future Extensions
 
