@@ -942,18 +942,35 @@ function-inputs = function-input *( "," function-input )
 
 function-input = [ %s"const" ] identifier ":" type
 
-; A circuit member variable declaration consists of an identifier and a type.
-; A circuit member function declaration consists of a function declaration.
+; A circuit member variable declaration consists of
+; an identifier and a type, terminated by semicolon.
+; For backward compatibility,
+; member variable declarations may be alternatively followed by commas,
+; and the last one may not be followed by anything:
+; these are deprecated, and will be eventually removed,
+; leaving only mandatory semicolons.
+; Note that there is no rule for a single `member-variable-declaration`,
+; but instead one for a sequence of them;
+; see the rule `circuit-declaration`.
 
-member-variable-declarations = *(identifier ":" type ( "," / ";" )) identifier ":" type ( [ "," ] / ";" )
+member-variable-declarations = *( identifier ":" type ( "," / ";" ) )
+                               identifier ":" type ( [ "," ] / ";" )
+
+; A circuit member function declaration consists of a function declaration.
 
 member-function-declaration = function-declaration
 
 ; A circuit declaration defines a circuit type,
 ; as consisting of member variables and functions.
+; To more simply accommodate the backward compatibility
+; described for the rule `member-variable-declarations`,
+; all the member variables must precede all the member functions;
+; this may be relaxed after the backward compatibility is removed,
+; allowing member variables and member functions to be intermixed.
 
 circuit-declaration = *annotation %s"circuit" identifier
-                      "{" [ member-variable-declarations ] *member-function-declaration "}"
+                      "{" [ member-variable-declarations ]
+                      *member-function-declaration "}"
 
 ; An import declaration consists of the `import` keyword
 ; followed by a package path, which may be one of the following:
@@ -964,6 +981,10 @@ circuit-declaration = *annotation %s"circuit" identifier
 ; which are "fan out" of the initial path.
 ; Note that we allow the last element of the parenthesized list
 ; to be followed by a comma, for convenience.
+; The package path in the import declaration must start with a package name
+; (e.g. it cannot be a `*`):
+; the rule for import declaration expresses this requirement
+; by using an explicit package name before the package path.
 
 import-declaration = %s"import" package-name "." package-path ";"
 
