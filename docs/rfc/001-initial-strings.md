@@ -107,7 +107,7 @@ Given that characters are essentially code points,
 we may also support the ordering operators `<`, `<=`, `>`, and `>=`;
 these may be useful to check whether a character is in certain range.
 
-Belowis a list of possible operations we could support on characters.
+Below is a list of possible operations we could support on characters.
 It should be fairly easy to add more.
 - [ ] `is_alphabetic` - Returns `true` if the `char` has the `Alphabetic` property.
 - [ ] `is_ascii` - Returns `true` if the `char` is in the `ASCII` range.
