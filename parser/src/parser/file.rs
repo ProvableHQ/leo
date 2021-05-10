@@ -75,6 +75,7 @@ impl ParserContext {
                 }
             }
         }
+
         Ok(Program {
             name: String::new(),
             expected_input: Vec::new(),

@@ -675,6 +675,32 @@ impl ParserContext {
                             span + type_span,
                         ))))
                     }
+                    Some(SpannedToken {
+                        token: Token::U32,
+                        span: type_span,
+                    }) => {
+                        assert_no_whitespace(&span, &type_span, &value, "u32")?;
+
+                        Expression::CircuitInit(CircuitInitExpression {
+                            name: Identifier {
+                                name: "u32".into(),
+                                span: type_span,
+                            },
+                            members: vec![CircuitImpliedVariableDefinition {
+                                identifier: Identifier {
+                                    name: "data".into(),
+                                    span: span.clone(),
+                                },
+                                expression: Some(Expression::Value(ValueExpression::Integer(
+                                    IntegerType::U32,
+                                    value,
+                                    span.clone(),
+                                ))),
+                            }],
+                            span,
+                        })
+                    }
+
                     Some(SpannedToken { token, span: type_span }) => {
                         assert_no_whitespace(&span, &type_span, &value, &token.to_string())?;
                         Expression::Value(ValueExpression::Integer(
