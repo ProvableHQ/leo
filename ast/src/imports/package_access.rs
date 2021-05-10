@@ -21,7 +21,7 @@ use std::fmt;
 
 #[derive(Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum PackageAccess {
-    Star(Span),
+    Star { span: Span },
     SubPackage(Box<Package>),
     Symbol(ImportSymbol),
     Multiple(Packages),
@@ -30,7 +30,7 @@ pub enum PackageAccess {
 impl Node for PackageAccess {
     fn span(&self) -> &Span {
         match self {
-            PackageAccess::Star(span) => span,
+            PackageAccess::Star { span } => span,
             PackageAccess::SubPackage(package) => &package.span,
             PackageAccess::Symbol(package) => &package.span,
             PackageAccess::Multiple(package) => &package.span,
@@ -39,7 +39,7 @@ impl Node for PackageAccess {
 
     fn set_span(&mut self, span: Span) {
         match self {
-            PackageAccess::Star(package) => *package = span,
+            PackageAccess::Star { span } => *span = span.clone(),
             PackageAccess::SubPackage(package) => package.span = span,
             PackageAccess::Symbol(package) => package.span = span,
             PackageAccess::Multiple(package) => package.span = span,
@@ -50,7 +50,7 @@ impl Node for PackageAccess {
 impl PackageAccess {
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            PackageAccess::Star(ref _span) => write!(f, "*"),
+            PackageAccess::Star { .. } => write!(f, "*"),
             PackageAccess::SubPackage(ref package) => write!(f, "{}", package),
             PackageAccess::Symbol(ref symbol) => write!(f, "{}", symbol),
             PackageAccess::Multiple(ref packages) => {

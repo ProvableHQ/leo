@@ -21,20 +21,19 @@ DRAFT
 The purpose of this proposal is to provide initial support for strings in Leo.
 Since strings are sequences of characters,
 the proposal inextricably also involves characters.
-This proposal is described as 'initial,'
+This proposal is described as initial,
 because it provides some basic features that we may extend in the future;
 the initial features should be sufficiently simple and conservative
 that they should not limit the design of the future features.
 
-This proposal adds a new scalar type for characters
+This proposal adds a new scalar type for characters,
 along with a new kind of literals to denote characters.
 A string is then simply an array of characters,
 but this proposal also adds a new kind of literals to denote strings
 more directly than via character array construction expressions.
 Along with equality and inequality, which always apply to every Leo type,
-this proposal also introduces operations for
-_[TODO: Summarize initial set of built-in or library operations
-on characters and strings.]_.
+this proposal also introduces some operations on characters and strings
+that can be implemented over time.
 
 By not prescribing a new type for strings,
 this initial proposal leaves the door open
@@ -48,7 +47,6 @@ simple ones like URLs and token ticker symbols,
 and more complex ones like Bech32 encoding,
 edit distance in strings representing proteins,
 and zero-knowledge proofs of occurrences or absences of patterns in textual logs.
-_[TODO: Add more use cases if needed.]_
 
 # Design
 
@@ -61,6 +59,8 @@ Thus, we first present a design for both characters and strings.
 We add a new scalar type, `char` for characters.
 In accord with Leo's strong typing,
 this new type is separate from all the other scalar types.
+Type casts (a future feature of Leo) will be needed
+to convert between `char` and other types.
 
 The set of values of type `char` is isomorphic to
 the set of Unicode code points from 0 to 10FFFF (both inclusive).
@@ -78,59 +78,57 @@ e.g. `'a'`, `'*'`, and `'"'`.
 Single quotes must be escaped with a backslash, i.e. `'\''`;
 backslashes must be escaped as well, i.e. `'\\'`
 We allow other backslash escapes
-for commonly used characters that are not otherwise easily denoted,
-namely _[TODO: Decide which other escapes we want to allow, e.g. `'\n'`.]_
+for commonly used characters that are not otherwise easily denoted.
+This is the complete list of single-character backslash escapes:
+* `\'` for code point 39 (single quote)
+* `\"` for code point 34 (double quote)
+* `\\` for code point 92 (backslash)
 * `\n` for code point 10 (line feed)
 * `\r` for code point 13 (carriage return)
 * `\t` for core point 9 (horizontal tab)
 * `\0` for code point 0 (the null character)
-* `\'` for code point 39 (single quote)
-* `\"` for code point 34 (double quote)
+
+We also allow ASCII escapes of the form `\xOH`,
+where `O` is an octal digit and `H` is a hexadecimal digit
+(both uppercase and lowercase are allowed).
+These represent ASCII code points, i.e. from 0 to 127 (both inclusive).
 
 We also allow Unicode escapes of the form `'\u{X}'`,
 where `X` is a sequence of one to six hex digits
 (both uppercase and lowercase letters are allowed)
 whose value must be between 0 and 10FFFF, inclusive.
+
 Note that the literal character is assembled by the compiler---for
 creating literals, there is no need for the circuit to know
-which codepoints are disallowed.
-_[TODO: Do we want a different notation for Unicode escapes?
-Note that the `{` `}` delimiters are motivated by the fact that
-there may be a varying number of hex digits in this notation.]_
-This notation is supported by both Javascript and Rust.
-_[TODO: Do we also want to support, as in Rust, escapes `\xXY`
-where `X` is an octal digit and `Y` is a hex digit?]_
+which code points are disallowed.
 
 The equality operators `==` and `!=` are automatically available for `char`.
 Given that characters are essentially code points,
-it may be also natural to support
-the ordering operators `<`, `<=`, `>`, and `>=`.
-_[TODO: This is useful to check that a character is in a range, for instance.
-Another approach is to use conversions to integers and compare the integers.]_
+we may also support the ordering operators `<`, `<=`, `>`, and `>=`;
+these may be useful to check whether a character is in certain range.
 
-_[TODO: Which (initial) built-in or library operations
-do we want to provide for `char` values?]_
-- [ ] is_alphabetic - Returns `true` if the `char` has the `Alphabetic` property.
-- [ ] is_ascii - Returns `true` if the `char` is in the `ASCII` range.
-- [ ] is_ascii_alphabetic - Returns `true` if the `char` is in the `ASCII Alphabetic` range.
-- [ ] is_lowercase - Returns `true` if the `char` has the `Lowercase` property.
-- [ ] is_numeric - Returns `true` if the `char` has one of the general categories for numbers.
-- [ ] is_uppercase - Returns `true` if the `char` has the `Uppercase` property.
-- [ ] is_whitespace - Returns `true` if the `char` has the `White_Space` property.
-- [ ] to_digit - Converts the `char` to the given `radix` format.
-- [ ] from_digit - Inverse of to_digit.
-- [ ] to_uppercase - Converts lowercase to uppercase, leaving others unchanged.
-- [ ] to_lowercase - Converts uppercase to lowercase, leaving others unchanged.
+Below is a list of possible operations we could support on characters.
+It should be fairly easy to add more.
+- [ ] `is_alphabetic` - Returns `true` if the `char` has the `Alphabetic` property.
+- [ ] `is_ascii` - Returns `true` if the `char` is in the `ASCII` range.
+- [ ] `is_ascii_alphabetic` - Returns `true` if the `char` is in the `ASCII Alphabetic` range.
+- [ ] `is_lowercase` - Returns `true` if the `char` has the `Lowercase` property.
+- [ ] `is_numeric` - Returns `true` if the `char` has one of the general categories for numbers.
+- [ ] `is_uppercase` - Returns `true` if the `char` has the `Uppercase` property.
+- [ ] `is_whitespace` - Returns `true` if the `char` has the `White_Space` property.
+- [ ] `to_digit` - Converts the `char` to the given `radix` format.
+- [ ] `from_digit` - Inverse of to_digit.
+- [ ] `to_uppercase` - Converts lowercase to uppercase, leaving others unchanged.
+- [ ] `to_lowercase` - Converts uppercase to lowercase, leaving others unchanged.
 
-It seems fairly natural to convert between `char` values
+It seems natural to convert between `char` values
 and `u8` or `u16` or `u32` values, under suitable range conditions;
 perhaps also between `char` values and
 (non-negative) `i8` or `i16` or `i32` values.
 This will be accomplished as part of the type casting extension of Leo.
-_[TODO: are we okay with deferring these operations to type casting?]_
 
-This code sample illustrates 3 ways of defining characters: character literal, escaped symbol
-and Unicode escapes as hex.
+The following code sample illustrates three ways of defining characters:
+character literal, single-character escapes, and Unicode escapes.
 
 ```js
 function main() -> [char; 5] {
@@ -167,12 +165,6 @@ Double quotes must be escaped with a backslash, e.g. `"say \"hi\""`;
 backslashes must be escaped as well, e.g. `"c:\\dir"`.
 We allow the same backslash escapes allowed for character literals
 (see the section on characters above).
-_[TODO: There is a difference in the treatment of single and double quotes:
-the former are allowed in string literals but not character literals,
-while the latter are allowed in character literals but not string literals;
-this asymmetry is also present in Java.
-However, for simplicity, we may want to symmetrically disallow
-both single and double quotes in both character and string literals.]_
 We also allow the same Unicode escapes allowed in character literals
 (described in the section on characters above).
 In any case, the type of a string literal is `[char; N]`,
@@ -194,25 +186,37 @@ in a future design iteration,
 a richer type for strings,
 as discussed in the section about future extensions below.
 
-_[TODO: Which (initial) built-in or library operations
-do we want to provide for `[char; N]` values that are not already
-available with the existing array operations?]_
-- [ ] `u8` to `[char; 2]` hexstring, .., `u128` to `[char; 32]` hexstring
-- [ ] field element to `[char; 64]` hexstring. (Application can test leading zeros and slice them out if it needs to return, say, a 40-hex-digit string)
-- [ ] len - Returns the length of the `string`.
-- [ ] is_empty - Returns `true` if the `string` is empty.
-- [ ] pop - Pops a `char` to the `string`.
-- [ ] push - Pushes a `char` to the `string`.
-- [ ] append - Appends a `string` to the `string`.
-- [ ] clear - Empties the `string`.
-- [ ] _[TODO: more?]_
+Recall that empty arrays are disallowed in Leo.
+(The reason is that arrays,
+which must have a size known at compile time and are not resizable,
+are flattened into their elements when compiling to R1CS;
+thus, an empty array would be flattened into nothing.)
+Therefore, in this initial design empty strings must be disallowed as well.
+A future type of resizable strings will support empty strings.
 
-Given the natural conversions between `char` values and integer values
-discussed earlier,
-it may be natural to also support element-wise conversions
-between strings and arrays of integers.
-This will be accomplished, if desired,
-as part of the type casting extensions of Leo.
+Because array, and therefore string, sizes must be known at compile time,
+there is no point to having an operation to return the length of a string.
+This operation will be supported for a future type of resizable strings.
+
+Below are some examples of array operations
+that are also common for strings in other programming languages:
+* `[...s1, ...s2]` concatenates the strings `s1` and `s2`.
+* `[c, ...s]` adds the character `c` in front of the string `s`.
+* `s[i]` extracts the `i`-th character from the string `s`.
+* `s[1..]` removes the first character from the string `s`.
+
+Below is a list of possible operations we could support on strings.
+It should be fairly easy to add more.
+- [ ] `u8` to `[char; 2]` hexstring, .., `u128` to `[char; 32]` hexstring.
+- [ ] Field element to `[char; 64]` hexstring. (Application can test leading zeros and slice them out if it needs to return, say, a 40-hex-digit string.)
+- [ ] Apply `to_uppercase` (see above) to every character.
+- [ ] Apply `to_lowercase` (see above) to every character.
+
+Note that the latter two could be also realize via simple loops through the string.
+
+Given the natural conversions between `char` values and integer values discussed earlier,
+it may be natural to also support element-wise conversions between strings and arrays of integers.
+This may be accomplished as part of the type casting extensions of Leo.
 
 The following code shows a string literal and its actual transformation into an
 array of characters as well as possible array-like operations on strings:
@@ -232,18 +236,6 @@ function main() -> bool {
 }
 ```
 
-## Input and Output of Literal Characters and Strings
-
-Since UTF-8 is a standard encoding, it would make sense for
-the literal characters and strings in the `.in` file
-to be automatically converted to UTF-32 by the Leo compiler.
-However, the size of a string can be confusing since multiple
-Unicode code points can be composed into a single glyph which
-then appears to be a single character.  If a parameter of type `[char; 10]`
-[if that is the syntax we decide on] is passed a literal string
-of a different size, the error message should explain that the
-size must be the number of codepoints needed to encode the string.
-
 ## Format Strings
 
 Leo currently supports format strings as their own entity,
@@ -255,6 +247,31 @@ will take a string literal as the first argument,
 which will be interpreted as a format string
 according to the semantics of console print calls.
 The internal UTF-32 string will be translated to UTF-8 for output.
+
+## Circuit Types for Character and String Operations
+
+The operations on characters and lists described earlier, e.g. `is_ascii`,
+are provided as static member functions of two new built-in or library circuit types `Char` and `String`.
+Thus, an example call is `Char::is_ascii(c)`.
+This seems a general good way to organize built-in or library operations,
+and supports the use of the same name with different circuit types,
+e.g. `Char::to_uppercase` and `String::to_uppercase`.
+
+These circuit types could also include constants, e.g. for certain ASCII characters.
+However, currently Leo does not support constants in circuit types,
+so that would have to be added separately first.
+
+## Input and Output of Literal Characters and Strings
+
+Since UTF-8 is a standard encoding, it would make sense for
+the literal characters and strings in the `.in` file
+to be automatically converted to UTF-32 by the Leo compiler.
+However, the size of a string can be confusing since multiple
+Unicode code points can be composed into a single glyph which
+then appears to be a single character.  If a parameter of type `[char; 10]`
+[if that is the syntax we decide on] is passed a literal string
+of a different size, the error message should explain that the
+size must be the number of codepoints needed to encode the string.
 
 ## Compilation to R1CS
 
@@ -285,9 +302,6 @@ applies to strings without exception.
 String literals are just syntactic sugar for
 suitable array inline construction expressions.
 
-_[TODO: We need to discuss which SnarkVM gadgets we need
-to compile the operations on characters and strings.]_
-
 There are at least two approaches to implementing
 ordering operations `<` and `<=` on `char` values.
 Recalling that characters are represented as field values
@@ -313,6 +327,9 @@ The other approach is to convert the `x` and `y` to bits
 and compare them as integers;
 in this case we only need 21 bits for each.
 We need more analysis to determine which approach is more efficient.
+
+The details of implementing other character and string operations in R1CS
+will be fleshed out as each operation is added.
 
 ## Future Extensions
 
