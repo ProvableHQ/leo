@@ -7,8 +7,11 @@ inputs:
     a: i8 = 1;
     b: i8 = 2;
     c: i8 = 3;
+    
+    [registers]
+    r0: bool = true;
 */
 
-function main(a: i8, b: i8, c: i8) {
-    console.assert(a + b == c);
+function main(a: i8, b: i8, c: i8) -> bool {
+    return a + b == c;
 }

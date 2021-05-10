@@ -1,4 +1,9 @@
+/*
+namespace: Compile
+expectation: Pass
+*/
+
 function main() {
-    const a = -32768i16;
+    const a = -128i16;
     const b = -a;
 }

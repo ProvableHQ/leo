@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/integers/i32/no_space_between_literal.leo:4:15\n     |\n   4 |     const i = 1 i32;\n     |               ^\n     |\n     = Unexpected white space between terms 1 and i32"

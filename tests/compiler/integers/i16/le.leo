@@ -2,18 +2,24 @@
 namespace: Compile
 expectation: Pass
 inputs:
- - i16.in: |
+ - i16_l.in: |
     [main]
-    a: i16 = 3;
-    b: i16 = 3;
+    a: i16 = 1;
+    b: i16 = 100;
     c: bool = true;
- - i16_false: |
+    
+    [registers]
+    r0: bool = true;
+ - i16_e.in: |
     [main]
-    a: i16 = 4;
-    b: i16 = 3;
-    c: bool = false;
+    a: i16 = 2;
+    b: i16 = 2;
+    c: bool = true;
+    
+    [registers]
+    r0: bool = true;
 */
 
-function main(a: i16, b: i16, c: bool) {
-    console.assert(a <= b == c);
+function main(a: i16, b: i16, c: bool) -> bool {
+    return a <= b == c;
 }

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/integers/i32/max_fail.leo:4:20\n     |\n   4 |     const a: i32 = 2147483648;\n     |                    ^^^^^^^^^^\n     |\n     = failed to parse int value '2147483648'"

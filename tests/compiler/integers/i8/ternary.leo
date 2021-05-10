@@ -8,16 +8,22 @@ inputs:
     a: i8 = 10;
     b: i8 = 5;
     c: i8 = 10;
+
+    [registers]
+    r0: bool = false;
  - i8_rev.in: |
     [main]
     s: bool = false;
     a: i8 = 10;
     b: i8 = 5;
     c: i8 = 5;
+
+    [registers]
+    r0: bool = false;
 */
 
-function main(s: bool, a: i8, b: i8, c: i8) {
+function main(s: bool, a: i8, b: i8, c: i8) -> bool {
     let r = s ? a : b;
 
-    console.assert(r == c);
+    return r == c;
 }

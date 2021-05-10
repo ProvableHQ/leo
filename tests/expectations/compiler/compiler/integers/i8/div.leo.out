@@ -12,4 +12,7 @@ outputs:
     output:
       - input_file: i8.in
         output:
-          registers: {}
+          registers:
+            r0:
+              type: bool
+              value: "true"

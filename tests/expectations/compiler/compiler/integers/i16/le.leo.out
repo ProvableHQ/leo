@@ -10,9 +10,15 @@ outputs:
       bt: 34c1c5f1fd258fc5f18137e0cd367a6c3149958ec8b92123518e293db31afbe3
       ct: 92784334fb47e5a53eb972ec42d95f97470117bb6839cf2d46e8fcbd38a662f9
     output:
-      - input_file: i16.in
+      - input_file: i16_l.in
         output:
-          registers: {}
-      - input_file: i16_false
+          registers:
+            r0:
+              type: bool
+              value: "true"
+      - input_file: i16_e.in
         output:
-          registers: {}
+          registers:
+            r0:
+              type: bool
+              value: "true"

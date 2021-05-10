@@ -10,6 +10,15 @@ outputs:
       bt: 10b52342f8c44eb9b3335b4df9ca4136de3ad35d5b580b2ab32ae5e10bcdf3b4
       ct: 2aae7d6631260dcaafbfe9709ade84e75f5172a9baad48e108e7264d5fc17cf6
     output:
-      - input_file: i8.in
+      - input_file: i8_ne.in
         output:
-          registers: {}
+          registers:
+            r0:
+              type: bool
+              value: "true"
+      - input_file: i8_e.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

@@ -1,5 +1,17 @@
-function main() {
+/*
+namespace: Compile
+expectation: Pass
+inputs:
+ - dummy.in: |
+    [main]
+    y: bool = true;
+
+    [registers]
+    r0: bool = false;
+*/
+
+function main(y: bool) -> bool {
     const a = 0i16;
 
-    console.assert(-a == 0i16);
+    return -a == 0i16 == y;
 }
