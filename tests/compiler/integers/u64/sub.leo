@@ -1,3 +1,17 @@
-function main(a: u64, b: u64, c: u64) {
-    console.assert(a - b == c);
+/*
+namespace: Compile
+expectation: Pass
+inputs:
+ - u64_f.in: |
+    [main]
+    a: u64 = 4;
+    b: u64 = 2;
+    c: u64 = 2;
+
+    [registers]
+    r0: bool = true;
+*/
+
+function main(a: u64, b: u64, c: u64) -> bool {
+    return a - b == c;
 }

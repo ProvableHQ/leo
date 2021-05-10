@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Fail
+*/
+
 function main() {
-  const i = 1 u8;
+    const i = 1 u8;
 }

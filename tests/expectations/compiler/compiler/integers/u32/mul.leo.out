@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 3332
+      num_constraints: 4389
+      at: 0d533d5cba25194e61fb9b0fab6f0aef9114b2c570146d8cbccebc35dd3c1aa2
+      bt: 127cc198f6c432cd8add8297902708b759e48ff05fb8c042a356cb5bd81524a8
+      ct: e4cb5fbafce0c6aae444c1ddf3f1883ca3df62c790a4baa8a3755bd75bb42f49
+    output:
+      - input_file: mul.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "false"

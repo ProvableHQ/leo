@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 384
+      num_constraints: 385
+      at: 377dbd064ab8292845e80919eb529539cbedb4c28ff3c9b92f2cc4370bc92854
+      bt: 8cbfb6559664a4d73354d718f19247484a98da79ddf83350c1a070cb14fda399
+      ct: 4906d35acd2d4c5fda24a10932dbccfb9c814de0b6160b29fa57540935c864ee
+    output:
+      - input_file: u64_f.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

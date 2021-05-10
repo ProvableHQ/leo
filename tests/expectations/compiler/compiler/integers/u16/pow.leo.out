@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 26847
+      num_constraints: 35839
+      at: 60e4ca8986bb9be35a32592f396a840e2a589c3313e88c7a7e0560cc90f5aabc
+      bt: fcc7eca9b990faff84958bccb424d52d122271d4a28f14f7977a0ee13626825f
+      ct: adfdc17059fec9d5afc537f7a1fa8d2616e48017333a2c0b982568865c1e2122
+    output:
+      - input_file: u16_f.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

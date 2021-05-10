@@ -1,3 +1,8 @@
+/*
+namespace: Compile
+expectation: Fail
+*/
+
 function main() {
-  const i = 1 u32;
+    const i = 1 u32;
 }

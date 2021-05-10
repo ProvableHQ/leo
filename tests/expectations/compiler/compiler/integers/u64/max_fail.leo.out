@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/integers/u64/max_fail.leo:4:20\n     |\n   4 |     const a: u64 = 18446744073709551616;\n     |                    ^^^^^^^^^^^^^^^^^^^^\n     |\n     = failed to parse int value '18446744073709551616'"
