@@ -315,8 +315,9 @@ impl ParserContext {
         let declare = self.expect_oneof(&[Token::Let, Token::Const])?;
         let mut variable_names = Vec::new();
 
-        if self.eat(Token::LeftParen).is_some() {
-            variable_names.push(self.parse_variable_name(&declare)?);
+        let next = self.eat(Token::LeftParen);
+        variable_names.push(self.parse_variable_name(&declare)?);
+        if next.is_some() {
             let mut eaten_ending = false;
             while self.eat(Token::Comma).is_some() {
                 if self.eat(Token::RightParen).is_some() {
@@ -328,8 +329,6 @@ impl ParserContext {
             if !eaten_ending {
                 self.expect(Token::RightParen)?;
             }
-        } else {
-            variable_names.push(self.parse_variable_name(&declare)?);
         }
 
         let type_ = if self.eat(Token::Colon).is_some() {
