@@ -2483,9 +2483,9 @@ dependencies = [
 
 [[package]]
 name = "self_update"
-version = "0.26.0"
+version = "0.27.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9031099ba3962ce8faaff991066bcbe6ec1f7ccb0be12a4b56733028ae090054"
+checksum = "6fb85f1802f7b987237b8525c0fde86ea86f31c957c1875467c727d5b921179c"
 dependencies = [
  "hyper",
  "indicatif",
