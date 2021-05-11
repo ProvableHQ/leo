@@ -261,6 +261,13 @@ These circuit types could also include constants, e.g. for certain ASCII charact
 However, currently Leo does not support constants in circuit types,
 so that would have to be added separately first.
 
+These two circuit types are just meant to collect static member functions for characters and strings.
+They are not meant to be the types of characters and strings:
+as mentioned previously, `char` is a new scalar (not circuit) type (like `bool`, `address`, `u8`, etc.)
+and there is no string type as such for now, but we use character arrays for strings.
+In the future we may want all the Leo types to be circuit types of some sort,
+but that is a separate feature that would have to be designed and developed independently.
+
 ## Input and Output of Literal Characters and Strings
 
 Since UTF-8 is a standard encoding, it would make sense for
