@@ -36,7 +36,7 @@ impl CanonicalizeError {
     }
 
     pub fn invalid_array_dimension_size(span: &Span) -> Self {
-        let message = "recieved dimension size of 0, expected it to be 1 or larger.".to_string();
+        let message = "received dimension size of 0, expected it to be 1 or larger.".to_string();
 
         Self::new_from_span(message, span)
     }

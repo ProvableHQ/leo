@@ -105,7 +105,7 @@ fn resolve_import_package_access(
     package: &PackageAccess,
 ) {
     match package {
-        PackageAccess::Star(span) => {
+        PackageAccess::Star { span } => {
             output.push((package_segments, ImportSymbol::All, span.clone()));
         }
         PackageAccess::SubPackage(subpackage) => {
@@ -414,7 +414,7 @@ pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
             .map(|(module, _)| leo_ast::ImportStatement {
                 package_or_packages: leo_ast::PackageOrPackages::Package(leo_ast::Package {
                     name: Identifier::new(module.clone().into()),
-                    access: leo_ast::PackageAccess::Star(Span::default()),
+                    access: leo_ast::PackageAccess::Star { span: Span::default() },
                     span: Default::default(),
                 }),
                 span: Span::default(),
