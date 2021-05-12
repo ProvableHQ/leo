@@ -16,7 +16,7 @@
 
 use crate::{
     ast::Rule,
-    values::{BooleanValue, FieldValue, GroupValue, IntegerValue, NumberValue},
+    values::{BooleanValue, CharValue, FieldValue, GroupValue, IntegerValue, NumberValue},
 };
 
 use crate::values::AddressValue;
@@ -29,6 +29,7 @@ use std::fmt;
 pub enum Value<'ast> {
     Address(AddressValue<'ast>),
     Boolean(BooleanValue<'ast>),
+    Char(CharValue<'ast>),
     Field(FieldValue<'ast>),
     Group(GroupValue<'ast>),
     Implicit(NumberValue<'ast>),
@@ -40,6 +41,7 @@ impl<'ast> Value<'ast> {
         match self {
             Value::Address(value) => &value.span(),
             Value::Boolean(value) => &value.span,
+            Value::Char(value) => &value.span,
             Value::Field(value) => &value.span,
             Value::Group(value) => &value.span,
             Value::Implicit(value) => &value.span(),
@@ -53,6 +55,7 @@ impl<'ast> fmt::Display for Value<'ast> {
         match *self {
             Value::Address(ref value) => write!(f, "{}", value),
             Value::Boolean(ref value) => write!(f, "{}", value),
+            Value::Char(ref value) => write!(f, "{}", value),
             Value::Field(ref value) => write!(f, "{}", value),
             Value::Group(ref value) => write!(f, "{}", value),
             Value::Implicit(ref value) => write!(f, "{}", value),

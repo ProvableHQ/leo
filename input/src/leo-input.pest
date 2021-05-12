@@ -9,6 +9,7 @@ protected_name = {
     | "else"
     | "false"
     | type_field
+    | type_char
     | "for"
     | "function"
     | type_group
@@ -89,7 +90,7 @@ type_boolean = { "bool" }
 type_address = { "address" }
 
 // Declared in types/data_type.rs
-type_data = { type_field | type_group | type_boolean | type_address | type_integer }
+type_data = { type_field | type_group | type_boolean | type_address | type_integer | type_char }
 
 // Declared in types/array_type.rs
 type_array = { "[" ~ type_ ~ ";" ~ array_dimensions ~ "]" }
@@ -118,6 +119,7 @@ value = {
     | value_boolean
     | value_field
     | value_group
+    | value_char
     | value_integer
     | value_number // must be last as a catch all
 }
@@ -131,6 +133,17 @@ number_negative = @{ "-" ~ ASCII_DIGIT+ }
 // Declared in values/number_positive.rs
 number_positive = @{ ASCII_DIGIT+ }
 
+
+
+// Declared in values/char_value.rs
+// ANY is equivalent to '\u{00}'..'\u{10FFFF}'
+// TODO FIX
+// value_char = {
+//     !("\'" | "\\") ~ ANY
+//     | "\\" ~ ("\"" | "\'" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+//     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT(4))
+// }
+value_char = { "'" ~ "\\"? ~ ANY ~ "'" }
 
 // Declared in values/integer_value.rs
 value_integer = { value_integer_signed | value_integer_unsigned}

@@ -22,6 +22,7 @@ pub mod address;
 pub mod array;
 pub mod boolean;
 pub mod canonicalization;
+pub mod char;
 pub mod circuits;
 pub mod compiler;
 pub mod console;

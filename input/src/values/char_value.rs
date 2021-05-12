@@ -14,23 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod address;
-pub use self::address::*;
+use crate::ast::{span_into_string, Rule};
 
-pub mod boolean;
-pub use self::boolean::*;
+use pest::Span;
+use pest_ast::FromPest;
+use std::fmt;
 
-pub mod char;
-pub use self::char::*;
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
+#[pest_ast(rule(Rule::value_char))]
+pub struct CharValue<'ast> {
+    #[pest_ast(outer(with(span_into_string)))]
+    pub value: String,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
 
-pub mod field;
-pub use self::field::*;
-
-pub mod group;
-pub use self::group::*;
-
-pub mod integer;
-pub use self::integer::*;
-
-pub mod value;
-pub use self::value::*;
+impl<'ast> fmt::Display for CharValue<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}

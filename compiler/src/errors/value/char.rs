@@ -14,23 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod address;
-pub use self::address::*;
+use crate::errors::FieldError;
+use leo_ast::{FormattedError, LeoError, Span};
 
-pub mod boolean;
-pub use self::boolean::*;
+#[derive(Debug, Error)]
+pub enum CharError {
+    #[error("{}", _0)]
+    Error(#[from] FormattedError),
 
-pub mod char;
-pub use self::char::*;
+    #[error("{}", _0)]
+    FieldError(#[from] FieldError),
+}
 
-pub mod field;
-pub use self::field::*;
+impl LeoError for CharError {}
 
-pub mod group;
-pub use self::group::*;
+impl CharError {
+    fn new_from_span(message: String, span: &Span) -> Self {
+        CharError::Error(FormattedError::new_from_span(message, span))
+    }
 
-pub mod integer;
-pub use self::integer::*;
+    pub fn invalid_char(actual: String, span: &Span) -> Self {
+        let message = format!("expected char element input type, found `{}`", actual);
 
-pub mod value;
-pub use self::value::*;
+        Self::new_from_span(message, span)
+    }
+}

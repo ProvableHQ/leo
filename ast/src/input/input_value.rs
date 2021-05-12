@@ -19,7 +19,16 @@ use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, TupleExpression},
     types::{ArrayType, DataType, IntegerType, TupleType, Type},
-    values::{Address, AddressValue, BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
+    values::{
+        Address,
+        AddressValue,
+        BooleanValue,
+        CharValue,
+        FieldValue,
+        GroupValue as InputGroupValue,
+        NumberValue,
+        Value,
+    },
 };
 use pest::Span;
 
@@ -29,6 +38,7 @@ use std::fmt;
 pub enum InputValue {
     Address(String),
     Boolean(bool),
+    Char(String),
     Field(String),
     Group(GroupValue),
     Integer(IntegerType, String),
@@ -51,6 +61,10 @@ impl InputValue {
     fn from_boolean(boolean: BooleanValue) -> Result<Self, InputParserError> {
         let boolean = boolean.value.parse::<bool>()?;
         Ok(InputValue::Boolean(boolean))
+    }
+
+    fn from_char(character: CharValue) -> Self {
+        InputValue::Char(character.value)
     }
 
     fn from_number(integer_type: IntegerType, number: String) -> Self {
@@ -80,6 +94,7 @@ impl InputValue {
         match (data_type, value) {
             (DataType::Address(_), Value::Address(address)) => Ok(InputValue::from_address_value(address)),
             (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
+            (DataType::Char(_), Value::Char(character)) => Ok(InputValue::from_char(character)),
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
                 Ok(InputValue::from_number(integer_type, integer.to_string()))
             }
@@ -304,6 +319,7 @@ impl fmt::Display for InputValue {
         match self {
             InputValue::Address(ref address) => write!(f, "{}", address),
             InputValue::Boolean(ref boolean) => write!(f, "{}", boolean),
+            InputValue::Char(ref character) => write!(f, "{}", character),
             InputValue::Group(ref group) => write!(f, "{}", group),
             InputValue::Field(ref field) => write!(f, "{}", field),
             InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),

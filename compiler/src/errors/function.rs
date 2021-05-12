@@ -17,6 +17,7 @@
 use crate::errors::{
     AddressError,
     BooleanError,
+    CharError,
     ExpressionError,
     FieldError,
     GroupError,
@@ -35,6 +36,9 @@ pub enum FunctionError {
 
     #[error("{}", _0)]
     BooleanError(#[from] BooleanError),
+
+    #[error("{}", _0)]
+    CharError(#[from] CharError),
 
     #[error("{}", _0)]
     ExpressionError(#[from] ExpressionError),

@@ -1,0 +1,3 @@
+[main]
+a: char = '\u{2764}';
+b: char = 'a';
