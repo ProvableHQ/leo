@@ -47,6 +47,7 @@ pub enum Token {
     True,
     False,
     AddressLit(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
+    CharLit(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
 
     At,
 
@@ -104,6 +105,7 @@ pub enum Token {
     Group,
     Bool,
     Address,
+    Char,
     BigSelf,
 
     // primary expresion
@@ -156,6 +158,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
     Token::As,
     Token::Bool,
+    Token::Char,
     Token::Circuit,
     Token::Console,
     Token::Const,
@@ -217,6 +220,7 @@ impl fmt::Display for Token {
             True => write!(f, "true"),
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
+            CharLit(s) => write!(f, "{}", s),
 
             At => write!(f, "@"),
 
@@ -271,6 +275,7 @@ impl fmt::Display for Token {
             Group => write!(f, "group"),
             Bool => write!(f, "bool"),
             Address => write!(f, "address"),
+            Char => write!(f, "char"),
             BigSelf => write!(f, "Self"),
 
             Input => write!(f, "input"),

@@ -45,6 +45,7 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
         return None;
     }
     let input = input_tendril[..].as_bytes();
+
     if !input[0].is_ascii_alphabetic() {
         return None;
     }
@@ -148,6 +149,55 @@ impl Token {
                     ));
                 }
                 return (i + 1, Some(Token::FormatString(segments)));
+            }
+            b'\'' => {
+                if input[1] == b'\'' {
+                    return (0, None);
+                }
+
+                let mut i = 1;
+                let mut in_escape = false;
+                let mut character = String::new();
+                while i < input.len() {
+                    if !in_escape {
+                        if input[i] == b'\'' {
+                            break;
+                        }
+                        if input[i] == b'\\' {
+                            in_escape = !in_escape;
+                        } else {
+                            character.push(input[i] as char);
+                        }
+                    } else {
+                        in_escape = false;
+                        if input[i] == b'u' {
+                            i += 2;
+                            let mut j = i;
+                            let mut size = 0;
+                            while input[j] != b'}' {
+                                j += 1;
+                                size += 1;
+                            }
+                            let hex_string_number: String = input_tendril.subtendril(i as u32, size).to_string();
+                            if let Ok(hex) = u32::from_str_radix(&hex_string_number, 16) {
+                                if let Some(unicode) = std::char::from_u32(hex) {
+                                    i = j;
+                                    character = unicode.to_string();
+                                }
+                            } else {
+                                return (0, None);
+                            }
+                        } else {
+                            character.push(input[i] as char);
+                        }
+                    }
+                    i += 1;
+                }
+                if i == input.len() {
+                    return (0, None);
+                }
+
+                return (i + 1, Some(Token::CharLit(character.into())));
             }
             x if x.is_ascii_digit() => {
                 return Self::eat_integer(&input_tendril);
@@ -310,6 +360,7 @@ impl Token {
                     "address" => Token::Address,
                     "as" => Token::As,
                     "bool" => Token::Bool,
+                    "char" => Token::Char,
                     "circuit" => Token::Circuit,
                     "console" => Token::Console,
                     "const" => Token::Const,

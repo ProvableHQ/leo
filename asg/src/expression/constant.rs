@@ -132,7 +132,11 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 Constant {
                     parent: Cell::new(None),
                     span: Some(span.clone()),
-                    value: ConstValue::Field(value.parse().map_err(|_| AsgConvertError::invalid_char(&value, span))?),
+                    value: ConstValue::Char(
+                        value
+                            .parse::<char>()
+                            .map_err(|_| AsgConvertError::invalid_char(&value, span))?,
+                    ),
                 }
             }
             Field(value, span) => {

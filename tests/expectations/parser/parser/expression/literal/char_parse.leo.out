@@ -1,0 +1,67 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Value:
+      Char:
+        - a
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 4
+          path: test
+          content: "'a'"
+  - Value:
+      Char:
+        - b
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 4
+          path: test
+          content: "'b'"
+  - Value:
+      Char:
+        - "\""
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: test
+          content: "'\\\"'"
+  - Value:
+      Char:
+        - t
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: test
+          content: "'\\t'"
+  - Value:
+      Char:
+        - r
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: test
+          content: "'\\r'"
+  - Value:
+      Char:
+        - "0"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: test
+          content: "'\\0'"
+  - Value:
+      Char:
+        - ❤
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 11
+          path: test
+          content: "'\\u{2764}'"
