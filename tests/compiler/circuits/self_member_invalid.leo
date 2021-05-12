@@ -4,7 +4,7 @@ expectation: Fail
 */
 
 circuit Foo {
-    f: u32,
+    f: u32;
 
     function bar() -> u32 {
         return f;

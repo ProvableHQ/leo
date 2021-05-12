@@ -4,7 +4,7 @@ expectation: Pass
 */
 
 circuit TestMe {
-    x: u8,
+    x: u8;
 
     function test_me(mut self) -> u8 {
         self.x += 1;

@@ -136,7 +136,7 @@ impl ParserContext {
     /// Returns a vector of [`PackageAccess`] AST nodes if the next tokens represent package access
     /// expressions within an import statement.
     ///
-    pub fn parse_package_accesses(&mut self) -> SyntaxResult<Vec<PackageAccess>> {
+    pub fn parse_package_accesses(&mut self, span: &Span) -> SyntaxResult<Vec<PackageAccess>> {
         let mut out = Vec::new();
         self.expect(Token::LeftParen)?;
         while self.eat(Token::RightParen).is_none() {
@@ -147,6 +147,11 @@ impl ParserContext {
                 break;
             }
         }
+
+        if out.is_empty() {
+            return Err(SyntaxError::invalid_import_list(span));
+        }
+
         Ok(out)
     }
 
@@ -156,7 +161,7 @@ impl ParserContext {
     ///
     pub fn parse_package_access(&mut self) -> SyntaxResult<PackageAccess> {
         if let Some(SpannedToken { span, .. }) = self.eat(Token::Mul) {
-            Ok(PackageAccess::Star(span))
+            Ok(PackageAccess::Star { span })
         } else {
             let name = self.expect_ident()?;
             if self.peek_token().as_ref() == &Token::Dot {
@@ -247,7 +252,7 @@ impl ParserContext {
         let package_name = self.parse_package_name()?;
         self.expect(Token::Dot)?;
         if self.peek()?.token == Token::LeftParen {
-            let accesses = self.parse_package_accesses()?;
+            let accesses = self.parse_package_accesses(&package_name.span)?;
             Ok(PackageOrPackages::Packages(Packages {
                 span: &package_name.span + accesses.last().map(|x| x.span()).unwrap_or(&package_name.span),
                 name: package_name,
@@ -280,18 +285,82 @@ impl ParserContext {
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function.
     ///
-    pub fn parse_circuit_member(&mut self) -> SyntaxResult<CircuitMember> {
+    pub fn parse_circuit_declaration(&mut self) -> SyntaxResult<Vec<CircuitMember>> {
+        let mut members = Vec::new();
         let peeked = &self.peek()?.token;
-        if peeked == &Token::Function || peeked == &Token::At {
+        let mut last_variable = peeked == &Token::Function || peeked == &Token::At;
+        let (mut semi_colons, mut commas) = (false, false);
+        while self.eat(Token::RightCurly).is_none() {
+            if !last_variable {
+                let (variable, last) = self.parse_member_variable_declaration()?;
+
+                members.push(variable);
+
+                let peeked = &self.peek()?;
+                if peeked.token == Token::Semicolon {
+                    if commas {
+                        return Err(SyntaxError::mixed_commas_and_semicolons(&peeked.span));
+                    }
+
+                    semi_colons = true;
+                    self.expect(Token::Semicolon)?;
+                } else {
+                    if semi_colons {
+                        return Err(SyntaxError::mixed_commas_and_semicolons(&peeked.span));
+                    }
+
+                    commas = true;
+                    self.eat(Token::Comma);
+                }
+
+                if last {
+                    last_variable = last;
+                }
+            } else {
+                let function = self.parse_member_function_declaration()?;
+                members.push(function);
+            }
+        }
+
+        Ok(members)
+    }
+
+    ///
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
+    ///
+    pub fn parse_member_variable_declaration(&mut self) -> SyntaxResult<(CircuitMember, bool)> {
+        let name = self.expect_ident()?;
+        self.expect(Token::Colon)?;
+        let type_ = self.parse_type()?.0;
+
+        let peeked = &self.peek()?.token;
+        if peeked == &Token::Function || peeked == &Token::At || peeked == &Token::RightCurly {
+            return Ok((CircuitMember::CircuitVariable(name, type_), true));
+        } else if peeked == &Token::Comma || peeked == &Token::Semicolon {
+            let peeked = &self.peek_next()?.token;
+            if peeked == &Token::Function || peeked == &Token::At || peeked == &Token::RightCurly {
+                return Ok((CircuitMember::CircuitVariable(name, type_), true));
+            }
+        }
+
+        Ok((CircuitMember::CircuitVariable(name, type_), false))
+    }
+
+    ///
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
+    ///
+    pub fn parse_member_function_declaration(&mut self) -> SyntaxResult<CircuitMember> {
+        let peeked = &self.peek()?;
+        let peeked_token = &peeked.token;
+        if peeked_token == &Token::Function || peeked_token == &Token::At {
             let function = self.parse_function_declaration()?;
             Ok(CircuitMember::CircuitFunction(function.1))
         } else {
-            // circuit variable
-            let name = self.expect_ident()?;
-            self.expect(Token::Colon)?;
-            let type_ = self.parse_type()?.0;
-            self.eat(Token::Comma);
-            Ok(CircuitMember::CircuitVariable(name, type_))
+            Err(SyntaxError::unexpected(
+                peeked_token,
+                &[Token::Function, Token::At],
+                &peeked.span,
+            ))
         }
     }
 
@@ -303,11 +372,8 @@ impl ParserContext {
         self.expect(Token::Circuit)?;
         let name = self.expect_ident()?;
         self.expect(Token::LeftCurly)?;
-        let mut members = Vec::new();
-        while self.eat(Token::RightCurly).is_none() {
-            let member = self.parse_circuit_member()?;
-            members.push(member);
-        }
+        let members = self.parse_circuit_declaration()?;
+
         Ok((name.clone(), Circuit {
             circuit_name: name,
             members,

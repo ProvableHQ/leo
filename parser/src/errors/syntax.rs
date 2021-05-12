@@ -48,6 +48,10 @@ impl SyntaxError {
         SyntaxError::Error(FormattedError::new_from_span(message, span))
     }
 
+    pub fn invalid_import_list(span: &Span) -> Self {
+        Self::new_from_span("Cannot import empty list".to_string(), span)
+    }
+
     pub fn unexpected_eof(span: &Span) -> Self {
         Self::new_from_span("unexpected EOF".to_string(), span)
     }
@@ -70,6 +74,13 @@ impl SyntaxError {
                     .join(", "),
                 got.to_string()
             ),
+            span,
+        )
+    }
+
+    pub fn mixed_commas_and_semicolons(span: &Span) -> Self {
+        Self::new_from_span(
+            "Cannot mix use of commas and semi-colons for circuit member variable declarations.".to_string(),
             span,
         )
     }

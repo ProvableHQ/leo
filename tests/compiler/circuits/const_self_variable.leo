@@ -4,7 +4,7 @@ expectation: Pass
 */
 
 circuit Foo {
-    a: u8,
+    a: u8;
 
     function use_a(const self) -> u8 {
         return self.a + 1;

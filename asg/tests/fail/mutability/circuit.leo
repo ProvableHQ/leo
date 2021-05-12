@@ -1,6 +1,6 @@
 // Circuits are immutable by default.
 circuit Foo {
-    x: u32
+    x: u32;
 }
 
 function main() {

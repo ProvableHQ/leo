@@ -4,7 +4,7 @@ expectation: Fail
 */
 
 circuit Foo {
-    a: u8,
+    a: u8;
 
     function set_a(self, new: u8) {
         self.a = new;

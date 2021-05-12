@@ -4,7 +4,7 @@ expectation: Pass
 */
 
 circuit Foo {
-    a: u8,
+    a: u8;
 
     function set_a(mut self, new: u8) {
         self.a = new;
