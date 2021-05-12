@@ -69,6 +69,7 @@ impl InputValue {
         match data_type {
             DataType::Address(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Boolean(_) => Err(InputParserError::implicit_type(data_type, implicit)),
+            DataType::Char(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Integer(integer_type) => Ok(InputValue::from_number(integer_type, implicit.to_string())),
             DataType::Group(_) => Err(InputParserError::implicit_group(implicit)),
             DataType::Field(_) => Ok(InputValue::Field(implicit.to_string())),

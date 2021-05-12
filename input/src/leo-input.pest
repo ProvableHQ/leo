@@ -73,6 +73,9 @@ type_integer_signed = {
     | type_i128
 }
 
+// Declared in types/char_type.rs
+type_char = { "char" }
+
 // Declared in types/field_type.rs
 type_field = { "field" }
 

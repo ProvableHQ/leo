@@ -247,6 +247,10 @@ impl AsgConvertError {
         Self::new_from_span(format!("failed to parse boolean value '{}'", value), span)
     }
 
+    pub fn invalid_char(value: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("failed to parse char value '{}'", value), span)
+    }
+
     pub fn invalid_int(value: &str, span: &Span) -> Self {
         Self::new_from_span(format!("failed to parse int value '{}'", value), span)
     }

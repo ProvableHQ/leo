@@ -31,6 +31,7 @@ pub enum Type {
     // Data types
     Address,
     Boolean,
+    Char,
     Field,
     Group,
     IntegerType(IntegerType),
@@ -66,6 +67,7 @@ impl Type {
         match (self, other) {
             (Type::Address, Type::Address) => true,
             (Type::Boolean, Type::Boolean) => true,
+            (Type::Char, Type::Char) => true,
             (Type::Field, Type::Field) => true,
             (Type::Group, Type::Group) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(&right),
@@ -108,6 +110,7 @@ impl From<InputDataType> for Type {
         match data_type {
             InputDataType::Address(_type) => Type::Address,
             InputDataType::Boolean(_type) => Type::Boolean,
+            InputDataType::Char(_type) => Type::Char,
             InputDataType::Field(_type) => Type::Field,
             InputDataType::Group(_type) => Type::Group,
             InputDataType::Integer(type_) => Type::IntegerType(IntegerType::from(type_)),
@@ -147,6 +150,7 @@ impl fmt::Display for Type {
         match *self {
             Type::Address => write!(f, "address"),
             Type::Boolean => write!(f, "bool"),
+            Type::Char => write!(f, "char"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),

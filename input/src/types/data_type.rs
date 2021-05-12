@@ -16,7 +16,7 @@
 
 use crate::{
     ast::Rule,
-    types::{BooleanType, FieldType, GroupType, IntegerType},
+    types::{BooleanType, CharType, FieldType, GroupType, IntegerType},
 };
 
 use crate::types::AddressType;
@@ -27,6 +27,7 @@ use pest_ast::FromPest;
 pub enum DataType {
     Address(AddressType),
     Boolean(BooleanType),
+    Char(CharType),
     Field(FieldType),
     Group(GroupType),
     Integer(IntegerType),
@@ -37,6 +38,7 @@ impl std::fmt::Display for DataType {
         match self {
             DataType::Address(_) => write!(f, "address"),
             DataType::Boolean(_) => write!(f, "bool"),
+            DataType::Char(_) => write!(f, "char"),
             DataType::Field(_) => write!(f, "field"),
             DataType::Group(_) => write!(f, "group"),
             DataType::Integer(ref integer) => write!(f, "{}", integer),
