@@ -984,11 +984,54 @@
                 "content": "  const m = Foo {};"
               }
             }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"n\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const n = 'a';\\\"}\"}",
+                  "span": {
+                    "line_start": 23,
+                    "line_stop": 23,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const n = 'a';"
+                  }
+                }
+              ],
+              "type_": "Char",
+              "value": {
+                "Value": {
+                  "Char": [
+                    "a",
+                    {
+                      "line_start": 23,
+                      "line_stop": 23,
+                      "col_start": 13,
+                      "col_stop": 16,
+                      "path": "",
+                      "content": "  const n = 'a';"
+                    }
+                  ]
+                }
+              },
+              "span": {
+                "line_start": 23,
+                "line_stop": 23,
+                "col_start": 3,
+                "col_stop": 16,
+                "path": "",
+                "content": "  const n = 'a';"
+              }
+            }
           }
         ],
         "span": {
           "line_start": 9,
-          "line_stop": 23,
+          "line_stop": 24,
           "col_start": 17,
           "col_stop": 2,
           "path": "",
@@ -997,11 +1040,11 @@
       },
       "span": {
         "line_start": 9,
-        "line_stop": 23,
+        "line_stop": 24,
         "col_start": 1,
         "col_stop": 2,
         "path": "",
-        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n"
+        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n"
       }
     }
   }

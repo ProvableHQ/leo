@@ -20,4 +20,5 @@ function main() {
   const k = (1u8, 1u8);
   const l = (1u8, 1u8, true);
   const m = Foo {};
+  const n = 'a';
 }
