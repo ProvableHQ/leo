@@ -1,10 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs:
- - member.in: |
-    [registers]
-    r0: bool = false;  
+input_file: input/dummy.in
 */
 
 circuit Foo {
@@ -15,9 +12,9 @@ circuit Foo {
     }
 }
 
-function main() -> bool {
+function main(y: bool) -> bool {
     const a = Foo { foo: 1 };
     const b = a.foo + Foo::bar();
 
-    return b == 2u32;
+    return b == 2u32 == y;
 }

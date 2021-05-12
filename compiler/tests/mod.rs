@@ -18,8 +18,11 @@
 
 #![allow(deprecated)]
 
-pub mod canonicalization;
+// Test framework found in /tests/compiler
+#[cfg(test)]
 pub mod test;
+
+pub mod canonicalization;
 pub mod type_inference;
 
 use leo_asg::{new_alloc_context, new_context, AsgContext};

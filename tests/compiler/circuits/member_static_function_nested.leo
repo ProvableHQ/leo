@@ -1,6 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
+input_file: input/dummy.in
 */
 
 circuit Foo {
@@ -15,6 +16,8 @@ circuit Foo {
     }
 }
 
-function main() {
+function main(y: bool) -> bool {
     Foo::baz();
+
+    return y == true;
 }

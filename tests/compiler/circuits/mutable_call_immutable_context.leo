@@ -1,6 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
+input_file: input/dummy.in
 */
 
 circuit TestMe {
@@ -20,11 +21,9 @@ function my_fn() -> TestMe {
   return TestMe { x: 0u8 };
 }
 
-function main () {
+function main(y: bool) -> bool {
     const t = TestMe {x: 6u8}.test_me();
-    console.assert(t == 7u8);
     const u = my_fn().test_me();
-    console.assert(u == 1u8);
     const v = TestMe::new().test_me();
-    console.assert(v == 2u8);
+    return v == 2u8 == y;
 }

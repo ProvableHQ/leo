@@ -1,6 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
+input_file: input/dummy.in
 */
 
 circuit Foo {
@@ -11,8 +12,8 @@ circuit Foo {
     }
 }
 
-function main() {
+function main(y: bool) -> bool {
     let f  = Foo { a: 0u8 };
 
-    console.assert(1u8 == f.use_a());
+    return 1u8 == f.use_a() == true;
 }

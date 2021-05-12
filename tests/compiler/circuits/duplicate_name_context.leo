@@ -1,6 +1,7 @@
 /*
 namespace: Compile
 expectation: Pass
+input_file: input/dummy.in
 */
 
 circuit Bar {
@@ -11,8 +12,10 @@ circuit Bar {
     }
 }
 
-function main () {
+function main(y: bool) -> bool {
     const Bar = 66u32;
     const k1 = Bar { b2: 30u32 };
     const k2 = Bar::add_five(55u32);
+
+    return y == true;
 }

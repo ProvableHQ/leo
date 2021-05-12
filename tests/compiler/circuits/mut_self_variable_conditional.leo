@@ -1,12 +1,15 @@
 /*
 namespace: Compile
 expectation: Pass
+input_file: input/dummy.in
 */
 
-function main() {
+function main(y: bool) -> bool {
     let f = Foo { a: 0u32 };
 
     f.bar();
+
+    return y == true;
 }
 
 circuit Foo {
