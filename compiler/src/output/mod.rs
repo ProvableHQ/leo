@@ -53,17 +53,12 @@ impl fmt::Display for Output {
     }
 }
 
-// impl Into<OutputBytes> for Output {
-//     fn into(self) -> OutputBytes {
-//         OutputBytes::from(self.to_string().into_bytes())
-//     }
-// }
-
-// impl From<Output> for OutputBytes {
-//     fn from(a: Output) -> Self {
-
-//     }
-// }
+#[allow(clippy::from_over_into)]
+impl Into<OutputBytes> for Output {
+    fn into(self) -> OutputBytes {
+        OutputBytes::from(self.to_string().into_bytes())
+    }
+}
 
 impl Output {
     pub fn new<'a, F: PrimeField, G: GroupType<F>>(

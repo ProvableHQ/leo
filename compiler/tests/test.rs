@@ -25,7 +25,7 @@ use leo_test_framework::{
 use serde_yaml::Value;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
-use crate::{compiler::Compiler, errors::CompilerError, targets::edwards_bls12::EdwardsGroupType, Output};
+use leo_compiler::{compiler::Compiler, errors::CompilerError, targets::edwards_bls12::EdwardsGroupType, Output};
 
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
 // pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;

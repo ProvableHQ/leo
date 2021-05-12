@@ -1,0 +1,359 @@
+{
+  "name": "",
+  "expected_input": [],
+  "imports": [],
+  "circuits": {},
+  "global_consts": {},
+  "functions": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(a: [group; (2, 1)]) {\\\"}\"}": {
+      "annotations": [],
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(a: [group; (2, 1)]) {\\\"}\"}",
+      "input": [
+        {
+          "Variable": {
+            "identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(a: [group; (2, 1)]) {\\\"}\"}",
+            "const_": false,
+            "mutable": true,
+            "type_": {
+              "Array": [
+                {
+                  "Array": [
+                    "Group",
+                    [
+                      {
+                        "value": "1"
+                      }
+                    ]
+                  ]
+                },
+                [
+                  {
+                    "value": "2"
+                  }
+                ]
+              ]
+            },
+            "span": {
+              "line_start": 1,
+              "line_stop": 1,
+              "col_start": 15,
+              "col_stop": 16,
+              "path": "",
+              "content": "function main(a: [group; (2, 1)]) {"
+            }
+          }
+        }
+      ],
+      "output": {
+        "Tuple": []
+      },
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let b = [true; (6, 5, 4, 3, 2)];\\\"}\"}",
+                  "span": {
+                    "line_start": 2,
+                    "line_stop": 2,
+                    "col_start": 7,
+                    "col_stop": 8,
+                    "path": "",
+                    "content": "  let b = [true; (6, 5, 4, 3, 2)];"
+                  }
+                }
+              ],
+              "type_": null,
+              "value": {
+                "ArrayInit": {
+                  "element": {
+                    "ArrayInit": {
+                      "element": {
+                        "ArrayInit": {
+                          "element": {
+                            "ArrayInit": {
+                              "element": {
+                                "ArrayInit": {
+                                  "element": {
+                                    "Value": {
+                                      "Boolean": [
+                                        "true",
+                                        {
+                                          "line_start": 2,
+                                          "line_stop": 2,
+                                          "col_start": 12,
+                                          "col_stop": 16,
+                                          "path": "",
+                                          "content": "  let b = [true; (6, 5, 4, 3, 2)];"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "dimensions": [
+                                    {
+                                      "value": "2"
+                                    }
+                                  ],
+                                  "span": {
+                                    "line_start": 2,
+                                    "line_stop": 2,
+                                    "col_start": 11,
+                                    "col_stop": 34,
+                                    "path": "",
+                                    "content": "  let b = [true; (6, 5, 4, 3, 2)];"
+                                  }
+                                }
+                              },
+                              "dimensions": [
+                                {
+                                  "value": "3"
+                                }
+                              ],
+                              "span": {
+                                "line_start": 2,
+                                "line_stop": 2,
+                                "col_start": 11,
+                                "col_stop": 34,
+                                "path": "",
+                                "content": "  let b = [true; (6, 5, 4, 3, 2)];"
+                              }
+                            }
+                          },
+                          "dimensions": [
+                            {
+                              "value": "4"
+                            }
+                          ],
+                          "span": {
+                            "line_start": 2,
+                            "line_stop": 2,
+                            "col_start": 11,
+                            "col_stop": 34,
+                            "path": "",
+                            "content": "  let b = [true; (6, 5, 4, 3, 2)];"
+                          }
+                        }
+                      },
+                      "dimensions": [
+                        {
+                          "value": "5"
+                        }
+                      ],
+                      "span": {
+                        "line_start": 2,
+                        "line_stop": 2,
+                        "col_start": 11,
+                        "col_stop": 34,
+                        "path": "",
+                        "content": "  let b = [true; (6, 5, 4, 3, 2)];"
+                      }
+                    }
+                  },
+                  "dimensions": [
+                    {
+                      "value": "6"
+                    }
+                  ],
+                  "span": {
+                    "line_start": 2,
+                    "line_stop": 2,
+                    "col_start": 11,
+                    "col_stop": 34,
+                    "path": "",
+                    "content": "  let b = [true; (6, 5, 4, 3, 2)];"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 2,
+                "line_stop": 2,
+                "col_start": 3,
+                "col_stop": 34,
+                "path": "",
+                "content": "  let b = [true; (6, 5, 4, 3, 2)];"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let c: [u32; (1, 2)] = [0u32; (1, 2)];\\\"}\"}",
+                  "span": {
+                    "line_start": 3,
+                    "line_stop": 3,
+                    "col_start": 7,
+                    "col_stop": 8,
+                    "path": "",
+                    "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
+                  }
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "Array": [
+                      {
+                        "IntegerType": "U32"
+                      },
+                      [
+                        {
+                          "value": "2"
+                        }
+                      ]
+                    ]
+                  },
+                  [
+                    {
+                      "value": "1"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInit": {
+                  "element": {
+                    "ArrayInit": {
+                      "element": {
+                        "Value": {
+                          "Integer": [
+                            "U32",
+                            "0",
+                            {
+                              "line_start": 3,
+                              "line_stop": 3,
+                              "col_start": 27,
+                              "col_stop": 31,
+                              "path": "",
+                              "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
+                            }
+                          ]
+                        }
+                      },
+                      "dimensions": [
+                        {
+                          "value": "2"
+                        }
+                      ],
+                      "span": {
+                        "line_start": 3,
+                        "line_stop": 3,
+                        "col_start": 26,
+                        "col_stop": 40,
+                        "path": "",
+                        "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
+                      }
+                    }
+                  },
+                  "dimensions": [
+                    {
+                      "value": "1"
+                    }
+                  ],
+                  "span": {
+                    "line_start": 3,
+                    "line_stop": 3,
+                    "col_start": 26,
+                    "col_stop": 40,
+                    "path": "",
+                    "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 3,
+                "line_stop": 3,
+                "col_start": 3,
+                "col_stop": 40,
+                "path": "",
+                "content": "  let c: [u32; (1, 2)] = [0u32; (1, 2)];"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"d\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let d = [0i8; (1)];\\\"}\"}",
+                  "span": {
+                    "line_start": 4,
+                    "line_stop": 4,
+                    "col_start": 7,
+                    "col_stop": 8,
+                    "path": "",
+                    "content": "  let d = [0i8; (1)];"
+                  }
+                }
+              ],
+              "type_": null,
+              "value": {
+                "ArrayInit": {
+                  "element": {
+                    "Value": {
+                      "Integer": [
+                        "I8",
+                        "0",
+                        {
+                          "line_start": 4,
+                          "line_stop": 4,
+                          "col_start": 12,
+                          "col_stop": 15,
+                          "path": "",
+                          "content": "  let d = [0i8; (1)];"
+                        }
+                      ]
+                    }
+                  },
+                  "dimensions": [
+                    {
+                      "value": "1"
+                    }
+                  ],
+                  "span": {
+                    "line_start": 4,
+                    "line_stop": 4,
+                    "col_start": 11,
+                    "col_stop": 21,
+                    "path": "",
+                    "content": "  let d = [0i8; (1)];"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 4,
+                "line_stop": 4,
+                "col_start": 3,
+                "col_stop": 21,
+                "path": "",
+                "content": "  let d = [0i8; (1)];"
+              }
+            }
+          }
+        ],
+        "span": {
+          "line_start": 1,
+          "line_stop": 7,
+          "col_start": 35,
+          "col_stop": 2,
+          "path": "",
+          "content": "function main(a: [group; (2, 1)]) {\n...\n}"
+        }
+      },
+      "span": {
+        "line_start": 1,
+        "line_stop": 7,
+        "col_start": 1,
+        "col_stop": 2,
+        "path": "",
+        "content": "function main(a: [group; (2, 1)]) {\n...\n}\n\n\n\n"
+      }
+    }
+  }
+}

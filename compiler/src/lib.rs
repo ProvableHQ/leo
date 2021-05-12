@@ -65,6 +65,3 @@ pub use phases::*;
 
 pub mod option;
 pub use option::*;
-
-#[cfg(test)]
-mod test;
