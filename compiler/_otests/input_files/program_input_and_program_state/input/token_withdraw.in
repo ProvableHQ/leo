@@ -1,6 +1,0 @@
-[main]
-data: [u8; 32] = [0u8; 32];
-
-[registers]
-token_id: [u8; 32] = [0u8; 32];
-value_balance: u64 = 0;

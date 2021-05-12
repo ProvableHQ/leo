@@ -1,5 +1,0 @@
-[main]
-a: bool = true;
-
-[constants]
-a: bool = false;

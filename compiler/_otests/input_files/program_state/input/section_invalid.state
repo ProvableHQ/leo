@@ -1,4 +1,0 @@
-[[public]]
-
-[record]
-a: bool = true;
