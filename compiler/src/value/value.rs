@@ -16,7 +16,7 @@
 
 //! The in memory stored value for a defined name in a compiled Leo program.
 
-use crate::{errors::ValueError, Address, FieldType, GroupType, Integer};
+use crate::{errors::ValueError, Address, Char, FieldType, GroupType, Integer};
 use leo_asg::{Circuit, Identifier, Span, Type};
 
 use snarkvm_fields::PrimeField;
@@ -32,6 +32,7 @@ pub enum ConstrainedValue<'a, F: PrimeField, G: GroupType<F>> {
     // Data types
     Address(Address),
     Boolean(Boolean),
+    Char(Char<F>),
     Field(FieldType<F>),
     Group(G),
     Integer(Integer),
@@ -52,6 +53,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedValue<'a, F, G> {
             // Data types
             ConstrainedValue::Address(_address) => Type::Address,
             ConstrainedValue::Boolean(_bool) => Type::Boolean,
+            ConstrainedValue::Char(_char) => Type::Char,
             ConstrainedValue::Field(_field) => Type::Field,
             ConstrainedValue::Group(_group) => Type::Group,
             ConstrainedValue::Integer(integer) => Type::Integer(integer.get_type()),
@@ -90,6 +92,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<'a, F
                     .map(|v| v.to_string())
                     .unwrap_or_else(|| "[allocated]".to_string())
             ),
+            ConstrainedValue::Char(ref value) => write!(f, "{}", value),
             ConstrainedValue::Field(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Group(ref value) => write!(f, "{:?}", value),
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
@@ -144,6 +147,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for ConstrainedV
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 bool_1.conditional_enforce_equal(cs, bool_2, condition)
             }
+            (ConstrainedValue::Char(char_1), ConstrainedValue::Char(char_2)) => {
+                char_1.field.conditional_enforce_equal(cs, &char_2.field, condition)
+            }
             (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
                 field_1.conditional_enforce_equal(cs, field_2, condition)
             }
@@ -187,6 +193,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> CondSelectGadget<F> for ConstrainedValu
             }
             (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
                 ConstrainedValue::Boolean(Boolean::conditionally_select(cs, cond, bool_1, bool_2)?)
+            }
+            (ConstrainedValue::Char(char_1), ConstrainedValue::Char(char_2)) => {
+                ConstrainedValue::Field(FieldType::conditionally_select(cs, cond, &char_1.field, &char_2.field)?)
             }
             (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
                 ConstrainedValue::Field(FieldType::conditionally_select(cs, cond, field_1, field_2)?)

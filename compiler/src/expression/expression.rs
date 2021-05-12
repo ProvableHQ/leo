@@ -23,7 +23,7 @@ use crate::{
     program::ConstrainedProgram,
     relational::*,
     resolve_core_circuit,
-    value::{Address, ConstrainedValue, Integer},
+    value::{Address, Char, ConstrainedValue, Integer},
     FieldType,
     GroupType,
 };
@@ -44,7 +44,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.to_string(), span)?),
             ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
             ConstValue::Char(value) => {
-                ConstrainedValue::Field(FieldType::constant(format!("{}", *value as u32), span)?)
+                ConstrainedValue::Char(Char::constant(*value, format!("{}", *value as u32), span)?)
             }
             ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), span)?),
             ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),
