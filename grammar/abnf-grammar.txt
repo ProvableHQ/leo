@@ -333,8 +333,6 @@ single-quote = %x27   ; '
 ; We give names to complements of certain ASCII characters.
 ; These consist of all the Unicode characters except for one or two.
 
-not-double-quote = %x0-22 / %x24-10FFFF   ; anything but "
-
 not-star = %x0-29 / %x2B-10FFFF   ; anything but *
 
 not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
@@ -345,12 +343,6 @@ not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-10FFFF
 
 not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-10FFFF
                                 ; anything but ' or \
-
-not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
-                                 ; anything but " or {
-
-not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
-                                  ; anything but " or }
 
 not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF
                     ; anything but * or /
@@ -463,21 +455,6 @@ identifier = letter *( letter / digit / "_" )   ; but not a keyword or aleo1...
 
 package-name = 1*( lowercase-letter / digit )
                *( "-" 1*( lowercase-letter / digit ) )
-
-; A format string is a sequence of characters, other than double quote,
-; surrounded by double quotes.
-; Within a format string, sub-strings `{}` are distinguished as containers
-; (these are the ones that may be matched with values
-; whose textual representation replaces the containers
-; in the printed string).
-
-format-string-container = "{}"
-
-format-string-element = not-double-quote-or-open-brace
-                      / "{" not-double-quote-or-close-brace
-                      / format-string-container
-
-format-string = double-quote *format-string-element double-quote
 
 ; Annotations have names, which are identifiers immediately preceded by `@`.
 
@@ -629,7 +606,6 @@ token = keyword
       / identifier
       / atomic-literal
       / package-name
-      / format-string
       / annotation-name
       / symbol
 
@@ -986,7 +962,7 @@ assert-call = %s"assert" "(" expression ")"
 
 print-function = %s"debug" / %s"error" / %s"log"
 
-print-arguments = "(" [ format-string *( "," expression ) ] ")"
+print-arguments = "(" [ string-literal *( "," expression ) ] ")"
 
 print-call = print-function print-arguments
 
