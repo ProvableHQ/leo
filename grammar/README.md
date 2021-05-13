@@ -354,7 +354,7 @@ Lexical Grammar
 
 A Leo file is a finite sequence of Unicode characters,
 represented as Unicode code points,
-which are numbers in the range from 0 to 10FFFFh.
+which are numbers in the range from 0 to 10FFFF.
 These are captured by the ABNF rule `character` below.
 
 The lexical grammar defines how, at least conceptually,
@@ -416,17 +416,23 @@ space = %x20   ; <SP>
 double-quote = %x22   ; "
 ```
 
+<a name="single-quote"></a>
+```abnf
+single-quote = %x27   ; '
+```
+
 We give names to complements of certain ASCII characters.
 These consist of all the Unicode characters except for one or two.
-
-<a name="not-double-quote"></a>
-```abnf
-not-double-quote = %x0-22 / %x24-10FFFF   ; anything but "
-```
 
 <a name="not-star"></a>
 ```abnf
 not-star = %x0-29 / %x2B-10FFFF   ; anything but *
+```
+
+<a name="not-star-or-slash"></a>
+```abnf
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF
+                    ; anything but * or /
 ```
 
 <a name="not-line-feed-or-carriage-return"></a>
@@ -435,22 +441,16 @@ not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
                                    ; anything but <LF> or <CR>
 ```
 
-<a name="not-double-quote-or-open-brace"></a>
+<a name="not-double-quote-or-backslash"></a>
 ```abnf
-not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
-                                 ; anything but " or {
+not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-10FFFF
+                                ; anything but " or \
 ```
 
-<a name="not-double-quote-or-close-brace"></a>
+<a name="not-single-quote-or-backslash"></a>
 ```abnf
-not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
-                                  ; anything but " or }
-```
-
-<a name="not-star-or-slash"></a>
-```abnf
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF
-                    ; anything but * or /
+not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-10FFFF
+                                ; anything but ' or \
 ```
 
 Lines in Leo may be terminated via
@@ -476,7 +476,7 @@ Line terminators form whitespace, along with spaces and horizontal tabs.
 whitespace = space / horizontal-tab / newline
 ```
 
-Go to: _[newline](#user-content-newline), [space](#user-content-space), [horizontal-tab](#user-content-horizontal-tab)_;
+Go to: _[space](#user-content-space), [newline](#user-content-newline), [horizontal-tab](#user-content-horizontal-tab)_;
 
 
 There are two kinds of comments in Leo, as in other languages.
@@ -494,7 +494,7 @@ the ones used in the Java language reference.
 comment = block-comment / end-of-line-comment
 ```
 
-Go to: _[end-of-line-comment](#user-content-end-of-line-comment), [block-comment](#user-content-block-comment)_;
+Go to: _[block-comment](#user-content-block-comment), [end-of-line-comment](#user-content-end-of-line-comment)_;
 
 
 <a name="block-comment"></a>
@@ -511,7 +511,7 @@ rest-of-block-comment = "*" rest-of-block-comment-after-star
                       / not-star rest-of-block-comment
 ```
 
-Go to: _[rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star), [rest-of-block-comment](#user-content-rest-of-block-comment), [not-star](#user-content-not-star)_;
+Go to: _[rest-of-block-comment](#user-content-rest-of-block-comment), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star), [not-star](#user-content-not-star)_;
 
 
 <a name="rest-of-block-comment-after-star"></a>
@@ -521,7 +521,7 @@ rest-of-block-comment-after-star = "/"
                                  / not-star-or-slash rest-of-block-comment
 ```
 
-Go to: _[not-star-or-slash](#user-content-not-star-or-slash), [rest-of-block-comment](#user-content-rest-of-block-comment), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star)_;
+Go to: _[rest-of-block-comment](#user-content-rest-of-block-comment), [rest-of-block-comment-after-star](#user-content-rest-of-block-comment-after-star), [not-star-or-slash](#user-content-not-star-or-slash)_;
 
 
 <a name="end-of-line-comment"></a>
@@ -540,6 +540,7 @@ They cannot be used as identifiers.
 keyword = %s"address"
         / %s"as"
         / %s"bool"
+        / %s"char"
         / %s"circuit"
         / %s"console"
         / %s"const"
@@ -573,8 +574,8 @@ keyword = %s"address"
         / %s"u128"
 ```
 
-The following rules define (ASCII) digits
-and (uppercase and lowercase) letters.
+The following rules define (ASCII)
+digits and (uppercase and lowercase) letters.
 
 <a name="digit"></a>
 ```abnf
@@ -596,7 +597,23 @@ lowercase-letter = %x61-7A   ; a-z
 letter = uppercase-letter / lowercase-letter
 ```
 
-Go to: _[uppercase-letter](#user-content-uppercase-letter), [lowercase-letter](#user-content-lowercase-letter)_;
+Go to: _[lowercase-letter](#user-content-lowercase-letter), [uppercase-letter](#user-content-uppercase-letter)_;
+
+
+The following rules defines (ASCII) octal and hexadecimal digits.
+Note that the latter are case-insensitive.
+
+<a name="octal-digit"></a>
+```abnf
+octal-digit = %x30-37   ; 0-7
+```
+
+<a name="hexadecimal-digit"></a>
+```abnf
+hexadecimal-digit = digit / "a" / "b" / "c" / "d" / "e" / "f"
+```
+
+Go to: _[digit](#user-content-digit)_;
 
 
 An identifier is a non-empty sequence of letters, digits, and underscores,
@@ -622,36 +639,6 @@ where each segment is a non-empty sequence of lowercase letters and digits.
 package-name = 1*( lowercase-letter / digit )
                *( "-" 1*( lowercase-letter / digit ) )
 ```
-
-A format string is a sequence of characters, other than double quote,
-surrounded by double quotes.
-Within a format string, sub-strings `{}` are distinguished as containers
-(these are the ones that may be matched with values
-whose textual representation replaces the containers
-in the printed string).
-
-<a name="format-string-container"></a>
-```abnf
-format-string-container = "{}"
-```
-
-<a name="format-string-element"></a>
-```abnf
-format-string-element = not-double-quote-or-open-brace
-                      / "{" not-double-quote-or-close-brace
-                      / format-string-container
-```
-
-Go to: _[format-string-container](#user-content-format-string-container), [not-double-quote-or-close-brace](#user-content-not-double-quote-or-close-brace), [not-double-quote-or-open-brace](#user-content-not-double-quote-or-open-brace)_;
-
-
-<a name="format-string"></a>
-```abnf
-format-string = double-quote *format-string-element double-quote
-```
-
-Go to: _[double-quote](#user-content-double-quote)_;
-
 
 Annotations have names, which are identifiers immediately preceded by `@`.
 
@@ -752,6 +739,128 @@ Thus an address always consists of 63 characters.
 address-literal = %s"aleo1" 58( lowercase-letter / digit )
 ```
 
+A character literal consists of an element surrounded by single quotes.
+The element is any character other than single quote or backslash,
+or an escape, which starts with backslash.
+There are simple escapes with a single character,
+ASCII escapes with an octal and a hexadecimal digit
+(which together denote a number between 0 and 127),
+and Unicode escapes with one to six hexadecimal digits
+(which must not exceed 10FFFF).
+
+<a name="character-literal"></a>
+```abnf
+character-literal = single-quote character-literal-element single-quote
+```
+
+Go to: _[single-quote](#user-content-single-quote), [character-literal-element](#user-content-character-literal-element)_;
+
+
+<a name="character-literal-element"></a>
+```abnf
+character-literal-element = not-single-quote-or-backslash
+                          / simple-character-escape
+                          / ascii-character-escape
+                          / unicode-character-escape
+```
+
+Go to: _[unicode-character-escape](#user-content-unicode-character-escape), [simple-character-escape](#user-content-simple-character-escape), [not-single-quote-or-backslash](#user-content-not-single-quote-or-backslash), [ascii-character-escape](#user-content-ascii-character-escape)_;
+
+
+<a name="single-quote-escape"></a>
+```abnf
+single-quote-escape = "\" single-quote   ; \'
+```
+
+Go to: _[single-quote](#user-content-single-quote)_;
+
+
+<a name="double-quote-escape"></a>
+```abnf
+double-quote-escape = "\" double-quote   ; \"
+```
+
+Go to: _[double-quote](#user-content-double-quote)_;
+
+
+<a name="backslash-escape"></a>
+```abnf
+backslash-escape = "\\"
+```
+
+<a name="line-feed-escape"></a>
+```abnf
+line-feed-escape = %s"\n"
+```
+
+<a name="carriage-return-escape"></a>
+```abnf
+carriage-return-escape = %s"\r"
+```
+
+<a name="horizontal-tab-escape"></a>
+```abnf
+horizontal-tab-escape = %s"\t"
+```
+
+<a name="null-character-escape"></a>
+```abnf
+null-character-escape = "\0"
+```
+
+<a name="simple-character-escape"></a>
+```abnf
+simple-character-escape = single-quote-escape
+                        / double-quote-escape
+                        / backslash-escape
+                        / line-feed-escape
+                        / carriage-return-escape
+                        / horizontal-tab-escape
+                        / null-character-escape
+```
+
+Go to: _[null-character-escape](#user-content-null-character-escape), [carriage-return-escape](#user-content-carriage-return-escape), [horizontal-tab-escape](#user-content-horizontal-tab-escape), [single-quote-escape](#user-content-single-quote-escape), [double-quote-escape](#user-content-double-quote-escape), [backslash-escape](#user-content-backslash-escape), [line-feed-escape](#user-content-line-feed-escape)_;
+
+
+<a name="ascii-character-escape"></a>
+```abnf
+ascii-character-escape = %s"\x" octal-digit hexadecimal-digit
+```
+
+Go to: _[octal-digit](#user-content-octal-digit), [hexadecimal-digit](#user-content-hexadecimal-digit)_;
+
+
+<a name="unicode-character-escape"></a>
+```abnf
+unicode-character-escape = %s"\u{" 1*6hexadecimal-digit "}"
+```
+
+A string literal consists of one or more elements surrounded by double quotes.
+Each element is any character other than double quote or backslash,
+or an escape among the same ones used for elements of character literals.
+There must be at least one element
+because string literals denote character arrays,
+and arrays must not be empty.
+
+<a name="string-literal"></a>
+```abnf
+string-literal = double-quote 1*string-literal-element double-quote
+```
+
+Go to: _[double-quote](#user-content-double-quote)_;
+
+
+<a name="string-literal-element"></a>
+```abnf
+string-literal-element = not-double-quote-or-backslash
+                       / simple-character-escape
+                       / ascii-character-escape
+                       / unicode-character-escape
+```
+
+Go to: _[ascii-character-escape](#user-content-ascii-character-escape), [not-double-quote-or-backslash](#user-content-not-double-quote-or-backslash), [unicode-character-escape](#user-content-unicode-character-escape), [simple-character-escape](#user-content-simple-character-escape)_;
+
+
 The ones above are all the atomic literals
 (in the sense that they are tokens, without whitespace allowed in them),
 as defined by the following rule.
@@ -765,9 +874,11 @@ atomic-literal = untyped-literal
                / product-group-literal
                / boolean-literal
                / address-literal
+               / character-literal
+               / string-literal
 ```
 
-Go to: _[untyped-literal](#user-content-untyped-literal), [product-group-literal](#user-content-product-group-literal), [unsigned-literal](#user-content-unsigned-literal), [signed-literal](#user-content-signed-literal), [boolean-literal](#user-content-boolean-literal), [address-literal](#user-content-address-literal), [field-literal](#user-content-field-literal)_;
+Go to: _[product-group-literal](#user-content-product-group-literal), [field-literal](#user-content-field-literal), [untyped-literal](#user-content-untyped-literal), [boolean-literal](#user-content-boolean-literal), [address-literal](#user-content-address-literal), [unsigned-literal](#user-content-unsigned-literal), [character-literal](#user-content-character-literal), [signed-literal](#user-content-signed-literal), [string-literal](#user-content-string-literal)_;
 
 
 After defining the (mostly) alphanumeric tokens above,
@@ -807,12 +918,11 @@ token = keyword
       / identifier
       / atomic-literal
       / package-name
-      / format-string
       / annotation-name
       / symbol
 ```
 
-Go to: _[keyword](#user-content-keyword), [atomic-literal](#user-content-atomic-literal), [package-name](#user-content-package-name), [annotation-name](#user-content-annotation-name), [format-string](#user-content-format-string), [symbol](#user-content-symbol), [identifier](#user-content-identifier)_;
+Go to: _[symbol](#user-content-symbol), [identifier](#user-content-identifier), [package-name](#user-content-package-name), [keyword](#user-content-keyword), [atomic-literal](#user-content-atomic-literal), [annotation-name](#user-content-annotation-name)_;
 
 
 
@@ -872,7 +982,7 @@ arithmetic-type = integer-type / field-type / group-type
 Go to: _[integer-type](#user-content-integer-type), [group-type](#user-content-group-type), [field-type](#user-content-field-type)_;
 
 
-The arithmetic types, along with the boolean and address types,
+The arithmetic types, along with the boolean, address, and character types,
 form the scalar types, i.e. the ones whose values do not contain (sub-)values.
 
 <a name="boolean-type"></a>
@@ -885,12 +995,17 @@ boolean-type = %s"bool"
 address-type = %s"address"
 ```
 
-<a name="scalar-type"></a>
+<a name="character-type"></a>
 ```abnf
-scalar-type =  boolean-type / arithmetic-type / address-type
+character-type = %s"char"
 ```
 
-Go to: _[address-type](#user-content-address-type), [boolean-type](#user-content-boolean-type), [arithmetic-type](#user-content-arithmetic-type)_;
+<a name="scalar-type"></a>
+```abnf
+scalar-type =  boolean-type / arithmetic-type / address-type / character-type
+```
+
+Go to: _[arithmetic-type](#user-content-arithmetic-type), [boolean-type](#user-content-boolean-type), [character-type](#user-content-character-type), [address-type](#user-content-address-type)_;
 
 
 Circuit types are denoted by identifiers and the keyword `Self`.
@@ -907,7 +1022,7 @@ self-type = %s"Self"
 circuit-type = identifier / self-type
 ```
 
-Go to: _[identifier](#user-content-identifier), [self-type](#user-content-self-type)_;
+Go to: _[self-type](#user-content-self-type), [identifier](#user-content-identifier)_;
 
 
 A tuple type consists of zero, two, or more component types.
@@ -930,7 +1045,7 @@ or a tuple of one or more dimensions.
 array-type = "[" type ";" array-dimensions "]"
 ```
 
-Go to: _[type](#user-content-type), [array-dimensions](#user-content-array-dimensions)_;
+Go to: _[array-dimensions](#user-content-array-dimensions), [type](#user-content-type)_;
 
 
 <a name="array-dimensions"></a>
@@ -951,7 +1066,7 @@ i.e. types whose values contain (sub-)values
 aggregate-type = tuple-type / array-type / circuit-type
 ```
 
-Go to: _[circuit-type](#user-content-circuit-type), [tuple-type](#user-content-tuple-type), [array-type](#user-content-array-type)_;
+Go to: _[array-type](#user-content-array-type), [tuple-type](#user-content-tuple-type), [circuit-type](#user-content-circuit-type)_;
 
 
 Scalar and aggregate types form all the types.
@@ -1039,7 +1154,7 @@ primary-expression = identifier
                    / circuit-expression
 ```
 
-Go to: _[expression](#user-content-expression), [literal](#user-content-literal), [identifier](#user-content-identifier), [array-expression](#user-content-array-expression), [circuit-expression](#user-content-circuit-expression), [tuple-expression](#user-content-tuple-expression)_;
+Go to: _[literal](#user-content-literal), [identifier](#user-content-identifier), [tuple-expression](#user-content-tuple-expression), [array-expression](#user-content-array-expression), [circuit-expression](#user-content-circuit-expression), [expression](#user-content-expression)_;
 
 
 Tuple expressions construct tuples.
@@ -1092,7 +1207,7 @@ Go to: _[expression](#user-content-expression)_;
 array-repeat-construction = "[" expression ";" array-dimensions "]"
 ```
 
-Go to: _[expression](#user-content-expression), [array-dimensions](#user-content-array-dimensions)_;
+Go to: _[array-dimensions](#user-content-array-dimensions), [expression](#user-content-expression)_;
 
 
 <a name="array-construction"></a>
@@ -1128,7 +1243,7 @@ circuit-construction = circuit-type "{"
                        "}"
 ```
 
-Go to: _[circuit-type](#user-content-circuit-type), [circuit-inline-element](#user-content-circuit-inline-element)_;
+Go to: _[circuit-inline-element](#user-content-circuit-inline-element), [circuit-type](#user-content-circuit-type)_;
 
 
 <a name="circuit-inline-element"></a>
@@ -1136,7 +1251,7 @@ Go to: _[circuit-type](#user-content-circuit-type), [circuit-inline-element](#us
 circuit-inline-element = identifier ":" expression / identifier
 ```
 
-Go to: _[expression](#user-content-expression), [identifier](#user-content-identifier)_;
+Go to: _[identifier](#user-content-identifier), [expression](#user-content-expression)_;
 
 
 <a name="circuit-expression"></a>
@@ -1187,7 +1302,7 @@ postfix-expression = primary-expression
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```
 
-Go to: _[expression](#user-content-expression), [natural](#user-content-natural), [identifier](#user-content-identifier), [primary-expression](#user-content-primary-expression), [circuit-type](#user-content-circuit-type), [function-arguments](#user-content-function-arguments), [postfix-expression](#user-content-postfix-expression)_;
+Go to: _[postfix-expression](#user-content-postfix-expression), [expression](#user-content-expression), [identifier](#user-content-identifier), [primary-expression](#user-content-primary-expression), [function-arguments](#user-content-function-arguments), [circuit-type](#user-content-circuit-type), [natural](#user-content-natural)_;
 
 
 Unary operators have the highest operator precedence.
@@ -1201,7 +1316,7 @@ unary-expression = postfix-expression
                  / "-" unary-expression
 ```
 
-Go to: _[unary-expression](#user-content-unary-expression), [postfix-expression](#user-content-postfix-expression)_;
+Go to: _[postfix-expression](#user-content-postfix-expression), [unary-expression](#user-content-unary-expression)_;
 
 
 Next in the operator precedence is exponentiation,
@@ -1215,7 +1330,7 @@ exponential-expression = unary-expression
                        / unary-expression "**" exponential-expression
 ```
 
-Go to: _[exponential-expression](#user-content-exponential-expression), [unary-expression](#user-content-unary-expression)_;
+Go to: _[unary-expression](#user-content-unary-expression), [exponential-expression](#user-content-exponential-expression)_;
 
 
 Next in precedence come multiplication and division, both left-associative.
@@ -1227,7 +1342,7 @@ multiplicative-expression = exponential-expression
                           / multiplicative-expression "/" exponential-expression
 ```
 
-Go to: _[multiplicative-expression](#user-content-multiplicative-expression), [exponential-expression](#user-content-exponential-expression)_;
+Go to: _[exponential-expression](#user-content-exponential-expression), [multiplicative-expression](#user-content-multiplicative-expression)_;
 
 
 Then there are addition and subtraction, both left-assocative.
@@ -1267,7 +1382,7 @@ equality-expression = ordering-expression
                     / equality-expression "!=" ordering-expression
 ```
 
-Go to: _[ordering-expression](#user-content-ordering-expression), [equality-expression](#user-content-equality-expression)_;
+Go to: _[equality-expression](#user-content-equality-expression), [ordering-expression](#user-content-ordering-expression)_;
 
 
 Next come conjunctive expressions, left-associative.
@@ -1278,7 +1393,7 @@ conjunctive-expression = equality-expression
                        / conjunctive-expression "&&" equality-expression
 ```
 
-Go to: _[equality-expression](#user-content-equality-expression), [conjunctive-expression](#user-content-conjunctive-expression)_;
+Go to: _[conjunctive-expression](#user-content-conjunctive-expression), [equality-expression](#user-content-equality-expression)_;
 
 
 Next come disjunctive expressions, left-associative.
@@ -1289,7 +1404,7 @@ disjunctive-expression = conjunctive-expression
                        / disjunctive-expression "||" conjunctive-expression
 ```
 
-Go to: _[conjunctive-expression](#user-content-conjunctive-expression), [disjunctive-expression](#user-content-disjunctive-expression)_;
+Go to: _[disjunctive-expression](#user-content-disjunctive-expression), [conjunctive-expression](#user-content-conjunctive-expression)_;
 
 
 Finally we have conditional expressions.
@@ -1302,7 +1417,7 @@ conditional-expression = disjunctive-expression
                          ":" conditional-expression
 ```
 
-Go to: _[expression](#user-content-expression), [disjunctive-expression](#user-content-disjunctive-expression), [conditional-expression](#user-content-conditional-expression)_;
+Go to: _[disjunctive-expression](#user-content-disjunctive-expression), [conditional-expression](#user-content-conditional-expression), [expression](#user-content-expression)_;
 
 
 Those above are all the expressions.
@@ -1335,7 +1450,7 @@ statement = expression-statement
           / block
 ```
 
-Go to: _[block](#user-content-block), [constant-declaration](#user-content-constant-declaration), [variable-declaration](#user-content-variable-declaration), [return-statement](#user-content-return-statement), [expression-statement](#user-content-expression-statement), [loop-statement](#user-content-loop-statement), [conditional-statement](#user-content-conditional-statement), [assignment-statement](#user-content-assignment-statement), [console-statement](#user-content-console-statement)_;
+Go to: _[constant-declaration](#user-content-constant-declaration), [variable-declaration](#user-content-variable-declaration), [conditional-statement](#user-content-conditional-statement), [loop-statement](#user-content-loop-statement), [block](#user-content-block), [assignment-statement](#user-content-assignment-statement), [console-statement](#user-content-console-statement), [expression-statement](#user-content-expression-statement), [return-statement](#user-content-return-statement)_;
 
 
 <a name="block"></a>
@@ -1378,7 +1493,7 @@ variable-declaration = %s"let" identifier-or-identifiers [ ":" type ]
                        "=" expression ";"
 ```
 
-Go to: _[type](#user-content-type), [expression](#user-content-expression), [identifier-or-identifiers](#user-content-identifier-or-identifiers)_;
+Go to: _[identifier-or-identifiers](#user-content-identifier-or-identifiers), [type](#user-content-type), [expression](#user-content-expression)_;
 
 
 <a name="constant-declaration"></a>
@@ -1387,7 +1502,7 @@ constant-declaration = %s"const" identifier-or-identifiers [ ":" type ]
                        "=" expression ";"
 ```
 
-Go to: _[identifier-or-identifiers](#user-content-identifier-or-identifiers), [type](#user-content-type), [expression](#user-content-expression)_;
+Go to: _[identifier-or-identifiers](#user-content-identifier-or-identifiers), [expression](#user-content-expression), [type](#user-content-type)_;
 
 
 <a name="identifier-or-identifiers"></a>
@@ -1410,7 +1525,7 @@ Note that blocks are required in all branches, not merely statements.
 branch = %s"if" expression block
 ```
 
-Go to: _[block](#user-content-block), [expression](#user-content-expression)_;
+Go to: _[expression](#user-content-expression), [block](#user-content-block)_;
 
 
 <a name="conditional-statement"></a>
@@ -1420,7 +1535,7 @@ conditional-statement = branch
                       / branch %s"else" conditional-statement
 ```
 
-Go to: _[branch](#user-content-branch), [block](#user-content-block), [conditional-statement](#user-content-conditional-statement)_;
+Go to: _[conditional-statement](#user-content-conditional-statement), [branch](#user-content-branch), [block](#user-content-block)_;
 
 
 A loop statement implicitly defines a loop variable
@@ -1449,7 +1564,7 @@ assignment-operator = "=" / "+=" / "-=" / "*=" / "/=" / "**="
 assignment-statement = expression assignment-operator expression ";"
 ```
 
-Go to: _[expression](#user-content-expression), [assignment-operator](#user-content-assignment-operator)_;
+Go to: _[assignment-operator](#user-content-assignment-operator), [expression](#user-content-expression)_;
 
 
 Console statements start with the `console` keyword,
@@ -1494,10 +1609,10 @@ print-function = %s"debug" / %s"error" / %s"log"
 
 <a name="print-arguments"></a>
 ```abnf
-print-arguments = "(" [ format-string *( "," expression ) ] ")"
+print-arguments = "(" [ string-literal *( "," expression ) ] ")"
 ```
 
-Go to: _[format-string](#user-content-format-string)_;
+Go to: _[string-literal](#user-content-string-literal)_;
 
 
 <a name="print-call"></a>
@@ -1518,7 +1633,7 @@ annotation = annotation-name
              [ "(" identifier *( "," identifier ) ")" ]
 ```
 
-Go to: _[annotation-name](#user-content-annotation-name), [identifier](#user-content-identifier)_;
+Go to: _[identifier](#user-content-identifier), [annotation-name](#user-content-annotation-name)_;
 
 
 A function declaration defines a function.
@@ -1535,7 +1650,7 @@ function-declaration = *annotation %s"function" identifier
                        block
 ```
 
-Go to: _[type](#user-content-type), [block](#user-content-block), [identifier](#user-content-identifier), [function-parameters](#user-content-function-parameters)_;
+Go to: _[function-parameters](#user-content-function-parameters), [type](#user-content-type), [block](#user-content-block), [identifier](#user-content-identifier)_;
 
 
 <a name="function-parameters"></a>
@@ -1545,7 +1660,7 @@ function-parameters = self-parameter
                     / function-inputs
 ```
 
-Go to: _[function-inputs](#user-content-function-inputs), [self-parameter](#user-content-self-parameter)_;
+Go to: _[self-parameter](#user-content-self-parameter), [function-inputs](#user-content-function-inputs)_;
 
 
 <a name="self-parameter"></a>
@@ -1569,16 +1684,27 @@ function-input = [ %s"const" ] identifier ":" type
 Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
 
 
-A circuit member variable declaration consists of an identifier and a type.
-A circuit member function declaration consists of a function declaration.
+A circuit member variable declaration consists of
+an identifier and a type, terminated by semicolon.
+For backward compatibility,
+member variable declarations may be alternatively followed by commas,
+and the last one may not be followed by anything:
+these are deprecated, and will be eventually removed,
+leaving only mandatory semicolons.
+Note that there is no rule for a single `member-variable-declaration`,
+but instead one for a sequence of them;
+see the rule `circuit-declaration`.
 
 <a name="member-variable-declarations"></a>
 ```abnf
-member-variable-declarations = *(identifier ":" type ( "," / ";" )) identifier ":" type ( [ "," ] / ";" )
+member-variable-declarations = *( identifier ":" type ( "," / ";" ) )
+                               identifier ":" type ( [ "," ] / ";" )
 ```
 
 Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
 
+
+A circuit member function declaration consists of a function declaration.
 
 <a name="member-function-declaration"></a>
 ```abnf
@@ -1590,14 +1716,20 @@ Go to: _[function-declaration](#user-content-function-declaration)_;
 
 A circuit declaration defines a circuit type,
 as consisting of member variables and functions.
+To more simply accommodate the backward compatibility
+described for the rule `member-variable-declarations`,
+all the member variables must precede all the member functions;
+this may be relaxed after the backward compatibility is removed,
+allowing member variables and member functions to be intermixed.
 
 <a name="circuit-declaration"></a>
 ```abnf
 circuit-declaration = *annotation %s"circuit" identifier
-                      "{" [ member-variable-declarations ] *member-function-declaration "}"
+                      "{" [ member-variable-declarations ]
+                      *member-function-declaration "}"
 ```
 
-Go to: _[member-variable-declarations](#user-content-member-variable-declarations), [identifier](#user-content-identifier)_;
+Go to: _[identifier](#user-content-identifier), [member-variable-declarations](#user-content-member-variable-declarations)_;
 
 
 An import declaration consists of the `import` keyword
@@ -1609,6 +1741,10 @@ or a parenthesized list of package paths,
 which are "fan out" of the initial path.
 Note that we allow the last element of the parenthesized list
 to be followed by a comma, for convenience.
+The package path in the import declaration must start with a package name
+(e.g. it cannot be a `*`):
+the rule for import declaration expresses this requirement
+by using an explicit package name before the package path.
 
 <a name="import-declaration"></a>
 ```abnf
@@ -1626,7 +1762,7 @@ package-path = "*"
              / "(" package-path *( "," package-path ) [","] ")"
 ```
 
-Go to: _[package-name](#user-content-package-name), [identifier](#user-content-identifier), [package-path](#user-content-package-path)_;
+Go to: _[identifier](#user-content-identifier), [package-path](#user-content-package-path), [package-name](#user-content-package-name)_;
 
 
 Finally, we define a file as a sequence of zero or more declarations.
@@ -1641,7 +1777,7 @@ declaration = import-declaration
             / constant-declaration
 ```
 
-Go to: _[function-declaration](#user-content-function-declaration), [circuit-declaration](#user-content-circuit-declaration), [import-declaration](#user-content-import-declaration), [constant-declaration](#user-content-constant-declaration)_;
+Go to: _[circuit-declaration](#user-content-circuit-declaration), [constant-declaration](#user-content-constant-declaration), [function-declaration](#user-content-function-declaration), [import-declaration](#user-content-import-declaration)_;
 
 
 <a name="file"></a>
