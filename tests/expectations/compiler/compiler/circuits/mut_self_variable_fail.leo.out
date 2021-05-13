@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> test/file:7:9\n     |\n   7 |         self.a = new;\n     |         ^^^^^^^^^^^^\n     |\n     = illegal assignment to immutable variable 'self'"
+  - "    --> compiler-test:7:9\n     |\n   7 |         self.a = new;\n     |         ^^^^^^^^^^^^\n     |\n     = illegal assignment to immutable variable 'self'"

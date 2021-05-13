@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> test/file:4:15\n     |\n   4 |     const i = 1 i8;\n     |               ^\n     |\n     = Unexpected white space between terms 1 and i8"
+  - "    --> compiler-test:4:15\n     |\n   4 |     const i = 1 i8;\n     |               ^\n     |\n     = Unexpected white space between terms 1 and i8"

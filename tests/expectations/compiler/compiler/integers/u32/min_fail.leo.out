@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> test/file:4:20\n     |\n   4 |     const a: u32 = -1;\n     |                    ^^\n     |\n     = failed to parse int value '-1'"
+  - "    --> compiler-test:4:20\n     |\n   4 |     const a: u32 = -1;\n     |                    ^^\n     |\n     = failed to parse int value '-1'"

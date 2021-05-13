@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> test/file:8:1\n     |\n   8 | function main() {\n   9 | ...\n  10 | }\n     | ^\n     |\n     = a function named \"main\" already exists in this scope"
+  - "    --> compiler-test:8:1\n     |\n   8 | function main() {\n   9 | ...\n  10 | }\n     | ^\n     |\n     = a function named \"main\" already exists in this scope"

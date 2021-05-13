@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> test/file:9:17\n     |\n   9 |     const err = a.y;\n     |                 ^^^\n     |\n     = illegal reference to non-existant member 'y' of circuit 'Foo'"
+  - "    --> compiler-test:9:17\n     |\n   9 |     const err = a.y;\n     |                 ^^^\n     |\n     = illegal reference to non-existant member 'y' of circuit 'Foo'"

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> test/file:11:17\n     |\n  11 |     const err = a.echo(1u32); // echo is a static function and must be accessed using `::`\n     |                 ^^^^^^\n     |\n     = cannot call static function 'echo' of circuit 'Foo' from target"
+  - "    --> compiler-test:11:17\n     |\n  11 |     const err = a.echo(1u32); // echo is a static function and must be accessed using `::`\n     |                 ^^^^^^\n     |\n     = cannot call static function 'echo' of circuit 'Foo' from target"

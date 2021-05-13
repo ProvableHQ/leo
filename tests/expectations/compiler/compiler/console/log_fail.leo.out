@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> test/file:4:18\n     |\n   4 |     console.log( hello );\n     |                  ^^^^^\n     |\n     = expected 'formatted string', got 'hello'"
+  - "    --> compiler-test:4:18\n     |\n   4 |     console.log( hello );\n     |                  ^^^^^\n     |\n     = expected 'formatted string', got 'hello'"
