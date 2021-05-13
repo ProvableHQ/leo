@@ -18,7 +18,7 @@
 
 use crate::{
     address::Address,
-    errors::{CharError, FunctionError},
+    errors::FunctionError,
     program::ConstrainedProgram,
     value::{
         boolean::input::bool_from_input,
@@ -83,17 +83,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         match (type_, input) {
             (Type::Address, InputValue::Address(addr)) => Ok(ConstrainedValue::Address(Address::constant(addr, span)?)),
             (Type::Boolean, InputValue::Boolean(value)) => Ok(ConstrainedValue::Boolean(Boolean::constant(value))),
-            (Type::Char, InputValue::Char(value)) => {
-                if let Some(character) = value.chars().nth(1) {
-                    Ok(ConstrainedValue::Char(Char::constant(
-                        character,
-                        format!("{}", character as u32),
-                        span,
-                    )?))
-                } else {
-                    Err(FunctionError::from(CharError::invalid_char(value, span)))
-                }
-            }
+            (Type::Char, InputValue::Char(character)) => Ok(ConstrainedValue::Char(Char::constant(
+                character,
+                format!("{}", character as u32),
+                span,
+            )?)),
             (Type::Field, InputValue::Field(value)) => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
             (Type::Group, InputValue::Group(value)) => Ok(ConstrainedValue::Group(G::constant(&value.into(), span)?)),
             (Type::Integer(integer_type), InputValue::Integer(_, value)) => Ok(ConstrainedValue::Integer(

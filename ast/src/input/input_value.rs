@@ -38,7 +38,7 @@ use std::fmt;
 pub enum InputValue {
     Address(String),
     Boolean(bool),
-    Char(String),
+    Char(char),
     Field(String),
     Group(GroupValue),
     Integer(IntegerType, String),
@@ -63,8 +63,9 @@ impl InputValue {
         Ok(InputValue::Boolean(boolean))
     }
 
-    fn from_char(character: CharValue) -> Self {
-        InputValue::Char(character.value)
+    fn from_char(character: CharValue) -> Result<Self, InputParserError> {
+        let character = character.value.inner()?;
+        Ok(InputValue::Char(character))
     }
 
     fn from_number(integer_type: IntegerType, number: String) -> Self {
@@ -94,7 +95,7 @@ impl InputValue {
         match (data_type, value) {
             (DataType::Address(_), Value::Address(address)) => Ok(InputValue::from_address_value(address)),
             (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
-            (DataType::Char(_), Value::Char(character)) => Ok(InputValue::from_char(character)),
+            (DataType::Char(_), Value::Char(character)) => InputValue::from_char(character),
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
                 Ok(InputValue::from_number(integer_type, integer.to_string()))
             }

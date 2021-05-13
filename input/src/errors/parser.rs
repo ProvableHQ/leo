@@ -83,6 +83,12 @@ impl InputParserError {
         Self::new_from_span(message, span)
     }
 
+    pub fn invalid_char(character: String, span: &Span) -> Self {
+        let message = format!("Expected valid character found `{}`", character);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn implicit_type(data_type: DataType, implicit: NumberValue) -> Self {
         let message = format!("expected `{}`, found `{}`", data_type, implicit);
 

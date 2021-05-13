@@ -14,13 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    assert_satisfied,
-    get_output,
-    parse_program,
-    parse_program_with_input,
-    EdwardsTestCompiler,
-};
+use crate::{assert_satisfied, get_output, parse_program, parse_program_with_input, EdwardsTestCompiler};
 
 pub fn output_char(program: EdwardsTestCompiler) {
     let expected = include_bytes!("output/output_char.out");
@@ -28,26 +22,6 @@ pub fn output_char(program: EdwardsTestCompiler) {
 
     assert_eq!(expected, actual.bytes().as_slice());
 }
-
-#[test]
-fn test_input_pass() {
-    let program_string = include_str!("input.leo");
-    let input_string = include_str!("input/char.in");
-
-    let program = parse_program_with_input(program_string, input_string).unwrap();
-
-    assert_satisfied(program);
-}
-
-// #[test]
-// fn test_input_fail() {
-//     let program_string = include_str!("assert_eq_input.leo");
-//     let input_string = include_str!("input/true_false.in");
-
-//     let program = parse_program_with_input(program_string, input_string).unwrap();
-
-//     expect_compiler_error(program);
-// }
 
 #[test]
 fn test_registers() {
@@ -94,8 +68,10 @@ fn test_function() {
 
 #[test]
 fn test_circuit() {
-    let program_string = include_str!("function.leo");
-    let program = parse_program(program_string).unwrap();
+    let program_string = include_str!("circuit.leo");
+    let char_input_string = include_str!("input/char.in");
+
+    let program = parse_program_with_input(program_string, char_input_string).unwrap();
 
     assert_satisfied(program);
 }

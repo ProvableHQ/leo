@@ -50,12 +50,8 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
     // Check that the parameter value is the correct type
     let option = match input_value {
         Some(input) => {
-            if let InputValue::Char(string) = input {
-                if let Some(character) = string.chars().nth(1) {
-                    (character, Some((character as u32).to_string()))
-                } else {
-                    return Err(CharError::invalid_char(string, span));
-                }
+            if let InputValue::Char(character) = input {
+                (character, Some((character as u32).to_string()))
             } else {
                 return Err(CharError::invalid_char(input.to_string(), span));
             }

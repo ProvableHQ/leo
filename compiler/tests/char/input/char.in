@@ -1,3 +1,4 @@
 [main]
-a: char = '\u{2764}';
-b: char = 'a';
+a: char = 'a';
+b: char = '\'';
+c: char = '\u{2764}';
