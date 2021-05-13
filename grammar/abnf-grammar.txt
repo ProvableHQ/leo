@@ -328,6 +328,8 @@ space = %x20   ; <SP>
 
 double-quote = %x22   ; "
 
+single-quote = %x27   ; '
+
 ; We give names to complements of certain ASCII characters.
 ; These consist of all the Unicode characters except for one or two.
 
@@ -337,6 +339,9 @@ not-star = %x0-29 / %x2B-10FFFF   ; anything but *
 
 not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
                                    ; anything but <LF> or <CR>
+
+not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-10FFFF
+                                ; anything but ' or \
 
 not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
                                  ; anything but " or {
@@ -434,6 +439,13 @@ lowercase-letter = %x61-7A   ; a-z
 
 letter = uppercase-letter / lowercase-letter
 
+; The following rules defines (ASCII) octal and hexadecimal digits.
+; Note that the latter are case-insensitive.
+
+octal-digit = %x30-37   ; 0-7
+
+hexadecimal-digit = digit / "a" / "b" / "c" / "d" / "e" / "f"
+
 ; An identifier is a non-empty sequence of letters, digits, and underscores,
 ; starting with a letter.
 ; It must not be a keyword: this is an extra-grammatical requirement.
@@ -512,6 +524,48 @@ boolean-literal = %s"true" / %s"false"
 
 address-literal = %s"aleo1" 58( lowercase-letter / digit )
 
+; A character literal consists of an element surrounded by single quotes.
+; The element is any character other than single quote or backslash,
+; or an escape, which starts with backslash.
+; There are simple escapes with a single character,
+; ASCII escapes with an octal and a hexadecimal digit
+; (which together denote a number between 0 and 127),
+; and Unicode escapes with one to six hexadecimal digits
+; (which must not exceed 10FFFF).
+
+character-literal = single-quote character-literal-element single-quote
+
+character-literal-element = not-single-quote-or-backslash
+                          / simple-character-escape
+                          / ascii-character-escape
+                          / unicode-character-escape
+
+single-quote-escape = "\" single-quote   ; \'
+
+double-quote-escape = "\" double-quote   ; \"
+
+backslash-escape = "\\"
+
+line-feed-escape = %s"\n"
+
+carriage-return-escape = %s"\r"
+
+horizontal-tab-escape = %s"\t"
+
+null-character-escape = "\0"
+
+simple-character-escape = single-quote-escape
+                        / double-quote-escape
+                        / backslash-escape
+                        / line-feed-escape
+                        / carriage-return-escape
+                        / horizontal-tab-escape
+                        / null-character-escape
+
+ascii-character-escape = %s"\x" octal-digit hexadecimal-digit
+
+unicode-character-escape = %s"\u{" 1*6hexadecimal-digit "}"
+
 ; The ones above are all the atomic literals
 ; (in the sense that they are tokens, without whitespace allowed in them),
 ; as defined by the following rule.
@@ -523,6 +577,7 @@ atomic-literal = untyped-literal
                / product-group-literal
                / boolean-literal
                / address-literal
+               / character-literal
 
 ; After defining the (mostly) alphanumeric tokens above,
 ; it remains to define tokens for non-alphanumeric symbols such as `+` and `(`.
