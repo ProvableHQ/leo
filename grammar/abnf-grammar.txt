@@ -390,6 +390,7 @@ end-of-line-comment = "//" *not-line-feed-or-carriage-return newline
 keyword = %s"address"
         / %s"as"
         / %s"bool"
+        / %s"char"
         / %s"circuit"
         / %s"console"
         / %s"const"
@@ -590,14 +591,16 @@ group-type = %s"group"
 
 arithmetic-type = integer-type / field-type / group-type
 
-; The arithmetic types, along with the boolean and address types,
+; The arithmetic types, along with the boolean, address, and character types,
 ; form the scalar types, i.e. the ones whose values do not contain (sub-)values.
 
 boolean-type = %s"bool"
 
 address-type = %s"address"
 
-scalar-type =  boolean-type / arithmetic-type / address-type
+character-type = %s"char"
+
+scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
 ; Circuit types are denoted by identifiers and the keyword `Self`.
 ; The latter is only allowed inside a circuit definition,
