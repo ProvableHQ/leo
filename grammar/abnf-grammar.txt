@@ -284,7 +284,7 @@
 
 ; A Leo file is a finite sequence of Unicode characters,
 ; represented as Unicode code points,
-; which are numbers in the range from 0 to 10FFFFh.
+; which are numbers in the range from 0 to 10FFFF.
 ; These are captured by the ABNF rule `character` below.
 
 ; The lexical grammar defines how, at least conceptually,
@@ -423,8 +423,8 @@ keyword = %s"address"
         / %s"u64"
         / %s"u128"
 
-; The following rules define (ASCII) digits
-; and (uppercase and lowercase) letters.
+; The following rules define (ASCII)
+; digits and (uppercase and lowercase) letters.
 
 digit = %x30-39   ; 0-9
 
