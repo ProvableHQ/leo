@@ -43,6 +43,16 @@ fn test_basic() {
 }
 
 #[test]
+fn test_circuit() {
+    let program_string = include_str!("circuit.leo");
+    let char_input_string = include_str!("input/char.in");
+
+    let program = parse_program_with_input(program_string, char_input_string).unwrap();
+
+    assert_satisfied(program);
+}
+
+#[test]
 fn test_escapes() {
     let program_string = include_str!("escapes.leo");
     let program = parse_program(program_string).unwrap();
@@ -67,11 +77,17 @@ fn test_function() {
 }
 
 #[test]
-fn test_circuit() {
-    let program_string = include_str!("circuit.leo");
-    let char_input_string = include_str!("input/char.in");
+fn test_octal() {
+    let program_string = include_str!("octal.leo");
+    let program = parse_program(program_string).unwrap();
 
-    let program = parse_program_with_input(program_string, char_input_string).unwrap();
+    assert_satisfied(program);
+}
+
+#[test]
+fn test_unicode() {
+    let program_string = include_str!("unicode.leo");
+    let program = parse_program(program_string).unwrap();
 
     assert_satisfied(program);
 }

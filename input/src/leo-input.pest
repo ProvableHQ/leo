@@ -137,10 +137,15 @@ number_positive = @{ ASCII_DIGIT+ }
 // ANY is equivalent to '\u{00}'..'\u{10FFFF}'
 basic_char = { ANY }
 escaped_char = @{ "\\" ~ ("\"" | "\'" | "\\" | "/" | "b" | "f" | "n" | "r" | "t") }
-hex_char = @{ "\\" ~ "u" ~ "{" ~ ASCII_HEX_DIGIT{4} ~ "}" }
+hex_char = @{ "\\" ~ "x" ~ "H" ~ ASCII_HEX_DIGIT{1, 2} }
+octal_char = @{ "\\" ~ "x" ~ "O" ~ ASCII_DIGIT{3} }
+unicode_char = @{ "\\" ~ "u" ~ "{" ~ ASCII_HEX_DIGIT{1, 6} ~ "}" }
+
 char_types = {
     escaped_char
+    | unicode_char
     | hex_char
+    | octal_char
     | basic_char
 }
 

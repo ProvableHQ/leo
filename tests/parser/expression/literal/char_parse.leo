@@ -12,6 +12,7 @@ expectation: Pass
 '\u{2764}'
 '\u{306E}'
 '❤'
+'の'
 '\xH2A'
 '\xH9'
 '\xO011'
