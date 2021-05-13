@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/mutability/let.leo:6:5\n     |\n   6 |     a = 0;\n     |     ^^^^^\n     |\n     = illegal assignment to immutable variable 'a'"

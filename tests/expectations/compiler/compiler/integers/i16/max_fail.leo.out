@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/integers/i16/max_fail.leo:4:20\n     |\n   4 |     const a: i16 = 32768;\n     |                    ^^^^^\n     |\n     = failed to parse int value '32768'"
+  - "    --> test/file:4:20\n     |\n   4 |     const a: i16 = 32768;\n     |                    ^^^^^\n     |\n     = failed to parse int value '32768'"

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/function/scope_fail.leo:5:12\n     |\n   5 |     return myGlobal;\n     |            ^^^^^^^^\n     |\n     = failed to resolve variable reference 'myGlobal'"
+  - "    --> test/file:5:12\n     |\n   5 |     return myGlobal;\n     |            ^^^^^^^^\n     |\n     = failed to resolve variable reference 'myGlobal'"

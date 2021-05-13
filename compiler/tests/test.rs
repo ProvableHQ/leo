@@ -43,8 +43,8 @@ fn new_compiler(path: PathBuf) -> EdwardsTestCompiler {
     EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None)
 }
 
-pub(crate) fn parse_program(program_string: &str, cwd: PathBuf) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler(cwd);
+pub(crate) fn parse_program(program_string: &str, _cwd: PathBuf) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler("test/file".into());
 
     compiler.parse_program_from_string(program_string)?;
 
@@ -150,6 +150,13 @@ impl Namespace for CompileNamespace {
             let mut cs: CircuitSynthesizer<Bls12_377> = Default::default();
             let output = parsed.compile_constraints(&mut cs).map_err(|x| x.to_string())?;
             let circuit: SummarizedCircuit = SerializedCircuit::from(cs).into();
+
+            if circuit.num_constraints == 0 {
+                return Err(
+                    "- Circuit has no constraints, use inputs and registers in program to produce them".to_string(),
+                );
+            }
+
             if let Some(last_circuit) = last_circuit.as_ref() {
                 if last_circuit != &circuit {
                     eprintln!(
@@ -157,7 +164,7 @@ impl Namespace for CompileNamespace {
                         serde_yaml::to_string(last_circuit).unwrap(),
                         serde_yaml::to_string(&circuit).unwrap()
                     );
-                    return Err("circuit changed on different input files".to_string());
+                    return Err("- Circuit changed on different input files".to_string());
                 }
             } else {
                 last_circuit = Some(circuit);

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/array/nested_3x2_value_fail.leo:6:30\n     |\n   6 |     const a: [u32; (3, 2)] = [[0; 3]; 2]; // initializer (incorrectly reversed ordering)\n     |                              ^^^^^^^^^^^\n     |\n     = unexpected type, expected: 'array of length 3', received: 'array of length 2'"
+  - "    --> test/file:6:30\n     |\n   6 |     const a: [u32; (3, 2)] = [[0; 3]; 2]; // initializer (incorrectly reversed ordering)\n     |                              ^^^^^^^^^^^\n     |\n     = unexpected type, expected: 'array of length 3', received: 'array of length 2'"

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/integers/u128/min_fail.leo:4:21\n     |\n   4 |     const a: u128 = -1;\n     |                     ^^\n     |\n     = failed to parse int value '-1'"
+  - "    --> test/file:4:21\n     |\n   4 |     const a: u128 = -1;\n     |                     ^^\n     |\n     = failed to parse int value '-1'"

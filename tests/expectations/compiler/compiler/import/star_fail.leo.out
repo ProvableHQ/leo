@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/import/imports:4:16\n     |\n   4 | import bar.bat.*;\n     |                ^\n     |\n     = Expected library file `\"/Users/dam/projects/aleo/leo/test-framework/../tests/compiler/import/imports/bar/src/bat/src/lib.leo\"`."

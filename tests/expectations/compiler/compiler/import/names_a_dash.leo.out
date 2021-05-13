@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/import/imports:3:10\n     |\n   3 | import a-.foo;\n     |          ^\n     |\n     = expected 'ident', got '.'"

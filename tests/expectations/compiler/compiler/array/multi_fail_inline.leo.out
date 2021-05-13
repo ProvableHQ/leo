@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/array/multi_fail_inline.leo:5:35\n     |\n   5 |                                   [1u8]];   // incorrect dimensions\n     |                                   ^^^^^\n     |\n     = unexpected type, expected: 'array of length 2', received: 'array of length 1'"
+  - "    --> test/file:5:35\n     |\n   5 |                                   [1u8]];   // incorrect dimensions\n     |                                   ^^^^^\n     |\n     = unexpected type, expected: 'array of length 2', received: 'array of length 1'"

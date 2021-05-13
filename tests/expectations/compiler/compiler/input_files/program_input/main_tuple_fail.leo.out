@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/input_files/program_input/main_tuple_fail.leo:3:1\n     |\n   3 | function main(x: (u8, bool, u8)) {\n   4 | ...\n   5 | }\n     | ^\n     |\n     = Input tuple size mismatch expected 3, found tuple with length 2"
+  - "    --> test/file:3:1\n     |\n   3 | function main(x: (u8, bool, u8)) {\n   4 | ...\n   5 | }\n     | ^\n     |\n     = Input tuple size mismatch expected 3, found tuple with length 2"

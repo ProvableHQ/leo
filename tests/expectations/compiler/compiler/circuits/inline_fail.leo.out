@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/circuits/inline_fail.leo:9:15\n     |\n   9 |     const a = Foo { y: 0u32 };\n     |               ^^^^^^^^^^^^^^^\n     |\n     = missing circuit member 'x' for initialization of circuit 'Foo'"
+  - "    --> test/file:9:15\n     |\n   9 |     const a = Foo { y: 0u32 };\n     |               ^^^^^^^^^^^^^^^\n     |\n     = missing circuit member 'x' for initialization of circuit 'Foo'"

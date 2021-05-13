@@ -1,3 +1,6 @@
+[main]
+y: bool = true;
+
 [constants]
 x: (u8, bool, u8) = (10, true, 10);
 

@@ -14,8 +14,8 @@ function iteration() -> u32 {
     return a;
 }
 
-function main() -> bool {
+function main(y: bool) -> bool {
     const total = iteration() + iteration();
 
-    return total == 20;
+    return total == 20 == y;
 }

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/array/variable_slice_fail.leo:6:19\n     |\n   6 |         const x = a[i..10];\n     |                   ^^^^^^^^\n     |\n     = array size cannot be inferred, add explicit types"
+  - "    --> test/file:6:19\n     |\n   6 |         const x = a[i..10];\n     |                   ^^^^^^^^\n     |\n     = array size cannot be inferred, add explicit types"

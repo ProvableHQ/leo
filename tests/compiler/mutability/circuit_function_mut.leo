@@ -13,10 +13,10 @@ circuit Foo {
 }
 
 
-function main() -> bool {
+function main(y: bool) -> bool {
     let a = Foo { x: 1 };
     
     a.foo();
 
-    return a.x == 10u32;
+    return a.x == 10u32 == y;
 }

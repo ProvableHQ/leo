@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/circuits/mut_static_function_fail.leo:8:19\n     |\n   8 |     let f = Foo { a: 0u8 };\n     |                   ^\n     |\n     = extra circuit member 'a' for initialization of circuit 'Foo' is not allowed"
+  - "    --> test/file:8:19\n     |\n   8 |     let f = Foo { a: 0u8 };\n     |                   ^\n     |\n     = extra circuit member 'a' for initialization of circuit 'Foo' is not allowed"

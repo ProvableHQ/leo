@@ -1,3 +1,6 @@
+[main]
+b: bool = true;
+
 [constants]
 a: bool = true;
 

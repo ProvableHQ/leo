@@ -1,9 +1,9 @@
 /*
 namespace: Compile
 expectation: Pass
-input_file: ../program_input_constants/input/main.in
+input_file: input/main.in
 */
 
-function main(const a: bool) -> bool {
-    return a == true;
+function main(const a: bool, b: bool) -> bool {
+    return a == true == b;
 }

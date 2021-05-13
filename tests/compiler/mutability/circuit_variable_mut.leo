@@ -9,9 +9,9 @@ circuit Foo {
 }
 
 // Using let makes a circuit variable mutable.
-function main() -> bool{
+function main(y: bool) -> bool{
     let a = Foo { x: 1 };
     a.x = 0;
 
-    return a.x == 0u32;
+    return a.x == 0u32 == y;
 }

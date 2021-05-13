@@ -1,3 +1,9 @@
+[main]
+y: bool = true;
+
 [constants]
 a: field = 1;
 b: field = -1;
+
+[registers]
+r0: bool = true;

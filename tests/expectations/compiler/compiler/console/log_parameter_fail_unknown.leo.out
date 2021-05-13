@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/console/log_parameter_fail_unknown.leo:4:23\n     |\n   4 |     console.log(\"{}\", a);\n     |                       ^\n     |\n     = failed to resolve variable reference 'a'"
+  - "    --> test/file:4:23\n     |\n   4 |     console.log(\"{}\", a);\n     |                       ^\n     |\n     = failed to resolve variable reference 'a'"

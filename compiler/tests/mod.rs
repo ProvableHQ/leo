@@ -18,10 +18,6 @@
 
 #![allow(deprecated)]
 
-// Test framework found in /tests/compiler
-#[cfg(test)]
-pub mod test;
-
 pub mod canonicalization;
 pub mod type_inference;
 

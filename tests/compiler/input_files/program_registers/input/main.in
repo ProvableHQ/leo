@@ -1,4 +1,5 @@
 [main]
+a: u8 = 100;
 
 [registers]
 r: u8 = 0u8;

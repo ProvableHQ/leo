@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/mutability/array_fail.leo:5:5\n     |\n   5 |     a[0] = 0;\n     |     ^^^^^^^^\n     |\n     = illegal assignment to immutable variable 'a'"
+  - "    --> test/file:5:5\n     |\n   5 |     a[0] = 0;\n     |     ^^^^^^^^\n     |\n     = illegal assignment to immutable variable 'a'"

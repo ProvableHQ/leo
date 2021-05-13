@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/circuits/member_static_function_invalid.leo:10:17\n     |\n  10 |     const err = Foo.echo(1u32); // Invalid, echo is a static function and must be accessed using `::`\n     |                 ^^^\n     |\n     = failed to resolve variable reference 'Foo'"
+  - "    --> test/file:10:17\n     |\n  10 |     const err = Foo.echo(1u32); // Invalid, echo is a static function and must be accessed using `::`\n     |                 ^^^\n     |\n     = failed to resolve variable reference 'Foo'"

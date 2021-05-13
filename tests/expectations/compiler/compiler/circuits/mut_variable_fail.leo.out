@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/circuits/mut_variable_fail.leo:10:5\n     |\n  10 |     f.a = 1u8;\n     |     ^^^^^^^^^\n     |\n     = illegal assignment to immutable variable 'f'"
+  - "    --> test/file:10:5\n     |\n  10 |     f.a = 1u8;\n     |     ^^^^^^^^^\n     |\n     = illegal assignment to immutable variable 'f'"

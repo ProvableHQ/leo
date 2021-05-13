@@ -1,6 +1,0 @@
----
-namespace: ParseExpression
-expectation: Fail
-outputs:
-  - "    --> test:1:1\n     |\n   1 | [...0u8; 1]\n     | ^^^^^^^\n     |\n     = illegal spread in array initializer"
-  - "    --> test:1:1\n     |\n   1 | [...0; 1]\n     | ^^^^^\n     |\n     = illegal spread in array initializer"

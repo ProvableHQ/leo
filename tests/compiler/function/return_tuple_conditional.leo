@@ -16,6 +16,8 @@ function tuple_conditional () -> (
     }
 }
 
-function main() -> (u32, u32) {
-    return tuple_conditional();
+function main(a: u32, b: u32) -> (u32, u32) {
+    let (a1, b1) = tuple_conditional();
+
+    return (a + a1, b + b1);
 }

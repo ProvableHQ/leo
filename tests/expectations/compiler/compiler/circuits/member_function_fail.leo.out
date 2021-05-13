@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/circuits/member_function_fail.leo:11:17\n     |\n  11 |     const err = a.echoed(1u32);\n     |                 ^^^^^^^^\n     |\n     = illegal reference to non-existant member 'echoed' of circuit 'Foo'"
+  - "    --> test/file:11:17\n     |\n  11 |     const err = a.echoed(1u32);\n     |                 ^^^^^^^^\n     |\n     = illegal reference to non-existant member 'echoed' of circuit 'Foo'"

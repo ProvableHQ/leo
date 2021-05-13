@@ -1,3 +1,6 @@
+[main]
+y: bool = true;
+
 [constants]
 x: [i16; 1] = [0i16; 1];
 

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/function/return_array_nested_fail.leo:4:12\n     |\n   4 |     return [0u8; (2, 3)]; // The correct 3x2 array tuple is `[0u8; (3, 2)]`\n     |            ^^^^^^^^^^^^^\n     |\n     = unexpected type, expected: 'array of length 3', received: 'array of length 2'"
+  - "    --> test/file:4:12\n     |\n   4 |     return [0u8; (2, 3)]; // The correct 3x2 array tuple is `[0u8; (3, 2)]`\n     |            ^^^^^^^^^^^^^\n     |\n     = unexpected type, expected: 'array of length 3', received: 'array of length 2'"

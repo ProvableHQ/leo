@@ -5,9 +5,9 @@ input_file: input/dummy.in
 */
 
 // Adding the `mut` keyword makes a variable mutable.
-function main() -> bool {
+function main(y: bool) -> bool {
     let a = 1u32;
     a = 0;
 
-    return a == 0u32;
+    return a == 0u32 == y;
 }

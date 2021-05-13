@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "    --> /Users/dam/projects/aleo/leo/test-framework/../tests/compiler/import/imports:3:13\n     |\n   3 | import money$.foo;\n     |             ^\n     |\n     = unexpected token: '$'"

@@ -3,6 +3,9 @@ namespace: Compile
 expectation: Pass
 inputs:
  - tuple.in: |
+    [main]
+    a: u32 = 100;
+
     [registers]
     r0: (u8, u8) = (0, 0);
     r1: u32 = 100;
@@ -16,6 +19,7 @@ function tuples() -> ((u8, u8), u32) {
     return (a, b);
 }
 
-function main() {
-    const t = tuples();
+function main(a: u32) -> ((u8, u8), u32) {
+    const (t1, b) = tuples();
+    return (t1, a + b);
 }

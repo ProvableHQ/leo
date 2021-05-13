@@ -1,12 +1,10 @@
 /*
 namespace: Compile
 expectation: Pass
-inputs: 
- - log.in: |
-    [main]
-    a: bool = true;
+input_file: input/dummy.in
 */
 
-function main(a: bool) {
-    console.log("a = {}", a);
+function main(y: bool) -> bool {
+    console.log("a = {}", y);
+    return y == true;
 }

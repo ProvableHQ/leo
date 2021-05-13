@@ -8,8 +8,8 @@ function one() -> bool {
     return true;
 }
 
-function main() -> bool {
+function main(y: bool) -> bool {
     const a = one() && one();
 
-    return a == true;
+    return a == true == y;
 }

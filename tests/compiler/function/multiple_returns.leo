@@ -8,8 +8,8 @@ function tuple() -> (bool, bool) {
     return (true, false);
 }
 
-function main() -> bool {
+function main(y: bool) -> bool {
     const (a, b) = tuple();
 
-    return a == true && b == false;
+    return a == true && b == false && y == true;
 }
