@@ -24,7 +24,7 @@ pub enum ValueExpression {
     // todo: deserialize values here
     Address(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
     Boolean(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
-    Char(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Char(char, Span),
     Field(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
     Group(Box<GroupValue>),
     Implicit(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),

@@ -151,53 +151,184 @@ impl Token {
                 return (i + 1, Some(Token::FormatString(segments)));
             }
             b'\'' => {
-                if input[1] == b'\'' {
-                    return (0, None);
-                }
-
                 let mut i = 1;
-                let mut in_escape = false;
-                let mut character = String::new();
+                let mut escaped = false;
+                let mut hex = false;
+                let mut octal = false;
+                let mut unicode = true;
+                let mut characters: Vec<u8> = vec![];
+
                 while i < input.len() {
-                    if !in_escape {
+                    if !escaped {
                         if input[i] == b'\'' {
+                            i += 1;
                             break;
                         }
-                        if input[i] == b'\\' {
-                            in_escape = !in_escape;
-                        } else {
-                            character.push(input[i] as char);
+
+                        if input[i] == b'{' {
+                            i += 1;
+                            characters.clear();
+                            continue;
+                        }
+
+                        if input[i] == b'}' {
+                            i += 1;
+                            continue;
                         }
                     } else {
-                        in_escape = false;
-                        if input[i] == b'u' {
-                            i += 2;
-                            let mut j = i;
-                            let mut size = 0;
-                            while input[j] != b'}' {
-                                j += 1;
-                                size += 1;
-                            }
-                            let hex_string_number: String = input_tendril.subtendril(i as u32, size).to_string();
-                            if let Ok(hex) = u32::from_str_radix(&hex_string_number, 16) {
-                                if let Some(unicode) = std::char::from_u32(hex) {
-                                    i = j;
-                                    character = unicode.to_string();
+                        escaped = false;
+                        characters.clear();
+
+                        match input[i] {
+                            b'0' => characters.push(0),
+                            b't' => characters.push(9),
+                            b'n' => characters.push(10),
+                            b'r' => characters.push(13),
+                            b'\"' => characters.push(34),
+                            b'\'' => characters.push(39),
+                            b'\\' => characters.push(92),
+                            b'x' => {
+                                i += 1;
+                                match input[i] {
+                                    b'H' => {
+                                        hex = true;
+                                    }
+                                    b'O' => {
+                                        octal = true;
+                                    }
+                                    _ => {
+                                        return (0, None);
+                                    }
                                 }
-                            } else {
+
+                                i += 1;
+                                continue;
+                            }
+                            b'u' => {
+                                unicode = true;
+                            }
+                            _ => {
                                 return (0, None);
                             }
-                        } else {
-                            character.push(input[i] as char);
                         }
+
+                        i += 1;
+                        continue;
                     }
+
+                    if input[i] == b'\\' {
+                        escaped = true;
+                    }
+
+                    characters.push(input[i]);
                     i += 1;
                 }
+
                 if i == input.len() {
                     return (0, None);
                 }
 
-                return (i + 1, Some(Token::CharLit(character.into())));
+                return match characters.len() {
+                    1 => {
+                        if hex {
+                            if let Ok(string) = std::str::from_utf8(&characters[..]) {
+                                if let Ok(number) = u8::from_str_radix(&string, 16) {
+                                    if number < 127 {
+                                        return (i, Some(Token::CharLit(number as char)));
+                                    }
+                                }
+                            }
+                        }
+
+                        (i, Some(Token::CharLit(characters[0] as char)))
+                    }
+                    2 => {
+                        if hex {
+                            if let Ok(string) = std::str::from_utf8(&characters[..]) {
+                                if let Ok(number) = u8::from_str_radix(&string, 16) {
+                                    if number < 127 {
+                                        return (i, Some(Token::CharLit(number as char)));
+                                    }
+                                }
+                            }
+                        }
+
+                        if unicode {
+                            if let Ok(string) = std::str::from_utf8(&characters[..]) {
+                                if let Some(character) = string.chars().next() {
+                                    return (i, Some(Token::CharLit(character)));
+                                }
+                            }
+                        }
+
+                        (0, None)
+                    }
+                    3 => {
+                        if let Ok(string) = std::str::from_utf8(&characters[..]) {
+                            if octal {
+                                if let Ok(number) = u8::from_str_radix(&string, 8) {
+                                    if number < 127 {
+                                        return (i, Some(Token::CharLit(number as char)));
+                                    }
+                                }
+                            }
+
+                            if let Some(character) = string.chars().next() {
+                                return (i, Some(Token::CharLit(character)));
+                            }
+                        }
+
+                        (0, None)
+                    }
+                    4 | 5 | 6 => {
+                        if let Ok(unicode_string) = std::str::from_utf8(&characters[..]) {
+                            if let Ok(hex) = u32::from_str_radix(&unicode_string, 16) {
+                                if let Some(unicode_char) = std::char::from_u32(hex) {
+                                    return (i, Some(Token::CharLit(unicode_char)));
+                                }
+                            }
+                        }
+
+                        (0, None)
+                    }
+                    _ => (0, None),
+                };
+
+                // while i < input.len() {
+                //     if !in_escape {
+                //         if input[i] == b'\'' {
+                //             break;
+                //         }
+                //         if input[i] == b'\\' {
+                //             in_escape = !in_escape;
+                //         } else {
+                //             character.push(input[i] as char);
+                //         }
+                //     } else {
+                //         in_escape = false;
+                //         if input[i] == b'u' {
+                //             i += 2;
+                //             let mut j = i;
+                //             let mut size = 0;
+                //             while input[j] != b'}' {
+                //                 j += 1;
+                //                 size += 1;
+                //             }
+                //             let hex_string_number: String = input_tendril.subtendril(i as u32, size).to_string();
+                //             if let Ok(hex) = u32::from_str_radix(&hex_string_number, 16) {
+                //                 if let Some(unicode) = std::char::from_u32(hex) {
+                //                     i = j;
+                //                     character = unicode.to_string();
+                //                 }
+                //             } else {
+                //                 return (0, None);
+                //             }
+                //         } else {
+                //             character.push(input[i] as char);
+                //         }
+                //     }
+                //     i += 1;
+                // }
             }
             x if x.is_ascii_digit() => {
                 return Self::eat_integer(&input_tendril);

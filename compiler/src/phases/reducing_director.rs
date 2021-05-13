@@ -434,7 +434,10 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                         new = ValueExpression::Boolean(tendril.clone(), span.clone());
                     }
                     ConstValue::Char(_) => {
-                        new = ValueExpression::Char(tendril.clone(), span.clone());
+                        if let Some(c) = tendril.chars().next() {
+                            new = ValueExpression::Char(c, span.clone());
+                        }
+                        // TODO RETURN ERR
                     }
                     _ => unimplemented!(), // impossible?
                 }

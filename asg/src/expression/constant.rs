@@ -129,14 +129,11 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                         ));
                     }
                 }
+
                 Constant {
                     parent: Cell::new(None),
                     span: Some(span.clone()),
-                    value: ConstValue::Char(
-                        value
-                            .parse::<char>()
-                            .map_err(|_| AsgConvertError::invalid_char(&value, span))?,
-                    ),
+                    value: ConstValue::Char(*value),
                 }
             }
             Field(value, span) => {
@@ -237,7 +234,7 @@ impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
                 leo_ast::ValueExpression::Boolean(value.to_string().into(), self.span.clone().unwrap_or_default())
             }
             ConstValue::Char(value) => {
-                leo_ast::ValueExpression::Char(value.to_string().into(), self.span.clone().unwrap_or_default())
+                leo_ast::ValueExpression::Char(value.clone(), self.span.clone().unwrap_or_default())
             }
             ConstValue::Field(value) => {
                 leo_ast::ValueExpression::Field(value.to_string().into(), self.span.clone().unwrap_or_default())
