@@ -340,6 +340,9 @@ not-star = %x0-29 / %x2B-10FFFF   ; anything but *
 not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
                                    ; anything but <LF> or <CR>
 
+not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-10FFFF
+                                ; anything but " or \
+
 not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-10FFFF
                                 ; anything but ' or \
 
@@ -566,6 +569,20 @@ ascii-character-escape = %s"\x" octal-digit hexadecimal-digit
 
 unicode-character-escape = %s"\u{" 1*6hexadecimal-digit "}"
 
+; A string literal consists of one or more elements surrounded by double quotes.
+; Each element is any character other than double quote or backslash,
+; or an escape among the same ones used for elements of character literals.
+; There must be at least one element
+; because string literals denote character arrays,
+; and arrays must not be empty.
+
+string-literal = double-quote 1*string-literal-element double-quote
+
+string-literal-element = not-double-quote-or-backslash
+                       / simple-character-escape
+                       / ascii-character-escape
+                       / unicode-character-escape
+
 ; The ones above are all the atomic literals
 ; (in the sense that they are tokens, without whitespace allowed in them),
 ; as defined by the following rule.
@@ -578,6 +595,7 @@ atomic-literal = untyped-literal
                / boolean-literal
                / address-literal
                / character-literal
+               / string-literal
 
 ; After defining the (mostly) alphanumeric tokens above,
 ; it remains to define tokens for non-alphanumeric symbols such as `+` and `(`.
