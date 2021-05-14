@@ -43,8 +43,8 @@ fn new_compiler(path: PathBuf) -> EdwardsTestCompiler {
     EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None)
 }
 
-pub(crate) fn parse_program(program_string: &str, _cwd: PathBuf) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler("test/file".into());
+pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler("compiler-test".into());
 
     compiler.parse_program_from_string(program_string)?;
 
@@ -75,17 +75,17 @@ impl Namespace for CompileNamespace {
         // ``` cwd: import ```
         // When set, uses different working directory for current file.
         // If not, uses file path as current working directory.
-        let cwd = test
-            .config
-            .get("cwd")
-            .map(|val| {
-                let mut cwd = test.path.clone();
-                cwd.pop();
-                cwd.join(&val.as_str().unwrap())
-            })
-            .unwrap_or(test.path.clone());
+        // let cwd = test
+        //     .config
+        //     .get("cwd")
+        //     .map(|val| {
+        //         let mut cwd = test.path.clone();
+        //         cwd.pop();
+        //         cwd.join(&val.as_str().unwrap())
+        //     })
+        //     .unwrap_or(test.path.clone());
 
-        let parsed = parse_program(&test.content, cwd).map_err(|x| x.to_string())?;
+        let parsed = parse_program(&test.content).map_err(|x| x.to_string())?;
 
         // (name, content)
         let mut inputs = vec![];
