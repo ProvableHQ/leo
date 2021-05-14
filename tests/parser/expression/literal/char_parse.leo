@@ -13,7 +13,4 @@ expectation: Pass
 '\u{306E}'
 '❤'
 'の'
-'\xH2A'
-'\xH9'
-'\xO011'
-'\xO172'
+'\x2A'

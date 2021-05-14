@@ -8,3 +8,5 @@ expectation: Fail
 'a
 
 ''
+
+'\x9'

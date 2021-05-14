@@ -77,14 +77,6 @@ fn test_function() {
 }
 
 #[test]
-fn test_octal() {
-    let program_string = include_str!("octal.leo");
-    let program = parse_program(program_string).unwrap();
-
-    assert_satisfied(program);
-}
-
-#[test]
 fn test_unicode() {
     let program_string = include_str!("unicode.leo");
     let program = parse_program(program_string).unwrap();

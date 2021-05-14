@@ -73,7 +73,6 @@ impl Token {
         let mut i = 1;
         let mut escaped = false;
         let mut hex = false;
-        let mut octal = false;
         let mut unicode = false;
         let mut last = false;
         let mut characters: Vec<u8> = vec![];
@@ -109,18 +108,7 @@ impl Token {
                     b'\'' => characters.push(39),
                     b'\\' => characters.push(92),
                     b'x' => {
-                        i += 1;
-                        match input[i] {
-                            b'H' => {
-                                hex = true;
-                            }
-                            b'O' => {
-                                octal = true;
-                            }
-                            _ => {
-                                return (0, None);
-                            }
-                        }
+                        hex = true;
 
                         i += 1;
                         continue;
@@ -153,13 +141,7 @@ impl Token {
         return match characters.len() {
             1 => {
                 if hex {
-                    if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                        if let Ok(number) = u8::from_str_radix(&string, 16) {
-                            if number < 127 {
-                                return (i, Some(Token::CharLit(number as char)));
-                            }
-                        }
-                    }
+                    return (0, None);
                 }
 
                 (i, Some(Token::CharLit(characters[0] as char)))
@@ -168,7 +150,7 @@ impl Token {
                 if hex {
                     if let Ok(string) = std::str::from_utf8(&characters[..]) {
                         if let Ok(number) = u8::from_str_radix(&string, 16) {
-                            if number < 127 {
+                            if number <= 127 {
                                 return (i, Some(Token::CharLit(number as char)));
                             }
                         }
@@ -187,14 +169,6 @@ impl Token {
             }
             3 => {
                 if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                    if octal {
-                        if let Ok(number) = u8::from_str_radix(&string, 8) {
-                            if number < 127 {
-                                return (i, Some(Token::CharLit(number as char)));
-                            }
-                        }
-                    }
-
                     if let Some(character) = string.chars().next() {
                         return (i, Some(Token::CharLit(character)));
                     }

@@ -50,15 +50,6 @@ pub struct HexChar<'ast> {
 }
 
 #[derive(Clone, Debug, FromPest, PartialEq, Eq)]
-#[pest_ast(rule(Rule::octal_char))]
-pub struct OctalChar<'ast> {
-    #[pest_ast(outer(with(span_into_string)))]
-    pub value: String,
-    #[pest_ast(outer())]
-    pub span: Span<'ast>,
-}
-
-#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::unicode_char))]
 pub struct UnicodeChar<'ast> {
     #[pest_ast(outer(with(span_into_string)))]
@@ -73,7 +64,6 @@ pub enum CharTypes<'ast> {
     Basic(BasicChar<'ast>),
     Escaped(EscapedChar<'ast>),
     Hex(HexChar<'ast>),
-    Octal(OctalChar<'ast>),
     Unicode(UnicodeChar<'ast>),
 }
 
@@ -97,16 +87,6 @@ impl<'ast> CharTypes<'ast> {
             Self::Hex(character) => {
                 let hex_string_number = character.value[3..character.value.len()].to_string();
                 if let Ok(number) = u8::from_str_radix(&hex_string_number, 16) {
-                    if number < 127 {
-                        return Ok(number as char);
-                    }
-                }
-
-                Err(InputParserError::invalid_char(character.value, &character.span))
-            }
-            Self::Octal(character) => {
-                let octal_string_number = character.value[3..character.value.len()].to_string();
-                if let Ok(number) = u8::from_str_radix(&octal_string_number, 8) {
                     if number < 127 {
                         return Ok(number as char);
                     }

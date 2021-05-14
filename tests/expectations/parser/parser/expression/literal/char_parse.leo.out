@@ -98,33 +98,6 @@ outputs:
         - line_start: 1
           line_stop: 1
           col_start: 1
-          col_stop: 8
-          path: test
-          content: "'\\xH2A'"
-  - Value:
-      Char:
-        - "\t"
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
           col_stop: 7
           path: test
-          content: "'\\xH9'"
-  - Value:
-      Char:
-        - "\t"
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 9
-          path: test
-          content: "'\\xO011'"
-  - Value:
-      Char:
-        - z
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 9
-          path: test
-          content: "'\\xO172'"
+          content: "'\\x2A'"

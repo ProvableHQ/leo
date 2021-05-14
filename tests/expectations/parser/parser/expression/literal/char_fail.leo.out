@@ -5,3 +5,4 @@ outputs:
   - "    --> test:1:1\n     |\n   1 | '\\'\n     | ^\n     |\n     = unexpected token: '''"
   - "    --> test:1:1\n     |\n   1 | 'a\n     | ^\n     |\n     = unexpected token: '''"
   - "    --> test:1:1\n     |\n   1 | ''\n     | ^\n     |\n     = unexpected token: '''"
+  - "    --> test:1:1\n     |\n   1 | '\\x9'\n     | ^\n     |\n     = unexpected token: '''"

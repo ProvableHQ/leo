@@ -1,4 +1,4 @@
 function main() {
-    const heart: char = '❤';
-    const Hiragana = 'の';
+    const star = '\x2A';
+    const star = '\x7F';
 }
