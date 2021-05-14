@@ -112,7 +112,7 @@ version = "0.3.1"
 version = "1.4.0"
 
 [dependencies.notify]
-version = "4.0.16"
+version = "4.0.17"
 
 [dependencies.rand]
 version = "0.8"
