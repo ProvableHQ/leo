@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:4:20\n     |\n   4 |     const a: u16 = -1;\n     |                    ^^\n     |\n     = failed to parse int value '-1'"

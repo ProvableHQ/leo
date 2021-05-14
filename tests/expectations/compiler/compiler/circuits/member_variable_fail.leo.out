@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:9:17\n     |\n   9 |     const err = a.y;\n     |                 ^^^\n     |\n     = illegal reference to non-existant member 'y' of circuit 'Foo'"

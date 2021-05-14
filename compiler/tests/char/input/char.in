@@ -1,5 +1,0 @@
-[main]
-a: char = 'a';
-b: char = '\'';
-c: char = '\u{2764}';
-d: char = '\x2A';

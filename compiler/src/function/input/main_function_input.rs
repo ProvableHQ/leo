@@ -117,7 +117,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 Ok(ConstrainedValue::Tuple(
                     values
                         .iter()
-                        .map(|x| self.constant_main_function_input(_cs, type_, name, Some(x.clone()), span))
+                        .enumerate()
+                        .map(|(i, x)| {
+                            self.constant_main_function_input(_cs, types.get(i).unwrap(), name, Some(x.clone()), span)
+                        })
                         .collect::<Result<Vec<_>, _>>()?,
                 ))
             }

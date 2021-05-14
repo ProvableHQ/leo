@@ -45,6 +45,7 @@ pub enum TestError {
         output: String,
     },
     MismatchedTestExpectationLength,
+    MissingTestConfig,
 }
 
 impl fmt::Display for TestError {
@@ -75,6 +76,7 @@ impl fmt::Display for TestError {
                 write!(f, "test #{} expected error\n{}\ngot\n{}", index + 1, expected, output)
             }
             TestError::MismatchedTestExpectationLength => write!(f, "invalid number of test expectations"),
+            TestError::MissingTestConfig => write!(f, "missing test config"),
         }
     }
 }

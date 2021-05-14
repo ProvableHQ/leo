@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 95
+      num_constraints: 95
+      at: 5267486d9db0d5d95b248da00196e1a6e5c6e165f8580eae4fbf20d8e1560fd7
+      bt: e0a9aa0cab882fb690b28137d24f271ccaa334521934a3badc07592a31b7be7f
+      ct: 5983ee7f60c1fc1ad4aaece7815002040cd4b5a7e019b3967f948d30f5d7ec96
+    output:
+      - input_file: func_circ.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

@@ -18,30 +18,10 @@
 
 #![allow(deprecated)]
 
-pub mod address;
-pub mod array;
-pub mod boolean;
 pub mod canonicalization;
-pub mod char;
-pub mod circuits;
-pub mod compiler;
-pub mod console;
-pub mod core;
-pub mod definition;
-// pub mod field;
-pub mod function;
-// pub mod group;
-pub mod import;
-pub mod input_files;
-pub mod integers;
-pub mod mutability;
-pub mod statements;
-pub mod syntax;
-pub mod tuples;
 pub mod type_inference;
 
 use leo_asg::{new_alloc_context, new_context, AsgContext};
-use leo_ast::{InputValue, MainInput};
 use leo_compiler::{
     compiler::Compiler,
     errors::CompilerError,
@@ -49,7 +29,6 @@ use leo_compiler::{
     ConstrainedValue,
     OutputBytes,
 };
-use leo_input::types::{IntegerType, U32Type, UnsignedIntegerType};
 
 use snarkvm_curves::edwards_bls12::Fq;
 use snarkvm_r1cs::TestConstraintSystem;
@@ -80,36 +59,6 @@ pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler,
     let mut compiler = new_compiler();
 
     compiler.parse_program_from_string(program_string)?;
-
-    Ok(compiler)
-}
-
-pub(crate) fn parse_input(input_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler();
-    let path = PathBuf::new();
-
-    compiler.parse_input(input_string, &path, EMPTY_FILE, &path)?;
-
-    Ok(compiler)
-}
-
-pub(crate) fn parse_state(state_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler();
-    let path = PathBuf::new();
-
-    compiler.parse_input(EMPTY_FILE, &path, state_string, &path)?;
-
-    Ok(compiler)
-}
-
-pub(crate) fn parse_input_and_state(
-    input_string: &str,
-    state_string: &str,
-) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler();
-    let path = PathBuf::new();
-
-    compiler.parse_input(input_string, &path, state_string, &path)?;
 
     Ok(compiler)
 }
@@ -162,7 +111,7 @@ pub(crate) fn get_output(program: EdwardsTestCompiler) -> OutputBytes {
     // assert the constraint system is satisfied
     assert!(cs.is_satisfied());
 
-    output
+    output.into()
 }
 
 pub(crate) fn assert_satisfied(program: EdwardsTestCompiler) {
@@ -171,31 +120,4 @@ pub(crate) fn assert_satisfied(program: EdwardsTestCompiler) {
 
     // assert that the output is empty
     assert_eq!(empty_output_bytes, res.bytes().as_slice());
-}
-
-pub(crate) fn expect_compiler_error(program: EdwardsTestCompiler) -> CompilerError {
-    let mut cs = TestConstraintSystem::<Fq>::new();
-    program.compile_constraints(&mut cs).unwrap_err()
-}
-
-pub(crate) fn expect_asg_error(error: CompilerError) {
-    assert!(matches!(error, CompilerError::AsgConvertError(_)))
-}
-
-pub(crate) fn generate_main_input(input: Vec<(&str, Option<InputValue>)>) -> MainInput {
-    let mut main_input = MainInput::new();
-
-    for (name, value) in input {
-        main_input.insert(name.to_string(), value);
-    }
-
-    main_input
-}
-
-#[allow(clippy::unnecessary_wraps)] // consumers expect an optional value
-pub(crate) fn generate_test_input_u32(number: u32) -> Option<InputValue> {
-    Some(InputValue::Integer(
-        IntegerType::Unsigned(UnsignedIntegerType::U32Type(U32Type {})),
-        number.to_string(),
-    ))
 }

@@ -1,0 +1,30 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 449
+      num_constraints: 449
+      at: da4ed3fe37a309845d94cfe19b5e363f1e46a3689f11097214d3b8bc9d345ea7
+      bt: bd9dd7ede35a39f80c5b4b97dca300dcd37110f2270cb25d8935d964db04e2ab
+      ct: 7b765314986bd8a51a62dabdef866c5fe05ad9bf392fb0e25b7ce3b9969f81e1
+    output:
+      - input_file: u64_g.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+      - input_file: u64_e.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+      - input_file: u64_f.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

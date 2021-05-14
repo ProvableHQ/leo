@@ -20,9 +20,9 @@ use snarkvm_r1cs::{ConstraintSystem, Index, LinearCombination, OptionalVec, Synt
 
 #[derive(Default)]
 pub struct Namespace {
-    constraint_indices: Vec<usize>,
-    public_var_indices: Vec<usize>,
-    private_var_indices: Vec<usize>,
+    pub constraint_indices: Vec<usize>,
+    pub public_var_indices: Vec<usize>,
+    pub private_var_indices: Vec<usize>,
 }
 
 pub struct ConstraintSet<E: PairingEngine> {
@@ -51,6 +51,17 @@ pub struct CircuitSynthesizer<E: PairingEngine> {
 
     // Technical namespaces used to remove of out-of-scope objects.
     pub namespaces: Vec<Namespace>,
+}
+
+impl<E: PairingEngine> Default for CircuitSynthesizer<E> {
+    fn default() -> Self {
+        Self {
+            constraints: Default::default(),
+            public_variables: Default::default(),
+            private_variables: Default::default(),
+            namespaces: Default::default(),
+        }
+    }
 }
 
 impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {

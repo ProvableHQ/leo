@@ -1,0 +1,24 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 449
+      num_constraints: 449
+      at: 732f88f6d74154902e8e9ccb6a4f52a7ff945ad78d37bbd769fcfd226e7d3261
+      bt: 46fa1dbc8f6cc62609913fe96ad20cff4ba8ba7ea886b3682c3b4dc9a491b334
+      ct: 7b765314986bd8a51a62dabdef866c5fe05ad9bf392fb0e25b7ce3b9969f81e1
+    output:
+      - input_file: i64_e.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+      - input_file: i64_g.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

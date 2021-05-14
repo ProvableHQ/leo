@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:3:1\n     |\n   3 | function main(x: [i16; 2]) {\n   4 | ...\n   5 | }\n     | ^\n     |\n     = Input array dimensions mismatch expected 1, found array dimensions 2"

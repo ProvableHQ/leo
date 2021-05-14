@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:5:15\n     |\n   5 |     const b = -a;\n     |               ^^\n     |\n     = integer operation failed due to the signed integer error `Overflow`"

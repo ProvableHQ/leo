@@ -1,0 +1,5 @@
+[main]
+x: [i16; (2, 2, 3)] = [0i16; (2, 2, 3)];
+
+[registers]
+r0: bool = true;

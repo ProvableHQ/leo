@@ -1,0 +1,6 @@
+[main]
+a: [[u8; 2]; 3] = [[0; 2]; 3];
+
+
+[registers]
+x: bool = false;

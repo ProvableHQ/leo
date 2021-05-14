@@ -1,0 +1,36 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 3
+      num_constraints: 3
+      at: d4e77c2cd10c964fbbc4ad4f374dc36b3a6bc7d6865b87ec5234076348308c2c
+      bt: 49e8fa1fd3f85b0f486c49f194e4fff3da5e8039685fca1f3327389cbe9fc180
+      ct: 7ca43d5c34997f3c866631161cb33186cc016972238c07771ae105ca1b05320d
+    output:
+      - input_file: input/false_false.in
+        output:
+          registers:
+            x:
+              type: bool
+              value: "false"
+      - input_file: input/false_true.in
+        output:
+          registers:
+            x:
+              type: bool
+              value: "true"
+      - input_file: input/true_false.in
+        output:
+          registers:
+            x:
+              type: bool
+              value: "true"
+      - input_file: input/true_true.in
+        output:
+          registers:
+            x:
+              type: bool
+              value: "false"

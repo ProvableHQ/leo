@@ -1,0 +1,5 @@
+[main]
+character: char = '\u{2764}';
+
+[registers]
+r: char = 'a';

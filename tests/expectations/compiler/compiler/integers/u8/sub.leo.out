@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 48
+      num_constraints: 49
+      at: 47ad61cbbd19835d1bad8f3543217313ee841a18dfa224995e5a4e7a9802fc6e
+      bt: 0864b812eb8b0fd3cb3173bde347790cd9975d1117accb115141afe0444cea3c
+      ct: a09cd762cf1db927d99cef196452f092d030aa05851fe466816535ac34c6188f
+    output:
+      - input_file: u8_f.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

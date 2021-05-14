@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "- Circuit has no constraints, use inputs and registers in program to produce them"

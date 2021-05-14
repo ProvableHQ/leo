@@ -1,0 +1,24 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 95
+      num_constraints: 95
+      at: 9273b9ab94dee8605c4f1e49fe99910f674468f5026b8d2c48ecaa4d8c006f3a
+      bt: a3614a9ddd1ae0fde16a61336aba5a02b44816b3e43e23c7b9663976319bcb8a
+      ct: 49f0db71bd29b80dbe5f2f96573a5959b1df339c92350e16f111bade214037aa
+    output:
+      - input_file: input/six_zeros.in
+        output:
+          registers:
+            x:
+              type: bool
+              value: "false"
+      - input_file: input/count_to_6.in
+        output:
+          registers:
+            x:
+              type: bool
+              value: "true"
