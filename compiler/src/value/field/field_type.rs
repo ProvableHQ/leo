@@ -98,7 +98,7 @@ impl<F: PrimeField> FieldType<F> {
         }
     }
 
-    pub fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, FieldError> {
+    pub fn sub<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self, span: &Span) -> Result<Self, FieldError> {
         match (self, other) {
             (FieldType::Constant(self_value), FieldType::Constant(other_value)) => {
                 Ok(FieldType::Constant(self_value.sub(other_value)))
@@ -112,11 +112,20 @@ impl<F: PrimeField> FieldType<F> {
                 Ok(FieldType::Allocated(result))
             }
 
-            (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value))
-            | (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
+            (FieldType::Constant(constant_value), FieldType::Allocated(allocated_value)) => {
+                let result = allocated_value
+                    .sub_constant(cs.ns(|| "field_sub_constant"), constant_value)
+                    .map_err(|e| FieldError::binary_operation("-".to_string(), e, span))?
+                    .negate(cs.ns(|| "negate"))
+                    .map_err(|e| FieldError::binary_operation("-".to_string(), e, span))?;
+
+                Ok(FieldType::Allocated(result))
+            }
+
+            (FieldType::Allocated(allocated_value), FieldType::Constant(constant_value)) => Ok(FieldType::Allocated(
                 allocated_value
                     .sub_constant(cs, constant_value)
-                    .map_err(|e| FieldError::binary_operation("+".to_string(), e, span))?,
+                    .map_err(|e| FieldError::binary_operation("-".to_string(), e, span))?,
             )),
         }
     }
