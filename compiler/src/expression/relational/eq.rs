@@ -39,6 +39,10 @@ pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             let unique_namespace = cs.ns(|| namespace_string);
             bool_1.evaluate_equal(unique_namespace, &bool_2)
         }
+        (ConstrainedValue::Char(char_1), ConstrainedValue::Char(char_2)) => {
+            let unique_namespace = cs.ns(|| namespace_string);
+            char_1.evaluate_equal(unique_namespace, &char_2)
+        }
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             let unique_namespace = cs.ns(|| namespace_string);
             num_1.evaluate_equal(unique_namespace, &num_2)

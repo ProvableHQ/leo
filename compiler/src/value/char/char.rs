@@ -23,10 +23,18 @@ use crate::{
 
 use leo_ast::{InputValue, Span};
 use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_gadgets::{
+    fields::FpGadget,
+    utilities::{
+        boolean::Boolean,
+        eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+        select::CondSelectGadget,
+    },
+};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 /// A char
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub struct Char<F: PrimeField> {
     pub character: char,
     pub field: FieldType<F>,
@@ -38,6 +46,43 @@ impl<F: PrimeField> Char<F> {
             character,
             field: FieldType::constant(field, span)?,
         })
+    }
+}
+
+impl<F: PrimeField> PartialEq for Char<F> {
+    fn eq(&self, other: &Self) -> bool {
+        self.field.eq(&other.field)
+    }
+}
+
+impl<F: PrimeField> Eq for Char<F> {}
+
+impl<F: PrimeField> PartialOrd for Char<F> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.field.partial_cmp(&other.field)
+    }
+}
+
+impl<F: PrimeField> EvaluateEqGadget<F> for Char<F> {
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        self.field.evaluate_equal(cs, &other.field)
+    }
+}
+
+impl<F: PrimeField> EqGadget<F> for Char<F> {}
+
+impl<F: PrimeField> ConditionalEqGadget<F> for Char<F> {
+    fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
+        &self,
+        cs: CS,
+        other: &Self,
+        condition: &Boolean,
+    ) -> Result<(), SynthesisError> {
+        self.field.conditional_enforce_equal(cs, &other.field, condition)
+    }
+
+    fn cost() -> usize {
+        2 * <FpGadget<F> as CondSelectGadget<F>>::cost()
     }
 }
 

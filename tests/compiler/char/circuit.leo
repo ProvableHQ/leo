@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Fail
+expectation: Pass
 input_file:
  - inputs/ascii.in
  - inputs/escaped_unicode.in
@@ -15,5 +15,7 @@ circuit Foo {
 
 function main(character: char) -> char {
     let f = Foo { character };
-    return f.character;
+
+    let character = f.character == 'a' ? 'a' : 'Z';
+    return character;
 }
