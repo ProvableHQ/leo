@@ -1,0 +1,63 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Value:
+      String:
+        - - s
+          - t
+          - r
+          - i
+          - n
+          - g
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: test
+          content: "`string`"
+  - Value:
+      String:
+        - - a
+          - n
+          - o
+          - t
+          - h
+          - e
+          - r
+          - " "
+          - "{"
+          - " "
+          - "}"
+          - " "
+          - s
+          - t
+          - r
+          - i
+          - n
+          - g
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 21
+          path: test
+          content: "`another { } string`"
+  - Value:
+      String:
+        - - "{"
+          - " "
+          - "\\"
+          - " "
+          - "]"
+          - " "
+          - "["
+          - " "
+          - ;
+          - " "
+          - a
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 14
+          path: test
+          content: "`{ \\ ] [ ; a`"

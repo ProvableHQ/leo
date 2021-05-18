@@ -235,6 +235,16 @@ impl Token {
         let input = input_tendril[..].as_bytes();
         match input[0] {
             x if x.is_ascii_whitespace() => return (1, None),
+            b'`' => {
+                let mut collect: Vec<char> = Vec::new();
+                for (i, char_bytes) in input.iter().enumerate().skip(1) {
+                    if *char_bytes == b'`' {
+                        return (i + 1, Some(Token::QuotedString(collect)));
+                    }
+
+                    collect.push(std::char::from_u32(*char_bytes as u32).unwrap());
+                }
+            }
             b'"' => {
                 let mut i = 1;
                 let mut in_escape = false;

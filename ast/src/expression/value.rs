@@ -33,6 +33,7 @@ pub enum ValueExpression {
         #[serde(with = "crate::common::tendril_json")] StrTendril,
         Span,
     ),
+    String(Vec<char>, Span),
 }
 
 impl fmt::Display for ValueExpression {
@@ -46,6 +47,12 @@ impl fmt::Display for ValueExpression {
             Implicit(implicit, _) => write!(f, "{}", implicit),
             Integer(value, type_, _) => write!(f, "{}{}", value, type_),
             Group(group) => write!(f, "{}", group),
+            String(char_vec, _) => {
+                for character in char_vec {
+                    write!(f, "{}", character)?
+                }
+                Ok(())
+            }
         }
     }
 }
@@ -59,7 +66,8 @@ impl Node for ValueExpression {
             | Char(_, span)
             | Field(_, span)
             | Implicit(_, span)
-            | Integer(_, _, span) => span,
+            | Integer(_, _, span) //  => span,
+            | String(_, span) => span,
             Group(group) => match &**group {
                 GroupValue::Single(_, span) | GroupValue::Tuple(GroupTuple { span, .. }) => span,
             },
@@ -74,7 +82,8 @@ impl Node for ValueExpression {
             | Char(_, span)
             | Field(_, span)
             | Implicit(_, span)
-            | Integer(_, _, span) => *span = new_span,
+            | Integer(_, _, span) // => *span = new_span,
+            | String(_, span) => *span = new_span,
             Group(group) => match &mut **group {
                 GroupValue::Single(_, span) | GroupValue::Tuple(GroupTuple { span, .. }) => *span = new_span,
             },
