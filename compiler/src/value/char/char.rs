@@ -26,6 +26,7 @@ use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     fields::FpGadget,
     utilities::{
+        bits::comparator::{ComparatorGadget, EvaluateLtGadget},
         boolean::Boolean,
         eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
         select::CondSelectGadget,
@@ -62,6 +63,14 @@ impl<F: PrimeField> PartialOrd for Char<F> {
         self.field.partial_cmp(&other.field)
     }
 }
+
+impl<F: PrimeField> EvaluateLtGadget<F> for Char<F> {
+    fn less_than<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        self.field.less_than(cs, &other.field)
+    }
+}
+
+impl<F: PrimeField> ComparatorGadget<F> for Char<F> {}
 
 impl<F: PrimeField> EvaluateEqGadget<F> for Char<F> {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {

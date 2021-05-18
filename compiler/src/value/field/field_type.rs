@@ -26,6 +26,7 @@ use snarkvm_gadgets::{
         fields::FieldGadget,
         utilities::{
             alloc::AllocGadget,
+            bits::comparator::{ComparatorGadget, EvaluateLtGadget},
             boolean::Boolean,
             eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
             select::CondSelectGadget,
@@ -228,6 +229,14 @@ impl<F: PrimeField> PartialOrd for FieldType<F> {
         Option::from(self_value.cmp(&other_value))
     }
 }
+
+impl<F: PrimeField> EvaluateLtGadget<F> for FieldType<F> {
+    fn less_than<CS: ConstraintSystem<F>>(&self, _cs: CS, _other: &Self) -> Result<Boolean, SynthesisError> {
+        unimplemented!()
+    }
+}
+
+impl<F: PrimeField> ComparatorGadget<F> for FieldType<F> {}
 
 impl<F: PrimeField> EvaluateEqGadget<F> for FieldType<F> {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut _cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
