@@ -43,7 +43,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         Ok(match value {
             ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.to_string(), span)?),
             ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
-            ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(value.to_string(), span)?),
+            ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(cs, value.to_string(), span)?),
             ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),
             ConstValue::Int(value) => ConstrainedValue::Integer(Integer::new(value)),
             ConstValue::Tuple(values) => ConstrainedValue::Tuple(
