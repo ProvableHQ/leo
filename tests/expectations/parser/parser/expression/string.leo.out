@@ -61,16 +61,16 @@ outputs:
           content: "`{ ] [ ; a`"
   - Value:
       String:
-        - - a
+        - - ࿺
         - line_start: 1
           line_stop: 1
           col_start: 1
-          col_stop: 13
+          col_stop: 10
           path: test
-          content: "`\\u{afafaf}`"
+          content: "`\\u{FFA}`"
   - Value:
       String:
-        - - a
+        - - 򯫺
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -79,7 +79,7 @@ outputs:
           content: "`\\u{afafa}`"
   - Value:
       String:
-        - - a
+        - - 꾯
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -88,7 +88,7 @@ outputs:
           content: "`\\u{afaf}`"
   - Value:
       String:
-        - - a
+        - - ૺ
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -97,7 +97,7 @@ outputs:
           content: "`\\u{afa}`"
   - Value:
       String:
-        - - a
+        - - ¯
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -106,7 +106,7 @@ outputs:
           content: "`\\u{af}`"
   - Value:
       String:
-        - - a
+        - - "\n"
         - line_start: 1
           line_stop: 1
           col_start: 1

@@ -120,7 +120,7 @@ impl Token {
                         b'u' => {
                             if let Some((start, open_brace)) = iter.next() {
                                 if *open_brace == b'{' {
-                                    let mut unicode: Vec<u8> = Vec::new();
+                                    let mut characters: Vec<u8> = Vec::new();
 
                                     while let Some((end, symbol)) = iter.next() {
                                         if end > start + 7 {
@@ -128,12 +128,14 @@ impl Token {
                                         }
 
                                         match *symbol {
-                                            0..=9 | b'a'..=b'f' | b'A'..=b'F' => unicode.push(*symbol),
+                                            0..=9 | b'a'..=b'f' | b'A'..=b'F' => characters.push(*symbol),
                                             b'}' => {
-                                                if let Ok(string) = std::str::from_utf8(&unicode[..]) {
-                                                    if let Some(character) = string.chars().next() {
-                                                        collect.push(character);
-                                                        break;
+                                                if let Ok(unicode_string) = std::str::from_utf8(&characters[..]) {
+                                                    if let Ok(hex) = u32::from_str_radix(&unicode_string, 16) {
+                                                        if let Some(unicode_char) = std::char::from_u32(hex) {
+                                                            collect.push(unicode_char);
+                                                            break;
+                                                        }
                                                     }
                                                 }
 

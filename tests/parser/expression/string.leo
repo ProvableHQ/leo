@@ -9,7 +9,7 @@ expectation: Pass
 
 `{ ] [ ; a`
 
-`\u{afafaf}`
+`\u{FFA}`
 `\u{afafa}`
 `\u{afaf}`
 `\u{afa}`
