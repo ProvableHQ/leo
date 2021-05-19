@@ -65,6 +65,9 @@ impl Token {
     /// Returns a new `StrTendril` string if an character can be eaten, otherwise returns [`None`].
     ///
     fn eat_char(input_tendril: &StrTendril) -> (usize, Option<Token>) {
+        // Probably better to move this logic to a parse_char.
+        // Would give better errors, and isolates logic from lexer.
+        // Lexer can just return content between single quotes.
         if input_tendril.is_empty() {
             return (0, None);
         }
@@ -78,10 +81,8 @@ impl Token {
         let mut characters: Vec<u8> = vec![];
 
         while i < input.len() {
-            println!("?? input[i] {}", input[i]);
             if !escaped {
                 if input[i] == b'\'' {
-                    println!("last");
                     last = true;
                     i += 1;
                     break;
@@ -144,7 +145,7 @@ impl Token {
             1 | 2 | 3 | 4 | 5 if unicode => {
                 if let Ok(string) = std::str::from_utf8(&characters[..]) {
                     if let Ok(hex) = u32::from_str_radix(&string, 16) {
-                        if hex <= 0x10FFF {
+                        if hex <= 0x10FFFF {
                             if let Some(unicode_char) = std::char::from_u32(hex) {
                                 return (i, Some(Token::CharLit(unicode_char)));
                             }

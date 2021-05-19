@@ -42,10 +42,15 @@ pub struct Char<F: PrimeField> {
 }
 
 impl<F: PrimeField> Char<F> {
-    pub fn constant(character: char, field: String, span: &Span) -> Result<Self, CharError> {
+    pub fn constant<CS: ConstraintSystem<F>>(
+        cs: CS,
+        character: char,
+        field: String,
+        span: &Span,
+    ) -> Result<Self, CharError> {
         Ok(Self {
             character,
-            field: FieldType::constant(field, span)?,
+            field: FieldType::constant(cs, field, span)?,
         })
     }
 }

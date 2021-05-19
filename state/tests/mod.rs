@@ -14,6 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod test_verify_local_data_commitment;
+// mod test_verify_local_data_commitment;
 
-mod test_verify_record_commitment;
+// mod test_verify_record_commitment;
