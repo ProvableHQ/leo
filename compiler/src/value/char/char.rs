@@ -23,14 +23,11 @@ use crate::{
 
 use leo_ast::{InputValue, Span};
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::{
-    fields::FpGadget,
-    utilities::{
-        bits::comparator::{ComparatorGadget, EvaluateLtGadget},
-        boolean::Boolean,
-        eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-        select::CondSelectGadget,
-    },
+use snarkvm_gadgets::utilities::{
+    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+    boolean::Boolean,
+    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget, NEqGadget},
+    select::CondSelectGadget,
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
@@ -96,7 +93,44 @@ impl<F: PrimeField> ConditionalEqGadget<F> for Char<F> {
     }
 
     fn cost() -> usize {
-        2 * <FpGadget<F> as CondSelectGadget<F>>::cost()
+        <FieldType<F> as ConditionalEqGadget<F>>::cost()
+    }
+}
+
+impl<F: PrimeField> NEqGadget<F> for Char<F> {
+    fn enforce_not_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<(), SynthesisError> {
+        self.field.enforce_not_equal(cs, &other.field)
+    }
+
+    fn cost() -> usize {
+        <FieldType<F> as NEqGadget<F>>::cost()
+    }
+}
+
+impl<F: PrimeField> CondSelectGadget<F> for Char<F> {
+    fn conditionally_select<CS: ConstraintSystem<F>>(
+        cs: CS,
+        cond: &Boolean,
+        first: &Self,
+        second: &Self,
+    ) -> Result<Self, SynthesisError> {
+        let field = FieldType::<F>::conditionally_select(cs, cond, &first.field, &second.field)?;
+
+        if field == first.field {
+            return Ok(Char {
+                character: first.character,
+                field,
+            });
+        }
+
+        Ok(Char {
+            character: second.character,
+            field,
+        })
+    }
+
+    fn cost() -> usize {
+        <FieldType<F> as CondSelectGadget<F>>::cost()
     }
 }
 

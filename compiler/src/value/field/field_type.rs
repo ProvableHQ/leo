@@ -28,7 +28,7 @@ use snarkvm_gadgets::{
             alloc::AllocGadget,
             bits::comparator::{ComparatorGadget, EvaluateLtGadget},
             boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget, NEqGadget},
             select::CondSelectGadget,
             uint::UInt8,
             ToBitsBEGadget,
@@ -37,8 +37,6 @@ use snarkvm_gadgets::{
     },
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
-
-use snarkvm_gadgets::utilities::eq::NEqGadget;
 use std::{borrow::Borrow, cmp::Ordering};
 
 #[derive(Clone, Debug)]
