@@ -62,7 +62,7 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
 
 impl Token {
     ///
-    /// Eats symbol. Used for string literals and char literals
+    /// Eats String. Returns Token::StringLiteral with processed contents of the string.
     ///
     fn eat_string(input_tendril: &StrTendril) -> (usize, Option<Token>) {
         if input_tendril.is_empty() {
