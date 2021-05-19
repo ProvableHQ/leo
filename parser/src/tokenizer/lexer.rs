@@ -162,34 +162,6 @@ impl Token {
             }
 
             collect.push(symbol as char);
-
-            // Backslash is always escape - changes logic.
-            // if *symbol == b'\\' && !escaped {
-            //     escaped = true;
-            //     continue;
-            // }
-
-            // // If last double quote is not escaped - end token.
-            // if *symbol == b'`' && !escaped {
-            //     return (i + 1, Some(Token::StringLiteral(collect)));
-            // }
-
-            // // If we need to escape, there are special symbols that get translated.
-            // if escaped {
-            //     match *symbol {
-            //         b'0' => collect.push(0 as char),
-            //         b't' => collect.push(9 as char),
-            //         b'n' => collect.push(10 as char),
-            //         b'r' => collect.push(13 as char),
-            //         b'\"' => collect.push(34 as char),
-            //         b'\'' => collect.push(39 as char),
-            //         b'\\' => collect.push(92 as char),
-            //         _ => collect.push(*symbol as char)
-            //     };
-
-            //     escaped = false;
-            //     continue;
-            // }
         }
 
         (0, None)
