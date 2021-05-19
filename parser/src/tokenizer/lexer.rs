@@ -70,11 +70,7 @@ impl Token {
         }
 
         let input = input_tendril[..].as_bytes();
-
-        // let mut prev = b'`';
-        // let mut escaped = false;
         let mut collect: Vec<char> = Vec::new();
-
         let mut iter = input.iter().enumerate().skip(1);
 
         while let Some((i, symbol)) = iter.next() {
@@ -95,13 +91,12 @@ impl Token {
                         b'\"' => collect.push(34 as char),
                         b'\'' => collect.push(39 as char),
                         b'\\' => collect.push(92 as char),
-                        b'`' => collect.push(b'`' as char), // TODO: REMOVE LATER
-                        // \x0F
+                        // \x0F - 2 HEX digits after \x
                         b'x' => {
+                            // get first symbol
                             if let Some((_, first_hex)) = iter.next() {
-                                // peak first symbol
+                                // get second symbol
                                 if let Some((_, second_hex)) = iter.next() {
-                                    // peak second symbol
                                     if let Ok(string) = std::str::from_utf8(&[*first_hex, *second_hex]) {
                                         if let Ok(number) = u8::from_str_radix(&string, 16) {
                                             if number <= 127 {
@@ -158,9 +153,9 @@ impl Token {
                         }
                     }
                     continue;
-                } else {
-                    return (0, None);
                 }
+                
+                return (0, None);
             }
 
             collect.push(symbol as char);
