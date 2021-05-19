@@ -146,6 +146,19 @@ impl Token {
 
                 (i, Some(Token::CharLit(characters[0] as char)))
             }
+            2 | 3 | 4 | 5 if unicode => {
+                if let Ok(string) = std::str::from_utf8(&characters[..]) {
+                    if let Ok(hex) = u32::from_str_radix(&string, 16) {
+                        if hex <= 0x10FFF {
+                            if let Some(unicode_char) = std::char::from_u32(hex) {
+                                return (i, Some(Token::CharLit(unicode_char)));
+                            }
+                        }
+                    }
+                }
+
+                (0, None)
+            }
             2 => {
                 if hex {
                     if let Ok(string) = std::str::from_utf8(&characters[..]) {
@@ -153,14 +166,6 @@ impl Token {
                             if number <= 127 {
                                 return (i, Some(Token::CharLit(number as char)));
                             }
-                        }
-                    }
-                }
-
-                if unicode {
-                    if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                        if let Some(character) = string.chars().next() {
-                            return (i, Some(Token::CharLit(character)));
                         }
                     }
                 }
