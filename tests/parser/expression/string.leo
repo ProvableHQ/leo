@@ -7,4 +7,15 @@ expectation: Pass
 
 `another { } string`
 
-`{ \ ] [ ; a`
+`{ ] [ ; a`
+
+`\u{afafaf}`
+`\u{afafa}`
+`\u{afaf}`
+`\u{afa}`
+`\u{af}`
+`\u{a}`
+
+`\x0A`
+
+`aa \` \\ \"  \n aa \t \r  \0`
