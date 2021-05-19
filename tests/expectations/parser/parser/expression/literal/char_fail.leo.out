@@ -2,7 +2,9 @@
 namespace: ParseExpression
 expectation: Fail
 outputs:
-  - "    --> test:1:1\n     |\n   1 | '\\'\n     | ^\n     |\n     = unexpected token: '''"
+  - "    --> test:1:1\n     |\n   1 | '\\'\n     | ^^^\n     |\n     = Invalid escape character '\\\\'"
   - "    --> test:1:1\n     |\n   1 | 'a\n     | ^\n     |\n     = unexpected token: '''"
-  - "    --> test:1:1\n     |\n   1 | ''\n     | ^\n     |\n     = unexpected token: '''"
-  - "    --> test:1:1\n     |\n   1 | '\\x9'\n     | ^\n     |\n     = unexpected token: '''"
+  - "    --> test:1:1\n     |\n   1 | ''\n     | ^^\n     |\n     = Empty character '' is not valid"
+  - "    --> test:1:1\n     |\n   1 | '\\x9'\n     | ^^^^^\n     |\n     = Invalid singe hex character '\\x9', expected '\\x09"
+  - "    --> test:1:1\n     |\n   1 | '\\x80'\n     | ^^^^^^\n     |\n     = Invalid singe hex character '\\x[56, 48]'"
+  - "    --> test:1:1\n     |\n   1 | '\\u{9999999}'\n     | ^^^^^^^^^^^^^\n     |\n     = Invalid character '[57, 57, 57, 57, 57, 57, 57]'"

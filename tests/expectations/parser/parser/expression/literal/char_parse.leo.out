@@ -76,6 +76,15 @@ outputs:
           content: "'\\u{306E}'"
   - Value:
       Char:
+        - 􏿿
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: test
+          content: "'\\u{10FFFF}'"
+  - Value:
+      Char:
         - ❤
         - line_start: 1
           line_stop: 1
@@ -92,6 +101,15 @@ outputs:
           col_stop: 6
           path: test
           content: "'の'"
+  - Value:
+      Char:
+        - "\u000f"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x0F'"
   - Value:
       Char:
         - "*"
