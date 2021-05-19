@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 33
+      num_constraints: 33
+      at: 16cd2aaf51f97f0d967f934facd55d3da0f128b5548ca7d9033099dabb8755aa
+      bt: 13ce6219d223223b0e2a5b8bab43bda704fb2509e20143c1c8dc28238c65a0c3
+      ct: 1a2cc6ebebf9b0d70351fb54db6ab269bfec125b7d84dea8450ee1566d937a38
+    output:
+      - input_file: input/main_tuple.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

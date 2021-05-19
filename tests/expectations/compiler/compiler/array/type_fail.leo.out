@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:4:19\n     |\n   4 |     const a: [u8; -2] = [0u32; 2];\n     |                   ^\n     |\n     = expected '(' -- got '-'"

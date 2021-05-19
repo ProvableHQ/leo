@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 225
+      num_constraints: 225
+      at: 77a5c3680e4d8961411b0b7384818f4a3d79a52e20d0ccb268ce820570b56e11
+      bt: 3a99f6fa32ac0358a66ac53d0cef7af442097730b5f56ec8f8d9974108f25215
+      ct: d7067f500143a40e015fd1f4447a4ea5b9ee6ebdf007e08be51772a8a2b672c3
+    output:
+      - input_file: u32_g.in
+        output:
+          registers: {}
+      - input_file: u32_f.in
+        output:
+          registers: {}

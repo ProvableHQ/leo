@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:10:5\n     |\n  10 |     a.x = 0;\n     |     ^^^^^^^\n     |\n     = illegal assignment to immutable variable 'a'"

@@ -1,0 +1,24 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 225
+      num_constraints: 225
+      at: 0e304c1ff4b2d054a884efec2b672faeb96edc095eb9092b1afe8161500dc7cd
+      bt: 4e75a3c5fd91239e6bf32d96c6a4a702e040e4a3bddcc282706ca76facb9e942
+      ct: d7067f500143a40e015fd1f4447a4ea5b9ee6ebdf007e08be51772a8a2b672c3
+    output:
+      - input_file: i32_l.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+      - input_file: i32_e.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

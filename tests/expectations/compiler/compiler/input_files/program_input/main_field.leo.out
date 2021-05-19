@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 3
+      num_constraints: 1
+      at: 9e8541580cdcbb8f5941f983c90dba7736b3911a1a3a55d1394880f187b832c8
+      bt: e18039133804a4c53e61e3a975b41a0423337da0df1fad627f00027f3be47b1d
+      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+    output:
+      - input_file: input/main_field.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

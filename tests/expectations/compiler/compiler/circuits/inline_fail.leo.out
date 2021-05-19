@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:9:15\n     |\n   9 |     const a = Foo { y: 0u32 };\n     |               ^^^^^^^^^^^^^^^\n     |\n     = missing circuit member 'x' for initialization of circuit 'Foo'"

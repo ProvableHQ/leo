@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 17
+      num_constraints: 18
+      at: 54a6bab98206b1a92fff5ae07a6838e5ec25365afa7756a58b492f7a288c8654
+      bt: 322eda19d0ceaeddbc296d56bce789cf038e440fd8fbd6e118606a4248844b2c
+      ct: 748f424d53dc4319858b691a3c593aec6165ed4e67847b32285a436b9e2e7cc1
+    output:
+      - input_file: input/main.in
+        output:
+          registers:
+            r:
+              type: u8
+              value: "101"

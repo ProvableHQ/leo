@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:4:17\n     |\n   4 |     console.log(\"{}\");\n     |                 ^^^^\n     |\n     = function call expected 2 arguments, got 1"

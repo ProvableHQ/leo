@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:6:19\n     |\n   6 |         const x = a[i..10];\n     |                   ^^^^^^^^\n     |\n     = array size cannot be inferred, add explicit types"

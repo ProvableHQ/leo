@@ -1188,12 +1188,15 @@ dependencies = [
  "leo-package",
  "leo-parser",
  "leo-state",
+ "leo-synthesizer",
+ "leo-test-framework",
  "num-bigint",
  "pest",
  "rand 0.8.3",
  "rand_core 0.6.2",
  "rand_xorshift",
  "serde",
+ "serde_yaml",
  "sha2",
  "snarkvm-algorithms",
  "snarkvm-curves",
@@ -1329,9 +1332,11 @@ dependencies = [
 name = "leo-synthesizer"
 version = "1.4.0"
 dependencies = [
+ "hex",
  "num-bigint",
  "serde",
  "serde_json",
+ "sha2",
  "snarkvm-curves",
  "snarkvm-fields",
  "snarkvm-gadgets",

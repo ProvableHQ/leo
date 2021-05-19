@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:15:5\n     |\n  15 |     a.foo();\n     |     ^^^^^\n     |\n     = cannot call mutable member function 'foo' of circuit 'Foo' from immutable context"

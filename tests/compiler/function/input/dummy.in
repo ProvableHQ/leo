@@ -1,0 +1,8 @@
+[main]
+a: u32 = 10;
+b: u32 = 100;
+y: bool = true;
+
+[registers]
+r0: bool = true;
+r1: bool = true;

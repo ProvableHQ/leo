@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 506500
+      num_constraints: 556546
+      at: 276ce56b48a5db9e546f468d1360d00b27728dc93b8632fd78a88db9efbfe1f8
+      bt: b9699f707750827fa2663e2e2c6ef82c786ed4c74556e3bed076d78eb1a896b1
+      ct: 9fe6835b23ef949becddbd4ec16c3fc389c72ee929e57a82a3336848e077758e
+    output:
+      - input_file: i128.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::collections::BTreeMap;
+
 #[derive(serde::Serialize, serde::Deserialize, PartialEq, Debug, Clone)]
 pub enum TestExpectationMode {
     Pass,
@@ -24,6 +26,8 @@ pub enum TestExpectationMode {
 pub struct TestConfig {
     pub namespace: String,
     pub expectation: TestExpectationMode,
+    #[serde(flatten)]
+    pub extra: BTreeMap<String, serde_yaml::Value>,
 }
 
 pub fn extract_test_config(source: &str) -> Option<TestConfig> {

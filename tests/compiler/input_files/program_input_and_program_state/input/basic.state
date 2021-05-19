@@ -1,0 +1,12 @@
+[[public]]
+
+[state]
+a: bool = true;
+
+[[private]]
+
+[record]
+a: bool = true;
+
+[state_leaf]
+a: bool = true;

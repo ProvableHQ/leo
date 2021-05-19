@@ -1,4 +1,0 @@
-[main]
-
-[registers]
-r: u8 = 0u8;

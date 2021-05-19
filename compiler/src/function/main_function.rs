@@ -16,7 +16,7 @@
 
 //! Enforces constraints on the main function of a compiled Leo program.
 
-use crate::{errors::FunctionError, program::ConstrainedProgram, GroupType, OutputBytes};
+use crate::{errors::FunctionError, program::ConstrainedProgram, GroupType, Output};
 
 use leo_asg::{Expression, Function, FunctionQualifier};
 use leo_ast::Input;
@@ -31,7 +31,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         function: &'a Function<'a>,
         input: &Input,
-    ) -> Result<OutputBytes, FunctionError> {
+    ) -> Result<Output, FunctionError> {
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
@@ -123,8 +123,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         let span = function.span.clone().unwrap_or_default();
         let result_value = self.enforce_function(cs, function, None, &arguments)?;
-        let output_bytes = OutputBytes::new_from_constrained_value(&self.asg, registers, result_value, &span)?;
+        let output = Output::new(&self.asg, registers, result_value, &span)?;
 
-        Ok(output_bytes)
+        Ok(output)
     }
 }

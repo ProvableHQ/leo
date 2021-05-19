@@ -1,0 +1,5 @@
+[main]
+a: [[u8; 2]; 3] = [0; (2, 3)]; // initializer (incorrectly reversed ordering)
+
+[registers]
+x: bool = false;

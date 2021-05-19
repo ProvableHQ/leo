@@ -1,2 +1,0 @@
-[constants]
-x: (u8, bool) = (10, true); // wrong size here; main expects (u8, bool, u8)

@@ -1,0 +1,24 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 57
+      num_constraints: 57
+      at: 6def83ea22fb24fa8fca853bf170cf10a43ebe020a2ee7c752c67d876c967b4b
+      bt: a55f11270f22104142bcee90897c9d9a8463b2fa9043957f85d82725f4bb075e
+      ct: 5a4c4f077603c1f7c4b31cf17fee281ab3cb7d2a9571be40a2f3a88577759477
+    output:
+      - input_file: i8_e.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+      - input_file: i8_g.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"

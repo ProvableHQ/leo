@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:4:23\n     |\n   4 |     console.log(\"{}\", a);\n     |                       ^\n     |\n     = failed to resolve variable reference 'a'"

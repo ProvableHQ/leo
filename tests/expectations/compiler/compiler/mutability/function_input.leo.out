@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:5:5\n     |\n   5 |     a = false;\n     |     ^\n     |\n     = failed to resolve variable reference 'a'"

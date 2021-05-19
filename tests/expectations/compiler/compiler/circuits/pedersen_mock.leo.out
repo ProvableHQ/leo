@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 33823
+      num_constraints: 50719
+      at: 894e21b7ca1c178a167a94f174b4ea0d37b102b394100a15c92e78e16a87acdf
+      bt: 6756180897cb6c9fe53fce913fd9ad1c77a5b537b805da2c7f42de0473d12c94
+      ct: 2f2e90dcee9f8a28e7a9fd4ee37093e4d247d07e4ab97937ecd0ba60ec5dd903
+    output:
+      - input_file: pedersen.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
