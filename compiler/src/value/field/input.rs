@@ -16,7 +16,7 @@
 
 //! Methods to enforce constraints on input field values in a compiled Leo program.
 
-use crate::{errors::FieldError, number_string_typing, value::ConstrainedValue, FieldType, GroupType};
+use crate::{errors::FieldError, number_string_typing, value::ConstrainedValue, GroupType, OldFieldType};
 use leo_ast::{InputValue, Span};
 
 use snarkvm_fields::PrimeField;
@@ -28,19 +28,19 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
     name: &str,
     option: Option<String>,
     span: &Span,
-) -> Result<FieldType<F>, FieldError> {
+) -> Result<OldFieldType<F>, FieldError> {
     match option {
         Some(string) => {
             let number_info = number_string_typing(&string);
 
             match number_info {
-                (number, neg) if neg => FieldType::alloc(
+                (number, neg) if neg => OldFieldType::alloc(
                     cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
                 .map(|value| value.negate(cs, span))
                 .map_err(|_| FieldError::missing_field(format!("{}: field", name), span))?,
-                (number, _) => FieldType::alloc(
+                (number, _) => OldFieldType::alloc(
                     cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )

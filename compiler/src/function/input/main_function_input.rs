@@ -26,9 +26,9 @@ use crate::{
         group::input::group_from_input,
         ConstrainedValue,
     },
-    FieldType,
     GroupType,
     Integer,
+    OldFieldType,
 };
 use leo_asg::{ConstInt, Type};
 use leo_ast::{InputValue, Span};
@@ -80,7 +80,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         match (type_, input) {
             (Type::Address, InputValue::Address(addr)) => Ok(ConstrainedValue::Address(Address::constant(addr, span)?)),
             (Type::Boolean, InputValue::Boolean(value)) => Ok(ConstrainedValue::Boolean(Boolean::constant(value))),
-            (Type::Field, InputValue::Field(value)) => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
+            (Type::Field, InputValue::Field(value)) => {
+                Ok(ConstrainedValue::Field(OldFieldType::constant(value, span)?))
+            }
             (Type::Group, InputValue::Group(value)) => Ok(ConstrainedValue::Group(G::constant(&value.into(), span)?)),
             (Type::Integer(integer_type), InputValue::Integer(_, value)) => Ok(ConstrainedValue::Integer(
                 Integer::new(&ConstInt::parse(integer_type, &value, span)?),
