@@ -16,7 +16,7 @@
 
 //! The in memory stored value for a defined name in a compiled Leo program.
 
-use crate::{errors::ValueError, Address, GroupType, Integer, OldFieldType};
+use crate::{errors::ValueError, Address, FieldType, GroupType, Integer};
 use leo_asg::{Circuit, Identifier, Span, Type};
 
 use snarkvm_fields::PrimeField;
@@ -32,7 +32,7 @@ pub enum ConstrainedValue<'a, F: PrimeField, G: GroupType<F>> {
     // Data types
     Address(Address),
     Boolean(Boolean),
-    Field(OldFieldType<F>),
+    Field(FieldType<F>),
     Group(G),
     Integer(Integer),
 
@@ -189,7 +189,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> CondSelectGadget<F> for ConstrainedValu
                 ConstrainedValue::Boolean(Boolean::conditionally_select(cs, cond, bool_1, bool_2)?)
             }
             (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
-                ConstrainedValue::Field(OldFieldType::conditionally_select(cs, cond, field_1, field_2)?)
+                ConstrainedValue::Field(FieldType::conditionally_select(cs, cond, field_1, field_2)?)
             }
             (ConstrainedValue::Group(group_1), ConstrainedValue::Group(group_2)) => {
                 ConstrainedValue::Group(G::conditionally_select(cs, cond, group_1, group_2)?)
