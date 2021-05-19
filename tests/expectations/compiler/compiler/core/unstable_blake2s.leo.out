@@ -8,7 +8,7 @@ outputs:
       num_constraints: 20472
       at: 43b5f7bd5efbf13ae0684e3c506e5e28866ce7a29f5d6b1442925913bb07a73b
       bt: 4d435c1eac471fb7b40b0d83503e2aa13f49db68fc71d64be84ddc9cb053a15d
-      ct: 081e529f5d26cb4cea2d8288ad454a8d0b381f2fb81e0bd21b47d4186777504f
+      ct: 33c36c0f947a6a63e03a8c09ebd13a98bcfb1af4a47982f5a765d1490b99f374
     output:
       - input_file: blake.in
         output:
