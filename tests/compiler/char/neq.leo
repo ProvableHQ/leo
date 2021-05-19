@@ -9,13 +9,6 @@ input_file:
  - inputs/unicode.in
 */
 
-circuit Foo {
-    character: char;
-}
-
 function main(character: char) -> char {
-    let f = Foo { character };
-
-    let character = f.character == 'a' ? 'a' : f.character;
-    return character;
+    return character != 'a' ? 'a' : 'Z';
 }

@@ -1,14 +1,12 @@
-/*
-namespace: Compile
-expectation: Pass
-inputs:
- - blake.in: |
-    [main]
-    message: [u8; 32] = [0; 32];
+// namespace: Compile
+// expectation: Pass
+// inputs:
+//  - blake.in: |
+//     [main]
+//     message: [u8; 32] = [0; 32];
 
-    [registers]
-    r0: [u8; 32] = [0; 32];
-*/
+//     [registers]
+//     r0: [u8; 32] = [0; 32];
 
 import core.unstable.blake2s.Blake2s;
 

@@ -5,38 +5,38 @@ outputs:
   - circuit:
       num_public_variables: 0
       num_private_variables: 6
-      num_constraints: 4
-      at: 2859fe6f24016b5634df2791da7de932e68ec32c73b5b573e0c39e968c7a4e12
-      bt: 8143508f19c8eee208a7fbbcfb833aeeace6ba0a761e41d028599d2237cc60fa
-      ct: d0c6feeed1e6b8d5c0e03dc9e25641b7fdc34ad912e2b1488296d4a99ed6cbf5
+      num_constraints: 3
+      at: cc1286e0b6fa2e90fb6f0880431a7c1e2cc37a329fae3aff1c13f51036c66f12
+      bt: 02c492cb6df07172e56cffd0cfd902a8443921e1256a2d907bbabd30bf6b8f6d
+      ct: a1f8e2b168c0f2f28f0ca3f16ce9b25ba7f7c410cfd68b0912bf19c90b53f2a2
     output:
       - input_file: inputs/ascii.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: Z
       - input_file: inputs/escaped_unicode.in
         output:
           registers:
             r:
               type: char
-              value: ❤
+              value: a
       - input_file: inputs/escaped.in
         output:
           registers:
             r:
               type: char
-              value: "'"
+              value: a
       - input_file: inputs/hex.in
         output:
           registers:
             r:
               type: char
-              value: "\n"
+              value: a
       - input_file: inputs/unicode.in
         output:
           registers:
             r:
               type: char
-              value: ❤
+              value: a
