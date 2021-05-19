@@ -172,9 +172,8 @@ impl<F: PrimeField> PartialOrd for FieldType<F> {
 }
 
 impl<F: PrimeField> EvaluateEqGadget<F> for FieldType<F> {
-    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, mut cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
-        // self.0.is_eq(cs, &other.0)
-        unimplemented!();
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        self.0.is_eq(cs, &other.0)
     }
 }
 

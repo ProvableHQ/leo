@@ -30,8 +30,8 @@ use snarkvm_utilities::{bytes::ToBytes, to_bytes};
 use rand::Rng;
 use rand_core::SeedableRng;
 use rand_xorshift::XorShiftRng;
+use snarkos_storage::Ledger;
 use snarkvm_dpc::DPCScheme;
-use snarkvm_storage::Ledger;
 
 // TODO (Collin): Update input to reflect new parameter ordering.
 #[test]
