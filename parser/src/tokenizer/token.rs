@@ -42,7 +42,7 @@ pub enum Token {
     CommentLine(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     CommentBlock(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     FormatString(Vec<FormatStringPart>),
-    QuotedString(Vec<char>),
+    StringLiteral(Vec<char>),
     Ident(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Int(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     True,
@@ -216,7 +216,7 @@ impl fmt::Display for Token {
                 }
                 write!(f, "\"")
             }
-            QuotedString(content) => {
+            StringLiteral(content) => {
                 write!(f, "\"")?;
                 for character in content {
                     write!(f, "{}", character)?;
