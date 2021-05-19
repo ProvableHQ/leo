@@ -23,21 +23,114 @@ use crate::{
 
 use leo_ast::{InputValue, Span};
 use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_gadgets::utilities::{
+    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+    boolean::Boolean,
+    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget, NEqGadget},
+    select::CondSelectGadget,
+};
+use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 /// A char
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub struct Char<F: PrimeField> {
     pub character: char,
     pub field: FieldType<F>,
 }
 
 impl<F: PrimeField> Char<F> {
-    pub fn constant(character: char, field: String, span: &Span) -> Result<Self, CharError> {
+    pub fn constant<CS: ConstraintSystem<F>>(
+        cs: CS,
+        character: char,
+        field: String,
+        span: &Span,
+    ) -> Result<Self, CharError> {
         Ok(Self {
             character,
-            field: FieldType::constant(field, span)?,
+            field: FieldType::constant(cs, field, span)?,
         })
+    }
+}
+
+impl<F: PrimeField> PartialEq for Char<F> {
+    fn eq(&self, other: &Self) -> bool {
+        self.field.eq(&other.field)
+    }
+}
+
+impl<F: PrimeField> Eq for Char<F> {}
+
+impl<F: PrimeField> PartialOrd for Char<F> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.field.partial_cmp(&other.field)
+    }
+}
+
+impl<F: PrimeField> EvaluateLtGadget<F> for Char<F> {
+    fn less_than<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        self.field.less_than(cs, &other.field)
+    }
+}
+
+impl<F: PrimeField> ComparatorGadget<F> for Char<F> {}
+
+impl<F: PrimeField> EvaluateEqGadget<F> for Char<F> {
+    fn evaluate_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {
+        self.field.evaluate_equal(cs, &other.field)
+    }
+}
+
+impl<F: PrimeField> EqGadget<F> for Char<F> {}
+
+impl<F: PrimeField> ConditionalEqGadget<F> for Char<F> {
+    fn conditional_enforce_equal<CS: ConstraintSystem<F>>(
+        &self,
+        cs: CS,
+        other: &Self,
+        condition: &Boolean,
+    ) -> Result<(), SynthesisError> {
+        self.field.conditional_enforce_equal(cs, &other.field, condition)
+    }
+
+    fn cost() -> usize {
+        <FieldType<F> as ConditionalEqGadget<F>>::cost()
+    }
+}
+
+impl<F: PrimeField> NEqGadget<F> for Char<F> {
+    fn enforce_not_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<(), SynthesisError> {
+        self.field.enforce_not_equal(cs, &other.field)
+    }
+
+    fn cost() -> usize {
+        <FieldType<F> as NEqGadget<F>>::cost()
+    }
+}
+
+impl<F: PrimeField> CondSelectGadget<F> for Char<F> {
+    fn conditionally_select<CS: ConstraintSystem<F>>(
+        cs: CS,
+        cond: &Boolean,
+        first: &Self,
+        second: &Self,
+    ) -> Result<Self, SynthesisError> {
+        let field = FieldType::<F>::conditionally_select(cs, cond, &first.field, &second.field)?;
+
+        if field == first.field {
+            return Ok(Char {
+                character: first.character,
+                field,
+            });
+        }
+
+        Ok(Char {
+            character: second.character,
+            field,
+        })
+    }
+
+    fn cost() -> usize {
+        <FieldType<F> as CondSelectGadget<F>>::cost()
     }
 }
 

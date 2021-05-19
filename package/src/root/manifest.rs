@@ -104,7 +104,7 @@ description = "The {name} package"
 license = "MIT"
 
 [remote]
-author = "{author}" # Add your Aleo Package Manager username, team's name, or organization's name.
+author = "{author}" # Add your Aleo Package Manager username or team name.
 "#,
             name = self.project.name,
             author = author

@@ -148,7 +148,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConditionalEqGadget<F> for ConstrainedV
                 bool_1.conditional_enforce_equal(cs, bool_2, condition)
             }
             (ConstrainedValue::Char(char_1), ConstrainedValue::Char(char_2)) => {
-                char_1.field.conditional_enforce_equal(cs, &char_2.field, condition)
+                char_1.conditional_enforce_equal(cs, char_2, condition)
             }
             (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
                 field_1.conditional_enforce_equal(cs, field_2, condition)
@@ -195,7 +195,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> CondSelectGadget<F> for ConstrainedValu
                 ConstrainedValue::Boolean(Boolean::conditionally_select(cs, cond, bool_1, bool_2)?)
             }
             (ConstrainedValue::Char(char_1), ConstrainedValue::Char(char_2)) => {
-                ConstrainedValue::Field(FieldType::conditionally_select(cs, cond, &char_1.field, &char_2.field)?)
+                ConstrainedValue::Char(Char::conditionally_select(cs, cond, char_1, char_2)?)
             }
             (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
                 ConstrainedValue::Field(FieldType::conditionally_select(cs, cond, field_1, field_2)?)

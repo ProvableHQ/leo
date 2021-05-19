@@ -173,6 +173,9 @@ impl Token {
     /// Returns a new `StrTendril` string if an character can be eaten, otherwise returns [`None`].
     ///
     fn eat_char(input_tendril: &StrTendril) -> (usize, Option<Token>) {
+        // Probably better to move this logic to a parse_char.
+        // Would give better errors, and isolates logic from lexer.
+        // Lexer can just return content between single quotes.
         if input_tendril.is_empty() {
             return (0, None);
         }
@@ -247,6 +250,19 @@ impl Token {
         }
 
         return match characters.len() {
+            1 | 2 | 3 | 4 | 5 if unicode => {
+                if let Ok(string) = std::str::from_utf8(&characters[..]) {
+                    if let Ok(hex) = u32::from_str_radix(&string, 16) {
+                        if hex <= 0x10FFFF {
+                            if let Some(unicode_char) = std::char::from_u32(hex) {
+                                return (i, Some(Token::CharLit(unicode_char)));
+                            }
+                        }
+                    }
+                }
+
+                (0, None)
+            }
             1 => {
                 if hex {
                     return (0, None);
@@ -254,42 +270,22 @@ impl Token {
 
                 (i, Some(Token::CharLit(characters[0] as char)))
             }
-            2 => {
-                if hex {
-                    if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                        if let Ok(number) = u8::from_str_radix(&string, 16) {
-                            if number <= 127 {
-                                return (i, Some(Token::CharLit(number as char)));
-                            }
-                        }
-                    }
-                }
-
-                if unicode {
-                    if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                        if let Some(character) = string.chars().next() {
-                            return (i, Some(Token::CharLit(character)));
+            2 if hex => {
+                if let Ok(string) = std::str::from_utf8(&characters[..]) {
+                    if let Ok(number) = u8::from_str_radix(&string, 16) {
+                        if number <= 127 {
+                            return (i, Some(Token::CharLit(number as char)));
                         }
                     }
                 }
 
                 (0, None)
             }
-            3 => {
+            3 | 4 => {
+                // direct unicode symbol
                 if let Ok(string) = std::str::from_utf8(&characters[..]) {
                     if let Some(character) = string.chars().next() {
                         return (i, Some(Token::CharLit(character)));
-                    }
-                }
-
-                (0, None)
-            }
-            4 | 5 | 6 => {
-                if let Ok(unicode_string) = std::str::from_utf8(&characters[..]) {
-                    if let Ok(hex) = u32::from_str_radix(&unicode_string, 16) {
-                        if let Some(unicode_char) = std::char::from_u32(hex) {
-                            return (i, Some(Token::CharLit(unicode_char)));
-                        }
                     }
                 }
 

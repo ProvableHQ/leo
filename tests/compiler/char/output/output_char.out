@@ -1,2 +1,2 @@
 [registers]
-r: char = a;
+r: char = 'a';

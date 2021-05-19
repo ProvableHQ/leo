@@ -72,7 +72,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn constant_main_function_input<CS: ConstraintSystem<F>>(
         &mut self,
-        _cs: &mut CS,
+        cs: &mut CS,
         type_: &Type,
         name: &str,
         input_option: Option<InputValue>,
@@ -84,11 +84,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             (Type::Address, InputValue::Address(addr)) => Ok(ConstrainedValue::Address(Address::constant(addr, span)?)),
             (Type::Boolean, InputValue::Boolean(value)) => Ok(ConstrainedValue::Boolean(Boolean::constant(value))),
             (Type::Char, InputValue::Char(character)) => Ok(ConstrainedValue::Char(Char::constant(
+                cs,
                 character,
                 format!("{}", character as u32),
                 span,
             )?)),
-            (Type::Field, InputValue::Field(value)) => Ok(ConstrainedValue::Field(FieldType::constant(value, span)?)),
+            (Type::Field, InputValue::Field(value)) => {
+                Ok(ConstrainedValue::Field(FieldType::constant(cs, value, span)?))
+            }
             (Type::Group, InputValue::Group(value)) => Ok(ConstrainedValue::Group(G::constant(&value.into(), span)?)),
             (Type::Integer(integer_type), InputValue::Integer(_, value)) => Ok(ConstrainedValue::Integer(
                 Integer::new(&ConstInt::parse(integer_type, &value, span)?),
@@ -105,7 +108,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 Ok(ConstrainedValue::Array(
                     values
                         .iter()
-                        .map(|x| self.constant_main_function_input(_cs, type_, name, Some(x.clone()), span))
+                        .map(|x| self.constant_main_function_input(cs, type_, name, Some(x.clone()), span))
                         .collect::<Result<Vec<_>, _>>()?,
                 ))
             }
@@ -119,7 +122,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         .iter()
                         .enumerate()
                         .map(|(i, x)| {
-                            self.constant_main_function_input(_cs, types.get(i).unwrap(), name, Some(x.clone()), span)
+                            self.constant_main_function_input(cs, types.get(i).unwrap(), name, Some(x.clone()), span)
                         })
                         .collect::<Result<Vec<_>, _>>()?,
                 ))
