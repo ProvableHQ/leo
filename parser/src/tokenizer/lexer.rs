@@ -154,7 +154,7 @@ impl Token {
                     }
                     continue;
                 }
-                
+
                 return (0, None);
             }
 
