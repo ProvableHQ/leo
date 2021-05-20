@@ -18,4 +18,4 @@ expectation: Pass
 
 `\x0A`
 
-`aa \` \\ \"  \n aa \t \r  \0`
+`aa \\ \"  \n aa \t \r  \0`

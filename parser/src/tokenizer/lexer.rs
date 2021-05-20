@@ -165,132 +165,6 @@ impl Token {
     }
 
     ///
-    /// Returns a new `StrTendril` string if an character can be eaten, otherwise returns [`None`].
-    ///
-    fn eat_char(input_tendril: &StrTendril) -> (usize, Option<Token>) {
-        // Probably better to move this logic to a parse_char.
-        // Would give better errors, and isolates logic from lexer.
-        // Lexer can just return content between single quotes.
-        if input_tendril.is_empty() {
-            return (0, None);
-        }
-
-        let input = input_tendril[..].as_bytes();
-        let mut i = 1;
-        let mut escaped = false;
-        let mut hex = false;
-        let mut unicode = false;
-        let mut last = false;
-        let mut characters: Vec<u8> = vec![];
-
-        while i < input.len() {
-            if !escaped {
-                if input[i] == b'\'' {
-                    last = true;
-                    i += 1;
-                    break;
-                }
-
-                if input[i] == b'{' {
-                    i += 1;
-                    characters.clear();
-                    continue;
-                }
-
-                if input[i] == b'}' {
-                    i += 1;
-                    continue;
-                }
-            } else {
-                escaped = false;
-                characters.clear();
-
-                match input[i] {
-                    b'0' => characters.push(0),
-                    b't' => characters.push(9),
-                    b'n' => characters.push(10),
-                    b'r' => characters.push(13),
-                    b'\"' => characters.push(34),
-                    b'\'' => characters.push(39),
-                    b'\\' => characters.push(92),
-                    b'x' => {
-                        hex = true;
-
-                        i += 1;
-                        continue;
-                    }
-                    b'u' => {
-                        unicode = true;
-                    }
-                    _ => {
-                        return (0, None);
-                    }
-                }
-
-                i += 1;
-
-                continue;
-            }
-
-            if input[i] == b'\\' {
-                escaped = true;
-            }
-
-            characters.push(input[i]);
-            i += 1;
-        }
-
-        if !last {
-            return (0, None);
-        }
-
-        return match characters.len() {
-            1 | 2 | 3 | 4 | 5 if unicode => {
-                if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                    if let Ok(hex) = u32::from_str_radix(&string, 16) {
-                        if hex <= 0x10FFFF {
-                            if let Some(unicode_char) = std::char::from_u32(hex) {
-                                return (i, Some(Token::CharLit(unicode_char)));
-                            }
-                        }
-                    }
-                }
-
-                (0, None)
-            }
-            1 => {
-                if hex {
-                    return (0, None);
-                }
-
-                (i, Some(Token::CharLit(characters[0] as char)))
-            }
-            2 if hex => {
-                if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                    if let Ok(number) = u8::from_str_radix(&string, 16) {
-                        if number <= 127 {
-                            return (i, Some(Token::CharLit(number as char)));
-                        }
-                    }
-                }
-
-                (0, None)
-            }
-            3 | 4 => {
-                // direct unicode symbol
-                if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                    if let Some(character) = string.chars().next() {
-                        return (i, Some(Token::CharLit(character)));
-                    }
-                }
-
-                (0, None)
-            }
-            _ => (0, None),
-        };
-    }
-
-    ///
     /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
     /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
     ///
@@ -383,7 +257,23 @@ impl Token {
                 return (i + 1, Some(Token::FormatString(segments)));
             }
             b'\'' => {
-                return Self::eat_char(&input_tendril);
+                let mut i = 1;
+                let mut end = false;
+
+                while i < input.len() {
+                    if input[i] == b'\'' {
+                        end = true;
+                        break;
+                    }
+
+                    i += 1;
+                }
+
+                if !end {
+                    return (0, None);
+                }
+
+                return (i + 1, Some(Token::CharLit(input_tendril.subtendril(1, (i - 1) as u32))));
             }
             x if x.is_ascii_digit() => {
                 return Self::eat_integer(&input_tendril);

@@ -11,6 +11,8 @@ expectation: Pass
 '\0'
 '\u{2764}'
 '\u{306E}'
+'\u{10FFFF}'
 '❤'
 'の'
+'\x0F'
 '\x2A'

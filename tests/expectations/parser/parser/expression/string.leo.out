@@ -127,8 +127,6 @@ outputs:
         - - a
           - a
           - " "
-          - "`"
-          - " "
           - "\\"
           - " "
           - "\""
@@ -148,6 +146,6 @@ outputs:
         - line_start: 1
           line_stop: 1
           col_start: 1
-          col_stop: 31
+          col_stop: 28
           path: test
-          content: "`aa \\` \\\\ \\\"  \\n aa \\t \\r  \\0`"
+          content: "`aa \\\\ \\\"  \\n aa \\t \\r  \\0`"
