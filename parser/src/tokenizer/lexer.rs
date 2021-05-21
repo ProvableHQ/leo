@@ -96,7 +96,6 @@ impl Token {
         if hex {
             let string = input_tendril.to_string();
             let hex_string = &string[2..string.len()];
-            println!("hs {} l {}", hex_string, hex_string.len());
 
             if hex_string.len() != 2 {
                 return None;

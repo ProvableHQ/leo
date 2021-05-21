@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:4:25\n     |\n   4 |     const not_valid = '';\n     |                         ^\n     |\n     = expected 'expression', got ';'"
+  - "    --> compiler-test:4:23\n     |\n   4 |     const not_valid = '';\n     |                       ^\n     |\n     = unexpected token: '''"
