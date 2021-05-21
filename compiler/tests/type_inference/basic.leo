@@ -21,4 +21,5 @@ function main() {
   const l = (1u8, 1u8, true);
   const m = Foo {};
   const n = 'a';
+  const o = `Hello, World!`;
 }
