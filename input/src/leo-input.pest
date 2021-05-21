@@ -148,7 +148,7 @@ char_types = {
 }
 
 // Declared in values/char_value.rs
-value_char = { "\'" ~ char_types ~ "\'" }
+value_char = ${ "\'" ~ char_types ~ "\'" }
 
 // Declared in values/integer_value.rs
 value_integer = { value_integer_signed | value_integer_unsigned}
