@@ -16,3 +16,9 @@ outputs:
             out:
               type: bool
               value: "true"
+      - input_file: inputs/weird.in
+        output:
+          registers:
+            out:
+              type: bool
+              value: "false"

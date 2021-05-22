@@ -9,7 +9,7 @@ circuit Foo {
     s1: [char; 13];
 }
 
-function takes_string(s: [char; 13]) -> [char; 13] {
+function takes_string(s: [char; 13]) -> bool {
     return s == `Hello, World!`;
 }
 

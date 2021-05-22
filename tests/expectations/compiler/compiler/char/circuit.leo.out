@@ -33,7 +33,7 @@ outputs:
           registers:
             r:
               type: char
-              value: "\n"
+              value: "*"
       - input_file: inputs/unicode.in
         output:
           registers:
