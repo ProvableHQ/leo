@@ -1,6 +1,6 @@
 [main]
-s1: [char; 13] = ['H', 'e', 'l', 'l', 'o', ',', '\u{20}', 'W', 'o', 'r', 'l', 'd', '!'];
-s2: [char; 4] = ['t', 'e', 's', 't'];
+s1: [char; 13] = "Hello, World!";
+s2: [char; 4] = "test";
 
 [registers]
 out: bool = true;

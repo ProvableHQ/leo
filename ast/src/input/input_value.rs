@@ -17,7 +17,7 @@
 use crate::{ArrayDimensions, GroupValue};
 use leo_input::{
     errors::InputParserError,
-    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, TupleExpression},
+    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
     types::{ArrayType, DataType, IntegerType, TupleType, Type},
     values::{
         Address,
@@ -115,9 +115,57 @@ impl InputValue {
             (Type::Array(array_type), Expression::ArrayInitializer(initializer)) => {
                 InputValue::from_array_initializer(array_type, initializer)
             }
+            (Type::Array(array_type), Expression::StringExpression(string)) => {
+                InputValue::from_string(array_type, string)
+            }
             (Type::Tuple(tuple_type), Expression::Tuple(tuple)) => InputValue::from_tuple(tuple_type, tuple),
             (type_, expression) => Err(InputParserError::expression_type_mismatch(type_, expression)),
         }
+    }
+
+    ///
+    /// Returns a new `InputValue` from the given `ArrayType` and `StringExpression`.
+    ///
+    pub(crate) fn from_string(mut array_type: ArrayType, string: StringExpression) -> Result<Self, InputParserError> {
+        // Create a new `ArrayDimensions` type from the input array_type dimensions.
+        let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
+
+        // Convert the array dimensions to usize.
+        let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
+
+        // Return an error if the outer array dimension does not equal the number of array elements.
+        if array_dimensions[0] != string.chars.len() {
+            return Err(InputParserError::invalid_string_length(
+                array_dimensions[0],
+                string.chars.len(),
+                &string.span,
+            ));
+        }
+
+        array_type.dimensions = array_type.dimensions.next_dimension();
+
+        let inner_array_type = if array_dimensions.len() == 1 {
+            // This is a single array
+            *array_type.type_
+        } else {
+            // This is a multi-dimensional array
+            return Err(InputParserError::invalid_string_dimensions(&array_type.span));
+        };
+
+        let mut elements = Vec::with_capacity(string.chars.len());
+        for character in string.chars.into_iter() {
+            let element = InputValue::from_expression(
+                inner_array_type.clone(),
+                Expression::Value(Value::Char(CharValue {
+                    value: character.clone(),
+                    span: character.span().clone(),
+                })),
+            )?;
+
+            elements.push(element)
+        }
+
+        Ok(InputValue::Array(elements))
     }
 
     ///

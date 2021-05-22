@@ -1,0 +1,151 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Value:
+      String:
+        - - s
+          - t
+          - r
+          - i
+          - n
+          - g
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: test
+          content: "`string`"
+  - Value:
+      String:
+        - - a
+          - n
+          - o
+          - t
+          - h
+          - e
+          - r
+          - " "
+          - "{"
+          - " "
+          - "}"
+          - " "
+          - s
+          - t
+          - r
+          - i
+          - n
+          - g
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 21
+          path: test
+          content: "`another { } string`"
+  - Value:
+      String:
+        - - "{"
+          - " "
+          - "]"
+          - " "
+          - "["
+          - " "
+          - ;
+          - " "
+          - a
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: test
+          content: "`{ ] [ ; a`"
+  - Value:
+      String:
+        - - ࿺
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 10
+          path: test
+          content: "`\\u{FFA}`"
+  - Value:
+      String:
+        - - 򯫺
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: test
+          content: "`\\u{afafa}`"
+  - Value:
+      String:
+        - - 꾯
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 11
+          path: test
+          content: "`\\u{afaf}`"
+  - Value:
+      String:
+        - - ૺ
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 10
+          path: test
+          content: "`\\u{afa}`"
+  - Value:
+      String:
+        - - ¯
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: test
+          content: "`\\u{af}`"
+  - Value:
+      String:
+        - - "\n"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: test
+          content: "`\\u{a}`"
+  - Value:
+      String:
+        - - "\n"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "`\\x0A`"
+  - Value:
+      String:
+        - - a
+          - a
+          - " "
+          - "\\"
+          - " "
+          - "\""
+          - " "
+          - " "
+          - "\n"
+          - " "
+          - a
+          - a
+          - " "
+          - "\t"
+          - " "
+          - "\r"
+          - " "
+          - " "
+          - "\u0000"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 28
+          path: test
+          content: "`aa \\\\ \\\"  \\n aa \\t \\r  \\0`"

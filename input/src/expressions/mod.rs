@@ -25,3 +25,6 @@ pub use expression::*;
 
 pub mod tuple_expression;
 pub use tuple_expression::*;
+
+pub mod string_expression;
+pub use string_expression::*;

@@ -239,7 +239,7 @@ impl Token {
                     }
                 }
 
-                if !end {
+                if i == input.len() || i == 1 || !end {
                     return (0, None);
                 }
 

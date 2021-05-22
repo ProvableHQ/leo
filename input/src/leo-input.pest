@@ -200,12 +200,16 @@ expression_array_initializer = { "[" ~ expression ~ ";" ~ array_dimensions ~ "]"
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
 inline_array_inner = _{ (expression ~ ("," ~ NEWLINE* ~ expression)*)? }
 
+// Declared in expressions/string_expression.rs
+expression_string = ${ "\"" ~ (!"\"" ~ char_types)+ ~ "\"" }
+
 // Declared in expressions/expression.rs
 expression = {
     value
     | expression_tuple
     | expression_array_inline
     | expression_array_initializer
+    | expression_string
 }
 expression_tuple = { "(" ~ expression ~ ("," ~ expression)+ ~")" }
 

@@ -3,10 +3,6 @@ namespace: Token
 expectation: Fail
 */
 
-'\'
+``
 
-'a
-
-''
-
-'\x9'
+`Hello world!

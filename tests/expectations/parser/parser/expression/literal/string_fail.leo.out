@@ -1,0 +1,6 @@
+---
+namespace: Token
+expectation: Fail
+outputs:
+  - "    --> test:1:1\n     |\n   1 | ``\n     | ^\n     |\n     = unexpected token: '`'"
+  - "    --> test:1:1\n     |\n   1 | `Hello world!\n     | ^\n     |\n     = unexpected token: '`'"

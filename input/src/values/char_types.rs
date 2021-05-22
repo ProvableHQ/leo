@@ -68,6 +68,17 @@ pub enum CharTypes<'ast> {
 }
 
 impl<'ast> CharTypes<'ast> {
+    pub fn span(&self) -> &Span<'ast> {
+        match self {
+            CharTypes::Basic(value) => &value.span,
+            CharTypes::Escaped(value) => &value.span,
+            CharTypes::Hex(value) => &value.span,
+            CharTypes::Unicode(value) => &value.span,
+        }
+    }
+}
+
+impl<'ast> CharTypes<'ast> {
     pub fn inner(self) -> Result<char, InputParserError> {
         match self {
             Self::Basic(character) => {
@@ -78,14 +89,23 @@ impl<'ast> CharTypes<'ast> {
                 Err(InputParserError::invalid_char(character.value, &character.span))
             }
             Self::Escaped(character) => {
-                if let Some(character) = character.value.chars().nth(1) {
-                    return Ok(character);
+                if let Some(inner) = character.value.chars().nth(1) {
+                    return match inner {
+                        '0' => Ok(0 as char),
+                        't' => Ok(9 as char),
+                        'n' => Ok(10 as char),
+                        'r' => Ok(13 as char),
+                        '\"' => Ok(34 as char),
+                        '\'' => Ok(39 as char),
+                        '\\' => Ok(92 as char),
+                        _ => Err(InputParserError::invalid_char(character.value, &character.span)),
+                    };
                 }
 
                 Err(InputParserError::invalid_char(character.value, &character.span))
             }
             Self::Hex(character) => {
-                let hex_string_number = character.value[3..character.value.len()].to_string();
+                let hex_string_number = character.value[2..character.value.len()].to_string();
                 if let Ok(number) = u8::from_str_radix(&hex_string_number, 16) {
                     if number < 127 {
                         return Ok(number as char);

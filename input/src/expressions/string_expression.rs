@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ast::Rule, values::CharValue};
+use crate::{ast::Rule, values::CharTypes};
 
 use pest::Span;
 use pest_ast::FromPest;
@@ -23,17 +23,19 @@ use std::fmt;
 #[derive(Clone, Debug, FromPest, PartialEq, Eq)]
 #[pest_ast(rule(Rule::expression_string))]
 pub struct StringExpression<'ast> {
-    pub chars: Vec<CharValue<'ast>>,
+    pub chars: Vec<CharTypes<'ast>>,
     #[pest_ast(outer())]
     pub span: Span<'ast>,
 }
 
 impl<'ast> fmt::Display for StringExpression<'ast> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\"")?;
+
         for character in self.chars.iter() {
             write!(f, "{:?}", character)?;
         }
 
-        Ok(())
+        write!(f, "\"")
     }
 }
