@@ -65,9 +65,7 @@ impl Token {
     /// Returns a `char` if an character can be eaten, otherwise returns [`None`].
     ///
     fn eat_char(input_tendril: StrTendril, escaped: bool, hex: bool, unicode: bool) -> Option<char> {
-        println!("it {} e {} h {} u {}", input_tendril, escaped, hex, unicode);
         if input_tendril.is_empty() {
-            println!("ne");
             return None;
         }
 
@@ -119,7 +117,6 @@ impl Token {
             }
         }
 
-        println!("itcs {:?}", input_tendril.to_string().chars());
         if let Some(character) = input_tendril.to_string().chars().next() {
             return Some(character);
         }
@@ -211,7 +208,6 @@ impl Token {
                                 in_escape = false;
                             }
                             _ if hex && len == 4 => {
-                                println!("len 4");
                                 in_escape = false;
                             }
                             _ => {}
