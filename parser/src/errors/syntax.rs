@@ -48,46 +48,6 @@ impl SyntaxError {
         SyntaxError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn invalid_char(character: Vec<u8>, span: &Span) -> Self {
-        Self::new_from_span(format!("Invalid character '{:?}'", character), span)
-    }
-
-    pub fn invalid_empty_char(span: &Span) -> Self {
-        Self::new_from_span("Empty character '' is not valid".to_string(), span)
-    }
-
-    pub fn invalid_escaped_char(character: char, span: &Span) -> Self {
-        Self::new_from_span(format!("Invalid escape character '\\{}'", character), span)
-    }
-
-    pub fn invalid_hex_char(character: Vec<u8>, span: &Span) -> Self {
-        Self::new_from_span(format!("Invalid singe hex character '\\x{:?}'", character), span)
-    }
-
-    pub fn invalid_hex_single_char(character: char, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "Invalid singe hex character '\\x{}', expected '\\x0{}",
-                character, character
-            ),
-            span,
-        )
-    }
-
-    pub fn invalid_unicode_char(character: Vec<u8>, escaped: bool, span: &Span) -> Self {
-        if escaped {
-            return Self::new_from_span(
-                format!("Invalid unicode escaped character '\\u{{{:?}}}'", character),
-                span,
-            );
-        }
-
-        Self::new_from_span(
-            format!("Invalid unicode symbol character '\\u{{{:?}}}'", character),
-            span,
-        )
-    }
-
     pub fn invalid_import_list(span: &Span) -> Self {
         Self::new_from_span("Cannot import empty list".to_string(), span)
     }

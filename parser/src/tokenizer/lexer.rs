@@ -62,106 +62,66 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
 
 impl Token {
     ///
-    /// Eats String. Returns Token::StringLiteral with processed contents of the string.
+    /// Returns a new `Token::CharLit` if an character can be eaten, otherwise returns [`None`].
     ///
-    fn eat_string(input_tendril: &StrTendril) -> (usize, Option<Token>) {
+    fn eat_char(input_tendril: StrTendril, escaped: bool, hex: bool, unicode: bool) -> Option<Token> {
         if input_tendril.is_empty() {
-            return (0, None);
+            return None;
         }
 
-        let input = input_tendril[..].as_bytes();
-        let mut collect: Vec<char> = Vec::new();
-        let mut iter = input.iter().enumerate().skip(1);
+        if escaped {
+            let string = input_tendril.to_string();
+            let escaped = &string[1..string.len()];
 
-        while let Some((i, symbol)) = iter.next() {
-            let symbol = *symbol;
-
-            if symbol == b'`' {
-                return (i + 1, Some(Token::StringLiteral(collect)));
+            if escaped.len() != 1 {
+                return None;
             }
 
-            // Process escapes.
-            if symbol == b'\\' {
-                if let Some((_, escaped)) = iter.next() {
-                    match escaped {
-                        b'0' => collect.push(0 as char),
-                        b't' => collect.push(9 as char),
-                        b'n' => collect.push(10 as char),
-                        b'r' => collect.push(13 as char),
-                        b'\"' => collect.push(34 as char),
-                        b'\'' => collect.push(39 as char),
-                        b'\\' => collect.push(92 as char),
-                        // \x0F - 2 HEX digits after \x
-                        b'x' => {
-                            // get first symbol
-                            if let Some((_, first_hex)) = iter.next() {
-                                // get second symbol
-                                if let Some((_, second_hex)) = iter.next() {
-                                    if let Ok(string) = std::str::from_utf8(&[*first_hex, *second_hex]) {
-                                        if let Ok(number) = u8::from_str_radix(&string, 16) {
-                                            if number <= 127 {
-                                                collect.push(number as char);
-                                                continue;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+            if let Some(character) = escaped.chars().next() {
+                return match character {
+                    '0' => Some(Token::CharLit(0 as char)),
+                    't' => Some(Token::CharLit(9 as char)),
+                    'n' => Some(Token::CharLit(10 as char)),
+                    'r' => Some(Token::CharLit(13 as char)),
+                    '\"' => Some(Token::CharLit(34 as char)),
+                    '\'' => Some(Token::CharLit(39 as char)),
+                    '\\' => Some(Token::CharLit(92 as char)),
+                    _ => None,
+                };
+            } else {
+                return None;
+            }
+        }
 
-                            return (0, None);
-                        }
+        if hex {
+            let string = input_tendril.to_string();
+            let hex_string = &string[2..string.len()];
 
-                        // \u{1-6 hex digits}
-                        b'u' => {
-                            if let Some((start, open_brace)) = iter.next() {
-                                if *open_brace == b'{' {
-                                    let mut characters: Vec<u8> = Vec::new();
+            if hex_string.len() != 2 {
+                return None;
+            }
 
-                                    while let Some((end, symbol)) = iter.next() {
-                                        if end > start + 7 {
-                                            return (0, None);
-                                        }
+            if let Ok(ascii_number) = u8::from_str_radix(&hex_string, 16) {
+                return Some(Token::CharLit(ascii_number as char));
+            }
+        }
 
-                                        match *symbol {
-                                            0..=9 | b'a'..=b'f' | b'A'..=b'F' => characters.push(*symbol),
-                                            b'}' => {
-                                                if let Ok(unicode_string) = std::str::from_utf8(&characters[..]) {
-                                                    if let Ok(hex) = u32::from_str_radix(&unicode_string, 16) {
-                                                        if let Some(unicode_char) = std::char::from_u32(hex) {
-                                                            collect.push(unicode_char);
-                                                            break;
-                                                        }
-                                                    }
-                                                }
+        if unicode {
+            let string = input_tendril.to_string();
+            let unicode_number = &string[3..string.len() - 1];
 
-                                                return (0, None);
-                                            }
-                                            _ => {
-                                                return (0, None);
-                                            }
-                                        }
-                                    }
-
-                                    continue;
-                                }
-                            }
-
-                            return (0, None);
-                        }
-                        _ => {
-                            return (0, None);
-                        }
-                    }
-                    continue;
+            if let Ok(hex) = u32::from_str_radix(&unicode_number, 16) {
+                if let Some(character) = std::char::from_u32(hex) {
+                    return Some(Token::CharLit(character));
                 }
-
-                return (0, None);
             }
-
-            collect.push(symbol as char);
         }
 
-        (0, None)
+        if let Some(character) = input_tendril.to_string().chars().next() {
+            return Some(Token::CharLit(character));
+        }
+
+        None
     }
 
     ///
@@ -208,9 +168,6 @@ impl Token {
         let input = input_tendril[..].as_bytes();
         match input[0] {
             x if x.is_ascii_whitespace() => return (1, None),
-            b'`' => {
-                return Self::eat_string(&input_tendril);
-            }
             b'"' => {
                 let mut i = 1;
                 let mut in_escape = false;
@@ -258,12 +215,30 @@ impl Token {
             }
             b'\'' => {
                 let mut i = 1;
+                let mut in_escape = false;
+                let mut escaped = false;
+                let mut hex = false;
+                let mut unicode = false;
                 let mut end = false;
 
                 while i < input.len() {
-                    if input[i] == b'\'' {
-                        end = true;
-                        break;
+                    if !in_escape {
+                        if input[i] == b'\'' {
+                            end = true;
+                            break;
+                        } else if input[i] == b'\\' {
+                            in_escape = true;
+                        }
+                    } else {
+                        if input[i] == b'x' {
+                            hex = true;
+                        } else if input[i] == b'u' {
+                            unicode = true;
+                        } else {
+                            escaped = true;
+                        }
+
+                        in_escape = false;
                     }
 
                     i += 1;
@@ -273,7 +248,13 @@ impl Token {
                     return (0, None);
                 }
 
-                return (i + 1, Some(Token::CharLit(input_tendril.subtendril(1, (i - 1) as u32))));
+                let result = Self::eat_char(input_tendril.subtendril(1, (i - 1) as u32), escaped, hex, unicode);
+
+                if result.is_none() {
+                    return (0, None);
+                }
+
+                return (i + 1, result);
             }
             x if x.is_ascii_digit() => {
                 return Self::eat_integer(&input_tendril);

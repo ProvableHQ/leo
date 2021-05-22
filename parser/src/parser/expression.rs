@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use tendril::{format_tendril, StrTendril};
+use tendril::format_tendril;
 
 use super::*;
 
@@ -644,120 +644,6 @@ impl ParserContext {
     }
 
     ///
-    /// Returns a character if it is a valid character that can be parsed.
-    ///
-    fn parse_char(&mut self, input_tendril: StrTendril, span: Span) -> SyntaxResult<Expression> {
-        if input_tendril.is_empty() {
-            return Err(SyntaxError::invalid_empty_char(&span));
-        }
-
-        let input = input_tendril[..].as_bytes();
-        let mut i = 0;
-        let mut escaped = false;
-        let mut hex = false;
-        let mut unicode = false;
-        let mut characters: Vec<u8> = vec![];
-
-        while i < input.len() {
-            if !escaped {
-                if input[i] == b'{' {
-                    i += 1;
-                    characters.clear();
-                    continue;
-                }
-
-                if input[i] == b'}' {
-                    i += 1;
-                    continue;
-                }
-            } else {
-                escaped = false;
-                characters.clear();
-
-                match input[i] {
-                    b'0' => characters.push(0),
-                    b't' => characters.push(9),
-                    b'n' => characters.push(10),
-                    b'r' => characters.push(13),
-                    b'\"' => characters.push(34),
-                    b'\'' => characters.push(39),
-                    b'\\' => characters.push(92),
-                    b'x' => {
-                        hex = true;
-
-                        i += 1;
-                        continue;
-                    }
-                    b'u' => {
-                        unicode = true;
-                    }
-                    _ => {
-                        return Err(SyntaxError::invalid_escaped_char(input[i] as char, &span));
-                    }
-                }
-
-                i += 1;
-
-                continue;
-            }
-
-            if input[i] == b'\\' {
-                escaped = true;
-            }
-
-            characters.push(input[i]);
-            i += 1;
-        }
-
-        return match characters.len() {
-            1 | 2 | 3 | 4 | 5 | 6 if unicode => {
-                if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                    if let Ok(hex) = u32::from_str_radix(&string, 16) {
-                        if hex <= 0x10FFFF {
-                            if let Some(unicode_char) = std::char::from_u32(hex) {
-                                return Ok(Expression::Value(ValueExpression::Char(unicode_char, span)));
-                            }
-                        }
-                    }
-                }
-
-                Err(SyntaxError::invalid_unicode_char(characters, true, &span))
-            }
-            1 => {
-                if hex {
-                    return Err(SyntaxError::invalid_hex_single_char(characters[0] as char, &span));
-                } else if escaped {
-                    return Err(SyntaxError::invalid_escaped_char(characters[0] as char, &span));
-                }
-
-                Ok(Expression::Value(ValueExpression::Char(characters[0] as char, span)))
-            }
-            2 if hex => {
-                if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                    if let Ok(number) = u8::from_str_radix(&string, 16) {
-                        if number <= 127 {
-                            return Ok(Expression::Value(ValueExpression::Char(number as char, span)));
-                        }
-                    }
-                }
-
-                Err(SyntaxError::invalid_hex_char(characters, &span))
-            }
-            3 | 4 => {
-                // direct unicode symbol
-                if let Ok(string) = std::str::from_utf8(&characters[..]) {
-                    if let Some(character) = string.chars().next() {
-                        return Ok(Expression::Value(ValueExpression::Char(character, span)));
-                    }
-                }
-
-                Err(SyntaxError::invalid_unicode_char(characters, false, &span))
-            }
-            _ => Err(SyntaxError::invalid_char(characters, &span)),
-        };
-    }
-
-    ///
     /// Returns an [`Expression`] AST node if the next token is a primary expression:
     /// - Literals: field, group, unsigned integer, signed integer, boolean, address
     /// - Aggregate types: array, tuple
@@ -803,7 +689,7 @@ impl ParserContext {
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
             Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
             Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
-            Token::CharLit(value) => self.parse_char(value, span)?,
+            Token::CharLit(value) => Expression::Value(ValueExpression::Char(value, span)),
             Token::StringLiteral(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::LeftParen => self.parse_tuple_expression(&span)?,
             Token::LeftSquare => self.parse_array_expression(&span)?,
