@@ -116,10 +116,8 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
     }
 
     pub fn reduce_type(&mut self, ast: &AstType, asg: &AsgType, span: &Span) -> Result<AstType, ReducerError> {
-        println!("Hellllloooo");
         let new = match (ast, asg) {
             (AstType::Array(ast_type, ast_dimensions), AsgType::Array(asg_type, asg_dimensions)) => {
-                println!("astd {}, asgd {}", ast_dimensions, asg_dimensions);
                 if self.options.type_inference_enabled() {
                     AstType::Array(
                         Box::new(self.reduce_type(ast_type, asg_type, span)?),
