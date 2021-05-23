@@ -18,22 +18,6 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use tendril::StrTendril;
 
-/// Parts of a formatted string for logging to the console.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum FormatStringPart {
-    Const(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
-    Container,
-}
-
-impl fmt::Display for FormatStringPart {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            FormatStringPart::Const(c) => write!(f, "{}", c),
-            FormatStringPart::Container => write!(f, "{{}}"),
-        }
-    }
-}
-
 /// Represents all valid Leo syntax tokens.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Token {
@@ -41,7 +25,6 @@ pub enum Token {
     // Literals
     CommentLine(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     CommentBlock(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
-    FormatString(Vec<FormatStringPart>),
     StringLiteral(Vec<char>),
     Ident(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Int(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
@@ -208,14 +191,6 @@ impl fmt::Display for Token {
         match self {
             CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
-            FormatString(parts) => {
-                // todo escapes
-                write!(f, "\"")?;
-                for part in parts.iter() {
-                    part.fmt(f)?;
-                }
-                write!(f, "\"")
-            }
             StringLiteral(content) => {
                 write!(f, "\"")?;
                 for character in content {

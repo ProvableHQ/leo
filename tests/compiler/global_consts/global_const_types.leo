@@ -21,7 +21,7 @@ const use_another_const = basic + 1;
 const foo = Foo { width: 10, height: 20 };
 const uno = uno();
 const character = 'a';
-const hello = `Hello, World!`;
+const hello = "Hello, World!";
 
 circuit Foo {
     width: u32,
@@ -51,5 +51,5 @@ function main(a: u32) -> bool {
         && foo.height == 20u32
         && uno == 1u32 // function test
         && character == 'a' // char test
-        && hello == `Hello, World!`;
+        && hello == "Hello, World!";
 }

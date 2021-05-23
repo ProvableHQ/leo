@@ -1034,14 +1034,14 @@
               "variable_names": [
                 {
                   "mutable": false,
-                  "identifier": "{\"name\":\"o\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const o = `Hello, World!`;\\\"}\"}",
+                  "identifier": "{\"name\":\"o\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const o = \\\\\\\"Hello, World!\\\\\\\";\\\"}\"}",
                   "span": {
                     "line_start": 24,
                     "line_stop": 24,
                     "col_start": 9,
                     "col_stop": 10,
                     "path": "",
-                    "content": "  const o = `Hello, World!`;"
+                    "content": "  const o = \"Hello, World!\";"
                   }
                 }
               ],
@@ -1069,7 +1069,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1086,7 +1086,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1103,7 +1103,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1120,7 +1120,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1137,7 +1137,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1154,7 +1154,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1171,7 +1171,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1188,7 +1188,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1205,7 +1205,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1222,7 +1222,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1239,7 +1239,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1256,7 +1256,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1273,7 +1273,7 @@
                               "col_start": 13,
                               "col_stop": 28,
                               "path": "",
-                              "content": "  const o = `Hello, World!`;"
+                              "content": "  const o = \"Hello, World!\";"
                             }
                           ]
                         }
@@ -1286,7 +1286,7 @@
                     "col_start": 13,
                     "col_stop": 28,
                     "path": "",
-                    "content": "  const o = `Hello, World!`;"
+                    "content": "  const o = \"Hello, World!\";"
                   }
                 }
               },
@@ -1296,7 +1296,7 @@
                 "col_start": 3,
                 "col_stop": 28,
                 "path": "",
-                "content": "  const o = `Hello, World!`;"
+                "content": "  const o = \"Hello, World!\";"
               }
             }
           }

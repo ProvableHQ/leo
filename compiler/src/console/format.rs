@@ -51,8 +51,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let mut parameters = executed_containers.iter();
         for part in formatted.parts.iter() {
             match part {
-                FormatStringPart::Const(c) => out.push(&**c),
-                FormatStringPart::Container => out.push(&**parameters.next().unwrap()),
+                FormatStringPart::Const(c) => out.push(c.to_string()),
+                FormatStringPart::Container => out.push(parameters.next().unwrap().to_string()),
             }
         }
 

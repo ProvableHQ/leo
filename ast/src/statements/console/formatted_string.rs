@@ -18,12 +18,41 @@ use crate::{Expression, Node, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use tendril::StrTendril;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum FormatStringPart {
-    Const(#[serde(with = "crate::common::tendril_json")] StrTendril),
+    Const(char),
     Container,
+}
+
+impl FormatStringPart {
+    pub fn from_string(string: Vec<char>) -> Vec<Self> {
+        let mut parts = Vec::new();
+        let mut in_container = false;
+        let mut i = 0;
+
+        while i < string.len() {
+            let character = string[i];
+
+            match character {
+                '{' if !in_container => in_container = true,
+                '}' if in_container => {
+                    in_container = false;
+                    parts.push(FormatStringPart::Container);
+                }
+                _ if in_container => {
+                    in_container = false;
+                    parts.push(FormatStringPart::Const('{'));
+                    continue;
+                }
+                _ => parts.push(FormatStringPart::Const(character)),
+            }
+
+            i += 1;
+        }
+
+        parts
+    }
 }
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
@@ -41,8 +70,8 @@ impl fmt::Display for FormatString {
             self.parts
                 .iter()
                 .map(|x| match x {
-                    FormatStringPart::Const(x) => x,
-                    FormatStringPart::Container => "{}",
+                    FormatStringPart::Const(x) => x.to_string(),
+                    FormatStringPart::Container => "{}".to_string(),
                 })
                 .collect::<Vec<_>>()
                 .join("")

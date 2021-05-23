@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::tokenizer::{FormatStringPart, Token};
+use crate::tokenizer::Token;
 use leo_ast::Span;
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
@@ -168,7 +168,7 @@ impl Token {
         let input = input_tendril[..].as_bytes();
         match input[0] {
             x if x.is_ascii_whitespace() => return (1, None),
-            b'`' => {
+            b'"' => {
                 let mut i = 1;
                 let mut len: u32 = 1;
                 let mut start = 1;
@@ -181,7 +181,7 @@ impl Token {
 
                 while i < input.len() {
                     if !in_escape {
-                        if input[i] == b'`' {
+                        if input[i] == b'"' {
                             end = true;
                             break;
                         } else if input[i] == b'\\' {
@@ -244,51 +244,6 @@ impl Token {
                 }
 
                 return (i + 1, Some(Token::StringLiteral(string)));
-            }
-            b'"' => {
-                let mut i = 1;
-                let mut in_escape = false;
-                let mut start = 1usize;
-                let mut segments = Vec::new();
-                while i < input.len() {
-                    if !in_escape {
-                        if input[i] == b'"' {
-                            break;
-                        }
-                        if input[i] == b'\\' {
-                            in_escape = !in_escape;
-                        } else if i < input.len() - 1 && input[i] == b'{' {
-                            if i < input.len() - 2 && input[i + 1] == b'{' {
-                                i += 2;
-                                continue;
-                            } else if input[i + 1] != b'}' {
-                                i += 1;
-                                continue;
-                            }
-                            if start < i {
-                                segments.push(FormatStringPart::Const(
-                                    input_tendril.subtendril(start as u32, (i - start) as u32),
-                                ));
-                            }
-                            segments.push(FormatStringPart::Container);
-                            start = i + 2;
-                            i = start;
-                            continue;
-                        }
-                    } else {
-                        in_escape = false;
-                    }
-                    i += 1;
-                }
-                if i == input.len() {
-                    return (0, None);
-                }
-                if start < i {
-                    segments.push(FormatStringPart::Const(
-                        input_tendril.subtendril(start as u32, (i - start) as u32),
-                    ));
-                }
-                return (i + 1, Some(Token::FormatString(segments)));
             }
             b'\'' => {
                 let mut i = 1;
