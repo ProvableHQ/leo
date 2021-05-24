@@ -95,3 +95,16 @@ fn test_illegal_array_range_fail() {
     let program = parse_program(program_string);
     assert!(program.is_err());
 }
+
+#[test]
+fn test_string_transformation() {
+    let program_string = include_str!("string_transformation.leo");
+    let program = parse_program(program_string).unwrap();
+    assert_satisfied(program);
+
+    let ast = parse_program_ast(program_string);
+    let expected_json = include_str!("string_transformation.json");
+    let expected_ast: Ast = Ast::from_json_string(expected_json).expect("Unable to parse json.");
+
+    assert_eq!(expected_ast, ast);
+}

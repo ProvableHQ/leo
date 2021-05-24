@@ -14,17 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod array_initializer_expression;
-pub use array_initializer_expression::*;
+use crate::{ast::Rule, values::CharTypes};
 
-pub mod array_inline_expression;
-pub use array_inline_expression::*;
+use pest::Span;
+use pest_ast::FromPest;
+use std::fmt;
 
-pub mod expression;
-pub use expression::*;
+#[derive(Clone, Debug, FromPest, PartialEq, Eq)]
+#[pest_ast(rule(Rule::expression_string))]
+pub struct StringExpression<'ast> {
+    pub chars: Vec<CharTypes<'ast>>,
+    #[pest_ast(outer())]
+    pub span: Span<'ast>,
+}
 
-pub mod tuple_expression;
-pub use tuple_expression::*;
+impl<'ast> fmt::Display for StringExpression<'ast> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "\"")?;
 
-pub mod string_expression;
-pub use string_expression::*;
+        for character in self.chars.iter() {
+            write!(f, "{:?}", character)?;
+        }
+
+        write!(f, "\"")
+    }
+}

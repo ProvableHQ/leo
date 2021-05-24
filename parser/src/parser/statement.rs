@@ -226,16 +226,19 @@ impl ParserContext {
     ///
     pub fn parse_formatted_string(&mut self) -> SyntaxResult<FormatString> {
         let start_span;
-        let parts = match self.expect_any()? {
+        let string = match self.expect_any()? {
             SpannedToken {
-                token: Token::FormatString(parts),
+                token: Token::StringLiteral(chars),
                 span,
             } => {
                 start_span = span;
-                parts
+                chars
             }
             SpannedToken { token, span } => return Err(SyntaxError::unexpected_str(&token, "formatted string", &span)),
         };
+
+        let parts = FormatStringPart::from_string(string);
+
         let mut parameters = Vec::new();
         while self.eat(Token::Comma).is_some() {
             let param = self.parse_expression()?;
@@ -243,13 +246,7 @@ impl ParserContext {
         }
 
         Ok(FormatString {
-            parts: parts
-                .into_iter()
-                .map(|x| match x {
-                    crate::FormatStringPart::Const(value) => FormatStringPart::Const(value),
-                    crate::FormatStringPart::Container => FormatStringPart::Container,
-                })
-                .collect(),
+            parts,
             span: &start_span + parameters.last().map(|x| x.span()).unwrap_or(&start_span),
             parameters,
         })

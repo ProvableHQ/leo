@@ -35,6 +35,12 @@ impl ReducerError {
         ReducerError::Error(FormattedError::new_from_span(message, span))
     }
 
+    pub fn failed_to_convert_tendril_to_char(tendril: String, span: &Span) -> Self {
+        let message = format!("Failed to convert tendril `{}` to char", tendril);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn impossible_console_assert_call(span: &Span) -> Self {
         let message = "Console::Assert cannot be matched here, its handled in another case.".to_string();
 

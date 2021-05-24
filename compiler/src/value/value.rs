@@ -99,14 +99,22 @@ impl<'a, F: PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<'a, F
 
             // Data type wrappers
             ConstrainedValue::Array(ref array) => {
-                write!(f, "[")?;
-                for (i, e) in array.iter().enumerate() {
-                    write!(f, "{}", e)?;
-                    if i < array.len() - 1 {
-                        write!(f, ", ")?;
+                if matches!(array[0], ConstrainedValue::Char(_)) {
+                    for character in array {
+                        write!(f, "{}", character)?;
                     }
+
+                    Ok(())
+                } else {
+                    write!(f, "[")?;
+                    for (i, e) in array.iter().enumerate() {
+                        write!(f, "{}", e)?;
+                        if i < array.len() - 1 {
+                            write!(f, ", ")?;
+                        }
+                    }
+                    write!(f, "]")
                 }
-                write!(f, "]")
             }
             ConstrainedValue::Tuple(ref tuple) => {
                 let values = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");

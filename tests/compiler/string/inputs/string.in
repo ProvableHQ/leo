@@ -1,0 +1,6 @@
+[main]
+s1: [char; 13] = "Hello, World!";
+s2: [char; 4] = "test";
+
+[registers]
+out: bool = true;

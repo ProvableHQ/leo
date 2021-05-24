@@ -1,5 +1,5 @@
 /*
-namespace: ParseExpression
+namespace: Token
 expectation: Fail
 */
 

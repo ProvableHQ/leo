@@ -259,6 +259,6 @@ mod tests {
             let original = &raw[*start + token.span.col_start - 1..*stop + token.span.col_stop - 1];
             assert_eq!(original, &token_raw);
         }
-        println!("{}", serde_json::to_string_pretty(&tokens).unwrap());
+        // println!("{}", serde_json::to_string_pretty(&tokens).unwrap());
     }
 }
