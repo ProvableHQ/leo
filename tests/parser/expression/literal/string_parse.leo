@@ -18,4 +18,6 @@ expectation: Pass
 
 "\x0A"
 
+"\x7F"
+
 "aa \\ \"  \n aa \t \r  \0"

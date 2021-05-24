@@ -102,6 +102,11 @@ impl Token {
             }
 
             if let Ok(ascii_number) = u8::from_str_radix(&hex_string, 16) {
+                // According to RFC, we allow only values less than 128.
+                if ascii_number > 127 {
+                    return None;
+                }
+
                 return Some(ascii_number as char);
             }
         }

@@ -14,3 +14,7 @@ expectation: Fail
 "\uaaa"
 
 "\u"
+
+"\xFF"
+
+"\x"
