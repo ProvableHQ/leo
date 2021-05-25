@@ -485,11 +485,11 @@ impl ReconstructingReducer for Canonicalizer {
         }
     }
 
-    fn reduce_string(&mut self, string: &[char], span: &Span) -> Result<Expression, ReducerError> {
+    fn reduce_string(&mut self, string: &str, span: &Span) -> Result<Expression, ReducerError> {
         let mut elements = Vec::new();
-        for character in string {
+        for character in string.chars() {
             elements.push(SpreadOrExpression::Expression(Expression::Value(
-                ValueExpression::Char(*character, span.clone()),
+                ValueExpression::Char(character, span.clone()),
             )));
         }
 

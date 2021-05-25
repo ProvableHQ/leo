@@ -18,7 +18,7 @@ use crate::{ArrayDimensions, GroupValue};
 use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
-    types::{ArrayType, DataType, IntegerType, TupleType, Type},
+    types::{ArrayType, CharType, DataType, IntegerType, TupleType, Type},
     values::{
         Address,
         AddressValue,
@@ -129,6 +129,7 @@ impl InputValue {
     pub(crate) fn from_string(mut array_type: ArrayType, string: StringExpression) -> Result<Self, InputParserError> {
         // Create a new `ArrayDimensions` type from the input array_type dimensions.
         let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
+        assert!(matches!(*array_type.type_, Type::Basic(DataType::Char(CharType {}))));
 
         // Convert the array dimensions to usize.
         let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;

@@ -4,12 +4,7 @@ expectation: Pass
 outputs:
   - Value:
       String:
-        - - s
-          - t
-          - r
-          - i
-          - n
-          - g
+        - string
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -18,24 +13,7 @@ outputs:
           content: "\"string\""
   - Value:
       String:
-        - - a
-          - n
-          - o
-          - t
-          - h
-          - e
-          - r
-          - " "
-          - "{"
-          - " "
-          - "}"
-          - " "
-          - s
-          - t
-          - r
-          - i
-          - n
-          - g
+        - "another { } string"
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -44,15 +22,7 @@ outputs:
           content: "\"another { } string\""
   - Value:
       String:
-        - - "{"
-          - " "
-          - "]"
-          - " "
-          - "["
-          - " "
-          - ;
-          - " "
-          - a
+        - "{ ] [ ; a"
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -61,7 +31,7 @@ outputs:
           content: "\"{ ] [ ; a\""
   - Value:
       String:
-        - - ࿺
+        - ࿺
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -70,7 +40,7 @@ outputs:
           content: "\"\\u{FFA}\""
   - Value:
       String:
-        - - 򯫺
+        - 򯫺
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -79,7 +49,7 @@ outputs:
           content: "\"\\u{afafa}\""
   - Value:
       String:
-        - - 꾯
+        - 꾯
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -88,7 +58,7 @@ outputs:
           content: "\"\\u{afaf}\""
   - Value:
       String:
-        - - ૺ
+        - ૺ
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -97,7 +67,7 @@ outputs:
           content: "\"\\u{afa}\""
   - Value:
       String:
-        - - ¯
+        - ¯
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -106,7 +76,7 @@ outputs:
           content: "\"\\u{af}\""
   - Value:
       String:
-        - - "\n"
+        - "\n"
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -115,7 +85,7 @@ outputs:
           content: "\"\\u{a}\""
   - Value:
       String:
-        - - "\n"
+        - "\n"
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -124,7 +94,7 @@ outputs:
           content: "\"\\x0A\""
   - Value:
       String:
-        - - 
+        - 
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -133,25 +103,7 @@ outputs:
           content: "\"\\x7F\""
   - Value:
       String:
-        - - a
-          - a
-          - " "
-          - "\\"
-          - " "
-          - "\""
-          - " "
-          - " "
-          - "\n"
-          - " "
-          - a
-          - a
-          - " "
-          - "\t"
-          - " "
-          - "\r"
-          - " "
-          - " "
-          - "\u0000"
+        - "aa \\ \"  \n aa \t \r  \u0000"
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -160,13 +112,7 @@ outputs:
           content: "\"aa \\\\ \\\"  \\n aa \\t \\r  \\0\""
   - Value:
       String:
-        - - t
-          - e
-          - s
-          - t
-          - " "
-          - 😒
-          - €
+        - test 😒€
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -175,9 +121,7 @@ outputs:
           content: "\"test 😒€\""
   - Value:
       String:
-        - - 😭
-          - 😂
-          - 😘
+        - 😭😂😘
         - line_start: 1
           line_stop: 1
           col_start: 1

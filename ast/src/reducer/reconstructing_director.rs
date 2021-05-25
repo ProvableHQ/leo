@@ -100,7 +100,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_group_value(group_value, new)
     }
 
-    pub fn reduce_string(&mut self, string: &[char], span: &Span) -> Result<Expression, ReducerError> {
+    pub fn reduce_string(&mut self, string: &str, span: &Span) -> Result<Expression, ReducerError> {
         self.reducer.reduce_string(string, span)
     }
 
@@ -109,7 +109,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             ValueExpression::Group(group_value) => {
                 Expression::Value(ValueExpression::Group(Box::new(self.reduce_group_value(&group_value)?)))
             }
-            ValueExpression::String(string, span) => self.reduce_string(&string, &span)?,
+            ValueExpression::String(string, span) => self.reduce_string(string, &span)?,
             _ => Expression::Value(value.clone()),
         };
 

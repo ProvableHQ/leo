@@ -205,7 +205,7 @@ impl Token {
                 let mut hex = false;
                 let mut unicode = false;
                 let mut end = false;
-                let mut string = Vec::new();
+                let mut string = String::new();
 
                 while i < input.len() {
                     // If it's an emoji get the length.

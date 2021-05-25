@@ -25,7 +25,7 @@ pub enum Token {
     // Literals
     CommentLine(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     CommentBlock(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
-    StringLit(Vec<char>),
+    StringLit(String),
     Ident(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Int(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     True,
@@ -191,13 +191,7 @@ impl fmt::Display for Token {
         match self {
             CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
-            StringLit(content) => {
-                write!(f, "\"")?;
-                for character in content {
-                    write!(f, "{}", character)?;
-                }
-                write!(f, "\"")
-            }
+            StringLit(content) => write!(f, "\"{}\"", content),
             Ident(s) => write!(f, "{}", s),
             Int(s) => write!(f, "{}", s),
             True => write!(f, "true"),

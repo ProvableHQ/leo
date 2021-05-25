@@ -18,37 +18,35 @@ use crate::{Expression, Node, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use tendril::StrTendril;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum FormatStringPart {
-    Const(char),
+    Const(#[serde(with = "crate::common::tendril_json")] StrTendril),
     Container,
 }
 
 impl FormatStringPart {
-    pub fn from_string(string: Vec<char>) -> Vec<Self> {
+    pub fn from_string(string: String) -> Vec<Self> {
         let mut parts = Vec::new();
         let mut in_container = false;
-        let mut i = 0;
-
-        while i < string.len() {
-            let character = string[i];
-
+        let mut start = 0;
+        for (index, character) in string.chars().enumerate() {
             match character {
-                '{' if !in_container => in_container = true,
+                '{' if !in_container => {
+                    parts.push(FormatStringPart::Const(string[start..index].into()));
+                    start = index;
+                    in_container = true;
+                }
                 '}' if in_container => {
                     in_container = false;
                     parts.push(FormatStringPart::Container);
                 }
                 _ if in_container => {
                     in_container = false;
-                    parts.push(FormatStringPart::Const('{'));
-                    continue;
                 }
-                _ => parts.push(FormatStringPart::Const(character)),
+                _ => {}
             }
-
-            i += 1;
         }
 
         parts

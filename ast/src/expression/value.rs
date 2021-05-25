@@ -33,7 +33,7 @@ pub enum ValueExpression {
         #[serde(with = "crate::common::tendril_json")] StrTendril,
         Span,
     ),
-    String(Vec<char>, Span),
+    String(String, Span),
 }
 
 impl fmt::Display for ValueExpression {
@@ -47,12 +47,7 @@ impl fmt::Display for ValueExpression {
             Implicit(implicit, _) => write!(f, "{}", implicit),
             Integer(value, type_, _) => write!(f, "{}{}", value, type_),
             Group(group) => write!(f, "{}", group),
-            String(char_vec, _) => {
-                for character in char_vec {
-                    write!(f, "{}", character)?
-                }
-                Ok(())
-            }
+            String(string, _) => write!(f, "{}", string),
         }
     }
 }
