@@ -228,7 +228,7 @@ impl ParserContext {
         let start_span;
         let string = match self.expect_any()? {
             SpannedToken {
-                token: Token::StringLiteral(chars),
+                token: Token::StringLit(chars),
                 span,
             } => {
                 start_span = span;

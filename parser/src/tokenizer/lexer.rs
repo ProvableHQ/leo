@@ -248,7 +248,7 @@ impl Token {
                     return (0, None);
                 }
 
-                return (i + 1, Some(Token::StringLiteral(string)));
+                return (i + 1, Some(Token::StringLit(string)));
             }
             b'\'' => {
                 let mut i = 1;
