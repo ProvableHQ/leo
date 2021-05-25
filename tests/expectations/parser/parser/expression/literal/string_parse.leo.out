@@ -158,3 +158,29 @@ outputs:
           col_stop: 28
           path: test
           content: "\"aa \\\\ \\\"  \\n aa \\t \\r  \\0\""
+  - Value:
+      String:
+        - - t
+          - e
+          - s
+          - t
+          - " "
+          - 😒
+          - €
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 15
+          path: test
+          content: "\"test 😒€\""
+  - Value:
+      String:
+        - - 😭
+          - 😂
+          - 😘
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 15
+          path: test
+          content: "\"😭😂😘\""

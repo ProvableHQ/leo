@@ -168,6 +168,23 @@ impl Token {
         (i, Some(Token::Int(input_tendril.subtendril(0, i as u32))))
     }
 
+    /// Returns the number of bytes in an emoji via a bit mask.
+    fn utf8_byte_count(byte: u8) -> u8 {
+        let mut mask = 0x80;
+        let mut result = 0;
+        while byte & mask > 0 {
+            result += 1;
+            mask >>= 1;
+        }
+        if result == 0 {
+            1
+        } else if result > 4 {
+            4
+        } else {
+            result
+        }
+    }
+
     ///
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
     /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
@@ -181,7 +198,7 @@ impl Token {
             x if x.is_ascii_whitespace() => return (1, None),
             b'"' => {
                 let mut i = 1;
-                let mut len: u32 = 1;
+                let mut len: u8 = 1;
                 let mut start = 1;
                 let mut in_escape = false;
                 let mut escaped = false;
@@ -191,6 +208,12 @@ impl Token {
                 let mut string = Vec::new();
 
                 while i < input.len() {
+                    // If it's an emoji get the length.
+                    if input[i] & 0x80 > 0 {
+                        len = Self::utf8_byte_count(input[i]);
+                        i += (len as usize) - 1;
+                    }
+
                     if !in_escape {
                         if input[i] == b'"' {
                             end = true;
