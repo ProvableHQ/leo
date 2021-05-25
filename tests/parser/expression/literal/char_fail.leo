@@ -10,3 +10,11 @@ expectation: Fail
 ''
 
 '\x9'
+
+'abcdefg'
+
+'\t\t'
+
+'\u{bbbbb}\u{aaaa}'
+
+'😭😂😘'

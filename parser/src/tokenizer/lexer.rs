@@ -114,6 +114,10 @@ impl Token {
         if unicode {
             let string = input_tendril.to_string();
             let unicode_number = &string[3..string.len() - 1];
+            let len = unicode_number.len();
+            if !(1..=6).contains(&len) {
+                return None;
+            }
 
             if let Ok(hex) = u32::from_str_radix(&unicode_number, 16) {
                 if let Some(character) = std::char::from_u32(hex) {
@@ -122,7 +126,9 @@ impl Token {
             }
         }
 
-        if let Some(character) = input_tendril.to_string().chars().next() {
+        if input_tendril.to_string().chars().count() != 1 {
+            return None;
+        } else if let Some(character) = input_tendril.to_string().chars().next() {
             return Some(character);
         }
 
