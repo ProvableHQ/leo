@@ -1,0 +1,6 @@
+[main]
+y: bool = true;
+a: char = '👍';
+
+[registers]
+r0: bool = true;
