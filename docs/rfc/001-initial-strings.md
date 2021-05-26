@@ -89,14 +89,19 @@ This is the complete list of single-character backslash escapes:
 * `\0` for code point 0 (the null character)
 
 We also allow ASCII escapes of the form `\xOH`,
-where `O` is an octal digit and `H` is a hexadecimal digit
-(both uppercase and lowercase are allowed).
+where `O` is an octal digit and `H` is a hexadecimal digit.
+Both uppercase and lowercase hex digits are allowed.
+The `x` must be lowercase.
 These represent ASCII code points, i.e. from 0 to 127 (both inclusive).
 
 We also allow Unicode escapes of the form `'\u{X}'`,
-where `X` is a sequence of one to six hex digits
-(both uppercase and lowercase letters are allowed)
-whose value must be between 0 and 10FFFF, inclusive.
+where `X` is a sequence of one to six hex digits.
+Both uppercase and lowercase letters are allowed.
+The `u` must be lowercase.
+The value must be between 0 and 10FFFF, inclusive.
+
+Note that this syntax for character literals is identical to the Rust syntax documented here (as of 2021-05-26):
+https://doc.rust-lang.org/reference/tokens.html#character-literals
 
 Note that the literal character is assembled by the compiler---for
 creating literals, there is no need for the circuit to know
@@ -156,25 +161,32 @@ apply to these strings without the need of language extensions.
 
 To ease the common use case of writing a string value in the code,
 we add a new kind of literal for strings (i.e. character arrays),
-consisting of a sequence of one or more single characters or escapes
+consisting of a sequence of **one or more** single characters or escapes
 surrounded by double quotes;
-this is just syntactic sugar.
-Any single Unicode character except double quote is allowed,
-e.g. `""`, `"Aleo"`, `"it's"`, and `"x + y"`.
+this is just syntactic sugar for the literal array construction.
+Any Unicode character except double quote or backslash is allowed without escape.
+Examples: `"Aleo"`, `"it's"`, and `"x + y"`.
 Double quotes must be escaped with a backslash, e.g. `"say \"hi\""`;
 backslashes must be escaped as well, e.g. `"c:\\dir"`.
-We allow the same backslash escapes allowed for character literals
+We also allow the same backslash escapes allowed for character literals
 (see the section on characters above).
 We also allow the same Unicode escapes allowed in character literals
 (described in the section on characters above).
-In any case, the type of a string literal is `[char; N]`,
+
+Note that this syntax for string literals is very close to the Rust syntax documented here (as of 2021-05-26):
+https://doc.rust-lang.org/reference/tokens.html#string-literals.
+The main difference is that this syntax does not support the Rust `STRING_CONTINUE` syntax.
+In this syntax a backslash may not be followed by a newline, and newlines have no special handling.
+Another differences is that this syntax does **not** permit the empty string `""`.
+
+The type of a string literal is `[char; N]`,
 where `N` is the length of the string measured in characters,
 i.e. the size of the array.
 Note that there is no notion of Unicode encoding (e.g. UTF-8)
 that applies to string literals.
 
 The rationale for not introducing a new type for strings initially,
-and instead, piggyback on the existing array types and operations,
+and instead, piggybacking on the existing array types and operations,
 is twofold.
 First, it is an economical design
 that lets us reuse the existing array machinery,
