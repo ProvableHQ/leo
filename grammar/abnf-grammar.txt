@@ -284,7 +284,7 @@
 
 ; A Leo file is a finite sequence of Unicode characters,
 ; represented as Unicode code points,
-; which are numbers in the range from 0 to 10FFFFh.
+; which are numbers in the range from 0 to 10FFFF.
 ; These are captured by the ABNF rule `character` below.
 
 ; The lexical grammar defines how, at least conceptually,
@@ -328,24 +328,24 @@ space = %x20   ; <SP>
 
 double-quote = %x22   ; "
 
+single-quote = %x27   ; '
+
 ; We give names to complements of certain ASCII characters.
 ; These consist of all the Unicode characters except for one or two.
 
-not-double-quote = %x0-22 / %x24-10FFFF   ; anything but "
-
 not-star = %x0-29 / %x2B-10FFFF   ; anything but *
+
+not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF
+                    ; anything but * or /
 
 not-line-feed-or-carriage-return = %x0-9 / %xB-C / %xE-10FFFF
                                    ; anything but <LF> or <CR>
 
-not-double-quote-or-open-brace = %x0-22 / %x24-7A / %x7C-10FFFF
-                                 ; anything but " or {
+not-double-quote-or-backslash = %x0-21 / %x23-5B / %x5D-10FFFF
+                                ; anything but " or \
 
-not-double-quote-or-close-brace = %x0-22 / %x24-7C / %x7E-10FFFF
-                                  ; anything but " or }
-
-not-star-or-slash = %x0-29 / %x2B-2E / %x30-10FFFF
-                    ; anything but * or /
+not-single-quote-or-backslash = %x0-26 / %x28-5B / %x5D-10FFFF
+                                ; anything but ' or \
 
 ; Lines in Leo may be terminated via
 ; a single carriage return,
@@ -390,6 +390,7 @@ end-of-line-comment = "//" *not-line-feed-or-carriage-return newline
 keyword = %s"address"
         / %s"as"
         / %s"bool"
+        / %s"char"
         / %s"circuit"
         / %s"console"
         / %s"const"
@@ -422,8 +423,8 @@ keyword = %s"address"
         / %s"u64"
         / %s"u128"
 
-; The following rules define (ASCII) digits
-; and (uppercase and lowercase) letters.
+; The following rules define (ASCII)
+; digits and (uppercase and lowercase) letters.
 
 digit = %x30-39   ; 0-9
 
@@ -432,6 +433,13 @@ uppercase-letter = %x41-5A   ; A-Z
 lowercase-letter = %x61-7A   ; a-z
 
 letter = uppercase-letter / lowercase-letter
+
+; The following rules defines (ASCII) octal and hexadecimal digits.
+; Note that the latter are case-insensitive.
+
+octal-digit = %x30-37   ; 0-7
+
+hexadecimal-digit = digit / "a" / "b" / "c" / "d" / "e" / "f"
 
 ; An identifier is a non-empty sequence of letters, digits, and underscores,
 ; starting with a letter.
@@ -447,21 +455,6 @@ identifier = letter *( letter / digit / "_" )   ; but not a keyword or aleo1...
 
 package-name = 1*( lowercase-letter / digit )
                *( "-" 1*( lowercase-letter / digit ) )
-
-; A format string is a sequence of characters, other than double quote,
-; surrounded by double quotes.
-; Within a format string, sub-strings `{}` are distinguished as containers
-; (these are the ones that may be matched with values
-; whose textual representation replaces the containers
-; in the printed string).
-
-format-string-container = "{}"
-
-format-string-element = not-double-quote-or-open-brace
-                      / "{" not-double-quote-or-close-brace
-                      / format-string-container
-
-format-string = double-quote *format-string-element double-quote
 
 ; Annotations have names, which are identifiers immediately preceded by `@`.
 
@@ -511,6 +504,62 @@ boolean-literal = %s"true" / %s"false"
 
 address-literal = %s"aleo1" 58( lowercase-letter / digit )
 
+; A character literal consists of an element surrounded by single quotes.
+; The element is any character other than single quote or backslash,
+; or an escape, which starts with backslash.
+; There are simple escapes with a single character,
+; ASCII escapes with an octal and a hexadecimal digit
+; (which together denote a number between 0 and 127),
+; and Unicode escapes with one to six hexadecimal digits
+; (which must not exceed 10FFFF).
+
+character-literal = single-quote character-literal-element single-quote
+
+character-literal-element = not-single-quote-or-backslash
+                          / simple-character-escape
+                          / ascii-character-escape
+                          / unicode-character-escape
+
+single-quote-escape = "\" single-quote   ; \'
+
+double-quote-escape = "\" double-quote   ; \"
+
+backslash-escape = "\\"
+
+line-feed-escape = %s"\n"
+
+carriage-return-escape = %s"\r"
+
+horizontal-tab-escape = %s"\t"
+
+null-character-escape = "\0"
+
+simple-character-escape = single-quote-escape
+                        / double-quote-escape
+                        / backslash-escape
+                        / line-feed-escape
+                        / carriage-return-escape
+                        / horizontal-tab-escape
+                        / null-character-escape
+
+ascii-character-escape = %s"\x" octal-digit hexadecimal-digit
+
+unicode-character-escape = %s"\u{" 1*6hexadecimal-digit "}"
+
+; A string literal consists of one or more elements surrounded by double quotes.
+; Each element is any character other than double quote or backslash,
+; or an escape among the same ones used for elements of character literals.
+; There must be at least one element
+; because string literals denote character arrays,
+; and arrays must not be empty.
+
+string-literal = double-quote 1*string-literal-element double-quote
+
+string-literal-element = not-double-quote-or-backslash
+                       / simple-character-escape
+                       / ascii-character-escape
+                       / unicode-character-escape
+
 ; The ones above are all the atomic literals
 ; (in the sense that they are tokens, without whitespace allowed in them),
 ; as defined by the following rule.
@@ -522,6 +571,8 @@ atomic-literal = untyped-literal
                / product-group-literal
                / boolean-literal
                / address-literal
+               / character-literal
+               / string-literal
 
 ; After defining the (mostly) alphanumeric tokens above,
 ; it remains to define tokens for non-alphanumeric symbols such as `+` and `(`.
@@ -555,7 +606,6 @@ token = keyword
       / identifier
       / atomic-literal
       / package-name
-      / format-string
       / annotation-name
       / symbol
 
@@ -590,14 +640,16 @@ group-type = %s"group"
 
 arithmetic-type = integer-type / field-type / group-type
 
-; The arithmetic types, along with the boolean and address types,
+; The arithmetic types, along with the boolean, address, and character types,
 ; form the scalar types, i.e. the ones whose values do not contain (sub-)values.
 
 boolean-type = %s"bool"
 
 address-type = %s"address"
 
-scalar-type =  boolean-type / arithmetic-type / address-type
+character-type = %s"char"
+
+scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
 ; Circuit types are denoted by identifiers and the keyword `Self`.
 ; The latter is only allowed inside a circuit definition,
@@ -910,7 +962,7 @@ assert-call = %s"assert" "(" expression ")"
 
 print-function = %s"debug" / %s"error" / %s"log"
 
-print-arguments = "(" [ format-string *( "," expression ) ] ")"
+print-arguments = "(" [ string-literal *( "," expression ) ] ")"
 
 print-call = print-function print-arguments
 
