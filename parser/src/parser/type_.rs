@@ -31,6 +31,7 @@ const TYPE_TOKENS: &[Token] = &[
     Token::Group,
     Token::Address,
     Token::Bool,
+    Token::Char,
 ];
 
 impl ParserContext {
@@ -117,6 +118,7 @@ impl ParserContext {
                     Token::Group => Type::Group,
                     Token::Address => Type::Address,
                     Token::Bool => Type::Boolean,
+                    Token::Char => Type::Char,
                     x => Type::IntegerType(Self::token_to_int_type(x).expect("invalid int type")),
                 },
                 token.span,

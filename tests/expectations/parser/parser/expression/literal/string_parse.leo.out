@@ -1,0 +1,130 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Value:
+      String:
+        - string
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: test
+          content: "\"string\""
+  - Value:
+      String:
+        - "another { } string"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 21
+          path: test
+          content: "\"another { } string\""
+  - Value:
+      String:
+        - "{ ] [ ; a"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: test
+          content: "\"{ ] [ ; a\""
+  - Value:
+      String:
+        - ࿺
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 10
+          path: test
+          content: "\"\\u{FFA}\""
+  - Value:
+      String:
+        - 򯫺
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 12
+          path: test
+          content: "\"\\u{afafa}\""
+  - Value:
+      String:
+        - 꾯
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 11
+          path: test
+          content: "\"\\u{afaf}\""
+  - Value:
+      String:
+        - ૺ
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 10
+          path: test
+          content: "\"\\u{afa}\""
+  - Value:
+      String:
+        - ¯
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: test
+          content: "\"\\u{af}\""
+  - Value:
+      String:
+        - "\n"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: test
+          content: "\"\\u{a}\""
+  - Value:
+      String:
+        - "\n"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "\"\\x0A\""
+  - Value:
+      String:
+        - 
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "\"\\x7F\""
+  - Value:
+      String:
+        - "aa \\ \"  \n aa \t \r  \u0000"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 28
+          path: test
+          content: "\"aa \\\\ \\\"  \\n aa \\t \\r  \\0\""
+  - Value:
+      String:
+        - test 😒€
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 15
+          path: test
+          content: "\"test 😒€\""
+  - Value:
+      String:
+        - 😭😂😘
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 15
+          path: test
+          content: "\"😭😂😘\""

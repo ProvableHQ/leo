@@ -14,7 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::{AddressError, BooleanError, FieldError, FunctionError, GroupError, IntegerError, ValueError};
+use crate::errors::{
+    AddressError,
+    BooleanError,
+    CharError,
+    FieldError,
+    FunctionError,
+    GroupError,
+    IntegerError,
+    ValueError,
+};
 use leo_ast::{FormattedError, Identifier, LeoError, Span};
 use snarkvm_r1cs::SynthesisError;
 
@@ -25,6 +34,9 @@ pub enum ExpressionError {
 
     #[error("{}", _0)]
     BooleanError(#[from] BooleanError),
+
+    #[error("{}", _0)]
+    CharError(#[from] CharError),
 
     #[error("{}", _0)]
     Error(#[from] FormattedError),

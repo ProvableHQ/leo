@@ -1,0 +1,42 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 6
+      num_constraints: 4
+      at: 2859fe6f24016b5634df2791da7de932e68ec32c73b5b573e0c39e968c7a4e12
+      bt: 8143508f19c8eee208a7fbbcfb833aeeace6ba0a761e41d028599d2237cc60fa
+      ct: d0c6feeed1e6b8d5c0e03dc9e25641b7fdc34ad912e2b1488296d4a99ed6cbf5
+    output:
+      - input_file: inputs/ascii.in
+        output:
+          registers:
+            r:
+              type: char
+              value: a
+      - input_file: inputs/escaped_unicode.in
+        output:
+          registers:
+            r:
+              type: char
+              value: ❤
+      - input_file: inputs/escaped.in
+        output:
+          registers:
+            r:
+              type: char
+              value: "'"
+      - input_file: inputs/hex.in
+        output:
+          registers:
+            r:
+              type: char
+              value: "*"
+      - input_file: inputs/unicode.in
+        output:
+          registers:
+            r:
+              type: char
+              value: ❤

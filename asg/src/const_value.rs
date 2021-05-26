@@ -109,6 +109,7 @@ pub enum ConstValue {
     Field(BigInt),
     Address(StrTendril),
     Boolean(bool),
+    Char(char),
 
     // compounds
     Tuple(Vec<ConstValue>),
@@ -302,6 +303,7 @@ impl ConstValue {
             ConstValue::Field(_) => Type::Field,
             ConstValue::Address(_) => Type::Address,
             ConstValue::Boolean(_) => Type::Boolean,
+            ConstValue::Char(_) => Type::Char,
             ConstValue::Tuple(sub_consts) => {
                 Type::Tuple(sub_consts.iter().map(|x| x.get_type()).collect::<Option<Vec<Type>>>()?)
             }

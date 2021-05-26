@@ -15,4 +15,4 @@ outputs:
           registers:
             r0:
               type: bool
-              value: "true"
+              value: "false"

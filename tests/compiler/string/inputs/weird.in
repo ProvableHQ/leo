@@ -1,0 +1,6 @@
+[main]
+s1: [char; 13] = "\"ello, World\"";
+s2: [char; 4] = "\u{2764}\x2A\x09\u{2764}";
+
+[registers]
+out: bool = true;

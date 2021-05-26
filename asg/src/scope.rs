@@ -178,6 +178,7 @@ impl<'a> Scope<'a> {
         Ok(match type_ {
             Address => Type::Address,
             Boolean => Type::Boolean,
+            Char => Type::Char,
             Field => Type::Field,
             Group => Type::Group,
             IntegerType(int_type) => Type::Integer(int_type.clone()),

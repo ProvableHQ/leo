@@ -1,0 +1,8 @@
+[main]
+y: bool = true;
+
+[constants]
+a: [char; 5] = "😭😂👍😁😘";
+
+[registers]
+r0: bool = true;

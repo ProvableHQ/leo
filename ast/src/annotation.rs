@@ -19,7 +19,7 @@ use crate::{Identifier, Span};
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Annotation {
     pub span: Span,
     pub name: Identifier,

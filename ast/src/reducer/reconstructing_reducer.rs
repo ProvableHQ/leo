@@ -51,11 +51,14 @@ pub trait ReconstructingReducer {
         Ok(new)
     }
 
-    fn reduce_value(
-        &mut self,
-        _value: &ValueExpression,
-        new: ValueExpression,
-    ) -> Result<ValueExpression, ReducerError> {
+    fn reduce_string(&mut self, string: &str, span: &Span) -> Result<Expression, ReducerError> {
+        Ok(Expression::Value(ValueExpression::String(
+            string.to_string(),
+            span.clone(),
+        )))
+    }
+
+    fn reduce_value(&mut self, _value: &ValueExpression, new: Expression) -> Result<Expression, ReducerError> {
         Ok(new)
     }
 

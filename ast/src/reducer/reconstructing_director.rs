@@ -51,7 +51,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_expression(&mut self, expression: &Expression) -> Result<Expression, ReducerError> {
         let new = match expression {
             Expression::Identifier(identifier) => Expression::Identifier(self.reduce_identifier(&identifier)?),
-            Expression::Value(value) => Expression::Value(self.reduce_value(&value)?),
+            Expression::Value(value) => self.reduce_value(&value)?,
             Expression::Binary(binary) => Expression::Binary(self.reduce_binary(&binary)?),
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(&unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(&ternary)?),
@@ -100,12 +100,17 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_group_value(group_value, new)
     }
 
-    pub fn reduce_value(&mut self, value: &ValueExpression) -> Result<ValueExpression, ReducerError> {
+    pub fn reduce_string(&mut self, string: &str, span: &Span) -> Result<Expression, ReducerError> {
+        self.reducer.reduce_string(string, span)
+    }
+
+    pub fn reduce_value(&mut self, value: &ValueExpression) -> Result<Expression, ReducerError> {
         let new = match value {
             ValueExpression::Group(group_value) => {
-                ValueExpression::Group(Box::new(self.reduce_group_value(&group_value)?))
+                Expression::Value(ValueExpression::Group(Box::new(self.reduce_group_value(&group_value)?)))
             }
-            _ => value.clone(),
+            ValueExpression::String(string, span) => self.reduce_string(string, &span)?,
+            _ => Expression::Value(value.clone()),
         };
 
         self.reducer.reduce_value(value, new)

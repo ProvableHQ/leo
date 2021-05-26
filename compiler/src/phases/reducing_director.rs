@@ -152,9 +152,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         asg: &AsgExpression,
     ) -> Result<AstExpression, ReducerError> {
         let new = match (ast, asg) {
-            (AstExpression::Value(value), AsgExpression::Constant(const_)) => {
-                AstExpression::Value(self.reduce_value(&value, &const_)?)
-            }
+            (AstExpression::Value(value), AsgExpression::Constant(const_)) => self.reduce_value(&value, &const_)?,
             (AstExpression::Binary(ast), AsgExpression::Binary(asg)) => {
                 AstExpression::Binary(self.reduce_binary(&ast, &asg)?)
             }
@@ -404,7 +402,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         self.ast_reducer.reduce_unary(ast, inner, ast.op.clone())
     }
 
-    pub fn reduce_value(&mut self, ast: &ValueExpression, asg: &AsgConstant) -> Result<ValueExpression, ReducerError> {
+    pub fn reduce_value(&mut self, ast: &ValueExpression, asg: &AsgConstant) -> Result<AstExpression, ReducerError> {
         let mut new = ast.clone();
 
         if self.options.type_inference_enabled() {
@@ -433,12 +431,22 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                     ConstValue::Boolean(_) => {
                         new = ValueExpression::Boolean(tendril.clone(), span.clone());
                     }
+                    ConstValue::Char(_) => {
+                        if let Some(c) = tendril.chars().next() {
+                            new = ValueExpression::Char(c, span.clone());
+                        } else {
+                            return Err(ReducerError::failed_to_convert_tendril_to_char(
+                                tendril.to_string(),
+                                span,
+                            ));
+                        }
+                    }
                     _ => unimplemented!(), // impossible?
                 }
             }
         }
 
-        self.ast_reducer.reduce_value(ast, new)
+        self.ast_reducer.reduce_value(ast, AstExpression::Value(new))
     }
 
     pub fn reduce_variable_ref(

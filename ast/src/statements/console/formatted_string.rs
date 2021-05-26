@@ -26,6 +26,33 @@ pub enum FormatStringPart {
     Container,
 }
 
+impl FormatStringPart {
+    pub fn from_string(string: String) -> Vec<Self> {
+        let mut parts = Vec::new();
+        let mut in_container = false;
+        let mut start = 0;
+        for (index, character) in string.chars().enumerate() {
+            match character {
+                '{' if !in_container => {
+                    parts.push(FormatStringPart::Const(string[start..index].into()));
+                    start = index;
+                    in_container = true;
+                }
+                '}' if in_container => {
+                    in_container = false;
+                    parts.push(FormatStringPart::Container);
+                }
+                _ if in_container => {
+                    in_container = false;
+                }
+                _ => {}
+            }
+        }
+
+        parts
+    }
+}
+
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct FormatString {
     pub parts: Vec<FormatStringPart>,
@@ -41,8 +68,8 @@ impl fmt::Display for FormatString {
             self.parts
                 .iter()
                 .map(|x| match x {
-                    FormatStringPart::Const(x) => x,
-                    FormatStringPart::Container => "{}",
+                    FormatStringPart::Const(x) => x.to_string(),
+                    FormatStringPart::Container => "{}".to_string(),
                 })
                 .collect::<Vec<_>>()
                 .join("")

@@ -17,6 +17,7 @@ outputs:
       function:
         Error:
           parts:
+            - Const: ""
             - Container
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
@@ -38,7 +39,9 @@ outputs:
       function:
         Error:
           parts:
+            - Const: ""
             - Container
+            - Const: "{}"
             - Container
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
@@ -60,8 +63,7 @@ outputs:
   - Console:
       function:
         Error:
-          parts:
-            - Const: x
+          parts: []
           parameters: []
           span:
             line_start: 1
@@ -81,6 +83,7 @@ outputs:
       function:
         Debug:
           parts:
+            - Const: ""
             - Container
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"console.debug(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
@@ -102,7 +105,9 @@ outputs:
       function:
         Debug:
           parts:
+            - Const: ""
             - Container
+            - Const: "{}"
             - Container
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"console.debug(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
@@ -124,8 +129,7 @@ outputs:
   - Console:
       function:
         Debug:
-          parts:
-            - Const: x
+          parts: []
           parameters: []
           span:
             line_start: 1
@@ -145,6 +149,7 @@ outputs:
       function:
         Log:
           parts:
+            - Const: ""
             - Container
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
@@ -166,7 +171,9 @@ outputs:
       function:
         Log:
           parts:
+            - Const: ""
             - Container
+            - Const: "{}"
             - Container
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
@@ -188,8 +195,7 @@ outputs:
   - Console:
       function:
         Log:
-          parts:
-            - Const: x
+          parts: []
           parameters: []
           span:
             line_start: 1

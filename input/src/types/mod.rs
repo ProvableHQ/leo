@@ -26,6 +26,9 @@ pub use array_type::*;
 pub mod boolean_type;
 pub use boolean_type::*;
 
+pub mod char_type;
+pub use char_type::*;
+
 pub mod data_type;
 pub use data_type::*;
 

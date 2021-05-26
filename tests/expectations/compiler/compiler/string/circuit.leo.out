@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 141
+      num_constraints: 115
+      at: 145ada587c833434abb89c3349d19e06365fda3eb9b2a227046a78469e3ca313
+      bt: f2945a3bc1beaee407bb4ec35303115a93a8c68886d97011cd65ec6d899664e8
+      ct: 10b997b6341b3cf811cb7b0fdb891f91006d41c50e9f9566ff92f92816153dfc
+    output:
+      - input_file: inputs/string_out.in
+        output:
+          registers:
+            out:
+              type: "[char; 13]"
+              value: "Hello, World!"

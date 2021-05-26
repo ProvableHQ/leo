@@ -984,11 +984,326 @@
                 "content": "  const m = Foo {};"
               }
             }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"n\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const n = 'a';\\\"}\"}",
+                  "span": {
+                    "line_start": 23,
+                    "line_stop": 23,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const n = 'a';"
+                  }
+                }
+              ],
+              "type_": "Char",
+              "value": {
+                "Value": {
+                  "Char": [
+                    "a",
+                    {
+                      "line_start": 23,
+                      "line_stop": 23,
+                      "col_start": 13,
+                      "col_stop": 16,
+                      "path": "",
+                      "content": "  const n = 'a';"
+                    }
+                  ]
+                }
+              },
+              "span": {
+                "line_start": 23,
+                "line_stop": 23,
+                "col_start": 3,
+                "col_stop": 16,
+                "path": "",
+                "content": "  const n = 'a';"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"o\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const o = \\\\\\\"Hello, World!\\\\\\\";\\\"}\"}",
+                  "span": {
+                    "line_start": 24,
+                    "line_stop": 24,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const o = \"Hello, World!\";"
+                  }
+                }
+              ],
+              "type_": {
+                "Array": [
+                  "Char",
+                  [
+                    {
+                      "value": "13"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "H",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "e",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "l",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "l",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "o",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            ",",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            " ",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "W",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "o",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "r",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "l",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "d",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "!",
+                            {
+                              "line_start": 24,
+                              "line_stop": 24,
+                              "col_start": 13,
+                              "col_stop": 28,
+                              "path": "",
+                              "content": "  const o = \"Hello, World!\";"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "span": {
+                    "line_start": 24,
+                    "line_stop": 24,
+                    "col_start": 13,
+                    "col_stop": 28,
+                    "path": "",
+                    "content": "  const o = \"Hello, World!\";"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 24,
+                "line_stop": 24,
+                "col_start": 3,
+                "col_stop": 28,
+                "path": "",
+                "content": "  const o = \"Hello, World!\";"
+              }
+            }
           }
         ],
         "span": {
           "line_start": 9,
-          "line_stop": 23,
+          "line_stop": 25,
           "col_start": 17,
           "col_stop": 2,
           "path": "",
@@ -997,11 +1312,11 @@
       },
       "span": {
         "line_start": 9,
-        "line_stop": 23,
+        "line_stop": 25,
         "col_start": 1,
         "col_stop": 2,
         "path": "",
-        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n"
+        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
       }
     }
   }

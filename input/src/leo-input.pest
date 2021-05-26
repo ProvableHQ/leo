@@ -9,6 +9,7 @@ protected_name = {
     | "else"
     | "false"
     | type_field
+    | type_char
     | "for"
     | "function"
     | type_group
@@ -73,6 +74,9 @@ type_integer_signed = {
     | type_i128
 }
 
+// Declared in types/char_type.rs
+type_char = { "char" }
+
 // Declared in types/field_type.rs
 type_field = { "field" }
 
@@ -86,7 +90,7 @@ type_boolean = { "bool" }
 type_address = { "address" }
 
 // Declared in types/data_type.rs
-type_data = { type_field | type_group | type_boolean | type_address | type_integer }
+type_data = { type_field | type_group | type_boolean | type_address | type_integer | type_char }
 
 // Declared in types/array_type.rs
 type_array = { "[" ~ type_ ~ ";" ~ array_dimensions ~ "]" }
@@ -115,6 +119,7 @@ value = {
     | value_boolean
     | value_field
     | value_group
+    | value_char
     | value_integer
     | value_number // must be last as a catch all
 }
@@ -128,6 +133,22 @@ number_negative = @{ "-" ~ ASCII_DIGIT+ }
 // Declared in values/number_positive.rs
 number_positive = @{ ASCII_DIGIT+ }
 
+// Decalred in values/char_types.rs
+// ANY is equivalent to '\u{00}'..'\u{10FFFF}'
+basic_char = { ANY }
+escaped_char = @{ "\\" ~ ("\"" | "\'" | "\\" | "/" | "b" | "f" | "n" | "r" | "t") }
+hex_char = @{ "\\" ~ "x" ~ ASCII_HEX_DIGIT{2} }
+unicode_char = @{ "\\" ~ "u" ~ "{" ~ ASCII_HEX_DIGIT{1, 6} ~ "}" }
+
+char_types = {
+    escaped_char
+    | unicode_char
+    | hex_char
+    | basic_char
+}
+
+// Declared in values/char_value.rs
+value_char = ${ "\'" ~ char_types ~ "\'" }
 
 // Declared in values/integer_value.rs
 value_integer = { value_integer_signed | value_integer_unsigned}
@@ -179,12 +200,16 @@ expression_array_initializer = { "[" ~ expression ~ ";" ~ array_dimensions ~ "]"
 expression_array_inline = { "[" ~ NEWLINE* ~ inline_array_inner ~ NEWLINE* ~ "]"}
 inline_array_inner = _{ (expression ~ ("," ~ NEWLINE* ~ expression)*)? }
 
+// Declared in expressions/string_expression.rs
+expression_string = ${ "\"" ~ (!"\"" ~ char_types)+ ~ "\"" }
+
 // Declared in expressions/expression.rs
 expression = {
     value
     | expression_tuple
     | expression_array_inline
     | expression_array_initializer
+    | expression_string
 }
 expression_tuple = { "(" ~ expression ~ ("," ~ expression)+ ~")" }
 

@@ -83,6 +83,27 @@ impl InputParserError {
         Self::new_from_span(message, span)
     }
 
+    pub fn invalid_char(character: String, span: &Span) -> Self {
+        let message = format!("Expected valid character found `{}`", character);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_string_dimensions(span: &Span) -> Self {
+        let message = "String type defintion of a char array should not be multi-dimensional".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn invalid_string_length(expected: usize, received: usize, span: &Span) -> Self {
+        let message = format!(
+            "Expected size of char array `{}` to match string size instead received `{}`",
+            expected, received
+        );
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn implicit_type(data_type: DataType, implicit: NumberValue) -> Self {
         let message = format!("expected `{}`, found `{}`", data_type, implicit);
 

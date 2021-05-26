@@ -24,6 +24,7 @@ pub enum ValueExpression {
     // todo: deserialize values here
     Address(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
     Boolean(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Char(char, Span),
     Field(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
     Group(Box<GroupValue>),
     Implicit(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
@@ -32,6 +33,7 @@ pub enum ValueExpression {
         #[serde(with = "crate::common::tendril_json")] StrTendril,
         Span,
     ),
+    String(String, Span),
 }
 
 impl fmt::Display for ValueExpression {
@@ -40,10 +42,12 @@ impl fmt::Display for ValueExpression {
         match &self {
             Address(address, _) => write!(f, "{}", address),
             Boolean(boolean, _) => write!(f, "{}", boolean),
+            Char(character, _) => write!(f, "{}", character),
             Field(field, _) => write!(f, "{}", field),
             Implicit(implicit, _) => write!(f, "{}", implicit),
             Integer(value, type_, _) => write!(f, "{}{}", value, type_),
             Group(group) => write!(f, "{}", group),
+            String(string, _) => write!(f, "{}", string),
         }
     }
 }
@@ -52,7 +56,13 @@ impl Node for ValueExpression {
     fn span(&self) -> &Span {
         use ValueExpression::*;
         match &self {
-            Address(_, span) | Boolean(_, span) | Field(_, span) | Implicit(_, span) | Integer(_, _, span) => span,
+            Address(_, span)
+            | Boolean(_, span)
+            | Char(_, span)
+            | Field(_, span)
+            | Implicit(_, span)
+            | Integer(_, _, span)
+            | String(_, span) => span,
             Group(group) => match &**group {
                 GroupValue::Single(_, span) | GroupValue::Tuple(GroupTuple { span, .. }) => span,
             },
@@ -62,9 +72,13 @@ impl Node for ValueExpression {
     fn set_span(&mut self, new_span: Span) {
         use ValueExpression::*;
         match self {
-            Address(_, span) | Boolean(_, span) | Field(_, span) | Implicit(_, span) | Integer(_, _, span) => {
-                *span = new_span
-            }
+            Address(_, span)
+            | Boolean(_, span)
+            | Char(_, span)
+            | Field(_, span)
+            | Implicit(_, span)
+            | Integer(_, _, span)
+            | String(_, span) => *span = new_span,
             Group(group) => match &mut **group {
                 GroupValue::Single(_, span) | GroupValue::Tuple(GroupTuple { span, .. }) => *span = new_span,
             },

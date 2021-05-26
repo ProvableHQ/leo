@@ -25,6 +25,7 @@ pub enum Type<'a> {
     // Data types
     Address,
     Boolean,
+    Char,
     Field,
     Group,
     Integer(IntegerType),
@@ -134,6 +135,7 @@ impl<'a> fmt::Display for Type<'a> {
         match self {
             Type::Address => write!(f, "address"),
             Type::Boolean => write!(f, "bool"),
+            Type::Char => write!(f, "char"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::Integer(sub_type) => sub_type.fmt(f),
@@ -199,6 +201,7 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
         match self {
             Address => leo_ast::Type::Address,
             Boolean => leo_ast::Type::Boolean,
+            Char => leo_ast::Type::Char,
             Field => leo_ast::Type::Field,
             Group => leo_ast::Type::Group,
             Integer(int_type) => leo_ast::Type::IntegerType(int_type.clone()),

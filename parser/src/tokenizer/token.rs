@@ -18,22 +18,6 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use tendril::StrTendril;
 
-/// Parts of a formatted string for logging to the console.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum FormatStringPart {
-    Const(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
-    Container,
-}
-
-impl fmt::Display for FormatStringPart {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            FormatStringPart::Const(c) => write!(f, "{}", c),
-            FormatStringPart::Container => write!(f, "{{}}"),
-        }
-    }
-}
-
 /// Represents all valid Leo syntax tokens.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Token {
@@ -41,12 +25,13 @@ pub enum Token {
     // Literals
     CommentLine(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     CommentBlock(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
-    FormatString(Vec<FormatStringPart>),
+    StringLit(String),
     Ident(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Int(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     True,
     False,
     AddressLit(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
+    CharLit(char),
 
     At,
 
@@ -104,6 +89,7 @@ pub enum Token {
     Group,
     Bool,
     Address,
+    Char,
     BigSelf,
 
     // primary expresion
@@ -156,6 +142,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Address,
     Token::As,
     Token::Bool,
+    Token::Char,
     Token::Circuit,
     Token::Console,
     Token::Const,
@@ -204,19 +191,13 @@ impl fmt::Display for Token {
         match self {
             CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
-            FormatString(parts) => {
-                // todo escapes
-                write!(f, "\"")?;
-                for part in parts.iter() {
-                    part.fmt(f)?;
-                }
-                write!(f, "\"")
-            }
+            StringLit(content) => write!(f, "\"{}\"", content),
             Ident(s) => write!(f, "{}", s),
             Int(s) => write!(f, "{}", s),
             True => write!(f, "true"),
             False => write!(f, "false"),
             AddressLit(s) => write!(f, "{}", s),
+            CharLit(s) => write!(f, "{}", s),
 
             At => write!(f, "@"),
 
@@ -271,6 +252,7 @@ impl fmt::Display for Token {
             Group => write!(f, "group"),
             Bool => write!(f, "bool"),
             Address => write!(f, "address"),
+            Char => write!(f, "char"),
             BigSelf => write!(f, "Self"),
 
             Input => write!(f, "input"),

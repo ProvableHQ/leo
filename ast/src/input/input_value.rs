@@ -17,9 +17,18 @@
 use crate::{ArrayDimensions, GroupValue};
 use leo_input::{
     errors::InputParserError,
-    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, TupleExpression},
-    types::{ArrayType, DataType, IntegerType, TupleType, Type},
-    values::{Address, AddressValue, BooleanValue, FieldValue, GroupValue as InputGroupValue, NumberValue, Value},
+    expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
+    types::{ArrayType, CharType, DataType, IntegerType, TupleType, Type},
+    values::{
+        Address,
+        AddressValue,
+        BooleanValue,
+        CharValue,
+        FieldValue,
+        GroupValue as InputGroupValue,
+        NumberValue,
+        Value,
+    },
 };
 use pest::Span;
 
@@ -29,6 +38,7 @@ use std::fmt;
 pub enum InputValue {
     Address(String),
     Boolean(bool),
+    Char(char),
     Field(String),
     Group(GroupValue),
     Integer(IntegerType, String),
@@ -53,6 +63,11 @@ impl InputValue {
         Ok(InputValue::Boolean(boolean))
     }
 
+    fn from_char(character: CharValue) -> Result<Self, InputParserError> {
+        let character = character.value.inner()?;
+        Ok(InputValue::Char(character))
+    }
+
     fn from_number(integer_type: IntegerType, number: String) -> Self {
         InputValue::Integer(integer_type, number)
     }
@@ -69,6 +84,7 @@ impl InputValue {
         match data_type {
             DataType::Address(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Boolean(_) => Err(InputParserError::implicit_type(data_type, implicit)),
+            DataType::Char(_) => Err(InputParserError::implicit_type(data_type, implicit)),
             DataType::Integer(integer_type) => Ok(InputValue::from_number(integer_type, implicit.to_string())),
             DataType::Group(_) => Err(InputParserError::implicit_group(implicit)),
             DataType::Field(_) => Ok(InputValue::Field(implicit.to_string())),
@@ -79,6 +95,7 @@ impl InputValue {
         match (data_type, value) {
             (DataType::Address(_), Value::Address(address)) => Ok(InputValue::from_address_value(address)),
             (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
+            (DataType::Char(_), Value::Char(character)) => InputValue::from_char(character),
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
                 Ok(InputValue::from_number(integer_type, integer.to_string()))
             }
@@ -98,9 +115,58 @@ impl InputValue {
             (Type::Array(array_type), Expression::ArrayInitializer(initializer)) => {
                 InputValue::from_array_initializer(array_type, initializer)
             }
+            (Type::Array(array_type), Expression::StringExpression(string)) => {
+                InputValue::from_string(array_type, string)
+            }
             (Type::Tuple(tuple_type), Expression::Tuple(tuple)) => InputValue::from_tuple(tuple_type, tuple),
             (type_, expression) => Err(InputParserError::expression_type_mismatch(type_, expression)),
         }
+    }
+
+    ///
+    /// Returns a new `InputValue` from the given `ArrayType` and `StringExpression`.
+    ///
+    pub(crate) fn from_string(mut array_type: ArrayType, string: StringExpression) -> Result<Self, InputParserError> {
+        // Create a new `ArrayDimensions` type from the input array_type dimensions.
+        let array_dimensions_type = ArrayDimensions::from(array_type.dimensions.clone());
+        assert!(matches!(*array_type.type_, Type::Basic(DataType::Char(CharType {}))));
+
+        // Convert the array dimensions to usize.
+        let array_dimensions = parse_array_dimensions(array_dimensions_type, &array_type.span)?;
+
+        // Return an error if the outer array dimension does not equal the number of array elements.
+        if array_dimensions[0] != string.chars.len() {
+            return Err(InputParserError::invalid_string_length(
+                array_dimensions[0],
+                string.chars.len(),
+                &string.span,
+            ));
+        }
+
+        array_type.dimensions = array_type.dimensions.next_dimension();
+
+        let inner_array_type = if array_dimensions.len() == 1 {
+            // This is a single array
+            *array_type.type_
+        } else {
+            // This is a multi-dimensional array
+            return Err(InputParserError::invalid_string_dimensions(&array_type.span));
+        };
+
+        let mut elements = Vec::with_capacity(string.chars.len());
+        for character in string.chars.into_iter() {
+            let element = InputValue::from_expression(
+                inner_array_type.clone(),
+                Expression::Value(Value::Char(CharValue {
+                    value: character.clone(),
+                    span: character.span().clone(),
+                })),
+            )?;
+
+            elements.push(element)
+        }
+
+        Ok(InputValue::Array(elements))
     }
 
     ///
@@ -303,6 +369,7 @@ impl fmt::Display for InputValue {
         match self {
             InputValue::Address(ref address) => write!(f, "{}", address),
             InputValue::Boolean(ref boolean) => write!(f, "{}", boolean),
+            InputValue::Char(ref character) => write!(f, "{}", character),
             InputValue::Group(ref group) => write!(f, "{}", group),
             InputValue::Field(ref field) => write!(f, "{}", field),
             InputValue::Integer(ref type_, ref number) => write!(f, "{}{:?}", number, type_),

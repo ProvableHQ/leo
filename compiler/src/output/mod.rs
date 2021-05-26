@@ -47,7 +47,10 @@ impl fmt::Display for Output {
         writeln!(f, "[{}]", REGISTERS_VARIABLE_NAME)?;
         // format: "token_id: u64 = 1u64;"
         for (name, register) in self.registers.iter() {
-            writeln!(f, "{}: {} = {};", name, register.type_, register.value)?;
+            match register.type_.as_str() {
+                "char" => writeln!(f, "{}: {} = '{}';", name, register.type_, register.value)?,
+                _ => writeln!(f, "{}: {} = {};", name, register.type_, register.value)?,
+            }
         }
         Ok(())
     }

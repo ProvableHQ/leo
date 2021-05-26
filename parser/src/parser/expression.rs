@@ -689,6 +689,8 @@ impl ParserContext {
             Token::True => Expression::Value(ValueExpression::Boolean("true".into(), span)),
             Token::False => Expression::Value(ValueExpression::Boolean("false".into(), span)),
             Token::AddressLit(value) => Expression::Value(ValueExpression::Address(value, span)),
+            Token::CharLit(value) => Expression::Value(ValueExpression::Char(value, span)),
+            Token::StringLit(value) => Expression::Value(ValueExpression::String(value, span)),
             Token::LeftParen => self.parse_tuple_expression(&span)?,
             Token::LeftSquare => self.parse_array_expression(&span)?,
             Token::Ident(name) => {

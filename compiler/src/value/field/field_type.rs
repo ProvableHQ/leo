@@ -26,8 +26,9 @@ use snarkvm_gadgets::{
         fields::FieldGadget,
         utilities::{
             alloc::AllocGadget,
+            bits::comparator::{ComparatorGadget, EvaluateLtGadget},
             boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget, NEqGadget},
             select::CondSelectGadget,
             uint::UInt8,
             ToBitsBEGadget,
@@ -36,8 +37,6 @@ use snarkvm_gadgets::{
     },
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
-
-use snarkvm_gadgets::utilities::eq::NEqGadget;
 use std::{borrow::Borrow, cmp::Ordering};
 
 #[derive(Clone, Debug)]
@@ -50,7 +49,7 @@ impl<F: PrimeField> FieldType<F> {
     }
 
     /// Returns a new `FieldType` from the given `String` or returns a `FieldError`.
-    pub fn constant<CS: ConstraintSystem<F>>(_cs: CS, string: String, span: &Span) -> Result<Self, FieldError> {
+    pub fn constant<CS: ConstraintSystem<F>>(cs: CS, string: String, span: &Span) -> Result<Self, FieldError> {
         let number_info = number_string_typing(&string);
 
         let value = match number_info {
@@ -60,7 +59,7 @@ impl<F: PrimeField> FieldType<F> {
             (number, _) => F::from_str(&number).map_err(|_| FieldError::invalid_field(string.clone(), span))?,
         };
 
-        let value = FpGadget::alloc_constant(_cs, || Ok(value)).map_err(|_| FieldError::invalid_field(string, span))?;
+        let value = FpGadget::alloc_constant(cs, || Ok(value)).map_err(|_| FieldError::invalid_field(string, span))?;
 
         Ok(FieldType(value))
     }
@@ -170,6 +169,14 @@ impl<F: PrimeField> PartialOrd for FieldType<F> {
         Option::from(self_value.cmp(&other_value))
     }
 }
+
+impl<F: PrimeField> EvaluateLtGadget<F> for FieldType<F> {
+    fn less_than<CS: ConstraintSystem<F>>(&self, _cs: CS, _other: &Self) -> Result<Boolean, SynthesisError> {
+        unimplemented!()
+    }
+}
+
+impl<F: PrimeField> ComparatorGadget<F> for FieldType<F> {}
 
 impl<F: PrimeField> EvaluateEqGadget<F> for FieldType<F> {
     fn evaluate_equal<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self) -> Result<Boolean, SynthesisError> {

@@ -20,6 +20,9 @@ pub use self::address::*;
 pub mod boolean;
 pub use self::boolean::*;
 
+pub mod char;
+pub use self::char::*;
+
 pub mod field;
 pub use self::field::*;
 

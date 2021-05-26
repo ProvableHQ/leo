@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::tokenizer::{FormatStringPart, Token};
+use crate::tokenizer::Token;
 use leo_ast::Span;
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
@@ -45,6 +45,7 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
         return None;
     }
     let input = input_tendril[..].as_bytes();
+
     if !input[0].is_ascii_alphabetic() {
         return None;
     }
@@ -60,6 +61,80 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
 }
 
 impl Token {
+    ///
+    /// Returns a `char` if an character can be eaten, otherwise returns [`None`].
+    ///
+    fn eat_char(input_tendril: StrTendril, escaped: bool, hex: bool, unicode: bool) -> Option<char> {
+        if input_tendril.is_empty() {
+            return None;
+        }
+
+        if escaped {
+            let string = input_tendril.to_string();
+            let escaped = &string[1..string.len()];
+
+            if escaped.len() != 1 {
+                return None;
+            }
+
+            if let Some(character) = escaped.chars().next() {
+                return match character {
+                    '0' => Some(0 as char),
+                    't' => Some(9 as char),
+                    'n' => Some(10 as char),
+                    'r' => Some(13 as char),
+                    '\"' => Some(34 as char),
+                    '\'' => Some(39 as char),
+                    '\\' => Some(92 as char),
+                    _ => None,
+                };
+            } else {
+                return None;
+            }
+        }
+
+        if hex {
+            let string = input_tendril.to_string();
+            let hex_string = &string[2..string.len()];
+
+            if hex_string.len() != 2 {
+                return None;
+            }
+
+            if let Ok(ascii_number) = u8::from_str_radix(&hex_string, 16) {
+                // According to RFC, we allow only values less than 128.
+                if ascii_number > 127 {
+                    return None;
+                }
+
+                return Some(ascii_number as char);
+            }
+        }
+
+        if unicode {
+            let string = input_tendril.to_string();
+            let unicode_number = &string[3..string.len() - 1];
+            let len = unicode_number.len();
+            if !(1..=6).contains(&len) {
+                return None;
+            }
+
+            if let Ok(hex) = u32::from_str_radix(&unicode_number, 16) {
+                if let Some(character) = std::char::from_u32(hex) {
+                    return Some(character);
+                }
+            }
+        }
+
+        if input_tendril.to_string().chars().count() != 1 {
+            return None;
+        } else if let Some(character) = input_tendril.to_string().chars().next() {
+            return Some(character);
+        }
+
+        None
+    }
+
     ///
     /// Returns a tuple: [(integer length, integer token)] if an integer can be eaten, otherwise returns [`None`].
     /// An integer can be eaten if its bytes are at the front of the given `input_tendril` string.
@@ -93,6 +168,23 @@ impl Token {
         (i, Some(Token::Int(input_tendril.subtendril(0, i as u32))))
     }
 
+    /// Returns the number of bytes in an emoji via a bit mask.
+    fn utf8_byte_count(byte: u8) -> u8 {
+        let mut mask = 0x80;
+        let mut result = 0;
+        while byte & mask > 0 {
+            result += 1;
+            mask >>= 1;
+        }
+        if result == 0 {
+            1
+        } else if result > 4 {
+            4
+        } else {
+            result
+        }
+    }
+
     ///
     /// Returns a tuple: [(token length, token)] if the next token can be eaten, otherwise returns [`None`].
     /// The next token can be eaten if the bytes at the front of the given `input_tendril` string can be scanned into a token.
@@ -106,48 +198,126 @@ impl Token {
             x if x.is_ascii_whitespace() => return (1, None),
             b'"' => {
                 let mut i = 1;
+                let mut len: u8 = 1;
+                let mut start = 1;
                 let mut in_escape = false;
-                let mut start = 1usize;
-                let mut segments = Vec::new();
+                let mut escaped = false;
+                let mut hex = false;
+                let mut unicode = false;
+                let mut end = false;
+                let mut string = String::new();
+
                 while i < input.len() {
+                    // If it's an emoji get the length.
+                    if input[i] & 0x80 > 0 {
+                        len = Self::utf8_byte_count(input[i]);
+                        i += (len as usize) - 1;
+                    }
+
                     if !in_escape {
                         if input[i] == b'"' {
+                            end = true;
                             break;
-                        }
-                        if input[i] == b'\\' {
-                            in_escape = !in_escape;
-                        } else if i < input.len() - 1 && input[i] == b'{' {
-                            if i < input.len() - 2 && input[i + 1] == b'{' {
-                                i += 2;
-                                continue;
-                            } else if input[i + 1] != b'}' {
-                                i += 1;
-                                continue;
-                            }
-                            if start < i {
-                                segments.push(FormatStringPart::Const(
-                                    input_tendril.subtendril(start as u32, (i - start) as u32),
-                                ));
-                            }
-                            segments.push(FormatStringPart::Container);
-                            start = i + 2;
-                            i = start;
+                        } else if input[i] == b'\\' {
+                            in_escape = true;
+                            start = i;
+                            i += 1;
                             continue;
                         }
                     } else {
-                        in_escape = false;
+                        len += 1;
+
+                        match input[i] {
+                            b'x' => {
+                                hex = true;
+                            }
+                            b'u' => {
+                                unicode = true;
+                            }
+                            b'}' if unicode => {
+                                in_escape = false;
+                            }
+                            _ if !hex && !unicode => {
+                                escaped = true;
+                                in_escape = false;
+                            }
+                            _ if hex && len == 4 => {
+                                in_escape = false;
+                            }
+                            _ => {}
+                        }
                     }
+
+                    if !in_escape {
+                        match Self::eat_char(
+                            input_tendril.subtendril(start as u32, len as u32),
+                            escaped,
+                            hex,
+                            unicode,
+                        ) {
+                            Some(character) => {
+                                len = 1;
+                                escaped = false;
+                                hex = false;
+                                unicode = false;
+                                string.push(character);
+                            }
+                            None => return (0, None),
+                        }
+                    }
+
                     i += 1;
+
+                    if !escaped && !hex && !unicode {
+                        start = i;
+                    }
                 }
-                if i == input.len() {
+
+                if i == input.len() || i == 1 || !end {
                     return (0, None);
                 }
-                if start < i {
-                    segments.push(FormatStringPart::Const(
-                        input_tendril.subtendril(start as u32, (i - start) as u32),
-                    ));
+
+                return (i + 1, Some(Token::StringLit(string)));
+            }
+            b'\'' => {
+                let mut i = 1;
+                let mut in_escape = false;
+                let mut escaped = false;
+                let mut hex = false;
+                let mut unicode = false;
+                let mut end = false;
+
+                while i < input.len() {
+                    if !in_escape {
+                        if input[i] == b'\'' {
+                            end = true;
+                            break;
+                        } else if input[i] == b'\\' {
+                            in_escape = true;
+                        }
+                    } else {
+                        if input[i] == b'x' {
+                            hex = true;
+                        } else if input[i] == b'u' {
+                            unicode = true;
+                        } else {
+                            escaped = true;
+                        }
+
+                        in_escape = false;
+                    }
+
+                    i += 1;
                 }
-                return (i + 1, Some(Token::FormatString(segments)));
+
+                if !end {
+                    return (0, None);
+                }
+
+                return match Self::eat_char(input_tendril.subtendril(1, (i - 1) as u32), escaped, hex, unicode) {
+                    Some(character) => (i + 1, Some(Token::CharLit(character))),
+                    None => (0, None),
+                };
             }
             x if x.is_ascii_digit() => {
                 return Self::eat_integer(&input_tendril);
@@ -310,6 +480,7 @@ impl Token {
                     "address" => Token::Address,
                     "as" => Token::As,
                     "bool" => Token::Bool,
+                    "char" => Token::Char,
                     "circuit" => Token::Circuit,
                     "console" => Token::Console,
                     "const" => Token::Const,

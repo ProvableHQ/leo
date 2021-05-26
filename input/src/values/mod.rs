@@ -26,6 +26,12 @@ pub use address_value::*;
 pub mod boolean_value;
 pub use boolean_value::*;
 
+pub mod char_types;
+pub use char_types::*;
+
+pub mod char_value;
+pub use char_value::*;
+
 pub mod field_value;
 pub use field_value::*;
 

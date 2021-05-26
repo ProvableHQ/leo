@@ -118,6 +118,24 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     ),
                 }
             }
+            Char(value, span) => {
+                match expected_type.map(PartialType::full).flatten() {
+                    Some(Type::Char) | None => (),
+                    Some(x) => {
+                        return Err(AsgConvertError::unexpected_type(
+                            &x.to_string(),
+                            Some(&*Type::Char.to_string()),
+                            span,
+                        ));
+                    }
+                }
+
+                Constant {
+                    parent: Cell::new(None),
+                    span: Some(span.clone()),
+                    value: ConstValue::Char(*value),
+                }
+            }
             Field(value, span) => {
                 match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Field) | None => (),
@@ -202,6 +220,9 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     value: ConstValue::Int(ConstInt::parse(int_type, value, span)?),
                 }
             }
+            String(_str_type, _value) => {
+                unimplemented!("strings do not exist on ASG level")
+            }
         })
     }
 }
@@ -215,6 +236,7 @@ impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
             ConstValue::Boolean(value) => {
                 leo_ast::ValueExpression::Boolean(value.to_string().into(), self.span.clone().unwrap_or_default())
             }
+            ConstValue::Char(value) => leo_ast::ValueExpression::Char(*value, self.span.clone().unwrap_or_default()),
             ConstValue::Field(value) => {
                 leo_ast::ValueExpression::Field(value.to_string().into(), self.span.clone().unwrap_or_default())
             }
