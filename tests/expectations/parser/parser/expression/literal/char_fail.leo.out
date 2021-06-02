@@ -10,7 +10,7 @@ outputs:
   - "    --> test:1:1\n     |\n   1 | '\\t\\t'\n     | ^\n     |\n     = unexpected token: '''"
   - "    --> test:1:1\n     |\n   1 | '\\u{bbbbb}\\u{aaaa}'\n     | ^\n     |\n     = unexpected token: '''"
   - "    --> test:1:1\n     |\n   1 | '\\u123'\n     | ^\n     |\n     = unexpected token: '''"
-  - "    --> test:1:1\n     |\n   1 | '\\u1'        // panic\n     | ^\n     |\n     = unexpected token: '''"
+  - "    --> test:1:1\n     |\n   1 | '\\u1'        // should error\n     | ^\n     |\n     = unexpected token: '''"
   - "    --> test:1:1\n     |\n   1 | '\\u00000000' // should error\n     | ^\n     |\n     = unexpected token: '''"
   - "    --> test:1:1\n     |\n   1 | '\\u01000000' // should error\n     | ^\n     |\n     = unexpected token: '''"
   - "    --> test:1:1\n     |\n   1 | '\\u9999999'  // should error\n     | ^\n     |\n     = unexpected token: '''"
