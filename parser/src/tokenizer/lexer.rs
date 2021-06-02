@@ -299,7 +299,11 @@ impl Token {
                         if input[i] == b'x' {
                             hex = true;
                         } else if input[i] == b'u' {
-                            unicode = true;
+                            if input[i + 1] == b'{' {
+                                unicode = true;
+                            } else {
+                                return (0, None);
+                            }
                         } else {
                             escaped = true;
                         }
