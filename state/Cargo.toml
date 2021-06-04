@@ -29,7 +29,7 @@ version = "1.5.0"
 version = "0.3.1"
 
 [dependencies.snarkvm-curves]
-version = "0.3.1"
+version = "0.5.1"
 default-features = false
 
 [dependencies.snarkvm-dpc]
