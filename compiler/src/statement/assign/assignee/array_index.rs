@@ -49,7 +49,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
         let index_resolved = self.enforce_index(cs, index, &context.span)?;
         if let Some(index) = index_resolved.to_usize() {
-            if index > input.len() {
+            if index >= input.len() {
                 Err(StatementError::array_assign_index_bounds(
                     index,
                     input.len(),
