@@ -162,6 +162,6 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
 
 impl<F: PrimeField + std::fmt::Display> std::fmt::Display for Char<F> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.character)
+        write!(f, "{}", char::escape_default(self.character))
     }
 }

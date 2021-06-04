@@ -21,13 +21,13 @@ outputs:
           registers:
             r:
               type: char
-              value: ❤
+              value: "\\u{2764}"
       - input_file: inputs/escaped.in
         output:
           registers:
             r:
               type: char
-              value: "'"
+              value: "\\'"
       - input_file: inputs/hex.in
         output:
           registers:
@@ -39,4 +39,4 @@ outputs:
           registers:
             r:
               type: char
-              value: ❤
+              value: "\\u{2764}"
