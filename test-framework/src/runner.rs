@@ -60,9 +60,18 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
     expectation_dir.push("expectations");
 
     find_tests(&test_dir, &mut tests);
+
+    let filter = std::env::var("TEST_FILTER").unwrap_or_default();
+    let filter = filter.trim();
+
     let mut outputs = vec![];
 
     for (path, content) in tests.into_iter() {
+        if !filter.is_empty() {
+            if !path.contains(filter) {
+                continue;
+            }
+        }
         let config = extract_test_config(&content);
         if config.is_none() {
             //panic!("missing configuration for {}", path);
@@ -139,6 +148,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
         let mut expected_output = expectations.as_ref().map(|x| x.outputs.iter());
         for (i, test) in tests.into_iter().enumerate() {
             let expected_output = expected_output.as_mut().map(|x| x.next()).flatten().cloned();
+            println!("running test {} @ '{}'", test_name, path.to_str().unwrap());
             let output = namespace.run_test(Test {
                 name: test_name.clone(),
                 content: test.clone(),

@@ -22,7 +22,7 @@ use std::fmt;
 mod assignee;
 pub use assignee::*;
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum AssignOperation {
     Assign,
     Add,

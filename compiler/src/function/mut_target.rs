@@ -16,116 +16,96 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::{
-    errors::StatementError,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-    ResolvedAssigneeAccess,
-};
+use std::cell::Cell;
+
+use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{
     ArrayAccessExpression,
     ArrayRangeAccessExpression,
+    AssignAccess,
+    AssignOperation,
+    AssignStatement,
     CircuitAccessExpression,
     Expression,
     Node,
-    Span,
     TupleAccessExpression,
     Variable,
 };
 
 use snarkvm_fields::PrimeField;
+use snarkvm_gadgets::utilities::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    fn prepare_mut_access<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
+    fn prepare_mut_access(
+        out: &mut Vec<AssignAccess<'a>>,
         expr: &'a Expression<'a>,
-        span: &Span,
-        output: &mut Vec<ResolvedAssigneeAccess>,
-    ) -> Result<Option<Variable<'a>>, StatementError> {
+    ) -> Result<Option<&'a Variable<'a>>, StatementError> {
         match expr {
             Expression::ArrayRangeAccess(ArrayRangeAccessExpression { array, left, right, .. }) => {
-                let inner = self.prepare_mut_access(cs, array.get(), span, output)?;
-                let start_index = left
-                    .get()
-                    .map(|start| self.enforce_index(cs, start, span))
-                    .transpose()?
-                    .map(|x| {
-                        x.to_usize()
-                            .ok_or_else(|| StatementError::array_assign_index_const(span))
-                    })
-                    .transpose()?;
-                let stop_index = right
-                    .get()
-                    .map(|stop| self.enforce_index(cs, stop, span))
-                    .transpose()?
-                    .map(|x| {
-                        x.to_usize()
-                            .ok_or_else(|| StatementError::array_assign_index_const(span))
-                    })
-                    .transpose()?;
+                let inner = Self::prepare_mut_access(out, array.get())?;
 
-                output.push(ResolvedAssigneeAccess::ArrayRange(start_index, stop_index));
+                out.push(AssignAccess::ArrayRange(left.clone(), right.clone()));
+
                 Ok(inner)
             }
             Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
-                let inner = self.prepare_mut_access(cs, array.get(), span, output)?;
-                let index = self
-                    .enforce_index(cs, index.get(), span)?
-                    .to_usize()
-                    .ok_or_else(|| StatementError::array_assign_index_const(span))?;
+                let inner = Self::prepare_mut_access(out, array.get())?;
 
-                output.push(ResolvedAssigneeAccess::ArrayIndex(index));
+                out.push(AssignAccess::ArrayIndex(index.clone()));
                 Ok(inner)
             }
             Expression::TupleAccess(TupleAccessExpression { tuple_ref, index, .. }) => {
-                let inner = self.prepare_mut_access(cs, tuple_ref.get(), span, output)?;
+                let inner = Self::prepare_mut_access(out, tuple_ref.get())?;
 
-                output.push(ResolvedAssigneeAccess::Tuple(*index, span.clone()));
+                out.push(AssignAccess::Tuple(*index));
                 Ok(inner)
             }
             Expression::CircuitAccess(CircuitAccessExpression { target, member, .. }) => {
                 if let Some(target) = target.get() {
-                    let inner = self.prepare_mut_access(cs, target, span, output)?;
+                    let inner = Self::prepare_mut_access(out, target)?;
 
-                    output.push(ResolvedAssigneeAccess::Member(member.clone()));
+                    out.push(AssignAccess::Member(member.clone()));
                     Ok(inner)
                 } else {
                     Ok(None)
                 }
             }
-            Expression::VariableRef(variable_ref) => Ok(Some(variable_ref.variable.clone())),
+            Expression::VariableRef(variable_ref) => Ok(Some(variable_ref.variable)),
             _ => Ok(None), // not a valid reference to mutable variable, we copy
         }
     }
 
     // resolve a mutable reference from an expression
-    // return Ok(None) if no valid mutable reference, or Err(_) on more critical error
+    // return false if no valid mutable reference, or Err(_) on more critical error
     pub fn resolve_mut_ref<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         assignee: &'a Expression<'a>,
-    ) -> Result<Option<Vec<&mut ConstrainedValue<'a, F, G>>>, StatementError> {
-        let span = &assignee.span().cloned().unwrap_or_default();
-
+        target_value: ConstrainedValue<'a, F, G>,
+        indicator: &Boolean,
+    ) -> Result<bool, StatementError> {
         let mut accesses = vec![];
-        let target = self.prepare_mut_access(cs, assignee, span, &mut accesses)?;
+        let target = Self::prepare_mut_access(&mut accesses, assignee)?;
         if target.is_none() {
-            return Ok(None);
+            return Ok(false);
         }
         let variable = target.unwrap();
-        let variable = variable.borrow();
 
-        let mut result = vec![match self.get_mut(variable.id) {
-            Some(value) => value,
-            None => return Err(StatementError::undefined_variable(variable.name.to_string(), span)),
-        }];
+        self.resolve_assign(
+            cs,
+            &AssignStatement {
+                parent: Cell::new(None),
+                span: assignee.span().cloned(),
+                operation: AssignOperation::Assign,
+                target_variable: Cell::new(variable),
+                target_accesses: accesses,
+                value: Cell::new(assignee),
+            },
+            target_value,
+            indicator,
+        )?;
 
-        for access in accesses {
-            result = Self::resolve_assignee_access(access, span, result)?;
-        }
-        Ok(Some(result))
+        Ok(true)
     }
 }
