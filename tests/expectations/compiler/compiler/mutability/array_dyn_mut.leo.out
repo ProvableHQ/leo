@@ -1,0 +1,24 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 65
+      num_constraints: 66
+      at: 0c8cb242ee3815f5ea6fdd08873577a6cc51fcfbda8cb5671f0b4dc851939d07
+      bt: 32bbce55a7ed95a5b0277ef5ddfa171ad065c5c7c743031d8b0bd8e50e51b0af
+      ct: b0a68f3915594800e43cb144dc499a002fd302374532313e835dfa163d38f0f1
+    output:
+      - input_file: input/index1.in
+        output:
+          registers:
+            r0:
+              type: "[u32; 3]"
+              value: "[3, 0, 3]"
+      - input_file: input/index2.in
+        output:
+          registers:
+            r0:
+              type: "[u32; 3]"
+              value: "[1, 5, 0]"

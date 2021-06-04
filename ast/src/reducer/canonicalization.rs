@@ -347,7 +347,7 @@ impl Canonicalizer {
                 Statement::Assign(AssignStatement {
                     assignee,
                     value,
-                    operation: assign.operation.clone(),
+                    operation: assign.operation,
                     span: assign.span.clone(),
                 })
             }

@@ -81,13 +81,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     .get(self_var.borrow().id)
                     .expect("no self variable found in mut self context")
                     .clone();
-                if let Some(assignable_target) = self.resolve_mut_ref(cs, target)? {
-                    if assignable_target.len() != 1 {
-                        panic!("found tuple as a self assignment target");
-                    }
-                    let assignable_target = assignable_target.into_iter().next().unwrap();
-                    *assignable_target = new_self;
-                } else {
+
+                if !self.resolve_mut_ref(cs, target, new_self, &indicator)? {
                     // todo: we should report a warning for calling a mutable function on an effectively copied self (i.e. wasn't assignable `tempStruct {x: 5}.myMutSelfFunction()`)
                 }
             }

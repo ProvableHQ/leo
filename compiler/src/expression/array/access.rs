@@ -37,6 +37,33 @@ use snarkvm_gadgets::utilities::{
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+    pub fn array_bounds_check<CS: ConstraintSystem<F>>(
+        &mut self,
+        cs: &mut CS,
+        index_resolved: &Integer,
+        array_len: u32,
+        span: &Span,
+    ) -> Result<(), ExpressionError> {
+        let bounds_check = evaluate_lt::<F, G, CS>(
+            cs,
+            ConstrainedValue::Integer(index_resolved.clone()),
+            ConstrainedValue::Integer(Integer::new(
+                &ConstInt::U32(array_len).cast_to(&index_resolved.get_type()),
+            )),
+            span,
+        )?;
+        let bounds_check = match bounds_check {
+            ConstrainedValue::Boolean(b) => b,
+            _ => unimplemented!("illegal non-Integer returned from lt"),
+        };
+        let namespace_string = format!("evaluate array access bounds {}:{}", span.line_start, span.col_start);
+        let mut unique_namespace = cs.ns(|| namespace_string);
+        bounds_check
+            .enforce_equal(&mut unique_namespace, &Boolean::Constant(true))
+            .map_err(|e| ExpressionError::cannot_enforce("array bounds check".to_string(), e, span))?;
+        Ok(())
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_array_access<CS: ConstraintSystem<F>>(
         &mut self,
@@ -65,21 +92,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     .len()
                     .try_into()
                     .map_err(|_| ExpressionError::array_length_out_of_bounds(span))?;
-                let bounds_check = evaluate_lt::<F, G, CS>(
-                    cs,
-                    ConstrainedValue::Integer(index_resolved.clone()),
-                    ConstrainedValue::Integer(Integer::new(&ConstInt::U32(array_len))),
-                    span,
-                )?;
-                let bounds_check = match bounds_check {
-                    ConstrainedValue::Boolean(b) => b,
-                    _ => unimplemented!("illegal non-Integer returned from lt"),
-                };
-                let namespace_string = format!("evaluate array access bounds {}:{}", span.line_start, span.col_start);
-                let mut unique_namespace = cs.ns(|| namespace_string);
-                bounds_check
-                    .enforce_equal(&mut unique_namespace, &Boolean::Constant(true))
-                    .map_err(|e| ExpressionError::cannot_enforce("array bounds check".to_string(), e, span))?;
+                self.array_bounds_check(cs, &&index_resolved, array_len, span)?;
             }
 
             let mut current_value = array.pop().unwrap();

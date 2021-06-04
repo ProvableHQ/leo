@@ -28,5 +28,4 @@ pub use self::main_function::*;
 pub mod result;
 pub use self::result::*;
 
-pub mod mut_target;
-pub use self::mut_target::*;
+mod mut_target;
