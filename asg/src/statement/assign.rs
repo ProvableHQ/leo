@@ -213,7 +213,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         let statement = scope.context.alloc_statement(Statement::Assign(AssignStatement {
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
-            operation: statement.operation.clone(),
+            operation: statement.operation,
             target_variable: Cell::new(variable),
             target_accesses,
             value: Cell::new(value),
@@ -231,7 +231,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
 impl<'a> Into<leo_ast::AssignStatement> for &AssignStatement<'a> {
     fn into(self) -> leo_ast::AssignStatement {
         leo_ast::AssignStatement {
-            operation: self.operation.clone(),
+            operation: self.operation,
             assignee: leo_ast::Assignee {
                 identifier: self.target_variable.get().borrow().name.clone(),
                 accesses: self

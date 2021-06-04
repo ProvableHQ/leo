@@ -65,7 +65,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
         } else {
-            for (i, item) in input.into_iter().enumerate() {
+            for (i, item) in input.iter_mut().enumerate() {
                 let namespace_string = format!(
                     "evaluate dyn array assignment eq {} {}:{}",
                     i, context.span.line_start, context.span.col_start

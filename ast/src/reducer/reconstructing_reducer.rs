@@ -325,7 +325,7 @@ pub trait ReconstructingReducer {
         value: Expression,
     ) -> Result<AssignStatement, ReducerError> {
         Ok(AssignStatement {
-            operation: assign.operation.clone(),
+            operation: assign.operation,
             assignee,
             value,
             span: assign.span.clone(),

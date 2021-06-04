@@ -67,10 +67,8 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
     let mut outputs = vec![];
 
     for (path, content) in tests.into_iter() {
-        if !filter.is_empty() {
-            if !path.contains(filter) {
-                continue;
-            }
+        if !filter.is_empty() && !path.contains(filter) {
+            continue;
         }
         let config = extract_test_config(&content);
         if config.is_none() {
