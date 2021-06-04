@@ -122,5 +122,4 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             Ok(())
         }
     }
-
 }
