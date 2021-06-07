@@ -100,8 +100,11 @@ Both uppercase and lowercase letters are allowed.
 The `u` must be lowercase.
 The value must be between 0 and 10FFFF, inclusive.
 
-Note that this syntax for character literals is identical to the Rust syntax documented here (as of 2021-05-26):
+Note that this syntax for character literals is very close to the Rust syntax documented here (as of 2021-05-26):
 https://doc.rust-lang.org/reference/tokens.html#character-literals
+The only difference is that this syntax does not support Unicode escapes with underbars in them.
+The following is true in Rust but not in this proposal for Leo:
+`'\u{1_____0__F____F______FF__________________________}' == '\u{10FFFF}'`.
 
 Note that the literal character is assembled by the compiler---for
 creating literals, there is no need for the circuit to know
@@ -178,11 +181,12 @@ https://doc.rust-lang.org/reference/tokens.html#string-literals.
 The main difference is that this syntax does not support the Rust `STRING_CONTINUE` syntax.
 In this syntax a backslash may not be followed by a newline, and newlines have no special handling.
 Another differences is that this syntax does **not** permit the empty string `""`.
+Also, this syntax does not allow underbars in Unicode escapes in string literals.
 
 The type of a string literal is `[char; N]`,
 where `N` is the length of the string measured in characters,
 i.e. the size of the array.
-Note that there is no notion of Unicode encoding (e.g. UTF-8)
+Note that in this language design there is no notion of Unicode encoding (e.g. UTF-8)
 that applies to string literals.
 
 The rationale for not introducing a new type for strings initially,
