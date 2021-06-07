@@ -86,25 +86,12 @@ impl Integer {
         match_integer!(integer => integer.to_bits_le())
     }
 
-    // pub fn get_bits_typed(&self) -> (Vec<Boolean>, IntegerType) {
-    //     let integer = self;
-    //     (match_integer!(integer => integer.to_bits_le()), self.get_type())
-    // }
-
-    // pub fn from_bits_typed(type_: &IntegerType, bits: &[Boolean]) -> Integer {
-    //     match type_ {
-    //         IntegerType::U8 => Integer::U8(UInt8::from_bits_le(bits)),
-    //         IntegerType::U16 => Integer::U16(UInt16::from_bits_le(bits)),
-    //         IntegerType::U32 => Integer::U32(UInt32::from_bits_le(bits)),
-    //         IntegerType::U64 => Integer::U64(UInt64::from_bits_le(bits)),
-    //         IntegerType::U128 => Integer::U128(UInt128::from_bits_le(bits)),
-    //         IntegerType::I8 => Integer::I8(Int8::from_bits_le(bits)),
-    //         IntegerType::I16 => Integer::I16(Int16::from_bits_le(bits)),
-    //         IntegerType::I32 => Integer::I32(Int32::from_bits_le(bits)),
-    //         IntegerType::I64 => Integer::I64(Int64::from_bits_le(bits)),
-    //         IntegerType::I128 => Integer::I128(Int128::from_bits_le(bits)),
-    //     }
-    // }
+    pub fn is_allocated(&self) -> bool {
+        self.get_bits().into_iter().any(|b| match b {
+            Boolean::Constant(_) => false,
+            _ => true,
+        })
+    }
 
     pub fn get_value(&self) -> Option<String> {
         let integer = self;
@@ -112,6 +99,9 @@ impl Integer {
     }
 
     pub fn to_usize(&self) -> Option<usize> {
+        if self.is_allocated() {
+            return None;
+        }
         let unsigned_integer = self;
         match_unsigned_integer!(unsigned_integer => unsigned_integer.value.map(|num| num.try_into().ok()).flatten())
     }
