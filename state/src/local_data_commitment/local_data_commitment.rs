@@ -22,7 +22,7 @@ use snarkvm_algorithms::{
     traits::{CommitmentScheme, CRH},
 };
 use snarkvm_dpc::{
-    base_dpc::{
+    testnet1::{
         instantiated::{Components, LocalDataCRH, LocalDataCommitment},
         parameters::SystemParameters,
     },

@@ -33,7 +33,7 @@ use leo_asg::{
 };
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::utilities::boolean::Boolean;
+use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

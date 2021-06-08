@@ -20,7 +20,7 @@ use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
 use leo_asg::Span;
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::utilities::bits::ComparatorGadget;
+use snarkvm_gadgets::traits::bits::ComparatorGadget;
 use snarkvm_r1cs::ConstraintSystem;
 
 pub fn evaluate_gt<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

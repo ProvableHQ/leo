@@ -19,13 +19,14 @@ use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_package::outputs::{ProvingKeyFile, VerificationKeyFile};
 
-use anyhow::{anyhow, Result};
-use rand::thread_rng;
 use snarkvm_algorithms::{
-    snark::groth16::{Groth16, Parameters, PreparedVerifyingKey, VerifyingKey},
+    snark::groth16::{Groth16, PreparedVerifyingKey, ProvingKey, VerifyingKey},
     traits::snark::SNARK,
 };
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
+
+use anyhow::{anyhow, Result};
+use rand::thread_rng;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -44,7 +45,7 @@ impl Command for Setup {
     type Input = <Build as Command>::Output;
     type Output = (
         Compiler<'static, Fr, EdwardsGroupType>,
-        Parameters<Bls12_377>,
+        ProvingKey<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );
 
@@ -108,7 +109,7 @@ impl Command for Setup {
                 tracing::info!("Skipping curve check");
             }
             let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
-            let proving_key = Parameters::<Bls12_377>::read(proving_key_bytes.as_slice(), !self.skip_key_check)?;
+            let proving_key = ProvingKey::<Bls12_377>::read(proving_key_bytes.as_slice(), !self.skip_key_check)?;
             tracing::info!("Complete");
 
             // Read the verification key file from the output directory

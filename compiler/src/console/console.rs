@@ -20,7 +20,7 @@ use crate::{errors::ConsoleError, program::ConstrainedProgram, statement::get_in
 use leo_asg::{ConsoleFunction, ConsoleStatement};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

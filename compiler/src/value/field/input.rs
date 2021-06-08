@@ -20,7 +20,7 @@ use crate::{errors::FieldError, number_string_typing, value::ConstrainedValue, F
 use leo_ast::{InputValue, Span};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::alloc::AllocGadget;
+use snarkvm_gadgets::traits::alloc::AllocGadget;
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
 pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(

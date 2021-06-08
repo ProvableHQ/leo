@@ -20,7 +20,7 @@ use crate::{errors::StatementError, program::ConstrainedProgram, value::Constrai
 use leo_asg::{Node, Statement};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 pub type StatementResult<T> = Result<T, StatementError>;
