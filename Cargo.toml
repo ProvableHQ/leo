@@ -70,22 +70,22 @@ path = "./synthesizer"
 version = "1.5.0"
 
 [dependencies.snarkvm-algorithms]
-version = "0.3.1"
+version = "0.5.4"
 
 [dependencies.snarkvm-curves]
-version = "0.3.1"
+version = "0.5.4"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.3.1"
+version = "0.5.4"
 default-features = false
 
 [dependencies.snarkvm-r1cs]
-version = "0.3.1"
+version = "0.5.4"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.3.1"
+version = "0.5.4"
 
 [dependencies.anyhow]
 version = "1.0"

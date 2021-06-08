@@ -20,7 +20,7 @@ use crate::{arithmetic::*, errors::StatementError, program::ConstrainedProgram, 
 use leo_asg::{AssignOperation, AssignStatement, Span};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::{boolean::Boolean, select::CondSelectGadget};
+use snarkvm_gadgets::{boolean::Boolean, traits::select::CondSelectGadget};
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

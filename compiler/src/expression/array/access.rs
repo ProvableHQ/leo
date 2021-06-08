@@ -29,7 +29,7 @@ use crate::{
 use leo_asg::{ConstInt, Expression, Span};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::utilities::{
+use snarkvm_gadgets::{
     boolean::Boolean,
     eq::{EqGadget, EvaluateEqGadget},
     select::CondSelectGadget,

@@ -20,7 +20,7 @@ use crate::{errors::StatementError, program::ConstrainedProgram, value::Constrai
 use leo_asg::{AssignAccess, AssignOperation, AssignStatement, Span};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::utilities::boolean::Boolean;
+use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 mod array_index;

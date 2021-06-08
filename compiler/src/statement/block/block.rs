@@ -20,7 +20,7 @@ use crate::{program::ConstrainedProgram, GroupType, IndicatorAndConstrainedValue
 use leo_asg::BlockStatement;
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

@@ -21,19 +21,16 @@ use leo_ast::Span;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
+    bits::{ToBitsBEGadget, ToBytesGadget},
+    boolean::Boolean,
     fields::FpGadget,
+    integers::uint::UInt8,
     traits::{
+        alloc::AllocGadget,
+        bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+        eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget, NEqGadget},
         fields::FieldGadget,
-        utilities::{
-            alloc::AllocGadget,
-            bits::comparator::{ComparatorGadget, EvaluateLtGadget},
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget, NEqGadget},
-            select::CondSelectGadget,
-            uint::UInt8,
-            ToBitsBEGadget,
-            ToBytesGadget,
-        },
+        select::CondSelectGadget,
     },
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};

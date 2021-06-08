@@ -17,13 +17,13 @@
 use super::CoreCircuit;
 use crate::{errors::ExpressionError, ConstrainedValue, GroupType, Integer};
 use leo_asg::{Function, Span};
+
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     algorithms::prf::Blake2sGadget,
-    traits::{
-        algorithms::PRFGadget,
-        utilities::{uint::UInt8, ToBytesGadget},
-    },
+    bits::ToBytesGadget,
+    integers::uint::UInt8,
+    traits::algorithms::PRFGadget,
 };
 use snarkvm_r1cs::ConstraintSystem;
 

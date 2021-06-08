@@ -20,7 +20,10 @@ use crate::{errors::ValueError, Address, Char, FieldType, GroupType, Integer};
 use leo_asg::{Circuit, Identifier, Span, Type};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::{boolean::Boolean, eq::ConditionalEqGadget, select::CondSelectGadget};
+use snarkvm_gadgets::{
+    bits::Boolean,
+    traits::{eq::ConditionalEqGadget, select::CondSelectGadget},
+};
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::fmt;
 

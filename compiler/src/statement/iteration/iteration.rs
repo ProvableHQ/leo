@@ -29,7 +29,7 @@ use crate::{
 use leo_asg::IterationStatement;
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::{boolean::Boolean, uint::UInt32};
+use snarkvm_gadgets::{boolean::Boolean, integers::uint::UInt32};
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

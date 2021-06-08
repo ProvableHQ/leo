@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub use snarkvm_gadgets::traits::utilities::integer::Integer as IntegerTrait;
+pub use snarkvm_gadgets::integer::Integer as IntegerTrait;
 
 /// Useful macros to avoid duplicating `match` constructions.
 #[macro_export]

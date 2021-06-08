@@ -25,21 +25,18 @@ use snarkvm_curves::{
 };
 use snarkvm_fields::{Fp256, One, Zero};
 use snarkvm_gadgets::{
+    bits::{ToBitsBEGadget, ToBytesGadget},
+    boolean::Boolean,
     curves::edwards_bls12::EdwardsBlsGadget,
     fields::{AllocatedFp, FpGadget},
+    integers::uint::UInt8,
     traits::{
+        alloc::AllocGadget,
         curves::GroupGadget,
+        eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
         fields::FieldGadget,
-        utilities::{
-            alloc::AllocGadget,
-            boolean::Boolean,
-            eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-            select::CondSelectGadget,
-            uint::UInt8,
-            ToBitsBEGadget,
-            ToBytesGadget,
-        },
     },
+    CondSelectGadget,
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::{
