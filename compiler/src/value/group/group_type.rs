@@ -20,12 +20,13 @@ use crate::errors::GroupError;
 use leo_asg::{GroupValue, Span};
 
 use snarkvm_fields::{Field, One};
-use snarkvm_gadgets::traits::utilities::{
-    alloc::AllocGadget,
-    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-    select::CondSelectGadget,
-    ToBitsBEGadget,
-    ToBytesGadget,
+use snarkvm_gadgets::{
+    bits::{ToBitsBEGadget, ToBytesGadget},
+    traits::{
+        alloc::AllocGadget,
+        eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+        select::CondSelectGadget,
+    },
 };
 use snarkvm_r1cs::ConstraintSystem;
 use std::fmt::{Debug, Display};

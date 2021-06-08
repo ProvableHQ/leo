@@ -17,14 +17,16 @@
 use crate::{errors::AddressError, ConstrainedValue, GroupType, IntegerTrait};
 use leo_ast::{InputValue, Span};
 
-use snarkvm_dpc::{account::AccountAddress, base_dpc::instantiated::Components};
+use snarkvm_dpc::{account::AccountAddress, testnet1::instantiated::Components};
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::{
-    alloc::AllocGadget,
+use snarkvm_gadgets::{
     boolean::Boolean,
-    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-    select::CondSelectGadget,
-    uint::UInt8,
+    integers::uint::UInt8,
+    traits::{
+        alloc::AllocGadget,
+        eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+        select::CondSelectGadget,
+    },
 };
 use snarkvm_r1cs::{Assignment, ConstraintSystem, SynthesisError};
 use snarkvm_utilities::ToBytes;

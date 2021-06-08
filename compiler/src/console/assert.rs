@@ -26,7 +26,7 @@ use crate::{
 use leo_asg::{Expression, Span};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {

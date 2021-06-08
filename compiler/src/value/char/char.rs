@@ -23,11 +23,11 @@ use crate::{
 
 use leo_ast::{InputValue, Span};
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::utilities::{
-    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+use snarkvm_gadgets::{
     boolean::Boolean,
     eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget, NEqGadget},
     select::CondSelectGadget,
+    traits::bits::comparator::{ComparatorGadget, EvaluateLtGadget},
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 

@@ -18,7 +18,7 @@ use crate::{DPCRecordValues, RecordVerificationError};
 use leo_ast::Record as AstRecord;
 
 use snarkvm_algorithms::traits::CommitmentScheme;
-use snarkvm_dpc::base_dpc::{
+use snarkvm_dpc::testnet1::{
     instantiated::{Components, RecordCommitment},
     parameters::SystemParameters,
 };

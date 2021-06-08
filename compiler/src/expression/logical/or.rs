@@ -20,7 +20,7 @@ use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
 use leo_asg::Span;
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::utilities::boolean::Boolean;
+use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
 pub fn enforce_or<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

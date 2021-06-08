@@ -20,15 +20,19 @@ use leo_asg::{ConstInt, IntegerType, Span};
 use leo_ast::InputValue;
 
 use snarkvm_fields::{Field, PrimeField};
-use snarkvm_gadgets::traits::utilities::{
-    alloc::AllocGadget,
-    arithmetic::{Add, Div, Mul, Neg, Pow, Sub},
-    bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+use snarkvm_gadgets::{
     boolean::Boolean,
-    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
-    int::{Int128, Int16, Int32, Int64, Int8},
-    select::CondSelectGadget,
-    uint::{Sub as UIntSub, *},
+    integers::{
+        int::{Int128, Int16, Int32, Int64, Int8},
+        uint::{Sub as UIntSub, *},
+    },
+    traits::{
+        alloc::AllocGadget,
+        bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+        eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget},
+        integers::{Add, Div, Mul, Neg, Pow, Sub},
+        select::CondSelectGadget,
+    },
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::{convert::TryInto, fmt};

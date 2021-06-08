@@ -17,7 +17,7 @@
 use crate::{utilities::*, DPCRecordValuesError};
 use leo_ast::Record as AstRecord;
 
-use snarkvm_dpc::{base_dpc::instantiated::Components, AccountAddress};
+use snarkvm_dpc::{testnet1::instantiated::Components, AccountAddress};
 
 use std::{convert::TryFrom, str::FromStr};
 
