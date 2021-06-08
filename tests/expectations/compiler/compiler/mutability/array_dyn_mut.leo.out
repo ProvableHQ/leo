@@ -8,7 +8,7 @@ outputs:
       num_constraints: 1350
       at: aae29cb6b4a71a5cf49d3de006b415b9a7818a2e23191819692e8d2ee69d8be2
       bt: 11262f31fcaa7950be43eded328287305e7cbcb73c19455808f08f38116cfdd6
-      ct: 4e43ba7d47ceae1f9e594eb314deb4044ee658d18e3732baba6488d451c784a4
+      ct: 01dfba9e0754ad9890117694c9b03f4646642140aa7b6c393b2e264e701c323e
     output:
       - input_file: input/index1.in
         output:
