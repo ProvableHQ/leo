@@ -32,7 +32,7 @@ struct ResolverContext<'a, 'b, F: PrimeField, G: GroupType<F>> {
     input: Vec<&'b mut ConstrainedValue<'a, F, G>>,
     span: Span,
     target_value: ConstrainedValue<'a, F, G>,
-    remaining_accesses: Vec<&'b AssignAccess<'a>>,
+    remaining_accesses: &'b [&'b AssignAccess<'a>],
     indicator: &'b Boolean,
     operation: AssignOperation,
 }
@@ -68,7 +68,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             self.enforce_assign_context(cs, &context, input)?;
             return Ok(());
         }
-        match context.remaining_accesses.pop().unwrap() {
+        let access = context.remaining_accesses[context.remaining_accesses.len() - 1];
+        context.remaining_accesses = &context.remaining_accesses[..context.remaining_accesses.len() - 1];
+        match access {
             AssignAccess::ArrayRange(start, stop) => {
                 self.resolve_target_access_array_range(cs, context, start.get(), stop.get())
             }
@@ -89,11 +91,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let variable = assignee.target_variable.get().borrow();
 
         let mut target = self.get(variable.id).unwrap().clone();
+        let accesses: Vec<_> = assignee.target_accesses.iter().rev().collect();
         self.resolve_target_access(cs, ResolverContext {
             input: vec![&mut target],
             span,
             target_value,
-            remaining_accesses: assignee.target_accesses.iter().rev().collect(),
+            remaining_accesses: &accesses[..],
             indicator,
             operation: assignee.operation,
         })?;
