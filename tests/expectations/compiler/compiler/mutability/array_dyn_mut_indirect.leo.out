@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 32
-      num_constraints: 32
-      at: 4f36fe54f989d60bb9c279120800f4f44596c2efb7ba703669d4c4d591569780
-      bt: d378030968a64801f66d95699329086ca17e676d8bffcf73f6b431cbda7c7005
-      ct: dbd098af6556ed79650d149b1691be336a46f8bad6f327e942508dd11342575e
+      num_private_variables: 924
+      num_constraints: 1310
+      at: f4c2d999e3cfce5433bbde762d8c826c8df8764b9223dd5d7147cd09810f25b7
+      bt: fa02e90dd0bde30bc5feab46c3ea4fae0493dc6808d56bc6a1d937eb17297981
+      ct: 8f6f484310918a186286820e4efd1e7494774c314e9e5c6f78bb60bdeae948f4
     output:
       - input_file: input/index1_tuple.in
         output:

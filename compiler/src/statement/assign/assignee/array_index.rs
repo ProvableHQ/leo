@@ -89,19 +89,33 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     .evaluate_equal(eq_namespace, &Integer::new(&const_index))
                     .map_err(|_| ExpressionError::cannot_evaluate("==".to_string(), &span))?;
 
-                let unique_namespace = cs.ns(|| {
+                let mut unique_namespace = cs.ns(|| {
                     format!(
                         "select array dyn assignment {} {}:{}",
                         i, span.line_start, span.col_start
                     )
                 });
-                let value = ConstrainedValue::conditionally_select(
-                    unique_namespace,
-                    &index_comparison,
-                    &context.target_value,
-                    &item,
-                )
-                .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, &span))?;
+                let temp_item = {
+                    let mut item = item.clone();
+                    let mut new_context = ResolverContext {
+                        input: vec![&mut item],
+                        span: context.span.clone(),
+                        target_value: context.target_value.clone(),
+                        remaining_accesses: context.remaining_accesses,
+                        indicator: context.indicator,
+                        operation: context.operation,
+                    };
+                    if context.remaining_accesses.is_empty() {
+                        let item = new_context.input.remove(0);
+                        self.enforce_assign_context(&mut unique_namespace, &new_context, item)?;
+                    } else {
+                        self.resolve_target_access(&mut unique_namespace, new_context)?;
+                    }
+                    item
+                };
+                let value =
+                    ConstrainedValue::conditionally_select(unique_namespace, &index_comparison, &temp_item, &item)
+                        .map_err(|e| ExpressionError::cannot_enforce("conditional select".to_string(), e, &span))?;
                 *item = value;
             }
             Ok(())

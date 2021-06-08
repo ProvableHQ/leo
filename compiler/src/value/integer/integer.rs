@@ -87,10 +87,7 @@ impl Integer {
     }
 
     pub fn is_allocated(&self) -> bool {
-        self.get_bits().into_iter().any(|b| match b {
-            Boolean::Constant(_) => false,
-            _ => true,
-        })
+        self.get_bits().into_iter().any(|b| !matches!(b, Boolean::Constant(_)))
     }
 
     pub fn get_value(&self) -> Option<String> {
