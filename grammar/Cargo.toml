@@ -17,6 +17,11 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
-[dependencies]
-abnf = "0.11.3"
-anyhow = "1.0"
+#[dependencies.abnf]
+#version = "0.11.3"
+#default-features = false
+
+[dependencies.anyhow]
+version = "1.0"
+
+

@@ -6,7 +6,7 @@ outputs:
       num_public_variables: 0
       num_private_variables: 112
       num_constraints: 128
-      at: 58c61c468b93481b5691b278622e567b5a718e6411cce53fdbe46e2839bdf8c3
+      at: b0a107f586de648c8446ae3246117de3b20ba9c0249d261f234106809d112f0a
       bt: 0e5faacb5d80488eeda9e7fa79ddd96e54c010e0e98571449f79cad816cc18a2
       ct: 2b3428d7c7335edc32ab219fe11c92e215d70a52c89434de349f4951561d5795
     output:
