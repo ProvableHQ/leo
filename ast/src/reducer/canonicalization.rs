@@ -493,6 +493,8 @@ impl ReconstructingReducer for Canonicalizer {
             )));
         }
 
+        // println!("crs {}, elee {:?}", string, elements);
+
         Ok(Expression::ArrayInline(ArrayInlineExpression {
             elements,
             span: span.clone(),
@@ -602,6 +604,12 @@ impl ReconstructingReducer for Canonicalizer {
                     span: assign.span.clone(),
                 })
             }
+            Expression::ArrayInline(_) => Ok(AssignStatement {
+                operation: AssignOperation::Assign,
+                assignee,
+                value,
+                span: assign.span.clone(),
+            }),
             _ => Ok(assign.clone()),
         }
     }
