@@ -1199,12 +1199,12 @@ dependencies = [
  "serde_yaml",
  "sha2",
  "snarkvm-algorithms",
- "snarkvm-curves",
+ "snarkvm-curves 0.5.4",
  "snarkvm-dpc",
- "snarkvm-fields",
+ "snarkvm-fields 0.3.1",
  "snarkvm-gadgets",
  "snarkvm-r1cs",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.3.1",
  "tempfile",
  "tendril",
  "thiserror",
@@ -1264,10 +1264,10 @@ dependencies = [
  "serde",
  "serde_json",
  "snarkvm-algorithms",
- "snarkvm-curves",
+ "snarkvm-curves 0.5.4",
  "snarkvm-gadgets",
  "snarkvm-r1cs",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.3.1",
  "structopt",
  "test_dir",
  "thiserror",
@@ -1322,9 +1322,9 @@ dependencies = [
  "rand_core 0.6.2",
  "rand_xorshift",
  "snarkvm-algorithms",
- "snarkvm-curves",
+ "snarkvm-curves 0.5.4",
  "snarkvm-dpc",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.3.1",
  "thiserror",
 ]
 
@@ -1337,8 +1337,8 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "snarkvm-curves",
- "snarkvm-fields",
+ "snarkvm-curves 0.5.4",
+ "snarkvm-fields 0.3.1",
  "snarkvm-gadgets",
  "snarkvm-r1cs",
 ]
@@ -2445,11 +2445,11 @@ dependencies = [
  "rayon",
  "sha2",
  "smallvec",
- "snarkvm-curves",
- "snarkvm-fields",
+ "snarkvm-curves 0.3.1",
+ "snarkvm-fields 0.3.1",
  "snarkvm-profiler",
  "snarkvm-r1cs",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.3.1",
  "thiserror",
 ]
 
@@ -2464,8 +2464,24 @@ dependencies = [
  "rand_xorshift",
  "rustc_version 0.3.3",
  "serde",
- "snarkvm-fields",
- "snarkvm-utilities",
+ "snarkvm-fields 0.3.1",
+ "snarkvm-utilities 0.3.1",
+ "thiserror",
+]
+
+[[package]]
+name = "snarkvm-curves"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b1a4b3cb0a68de48d3263a25fa63a3ae14df1f5042fdf536a207b616f1e4217"
+dependencies = [
+ "derivative",
+ "rand 0.8.3",
+ "rand_xorshift",
+ "rustc_version 0.3.3",
+ "serde",
+ "snarkvm-fields 0.5.4",
+ "snarkvm-utilities 0.5.4",
  "thiserror",
 ]
 
@@ -2497,14 +2513,14 @@ dependencies = [
  "itertools 0.10.0",
  "rand 0.8.3",
  "snarkvm-algorithms",
- "snarkvm-curves",
- "snarkvm-fields",
+ "snarkvm-curves 0.3.1",
+ "snarkvm-fields 0.3.1",
  "snarkvm-gadgets",
  "snarkvm-objects",
  "snarkvm-parameters",
  "snarkvm-profiler",
  "snarkvm-r1cs",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.3.1",
  "thiserror",
 ]
 
@@ -2519,7 +2535,22 @@ dependencies = [
  "rand 0.8.3",
  "rand_xorshift",
  "serde",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.3.1",
+ "thiserror",
+]
+
+[[package]]
+name = "snarkvm-fields"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "818e32f60d87abbe22e04d44ec358849e78393ae7e0a315334e3402dea909198"
+dependencies = [
+ "bincode",
+ "derivative",
+ "rand 0.8.3",
+ "rand_xorshift",
+ "serde",
+ "snarkvm-utilities 0.5.4",
  "thiserror",
 ]
 
@@ -2533,10 +2564,10 @@ dependencies = [
  "digest 0.9.0",
  "itertools 0.10.0",
  "snarkvm-algorithms",
- "snarkvm-curves",
- "snarkvm-fields",
+ "snarkvm-curves 0.3.1",
+ "snarkvm-fields 0.3.1",
  "snarkvm-r1cs",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.3.1",
  "thiserror",
 ]
 
@@ -2555,9 +2586,9 @@ dependencies = [
  "serde",
  "sha2",
  "snarkvm-algorithms",
- "snarkvm-curves",
+ "snarkvm-curves 0.3.1",
  "snarkvm-parameters",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.3.1",
  "thiserror",
 ]
 
@@ -2569,7 +2600,7 @@ checksum = "7932c7d7fd7b9572a1acaad3c9622f6849c414e5ac8bdb599a504ef4330bb857"
 dependencies = [
  "hex",
  "snarkvm-algorithms",
- "snarkvm-utilities",
+ "snarkvm-utilities 0.3.1",
  "thiserror",
 ]
 
@@ -2589,9 +2620,9 @@ dependencies = [
  "fxhash",
  "indexmap",
  "itertools 0.10.0",
- "snarkvm-curves",
- "snarkvm-fields",
- "snarkvm-utilities",
+ "snarkvm-curves 0.3.1",
+ "snarkvm-fields 0.3.1",
+ "snarkvm-utilities 0.3.1",
 ]
 
 [[package]]
@@ -2603,6 +2634,17 @@ dependencies = [
  "bincode",
  "rand 0.8.3",
  "snarkvm-derives",
+ "thiserror",
+]
+
+[[package]]
+name = "snarkvm-utilities"
+version = "0.5.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2c3439bd12599fcaca1d885eb9051c885f2276be2dd0e2692e5f90cc03466f1"
+dependencies = [
+ "bincode",
+ "rand 0.8.3",
  "thiserror",
 ]
 
