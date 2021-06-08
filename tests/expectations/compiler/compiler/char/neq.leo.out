@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 7
-      num_constraints: 4
-      at: a2dab6a003b17db5afe774f7100f9c5c73a5ff060db42422c13a4c475af7ccd9
-      bt: 3f3314eb65daf16719533fc973a8934ce4a68db2aee344f5d3f0d63bb997f127
-      ct: 03ccd28b26810eecb8c66d87f77485bd0d8c0d1a114a122422675e0608152c49
+      num_private_variables: 6
+      num_constraints: 3
+      at: cc1286e0b6fa2e90fb6f0880431a7c1e2cc37a329fae3aff1c13f51036c66f12
+      bt: 02c492cb6df07172e56cffd0cfd902a8443921e1256a2d907bbabd30bf6b8f6d
+      ct: a1f8e2b168c0f2f28f0ca3f16ce9b25ba7f7c410cfd68b0912bf19c90b53f2a2
     output:
       - input_file: inputs/ascii.in
         output:
