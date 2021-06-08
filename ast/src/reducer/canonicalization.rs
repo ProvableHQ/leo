@@ -493,7 +493,6 @@ impl ReconstructingReducer for Canonicalizer {
             )));
         }
 
-        // println!("crs {}, elee {:?}", string, elements);
 
         Ok(Expression::ArrayInline(ArrayInlineExpression {
             elements,
