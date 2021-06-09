@@ -9,19 +9,32 @@ expectation: Fail
 
 ''
 
-'\x9'
+'\x9A'
+'\x7'
+'\x7g'
+'\xz'
 
 'abcdefg'
 
 '\t\t'
+'\a'
+'\z'
+'\A'
+'\Z'
+'\1'
+'\9'
+'\*'
+'\x'
+'\u'
 
 '\u{bbbbb}\u{aaaa}'
-
+'\uz'
+'\u1'
 '\u123'
-
-'\u1'        // should error
-'\u00000000' // should error
-'\u01000000' // should error
-'\u9999999'  // should error
+\u{2764z'
+\u{276g}'
+'\u00000000'
+'\u01000000'
+'\u9999999'
 
 '😭😂😘'

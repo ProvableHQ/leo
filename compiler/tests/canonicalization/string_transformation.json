@@ -20,27 +20,18 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let s = \\\\\\\"Hello, World!\\\\\\\";\\\"}\"}",
+                  "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let s = \\\\\\\"\\\\\\\\u{2764}ello, World!\\\\\\\";\\\"}\"}",
                   "span": {
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 9,
                     "col_stop": 10,
                     "path": "",
-                    "content": "    let s = \"Hello, World!\";"
+                    "content": "    let s = \"\\u{2764}ello, World!\";"
                   }
                 }
               ],
-              "type_": {
-                "Array": [
-                  "Char",
-                  [
-                    {
-                      "value": "13"
-                    }
-                  ]
-                ]
-              },
+              "type_": null,
               "value": {
                 "ArrayInline": {
                   "elements": [
@@ -48,14 +39,14 @@
                       "Expression": {
                         "Value": {
                           "Char": [
-                            "H",
+                            "❤",
                             {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -70,9 +61,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -87,9 +78,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -104,9 +95,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -121,9 +112,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -138,9 +129,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -155,9 +146,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -172,9 +163,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -189,9 +180,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -206,9 +197,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -223,9 +214,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -240,9 +231,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -257,9 +248,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -270,9 +261,9 @@
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 13,
-                    "col_stop": 28,
+                    "col_stop": 35,
                     "path": "",
-                    "content": "    let s = \"Hello, World!\";"
+                    "content": "    let s = \"\\u{2764}ello, World!\";"
                   }
                 }
               },
@@ -280,9 +271,9 @@
                 "line_start": 2,
                 "line_stop": 2,
                 "col_start": 5,
-                "col_stop": 28,
+                "col_stop": 35,
                 "path": "",
-                "content": "    let s = \"Hello, World!\";"
+                "content": "    let s = \"\\u{2764}ello, World!\";"
               }
             }
           }

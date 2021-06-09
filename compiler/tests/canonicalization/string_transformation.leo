@@ -1,3 +1,3 @@
 function main() {
-    let s = "Hello, World!";
+    let s = "\u{2764}ello, World!";
 }

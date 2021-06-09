@@ -1,0 +1,5 @@
+[main]
+character: char = '\u{10001F}';
+
+[registers]
+r: char = 'a';
