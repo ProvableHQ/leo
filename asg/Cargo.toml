@@ -1,6 +1,6 @@
 [package]
 name = "leo-asg"
-version = "1.5.0"
+version = "1.5.1"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "ASG of the Leo programming language"
 homepage = "https://aleo.org"
@@ -30,11 +30,11 @@ version = "1.6"
 version = "1.0"
 
 [dependencies.leo-ast]
-version = "1.5.0"
+version = "1.5.1"
 path = "../ast"
 
 [dependencies.leo-parser]
-version = "1.5.0"
+version = "1.5.1"
 path = "../parser"
 
 [dependencies.num-bigint]
