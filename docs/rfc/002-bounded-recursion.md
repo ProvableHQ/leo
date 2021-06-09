@@ -51,7 +51,7 @@ unrolling loops, inlining functions, decomposing arrays, etc.
 Of interest to this RFC is the inlining of functions,
 in which a function call is replaced with the function body,
 after binding the formal parameters to the the actual arguments,
-and taking care to rename apart variables to avoid conflicts.
+and taking care to rename variables if needed to avoid conflicts.
 
 Since the `main` function is the entry point into a Leo program,
 conceptually, for the purpose of this RFC,
@@ -151,13 +151,13 @@ This is an example:
 ```js
 function double(const count: u32, sum: u32) -> u32 {
     if count > 1 {
-        return double(count - 1, sum + sum)
+        return double(count - 1, sum + sum);
     } else {
         return sum + sum;
     }
 }
 function main(x: u32) -> u32 {
-    return double(3, x)
+    return double(3, x);
 }
 
 ===> {inline call double(3, x)}
@@ -165,7 +165,7 @@ function main(x: u32) -> u32 {
 function main(x: u32) -> u32 {
     let sum1 = x; // bind and rename parameter of function sum
     if 3 > 1 {
-        return double(2, sum1 + sum1)
+        return double(2, sum1 + sum1);
     } else {
         return sum1 + sum1;
     }
@@ -175,7 +175,7 @@ function main(x: u32) -> u32 {
 
 function main(x: u32) -> u32 {
     let sum1 = x;
-    return double(2, sum1 + sum1)
+    return double(2, sum1 + sum1);
 }
 
 ===> {inine call double(2, sum1 + sum1)}
@@ -184,7 +184,7 @@ function main(x: u32) -> u32 {
     let sum1 = x;
     let sum2  = sum1 + sum1; // bind and rename parameter of function sum
     if 2 > 1 {
-        return double(1, sum2 + sum2)
+        return double(1, sum2 + sum2);
     } else {
         return sum2 + sum2;
     }
@@ -205,7 +205,7 @@ function main(x: u32) -> u32 {
     let sum2  = sum1 + sum1;
     let sum3 = sum2 + sum2; // bind and rename parameter of function sum
     if 1 > 1 {
-        return double(0, sum3 + sum3)
+        return double(0, sum3 + sum3);
     } else {
         return sum3 + sum3;
     }
@@ -225,13 +225,13 @@ This is a slightly more complex example
 ```js
 function double(const count: u32, sum: u32) -> u32 {
     if count > 1 && sum < 30 {
-        return double(count - 1, sum + sum)
+        return double(count - 1, sum + sum);
     } else {
         return sum + sum;
     }
 }
 function main(x: u32) -> u32 {
-    return double(3, x)
+    return double(3, x);
 }
 
 ===> {inline call double(3, x)}
@@ -239,7 +239,7 @@ function main(x: u32) -> u32 {
 function main(x: u32) -> u32 {
     let sum1 = x; // bind and rename parameter of function sum
     if 3 > 1 && sum1 < 30 {
-        return double(2, sum1 + sum1)
+        return double(2, sum1 + sum1);
     } else {
         return sum1 + sum1;
     }
@@ -250,7 +250,7 @@ function main(x: u32) -> u32 {
 function main(x: u32) -> u32 {
     let sum1 = x;
     if sum1 < 30 {
-        return double(2, sum1 + sum1)
+        return double(2, sum1 + sum1);
     } else {
         return sum1 + sum1;
     }
@@ -263,7 +263,7 @@ function main(x: u32) -> u32 {
     if sum1 < 30 {
         let sum2 = sum1 + sum1; // bind and rename parameter of function sum
         if 2 > 1 && sum2 < 30 {
-            return double(1, sum2 + sum2)
+            return double(1, sum2 + sum2);
         } else {
             return sum2 + sum2;
         }
@@ -279,7 +279,7 @@ function main(x: u32) -> u32 {
     if sum1 < 30 {
         let sum2 = sum1 + sum1;
         if sum2 < 30 {
-            return double(1, sum2 + sum2)
+            return double(1, sum2 + sum2);
         } else {
             return sum2 + sum2;
         }
@@ -297,7 +297,7 @@ function main(x: u32) -> u32 {
         if sum2 < 30 {
             let sum3 = sum2 + sum2; // bind and rename parameter of function sum
             if 1 > 1 && sum3 < 30 {
-                return double(0, sum3 + sum3)
+                return double(0, sum3 + sum3);
             } else {
                 return sum3 + sum3;
             }
@@ -409,7 +409,7 @@ n! =def= [IF n = 0 THEN 1 ELSE n * (n-1)!]
 ```
 terminates because, if `n` is not 0, we have that `n-1 < n`,
 and `<` is well-founded on the natural numbers;
-in this example, the measure of the (only) argument is the argument itself.
+in this example, the measure of the argument is the argument itself.
 (A relation is well-founded when
 it has no infinite strictly decreasing sequence;
 note that, in the factorial example,
