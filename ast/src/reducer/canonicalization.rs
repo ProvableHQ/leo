@@ -493,7 +493,6 @@ impl ReconstructingReducer for Canonicalizer {
             )));
         }
 
-
         Ok(Expression::ArrayInline(ArrayInlineExpression {
             elements,
             span: span.clone(),
