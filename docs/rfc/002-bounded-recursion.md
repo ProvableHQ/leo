@@ -376,6 +376,25 @@ As the Leo compiler sometimes performs expensive computations,
 it may be important that it provide periodic output to the user,
 to reassure them that the compiler is not stuck.
 
+We will add a flag to the `leo` CLI whose long form is
+```
+--inline-limit
+```
+and whose short form is
+```
+-il
+```
+This option is followed by a number (more precisley, a positive integer)
+that specifies the limit to the depth of the inlining stack.
+
+The name of this option has been chosen
+according to a `--...-limit` template
+that may be used to specify other kinds of limits,
+as discussed later.
+
+In Aleo Studio, this compiler option is presumably specified
+via GUI preferences and build configurations.
+
 ## Circularity Detection
 
 Besides the depth of the inlining call stack,
