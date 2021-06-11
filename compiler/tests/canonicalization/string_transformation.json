@@ -31,16 +31,7 @@
                   }
                 }
               ],
-              "type_": {
-                "Array": [
-                  "Char",
-                  [
-                    {
-                      "value": "13"
-                    }
-                  ]
-                ]
-              },
+              "type_": null,
               "value": {
                 "ArrayInline": {
                   "elements": [
@@ -285,11 +276,105 @@
                 "content": "    let s = \"Hello, World!\";"
               }
             }
+          },
+          {
+            "Assign": {
+              "operation": "Assign",
+              "assignee": {
+                "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    s[..2] = \\\\\\\"ab\\\\\\\";\\\"}\"}",
+                "accesses": [
+                  {
+                    "ArrayRange": [
+                      null,
+                      {
+                        "Value": {
+                          "Implicit": [
+                            "2",
+                            {
+                              "line_start": 3,
+                              "line_stop": 3,
+                              "col_start": 9,
+                              "col_stop": 10,
+                              "path": "",
+                              "content": "    s[..2] = \"ab\";"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "span": {
+                  "line_start": 3,
+                  "line_stop": 3,
+                  "col_start": 5,
+                  "col_stop": 11,
+                  "path": "",
+                  "content": "    s[..2] = \"ab\";"
+                }
+              },
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "a",
+                            {
+                              "line_start": 3,
+                              "line_stop": 3,
+                              "col_start": 14,
+                              "col_stop": 18,
+                              "path": "",
+                              "content": "    s[..2] = \"ab\";"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": [
+                            "b",
+                            {
+                              "line_start": 3,
+                              "line_stop": 3,
+                              "col_start": 14,
+                              "col_stop": 18,
+                              "path": "",
+                              "content": "    s[..2] = \"ab\";"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "span": {
+                    "line_start": 3,
+                    "line_stop": 3,
+                    "col_start": 14,
+                    "col_stop": 18,
+                    "path": "",
+                    "content": "    s[..2] = \"ab\";"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 3,
+                "line_stop": 3,
+                "col_start": 5,
+                "col_stop": 18,
+                "path": "",
+                "content": "    s[..2] = \"ab\";"
+              }
+            }
           }
         ],
         "span": {
           "line_start": 1,
-          "line_stop": 3,
+          "line_stop": 4,
           "col_start": 17,
           "col_stop": 2,
           "path": "",
@@ -298,11 +383,11 @@
       },
       "span": {
         "line_start": 1,
-        "line_stop": 3,
+        "line_stop": 4,
         "col_start": 1,
         "col_stop": 2,
         "path": "",
-        "content": "function main() {\n...\n}"
+        "content": "function main() {\n...\n}\n"
       }
     }
   }
