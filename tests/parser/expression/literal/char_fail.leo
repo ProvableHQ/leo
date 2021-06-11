@@ -13,6 +13,13 @@ expectation: Fail
 '\x7'
 '\x7g'
 '\xz'
+'\x80'
+'\xc1'
+'\xc2'
+'\xDF'
+'\xC0'
+'\xe0'
+'\x9f'
 
 'abcdefg'
 
