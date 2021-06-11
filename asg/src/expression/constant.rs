@@ -16,6 +16,7 @@
 
 use crate::{
     AsgConvertError,
+    CharValue,
     ConstInt,
     ConstValue,
     Expression,
@@ -118,22 +119,22 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     ),
                 }
             }
-            Char(value, span) => {
+            Char(value) => {
                 match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Char) | None => (),
                     Some(x) => {
                         return Err(AsgConvertError::unexpected_type(
                             &x.to_string(),
                             Some(&*Type::Char.to_string()),
-                            span,
+                            value.span(),
                         ));
                     }
                 }
 
                 Constant {
                     parent: Cell::new(None),
-                    span: Some(span.clone()),
-                    value: ConstValue::Char(*value),
+                    span: Some(value.span().clone()),
+                    value: ConstValue::Char(CharValue::from(value.clone())),
                 }
             }
             Field(value, span) => {
@@ -236,7 +237,16 @@ impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
             ConstValue::Boolean(value) => {
                 leo_ast::ValueExpression::Boolean(value.to_string().into(), self.span.clone().unwrap_or_default())
             }
-            ConstValue::Char(value) => leo_ast::ValueExpression::Char(*value, self.span.clone().unwrap_or_default()),
+            ConstValue::Char(value) => match value {
+                CharValue::Scalar(scalar) => leo_ast::ValueExpression::Char(leo_ast::CharValue {
+                    character: leo_ast::Char::Scalar(*scalar),
+                    span: self.span.clone().unwrap_or_default(),
+                }),
+                CharValue::NonScalar(non_scalar) => leo_ast::ValueExpression::Char(leo_ast::CharValue {
+                    character: leo_ast::Char::NonScalar(*non_scalar),
+                    span: self.span.clone().unwrap_or_default(),
+                }),
+            },
             ConstValue::Field(value) => {
                 leo_ast::ValueExpression::Field(value.to_string().into(), self.span.clone().unwrap_or_default())
             }

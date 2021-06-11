@@ -4,7 +4,12 @@ expectation: Pass
 outputs:
   - Value:
       String:
-        - string
+        - - Scalar: s
+          - Scalar: t
+          - Scalar: r
+          - Scalar: i
+          - Scalar: n
+          - Scalar: g
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -13,7 +18,24 @@ outputs:
           content: "\"string\""
   - Value:
       String:
-        - "another { } string"
+        - - Scalar: a
+          - Scalar: n
+          - Scalar: o
+          - Scalar: t
+          - Scalar: h
+          - Scalar: e
+          - Scalar: r
+          - Scalar: " "
+          - Scalar: "{"
+          - Scalar: " "
+          - Scalar: "}"
+          - Scalar: " "
+          - Scalar: s
+          - Scalar: t
+          - Scalar: r
+          - Scalar: i
+          - Scalar: n
+          - Scalar: g
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -22,7 +44,15 @@ outputs:
           content: "\"another { } string\""
   - Value:
       String:
-        - "{ ] [ ; a"
+        - - Scalar: "{"
+          - Scalar: " "
+          - Scalar: "]"
+          - Scalar: " "
+          - Scalar: "["
+          - Scalar: " "
+          - Scalar: ;
+          - Scalar: " "
+          - Scalar: a
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -31,7 +61,7 @@ outputs:
           content: "\"{ ] [ ; a\""
   - Value:
       String:
-        - ࿺
+        - - Scalar: ࿺
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -40,7 +70,7 @@ outputs:
           content: "\"\\u{FFA}\""
   - Value:
       String:
-        - 򯫺
+        - - Scalar: 򯫺
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -49,7 +79,7 @@ outputs:
           content: "\"\\u{afafa}\""
   - Value:
       String:
-        - 꾯
+        - - Scalar: 꾯
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -58,7 +88,7 @@ outputs:
           content: "\"\\u{afaf}\""
   - Value:
       String:
-        - ૺ
+        - - Scalar: ૺ
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -67,7 +97,7 @@ outputs:
           content: "\"\\u{afa}\""
   - Value:
       String:
-        - ¯
+        - - Scalar: ¯
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -76,7 +106,7 @@ outputs:
           content: "\"\\u{af}\""
   - Value:
       String:
-        - "\n"
+        - - Scalar: "\n"
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -85,7 +115,7 @@ outputs:
           content: "\"\\u{a}\""
   - Value:
       String:
-        - "\n"
+        - - Scalar: "\n"
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -94,7 +124,7 @@ outputs:
           content: "\"\\x0A\""
   - Value:
       String:
-        - 
+        - - Scalar: 
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -103,7 +133,25 @@ outputs:
           content: "\"\\x7F\""
   - Value:
       String:
-        - "aa \\ \"  \n aa \t \r  \u0000"
+        - - Scalar: a
+          - Scalar: a
+          - Scalar: " "
+          - Scalar: "\\"
+          - Scalar: " "
+          - Scalar: "\""
+          - Scalar: " "
+          - Scalar: " "
+          - Scalar: "\n"
+          - Scalar: " "
+          - Scalar: a
+          - Scalar: a
+          - Scalar: " "
+          - Scalar: "\t"
+          - Scalar: " "
+          - Scalar: "\r"
+          - Scalar: " "
+          - Scalar: " "
+          - Scalar: "\u0000"
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -112,7 +160,13 @@ outputs:
           content: "\"aa \\\\ \\\"  \\n aa \\t \\r  \\0\""
   - Value:
       String:
-        - test 😒€
+        - - Scalar: t
+          - Scalar: e
+          - Scalar: s
+          - Scalar: t
+          - Scalar: " "
+          - Scalar: 😒
+          - Scalar: €
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -121,7 +175,9 @@ outputs:
           content: "\"test 😒€\""
   - Value:
       String:
-        - 😭😂😘
+        - - Scalar: 😭
+          - Scalar: 😂
+          - Scalar: 😘
         - line_start: 1
           line_stop: 1
           col_start: 1

@@ -27,13 +27,13 @@ use crate::{
         group::input::group_from_input,
         ConstrainedValue,
     },
-    Char,
+    CharType,
     FieldType,
     GroupType,
     Integer,
 };
 use leo_asg::{ConstInt, Type};
-use leo_ast::{InputValue, Span};
+use leo_ast::{Char, InputValue, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -83,12 +83,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         match (type_, input) {
             (Type::Address, InputValue::Address(addr)) => Ok(ConstrainedValue::Address(Address::constant(addr, span)?)),
             (Type::Boolean, InputValue::Boolean(value)) => Ok(ConstrainedValue::Boolean(Boolean::constant(value))),
-            (Type::Char, InputValue::Char(character)) => Ok(ConstrainedValue::Char(Char::constant(
-                cs,
-                character,
-                format!("{}", character as u32),
-                span,
-            )?)),
+            (Type::Char, InputValue::Char(character)) => {
+                let c = match character.character {
+                    Char::Scalar(scalar) => CharType::Scalar(scalar),
+                    Char::NonScalar(non_scalar) => CharType::NonScalar(non_scalar),
+                };
+                Ok(ConstrainedValue::Char(crate::Char::constant(
+                    cs,
+                    c,
+                    format!("{}", character),
+                    span,
+                )?))
+            }
             (Type::Field, InputValue::Field(value)) => {
                 Ok(ConstrainedValue::Field(FieldType::constant(cs, value, span)?))
             }

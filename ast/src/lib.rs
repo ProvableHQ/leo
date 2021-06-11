@@ -29,6 +29,9 @@ pub use self::annotation::*;
 pub mod circuits;
 pub use self::circuits::*;
 
+pub mod chars;
+pub use self::chars::*;
+
 pub mod common;
 pub use self::common::*;
 

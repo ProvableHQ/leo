@@ -65,6 +65,8 @@ use leo_ast::{
     Block as AstBlockStatement,
     CallExpression as AstCallExpression,
     CastExpression as AstCastExpression,
+    Char,
+    CharValue,
     Circuit as AstCircuit,
     CircuitImpliedVariableDefinition,
     CircuitInitExpression as AstCircuitInitExpression,
@@ -432,9 +434,13 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                         new = ValueExpression::Boolean(tendril.clone(), span.clone());
                     }
                     ConstValue::Char(_) => {
-                        if let Some(c) = tendril.chars().next() {
-                            new = ValueExpression::Char(c, span.clone());
+                        if let Some(character) = tendril.chars().next() {
+                            new = ValueExpression::Char(CharValue {
+                                character: Char::Scalar(character),
+                                span: span.clone(),
+                            });
                         } else {
+                            // TODO handle implicit non-scalar
                             return Err(ReducerError::failed_to_convert_tendril_to_char(
                                 tendril.to_string(),
                                 span,

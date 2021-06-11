@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::tokenizer::Token;
+use crate::tokenizer::{Char, Token};
 use leo_ast::Span;
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
@@ -64,7 +64,7 @@ impl Token {
     ///
     /// Returns a `char` if an character can be eaten, otherwise returns [`None`].
     ///
-    fn eat_char(input_tendril: StrTendril, escaped: bool, hex: bool, unicode: bool) -> Option<char> {
+    fn eat_char(input_tendril: StrTendril, escaped: bool, hex: bool, unicode: bool) -> Option<Char> {
         if input_tendril.is_empty() {
             return None;
         }
@@ -79,13 +79,13 @@ impl Token {
 
             if let Some(character) = escaped.chars().next() {
                 return match character {
-                    '0' => Some(0 as char),
-                    't' => Some(9 as char),
-                    'n' => Some(10 as char),
-                    'r' => Some(13 as char),
-                    '\"' => Some(34 as char),
-                    '\'' => Some(39 as char),
-                    '\\' => Some(92 as char),
+                    '0' => Some(Char::Scalar(0 as char)),
+                    't' => Some(Char::Scalar(9 as char)),
+                    'n' => Some(Char::Scalar(10 as char)),
+                    'r' => Some(Char::Scalar(13 as char)),
+                    '\"' => Some(Char::Scalar(34 as char)),
+                    '\'' => Some(Char::Scalar(39 as char)),
+                    '\\' => Some(Char::Scalar(92 as char)),
                     _ => None,
                 };
             } else {
@@ -107,7 +107,7 @@ impl Token {
                     return None;
                 }
 
-                return Some(ascii_number as char);
+                return Some(Char::Scalar(ascii_number as char));
             }
         }
 
@@ -121,7 +121,10 @@ impl Token {
 
             if let Ok(hex) = u32::from_str_radix(&unicode_number, 16) {
                 if let Some(character) = std::char::from_u32(hex) {
-                    return Some(character);
+                    // scalar
+                    return Some(Char::Scalar(character));
+                } else if hex <= 0x10FFFF {
+                    return Some(Char::NonScalar(hex));
                 }
             }
         }
@@ -129,7 +132,7 @@ impl Token {
         if input_tendril.to_string().chars().count() != 1 {
             return None;
         } else if let Some(character) = input_tendril.to_string().chars().next() {
-            return Some(character);
+            return Some(Char::Scalar(character));
         }
 
         None
@@ -205,7 +208,7 @@ impl Token {
                 let mut hex = false;
                 let mut unicode = false;
                 let mut end = false;
-                let mut string = String::new();
+                let mut string = Vec::new();
 
                 while i < input.len() {
                     // If it's an emoji get the length.
@@ -260,7 +263,7 @@ impl Token {
                                 escaped = false;
                                 hex = false;
                                 unicode = false;
-                                string.push(character);
+                                string.push(character.into());
                             }
                             None => return (0, None),
                         }

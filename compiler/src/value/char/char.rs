@@ -31,17 +31,23 @@ use snarkvm_gadgets::{
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 
+#[derive(Clone, Debug)]
+pub enum CharType {
+    Scalar(char),
+    NonScalar(u32),
+}
+
 /// A char
 #[derive(Clone, Debug)]
 pub struct Char<F: PrimeField> {
-    pub character: char,
+    pub character: CharType,
     pub field: FieldType<F>,
 }
 
 impl<F: PrimeField> Char<F> {
     pub fn constant<CS: ConstraintSystem<F>>(
         cs: CS,
-        character: char,
+        character: CharType,
         field: String,
         span: &Span,
     ) -> Result<Self, CharError> {
@@ -118,13 +124,13 @@ impl<F: PrimeField> CondSelectGadget<F> for Char<F> {
 
         if field == first.field {
             return Ok(Char {
-                character: first.character,
+                character: first.character.clone(),
                 field,
             });
         }
 
         Ok(Char {
-            character: second.character,
+            character: second.character.clone(),
             field,
         })
     }
@@ -144,12 +150,17 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
     let option = match input_value {
         Some(input) => {
             if let InputValue::Char(character) = input {
-                (character, Some((character as u32).to_string()))
+                match character.character {
+                    leo_ast::Char::Scalar(scalar) => (CharType::Scalar(scalar), Some((scalar as u32).to_string())),
+                    leo_ast::Char::NonScalar(non_scalar) => {
+                        (CharType::NonScalar(non_scalar), Some(non_scalar.to_string()))
+                    }
+                }
             } else {
                 return Err(CharError::invalid_char(input.to_string(), span));
             }
         }
-        None => (' ', None),
+        None => (CharType::Scalar(0 as char), None),
     };
 
     let field = allocate_field(cs, name, option.1, span)?;
@@ -162,6 +173,9 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
 
 impl<F: PrimeField + std::fmt::Display> std::fmt::Display for Char<F> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", char::escape_default(self.character))
+        match self.character {
+            CharType::Scalar(scalar) => write!(f, "{}", char::escape_default(scalar)),
+            CharType::NonScalar(non_scalar) => write!(f, "\\u{{{:X}}}", non_scalar),
+        }
     }
 }

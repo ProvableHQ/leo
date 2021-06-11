@@ -20,248 +20,284 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let s = \\\\\\\"Hello, World!\\\\\\\";\\\"}\"}",
+                  "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let s = \\\\\\\"Hello, World!\\\\\\\\u{DDDD}\\\\\\\";\\\"}\"}",
                   "span": {
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 9,
                     "col_stop": 10,
                     "path": "",
-                    "content": "    let s = \"Hello, World!\";"
+                    "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                   }
                 }
               ],
-              "type_": {
-                "Array": [
-                  "Char",
-                  [
-                    {
-                      "value": "13"
-                    }
-                  ]
-                ]
-              },
+              "type_": null,
               "value": {
                 "ArrayInline": {
                   "elements": [
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "H",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "H"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "e",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "e"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "l",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "l"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "l",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "l"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "o",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "o"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            ",",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": ","
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            " ",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": " "
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "W",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "W"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "o",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "o"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "r",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "r"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "l",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "l"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "d",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "d"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "!",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": "!"
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 36,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": {
+                            "character": {
+                              "NonScalar": 56797
+                            },
+                            "span": {
+                              "line_start": 2,
+                              "line_stop": 2,
+                              "col_start": 13,
+                              "col_stop": 36,
+                              "path": "",
+                              "content": "    let s = \"Hello, World!\\u{DDDD}\";"
+                            }
+                          }
                         }
                       }
                     }
@@ -270,9 +306,9 @@
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 13,
-                    "col_stop": 28,
+                    "col_stop": 36,
                     "path": "",
-                    "content": "    let s = \"Hello, World!\";"
+                    "content": "    let s = \"Hello, World!\\u{DDDD}\";"
                   }
                 }
               },
@@ -280,9 +316,9 @@
                 "line_start": 2,
                 "line_stop": 2,
                 "col_start": 5,
-                "col_stop": 28,
+                "col_stop": 36,
                 "path": "",
-                "content": "    let s = \"Hello, World!\";"
+                "content": "    let s = \"Hello, World!\\u{DDDD}\";"
               }
             }
           }

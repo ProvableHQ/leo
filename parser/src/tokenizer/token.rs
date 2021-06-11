@@ -18,6 +18,31 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use tendril::StrTendril;
 
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum Char {
+    Scalar(char),
+    NonScalar(u32),
+}
+
+#[allow(clippy::from_over_into)]
+impl Into<leo_ast::Char> for Char {
+    fn into(self) -> leo_ast::Char {
+        match self {
+            Self::Scalar(c) => leo_ast::Char::Scalar(c),
+            Self::NonScalar(c) => leo_ast::Char::NonScalar(c),
+        }
+    }
+}
+
+impl fmt::Display for Char {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Scalar(c) => write!(f, "{}", c),
+            Self::NonScalar(c) => write!(f, "{}", c),
+        }
+    }
+}
+
 /// Represents all valid Leo syntax tokens.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Token {
@@ -25,13 +50,13 @@ pub enum Token {
     // Literals
     CommentLine(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     CommentBlock(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
-    StringLit(String),
+    StringLit(Vec<leo_ast::Char>),
     Ident(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     Int(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     True,
     False,
     AddressLit(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
-    CharLit(char),
+    CharLit(Char),
 
     At,
 
@@ -191,7 +216,13 @@ impl fmt::Display for Token {
         match self {
             CommentLine(s) => write!(f, "{}", s),
             CommentBlock(s) => write!(f, "{}", s),
-            StringLit(content) => write!(f, "\"{}\"", content),
+            StringLit(string) => {
+                write!(f, "\"")?;
+                for character in string.iter() {
+                    write!(f, "{}", character)?;
+                }
+                write!(f, "\"")
+            }
             Ident(s) => write!(f, "{}", s),
             Int(s) => write!(f, "{}", s),
             True => write!(f, "true"),

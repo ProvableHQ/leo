@@ -41,7 +41,7 @@ outputs:
           parts:
             - Const: ""
             - Container
-            - Const: "{}"
+            - Const: ""
             - Container
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"console.error(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
@@ -107,7 +107,7 @@ outputs:
           parts:
             - Const: ""
             - Container
-            - Const: "{}"
+            - Const: ""
             - Container
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"console.debug(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"
@@ -173,7 +173,7 @@ outputs:
           parts:
             - Const: ""
             - Container
-            - Const: "{}"
+            - Const: ""
             - Container
           parameters:
             - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"console.log(\\\\\\\"{}{}\\\\\\\", x, y);\\\"}\"}"

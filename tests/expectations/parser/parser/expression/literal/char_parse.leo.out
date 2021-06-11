@@ -4,8 +4,10 @@ expectation: Pass
 outputs:
   - Value:
       Char:
-        - a
-        - line_start: 1
+        character:
+          Scalar: a
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 4
@@ -13,8 +15,10 @@ outputs:
           content: "'a'"
   - Value:
       Char:
-        - Z
-        - line_start: 1
+        character:
+          Scalar: Z
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 4
@@ -22,8 +26,10 @@ outputs:
           content: "'Z'"
   - Value:
       Char:
-        - "\""
-        - line_start: 1
+        character:
+          Scalar: "\""
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -31,8 +37,10 @@ outputs:
           content: "'\\\"'"
   - Value:
       Char:
-        - "\t"
-        - line_start: 1
+        character:
+          Scalar: "\t"
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -40,8 +48,10 @@ outputs:
           content: "'\\t'"
   - Value:
       Char:
-        - "\r"
-        - line_start: 1
+        character:
+          Scalar: "\r"
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -49,8 +59,10 @@ outputs:
           content: "'\\r'"
   - Value:
       Char:
-        - "\u0000"
-        - line_start: 1
+        character:
+          Scalar: "\u0000"
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -58,8 +70,10 @@ outputs:
           content: "'\\0'"
   - Value:
       Char:
-        - ❤
-        - line_start: 1
+        character:
+          Scalar: ❤
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 11
@@ -67,8 +81,10 @@ outputs:
           content: "'\\u{2764}'"
   - Value:
       Char:
-        - の
-        - line_start: 1
+        character:
+          Scalar: の
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 11
@@ -76,8 +92,10 @@ outputs:
           content: "'\\u{306E}'"
   - Value:
       Char:
-        - ❤
-        - line_start: 1
+        character:
+          Scalar: ❤
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 6
@@ -85,8 +103,10 @@ outputs:
           content: "'❤'"
   - Value:
       Char:
-        - の
-        - line_start: 1
+        character:
+          Scalar: の
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 6
@@ -94,8 +114,10 @@ outputs:
           content: "'の'"
   - Value:
       Char:
-        - "*"
-        - line_start: 1
+        character:
+          Scalar: "*"
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
