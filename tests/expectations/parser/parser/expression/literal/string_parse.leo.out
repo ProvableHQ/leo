@@ -4,12 +4,12 @@ expectation: Pass
 outputs:
   - Value:
       String:
-        - - Scalar: s
-          - Scalar: t
-          - Scalar: r
-          - Scalar: i
-          - Scalar: n
-          - Scalar: g
+        - - Scalar: 115
+          - Scalar: 116
+          - Scalar: 114
+          - Scalar: 105
+          - Scalar: 110
+          - Scalar: 103
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -18,24 +18,24 @@ outputs:
           content: "\"string\""
   - Value:
       String:
-        - - Scalar: a
-          - Scalar: n
-          - Scalar: o
-          - Scalar: t
-          - Scalar: h
-          - Scalar: e
-          - Scalar: r
-          - Scalar: " "
-          - Scalar: "{"
-          - Scalar: " "
-          - Scalar: "}"
-          - Scalar: " "
-          - Scalar: s
-          - Scalar: t
-          - Scalar: r
-          - Scalar: i
-          - Scalar: n
-          - Scalar: g
+        - - Scalar: 97
+          - Scalar: 110
+          - Scalar: 111
+          - Scalar: 116
+          - Scalar: 104
+          - Scalar: 101
+          - Scalar: 114
+          - Scalar: 32
+          - Scalar: 123
+          - Scalar: 32
+          - Scalar: 125
+          - Scalar: 32
+          - Scalar: 115
+          - Scalar: 116
+          - Scalar: 114
+          - Scalar: 105
+          - Scalar: 110
+          - Scalar: 103
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -44,15 +44,15 @@ outputs:
           content: "\"another { } string\""
   - Value:
       String:
-        - - Scalar: "{"
-          - Scalar: " "
-          - Scalar: "]"
-          - Scalar: " "
-          - Scalar: "["
-          - Scalar: " "
-          - Scalar: ;
-          - Scalar: " "
-          - Scalar: a
+        - - Scalar: 123
+          - Scalar: 32
+          - Scalar: 93
+          - Scalar: 32
+          - Scalar: 91
+          - Scalar: 32
+          - Scalar: 59
+          - Scalar: 32
+          - Scalar: 97
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -61,7 +61,7 @@ outputs:
           content: "\"{ ] [ ; a\""
   - Value:
       String:
-        - - Scalar: ࿺
+        - - Scalar: 4090
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -70,7 +70,7 @@ outputs:
           content: "\"\\u{FFA}\""
   - Value:
       String:
-        - - Scalar: 򯫺
+        - - Scalar: 719610
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -79,7 +79,7 @@ outputs:
           content: "\"\\u{afafa}\""
   - Value:
       String:
-        - - Scalar: 꾯
+        - - Scalar: 44975
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -88,7 +88,7 @@ outputs:
           content: "\"\\u{afaf}\""
   - Value:
       String:
-        - - Scalar: ૺ
+        - - Scalar: 2810
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -97,7 +97,7 @@ outputs:
           content: "\"\\u{afa}\""
   - Value:
       String:
-        - - Scalar: ¯
+        - - Scalar: 175
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -106,7 +106,7 @@ outputs:
           content: "\"\\u{af}\""
   - Value:
       String:
-        - - Scalar: "\n"
+        - - Scalar: 10
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -115,7 +115,7 @@ outputs:
           content: "\"\\u{a}\""
   - Value:
       String:
-        - - Scalar: "\n"
+        - - Scalar: 10
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -124,7 +124,7 @@ outputs:
           content: "\"\\x0A\""
   - Value:
       String:
-        - - Scalar: 
+        - - Scalar: 127
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -133,25 +133,25 @@ outputs:
           content: "\"\\x7F\""
   - Value:
       String:
-        - - Scalar: a
-          - Scalar: a
-          - Scalar: " "
-          - Scalar: "\\"
-          - Scalar: " "
-          - Scalar: "\""
-          - Scalar: " "
-          - Scalar: " "
-          - Scalar: "\n"
-          - Scalar: " "
-          - Scalar: a
-          - Scalar: a
-          - Scalar: " "
-          - Scalar: "\t"
-          - Scalar: " "
-          - Scalar: "\r"
-          - Scalar: " "
-          - Scalar: " "
-          - Scalar: "\u0000"
+        - - Scalar: 97
+          - Scalar: 97
+          - Scalar: 32
+          - Scalar: 92
+          - Scalar: 32
+          - Scalar: 34
+          - Scalar: 32
+          - Scalar: 32
+          - Scalar: 10
+          - Scalar: 32
+          - Scalar: 97
+          - Scalar: 97
+          - Scalar: 32
+          - Scalar: 9
+          - Scalar: 32
+          - Scalar: 13
+          - Scalar: 32
+          - Scalar: 32
+          - Scalar: 0
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -160,13 +160,13 @@ outputs:
           content: "\"aa \\\\ \\\"  \\n aa \\t \\r  \\0\""
   - Value:
       String:
-        - - Scalar: t
-          - Scalar: e
-          - Scalar: s
-          - Scalar: t
-          - Scalar: " "
-          - Scalar: 😒
-          - Scalar: €
+        - - Scalar: 116
+          - Scalar: 101
+          - Scalar: 115
+          - Scalar: 116
+          - Scalar: 32
+          - Scalar: 128530
+          - Scalar: 8364
         - line_start: 1
           line_stop: 1
           col_start: 1
@@ -175,9 +175,9 @@ outputs:
           content: "\"test 😒€\""
   - Value:
       String:
-        - - Scalar: 😭
-          - Scalar: 😂
-          - Scalar: 😘
+        - - Scalar: 128557
+          - Scalar: 128514
+          - Scalar: 128536
         - line_start: 1
           line_stop: 1
           col_start: 1

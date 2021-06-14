@@ -83,18 +83,20 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         match (type_, input) {
             (Type::Address, InputValue::Address(addr)) => Ok(ConstrainedValue::Address(Address::constant(addr, span)?)),
             (Type::Boolean, InputValue::Boolean(value)) => Ok(ConstrainedValue::Boolean(Boolean::constant(value))),
-            (Type::Char, InputValue::Char(character)) => {
-                let c = match character.character {
-                    Char::Scalar(scalar) => CharType::Scalar(scalar),
-                    Char::NonScalar(non_scalar) => CharType::NonScalar(non_scalar),
-                };
-                Ok(ConstrainedValue::Char(crate::Char::constant(
+            (Type::Char, InputValue::Char(character)) => match character.character {
+                Char::Scalar(scalar) => Ok(ConstrainedValue::Char(crate::Char::constant(
                     cs,
-                    c,
-                    format!("{}", character),
+                    CharType::Scalar(scalar),
+                    format!("{}", scalar as u32),
                     span,
-                )?))
-            }
+                )?)),
+                Char::NonScalar(non_scalar) => Ok(ConstrainedValue::Char(crate::Char::constant(
+                    cs,
+                    CharType::NonScalar(non_scalar),
+                    format!("{}", non_scalar),
+                    span,
+                )?)),
+            },
             (Type::Field, InputValue::Field(value)) => {
                 Ok(ConstrainedValue::Field(FieldType::constant(cs, value, span)?))
             }

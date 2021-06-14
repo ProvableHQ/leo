@@ -17,11 +17,31 @@
 use crate::common::span::Span;
 
 use serde::{Deserialize, Serialize};
+// use serde::de::{Deserialize as SerDeserialize, Deserializer};
 use std::fmt;
+
+fn char_to_u32<S>(character: &char, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: ::serde::ser::Serializer,
+{
+    serializer.serialize_u32(*character as u32)
+}
+
+fn char_from_u32<'de, D>(deserializer: D) -> Result<char, D::Error>
+where
+    D: ::serde::de::Deserializer<'de>,
+{
+    let int = u32::deserialize(deserializer)?;
+    char::from_u32(int).ok_or_else(|| ::serde::de::Error::custom("Failed to convert u32 to scalar char."))
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Char {
-    Scalar(char),
+    Scalar(
+        #[serde(deserialize_with = "char_from_u32")]
+        #[serde(serialize_with = "char_to_u32")]
+        char,
+    ),
     NonScalar(u32),
 }
 

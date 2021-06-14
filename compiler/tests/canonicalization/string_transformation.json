@@ -40,7 +40,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "H"
+                              "Scalar": 72
                             },
                             "span": {
                               "line_start": 2,
@@ -59,7 +59,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "e"
+                              "Scalar": 101
                             },
                             "span": {
                               "line_start": 2,
@@ -78,7 +78,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "l"
+                              "Scalar": 108
                             },
                             "span": {
                               "line_start": 2,
@@ -97,7 +97,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "l"
+                              "Scalar": 108
                             },
                             "span": {
                               "line_start": 2,
@@ -116,7 +116,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "o"
+                              "Scalar": 111
                             },
                             "span": {
                               "line_start": 2,
@@ -135,7 +135,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": ","
+                              "Scalar": 44
                             },
                             "span": {
                               "line_start": 2,
@@ -154,7 +154,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": " "
+                              "Scalar": 32
                             },
                             "span": {
                               "line_start": 2,
@@ -173,7 +173,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "W"
+                              "Scalar": 87
                             },
                             "span": {
                               "line_start": 2,
@@ -192,7 +192,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "o"
+                              "Scalar": 111
                             },
                             "span": {
                               "line_start": 2,
@@ -211,7 +211,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "r"
+                              "Scalar": 114
                             },
                             "span": {
                               "line_start": 2,
@@ -230,7 +230,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "l"
+                              "Scalar": 108
                             },
                             "span": {
                               "line_start": 2,
@@ -249,7 +249,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "d"
+                              "Scalar": 100
                             },
                             "span": {
                               "line_start": 2,
@@ -268,7 +268,7 @@
                         "Value": {
                           "Char": {
                             "character": {
-                              "Scalar": "!"
+                              "Scalar": 33
                             },
                             "span": {
                               "line_start": 2,

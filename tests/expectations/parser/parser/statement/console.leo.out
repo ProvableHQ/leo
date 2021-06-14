@@ -63,7 +63,8 @@ outputs:
   - Console:
       function:
         Error:
-          parts: []
+          parts:
+            - Const: x
           parameters: []
           span:
             line_start: 1
@@ -129,7 +130,8 @@ outputs:
   - Console:
       function:
         Debug:
-          parts: []
+          parts:
+            - Const: x
           parameters: []
           span:
             line_start: 1
@@ -195,7 +197,8 @@ outputs:
   - Console:
       function:
         Log:
-          parts: []
+          parts:
+            - Const: x
           parameters: []
           span:
             line_start: 1
