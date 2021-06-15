@@ -49,7 +49,7 @@ impl FormatStringPart {
                     _ => substring.push(*scalar),
                 },
                 Char::NonScalar(non_scalar) => {
-                    substring.push_str(format!("\\u{{{:X}}}", non_scalar).as_str());
+                    substring.push_str(format!("\\u{{{:x}}}", non_scalar).as_str());
                     in_container = false;
                 }
             }

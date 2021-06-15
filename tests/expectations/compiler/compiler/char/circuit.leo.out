@@ -15,28 +15,28 @@ outputs:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/escaped_unicode.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{2764}"
+              value: "'\\u{2764}'"
       - input_file: inputs/escaped.in
         output:
           registers:
             r:
               type: char
-              value: "\\'"
+              value: "'\\''"
       - input_file: inputs/hex.in
         output:
           registers:
             r:
               type: char
-              value: "*"
+              value: "'*'"
       - input_file: inputs/unicode.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{2764}"
+              value: "'\\u{2764}'"

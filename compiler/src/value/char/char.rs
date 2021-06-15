@@ -174,7 +174,7 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
 impl<F: PrimeField + std::fmt::Display> std::fmt::Display for Char<F> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self.character {
-            CharType::Scalar(scalar) => write!(f, "{}", char::escape_default(scalar)),
+            CharType::Scalar(scalar) => write!(f, "{}", scalar),
             CharType::NonScalar(non_scalar) => write!(f, "\\u{{{:X}}}", non_scalar),
         }
     }

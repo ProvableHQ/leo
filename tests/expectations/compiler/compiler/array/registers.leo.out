@@ -15,10 +15,10 @@ outputs:
           registers:
             r:
               type: "[u8; 3]"
-              value: "[3, 2, 1]"
+              value: "\"321\""
       - input_file: input/registers_zeros.in
         output:
           registers:
             r:
               type: "[u8; 3]"
-              value: "[1, 2, 3]"
+              value: "\"123\""
