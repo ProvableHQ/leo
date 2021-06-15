@@ -32,7 +32,7 @@ where
     D: ::serde::de::Deserializer<'de>,
 {
     let int = u32::deserialize(deserializer)?;
-    char::from_u32(int).ok_or_else(|| ::serde::de::Error::custom("Failed to convert u32 to scalar char."))
+    std::char::from_u32(int).ok_or_else(|| ::serde::de::Error::custom("Failed to convert u32 to scalar char."))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

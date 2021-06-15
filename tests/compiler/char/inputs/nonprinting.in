@@ -1,0 +1,72 @@
+[main]
+in1: char = '\x00';
+in2: char = '\x01';
+in3: char = '\x02';
+in4: char = '\x03';
+in5: char = '\x04';
+in6: char = '\x05';
+in7: char = '\x06';
+in8: char = '\x07';
+in9: char = '\x08';
+in10: char = '\x09';
+in11: char = '\x0A';
+in12: char = '\x0B';
+in13: char = '\x0C';
+in14: char = '\x0D';
+in15: char = '\x0E';
+in16: char = '\x0F';
+in17: char = '\x10';
+in18: char = '\x11';
+in19: char = '\x12';
+in20: char = '\x13';
+in21: char = '\x14';
+in22: char = '\x15';
+in23: char = '\x16';
+in24: char = '\x17';
+in25: char = '\x18';
+in26: char = '\x19';
+in27: char = '\x1A';
+in28: char = '\x1B';
+in29: char = '\x1C';
+in30: char = '\x1D';
+in31: char = '\x1E';
+in32: char = '\x1F';
+in33: char = '\x20';
+
+[registers]
+r0: [char; 33] = [
+    '\x00',
+    '\x01',
+    '\x02',
+    '\x03',
+    '\x04',
+    '\x05',
+    '\x06',
+    '\x07',
+    '\x08',
+    '\x09',
+    '\x0A',
+    '\x0B',
+    '\x0C',
+    '\x0D',
+    '\x0E',
+    '\x0F',
+    '\x10',
+    '\x11',
+    '\x12',
+    '\x13',
+    '\x14',
+    '\x15',
+    '\x16',
+    '\x17',
+    '\x18',
+    '\x19',
+    '\x1A',
+    '\x1B',
+    '\x1C',
+    '\x1D',
+    '\x1E',
+    '\x1F',
+    '\x20'
+];
+r1: bool = false;

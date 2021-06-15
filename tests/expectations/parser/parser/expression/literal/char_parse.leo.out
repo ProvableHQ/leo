@@ -71,6 +71,72 @@ outputs:
   - Value:
       Char:
         character:
+          Scalar: 15
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: test
+          content: "'\\u{F}'"
+  - Value:
+      Char:
+        character:
+          Scalar: 57359
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: test
+          content: "''"
+  - Value:
+      Char:
+        character:
+          Scalar: 229
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: test
+          content: "'\\u{E5}'"
+  - Value:
+      Char:
+        character:
+          Scalar: 229
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: test
+          content: "'å'"
+  - Value:
+      Char:
+        character:
+          Scalar: 1248
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 10
+          path: test
+          content: "'\\u{4e0}'"
+  - Value:
+      Char:
+        character:
+          Scalar: 1248
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: test
+          content: "'Ӡ'"
+  - Value:
+      Char:
+        character:
           Scalar: 10084
         span:
           line_start: 1
@@ -79,17 +145,6 @@ outputs:
           col_stop: 11
           path: test
           content: "'\\u{2764}'"
-  - Value:
-      Char:
-        character:
-          Scalar: 12398
-        span:
-          line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 11
-          path: test
-          content: "'\\u{306E}'"
   - Value:
       Char:
         character:
@@ -104,14 +159,36 @@ outputs:
   - Value:
       Char:
         character:
-          Scalar: 12398
+          Scalar: 128546
         span:
           line_start: 1
           line_stop: 1
           col_start: 1
-          col_stop: 6
+          col_stop: 12
           path: test
-          content: "'の'"
+          content: "'\\u{1F622}'"
+  - Value:
+      Char:
+        character:
+          Scalar: 128557
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'😭'"
+  - Value:
+      Char:
+        character:
+          Scalar: 1048607
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: test
+          content: "'\\u{10001F}'"
   - Value:
       Char:
         character:
@@ -123,3 +200,366 @@ outputs:
           col_stop: 7
           path: test
           content: "'\\x2A'"
+  - Value:
+      Char:
+        character:
+          Scalar: 127
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x7f'"
+  - Value:
+      Char:
+        character:
+          Scalar: 0
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x00'"
+  - Value:
+      Char:
+        character:
+          Scalar: 1
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x01'"
+  - Value:
+      Char:
+        character:
+          Scalar: 2
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x02'"
+  - Value:
+      Char:
+        character:
+          Scalar: 3
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x03'"
+  - Value:
+      Char:
+        character:
+          Scalar: 4
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x04'"
+  - Value:
+      Char:
+        character:
+          Scalar: 5
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x05'"
+  - Value:
+      Char:
+        character:
+          Scalar: 6
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x06'"
+  - Value:
+      Char:
+        character:
+          Scalar: 7
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x07'"
+  - Value:
+      Char:
+        character:
+          Scalar: 16
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x10'"
+  - Value:
+      Char:
+        character:
+          Scalar: 17
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x11'"
+  - Value:
+      Char:
+        character:
+          Scalar: 18
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x12'"
+  - Value:
+      Char:
+        character:
+          Scalar: 19
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x13'"
+  - Value:
+      Char:
+        character:
+          Scalar: 20
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x14'"
+  - Value:
+      Char:
+        character:
+          Scalar: 21
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x15'"
+  - Value:
+      Char:
+        character:
+          Scalar: 22
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x16'"
+  - Value:
+      Char:
+        character:
+          Scalar: 23
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x17'"
+  - Value:
+      Char:
+        character:
+          Scalar: 32
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x20'"
+  - Value:
+      Char:
+        character:
+          Scalar: 33
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x21'"
+  - Value:
+      Char:
+        character:
+          Scalar: 34
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x22'"
+  - Value:
+      Char:
+        character:
+          Scalar: 35
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x23'"
+  - Value:
+      Char:
+        character:
+          Scalar: 36
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x24'"
+  - Value:
+      Char:
+        character:
+          Scalar: 37
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x25'"
+  - Value:
+      Char:
+        character:
+          Scalar: 38
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x26'"
+  - Value:
+      Char:
+        character:
+          Scalar: 39
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x27'"
+  - Value:
+      Char:
+        character:
+          Scalar: 48
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x30'"
+  - Value:
+      Char:
+        character:
+          Scalar: 49
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x31'"
+  - Value:
+      Char:
+        character:
+          Scalar: 50
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x32'"
+  - Value:
+      Char:
+        character:
+          Scalar: 51
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x33'"
+  - Value:
+      Char:
+        character:
+          Scalar: 52
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x34'"
+  - Value:
+      Char:
+        character:
+          Scalar: 53
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x35'"
+  - Value:
+      Char:
+        character:
+          Scalar: 54
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x36'"
+  - Value:
+      Char:
+        character:
+          Scalar: 55
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x37'"

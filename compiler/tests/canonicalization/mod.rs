@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{assert_satisfied, parse_program, parse_program_with_input};
+use crate::parse_program;
 use leo_ast::Ast;
 use leo_parser::parser;
 
@@ -35,9 +35,6 @@ pub fn parse_program_ast(file_string: &str) -> Ast {
 fn test_big_self_in_circuit_replacement() {
     // Check program is valid.
     let program_string = include_str!("big_self_in_circuit_replacement.leo");
-    let program = parse_program(program_string).unwrap();
-    assert_satisfied(program);
-
     // Check we get expected ast.
     let ast = parse_program_ast(program_string);
     let expected_json = include_str!("big_self_in_circuit_replacement.json");
@@ -57,10 +54,6 @@ fn test_big_self_outside_circuit_fail() {
 #[test]
 fn test_array_expansion() {
     let program_string = include_str!("array_expansion.leo");
-    let input_string = include_str!("input/array_expansion.in");
-    let program = parse_program_with_input(program_string, input_string).unwrap();
-    assert_satisfied(program);
-
     let ast = parse_program_ast(program_string);
     let expected_json = include_str!("array_expansion.json");
     let expected_ast: Ast = Ast::from_json_string(expected_json).expect("Unable to parse json.");
@@ -78,9 +71,6 @@ fn test_array_size_zero_fail() {
 #[test]
 fn test_compound_assignment() {
     let program_string = include_str!("compound_assignment.leo");
-    let program = parse_program(program_string).unwrap();
-    assert_satisfied(program);
-
     let ast = parse_program_ast(program_string);
     let expected_json = include_str!("compound_assignment.json");
     let expected_ast: Ast = Ast::from_json_string(expected_json).expect("Unable to parse json.");
@@ -99,9 +89,6 @@ fn test_illegal_array_range_fail() {
 #[test]
 fn test_string_transformation() {
     let program_string = include_str!("string_transformation.leo");
-    let program = parse_program(program_string).unwrap();
-    assert_satisfied(program);
-
     let ast = parse_program_ast(program_string);
     let expected_json = include_str!("string_transformation.json");
     let expected_ast: Ast = Ast::from_json_string(expected_json).expect("Unable to parse json.");

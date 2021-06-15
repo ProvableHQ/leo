@@ -1,3 +1,4 @@
 function main() {
-    let s = "Hello, World!\u{DDDD}";
+    let s = "\u{2764}ello, World!\u{DDDD}";
+    s[..2] = "he";
 }

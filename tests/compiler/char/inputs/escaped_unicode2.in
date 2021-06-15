@@ -1,0 +1,5 @@
+[main]
+character: char = '\u{E5}';
+
+[registers]
+r: char = 'a';

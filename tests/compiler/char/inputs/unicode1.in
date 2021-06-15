@@ -1,0 +1,5 @@
+[main]
+character: char = '';
+
+[registers]
+r: char = 'a';

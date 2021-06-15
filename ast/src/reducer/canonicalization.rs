@@ -605,6 +605,12 @@ impl ReconstructingReducer for Canonicalizer {
                     span: assign.span.clone(),
                 })
             }
+            Expression::ArrayInline(_) => Ok(AssignStatement {
+                operation: AssignOperation::Assign,
+                assignee,
+                value,
+                span: assign.span.clone(),
+            }),
             _ => Ok(assign.clone()),
         }
     }

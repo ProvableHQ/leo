@@ -113,7 +113,7 @@ impl<'ast> CharTypes<'ast> {
             Self::Hex(character) => {
                 let hex_string_number = character.value[2..character.value.len()].to_string();
                 if let Ok(number) = u8::from_str_radix(&hex_string_number, 16) {
-                    if number < 127 {
+                    if number <= 127 {
                         return Ok(Char::Scalar(number as char));
                     }
                 }
