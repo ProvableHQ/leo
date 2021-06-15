@@ -46,9 +46,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.40"
+version = "1.0.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28b2cd92db5cbd74e8e5028f7e27dd7aa3090e89e4f2a197cc7c8dfb69c7063b"
+checksum = "15af2628f6890fe2609a3b91bef4c83450512802e59489f9c1cb1fa5df064a61"
 
 [[package]]
 name = "assert_cmd"
@@ -1099,14 +1099,14 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "leo-abnf"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "anyhow",
 ]
 
 [[package]]
 name = "leo-asg"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "criterion",
  "indexmap",
@@ -1122,14 +1122,14 @@ dependencies = [
 
 [[package]]
 name = "leo-asg-passes"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "leo-asg",
 ]
 
 [[package]]
 name = "leo-ast"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "anyhow",
  "criterion",
@@ -1144,7 +1144,7 @@ dependencies = [
 
 [[package]]
 name = "leo-compiler"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "bincode",
  "hex",
@@ -1182,7 +1182,7 @@ dependencies = [
 
 [[package]]
 name = "leo-imports"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "indexmap",
  "leo-asg",
@@ -1194,7 +1194,7 @@ dependencies = [
 
 [[package]]
 name = "leo-input"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "from-pest",
  "pest",
@@ -1206,7 +1206,7 @@ dependencies = [
 
 [[package]]
 name = "leo-lang"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "ansi_term 0.12.1",
  "anyhow",
@@ -1248,11 +1248,11 @@ dependencies = [
 
 [[package]]
 name = "leo-linter"
-version = "1.5.0"
+version = "1.5.1"
 
 [[package]]
 name = "leo-package"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "lazy_static",
  "serde",
@@ -1265,7 +1265,7 @@ dependencies = [
 
 [[package]]
 name = "leo-parser"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "criterion",
  "indexmap",
@@ -1282,7 +1282,7 @@ dependencies = [
 
 [[package]]
 name = "leo-state"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "indexmap",
  "leo-ast",
@@ -1299,7 +1299,7 @@ dependencies = [
 
 [[package]]
 name = "leo-synthesizer"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "hex",
  "num-bigint",
@@ -1314,7 +1314,7 @@ dependencies = [
 
 [[package]]
 name = "leo-test-framework"
-version = "1.5.0"
+version = "1.5.1"
 dependencies = [
  "serde",
  "serde_json",
