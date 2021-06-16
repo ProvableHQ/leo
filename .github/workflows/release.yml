@@ -102,10 +102,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: Brew...
-      #   run: |
-      #     brew install gcc
-
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
