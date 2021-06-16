@@ -1,2 +1,7 @@
-# [target.'cfg(any(not(target_arch = "wasm32"), feature = "noconfig"))']
-# rustflags = ["-C", "target-cpu=native"]
+[target.'cfg(
+    all(
+        not(target_arch = "wasm32"), 
+        not(feature = "noconfig")
+    )
+)']
+rustflags = ["-C", "target-cpu=native"]

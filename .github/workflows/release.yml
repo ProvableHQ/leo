@@ -94,9 +94,6 @@ jobs:
 
   macos_m1:
     name: macOS M1
-    strategy:
-      matrix:
-        compiler: [gcc, clang]
     runs-on: macos-latest
     steps:
       - name: Xcode Select
