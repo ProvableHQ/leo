@@ -54,4 +54,4 @@ version = "0.3"
 version = "1.0"
 
 [dev-dependencies.rand_core]
-version = "0.6.2"
+version = "0.6.3"
