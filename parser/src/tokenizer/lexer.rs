@@ -113,6 +113,10 @@ impl Token {
 
         if unicode {
             let string = input_tendril.to_string();
+            if &string[string.len() - 1..] != "}" {
+                return None;
+            }
+
             let unicode_number = &string[3..string.len() - 1];
             let len = unicode_number.len();
             if !(1..=6).contains(&len) {

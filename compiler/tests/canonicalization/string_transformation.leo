@@ -1,4 +1,4 @@
 function main() {
-    let s = "Hello, World!";
-    s[..2] = "ab";
+    let s = "\u{2764}ello, World!";
+    s[..2] = "he";
 }

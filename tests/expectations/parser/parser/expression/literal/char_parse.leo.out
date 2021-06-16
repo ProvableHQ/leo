@@ -58,6 +58,60 @@ outputs:
           content: "'\\0'"
   - Value:
       Char:
+        - "\u000f"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: test
+          content: "'\\u{F}'"
+  - Value:
+      Char:
+        - 
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 6
+          path: test
+          content: "''"
+  - Value:
+      Char:
+        - å
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 9
+          path: test
+          content: "'\\u{E5}'"
+  - Value:
+      Char:
+        - å
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: test
+          content: "'å'"
+  - Value:
+      Char:
+        - Ӡ
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 10
+          path: test
+          content: "'\\u{4e0}'"
+  - Value:
+      Char:
+        - Ӡ
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: test
+          content: "'Ӡ'"
+  - Value:
+      Char:
         - ❤
         - line_start: 1
           line_stop: 1
@@ -65,15 +119,6 @@ outputs:
           col_stop: 11
           path: test
           content: "'\\u{2764}'"
-  - Value:
-      Char:
-        - の
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 11
-          path: test
-          content: "'\\u{306E}'"
   - Value:
       Char:
         - ❤
@@ -85,13 +130,31 @@ outputs:
           content: "'❤'"
   - Value:
       Char:
-        - の
+        - 😢
         - line_start: 1
           line_stop: 1
           col_start: 1
-          col_stop: 6
+          col_stop: 12
           path: test
-          content: "'の'"
+          content: "'\\u{1F622}'"
+  - Value:
+      Char:
+        - 😭
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'😭'"
+  - Value:
+      Char:
+        - 􀀟
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 13
+          path: test
+          content: "'\\u{10001F}'"
   - Value:
       Char:
         - "*"
@@ -101,3 +164,300 @@ outputs:
           col_stop: 7
           path: test
           content: "'\\x2A'"
+  - Value:
+      Char:
+        - 
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x7f'"
+  - Value:
+      Char:
+        - "\u0000"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x00'"
+  - Value:
+      Char:
+        - "\u0001"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x01'"
+  - Value:
+      Char:
+        - "\u0002"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x02'"
+  - Value:
+      Char:
+        - "\u0003"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x03'"
+  - Value:
+      Char:
+        - "\u0004"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x04'"
+  - Value:
+      Char:
+        - "\u0005"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x05'"
+  - Value:
+      Char:
+        - "\u0006"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x06'"
+  - Value:
+      Char:
+        - 
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x07'"
+  - Value:
+      Char:
+        - "\u0010"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x10'"
+  - Value:
+      Char:
+        - "\u0011"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x11'"
+  - Value:
+      Char:
+        - "\u0012"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x12'"
+  - Value:
+      Char:
+        - "\u0013"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x13'"
+  - Value:
+      Char:
+        - "\u0014"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x14'"
+  - Value:
+      Char:
+        - "\u0015"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x15'"
+  - Value:
+      Char:
+        - "\u0016"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x16'"
+  - Value:
+      Char:
+        - "\u0017"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x17'"
+  - Value:
+      Char:
+        - " "
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x20'"
+  - Value:
+      Char:
+        - "!"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x21'"
+  - Value:
+      Char:
+        - "\""
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x22'"
+  - Value:
+      Char:
+        - "#"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x23'"
+  - Value:
+      Char:
+        - $
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x24'"
+  - Value:
+      Char:
+        - "%"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x25'"
+  - Value:
+      Char:
+        - "&"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x26'"
+  - Value:
+      Char:
+        - "'"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x27'"
+  - Value:
+      Char:
+        - "0"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x30'"
+  - Value:
+      Char:
+        - "1"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x31'"
+  - Value:
+      Char:
+        - "2"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x32'"
+  - Value:
+      Char:
+        - "3"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x33'"
+  - Value:
+      Char:
+        - "4"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x34'"
+  - Value:
+      Char:
+        - "5"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x35'"
+  - Value:
+      Char:
+        - "6"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x36'"
+  - Value:
+      Char:
+        - "7"
+        - line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: test
+          content: "'\\x37'"

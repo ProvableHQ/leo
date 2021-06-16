@@ -20,14 +20,14 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let s = \\\\\\\"Hello, World!\\\\\\\";\\\"}\"}",
+                  "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let s = \\\\\\\"\\\\\\\\u{2764}ello, World!\\\\\\\";\\\"}\"}",
                   "span": {
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 9,
                     "col_stop": 10,
                     "path": "",
-                    "content": "    let s = \"Hello, World!\";"
+                    "content": "    let s = \"\\u{2764}ello, World!\";"
                   }
                 }
               ],
@@ -39,14 +39,14 @@
                       "Expression": {
                         "Value": {
                           "Char": [
-                            "H",
+                            "❤",
                             {
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -61,9 +61,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -78,9 +78,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -95,9 +95,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -112,9 +112,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -129,9 +129,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -146,9 +146,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -163,9 +163,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -180,9 +180,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -197,9 +197,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -214,9 +214,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -231,9 +231,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -248,9 +248,9 @@
                               "line_start": 2,
                               "line_stop": 2,
                               "col_start": 13,
-                              "col_stop": 28,
+                              "col_stop": 35,
                               "path": "",
-                              "content": "    let s = \"Hello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\";"
                             }
                           ]
                         }
@@ -261,9 +261,9 @@
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 13,
-                    "col_stop": 28,
+                    "col_stop": 35,
                     "path": "",
-                    "content": "    let s = \"Hello, World!\";"
+                    "content": "    let s = \"\\u{2764}ello, World!\";"
                   }
                 }
               },
@@ -271,9 +271,9 @@
                 "line_start": 2,
                 "line_stop": 2,
                 "col_start": 5,
-                "col_stop": 28,
+                "col_stop": 35,
                 "path": "",
-                "content": "    let s = \"Hello, World!\";"
+                "content": "    let s = \"\\u{2764}ello, World!\";"
               }
             }
           },
@@ -281,7 +281,7 @@
             "Assign": {
               "operation": "Assign",
               "assignee": {
-                "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    s[..2] = \\\\\\\"ab\\\\\\\";\\\"}\"}",
+                "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    s[..2] = \\\\\\\"he\\\\\\\";\\\"}\"}",
                 "accesses": [
                   {
                     "ArrayRange": [
@@ -296,7 +296,7 @@
                               "col_start": 9,
                               "col_stop": 10,
                               "path": "",
-                              "content": "    s[..2] = \"ab\";"
+                              "content": "    s[..2] = \"he\";"
                             }
                           ]
                         }
@@ -310,7 +310,7 @@
                   "col_start": 5,
                   "col_stop": 11,
                   "path": "",
-                  "content": "    s[..2] = \"ab\";"
+                  "content": "    s[..2] = \"he\";"
                 }
               },
               "value": {
@@ -320,14 +320,14 @@
                       "Expression": {
                         "Value": {
                           "Char": [
-                            "a",
+                            "h",
                             {
                               "line_start": 3,
                               "line_stop": 3,
                               "col_start": 14,
                               "col_stop": 18,
                               "path": "",
-                              "content": "    s[..2] = \"ab\";"
+                              "content": "    s[..2] = \"he\";"
                             }
                           ]
                         }
@@ -337,14 +337,14 @@
                       "Expression": {
                         "Value": {
                           "Char": [
-                            "b",
+                            "e",
                             {
                               "line_start": 3,
                               "line_stop": 3,
                               "col_start": 14,
                               "col_stop": 18,
                               "path": "",
-                              "content": "    s[..2] = \"ab\";"
+                              "content": "    s[..2] = \"he\";"
                             }
                           ]
                         }
@@ -357,7 +357,7 @@
                     "col_start": 14,
                     "col_stop": 18,
                     "path": "",
-                    "content": "    s[..2] = \"ab\";"
+                    "content": "    s[..2] = \"he\";"
                   }
                 }
               },
@@ -367,7 +367,7 @@
                 "col_start": 5,
                 "col_stop": 18,
                 "path": "",
-                "content": "    s[..2] = \"ab\";"
+                "content": "    s[..2] = \"he\";"
               }
             }
           }

@@ -1,0 +1,5 @@
+[main]
+character: char = 'å';
+
+[registers]
+r: char = 'a';
