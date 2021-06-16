@@ -25,7 +25,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release --features noconfig && strip target/release/leo
+          cargo build --package leo-lang --release --features noconfig && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -67,7 +67,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release --features noconfig && strip target/release/leo
+          cargo build --package leo-lang --release && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
@@ -92,12 +92,60 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  macos_m1:
+    name: macOS M1
+    runs-on: macos-latest
+    steps:
+      - name: Xcode Select
+        uses: devbotsxyz/xcode-select@v1.1.0
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          target: aarch64-apple-darwin
+          toolchain: stable
+          override: true
+          components: rustfmt
+
+      - name: Build Leo
+        run: |
+          SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
+          cargo build -p leo-lang --release --target=aarch64-apple-darwin --features noconfig && strip target/aarch64-apple-darwin/release/leo
+        env:
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+
+      - id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Zip
+        run: |
+          mkdir tempdir
+          mv target/aarch64-apple-darwin/release/leo tempdir
+          cd tempdir
+          zip -r leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip leo
+          cd ..
+          mv tempdir/leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip .
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            leo-${{ steps.get_version.outputs.version }}-aarch64-apple-darwin.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   windows:
     name: Windows
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -118,7 +166,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --all --release --features noconfig
+          cargo build --package leo-lang --release --features noconfig
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
