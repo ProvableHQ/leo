@@ -67,7 +67,7 @@ jobs:
 
       - name: Build Leo
         run: |
-          cargo build --package leo-lang --release --features noconfig && strip target/release/leo
+          cargo build --package leo-lang --release && strip target/release/leo
         env:
           CARGO_NET_GIT_FETCH_WITH_CLI: true
 
