@@ -1070,8 +1070,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 14,
+                              "col_stop": 15,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1089,8 +1089,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 15,
+                              "col_stop": 16,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1108,8 +1108,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 16,
+                              "col_stop": 17,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1127,8 +1127,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 17,
+                              "col_stop": 18,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1146,8 +1146,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 18,
+                              "col_stop": 19,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1165,8 +1165,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 19,
+                              "col_stop": 20,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1184,8 +1184,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 20,
+                              "col_stop": 21,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1203,8 +1203,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 21,
+                              "col_stop": 22,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1222,8 +1222,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 22,
+                              "col_stop": 23,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1241,8 +1241,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 23,
+                              "col_stop": 24,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1260,8 +1260,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 24,
+                              "col_stop": 25,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1279,8 +1279,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 25,
+                              "col_stop": 26,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
@@ -1298,8 +1298,8 @@
                             "span": {
                               "line_start": 24,
                               "line_stop": 24,
-                              "col_start": 13,
-                              "col_stop": 28,
+                              "col_start": 26,
+                              "col_stop": 27,
                               "path": "",
                               "content": "  const o = \"Hello, World!\";"
                             }
