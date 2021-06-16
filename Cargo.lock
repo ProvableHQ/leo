@@ -1162,7 +1162,7 @@ dependencies = [
  "num-bigint",
  "pest",
  "rand 0.8.4",
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
  "rand_xorshift",
  "serde",
  "serde_yaml",
@@ -1226,7 +1226,7 @@ dependencies = [
  "leo-synthesizer",
  "notify",
  "rand 0.8.4",
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
  "reqwest",
  "rusty-hook",
  "self_update",
@@ -1288,7 +1288,7 @@ dependencies = [
  "leo-ast",
  "leo-input",
  "rand 0.8.4",
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
  "rand_xorshift",
  "snarkvm-algorithms",
  "snarkvm-curves",
@@ -1900,7 +1900,7 @@ checksum = "2e7573632e6454cf6b99d7aac4ccca54be06da05aca2ef7423d22d27d4d4bcd8"
 dependencies = [
  "libc",
  "rand_chacha 0.3.0",
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
  "rand_hc 0.3.0",
 ]
 
@@ -1921,7 +1921,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e12735cf05c9e10bf21534da50a147b924d555dc7a547c42e6bb2d5b6017ae0d"
 dependencies = [
  "ppv-lite86",
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
 ]
 
 [[package]]
@@ -1935,9 +1935,9 @@ dependencies = [
 
 [[package]]
 name = "rand_core"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34cf66eb183df1c5876e2dcf6b13d57340741e8dc255b48e40a26de954d06ae7"
+checksum = "d34f1408f55294453790c48b2f1ebbb1c5b4b7563eb1f418bcfcfdbb06ebb4e7"
 dependencies = [
  "getrandom 0.2.3",
 ]
@@ -1957,7 +1957,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3190ef7066a446f2e7f42e239d161e905420ccab01eb967c9eb27d21b2322a73"
 dependencies = [
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
 ]
 
 [[package]]
@@ -1966,7 +1966,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d25bf25ec5ae4a3f1b92f929810509a2f53d7dca2f50b794ff57e3face536c8f"
 dependencies = [
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
 ]
 
 [[package]]
