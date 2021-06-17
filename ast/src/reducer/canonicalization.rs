@@ -238,7 +238,7 @@ impl Canonicalizer {
 
             Expression::CircuitInit(circuit_init) => {
                 let mut name = circuit_init.name.clone();
-                if name.name.as_ref() == "Self" {
+                if name.name.as_ref() == "Self" && self.circuit_name.is_some() {
                     name = self.circuit_name.as_ref().unwrap().clone();
                 }
 
@@ -556,6 +556,12 @@ impl ReconstructingReducer for Canonicalizer {
         value: Expression,
     ) -> Result<AssignStatement, ReducerError> {
         match value {
+            Expression::Binary(binary_expr) if assign.operation == AssignOperation::Assign => Ok(AssignStatement {
+                operation: AssignOperation::Assign,
+                assignee,
+                value: Expression::Binary(binary_expr),
+                span: assign.span.clone(),
+            }),
             Expression::Binary(binary_expr) if assign.operation != AssignOperation::Assign => {
                 let left = self.canonicalize_accesses(
                     Expression::Identifier(assignee.identifier.clone()),
