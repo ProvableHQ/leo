@@ -8,7 +8,7 @@
       "members": [
         {
           "CircuitVariable": [
-            "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  x: u32\\\"}\"}",
+            "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  x: u32;\\\"}\"}",
             {
               "IntegerType": "U32"
             }
@@ -91,7 +91,7 @@
                 {
                   "Return": {
                     "expression": {
-                      "Identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return new\\\"}\"}"
+                      "Identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return new;\\\"}\"}"
                     },
                     "span": {
                       "line_start": 9,
@@ -99,7 +99,7 @@
                       "col_start": 5,
                       "col_stop": 15,
                       "path": "",
-                      "content": "    return new"
+                      "content": "    return new;"
                     }
                   }
                 }
@@ -122,15 +122,234 @@
               "content": "  function new() -> Self {\n...\n  }\n\n\n\n"
             }
           }
+        },
+        {
+          "CircuitFunction": {
+            "annotations": [],
+            "identifier": "{\"name\":\"etc\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  function etc() {\\\"}\"}",
+            "input": [],
+            "output": {
+              "Tuple": []
+            },
+            "block": {
+              "statements": [
+                {
+                  "Assign": {
+                    "operation": "Assign",
+                    "assignee": {
+                      "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"     y[Self {x: 0}.func()] += 2;\\\"}\"}",
+                      "accesses": [
+                        {
+                          "ArrayIndex": {
+                            "Call": {
+                              "function": {
+                                "CircuitMemberAccess": {
+                                  "circuit": {
+                                    "CircuitInit": {
+                                      "name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}",
+                                      "members": [
+                                        {
+                                          "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"     y[Self {x: 0}.func()] += 2;\\\"}\"}",
+                                          "expression": {
+                                            "Value": {
+                                              "Implicit": [
+                                                "0",
+                                                {
+                                                  "line_start": 13,
+                                                  "line_stop": 13,
+                                                  "col_start": 17,
+                                                  "col_stop": 18,
+                                                  "path": "",
+                                                  "content": "     y[Self {x: 0}.func()] += 2;"
+                                                }
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "span": {
+                                        "line_start": 13,
+                                        "line_stop": 13,
+                                        "col_start": 8,
+                                        "col_stop": 19,
+                                        "path": "",
+                                        "content": "     y[Self {x: 0}.func()] += 2;"
+                                      }
+                                    }
+                                  },
+                                  "name": "{\"name\":\"func\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"     y[Self {x: 0}.func()] += 2;\\\"}\"}",
+                                  "span": {
+                                    "line_start": 13,
+                                    "line_stop": 13,
+                                    "col_start": 8,
+                                    "col_stop": 24,
+                                    "path": "",
+                                    "content": "     y[Self {x: 0}.func()] += 2;"
+                                  }
+                                }
+                              },
+                              "arguments": [],
+                              "span": {
+                                "line_start": 13,
+                                "line_stop": 13,
+                                "col_start": 8,
+                                "col_stop": 26,
+                                "path": "",
+                                "content": "     y[Self {x: 0}.func()] += 2;"
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "span": {
+                        "line_start": 13,
+                        "line_stop": 13,
+                        "col_start": 6,
+                        "col_stop": 27,
+                        "path": "",
+                        "content": "     y[Self {x: 0}.func()] += 2;"
+                      }
+                    },
+                    "value": {
+                      "Binary": {
+                        "left": {
+                          "ArrayAccess": {
+                            "array": {
+                              "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"     y[Self {x: 0}.func()] += 2;\\\"}\"}"
+                            },
+                            "index": {
+                              "Call": {
+                                "function": {
+                                  "CircuitMemberAccess": {
+                                    "circuit": {
+                                      "CircuitInit": {
+                                        "name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}",
+                                        "members": [
+                                          {
+                                            "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"     y[Self {x: 0}.func()] += 2;\\\"}\"}",
+                                            "expression": {
+                                              "Value": {
+                                                "Implicit": [
+                                                  "0",
+                                                  {
+                                                    "line_start": 13,
+                                                    "line_stop": 13,
+                                                    "col_start": 17,
+                                                    "col_stop": 18,
+                                                    "path": "",
+                                                    "content": "     y[Self {x: 0}.func()] += 2;"
+                                                  }
+                                                ]
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "span": {
+                                          "line_start": 13,
+                                          "line_stop": 13,
+                                          "col_start": 8,
+                                          "col_stop": 19,
+                                          "path": "",
+                                          "content": "     y[Self {x: 0}.func()] += 2;"
+                                        }
+                                      }
+                                    },
+                                    "name": "{\"name\":\"func\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"     y[Self {x: 0}.func()] += 2;\\\"}\"}",
+                                    "span": {
+                                      "line_start": 13,
+                                      "line_stop": 13,
+                                      "col_start": 8,
+                                      "col_stop": 24,
+                                      "path": "",
+                                      "content": "     y[Self {x: 0}.func()] += 2;"
+                                    }
+                                  }
+                                },
+                                "arguments": [],
+                                "span": {
+                                  "line_start": 13,
+                                  "line_stop": 13,
+                                  "col_start": 8,
+                                  "col_stop": 26,
+                                  "path": "",
+                                  "content": "     y[Self {x: 0}.func()] += 2;"
+                                }
+                              }
+                            },
+                            "span": {
+                              "line_start": 13,
+                              "line_stop": 13,
+                              "col_start": 6,
+                              "col_stop": 32,
+                              "path": "",
+                              "content": "     y[Self {x: 0}.func()] += 2;"
+                            }
+                          }
+                        },
+                        "right": {
+                          "Value": {
+                            "Implicit": [
+                              "2",
+                              {
+                                "line_start": 13,
+                                "line_stop": 13,
+                                "col_start": 31,
+                                "col_stop": 32,
+                                "path": "",
+                                "content": "     y[Self {x: 0}.func()] += 2;"
+                              }
+                            ]
+                          }
+                        },
+                        "op": "Add",
+                        "span": {
+                          "line_start": 13,
+                          "line_stop": 13,
+                          "col_start": 6,
+                          "col_stop": 32,
+                          "path": "",
+                          "content": "     y[Self {x: 0}.func()] += 2;"
+                        }
+                      }
+                    },
+                    "span": {
+                      "line_start": 13,
+                      "line_stop": 13,
+                      "col_start": 6,
+                      "col_stop": 32,
+                      "path": "",
+                      "content": "     y[Self {x: 0}.func()] += 2;"
+                    }
+                  }
+                }
+              ],
+              "span": {
+                "line_start": 12,
+                "line_stop": 14,
+                "col_start": 18,
+                "col_stop": 4,
+                "path": "",
+                "content": "  function etc() {\n...\n  }"
+              }
+            },
+            "span": {
+              "line_start": 12,
+              "line_stop": 14,
+              "col_start": 3,
+              "col_stop": 4,
+              "path": "",
+              "content": "  function etc() {\n...\n  }"
+            }
+          }
         }
       ]
     }
   },
   "global_consts": {},
   "functions": {
-    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}": {
       "annotations": [],
-      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}",
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}",
       "input": [],
       "output": {
         "Tuple": []
@@ -143,10 +362,10 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}",
+                  "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}",
                   "span": {
-                    "line_start": 14,
-                    "line_stop": 14,
+                    "line_start": 18,
+                    "line_stop": 18,
                     "col_start": 7,
                     "col_stop": 10,
                     "path": "",
@@ -155,19 +374,19 @@
                 }
               ],
               "type_": {
-                "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}"
+                "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}"
               },
               "value": {
                 "Call": {
                   "function": {
                     "CircuitStaticFunctionAccess": {
                       "circuit": {
-                        "Identifier": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}"
+                        "Identifier": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}"
                       },
-                      "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":23,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}",
+                      "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":23,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo: Foo = Foo::new();\\\"}\"}",
                       "span": {
-                        "line_start": 14,
-                        "line_stop": 14,
+                        "line_start": 18,
+                        "line_stop": 18,
                         "col_start": 18,
                         "col_stop": 26,
                         "path": "",
@@ -177,8 +396,8 @@
                   },
                   "arguments": [],
                   "span": {
-                    "line_start": 14,
-                    "line_stop": 14,
+                    "line_start": 18,
+                    "line_stop": 18,
                     "col_start": 18,
                     "col_stop": 28,
                     "path": "",
@@ -187,8 +406,8 @@
                 }
               },
               "span": {
-                "line_start": 14,
-                "line_stop": 14,
+                "line_start": 18,
+                "line_stop": 18,
                 "col_start": 3,
                 "col_stop": 28,
                 "path": "",
@@ -198,8 +417,8 @@
           }
         ],
         "span": {
-          "line_start": 13,
-          "line_stop": 15,
+          "line_start": 17,
+          "line_stop": 19,
           "col_start": 17,
           "col_stop": 2,
           "path": "",
@@ -207,8 +426,8 @@
         }
       },
       "span": {
-        "line_start": 13,
-        "line_stop": 15,
+        "line_start": 17,
+        "line_stop": 19,
         "col_start": 1,
         "col_stop": 2,
         "path": "",

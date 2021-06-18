@@ -8,6 +8,10 @@ circuit Foo {
 
     return new;
   }
+
+  function etc() {
+     y[Self {x: 0}.func()] += 2;
+  }
 }
 
 function main() {

@@ -429,11 +429,290 @@
                 "content": "    s[..2] = \"he\";"
               }
             }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let x = false;\\\"}\"}",
+                  "span": {
+                    "line_start": 4,
+                    "line_stop": 4,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "    let x = false;"
+                  }
+                }
+              ],
+              "type_": null,
+              "value": {
+                "Value": {
+                  "Boolean": [
+                    "false",
+                    {
+                      "line_start": 4,
+                      "line_stop": 4,
+                      "col_start": 13,
+                      "col_stop": 18,
+                      "path": "",
+                      "content": "    let x = false;"
+                    }
+                  ]
+                }
+              },
+              "span": {
+                "line_start": 4,
+                "line_stop": 4,
+                "col_start": 5,
+                "col_stop": 18,
+                "path": "",
+                "content": "    let x = false;"
+              }
+            }
+          },
+          {
+            "Assign": {
+              "operation": "Assign",
+              "assignee": {
+                "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x = \\\\\\\"test1\\\\\\\" == \\\\\\\"test2\\\\\\\";\\\"}\"}",
+                "accesses": [],
+                "span": {
+                  "line_start": 5,
+                  "line_stop": 5,
+                  "col_start": 5,
+                  "col_stop": 6,
+                  "path": "",
+                  "content": "    x = \"test1\" == \"test2\";"
+                }
+              },
+              "value": {
+                "Binary": {
+                  "left": {
+                    "ArrayInline": {
+                      "elements": [
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "t",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 9,
+                                  "col_stop": 16,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "e",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 9,
+                                  "col_stop": 16,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "s",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 9,
+                                  "col_stop": 16,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "t",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 9,
+                                  "col_stop": 16,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "1",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 9,
+                                  "col_stop": 16,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      "span": {
+                        "line_start": 5,
+                        "line_stop": 5,
+                        "col_start": 9,
+                        "col_stop": 16,
+                        "path": "",
+                        "content": "    x = \"test1\" == \"test2\";"
+                      }
+                    }
+                  },
+                  "right": {
+                    "ArrayInline": {
+                      "elements": [
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "t",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 20,
+                                  "col_stop": 27,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "e",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 20,
+                                  "col_stop": 27,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "s",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 20,
+                                  "col_stop": 27,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "t",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 20,
+                                  "col_stop": 27,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Char": [
+                                "2",
+                                {
+                                  "line_start": 5,
+                                  "line_stop": 5,
+                                  "col_start": 20,
+                                  "col_stop": 27,
+                                  "path": "",
+                                  "content": "    x = \"test1\" == \"test2\";"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      "span": {
+                        "line_start": 5,
+                        "line_stop": 5,
+                        "col_start": 20,
+                        "col_stop": 27,
+                        "path": "",
+                        "content": "    x = \"test1\" == \"test2\";"
+                      }
+                    }
+                  },
+                  "op": "Eq",
+                  "span": {
+                    "line_start": 5,
+                    "line_stop": 5,
+                    "col_start": 9,
+                    "col_stop": 27,
+                    "path": "",
+                    "content": "    x = \"test1\" == \"test2\";"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 5,
+                "line_stop": 5,
+                "col_start": 5,
+                "col_stop": 27,
+                "path": "",
+                "content": "    x = \"test1\" == \"test2\";"
+              }
+            }
           }
         ],
         "span": {
           "line_start": 1,
-          "line_stop": 4,
+          "line_stop": 6,
           "col_start": 17,
           "col_stop": 2,
           "path": "",
@@ -442,11 +721,11 @@
       },
       "span": {
         "line_start": 1,
-        "line_stop": 4,
+        "line_stop": 6,
         "col_start": 1,
         "col_stop": 2,
         "path": "",
-        "content": "function main() {\n...\n}\n"
+        "content": "function main() {\n...\n}\n\n\n"
       }
     }
   }
