@@ -17,14 +17,14 @@
 use tendril::StrTendril;
 
 use super::*;
-use crate::GroupTuple;
+use crate::{Char, CharValue, GroupTuple};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ValueExpression {
     // todo: deserialize values here
     Address(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
     Boolean(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
-    Char(char, Span),
+    Char(CharValue),
     Field(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
     Group(Box<GroupValue>),
     Implicit(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
@@ -33,7 +33,7 @@ pub enum ValueExpression {
         #[serde(with = "crate::common::tendril_json")] StrTendril,
         Span,
     ),
-    String(String, Span),
+    String(Vec<Char>, Span),
 }
 
 impl fmt::Display for ValueExpression {
@@ -42,12 +42,17 @@ impl fmt::Display for ValueExpression {
         match &self {
             Address(address, _) => write!(f, "{}", address),
             Boolean(boolean, _) => write!(f, "{}", boolean),
-            Char(character, _) => write!(f, "{}", character),
+            Char(character) => write!(f, "{}", character),
             Field(field, _) => write!(f, "{}", field),
             Implicit(implicit, _) => write!(f, "{}", implicit),
             Integer(value, type_, _) => write!(f, "{}{}", value, type_),
             Group(group) => write!(f, "{}", group),
-            String(string, _) => write!(f, "{}", string),
+            String(string, _) => {
+                for character in string.iter() {
+                    write!(f, "{}", character)?;
+                }
+                Ok(())
+            }
         }
     }
 }
@@ -58,11 +63,11 @@ impl Node for ValueExpression {
         match &self {
             Address(_, span)
             | Boolean(_, span)
-            | Char(_, span)
             | Field(_, span)
             | Implicit(_, span)
             | Integer(_, _, span)
             | String(_, span) => span,
+            Char(character) => &character.span,
             Group(group) => match &**group {
                 GroupValue::Single(_, span) | GroupValue::Tuple(GroupTuple { span, .. }) => span,
             },
@@ -74,11 +79,11 @@ impl Node for ValueExpression {
         match self {
             Address(_, span)
             | Boolean(_, span)
-            | Char(_, span)
             | Field(_, span)
             | Implicit(_, span)
             | Integer(_, _, span)
             | String(_, span) => *span = new_span,
+            Char(character) => character.span = new_span,
             Group(group) => match &mut **group {
                 GroupValue::Single(_, span) | GroupValue::Tuple(GroupTuple { span, .. }) => *span = new_span,
             },

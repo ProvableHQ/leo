@@ -20,239 +20,293 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let s = \\\\\\\"\\\\\\\\u{2764}ello, World!\\\\\\\";\\\"}\"}",
+                  "identifier": "{\"name\":\"s\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let s = \\\\\\\"\\\\\\\\u{2764}ello, World!\\\\\\\\u{DDDD}\\\\\\\";\\\"}\"}",
                   "span": {
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 9,
                     "col_stop": 10,
                     "path": "",
-                    "content": "    let s = \"\\u{2764}ello, World!\";"
+                    "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                   }
                 }
               ],
-              "type_": null,
+              "type_": {
+                "Array": [
+                  "Char",
+                  [
+                    {
+                      "value": "14"
+                    }
+                  ]
+                ]
+              },
               "value": {
                 "ArrayInline": {
                   "elements": [
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "❤",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 10084
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 14,
+                              "col_stop": 22,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "e",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 101
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 22,
+                              "col_stop": 23,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "l",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 108
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 23,
+                              "col_stop": 24,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "l",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 108
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 24,
+                              "col_stop": 25,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "o",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 111
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 25,
+                              "col_stop": 26,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            ",",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 44
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 26,
+                              "col_stop": 27,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            " ",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 32
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 27,
+                              "col_stop": 28,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "W",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 87
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 28,
+                              "col_stop": 29,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "o",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 111
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 29,
+                              "col_stop": 30,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "r",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 114
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 30,
+                              "col_stop": 31,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "l",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 108
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 31,
+                              "col_stop": 32,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "d",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 100
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 32,
+                              "col_stop": 33,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "!",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 33
+                            },
+                            "span": {
                               "line_start": 2,
                               "line_stop": 2,
-                              "col_start": 13,
-                              "col_stop": 35,
+                              "col_start": 33,
+                              "col_stop": 34,
                               "path": "",
-                              "content": "    let s = \"\\u{2764}ello, World!\";"
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                             }
-                          ]
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Char": {
+                            "character": {
+                              "NonScalar": 56797
+                            },
+                            "span": {
+                              "line_start": 2,
+                              "line_stop": 2,
+                              "col_start": 34,
+                              "col_stop": 42,
+                              "path": "",
+                              "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
+                            }
+                          }
                         }
                       }
                     }
@@ -261,9 +315,9 @@
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 13,
-                    "col_stop": 35,
+                    "col_stop": 43,
                     "path": "",
-                    "content": "    let s = \"\\u{2764}ello, World!\";"
+                    "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
                   }
                 }
               },
@@ -271,9 +325,9 @@
                 "line_start": 2,
                 "line_stop": 2,
                 "col_start": 5,
-                "col_stop": 35,
+                "col_stop": 43,
                 "path": "",
-                "content": "    let s = \"\\u{2764}ello, World!\";"
+                "content": "    let s = \"\\u{2764}ello, World!\\u{DDDD}\";"
               }
             }
           },
@@ -288,7 +342,8 @@
                       null,
                       {
                         "Value": {
-                          "Implicit": [
+                          "Integer": [
+                            "U32",
                             "2",
                             {
                               "line_start": 3,
@@ -319,34 +374,38 @@
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "h",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 104
+                            },
+                            "span": {
                               "line_start": 3,
                               "line_stop": 3,
-                              "col_start": 14,
-                              "col_stop": 18,
+                              "col_start": 15,
+                              "col_stop": 16,
                               "path": "",
                               "content": "    s[..2] = \"he\";"
                             }
-                          ]
+                          }
                         }
                       }
                     },
                     {
                       "Expression": {
                         "Value": {
-                          "Char": [
-                            "e",
-                            {
+                          "Char": {
+                            "character": {
+                              "Scalar": 101
+                            },
+                            "span": {
                               "line_start": 3,
                               "line_stop": 3,
-                              "col_start": 14,
-                              "col_stop": 18,
+                              "col_start": 16,
+                              "col_stop": 17,
                               "path": "",
                               "content": "    s[..2] = \"he\";"
                             }
-                          ]
+                          }
                         }
                       }
                     }

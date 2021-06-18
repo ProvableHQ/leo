@@ -15,10 +15,10 @@ outputs:
           registers:
             r0:
               type: "[u32; 3]"
-              value: "[3, 0, 3]"
+              value: "\"303\""
       - input_file: input/index2.in
         output:
           registers:
             r0:
               type: "[u32; 3]"
-              value: "[1, 5, 0]"
+              value: "\"150\""

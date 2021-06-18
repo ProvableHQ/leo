@@ -22,7 +22,7 @@ pub use self::output_file::*;
 pub mod output_bytes;
 pub use self::output_bytes::*;
 
-use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
+use crate::{errors::OutputBytesError, Char, CharType, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
 use leo_asg::Program;
 use leo_ast::{Parameter, Registers, Span};
 
@@ -47,10 +47,7 @@ impl fmt::Display for Output {
         writeln!(f, "[{}]", REGISTERS_VARIABLE_NAME)?;
         // format: "token_id: u64 = 1u64;"
         for (name, register) in self.registers.iter() {
-            match register.type_.as_str() {
-                "char" => writeln!(f, "{}: {} = '{}';", name, register.type_, register.value)?,
-                _ => writeln!(f, "{}: {} = {};", name, register.type_, register.value)?,
-            }
+            writeln!(f, "{}: {} = {};", name, register.type_, register.value)?;
         }
         Ok(())
     }
@@ -63,6 +60,28 @@ impl Into<OutputBytes> for Output {
     }
 }
 
+fn char_to_output_string<F: PrimeField>(character: &Char<F>, quote: bool) -> String {
+    let mut string = String::new();
+    if quote {
+        string.push('\'');
+    }
+
+    match character.character {
+        CharType::Scalar(scalar) => {
+            if scalar.is_alphanumeric() {
+                string.push(scalar);
+            } else {
+                string.push_str(format!("{}", char::escape_default(scalar)).as_str());
+            }
+        }
+        CharType::NonScalar(non_scalar) => string.push_str(format!("\\u{{{:x}}}", non_scalar).as_str()),
+    }
+    if quote {
+        string.push('\'');
+    }
+    string
+}
+
 impl Output {
     pub fn new<'a, F: PrimeField, G: GroupType<F>>(
         program: &Program<'a>,
@@ -71,7 +90,7 @@ impl Output {
         span: &Span,
     ) -> Result<Self, OutputBytesError> {
         let return_values = match value {
-            ConstrainedValue::Tuple(values) => values,
+            ConstrainedValue::Tuple(tuple) => tuple,
             value => vec![value],
         };
         let register_hashmap = registers.values();
@@ -106,7 +125,38 @@ impl Output {
                 ));
             }
 
-            let value = value.to_string();
+            let value = match value {
+                ConstrainedValue::Char(c) => char_to_output_string(&c, true),
+                ConstrainedValue::Array(array) => {
+                    let mut string = String::new();
+                    string.push('"');
+                    for e in array.iter() {
+                        if let ConstrainedValue::Char(c) = e {
+                            string.push_str(char_to_output_string(c, false).as_str());
+                        } else {
+                            string.push_str(e.to_string().as_str());
+                        }
+                    }
+                    string.push('"');
+                    string
+                }
+                ConstrainedValue::Tuple(tuple) => {
+                    let values = tuple
+                        .iter()
+                        .map(|e| {
+                            if let ConstrainedValue::Char(c) = e {
+                                char_to_output_string(c, true)
+                            } else {
+                                e.to_string()
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                        .join(", ");
+
+                    format!("({})", values)
+                }
+                _ => value.to_string(),
+            };
 
             registers.insert(name.to_string(), OutputRegister {
                 type_: register_type.to_string(),

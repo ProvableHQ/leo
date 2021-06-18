@@ -103,13 +103,29 @@ impl From<leo_ast::GroupValue> for GroupValue {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+pub enum CharValue {
+    Scalar(char),
+    NonScalar(u32),
+}
+
+impl From<leo_ast::CharValue> for CharValue {
+    fn from(other: leo_ast::CharValue) -> Self {
+        use leo_ast::Char::*;
+        match other.character {
+            Scalar(value) => CharValue::Scalar(value),
+            NonScalar(value) => CharValue::NonScalar(value),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub enum ConstValue {
     Int(ConstInt),
     Group(GroupValue),
     Field(BigInt),
     Address(StrTendril),
     Boolean(bool),
-    Char(char),
+    Char(CharValue),
 
     // compounds
     Tuple(Vec<ConstValue>),

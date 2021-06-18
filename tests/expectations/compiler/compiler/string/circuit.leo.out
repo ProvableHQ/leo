@@ -15,4 +15,4 @@ outputs:
           registers:
             out:
               type: "[char; 13]"
-              value: "Hello, World!"
+              value: "\"Hello, World!\""

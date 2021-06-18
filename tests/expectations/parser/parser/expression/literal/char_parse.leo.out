@@ -4,8 +4,10 @@ expectation: Pass
 outputs:
   - Value:
       Char:
-        - a
-        - line_start: 1
+        character:
+          Scalar: 97
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 4
@@ -13,8 +15,10 @@ outputs:
           content: "'a'"
   - Value:
       Char:
-        - Z
-        - line_start: 1
+        character:
+          Scalar: 90
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 4
@@ -22,8 +26,10 @@ outputs:
           content: "'Z'"
   - Value:
       Char:
-        - "\""
-        - line_start: 1
+        character:
+          Scalar: 34
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -31,8 +37,10 @@ outputs:
           content: "'\\\"'"
   - Value:
       Char:
-        - "\t"
-        - line_start: 1
+        character:
+          Scalar: 9
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -40,8 +48,10 @@ outputs:
           content: "'\\t'"
   - Value:
       Char:
-        - "\r"
-        - line_start: 1
+        character:
+          Scalar: 13
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -49,8 +59,10 @@ outputs:
           content: "'\\r'"
   - Value:
       Char:
-        - "\u0000"
-        - line_start: 1
+        character:
+          Scalar: 0
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -58,8 +70,10 @@ outputs:
           content: "'\\0'"
   - Value:
       Char:
-        - "\u000f"
-        - line_start: 1
+        character:
+          Scalar: 15
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 8
@@ -67,8 +81,10 @@ outputs:
           content: "'\\u{F}'"
   - Value:
       Char:
-        - 
-        - line_start: 1
+        character:
+          Scalar: 57359
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 6
@@ -76,8 +92,10 @@ outputs:
           content: "''"
   - Value:
       Char:
-        - å
-        - line_start: 1
+        character:
+          Scalar: 229
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 9
@@ -85,8 +103,10 @@ outputs:
           content: "'\\u{E5}'"
   - Value:
       Char:
-        - å
-        - line_start: 1
+        character:
+          Scalar: 229
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -94,8 +114,10 @@ outputs:
           content: "'å'"
   - Value:
       Char:
-        - Ӡ
-        - line_start: 1
+        character:
+          Scalar: 1248
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 10
@@ -103,8 +125,10 @@ outputs:
           content: "'\\u{4e0}'"
   - Value:
       Char:
-        - Ӡ
-        - line_start: 1
+        character:
+          Scalar: 1248
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 5
@@ -112,8 +136,10 @@ outputs:
           content: "'Ӡ'"
   - Value:
       Char:
-        - ❤
-        - line_start: 1
+        character:
+          Scalar: 10084
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 11
@@ -121,8 +147,10 @@ outputs:
           content: "'\\u{2764}'"
   - Value:
       Char:
-        - ❤
-        - line_start: 1
+        character:
+          Scalar: 10084
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 6
@@ -130,8 +158,10 @@ outputs:
           content: "'❤'"
   - Value:
       Char:
-        - 😢
-        - line_start: 1
+        character:
+          Scalar: 128546
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 12
@@ -139,8 +169,10 @@ outputs:
           content: "'\\u{1F622}'"
   - Value:
       Char:
-        - 😭
-        - line_start: 1
+        character:
+          Scalar: 128557
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -148,8 +180,10 @@ outputs:
           content: "'😭'"
   - Value:
       Char:
-        - 􀀟
-        - line_start: 1
+        character:
+          Scalar: 1048607
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 13
@@ -157,8 +191,10 @@ outputs:
           content: "'\\u{10001F}'"
   - Value:
       Char:
-        - "*"
-        - line_start: 1
+        character:
+          Scalar: 42
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -166,8 +202,10 @@ outputs:
           content: "'\\x2A'"
   - Value:
       Char:
-        - 
-        - line_start: 1
+        character:
+          Scalar: 127
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -175,8 +213,10 @@ outputs:
           content: "'\\x7f'"
   - Value:
       Char:
-        - "\u0000"
-        - line_start: 1
+        character:
+          Scalar: 0
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -184,8 +224,10 @@ outputs:
           content: "'\\x00'"
   - Value:
       Char:
-        - "\u0001"
-        - line_start: 1
+        character:
+          Scalar: 1
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -193,8 +235,10 @@ outputs:
           content: "'\\x01'"
   - Value:
       Char:
-        - "\u0002"
-        - line_start: 1
+        character:
+          Scalar: 2
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -202,8 +246,10 @@ outputs:
           content: "'\\x02'"
   - Value:
       Char:
-        - "\u0003"
-        - line_start: 1
+        character:
+          Scalar: 3
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -211,8 +257,10 @@ outputs:
           content: "'\\x03'"
   - Value:
       Char:
-        - "\u0004"
-        - line_start: 1
+        character:
+          Scalar: 4
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -220,8 +268,10 @@ outputs:
           content: "'\\x04'"
   - Value:
       Char:
-        - "\u0005"
-        - line_start: 1
+        character:
+          Scalar: 5
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -229,8 +279,10 @@ outputs:
           content: "'\\x05'"
   - Value:
       Char:
-        - "\u0006"
-        - line_start: 1
+        character:
+          Scalar: 6
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -238,8 +290,10 @@ outputs:
           content: "'\\x06'"
   - Value:
       Char:
-        - 
-        - line_start: 1
+        character:
+          Scalar: 7
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -247,8 +301,10 @@ outputs:
           content: "'\\x07'"
   - Value:
       Char:
-        - "\u0010"
-        - line_start: 1
+        character:
+          Scalar: 16
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -256,8 +312,10 @@ outputs:
           content: "'\\x10'"
   - Value:
       Char:
-        - "\u0011"
-        - line_start: 1
+        character:
+          Scalar: 17
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -265,8 +323,10 @@ outputs:
           content: "'\\x11'"
   - Value:
       Char:
-        - "\u0012"
-        - line_start: 1
+        character:
+          Scalar: 18
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -274,8 +334,10 @@ outputs:
           content: "'\\x12'"
   - Value:
       Char:
-        - "\u0013"
-        - line_start: 1
+        character:
+          Scalar: 19
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -283,8 +345,10 @@ outputs:
           content: "'\\x13'"
   - Value:
       Char:
-        - "\u0014"
-        - line_start: 1
+        character:
+          Scalar: 20
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -292,8 +356,10 @@ outputs:
           content: "'\\x14'"
   - Value:
       Char:
-        - "\u0015"
-        - line_start: 1
+        character:
+          Scalar: 21
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -301,8 +367,10 @@ outputs:
           content: "'\\x15'"
   - Value:
       Char:
-        - "\u0016"
-        - line_start: 1
+        character:
+          Scalar: 22
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -310,8 +378,10 @@ outputs:
           content: "'\\x16'"
   - Value:
       Char:
-        - "\u0017"
-        - line_start: 1
+        character:
+          Scalar: 23
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -319,8 +389,10 @@ outputs:
           content: "'\\x17'"
   - Value:
       Char:
-        - " "
-        - line_start: 1
+        character:
+          Scalar: 32
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -328,8 +400,10 @@ outputs:
           content: "'\\x20'"
   - Value:
       Char:
-        - "!"
-        - line_start: 1
+        character:
+          Scalar: 33
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -337,8 +411,10 @@ outputs:
           content: "'\\x21'"
   - Value:
       Char:
-        - "\""
-        - line_start: 1
+        character:
+          Scalar: 34
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -346,8 +422,10 @@ outputs:
           content: "'\\x22'"
   - Value:
       Char:
-        - "#"
-        - line_start: 1
+        character:
+          Scalar: 35
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -355,8 +433,10 @@ outputs:
           content: "'\\x23'"
   - Value:
       Char:
-        - $
-        - line_start: 1
+        character:
+          Scalar: 36
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -364,8 +444,10 @@ outputs:
           content: "'\\x24'"
   - Value:
       Char:
-        - "%"
-        - line_start: 1
+        character:
+          Scalar: 37
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -373,8 +455,10 @@ outputs:
           content: "'\\x25'"
   - Value:
       Char:
-        - "&"
-        - line_start: 1
+        character:
+          Scalar: 38
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -382,8 +466,10 @@ outputs:
           content: "'\\x26'"
   - Value:
       Char:
-        - "'"
-        - line_start: 1
+        character:
+          Scalar: 39
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -391,8 +477,10 @@ outputs:
           content: "'\\x27'"
   - Value:
       Char:
-        - "0"
-        - line_start: 1
+        character:
+          Scalar: 48
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -400,8 +488,10 @@ outputs:
           content: "'\\x30'"
   - Value:
       Char:
-        - "1"
-        - line_start: 1
+        character:
+          Scalar: 49
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -409,8 +499,10 @@ outputs:
           content: "'\\x31'"
   - Value:
       Char:
-        - "2"
-        - line_start: 1
+        character:
+          Scalar: 50
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -418,8 +510,10 @@ outputs:
           content: "'\\x32'"
   - Value:
       Char:
-        - "3"
-        - line_start: 1
+        character:
+          Scalar: 51
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -427,8 +521,10 @@ outputs:
           content: "'\\x33'"
   - Value:
       Char:
-        - "4"
-        - line_start: 1
+        character:
+          Scalar: 52
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -436,8 +532,10 @@ outputs:
           content: "'\\x34'"
   - Value:
       Char:
-        - "5"
-        - line_start: 1
+        character:
+          Scalar: 53
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -445,8 +543,10 @@ outputs:
           content: "'\\x35'"
   - Value:
       Char:
-        - "6"
-        - line_start: 1
+        character:
+          Scalar: 54
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7
@@ -454,8 +554,10 @@ outputs:
           content: "'\\x36'"
   - Value:
       Char:
-        - "7"
-        - line_start: 1
+        character:
+          Scalar: 55
+        span:
+          line_start: 1
           line_stop: 1
           col_start: 1
           col_stop: 7

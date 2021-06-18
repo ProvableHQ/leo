@@ -15,10 +15,10 @@ outputs:
           registers:
             r0:
               type: "[(u32, u32); 3]"
-              value: "[(1, 1), (0, 1), (3, 3)]"
+              value: "\"(1, 1)(0, 1)(3, 3)\""
       - input_file: input/index2_tuple.in
         output:
           registers:
             r0:
               type: "[(u32, u32); 3]"
-              value: "[(1, 1), (2, 2), (0, 1)]"
+              value: "\"(1, 1)(2, 2)(0, 1)\""

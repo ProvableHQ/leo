@@ -485,11 +485,48 @@ impl ReconstructingReducer for Canonicalizer {
         }
     }
 
-    fn reduce_string(&mut self, string: &str, span: &Span) -> Result<Expression, ReducerError> {
+    fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, ReducerError> {
         let mut elements = Vec::new();
-        for character in string.chars() {
+        let mut col_adder = 0;
+        for (index, character) in string.iter().enumerate() {
+            let col_start = span.col_start + index + 1 + col_adder; // account for open quote
+            let bytes = span.content.clone().into_bytes();
+            let col_stop: usize;
+
+            if bytes[col_start - 1] == b'\\' {
+                let mut width = 0;
+
+                match bytes[col_start] {
+                    b'x' => width += 3,
+                    b'u' => {
+                        width += 1;
+                        let mut index = 1;
+                        while bytes[col_start + index] != b'}' {
+                            width += 1;
+                            index += 1;
+                        }
+                        width += 1;
+                    }
+                    _ => width += 1,
+                }
+                col_adder += width;
+                col_stop = col_start + 1 + width;
+            } else {
+                col_stop = col_start + 1;
+            }
+
             elements.push(SpreadOrExpression::Expression(Expression::Value(
-                ValueExpression::Char(character, span.clone()),
+                ValueExpression::Char(CharValue {
+                    character: character.clone(),
+                    span: Span {
+                        line_start: span.line_start,
+                        line_stop: span.line_stop,
+                        col_start,
+                        col_stop,
+                        path: span.path.clone(),
+                        content: span.content.clone(),
+                    },
+                }),
             )));
         }
 

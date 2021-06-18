@@ -15,88 +15,88 @@ outputs:
           registers:
             r:
               type: char
-              value: Z
+              value: "'Z'"
       - input_file: inputs/escaped_unicode1.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/escaped_unicode2.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/escaped_unicode3.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/escaped_unicode4.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/escaped_unicode5.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/escaped_unicode6.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/escaped.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/hex1.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/hex2.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/unicode1.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/unicode2.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/unicode3.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/unicode4.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/unicode5.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"

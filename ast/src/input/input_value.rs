@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayDimensions, GroupValue};
+use crate::{ArrayDimensions, Char, CharValue, GroupValue, Span as AstSpan};
 use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
@@ -23,7 +23,7 @@ use leo_input::{
         Address,
         AddressValue,
         BooleanValue,
-        CharValue,
+        CharValue as InputCharValue,
         FieldValue,
         GroupValue as InputGroupValue,
         NumberValue,
@@ -38,7 +38,7 @@ use std::fmt;
 pub enum InputValue {
     Address(String),
     Boolean(bool),
-    Char(char),
+    Char(CharValue),
     Field(String),
     Group(GroupValue),
     Integer(IntegerType, String),
@@ -63,9 +63,14 @@ impl InputValue {
         Ok(InputValue::Boolean(boolean))
     }
 
-    fn from_char(character: CharValue) -> Result<Self, InputParserError> {
-        let character = character.value.inner()?;
-        Ok(InputValue::Char(character))
+    fn from_char(input_character: InputCharValue) -> Result<Self, InputParserError> {
+        let character = match input_character.value.inner()? {
+            leo_input::values::Char::Scalar(scalar) => Char::Scalar(scalar),
+            leo_input::values::Char::NonScalar(non_scalar) => Char::NonScalar(non_scalar),
+        };
+
+        let span = AstSpan::from(input_character.span);
+        Ok(InputValue::Char(CharValue { character, span }))
     }
 
     fn from_number(integer_type: IntegerType, number: String) -> Self {
@@ -157,7 +162,7 @@ impl InputValue {
         for character in string.chars.into_iter() {
             let element = InputValue::from_expression(
                 inner_array_type.clone(),
-                Expression::Value(Value::Char(CharValue {
+                Expression::Value(Value::Char(InputCharValue {
                     value: character.clone(),
                     span: character.span().clone(),
                 })),

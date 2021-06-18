@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node, Span};
+use crate::{Char, Expression, Node, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -27,26 +27,36 @@ pub enum FormatStringPart {
 }
 
 impl FormatStringPart {
-    pub fn from_string(string: String) -> Vec<Self> {
+    pub fn from_string(string: Vec<Char>) -> Vec<Self> {
         let mut parts = Vec::new();
         let mut in_container = false;
-        let mut start = 0;
-        for (index, character) in string.chars().enumerate() {
+        let mut substring = String::new();
+        for (_, character) in string.iter().enumerate() {
             match character {
-                '{' if !in_container => {
-                    parts.push(FormatStringPart::Const(string[start..index].into()));
-                    start = index;
-                    in_container = true;
-                }
-                '}' if in_container => {
+                Char::Scalar(scalar) => match scalar {
+                    '{' if !in_container => {
+                        parts.push(FormatStringPart::Const(substring.clone().into()));
+                        substring.clear();
+                        in_container = true;
+                    }
+                    '}' if in_container => {
+                        in_container = false;
+                        parts.push(FormatStringPart::Container);
+                    }
+                    _ if in_container => {
+                        in_container = false;
+                    }
+                    _ => substring.push(*scalar),
+                },
+                Char::NonScalar(non_scalar) => {
+                    substring.push_str(format!("\\u{{{:x}}}", non_scalar).as_str());
                     in_container = false;
-                    parts.push(FormatStringPart::Container);
                 }
-                _ if in_container => {
-                    in_container = false;
-                }
-                _ => {}
             }
+        }
+
+        if !substring.is_empty() {
+            parts.push(FormatStringPart::Const(substring.into()));
         }
 
         parts

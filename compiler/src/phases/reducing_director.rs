@@ -28,6 +28,7 @@ use leo_asg::{
     BlockStatement as AsgBlockStatement,
     CallExpression as AsgCallExpression,
     CastExpression as AsgCastExpression,
+    CharValue as AsgCharValue,
     Circuit as AsgCircuit,
     CircuitAccessExpression as AsgCircuitAccessExpression,
     CircuitInitExpression as AsgCircuitInitExpression,
@@ -65,6 +66,8 @@ use leo_ast::{
     Block as AstBlockStatement,
     CallExpression as AstCallExpression,
     CastExpression as AstCastExpression,
+    Char,
+    CharValue as AstCharValue,
     Circuit as AstCircuit,
     CircuitImpliedVariableDefinition,
     CircuitInitExpression as AstCircuitInitExpression,
@@ -431,14 +434,16 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                     ConstValue::Boolean(_) => {
                         new = ValueExpression::Boolean(tendril.clone(), span.clone());
                     }
-                    ConstValue::Char(_) => {
-                        if let Some(c) = tendril.chars().next() {
-                            new = ValueExpression::Char(c, span.clone());
-                        } else {
-                            return Err(ReducerError::failed_to_convert_tendril_to_char(
-                                tendril.to_string(),
-                                span,
-                            ));
+                    ConstValue::Char(asg_char) => {
+                        new = match asg_char {
+                            AsgCharValue::Scalar(scalar) => ValueExpression::Char(AstCharValue {
+                                character: Char::Scalar(*scalar),
+                                span: span.clone(),
+                            }),
+                            AsgCharValue::NonScalar(non_scalar) => ValueExpression::Char(AstCharValue {
+                                character: Char::NonScalar(*non_scalar),
+                                span: span.clone(),
+                            }),
                         }
                     }
                     _ => unimplemented!(), // impossible?

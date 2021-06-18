@@ -51,9 +51,9 @@ pub trait ReconstructingReducer {
         Ok(new)
     }
 
-    fn reduce_string(&mut self, string: &str, span: &Span) -> Result<Expression, ReducerError> {
+    fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, ReducerError> {
         Ok(Expression::Value(ValueExpression::String(
-            string.to_string(),
+            string.to_vec(),
             span.clone(),
         )))
     }
