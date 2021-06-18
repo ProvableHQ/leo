@@ -31,16 +31,7 @@
                   }
                 }
               ],
-              "type_": {
-                "Array": [
-                  "Char",
-                  [
-                    {
-                      "value": "14"
-                    }
-                  ]
-                ]
-              },
+              "type_": null,
               "value": {
                 "ArrayInline": {
                   "elements": [
@@ -342,8 +333,7 @@
                       null,
                       {
                         "Value": {
-                          "Integer": [
-                            "U32",
+                          "Implicit": [
                             "2",
                             {
                               "line_start": 3,
@@ -496,85 +486,95 @@
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "t",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 116
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 9,
-                                  "col_stop": 16,
+                                  "col_start": 10,
+                                  "col_stop": 11,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         },
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "e",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 101
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 9,
-                                  "col_stop": 16,
+                                  "col_start": 11,
+                                  "col_stop": 12,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         },
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "s",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 115
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 9,
-                                  "col_stop": 16,
+                                  "col_start": 12,
+                                  "col_stop": 13,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         },
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "t",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 116
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 9,
-                                  "col_stop": 16,
+                                  "col_start": 13,
+                                  "col_stop": 14,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         },
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "1",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 49
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 9,
-                                  "col_stop": 16,
+                                  "col_start": 14,
+                                  "col_stop": 15,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         }
@@ -595,85 +595,95 @@
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "t",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 116
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 20,
-                                  "col_stop": 27,
+                                  "col_start": 21,
+                                  "col_stop": 22,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         },
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "e",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 101
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 20,
-                                  "col_stop": 27,
+                                  "col_start": 22,
+                                  "col_stop": 23,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         },
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "s",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 115
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 20,
-                                  "col_stop": 27,
+                                  "col_start": 23,
+                                  "col_stop": 24,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         },
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "t",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 116
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 20,
-                                  "col_stop": 27,
+                                  "col_start": 24,
+                                  "col_stop": 25,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         },
                         {
                           "Expression": {
                             "Value": {
-                              "Char": [
-                                "2",
-                                {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 50
+                                },
+                                "span": {
                                   "line_start": 5,
                                   "line_stop": 5,
-                                  "col_start": 20,
-                                  "col_stop": 27,
+                                  "col_start": 25,
+                                  "col_stop": 26,
                                   "path": "",
                                   "content": "    x = \"test1\" == \"test2\";"
                                 }
-                              ]
+                              }
                             }
                           }
                         }
