@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:3:15\n     |\n   3 | function main(a: u64) {}\n     |               ^\n     |\n     = failed to parse `-2` as expected integer type"
