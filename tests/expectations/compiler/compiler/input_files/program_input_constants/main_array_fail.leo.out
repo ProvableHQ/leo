@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:3:1\n     |\n   3 | function main(const x: [i16; 2]) {\n   4 | ...\n   5 | }\n     | ^\n     |\n     = Input array dimensions mismatch expected 2, found array dimensions 1"
+  - "    --> compiler-test:3:21\n     |\n   3 | function main(const x: [i16; 2]) {\n     |                     ^\n     |\n     = Input array dimensions mismatch expected 2, found array dimensions 1"

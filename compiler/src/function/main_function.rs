@@ -67,7 +67,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     (_, Some(_), Some(_)) => {
                         return Err(FunctionError::double_input_declaration(
                             name.to_string(),
-                            &function.span.clone().unwrap_or_default(),
+                            &input_variable.name.span,
                         ));
                     }
                     // If input option is found in [main] section and input is not const.
@@ -76,7 +76,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         &input_variable.type_.clone(),
                         &name,
                         input_option,
-                        &function.span.clone().unwrap_or_default(),
+                        &input_variable.name.span,
                     )?,
                     // If input option is found in [constants] section and function argument is const.
                     (true, _, Some(input_option)) => self.constant_main_function_input(
@@ -84,27 +84,27 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         &input_variable.type_.clone(),
                         &name,
                         input_option,
-                        &function.span.clone().unwrap_or_default(),
+                        &input_variable.name.span,
                     )?,
                     // Function argument is const, input is not.
                     (true, Some(_), None) => {
                         return Err(FunctionError::expected_const_input(
                             name.to_string(),
-                            &function.span.clone().unwrap_or_default(),
+                            &input_variable.name.span,
                         ));
                     }
                     // Input is const, function argument is not.
                     (false, None, Some(_)) => {
                         return Err(FunctionError::expected_non_const_input(
                             name.to_string(),
-                            &function.span.clone().unwrap_or_default(),
+                            &input_variable.name.span,
                         ));
                     }
                     // When not found - Error out.
                     (_, _, _) => {
                         return Err(FunctionError::input_not_found(
                             name.to_string(),
-                            &function.span.clone().unwrap_or_default(),
+                            &input_variable.name.span,
                         ));
                     }
                 };
