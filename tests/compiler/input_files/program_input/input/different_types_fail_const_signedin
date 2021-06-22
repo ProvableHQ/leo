@@ -1,0 +1,2 @@
+[constants]
+a: i32 = 2i8;
