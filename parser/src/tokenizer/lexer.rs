@@ -62,7 +62,7 @@ fn eat_identifier(input_tendril: &StrTendril) -> Option<StrTendril> {
 
 impl Token {
     ///
-    /// Returns a `char` if an character can be eaten, otherwise returns [`None`].
+    /// Returns a `char` if a character can be eaten, otherwise returns [`None`].
     ///
     fn eat_char(input_tendril: StrTendril, escaped: bool, hex: bool, unicode: bool) -> Option<Char> {
         if input_tendril.is_empty() {
