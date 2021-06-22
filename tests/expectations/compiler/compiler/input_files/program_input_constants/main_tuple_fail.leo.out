@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:3:1\n     |\n   3 | function main(const x: (u8, bool, u8)) {\n   4 | ...\n   5 | }\n     | ^\n     |\n     = Input tuple size mismatch expected 3, found tuple with length 2"
+  - "    --> compiler-test:3:21\n     |\n   3 | function main(const x: (u8, bool, u8)) {\n     |                     ^\n     |\n     = Input tuple size mismatch expected 3, found tuple with length 2"

@@ -20,7 +20,7 @@ use crate::{
     expressions::{ArrayInlineExpression, Expression},
     sections::Header,
     tables::Table,
-    types::{DataType, Type},
+    types::{DataType, IntegerType, Type},
     values::{NumberValue, Value},
 };
 
@@ -79,6 +79,12 @@ impl InputParserError {
 
     pub fn array_index(actual: String, span: &Span) -> Self {
         let message = format!("Expected constant number for array index, found `{}`", actual);
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn integer_type_mismatch(expected: IntegerType, received: IntegerType, span: &Span) -> Self {
+        let message = format!("expected data type `{}`, found `{}`", expected, received);
 
         Self::new_from_span(message, span)
     }

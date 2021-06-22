@@ -157,7 +157,11 @@ impl Integer {
         // Check that the input value is the correct type
         let option = match integer_value {
             Some(input) => {
-                if let InputValue::Integer(_type_, number) = input {
+                if let InputValue::Integer(type_, number) = input {
+                    let asg_type = IntegerType::from(type_);
+                    if std::mem::discriminant(&asg_type) != std::mem::discriminant(integer_type) {
+                        return Err(IntegerError::integer_type_mismatch(integer_type, asg_type, span));
+                    }
                     Some(number)
                 } else {
                     return Err(IntegerError::invalid_integer(input.to_string(), span));

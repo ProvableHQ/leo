@@ -26,6 +26,7 @@ use leo_input::{
         CharValue as InputCharValue,
         FieldValue,
         GroupValue as InputGroupValue,
+        IntegerValue,
         NumberValue,
         Value,
     },
@@ -102,6 +103,32 @@ impl InputValue {
             (DataType::Boolean(_), Value::Boolean(boolean)) => InputValue::from_boolean(boolean),
             (DataType::Char(_), Value::Char(character)) => InputValue::from_char(character),
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
+                match integer.clone() {
+                    IntegerValue::Signed(signed) => {
+                        if let IntegerType::Signed(inner) = integer_type.clone() {
+                            let singed_type = signed.clone().type_;
+                            if std::mem::discriminant(&inner) != std::mem::discriminant(&singed_type) {
+                                return Err(InputParserError::integer_type_mismatch(
+                                    integer_type,
+                                    IntegerType::Signed(singed_type),
+                                    integer.span(),
+                                ));
+                            }
+                        }
+                    }
+                    IntegerValue::Unsigned(unsigned) => {
+                        if let IntegerType::Unsigned(inner) = integer_type.clone() {
+                            let unsinged_type = unsigned.clone().type_;
+                            if std::mem::discriminant(&inner) != std::mem::discriminant(&unsinged_type) {
+                                return Err(InputParserError::integer_type_mismatch(
+                                    integer_type,
+                                    IntegerType::Unsigned(unsinged_type),
+                                    integer.span(),
+                                ));
+                            }
+                        }
+                    }
+                }
                 Ok(InputValue::from_number(integer_type, integer.to_string()))
             }
             (DataType::Group(_), Value::Group(group)) => Ok(InputValue::from_group(group)),
