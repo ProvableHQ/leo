@@ -224,7 +224,6 @@ impl AsgConvertError {
     }
 
     pub fn unexpected_type(expected: &str, received: Option<&str>, span: &Span) -> Self {
-        // panic!(format!("unexpected type, expected: '{}', received: '{}'", expected, received.unwrap_or("unknown")));
         Self::new_from_span(
             format!(
                 "unexpected type, expected: '{}', received: '{}'",
