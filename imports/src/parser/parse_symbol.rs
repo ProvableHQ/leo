@@ -19,7 +19,7 @@ use leo_ast::{Program, Span};
 
 use std::fs::DirEntry;
 
-static LIBRARY_FILE: &str = "src/lib.leo";
+static MAIN_FILE: &str = "src/main.leo";
 
 impl<'a> ImportParser<'a> {
     ///
@@ -39,10 +39,10 @@ impl<'a> ImportParser<'a> {
 
         let mut file_path = package.path();
         if file_type.is_dir() {
-            file_path.push(LIBRARY_FILE);
+            file_path.push(MAIN_FILE);
 
             if !file_path.exists() {
-                return Err(ImportParserError::expected_lib_file(
+                return Err(ImportParserError::expected_main_file(
                     format!("{:?}", file_path.as_path()),
                     span,
                 ));
