@@ -72,6 +72,7 @@ impl<'a> ImportParser<'a> {
 
         // Search for package name in `imports` directory
         let mut imports_directory = path.clone();
+        imports_directory.pop(); // path leads to src/ folder, imports is one level below
         imports_directory.push(IMPORTS_DIRECTORY_NAME);
 
         // Read from local `src` directory or the current path

@@ -94,10 +94,10 @@ impl ImportParserError {
     }
 
     ///
-    /// Failed to find a library file for the current package.
+    /// Failed to find a main file for the current package.
     ///
-    pub fn expected_lib_file(entry: String, span: &Span) -> Self {
-        let message = format!("Expected library file `{}`.", entry,);
+    pub fn expected_main_file(entry: String, span: &Span) -> Self {
+        let message = format!("Expected main file at `{}`.", entry,);
 
         Self::new_from_span(message, span)
     }
