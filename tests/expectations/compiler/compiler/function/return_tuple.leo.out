@@ -4,11 +4,24 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 65
-      num_constraints: 66
-      at: 0c8cb242ee3815f5ea6fdd08873577a6cc51fcfbda8cb5671f0b4dc851939d07
-      bt: 32bbce55a7ed95a5b0277ef5ddfa171ad065c5c7c743031d8b0bd8e50e51b0af
-      ct: 1390f763c4329cb5c51853b83d8d5d6e92d8ea8fed8fc7299285908d14c9d3b4
+      num_private_variables: 113
+      num_constraints: 114
+      at: d322b11389067bfa3de3e1b7f1e3e564382d4ad3771bbf8657e939eed797544b
+      bt: 480297d1273d42309369b4c4f27f7076720606e3582c24fabeac3afc8c3af1ea
+      ct: 33c8d034b3aea9e88426996ff9c425351f065f3a48377739b7279c8f3ad84e21
+    ir:
+      - "decl f0: <0>"
+      - "  store &v2, ((v0, v1), (), (), ())"
+      - "  call &v4, f1"
+      - "  tget &v5, v4, 0"
+      - "  tget &v6, v4, 1"
+      - "  add &v7, v3, v6"
+      - "  retn (v5, v7)"
+      - "decl f1: <8>"
+      - "  store &v8, (1, 2)"
+      - "  store &v9, 3"
+      - "  retn ((1, 2), 3)"
+      - ""
     output:
       - input_file: tuple.in
         output:

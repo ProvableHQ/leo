@@ -15,13 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::ValueError;
-use leo_asg::{AsgConvertError, Type};
-use leo_ast::{FormattedError, LeoError, Span};
+use leo_asg::AsgConvertError;
+use leo_ast::LeoError;
+use snarkvm_ir::Type;
 
 #[derive(Debug, Error)]
 pub enum OutputBytesError {
     #[error("{}", _0)]
-    Error(#[from] FormattedError),
+    Error(String),
 
     #[error("{}", _0)]
     ValueError(#[from] ValueError),
@@ -33,22 +34,22 @@ pub enum OutputBytesError {
 impl LeoError for OutputBytesError {}
 
 impl OutputBytesError {
-    fn new_from_span(message: String, span: &Span) -> Self {
-        OutputBytesError::Error(FormattedError::new_from_span(message, span))
+    fn new(message: String) -> Self {
+        OutputBytesError::Error(message)
     }
 
-    pub fn not_enough_registers(span: &Span) -> Self {
+    pub fn not_enough_registers() -> Self {
         let message = "number of input registers must be greater than or equal to output registers".to_string();
 
-        Self::new_from_span(message, span)
+        Self::new(message)
     }
 
-    pub fn mismatched_output_types(left: &Type, right: &Type, span: &Span) -> Self {
+    pub fn mismatched_output_types(left: &Type, right: &str) -> Self {
         let message = format!(
-            "Mismatched types. Expected register output type `{}`, found type `{}`.",
+            "Mismatched types. Expected register output type `{}`, found value `{}`.",
             left, right
         );
 
-        Self::new_from_span(message, span)
+        Self::new(message)
     }
 }

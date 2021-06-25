@@ -31,7 +31,7 @@ pub enum Type<'a> {
     Integer(IntegerType),
 
     // Data type wrappers
-    Array(Box<Type<'a>>, usize),
+    Array(Box<Type<'a>>, u32),
     Tuple(Vec<Type<'a>>),
     Circuit(&'a Circuit<'a>),
 }
@@ -40,7 +40,7 @@ pub enum Type<'a> {
 pub enum PartialType<'a> {
     Type(Type<'a>),                                    // non-array or tuple
     Integer(Option<IntegerType>, Option<IntegerType>), // specific, context-specific
-    Array(Option<Box<PartialType<'a>>>, Option<usize>),
+    Array(Option<Box<PartialType<'a>>>, Option<u32>),
     Tuple(Vec<Option<PartialType<'a>>>),
 }
 
@@ -152,6 +152,12 @@ impl<'a> fmt::Display for Type<'a> {
             }
             Type::Circuit(circuit) => write!(f, "{}", &circuit.name.borrow().name),
         }
+    }
+}
+
+impl<'a> fmt::Debug for Type<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        <Self as fmt::Display>::fmt(self, f)
     }
 }
 

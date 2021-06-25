@@ -26,6 +26,10 @@ harness = false
 path = "../ast"
 version = "1.5.2"
 
+[dependencies.leo-input]
+path = "../input"
+version = "1.5.1"
+
 [dependencies.lazy_static]
 version = "1.3.0"
 

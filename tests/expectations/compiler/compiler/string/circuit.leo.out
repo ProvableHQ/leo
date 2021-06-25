@@ -4,11 +4,26 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 141
+      num_private_variables: 154
       num_constraints: 115
-      at: 145ada587c833434abb89c3349d19e06365fda3eb9b2a227046a78469e3ca313
-      bt: f2945a3bc1beaee407bb4ec35303115a93a8c68886d97011cd65ec6d899664e8
-      ct: 10b997b6341b3cf811cb7b0fdb891f91006d41c50e9f9566ff92f92816153dfc
+      at: c73182736b41504922ffbd5684468cdc3e5eac32e6f6e504077d46615504a444
+      bt: b91aeecc2605d68d469659981f84ffd9f4e89e60715cf5109f9e3dc7b4c30275
+      ct: 6d7a8caa60742927fd906c039c34fdb6d81855ecd060fa6c0643d7f8434f26b9
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, (v2)"
+      - "  call &v4, f1, v2"
+      - "  store &v5, v4"
+      - "  tget &v6, v3, 0"
+      - "  eq &v7, v6, [H, e, l, l, o, ,,  , W, o, r, l, d, !]"
+      - "  pick &v8, v7, v2, [a, b, c, d, e, f, g, h, j, k, l, m, n]"
+      - "  store &v9, v8"
+      - "  retn v9"
+      - "decl f1: <10>"
+      - "  eq &v11, v10, [H, e, l, l, o, ,,  , W, o, r, l, d, !]"
+      - "  retn v11"
+      - ""
     output:
       - input_file: inputs/string_out.in
         output:

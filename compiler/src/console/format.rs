@@ -16,18 +16,13 @@
 
 //! Evaluates a formatted string in a compiled Leo program.
 
-use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
+use crate::{errors::ConsoleError, program::Program};
 use leo_asg::FormatString;
 use leo_ast::FormatStringPart;
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_ir::{Instruction, LogData, LogLevel, Value};
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn format<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        formatted: &FormatString<'a>,
-    ) -> Result<String, ConsoleError> {
+impl<'a> Program<'a> {
+    pub fn emit_log(&mut self, log_level: LogLevel, formatted: &FormatString<'a>) -> Result<(), ConsoleError> {
         // Check that containers and parameters match
         let container_count = formatted
             .parts
@@ -44,18 +39,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         let mut executed_containers = Vec::with_capacity(formatted.parameters.len());
         for parameter in formatted.parameters.iter() {
-            executed_containers.push(self.enforce_expression(cs, parameter.get())?.to_string());
+            executed_containers.push(self.enforce_expression(parameter.get())?);
         }
 
         let mut out = vec![];
-        let mut parameters = executed_containers.iter();
+        let mut parameters = executed_containers.into_iter();
         for part in formatted.parts.iter() {
             match part {
-                FormatStringPart::Const(c) => out.push(c.to_string()),
-                FormatStringPart::Container => out.push(parameters.next().unwrap().to_string()),
+                FormatStringPart::Const(c) => out.push(Value::Str(c.to_string())),
+                FormatStringPart::Container => out.push(parameters.next().unwrap()),
             }
         }
-
-        Ok(out.join(""))
+        self.emit(Instruction::Log(LogData { log_level, parts: out }));
+        Ok(())
     }
 }

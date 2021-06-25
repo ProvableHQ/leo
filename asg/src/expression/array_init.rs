@@ -23,7 +23,7 @@ pub struct ArrayInitExpression<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub element: Cell<&'a Expression<'a>>,
-    pub len: usize,
+    pub len: u32,
 }
 
 impl<'a> Node for ArrayInitExpression<'a> {
@@ -86,7 +86,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             .iter()
             .map(|x| {
                 x.value
-                    .parse::<usize>()
+                    .parse::<u32>()
                     .map_err(|_| AsgConvertError::parse_dimension_error())
             })
             .collect::<Result<Vec<_>, AsgConvertError>>()?;

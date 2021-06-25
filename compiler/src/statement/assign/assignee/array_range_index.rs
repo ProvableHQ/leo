@@ -16,92 +16,51 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::Expression;
-
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
+use crate::{errors::StatementError, program::Program};
+use leo_asg::{Expression, Type};
+use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 use super::ResolverContext;
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub(super) fn resolve_target_access_array_range<'b, CS: ConstraintSystem<F>>(
+impl<'a> Program<'a> {
+    pub(super) fn resolve_target_access_array_range<'b>(
         &mut self,
-        cs: &mut CS,
-        mut context: ResolverContext<'a, 'b, F, G>,
+        mut context: ResolverContext<'a, 'b>,
         start: Option<&'a Expression<'a>>,
         stop: Option<&'a Expression<'a>>,
-    ) -> Result<(), StatementError> {
-        let start_index = start
-            .map(|start| self.enforce_index(cs, start, &context.span))
+    ) -> Result<Value, StatementError> {
+        let (inner_type, length) = match &context.input_type {
+            Type::Array(inner_type, length) => (&**inner_type, *length),
+            _ => panic!("illegal type in array range index assignment"),
+        };
+
+        let start_value = start
+            .map(|e| self.enforce_expression(e))
             .transpose()?
-            .map(|x| {
-                x.to_usize()
-                    .ok_or_else(|| StatementError::array_assign_index_const(&context.span))
-            })
-            .transpose()?;
-        let stop_index = stop
-            .map(|stop| self.enforce_index(cs, stop, &context.span))
+            .unwrap_or_else(|| Value::Integer(Integer::U32(0)));
+        let stop_value = stop
+            .map(|e| self.enforce_expression(e))
             .transpose()?
-            .map(|x| {
-                x.to_usize()
-                    .ok_or_else(|| StatementError::array_assign_index_const(&context.span))
-            })
-            .transpose()?;
-        let start_index = start_index.unwrap_or(0);
+            .unwrap_or_else(|| Value::Integer(Integer::U32(length)));
+        let input_var = context.input_register;
 
-        if context.input.len() == 1 {
-            // not a range of a range
-            match context.input.remove(0) {
-                ConstrainedValue::Array(old) => {
-                    let stop_index = stop_index.unwrap_or(old.len());
-                    Self::check_range_index(start_index, stop_index, old.len(), &context.span)?;
-
-                    if context.remaining_accesses.is_empty() {
-                        let target_values = match context.target_value {
-                            ConstrainedValue::Array(x) => x,
-                            _ => unimplemented!(),
-                        };
-
-                        for (target, target_value) in old[start_index..stop_index].iter_mut().zip(target_values) {
-                            context.target_value = target_value;
-                            self.enforce_assign_context(cs, &context, target)?;
-                        }
-                    } else {
-                        context.input = old[start_index..stop_index].iter_mut().collect();
-                        self.resolve_target_access(cs, context)?;
-                    }
-                    Ok(())
-                }
-                _ => Err(StatementError::array_assign_index(&context.span)),
-            }
-        } else {
-            // range of a range
-            let stop_index = stop_index.unwrap_or(context.input.len());
-            Self::check_range_index(start_index, stop_index, context.input.len(), &context.span)?;
-
-            context.input = context
-                .input
-                .into_iter()
-                .skip(start_index)
-                .take(stop_index - start_index)
-                .collect();
-            if context.remaining_accesses.is_empty() {
-                let target_values = match context.target_value {
-                    ConstrainedValue::Array(x) => x,
-                    _ => unimplemented!(),
-                };
-
-                let iter = context.input.into_iter().zip(target_values.into_iter());
-                context.input = vec![];
-                for (target, target_value) in iter {
-                    context.target_value = target_value;
-                    self.enforce_assign_context(cs, &context, target)?;
-                }
-                Ok(())
-            } else {
-                self.resolve_target_access(cs, context)
-            }
-        }
+        let out = self.alloc();
+        self.emit(Instruction::ArraySliceGet(QueryData {
+            destination: out,
+            values: vec![
+                Value::Ref(input_var),
+                start_value.clone(),
+                stop_value.clone(),
+                Value::Integer(Integer::U32(context.target_array_length)),
+            ],
+        }));
+        context.input_register = out;
+        context.input_type = inner_type.clone();
+        let inner = self.resolve_target_access(context)?;
+        self.emit(Instruction::ArraySliceStore(QueryData {
+            destination: input_var,
+            values: vec![start_value, stop_value, inner],
+        }));
+        Ok(Value::Ref(input_var))
     }
 }

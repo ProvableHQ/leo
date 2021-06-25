@@ -16,33 +16,23 @@
 
 //! Enforces array access in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Expression, Span};
+use crate::{errors::ExpressionError, program::Program};
+use leo_asg::Expression;
+use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_tuple_access<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        tuple: &'a Expression<'a>,
-        index: usize,
-        span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    pub fn enforce_tuple_access(&mut self, tuple: &'a Expression<'a>, index: usize) -> Result<Value, ExpressionError> {
         // Get the tuple values.
-        let tuple = match self.enforce_expression(cs, tuple)? {
-            ConstrainedValue::Tuple(tuple) => tuple,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
-        };
+        let inner = self.enforce_expression(tuple)?;
 
-        // Check for out of bounds access.
-        if index > tuple.len() - 1 {
-            // probably safe to be a panic here
-            return Err(ExpressionError::tuple_index_out_of_bounds(index, span));
-        }
+        let out = self.alloc();
 
-        Ok(tuple[index].to_owned())
+        self.emit(Instruction::TupleIndexGet(QueryData {
+            destination: out,
+            values: vec![inner, Value::Integer(Integer::U32(index as u32))],
+        }));
+
+        Ok(Value::Ref(out))
     }
 }

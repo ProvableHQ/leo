@@ -4,11 +4,26 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1087
-      num_constraints: 1350
-      at: aae29cb6b4a71a5cf49d3de006b415b9a7818a2e23191819692e8d2ee69d8be2
-      bt: 11262f31fcaa7950be43eded328287305e7cbcb73c19455808f08f38116cfdd6
-      ct: 01dfba9e0754ad9890117694c9b03f4646642140aa7b6c393b2e264e701c323e
+      num_private_variables: 1595
+      num_constraints: 1986
+      at: 67fbfdc7e9d37cedb30d577c160c0f88d62f1d294779b07ed08606868fa61c38
+      bt: e3a8e41ffd547488283a2d5b59274580e3a029cace4519e64e6c0dc60caa8024
+      ct: b9db2505dbb4917a14a70795f38b098f53d0e2f443d2f170c760dbcd99cfd82b
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, [1, 2, 3]"
+      - "  aget &v4, v3, v2"
+      - "  sub &v5, v2, 1"
+      - "  aget &v6, v3, v5"
+      - "  add &v7, v6, v4"
+      - "  aset &v3, v5, v7"
+      - "  store &v3, v3"
+      - "  aget &v8, v3, v2"
+      - "  aset &v3, v2, 0"
+      - "  store &v3, v3"
+      - "  retn v3"
+      - ""
     output:
       - input_file: input/index1.in
         output:

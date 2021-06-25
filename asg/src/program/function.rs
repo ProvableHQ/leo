@@ -32,7 +32,10 @@ use indexmap::IndexMap;
 pub use leo_ast::Annotation;
 use leo_ast::FunctionInput;
 
-use std::cell::{Cell, RefCell};
+use std::{
+    cell::{Cell, RefCell},
+    fmt,
+};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum FunctionQualifier {
@@ -54,6 +57,18 @@ pub struct Function<'a> {
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
     pub annotations: Vec<Annotation>,
+}
+
+impl<'a> fmt::Display for Function<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "ASG Function '{}'", self.name.borrow().name.as_ref())
+    }
+}
+
+impl<'a> fmt::Debug for Function<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        <Self as fmt::Display>::fmt(self, f)
+    }
 }
 
 impl<'a> PartialEq for Function<'a> {

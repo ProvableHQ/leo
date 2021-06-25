@@ -16,7 +16,7 @@
 
 use super::build::{Build, BuildOptions};
 use crate::{commands::Command, context::Context};
-use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use leo_compiler::compiler::Compiler;
 use leo_package::outputs::{ProvingKeyFile, VerificationKeyFile};
 
 use snarkvm_algorithms::{
@@ -44,7 +44,7 @@ pub struct Setup {
 impl Command for Setup {
     type Input = <Build as Command>::Output;
     type Output = (
-        Compiler<'static, Fr, EdwardsGroupType>,
+        Compiler<'static>,
         ProvingKey<Bls12_377>,
         PreparedVerifyingKey<Bls12_377>,
     );
@@ -78,7 +78,7 @@ impl Command for Setup {
             // Run the program setup operation
             let rng = &mut thread_rng();
             let (proving_key, prepared_verifying_key) =
-                Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng)
+                Groth16::<Bls12_377, Compiler, Vec<Fr>>::setup(&program, rng)
                     .map_err(|_| anyhow!("{}", "Unable to setup, see command output for more details"))?;
 
             // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.

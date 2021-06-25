@@ -16,10 +16,7 @@
 
 use super::build::BuildOptions;
 use crate::{commands::Command, context::Context};
-use leo_compiler::{
-    compiler::{thread_leaked_context, Compiler},
-    group::targets::edwards_bls12::EdwardsGroupType,
-};
+use leo_compiler::compiler::{thread_leaked_context, Compiler};
 use leo_package::{
     inputs::*,
     outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -106,7 +103,7 @@ impl Command for Test {
             };
 
             let timer = Instant::now();
-            let program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
+            let program = Compiler::parse_program_without_input(
                 package_name.clone(),
                 file_path,
                 output_directory.clone(),

@@ -28,7 +28,7 @@ pub struct ArrayRangeAccessExpression<'a> {
     pub right: Cell<Option<&'a Expression<'a>>>,
     // this is either const(right) - const(left) OR the length inferred by type checking
     // special attention must be made to update this if semantic-altering changes are made to left or right.
-    pub length: usize,
+    pub length: u32,
 }
 
 impl<'a> Node for ArrayRangeAccessExpression<'a> {
@@ -143,13 +143,13 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
             .transpose()?;
 
         let const_left = match left.map(|x| x.const_value()) {
-            Some(Some(ConstValue::Int(x))) => x.to_usize(),
+            Some(Some(ConstValue::Int(x))) => x.to_usize().map(|x| x as u32),
             None => Some(0),
             _ => None,
         };
         let const_right = match right.map(|x| x.const_value()) {
             Some(Some(ConstValue::Int(value))) => {
-                let value = value.to_usize();
+                let value = value.to_usize().map(|x| x as u32);
                 if let Some(value) = value {
                     if value > parent_size {
                         return Err(AsgConvertError::array_index_out_of_bounds(

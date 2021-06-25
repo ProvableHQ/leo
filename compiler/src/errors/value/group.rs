@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{FormattedError, LeoError, Span};
-use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
 pub enum GroupError {
@@ -30,21 +29,6 @@ impl GroupError {
         GroupError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn negate_operation(error: SynthesisError, span: &Span) -> Self {
-        let message = format!("group negation failed due to the synthesis error `{:?}`", error,);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn binary_operation(operation: String, error: SynthesisError, span: &Span) -> Self {
-        let message = format!(
-            "the group binary operation `{}` failed due to the synthesis error `{:?}`",
-            operation, error,
-        );
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn invalid_group(actual: String, span: &Span) -> Self {
         let message = format!("expected group affine point input type, found `{}`", actual);
 
@@ -53,12 +37,6 @@ impl GroupError {
 
     pub fn missing_group(expected: String, span: &Span) -> Self {
         let message = format!("expected group input `{}` not found", expected);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn synthesis_error(error: SynthesisError, span: &Span) -> Self {
-        let message = format!("compilation failed due to group synthesis error `{:?}`", error);
 
         Self::new_from_span(message, span)
     }

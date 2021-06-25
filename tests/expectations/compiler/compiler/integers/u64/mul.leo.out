@@ -4,11 +4,18 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 12805
-      num_constraints: 16966
-      at: 94607d20548e2b4a046e0f3eb55624da27ec73bcaeee0e8258b3d2e2e607b2fd
-      bt: 8063dc2ec3957d32cb243785803b1fe280885ae5bbb7b50ae5dd71b4a5b404dd
-      ct: 5c2a423f5d488da02561837d1ae9e5b86ede29cd64555ebc88229ab4ef9d8fa2
+      num_private_variables: 12806
+      num_constraints: 16967
+      at: 55fe0f9a514e856280a543f8dff4555d9ab5db9f2ab2faf06fbcc820e7960653
+      bt: 22864614d517cc1fa51eda54819e22c79871db90c11924d9796bbde6dea1122d
+      ct: 0f331eabe42181a70aa39af2487271f437a66b86b310af54547dc0ddd7b0bc65
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  mul &v5, v2, v3"
+      - "  eq &v6, v5, v4"
+      - "  retn v6"
+      - ""
     output:
       - input_file: mul.in
         output:

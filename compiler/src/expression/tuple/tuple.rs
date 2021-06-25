@@ -18,24 +18,18 @@
 
 use std::cell::Cell;
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{errors::ExpressionError, program::Program};
 use leo_asg::Expression;
+use snarkvm_ir::Value;
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     /// Enforce tuple expressions
-    pub fn enforce_tuple<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        tuple: &[Cell<&'a Expression<'a>>],
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    pub fn enforce_tuple(&mut self, tuple: &[Cell<&'a Expression<'a>>]) -> Result<Value, ExpressionError> {
         let mut result = Vec::with_capacity(tuple.len());
         for expression in tuple.iter() {
-            result.push(self.enforce_expression(cs, expression.get())?);
+            result.push(self.enforce_expression(expression.get())?);
         }
 
-        Ok(ConstrainedValue::Tuple(result))
+        Ok(Value::Tuple(result))
     }
 }

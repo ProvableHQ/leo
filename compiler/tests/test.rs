@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use leo_asg::*;
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
@@ -23,12 +23,12 @@ use leo_test_framework::{
     Test,
 };
 use serde_yaml::Value;
-use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
+use snarkvm_curves::bls12_377::Bls12_377;
+use snarkvm_eval::Evaluator;
 
-use leo_compiler::{compiler::Compiler, errors::CompilerError, targets::edwards_bls12::EdwardsGroupType, Output};
+use leo_compiler::{compiler::Compiler, errors::CompilerError, Output};
 
-pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
-// pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
+pub type TestCompiler = Compiler<'static>;
 
 //convenience function for tests, leaks memory
 pub(crate) fn make_test_context() -> AsgContext<'static> {
@@ -36,14 +36,14 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
     new_context(allocator)
 }
 
-fn new_compiler(path: PathBuf) -> EdwardsTestCompiler {
+fn new_compiler(path: PathBuf) -> TestCompiler {
     let program_name = "test".to_string();
     let output_dir = PathBuf::from("/output/");
 
-    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None)
+    TestCompiler::new(program_name, path, output_dir, make_test_context(), None)
 }
 
-pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_program(program_string: &str) -> Result<TestCompiler, CompilerError> {
     let mut compiler = new_compiler("compiler-test".into());
 
     compiler.parse_program_from_string(program_string)?;
@@ -53,15 +53,16 @@ pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler,
 
 struct CompileNamespace;
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, PartialEq)]
 struct OutputItem {
     pub input_file: String,
     pub output: Output,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, PartialEq)]
 struct CompileOutput {
     pub circuit: SummarizedCircuit,
+    pub ir: Vec<String>,
     pub output: Vec<OutputItem>,
 }
 
@@ -142,13 +143,24 @@ impl Namespace for CompileNamespace {
         let mut output_items = vec![];
 
         let mut last_circuit = None;
+        let mut last_ir: Option<snarkvm_ir::Program> = None;
         for input in inputs {
-            let mut parsed = parsed.clone();
-            parsed
-                .parse_input(&input.1, Path::new("input"), &state, Path::new("state"))
+            let parsed = parsed.clone();
+            let input_parsed =
+                leo_parser::parse_program_input(&input.1, "input", &state, "state").map_err(|x| x.to_string())?;
+            let compiled = parsed.compile_ir(&input_parsed).map_err(|x| x.to_string())?;
+            let input_data = parsed
+                .process_input(&input_parsed, &compiled.header)
                 .map_err(|x| x.to_string())?;
+            // println!("{}", compiled);
+            // println!("{:?} {:?}", compiled.header, input_data);
             let mut cs: CircuitSynthesizer<Bls12_377> = Default::default();
-            let output = parsed.compile_constraints(&mut cs).map_err(|x| x.to_string())?;
+            let mut evaluator =
+                snarkvm_eval::SetupEvaluator::<_, snarkvm_eval::edwards_bls12::EdwardsGroupType, _>::new(&mut cs);
+            let output = evaluator.evaluate(&compiled, &input_data).map_err(|e| e.to_string())?;
+
+            let registers: Vec<_> = compiled.header.register_inputs.iter().map(|x| x.clone()).collect();
+            let output = Output::new(&registers[..], output).map_err(|e| e.to_string())?;
             let circuit: SummarizedCircuit = SerializedCircuit::from(cs).into();
 
             if circuit.num_constraints == 0 {
@@ -169,6 +181,14 @@ impl Namespace for CompileNamespace {
             } else {
                 last_circuit = Some(circuit);
             }
+            if let Some(last_ir) = last_ir.as_ref() {
+                if last_ir != &compiled {
+                    eprintln!("{}\n{}", last_ir, compiled);
+                    return Err("- IR changed on different input files".to_string());
+                }
+            } else {
+                last_ir = Some(compiled);
+            }
             output_items.push(OutputItem {
                 input_file: input.0,
                 output,
@@ -177,6 +197,12 @@ impl Namespace for CompileNamespace {
 
         let final_output = CompileOutput {
             circuit: last_circuit.unwrap(),
+            ir: last_ir
+                .unwrap()
+                .to_string()
+                .split('\n')
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>(),
             output: output_items,
         };
         Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))

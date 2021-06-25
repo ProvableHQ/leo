@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{FormattedError, LeoError, Span};
-use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
 pub enum FieldError {
@@ -28,21 +27,6 @@ impl LeoError for FieldError {}
 impl FieldError {
     fn new_from_span(message: String, span: &Span) -> Self {
         FieldError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    pub fn negate_operation(error: SynthesisError, span: &Span) -> Self {
-        let message = format!("field negation failed due to synthesis error `{:?}`", error,);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn binary_operation(operation: String, error: SynthesisError, span: &Span) -> Self {
-        let message = format!(
-            "the field binary operation `{}` failed due to synthesis error `{:?}`",
-            operation, error,
-        );
-
-        Self::new_from_span(message, span)
     }
 
     pub fn invalid_field(actual: String, span: &Span) -> Self {

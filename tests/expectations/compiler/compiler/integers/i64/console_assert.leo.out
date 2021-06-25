@@ -9,6 +9,12 @@ outputs:
       at: 68080cb19b62be7f91ee2118affb7b55ea272e15e17581869385053a5c6d3623
       bt: 2c1d031e57e285b1277f2c37853fc7fdff23711e1147d7b26ed74d3acd28ceff
       ct: 0b136215b60005ed17aa4eea76bc4e2b0349c0fecf57dc06f5dba31981f270d0
+    ir:
+      - "decl f0: <0>"
+      - "  store &v0, ((), (), (), ())"
+      - "  eq &v3, v1, v2"
+      - "  assert v3"
+      - ""
     output:
       - input_file: i64.in
         output:

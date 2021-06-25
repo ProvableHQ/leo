@@ -16,17 +16,12 @@
 
 //! Enforces a statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Node, Statement};
-
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
+use crate::{errors::StatementError, program::Program};
+use leo_asg::Statement;
 
 pub type StatementResult<T> = Result<T, StatementError>;
-pub type IndicatorAndConstrainedValue<'a, T, U> = (Boolean, ConstrainedValue<'a, T, U>);
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     ///
     /// Enforce a program statement.
     /// Returns a Vector of (indicator, value) tuples.
@@ -35,77 +30,35 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// to the `indicator` bit that evaluates to true.
     ///
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        indicator: &Boolean,
-        statement: &'a Statement<'a>,
-    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<'a, F, G>>> {
-        let mut results = vec![];
-        let span = statement.span().cloned().unwrap_or_default();
-        let mut cs = cs.ns(|| format!("statement {}:{}", span.line_start, span.col_start));
-        let cs = &mut cs;
-
+    pub fn enforce_statement(&mut self, statement: &'a Statement<'a>) -> StatementResult<()> {
         match statement {
             Statement::Return(statement) => {
-                let return_value = (*indicator, self.enforce_return_statement(cs, statement)?);
-
-                results.push(return_value);
+                self.enforce_return_statement(statement)?;
             }
             Statement::Definition(statement) => {
-                self.enforce_definition_statement(cs, statement)?;
+                self.enforce_definition_statement(statement)?;
             }
             Statement::Assign(statement) => {
-                self.enforce_assign_statement(cs, indicator, statement)?;
+                self.enforce_assign_statement(statement)?;
             }
             Statement::Conditional(statement) => {
-                let result = self.enforce_conditional_statement(cs, indicator, statement)?;
-
-                results.extend(result);
+                self.enforce_conditional_statement(statement)?;
             }
             Statement::Iteration(statement) => {
-                let result = self.enforce_iteration_statement(cs, indicator, statement)?;
-
-                results.extend(result);
+                self.enforce_iteration_statement(statement)?;
             }
             Statement::Console(statement) => {
-                self.evaluate_console_function_call(cs, indicator, statement)?;
+                self.evaluate_console_function_call(statement)?;
             }
             Statement::Expression(statement) => {
-                let value = self.enforce_expression(cs, statement.expression.get())?;
-                // handle empty return value cases
-                match &value {
-                    ConstrainedValue::Tuple(values) => {
-                        if !values.is_empty() {
-                            results.push((*indicator, value));
-                        }
-                    }
-                    _ => {
-                        return Err(StatementError::unassigned(&statement.span.clone().unwrap_or_default()));
-                    }
-                }
+                let _value = self.enforce_expression(statement.expression.get())?;
             }
             Statement::Block(statement) => {
-                let span = statement.span.clone().unwrap_or_default();
-                let result = self.evaluate_block(
-                    &mut cs.ns(|| format!("block {}:{}", &span.line_start, &span.col_start)),
-                    indicator,
-                    statement,
-                )?;
-
-                results.extend(result);
+                self.evaluate_block(statement)?;
             }
             Statement::Empty(_) => (),
         };
 
-        Ok(results)
+        Ok(())
     }
-}
-
-/// Unwraps the indicator boolean gadget value or `false` if `None`.
-/// This method is used by logging methods only.
-/// We can directly get the boolean value of the indicator since we are not enforcing any
-/// constraints.
-pub fn get_indicator_value(indicator: &Boolean) -> bool {
-    indicator.get_value().unwrap_or(false)
 }

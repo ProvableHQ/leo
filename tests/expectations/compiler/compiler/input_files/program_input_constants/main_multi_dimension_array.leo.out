@@ -4,11 +4,31 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 223
-      num_constraints: 223
-      at: 87fe022f8971e90450cc219824d04ea84f08040429143393193aa2de0321759f
-      bt: 65e18f4e1e32d72f87d238401f8397b5d8ba20e7da7d50cc5930faa5673cdb77
-      ct: 389354117abccc4ef9f4822705889f64f1d16b7e0d2adae52005c7b91b0ccabb
+      num_private_variables: 224
+      num_constraints: 224
+      at: ccf19b025615a81b1f19967fd069c140849429e932a38b245cda98b9acea2191
+      bt: 57f1871a8d1ff309df7590b6b67374f185bb1b17d18e0bad3d75c9f537675e70
+      ct: b92d53399a71512b25b4ee9f35327fe8a8e658b444fcf397b0d8cd6790448ff5
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  aget &v4, v2, 0"
+      - "  aget &v5, v4, 0"
+      - "  aget &v6, v5, 0"
+      - "  aget &v7, v3, 0"
+      - "  aget &v8, v7, 0"
+      - "  aget &v9, v8, 0"
+      - "  eq &v10, v6, v9"
+      - "  aget &v11, v2, 1"
+      - "  aget &v12, v11, 1"
+      - "  aget &v13, v12, 2"
+      - "  aget &v14, v3, 1"
+      - "  aget &v15, v14, 1"
+      - "  aget &v16, v15, 2"
+      - "  eq &v17, v13, v16"
+      - "  and &v18, v10, v17"
+      - "  retn v18"
+      - ""
     output:
       - input_file: input/main_multi_dimension_array.in
         output:

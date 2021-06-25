@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{FormattedError, LeoError, Span};
+use leo_input::InputParserError;
 
 use crate::{DeprecatedError, SyntaxResult, Token, TokenError};
 
@@ -28,6 +29,9 @@ pub enum SyntaxError {
 
     #[error("{}", _0)]
     DeprecatedError(#[from] DeprecatedError),
+
+    #[error("{}", _0)]
+    InputParserError(#[from] InputParserError),
 }
 
 impl LeoError for SyntaxError {}

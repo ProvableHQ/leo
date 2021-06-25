@@ -4,11 +4,19 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 26
-      num_constraints: 21
-      at: b4c72e270b0067ca380a70c8cb2632c33b17e7323b3817deb04e5fe72aa99c13
-      bt: d476126ef8e9588f0ed444a75f025c1c468618ae84829d4d2deb37679e537563
-      ct: 789b2eca89cbf96799b7c12eaa66df8efcec7fe1c6c8af5e741fe4955c5dee32
+      num_private_variables: 27
+      num_constraints: 22
+      at: ea76263d25f2c4f7a3e4b15df56eea25dfcf577ad30f97211b6dac93e5cacd6e
+      bt: 56f4219d99fa2c12808f6282552ea0441c9f455d5438655e7339834407cdc1ea
+      ct: 6d655a939b1420911cb629a66383042fcdf9ca4f22f1d1773ff547746f5979fc
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  eq &v4, v3, true"
+      - "  eq &v5, v2, [😭, 😂, 👍, 😁, 😘]"
+      - "  and &v6, v4, v5"
+      - "  retn v6"
+      - ""
     output:
       - input_file: input/main_string.in
         output:

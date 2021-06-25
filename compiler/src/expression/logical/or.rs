@@ -16,31 +16,16 @@
 
 //! Enforces a logical `||` operator in a resolved Leo program.
 
-use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
-use leo_asg::Span;
+use crate::{errors::ExpressionError, Program};
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
-
-pub fn enforce_or<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-    cs: &mut CS,
-    left: ConstrainedValue<'a, F, G>,
-    right: ConstrainedValue<'a, F, G>,
-    span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, BooleanError> {
-    let name = format!("{} || {}", left, right);
-
-    if let (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) = (left, right) {
-        let result = Boolean::or(
-            cs.ns(|| format!("{} {}:{}", name, span.line_start, span.col_start)),
-            &left_bool,
-            &right_bool,
-        )
-        .map_err(|e| BooleanError::cannot_enforce("||".to_string(), e, span))?;
-
-        return Ok(ConstrainedValue::Boolean(result));
+impl<'a> Program<'a> {
+    pub fn evaluate_or(&mut self, left: Value, right: Value) -> Result<Value, ExpressionError> {
+        let output = self.alloc();
+        self.emit(Instruction::Or(QueryData {
+            destination: output,
+            values: vec![left, right],
+        }));
+        Ok(Value::Ref(output))
     }
-
-    Err(BooleanError::cannot_evaluate(name, span))
 }

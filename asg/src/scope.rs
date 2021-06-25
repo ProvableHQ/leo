@@ -187,7 +187,7 @@ impl<'a> Scope<'a> {
                 for dimension in dimensions.0.iter().rev() {
                     let dimension = dimension
                         .value
-                        .parse::<usize>()
+                        .parse::<u32>()
                         .map_err(|_| AsgConvertError::parse_index_error())?;
                     item = Box::new(Type::Array(item, dimension));
                 }

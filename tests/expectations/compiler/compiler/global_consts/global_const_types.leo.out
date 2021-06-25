@@ -4,11 +4,67 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 95
-      num_constraints: 95
-      at: 8db8901199024f620eff3a2a9d95e74862d07f8413a6fef789347f012de915ce
-      bt: 134fe0b804695f759f665fe6754e85dc3556cb7c4fd7fca0e78ed2f55d048873
-      ct: 8770257f9e15fb2972e7ca01e77f3d4d0303033d75d9e990b7065a3096ce9cfb
+      num_private_variables: 96
+      num_constraints: 96
+      at: e5794b83d06580d5fdea9af41108229b224b535fd8a5d2cb20173c72c56e01e0
+      bt: 2ed178268b3bcb0a955fcf9ced94c7047d8ed05e93726a29e57f87a736d753ae
+      ct: 2f3479b10072c25be2f81a1351b1894cf0d57490a4a961f0489601710237dec1
+    ir:
+      - "decl f0: <0>"
+      - "  store &v0, 8"
+      - "  ainitn &v1, 2, 0"
+      - "  ainitn &v2, 3, v1"
+      - "  store &v3, v2"
+      - "  store &v4, (1, 2)"
+      - "  tget &v5, (1, 2), 0"
+      - "  tget &v6, (1, 2), 1"
+      - "  store &v7, Field { negate: false, values: [1] }group"
+      - "  store &v8, (_, [1])group"
+      - "  store &v9, Field { negate: false, values: [2] }"
+      - "  store &v10, 9"
+      - "  store &v11, (10, 20)"
+      - "  call &v12, f1"
+      - "  store &v13, v12"
+      - "  store &v14, a"
+      - "  store &v15, [H, e, l, l, o, ,,  , W, o, r, l, d, !]"
+      - "  store &v17, ((v16), (), (), ())"
+      - "  tget &v19, (1, 2), 0"
+      - "  tget &v20, (1, 2), 1"
+      - "  eq &v21, v18, 8"
+      - "  and &v22, v21, true"
+      - "  aget &v23, v3, 0"
+      - "  aget &v24, v23, 0"
+      - "  eq &v25, v24, 0"
+      - "  and &v26, v22, v25"
+      - "  aget &v27, v3, 2"
+      - "  aget &v28, v27, 1"
+      - "  eq &v29, v28, 0"
+      - "  and &v30, v26, v29"
+      - "  eq &v31, v19, 1"
+      - "  and &v32, v30, v31"
+      - "  eq &v33, v20, 2"
+      - "  and &v34, v32, v33"
+      - "  eq &v35, v18, 1"
+      - "  and &v36, v34, v35"
+      - "  and &v37, v36, true"
+      - "  and &v38, v37, true"
+      - "  and &v39, v38, true"
+      - "  and &v40, v39, true"
+      - "  and &v41, v40, true"
+      - "  tget &v42, v11, 0"
+      - "  eq &v43, v42, 10"
+      - "  and &v44, v41, v43"
+      - "  tget &v45, v11, 1"
+      - "  eq &v46, v45, 20"
+      - "  and &v47, v44, v46"
+      - "  eq &v48, v13, 1"
+      - "  and &v49, v47, v48"
+      - "  and &v50, v49, true"
+      - "  and &v51, v50, true"
+      - "  retn v51"
+      - "decl f1: <52>"
+      - "  retn 1"
+      - ""
     output:
       - input_file: globals.in
         output:

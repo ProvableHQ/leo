@@ -16,31 +16,16 @@
 
 //! Enforces an arithmetic `-` operator in a resolved Leo program.
 
-use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_ast::Span;
+use crate::{errors::ExpressionError, Program};
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-pub fn enforce_sub<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-    cs: &mut CS,
-    left: ConstrainedValue<'a, F, G>,
-    right: ConstrainedValue<'a, F, G>,
-    span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-    match (left, right) {
-        (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-            Ok(ConstrainedValue::Integer(num_1.sub(cs, num_2, span)?))
-        }
-        (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
-            Ok(ConstrainedValue::Field(field_1.sub(cs, &field_2, span)?))
-        }
-        (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
-            Ok(ConstrainedValue::Group(point_1.sub(cs, &point_2, span)?))
-        }
-        (val_1, val_2) => Err(ExpressionError::incompatible_types(
-            format!("{} - {}", val_1, val_2),
-            span,
-        )),
+impl<'a> Program<'a> {
+    pub fn evaluate_sub(&mut self, left: Value, right: Value) -> Result<Value, ExpressionError> {
+        let output = self.alloc();
+        self.emit(Instruction::Sub(QueryData {
+            destination: output,
+            values: vec![left, right],
+        }));
+        Ok(Value::Ref(output))
     }
 }

@@ -134,7 +134,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                                     _ => unimplemented!(),
                                 };
                                 if right >= left {
-                                    target_type = Some(PartialType::Array(item.clone(), Some((right - left) as usize)))
+                                    target_type = Some(PartialType::Array(item.clone(), Some((right - left) as u32)))
                                 } else {
                                     return Err(AsgConvertError::invalid_backwards_assignment(
                                         &name,

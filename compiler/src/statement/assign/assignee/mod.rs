@@ -16,113 +16,75 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{AssignAccess, AssignOperation, AssignStatement, Span};
-
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
+use crate::{errors::StatementError, program::Program};
+use leo_asg::{AssignAccess, AssignOperation, AssignStatement, ExpressionNode, Type};
+use snarkvm_ir::{Instruction, QueryData, Value};
 
 mod array_index;
 mod array_range_index;
 mod member;
 mod tuple;
 
-struct ResolverContext<'a, 'b, F: PrimeField, G: GroupType<F>> {
-    input: Vec<&'b mut ConstrainedValue<'a, F, G>>,
-    span: Span,
-    target_value: ConstrainedValue<'a, F, G>,
+struct ResolverContext<'a, 'b> {
+    target_array_length: u32,
+    input_type: Type<'a>,
+    input_register: u32,
     remaining_accesses: &'b [&'b AssignAccess<'a>],
-    indicator: &'b Boolean,
     operation: AssignOperation,
+    target_value: Value,
 }
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    fn enforce_assign_context<'b, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        context: &ResolverContext<'a, 'b, F, G>,
-        target: &mut ConstrainedValue<'a, F, G>,
-    ) -> Result<(), StatementError> {
-        Self::enforce_assign_operation(
-            cs,
-            context.indicator,
-            format!("select_assign {}:{}", &context.span.line_start, &context.span.col_start),
-            &context.operation,
-            target,
-            context.target_value.clone(),
-            &context.span,
-        )
-    }
-
-    fn resolve_target_access<'b, CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        mut context: ResolverContext<'a, 'b, F, G>,
-    ) -> Result<(), StatementError> {
+impl<'a> Program<'a> {
+    fn resolve_target_access<'b>(&mut self, mut context: ResolverContext<'a, 'b>) -> Result<Value, StatementError> {
         if context.remaining_accesses.is_empty() {
-            if context.input.len() != 1 {
-                panic!("invalid non-array-context multi-value assignment");
-            }
-            let input = context.input.remove(0);
-            self.enforce_assign_context(cs, &context, input)?;
-            return Ok(());
+            let resulting_value = self.enforce_assign_operation(
+                &context.operation,
+                Value::Ref(context.input_register),
+                context.target_value,
+            )?;
+
+            return Ok(resulting_value);
         }
         let access = context.remaining_accesses[context.remaining_accesses.len() - 1];
         context.remaining_accesses = &context.remaining_accesses[..context.remaining_accesses.len() - 1];
         match access {
             AssignAccess::ArrayRange(start, stop) => {
-                self.resolve_target_access_array_range(cs, context, start.get(), stop.get())
+                self.resolve_target_access_array_range(context, start.get(), stop.get())
             }
-            AssignAccess::ArrayIndex(index) => self.resolve_target_access_array_index(cs, context, index.get()),
-            AssignAccess::Tuple(index) => self.resolve_target_access_tuple(cs, context, *index),
-            AssignAccess::Member(identifier) => self.resolve_target_access_member(cs, context, identifier),
+            AssignAccess::ArrayIndex(index) => self.resolve_target_access_array_index(context, index.get()),
+            AssignAccess::Tuple(index) => self.resolve_target_access_tuple(context, *index),
+            AssignAccess::Member(identifier) => self.resolve_target_access_member(context, identifier),
         }
     }
 
-    pub fn resolve_assign<CS: ConstraintSystem<F>>(
+    pub fn resolve_assign(
         &mut self,
-        cs: &mut CS,
         assignee: &AssignStatement<'a>,
-        target_value: ConstrainedValue<'a, F, G>,
-        indicator: &Boolean,
+        target_value: Value,
     ) -> Result<(), StatementError> {
-        let span = assignee.span.clone().unwrap_or_default();
-        let variable = assignee.target_variable.get().borrow();
+        let variable = assignee.target_variable.get();
+        let type_ = variable.borrow().type_.clone();
+        let target_array_length = match &assignee.value.get().get_type().expect("missing assignment value type") {
+            Type::Array(_, x) => *x,
+            _ => 0,
+        };
 
-        let mut target = self.get(variable.id).unwrap().clone();
+        let target = self.resolve_var(variable);
         let accesses: Vec<_> = assignee.target_accesses.iter().rev().collect();
-        self.resolve_target_access(cs, ResolverContext {
-            input: vec![&mut target],
-            span,
-            target_value,
+        let resulting_value = self.resolve_target_access(ResolverContext {
+            input_type: type_,
+            input_register: target,
             remaining_accesses: &accesses[..],
-            indicator,
+            target_array_length,
             operation: assignee.operation,
+            target_value,
         })?;
-        *self.get_mut(variable.id).unwrap() = target;
-        Ok(())
-    }
 
-    pub(crate) fn check_range_index(
-        start_index: usize,
-        stop_index: usize,
-        len: usize,
-        span: &Span,
-    ) -> Result<(), StatementError> {
-        if stop_index < start_index {
-            Err(StatementError::array_assign_range_order(
-                start_index,
-                stop_index,
-                len,
-                span,
-            ))
-        } else if start_index > len {
-            Err(StatementError::array_assign_index_bounds(start_index, len, span))
-        } else if stop_index > len {
-            Err(StatementError::array_assign_index_bounds(stop_index, len, span))
-        } else {
-            Ok(())
-        }
+        self.emit(Instruction::Store(QueryData {
+            destination: target,
+            values: vec![resulting_value],
+        }));
+
+        Ok(())
     }
 }

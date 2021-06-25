@@ -1,0 +1,28 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 20424
+      num_constraints: 20728
+      at: 39c8d21040414dd79d4779b62ea26c1fb5f7c2874e610040a0ffe717ab320b0a
+      bt: b0ab7bf8979610c662ec005e6bc9f2568eb7ab09f89c4758253951efae973e94
+      ct: e5390d03fc0fe980f36432958faff603882e99a33980a7a408818cc961bd31a9
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  ainitn &v3, 32, 1"
+      - "  store &v4, v3"
+      - "  ccall &v5, 'blake2s', v4, v2"
+      - "  store &v6, v5"
+      - "  log INFO, \"Result: \", v6"
+      - "  retn v6"
+      - ""
+    output:
+      - input_file: blake.in
+        output:
+          registers:
+            r0:
+              type: "[u8; 32]"
+              value: "[213, 24, 235, 180, 216, 116, 28, 65, 88, 162, 204, 6, 23, 8, 66, 112, 214, 239, 242, 134, 165, 39, 172, 247, 65, 130, 155, 2, 97, 147, 14, 57]"

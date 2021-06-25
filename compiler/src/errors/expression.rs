@@ -25,7 +25,6 @@ use crate::errors::{
     ValueError,
 };
 use leo_ast::{FormattedError, Identifier, LeoError, Span};
-use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
 pub enum ExpressionError {
@@ -62,15 +61,6 @@ impl LeoError for ExpressionError {}
 impl ExpressionError {
     fn new_from_span(message: String, span: &Span) -> Self {
         ExpressionError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    pub fn cannot_enforce(operation: String, error: SynthesisError, span: &Span) -> Self {
-        let message = format!(
-            "the gadget operation `{}` failed due to synthesis error `{:?}`",
-            operation, error,
-        );
-
-        Self::new_from_span(message, span)
     }
 
     pub fn cannot_evaluate(operation: String, span: &Span) -> Self {

@@ -34,9 +34,6 @@ pub use self::conditional::*;
 pub mod expression;
 pub use self::expression::*;
 
-pub mod function;
-pub use self::function::*;
-
 pub mod variable_ref;
 pub use self::variable_ref::*;
 

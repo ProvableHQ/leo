@@ -16,44 +16,41 @@
 
 //! Enforces a circuit expression in a compiled Leo program.
 
-use crate::{
-    errors::ExpressionError,
-    program::ConstrainedProgram,
-    value::{ConstrainedCircuitMember, ConstrainedValue},
-    GroupType,
-};
+use crate::{errors::ExpressionError, program::Program};
 use leo_asg::{CircuitInitExpression, CircuitMember, Span};
+use snarkvm_ir::Value;
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn enforce_circuit<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        expr: &CircuitInitExpression<'a>,
-        span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+impl<'a> Program<'a> {
+    pub fn enforce_circuit(&mut self, expr: &CircuitInitExpression<'a>, span: &Span) -> Result<Value, ExpressionError> {
         let circuit = expr.circuit.get();
         let members = circuit.members.borrow();
 
-        let mut resolved_members = Vec::with_capacity(members.len());
+        let member_var_len = members
+            .values()
+            .filter(|x| matches!(x, CircuitMember::Variable(_)))
+            .count();
+
+        let mut resolved_members = vec![None; member_var_len];
 
         // type checking is already done in asg
         for (name, inner) in expr.values.iter() {
-            let target = members
-                .get(name.name.as_ref())
+            let (index, _, target) = members
+                .get_full(name.name.as_ref())
                 .expect("illegal name in asg circuit init expression");
             match target {
                 CircuitMember::Variable(_type_) => {
-                    let variable_value = self.enforce_expression(cs, inner.get())?;
-                    resolved_members.push(ConstrainedCircuitMember(name.clone(), variable_value));
+                    let variable_value = self.enforce_expression(inner.get())?;
+                    resolved_members[index] = Some(variable_value);
                 }
                 _ => return Err(ExpressionError::expected_circuit_member(name.to_string(), span)),
             }
         }
 
-        let value = ConstrainedValue::CircuitExpression(circuit, resolved_members);
-        Ok(value)
+        Ok(Value::Tuple(
+            resolved_members
+                .into_iter()
+                .map(|x| x.expect("missing circuit field"))
+                .collect(),
+        ))
     }
 }

@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{FormattedError, LeoError, Span};
-use snarkvm_r1cs::SynthesisError;
 
 #[derive(Debug, Error)]
 pub enum BooleanError {
@@ -28,15 +27,6 @@ impl LeoError for BooleanError {}
 impl BooleanError {
     fn new_from_span(message: String, span: &Span) -> Self {
         BooleanError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    pub fn cannot_enforce(operation: String, error: SynthesisError, span: &Span) -> Self {
-        let message = format!(
-            "the boolean operation `{}` failed due to the synthesis error `{:?}`",
-            operation, error,
-        );
-
-        Self::new_from_span(message, span)
     }
 
     pub fn cannot_evaluate(operation: String, span: &Span) -> Self {

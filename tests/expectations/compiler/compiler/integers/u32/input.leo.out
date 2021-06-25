@@ -4,11 +4,17 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 127
-      num_constraints: 127
-      at: 051151c1ab89f2c0ff0fe5d336668c3fcd6dc4744d1f5b8e135dcb7bf6a6195c
-      bt: 6b92443726163ac0fc32f7c9edace0ec8369e793d24105d93d121cb0bd5c3128
-      ct: 7cb2d3f0ccfb9a2e747c6a05bdb52812c4539c836ff62c4e555fac13ef2084d4
+      num_private_variables: 128
+      num_constraints: 128
+      at: 1684aff6c7a6a1d8883ba639a6edef62ec6063e9846ff82c9076d8710b4a60be
+      bt: d04c3ad4eae49e0bb421fca502d30a37d123d335c1808507769ea86627400758
+      ct: 117a27020d811a1a0374db3bbfc6075c659bd2c42de5fe52dac52549d16482ab
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  eq &v4, v2, v3"
+      - "  retn v4"
+      - ""
     output:
       - input_file: u32_g.in
         output:

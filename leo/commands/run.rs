@@ -16,7 +16,7 @@
 
 use super::{build::BuildOptions, prove::Prove};
 use crate::{commands::Command, context::Context};
-use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use leo_compiler::compiler::Compiler;
 
 use anyhow::Result;
 use snarkvm_algorithms::{snark::groth16::Groth16, traits::SNARK};
@@ -57,7 +57,7 @@ impl Command for Run {
         tracing::info!("Starting...");
 
         // Run the verifier
-        let is_success = Groth16::<Bls12_377, Compiler<Fr, EdwardsGroupType>, Vec<Fr>>::verify(
+        let is_success = Groth16::<Bls12_377, Compiler, Vec<Fr>>::verify(
             &prepared_verifying_key,
             &vec![],
             &proof,

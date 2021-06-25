@@ -4,11 +4,19 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 3
-      num_constraints: 3
-      at: 83b1bd5868cfd70d986276428ff81a9120e0848a6f44d7bd6d5a25d6063c7669
-      bt: 5a01b0726c5b948a3b336179b77081865f51dc2f1de630ce95b03424a5ae7998
-      ct: 7ca43d5c34997f3c866631161cb33186cc016972238c07771ae105ca1b05320d
+      num_private_variables: 6
+      num_constraints: 6
+      at: 99967e4032e270c3cc179adfd6ebe63260d7384898dc8f4049750e805a580bf6
+      bt: e0b9d6b777674bcb3a83d487847a861ef22195c794a66ae796728d406623a933
+      ct: 42dfac82945af84791965d1a9d4e283d05b3eb90019983ac199ea04f4e476118
+    ir:
+      - "decl f0: <0>"
+      - "  store &v4, ((v0), (v1), (v2), (v3))"
+      - "  tget &v6, v4, 0"
+      - "  tget &v7, v6, 0"
+      - "  eq &v8, v5, v7"
+      - "  retn v8"
+      - ""
     output:
       - input_file: input/basic.in
         output:

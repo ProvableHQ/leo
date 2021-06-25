@@ -188,3 +188,13 @@ opt-level = 0
 opt-level = 0
 debug-assertions = true
 debug = true
+
+[patch.crates-io]
+snarkvm-curves = { path = "/home/p/aleo/snarkVM/curves" }
+snarkvm-fields = { path = "/home/p/aleo/snarkVM/fields" }
+snarkvm-utilities = { path = "/home/p/aleo/snarkVM/utilities" }
+snarkvm-r1cs = { path = "/home/p/aleo/snarkVM/r1cs" }
+snarkvm-gadgets = { path = "/home/p/aleo/snarkVM/gadgets" }
+snarkvm-parameters = { path = "/home/p/aleo/snarkVM/parameters" }
+snarkvm-dpc = { path = "/home/p/aleo/snarkVM/dpc" }
+snarkvm-algorithms = { path = "/home/p/aleo/snarkVM/algorithms" }

@@ -97,15 +97,6 @@ impl StatementError {
         Self::new_from_span(message, span)
     }
 
-    pub fn indicator_calculation(name: String, span: &Span) -> Self {
-        let message = format!(
-            "Constraint system failed to evaluate branch selection indicator `{}`",
-            name
-        );
-
-        Self::new_from_span(message, span)
-    }
-
     pub fn invalid_number_of_definitions(expected: usize, actual: usize, span: &Span) -> Self {
         let message = format!(
             "Multiple definition statement expected {} return values, found {} values",

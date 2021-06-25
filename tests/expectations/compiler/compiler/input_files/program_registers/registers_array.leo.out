@@ -4,11 +4,16 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 64
-      num_constraints: 64
-      at: 2517dbbd3bc6f74f73a279bfe223141cdef8fce801edcc2972d568a815e43bcd
-      bt: 3a136bbbffaef5f4563e06a03444cfe5c512767d8c88a8be5b39034e18fe0081
-      ct: 60e36dc4bc844fe8285371cf70c955b79990f094bc50b3401dcac4cbede63e8d
+      num_private_variables: 128
+      num_constraints: 128
+      at: 72135cf2aa239eead37945a3de3c3da2e2269faad6520e0f39d569d436c72530
+      bt: b69c40cc3277ce8c8f9e895c3ad2bb1c4329338376ecebfa38de27e6f77f8d38
+      ct: 8199c11547b06fee4848349ef1354c749be2964bea2cb0131b622f4f341a7b56
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  retn v2"
+      - ""
     output:
       - input_file: input/array.in
         output:

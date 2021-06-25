@@ -17,11 +17,12 @@
 use crate::errors::{ExpressionError, FunctionError, ImportError, StatementError};
 use leo_asg::{AsgConvertError, FormattedError};
 use leo_ast::{LeoError, ReducerError};
-use leo_input::InputParserError;
 use leo_parser::SyntaxError;
 use leo_state::LocalDataVerificationError;
 
 use std::path::PathBuf;
+
+use super::OutputBytesError;
 
 #[derive(Debug, Error)]
 pub enum CompilerError {
@@ -36,9 +37,6 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     ImportError(#[from] ImportError),
-
-    #[error("{}", _0)]
-    InputParserError(#[from] InputParserError),
 
     #[error("Cannot find input files with context name `{}`", _0)]
     InvalidTestContext(String),
@@ -66,6 +64,12 @@ pub enum CompilerError {
 
     #[error("{}", _0)]
     StatementError(#[from] StatementError),
+
+    #[error("{}", _0)]
+    OutputBytesError(#[from] OutputBytesError),
+
+    #[error("{}", _0)]
+    Other(#[from] anyhow::Error),
 }
 
 impl LeoError for CompilerError {}

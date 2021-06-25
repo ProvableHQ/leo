@@ -4,11 +4,25 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 527
-      num_constraints: 527
-      at: 7f6c7713392a44fa83a3fbffafd830d6e20356d72aff3d67f78c70ea5439a735
-      bt: b21f2049f4ae8c11dff5de8b33d532f3ea7637bfdbd09395d056495472c1853a
-      ct: 096693f8f4f40acd0e3f82bd256738e157f33989bcc68a7b8eabe44e8449bbb0
+      num_private_variables: 4208
+      num_constraints: 4208
+      at: ffcbe211155131f8d94987d1775bf81544edc3737ba383c6cddbd9cd546a8998
+      bt: 610cc3c3bdc2a58a4a1e97237f93be100e02b23e8f2bb40d1ee31da89fbf4389
+      ct: cddfc688f773a0cb8cc5390e053bfbde34aa64d745fa2796b96eca97ba3ae060
+    ir:
+      - "decl f0: <0>"
+      - "  store &v16, ((v0), (v1, v2, v3, v4, v5, v6, v7, v8, v9), (v10, v11), (v12, v13, v14, v15))"
+      - "  store &v17, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
+      - "  tget &v18, v16, 2"
+      - "  tget &v19, v18, 1"
+      - "  ainitn &v20, 32, 0"
+      - "  eq &v21, v19, v20"
+      - "  tget &v22, v16, 3"
+      - "  tget &v23, v22, 2"
+      - "  eq &v24, v23, 0"
+      - "  and &v25, v21, v24"
+      - "  retn v25"
+      - ""
     output:
       - input_file: input/dummy.in
         output:

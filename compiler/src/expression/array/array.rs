@@ -18,64 +18,62 @@
 
 use std::cell::Cell;
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Expression, Span};
+use crate::{errors::ExpressionError, program::Program};
+use leo_asg::{Expression, ExpressionNode};
+use snarkvm_ir::{ArrayInitRepeatData, Instruction, Value, VarData};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     /// Enforce array expressions
-    pub fn enforce_array<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        array: &[(Cell<&'a Expression<'a>>, bool)],
-        span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-        let expected_dimension = None;
+    pub fn enforce_array(&mut self, array: &[(Cell<&'a Expression<'a>>, bool)]) -> Result<Value, ExpressionError> {
+        let any_spread = array.iter().any(|x| x.1);
 
         let mut result = vec![];
         for (element, is_spread) in array.iter() {
-            let element_value = self.enforce_expression(cs, element.get())?;
-            if *is_spread {
-                match element_value {
-                    ConstrainedValue::Array(array) => result.extend(array),
-                    _ => unimplemented!(), // type should already be checked
-                }
+            let element_value = self.enforce_expression(element.get())?;
+            // when arrayinit instruction is flattening -- we don't want it to flatten genuinely included non-spreaded arrays
+            if any_spread
+                && !is_spread
+                && matches!(
+                    element.get().get_type().expect("no type for array init element"),
+                    leo_asg::Type::Array(_, _)
+                )
+            {
+                result.push(Value::Array(vec![element_value]));
             } else {
                 result.push(element_value);
             }
         }
 
-        // Check expected_dimension if given.
-        if let Some(dimension) = expected_dimension {
-            // Return an error if the expected dimension != the actual dimension.
-            if dimension != result.len() {
-                return Err(ExpressionError::invalid_length(dimension, result.len(), span));
-            }
+        if any_spread {
+            let intermediate = self.alloc();
+            self.emit(Instruction::ArrayInit(VarData {
+                destination: intermediate,
+                values: result,
+            }));
+            Ok(Value::Ref(intermediate))
+        } else {
+            Ok(Value::Array(result))
         }
-
-        Ok(ConstrainedValue::Array(result))
     }
 
     ///
     /// Returns an array value from an array initializer expression.
     ///
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_array_initializer<CS: ConstraintSystem<F>>(
+    pub fn enforce_array_initializer(
         &mut self,
-        cs: &mut CS,
         element_expression: &'a Expression<'a>,
-        actual_size: usize,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-        let mut value = self.enforce_expression(cs, element_expression)?;
+        actual_size: u32,
+    ) -> Result<Value, ExpressionError> {
+        let value = self.enforce_expression(element_expression)?;
 
-        // Allocate the array.
-        let array = vec![value; actual_size];
+        let out = self.alloc();
+        self.emit(Instruction::ArrayInitRepeat(ArrayInitRepeatData {
+            destination: out,
+            length: actual_size,
+            value,
+        }));
 
-        // Set the array value.
-        value = ConstrainedValue::Array(array);
-
-        Ok(value)
+        Ok(Value::Ref(out))
     }
 }

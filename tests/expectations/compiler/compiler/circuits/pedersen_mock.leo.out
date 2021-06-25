@@ -4,11 +4,36 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 33823
-      num_constraints: 50719
-      at: 894e21b7ca1c178a167a94f174b4ea0d37b102b394100a15c92e78e16a87acdf
-      bt: 6756180897cb6c9fe53fce913fd9ad1c77a5b537b805da2c7f42de0473d12c94
-      ct: 2f2e90dcee9f8a28e7a9fd4ee37093e4d247d07e4ab97937ecd0ba60ec5dd903
+      num_private_variables: 33824
+      num_constraints: 50720
+      at: 8681a26cb2bad65a15f5dcf65e567a3d4825abee031d1c9900275f360e440901
+      bt: 1b22146d83d358443ab1150d7abe870ce8d9608959c954bbf2520ad1bfab0636
+      ct: 4983a9e627ea065237da54296a75c61acc7274481a6e016bbd08c9c5769c5732
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  ainitn &v3, 512, 0"
+      - "  store &v4, v3"
+      - "  call &v5, f1, v4"
+      - "  store &v6, v5"
+      - "  call &v7, f2, v6, v2"
+      - "  store &v8, v7"
+      - "  eq &v9, v8, 0"
+      - "  retn v9"
+      - "decl f1: <10>"
+      - "  retn (v10)"
+      - "decl f2: <11>"
+      - "  store &v13, 0"
+      - "  repeat 7, &v14, 0, 512"
+      - "    aget &v15, v12, v14"
+      - "    tget &v16, v11, 0"
+      - "    aget &v17, v16, v14"
+      - "    pick &v18, v15, v17, 0"
+      - "    store &v19, v18"
+      - "    add &v20, v13, v19"
+      - "    store &v13, v20"
+      - "  retn v13"
+      - ""
     output:
       - input_file: pedersen.in
         output:

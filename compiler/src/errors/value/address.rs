@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{FormattedError, LeoError, Span};
-use snarkvm_dpc::AccountError;
 
 #[derive(Debug, Error)]
 pub enum AddressError {
@@ -30,13 +29,7 @@ impl AddressError {
         AddressError::Error(FormattedError::new_from_span(message, span))
     }
 
-    pub fn account_error(error: AccountError, span: &Span) -> Self {
-        let message = format!("account creation failed due to `{}`", error);
-
-        Self::new_from_span(message, span)
-    }
-
-    pub fn invalid_address(actual: String, span: &Span) -> Self {
+    pub fn invalid_address(actual: &str, span: &Span) -> Self {
         let message = format!("expected address input type, found `{}`", actual);
 
         Self::new_from_span(message, span)

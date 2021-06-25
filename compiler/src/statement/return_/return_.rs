@@ -16,19 +16,25 @@
 
 //! Enforces a return statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::ReturnStatement;
+use crate::{errors::StatementError, program::Program};
+use leo_asg::{FunctionQualifier, ReturnStatement};
+use snarkvm_ir::{Instruction, PredicateData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn enforce_return_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        statement: &ReturnStatement<'a>,
-    ) -> Result<ConstrainedValue<'a, F, G>, StatementError> {
-        let result = self.enforce_expression(cs, statement.expression.get())?;
-        Ok(result)
+impl<'a> Program<'a> {
+    pub fn enforce_return_statement(&mut self, statement: &ReturnStatement<'a>) -> Result<(), StatementError> {
+        let function = self.current_function.expect("return in non-function");
+        let is_mut_self = matches!(function.qualifier, FunctionQualifier::MutSelfRef);
+        let result = self.enforce_expression(statement.expression.get())?;
+        let mut output = result;
+        if is_mut_self {
+            let self_var = function
+                .scope
+                .resolve_variable("self")
+                .expect("missing self in mut self function");
+            let self_var_register = self.resolve_var(self_var);
+            output = Value::Tuple(vec![Value::Ref(self_var_register), output]);
+        }
+        self.emit(Instruction::Return(PredicateData { values: vec![output] }));
+        Ok(())
     }
 }

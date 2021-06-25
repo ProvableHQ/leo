@@ -16,33 +16,16 @@
 
 //! Enforces a relational `>=` operator in a resolved Leo program.
 
-use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_asg::Span;
+use crate::{errors::ExpressionError, Program};
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::bits::ComparatorGadget;
-use snarkvm_r1cs::ConstraintSystem;
-
-pub fn evaluate_ge<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-    cs: &mut CS,
-    left: ConstrainedValue<'a, F, G>,
-    right: ConstrainedValue<'a, F, G>,
-    span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-    let unique_namespace = cs.ns(|| format!("evaluate {} >= {} {}:{}", left, right, span.line_start, span.col_start));
-    let constraint_result = match (left, right) {
-        (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-            num_1.greater_than_or_equal(unique_namespace, &num_2)
-        }
-        (val_1, val_2) => {
-            return Err(ExpressionError::incompatible_types(
-                format!("{} >= {}", val_1, val_2),
-                span,
-            ));
-        }
-    };
-
-    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate(">=".to_string(), span))?;
-
-    Ok(ConstrainedValue::Boolean(boolean))
+impl<'a> Program<'a> {
+    pub fn evaluate_ge(&mut self, left: Value, right: Value) -> Result<Value, ExpressionError> {
+        let output = self.alloc();
+        self.emit(Instruction::Ge(QueryData {
+            destination: output,
+            values: vec![left, right],
+        }));
+        Ok(Value::Ref(output))
+    }
 }

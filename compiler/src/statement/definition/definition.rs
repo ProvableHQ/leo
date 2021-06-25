@@ -16,57 +16,40 @@
 
 //! Enforces a definition statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_asg::{DefinitionStatement, Span, Variable};
+use crate::{errors::StatementError, program::Program};
+use leo_asg::{DefinitionStatement, Variable};
+use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     fn enforce_multiple_definition(
         &mut self,
         variable_names: &[&'a Variable<'a>],
-        values: Vec<ConstrainedValue<'a, F, G>>,
-        span: &Span,
+        values: Value,
     ) -> Result<(), StatementError> {
-        if values.len() != variable_names.len() {
-            return Err(StatementError::invalid_number_of_definitions(
-                values.len(),
-                variable_names.len(),
-                span,
-            ));
-        }
-
-        for (variable, value) in variable_names.iter().zip(values.into_iter()) {
-            self.store_definition(variable, value);
+        for (i, variable) in variable_names.iter().enumerate() {
+            let target = self.alloc_var(variable);
+            self.emit(Instruction::TupleIndexGet(QueryData {
+                destination: target,
+                values: vec![values.clone(), Value::Integer(Integer::U32(i as u32))],
+            }));
         }
 
         Ok(())
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_definition_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        statement: &DefinitionStatement<'a>,
-    ) -> Result<(), StatementError> {
+    pub fn enforce_definition_statement(&mut self, statement: &DefinitionStatement<'a>) -> Result<(), StatementError> {
         let num_variables = statement.variables.len();
-        let expression = self.enforce_expression(cs, statement.value.get())?;
+        let expression = self.enforce_expression(statement.value.get())?;
 
-        let span = statement.span.clone().unwrap_or_default();
         if num_variables == 1 {
+            let variable = statement.variables.get(0).unwrap();
             // Define a single variable with a single value
-            self.store_definition(statement.variables.get(0).unwrap(), expression);
+            self.alloc_var(variable);
+            self.store(variable, expression);
             Ok(())
         } else {
-            // Define multiple variables for an expression that returns multiple results (multiple definition)
-            let values = match expression {
-                // ConstrainedValue::Return(values) => values,
-                ConstrainedValue::Tuple(values) => values,
-                value => return Err(StatementError::multiple_definition(value.to_string(), &span)),
-            };
-
-            self.enforce_multiple_definition(&statement.variables[..], values, &span)
+            self.enforce_multiple_definition(&statement.variables[..], expression)
         }
     }
 }

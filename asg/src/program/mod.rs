@@ -38,7 +38,10 @@ use crate::{
 use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
 
 use indexmap::IndexMap;
-use std::cell::{Cell, RefCell};
+use std::{
+    cell::{Cell, RefCell},
+    fmt,
+};
 
 /// Stores the Leo program abstract semantic graph (ASG).
 #[derive(Clone)]
@@ -478,5 +481,17 @@ impl<'a> Into<leo_ast::Program> for &Program<'a> {
                 })
                 .collect(),
         }
+    }
+}
+
+impl<'a> fmt::Display for Program<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "AsgProgram")
+    }
+}
+
+impl<'a> fmt::Debug for Program<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        <Self as fmt::Display>::fmt(self, f)
     }
 }

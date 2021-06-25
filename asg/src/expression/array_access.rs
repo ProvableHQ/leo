@@ -111,9 +111,9 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             .map(|x| x.int().map(|x| x.to_usize()).flatten())
             .flatten()
         {
-            if index >= array_len {
+            if index >= array_len as usize {
                 return Err(AsgConvertError::array_index_out_of_bounds(
-                    index,
+                    index as u32,
                     &array.span().cloned().unwrap_or_default(),
                 ));
             }

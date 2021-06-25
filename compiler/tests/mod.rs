@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-// allow the use of EdwardsTestCompiler::parse_program_from_string for tests
+// allow the use of TestCompiler::parse_program_from_string for tests
 
 #![allow(deprecated)]
 
@@ -22,24 +22,16 @@ pub mod canonicalization;
 pub mod type_inference;
 
 use leo_asg::{new_alloc_context, new_context, AsgContext};
-use leo_compiler::{
-    compiler::Compiler,
-    errors::CompilerError,
-    group::targets::edwards_bls12::EdwardsGroupType,
-    ConstrainedValue,
-    OutputBytes,
-};
-
-use snarkvm_curves::edwards_bls12::Fq;
+use leo_compiler::{compiler::Compiler, errors::CompilerError, OutputBytes};
+use snarkvm_eval::edwards_bls12::Fq;
+use snarkvm_eval::edwards_bls12::EdwardsGroupType;
 use snarkvm_r1cs::TestConstraintSystem;
 
 use std::path::PathBuf;
 
 pub const TEST_OUTPUT_DIRECTORY: &str = "/output/";
-const EMPTY_FILE: &str = "";
 
-pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
-pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
+pub type TestCompiler = Compiler<'static>;
 
 //convenience function for tests, leaks memory
 pub(crate) fn make_test_context() -> AsgContext<'static> {
@@ -47,15 +39,15 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
     new_context(allocator)
 }
 
-fn new_compiler() -> EdwardsTestCompiler {
+fn new_compiler() -> TestCompiler {
     let program_name = "test".to_string();
     let path = PathBuf::from("/test/src/main.leo");
     let output_dir = PathBuf::from(TEST_OUTPUT_DIRECTORY);
 
-    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None)
+    TestCompiler::new(program_name, path, output_dir, make_test_context(), None)
 }
 
-pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
+pub(crate) fn parse_program(program_string: &str) -> Result<TestCompiler, CompilerError> {
     let mut compiler = new_compiler();
 
     compiler.parse_program_from_string(program_string)?;
@@ -63,58 +55,19 @@ pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler,
     Ok(compiler)
 }
 
-pub fn parse_program_with_input(
-    program_string: &str,
-    input_string: &str,
-) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler();
-    let path = PathBuf::new();
-
-    compiler.parse_input(input_string, &path, EMPTY_FILE, &path)?;
-    compiler.parse_program_from_string(program_string)?;
-
-    Ok(compiler)
-}
-
-pub fn parse_program_with_state(
-    program_string: &str,
-    state_string: &str,
-) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler();
-    let path = PathBuf::new();
-
-    compiler.parse_input(EMPTY_FILE, &path, state_string, &path)?;
-    compiler.parse_program_from_string(program_string)?;
-
-    Ok(compiler)
-}
-
-pub fn parse_program_with_input_and_state(
-    program_string: &str,
-    input_string: &str,
-    state_string: &str,
-) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler();
-    let path = PathBuf::new();
-
-    compiler.parse_input(input_string, &path, state_string, &path)?;
-    compiler.parse_program_from_string(&program_string)?;
-
-    Ok(compiler)
-}
-
-pub(crate) fn get_output(program: EdwardsTestCompiler) -> OutputBytes {
+pub(crate) fn get_output(program: TestCompiler) -> OutputBytes {
     // synthesize the circuit on the test constraint system
     let mut cs = TestConstraintSystem::<Fq>::new();
-    let output = program.compile_constraints(&mut cs).unwrap();
+
+    let output = program.compile::<Fq, EdwardsGroupType, _>(&mut cs, &Default::default()).unwrap();
 
     // assert the constraint system is satisfied
     assert!(cs.is_satisfied());
 
-    output.into()
+    output.output.into()
 }
 
-pub(crate) fn assert_satisfied(program: EdwardsTestCompiler) {
+pub(crate) fn assert_satisfied(program: TestCompiler) {
     let empty_output_bytes = include_bytes!("compiler_output/empty.out");
     let res = get_output(program);
 

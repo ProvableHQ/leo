@@ -4,11 +4,24 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 33
-      num_constraints: 33
-      at: 16cd2aaf51f97f0d967f934facd55d3da0f128b5548ca7d9033099dabb8755aa
-      bt: 13ce6219d223223b0e2a5b8bab43bda704fb2509e20143c1c8dc28238c65a0c3
-      ct: 1a2cc6ebebf9b0d70351fb54db6ab269bfec125b7d84dea8450ee1566d937a38
+      num_private_variables: 34
+      num_constraints: 34
+      at: f125defc4f811f0fbe8d01dc52de44bb493389fc56d273cacb1086c81acad1f8
+      bt: 9fd7adedb2e86d2ef5ffbc91d14e45729d1faa5a9b0329d0a0f0011524f527da
+      ct: b932b14e686704d456a327fec2d18f9beafb7c7f259278497b3ab5c1bc6d0710
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  tget &v3, v2, 0"
+      - "  eq &v4, v3, 10"
+      - "  tget &v5, v2, 1"
+      - "  eq &v6, v5, true"
+      - "  and &v7, v4, v6"
+      - "  tget &v8, v2, 2"
+      - "  eq &v9, v8, 10"
+      - "  and &v10, v7, v9"
+      - "  retn v10"
+      - ""
     output:
       - input_file: input/main_tuple.in
         output:

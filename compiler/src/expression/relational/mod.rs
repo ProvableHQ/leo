@@ -19,6 +19,9 @@
 pub mod eq;
 pub use self::eq::*;
 
+pub mod ne;
+pub use self::ne::*;
+
 pub mod ge;
 pub use self::ge::*;
 

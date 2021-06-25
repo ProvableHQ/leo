@@ -4,11 +4,19 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 95
-      num_constraints: 95
-      at: 5884e806c47756fa1d12f47e5cc5249843d8de4e2fafcb373c5a0d67dfe22d69
-      bt: 983c734b40e342144d6b4d52e315da9ff9f97580f019f606403924bb977a5be7
-      ct: 49f0db71bd29b80dbe5f2f96573a5959b1df339c92350e16f111bade214037aa
+      num_private_variables: 96
+      num_constraints: 96
+      at: cdfd9d834430c71e1bac69e14f992e28f9362a2aae21bb6d03c702386099e275
+      bt: 57bf1f9bb5e733d04a0ccb226f8d487de61ac4f08a997405976cf8854e105e7f
+      ct: 0eb0af4085182af2cc7bd348dfa8c10c104c96fdc515cb6f8d88f9f836a94826
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  ainitn &v3, 2, 0"
+      - "  ainitn &v4, 3, v3"
+      - "  eq &v5, v2, v4"
+      - "  retn v5"
+      - ""
     output:
       - input_file: input/input_nested_3x2.in
         output:

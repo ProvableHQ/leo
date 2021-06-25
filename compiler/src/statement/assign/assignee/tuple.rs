@@ -14,37 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::Type;
+use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
+use crate::{errors::StatementError, program::Program};
 
 use super::ResolverContext;
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub(super) fn resolve_target_access_tuple<'b, CS: ConstraintSystem<F>>(
+impl<'a> Program<'a> {
+    pub(super) fn resolve_target_access_tuple<'b>(
         &mut self,
-        cs: &mut CS,
-        mut context: ResolverContext<'a, 'b, F, G>,
+        mut context: ResolverContext<'a, 'b>,
         index: usize,
-    ) -> Result<(), StatementError> {
-        if context.input.len() != 1 {
-            return Err(StatementError::array_assign_interior_index(&context.span));
-        }
-        match context.input.remove(0) {
-            ConstrainedValue::Tuple(old) => {
-                if index > old.len() {
-                    Err(StatementError::tuple_assign_index_bounds(
-                        index,
-                        old.len(),
-                        &context.span,
-                    ))
-                } else {
-                    context.input = vec![&mut old[index]];
-                    self.resolve_target_access(cs, context)
-                }
-            }
-            _ => Err(StatementError::tuple_assign_index(&context.span)),
-        }
+    ) -> Result<Value, StatementError> {
+        let input_var = context.input_register;
+
+        let inner_type = match &context.input_type {
+            Type::Tuple(items) => items.get(index).expect("illegal index in tuple assignment"),
+            _ => panic!("illegal type in tuple assignment"),
+        };
+
+        let out = self.alloc();
+        self.emit(Instruction::TupleIndexGet(QueryData {
+            destination: out,
+            values: vec![Value::Ref(input_var), Value::Integer(Integer::U32(index as u32))],
+        }));
+        context.input_register = out;
+        context.input_type = inner_type.clone();
+        let inner = self.resolve_target_access(context)?;
+        self.emit(Instruction::TupleIndexStore(QueryData {
+            destination: input_var,
+            values: vec![Value::Integer(Integer::U32(index as u32)), inner],
+        }));
+        Ok(Value::Ref(input_var))
     }
 }

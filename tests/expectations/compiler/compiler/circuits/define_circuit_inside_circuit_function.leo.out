@@ -4,11 +4,23 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 95
-      num_constraints: 95
-      at: a57d02fa8b8a2336cc5c407e6a9489a3cb89357e3a3d966f18d8f0f86c21602f
-      bt: e0a9aa0cab882fb690b28137d24f271ccaa334521934a3badc07592a31b7be7f
-      ct: 7b8a2025971971c829b68fc994c6761496807e5b091ba4360d90fb6f35f4656e
+      num_private_variables: 96
+      num_constraints: 96
+      at: dd7eb060685c94def913327b205b993dea7e88392559c44bdde58fb16a977c3e
+      bt: 1bca8e18695437c76e0a121dc2573bbfef48f0b7f8d2227ac74209d50b6953e8
+      ct: e92db7709ab3fe90ecb7533771ca68141584d51d7916fef12a3360eccd6fc04e
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  call &v3, f1, v2"
+      - "  store &v4, v3"
+      - "  eq &v5, v2, v4"
+      - "  retn v5"
+      - "decl f1: <6>"
+      - "  store &v7, (v6)"
+      - "  tget &v8, v7, 0"
+      - "  retn v8"
+      - ""
     output:
       - input_file: func_circ.in
         output:

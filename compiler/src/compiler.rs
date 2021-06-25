@@ -16,32 +16,20 @@
 
 //! Compiles a Leo program from a file path.
 
-use crate::{
-    constraints::{generate_constraints, generate_test_constraints},
-    errors::CompilerError,
-    CompilerOptions,
-    GroupType,
-    Output,
-    OutputFile,
-};
+use crate::{CompilerOptions, Output, Program, asg_group_coordinate_to_ir, decode_address, errors::{CompilerError, FunctionError}};
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
-use leo_asg::{Asg, AsgPass, FormattedError, Program as AsgProgram};
-use leo_ast::{Input, MainInput, Program as AstProgram};
-use leo_input::LeoInputParser;
-use leo_package::inputs::InputPairs;
+use leo_asg::{Asg, AsgPass, FormattedError, GroupValue, Program as AsgProgram, Span};
+use leo_ast::{InputValue, IntegerType, Program as AstProgram};
 use leo_parser::parse_ast;
-use leo_state::verify_local_data_commitment;
 
-use snarkvm_dpc::testnet1::{instantiated::Components, parameters::SystemParameters};
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
+use anyhow::*;
 
+use num_bigint::{BigInt, Sign};
 use sha2::{Digest, Sha256};
-use std::{
-    fs,
-    marker::PhantomData,
-    path::{Path, PathBuf},
-};
+use snarkvm_eval::{Evaluator, GroupType, Input, PrimeField};
+use snarkvm_ir::{Group, Integer, Type, Value};
+use snarkvm_r1cs::ConstraintSystem;
+use std::{convert::TryFrom, fs, path::PathBuf};
 
 thread_local! {
     static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
@@ -55,22 +43,24 @@ pub fn thread_leaked_context() -> AsgContext<'static> {
     THREAD_GLOBAL_CONTEXT.with(|f| *f)
 }
 
+pub struct CompilationData {
+    pub program: snarkvm_ir::Program,
+    pub output: Output,
+}
+
 /// Stores information to compile a Leo program.
 #[derive(Clone)]
-pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
+pub struct Compiler<'a> {
     program_name: String,
     main_file_path: PathBuf,
     output_directory: PathBuf,
     program: AstProgram,
-    program_input: Input,
     context: AsgContext<'a>,
     asg: Option<AsgProgram<'a>>,
     options: CompilerOptions,
-    _engine: PhantomData<F>,
-    _group: PhantomData<G>,
 }
 
-impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
+impl<'a> Compiler<'a> {
     ///
     /// Returns a new Leo program compiler.
     ///
@@ -86,12 +76,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             main_file_path,
             output_directory,
             program: AstProgram::new(package_name),
-            program_input: Input::new(),
             asg: None,
             context,
             options: options.unwrap_or_default(),
-            _engine: PhantomData,
-            _group: PhantomData,
         }
     }
 
@@ -118,84 +105,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
 
     pub fn set_options(&mut self, options: CompilerOptions) {
         self.options = options;
-    }
-
-    ///
-    /// Returns a new `Compiler` from the given main file path.
-    ///
-    /// Parses and stores program input from from the input file path and state file path
-    /// Parses and stores a program from the main file path.
-    /// Parses and stores all imported programs.
-    /// Performs type inference checking on the program, imported programs, and program input.
-    ///
-    #[allow(clippy::too_many_arguments)]
-    pub fn parse_program_with_input(
-        package_name: String,
-        main_file_path: PathBuf,
-        output_directory: PathBuf,
-        input_string: &str,
-        input_path: &Path,
-        state_string: &str,
-        state_path: &Path,
-        context: AsgContext<'a>,
-        options: Option<CompilerOptions>,
-    ) -> Result<Self, CompilerError> {
-        let mut compiler = Self::new(package_name, main_file_path, output_directory, context, options);
-
-        compiler.parse_input(input_string, input_path, state_string, state_path)?;
-
-        compiler.parse_program()?;
-
-        Ok(compiler)
-    }
-
-    ///
-    /// Parses and stores program input from from the input file path and state file path
-    ///
-    /// Calls `set_path()` on compiler errors with the given input file path or state file path
-    ///
-    pub fn parse_input(
-        &mut self,
-        input_string: &str,
-        input_path: &Path,
-        state_string: &str,
-        state_path: &Path,
-    ) -> Result<(), CompilerError> {
-        let input_syntax_tree = LeoInputParser::parse_file(&input_string).map_err(|mut e| {
-            e.set_path(
-                input_path.to_str().unwrap_or_default(),
-                &input_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
-            );
-
-            e
-        })?;
-        let state_syntax_tree = LeoInputParser::parse_file(&state_string).map_err(|mut e| {
-            e.set_path(
-                state_path.to_str().unwrap_or_default(),
-                &state_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
-            );
-
-            e
-        })?;
-
-        self.program_input.parse_input(input_syntax_tree).map_err(|mut e| {
-            e.set_path(
-                input_path.to_str().unwrap_or_default(),
-                &input_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
-            );
-
-            e
-        })?;
-        self.program_input.parse_state(state_syntax_tree).map_err(|mut e| {
-            e.set_path(
-                state_path.to_str().unwrap_or_default(),
-                &state_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
-            );
-
-            e
-        })?;
-
-        Ok(())
     }
 
     ///
@@ -269,19 +178,45 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         Ok(())
     }
 
-    ///
-    /// Synthesizes the circuit with program input to verify correctness.
-    ///
-    pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<Output, CompilerError> {
-        generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input)
+    pub fn compile_ir(&self, input: &leo_ast::Input) -> Result<snarkvm_ir::Program, CompilerError> {
+        let asg = self.asg.as_ref().unwrap().clone();
+        let mut program = Program::new(asg);
+
+        program.enforce_program(input)?;
+
+        Ok(program.render())
     }
 
-    ///
-    /// Synthesizes the circuit for test functions with program input.
-    ///
-    pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
-        generate_test_constraints::<F, G>(&self.asg.as_ref().unwrap(), input_pairs, &self.output_directory)
+    pub fn compile<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(&self, cs: CS, input: &leo_ast::Input) -> Result<CompilationData, CompilerError> {
+        let compiled = self.compile_ir(&input)?;
+        let input_data = self.process_input(&input, &compiled.header)?;
+
+        let mut evaluator =
+            snarkvm_eval::SetupEvaluator::<F, G, CS>::new(cs);
+        let output = evaluator.evaluate(&compiled, &input_data)?;
+
+        let registers: Vec<_> = compiled.header.register_inputs.iter().map(|x| x.clone()).collect();
+        let output = Output::new(&registers[..], output)?;
+
+        Ok(CompilationData {
+            program: compiled,
+            output,
+        })
     }
+
+    // ///
+    // /// Synthesizes the circuit with program input to verify correctness.
+    // ///
+    // pub fn compile_constraints(&self, program: &mut Program) -> Result<Output, CompilerError> {
+    //     generate_constraints(program, &self.asg.as_ref().unwrap(), &self.program_input)
+    // }
+
+    // ///
+    // /// Synthesizes the circuit for test functions with program input.
+    // ///
+    // pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
+    //     generate_test_constraints(&self.asg.as_ref().unwrap(), input_pairs, &self.output_directory)
+    // }
 
     ///
     /// Returns a SHA256 checksum of the program file.
@@ -299,48 +234,144 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         Ok(hex::encode(hash))
     }
 
-    /// TODO (howardwu): Incorporate this for real program executions and intentionally-real
-    ///  test executions. Exclude it for test executions on dummy data.
-    ///
-    /// Verifies the input to the program.
-    ///
-    pub fn verify_local_data_commitment(
-        &self,
-        system_parameters: &SystemParameters<Components>,
-    ) -> Result<bool, CompilerError> {
-        let result = verify_local_data_commitment(system_parameters, &self.program_input)?;
-
-        Ok(result)
+    fn process_input_value(value: InputValue, type_: &Type, span: &Span) -> Result<Value> {
+        Ok(match (type_, value) {
+            (Type::Address, InputValue::Address(address)) => {
+                let decoded = decode_address(&address, &Span::default())?;
+                Value::Address(decoded)
+            }
+            (Type::Boolean, InputValue::Boolean(value)) => Value::Boolean(value),
+            (Type::Field, InputValue::Field(value)) => {
+                let parsed: BigInt = value.parse()?;
+                Value::Field(snarkvm_ir::Field {
+                    values: parsed.magnitude().iter_u64_digits().collect(),
+                    negate: parsed.sign() == Sign::Minus,
+                })
+            }
+            (Type::Char, InputValue::Char(c)) => Value::Char(match c.character {
+                leo_ast::Char::Scalar(c) => c as u32,
+                leo_ast::Char::NonScalar(c) => c,
+            }),
+            (Type::Group, InputValue::Group(group)) => {
+                let asg_group = GroupValue::try_from(group)?;
+                match asg_group {
+                    GroupValue::Single(parsed) => Value::Group(Group::Single(snarkvm_ir::Field {
+                        values: parsed.magnitude().iter_u64_digits().collect(),
+                        negate: parsed.sign() == Sign::Minus,
+                    })),
+                    GroupValue::Tuple(left, right) => Value::Group(Group::Tuple(
+                        asg_group_coordinate_to_ir(&left),
+                        asg_group_coordinate_to_ir(&right),
+                    )),
+                }
+            }
+            (Type::U8, InputValue::Integer(IntegerType::U8, value)) => Value::Integer(Integer::U8(value.parse()?)),
+            (Type::U16, InputValue::Integer(IntegerType::U16, value)) => Value::Integer(Integer::U16(value.parse()?)),
+            (Type::U32, InputValue::Integer(IntegerType::U32, value)) => Value::Integer(Integer::U32(value.parse()?)),
+            (Type::U64, InputValue::Integer(IntegerType::U64, value)) => Value::Integer(Integer::U64(value.parse()?)),
+            (Type::U128, InputValue::Integer(IntegerType::U128, value)) => {
+                Value::Integer(Integer::U128(value.parse()?))
+            }
+            (Type::I8, InputValue::Integer(IntegerType::I8, value)) => Value::Integer(Integer::I8(value.parse()?)),
+            (Type::I16, InputValue::Integer(IntegerType::I16, value)) => Value::Integer(Integer::I16(value.parse()?)),
+            (Type::I32, InputValue::Integer(IntegerType::I32, value)) => Value::Integer(Integer::I32(value.parse()?)),
+            (Type::I64, InputValue::Integer(IntegerType::I64, value)) => Value::Integer(Integer::I64(value.parse()?)),
+            (Type::I128, InputValue::Integer(IntegerType::I128, value)) => {
+                Value::Integer(Integer::I128(value.parse()?))
+            }
+            (Type::Array(inner, len), InputValue::Array(values)) => {
+                if values.len() != *len as usize {
+                    return Err(FunctionError::invalid_input_array_dimensions(*len as usize, values.len(), span).into());
+                }
+                let mut out = Vec::with_capacity(values.len());
+                for value in values {
+                    out.push(Self::process_input_value(value, &**inner, span)?);
+                }
+                Value::Array(out)
+            }
+            (Type::Tuple(inner), InputValue::Tuple(values)) => {
+                if inner.len() != values.len() {
+                    return Err(FunctionError::tuple_size_mismatch(inner.len(), values.len(), span).into());
+                }
+                let mut out = Vec::with_capacity(values.len());
+                for (value, type_) in values.into_iter().zip(inner.iter()) {
+                    out.push(Self::process_input_value(value, type_, span)?);
+                }
+                Value::Tuple(out)
+            }
+            (Type::Circuit(_), _) => {
+                return Err(anyhow!("input circuits not supported for input"));
+            }
+            (type_, value) => return Err(anyhow!("expected type '{}' for input, got value '{}'", type_, value)),
+        })
     }
 
-    ///
-    /// Manually sets main function input.
-    ///
-    /// Used for testing only.
-    ///
-    pub fn set_main_input(&mut self, input: MainInput) {
-        self.program_input.set_main_input(input);
-    }
-}
+    pub fn process_input(&self, input: &leo_ast::Input, ir: &snarkvm_ir::Header) -> Result<Input> {
+        let program = self.asg.as_ref().unwrap();
+        let main_function = *program.functions.get("main").expect("missing main function");
+        let span = main_function.span.clone().unwrap_or_default();
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'a, F, G> {
-    ///
-    /// Synthesizes the circuit with program input.
-    ///
-    fn generate_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<(), SynthesisError> {
-        let output_directory = self.output_directory.clone();
-        let package_name = self.program_name.clone();
-        let result = self.compile_constraints(cs).map_err(|e| {
-            tracing::error!("{}", e);
-            SynthesisError::Unsatisfiable
-        })?;
-
-        // Write results to file
-        let output_file = OutputFile::new(&package_name);
-        output_file
-            .write(&output_directory, result.to_string().as_bytes())
-            .unwrap();
-
-        Ok(())
+        let mut out = Input::default();
+        for ir_input in &ir.main_inputs {
+            let value = input
+                .get(&*ir_input.name)
+                .flatten()
+                .ok_or_else(|| anyhow!("missing input '{}' for main inputs", ir_input.name))?;
+            out.main.insert(
+                ir_input.name.clone(),
+                Self::process_input_value(value, &ir_input.type_, &span)?,
+            );
+        }
+        for ir_input in &ir.constant_inputs {
+            let value = input
+                .get_constant(&*ir_input.name)
+                .flatten()
+                .ok_or_else(|| anyhow!("missing input '{}' for constant inputs", ir_input.name))?;
+            out.constants.insert(
+                ir_input.name.clone(),
+                Self::process_input_value(value, &ir_input.type_, &span)?,
+            );
+        }
+        let mut registers = input.get_registers().raw_values();
+        for ir_input in &ir.register_inputs {
+            let value = registers
+                .remove(&*ir_input.name)
+                .ok_or_else(|| anyhow!("missing input '{}' for registers", ir_input.name))?;
+            out.registers.insert(
+                ir_input.name.clone(),
+                Self::process_input_value(value, &ir_input.type_, &span)?,
+            );
+        }
+        let mut public_states = input.get_state().raw_values();
+        for ir_input in &ir.public_states {
+            let value = public_states
+                .remove(&*ir_input.name)
+                .ok_or_else(|| anyhow!("missing input '{}' for public state", ir_input.name))?;
+            out.public_states.insert(
+                ir_input.name.clone(),
+                Self::process_input_value(value, &ir_input.type_, &span)?,
+            );
+        }
+        let mut private_leaf_states = input.get_state_leaf().raw_values();
+        for ir_input in &ir.private_leaf_states {
+            let value = private_leaf_states
+                .remove(&*ir_input.name)
+                .ok_or_else(|| anyhow!("missing input '{}' for private leaf state", ir_input.name))?;
+            out.private_leaf_states.insert(
+                ir_input.name.clone(),
+                Self::process_input_value(value, &ir_input.type_, &span)?,
+            );
+        }
+        let mut private_record_states = input.get_record().raw_values();
+        for ir_input in &ir.private_record_states {
+            let value = private_record_states
+                .remove(&*ir_input.name)
+                .ok_or_else(|| anyhow!("missing input '{}' for private record state", ir_input.name))?;
+            out.private_record_states.insert(
+                ir_input.name.clone(),
+                Self::process_input_value(value, &ir_input.type_, &span)?,
+            );
+        }
+        Ok(out)
     }
 }

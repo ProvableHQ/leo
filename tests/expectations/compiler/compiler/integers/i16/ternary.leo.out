@@ -4,11 +4,19 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 112
-      num_constraints: 128
-      at: b0a107f586de648c8446ae3246117de3b20ba9c0249d261f234106809d112f0a
-      bt: 0e5faacb5d80488eeda9e7fa79ddd96e54c010e0e98571449f79cad816cc18a2
-      ct: 2b3428d7c7335edc32ab219fe11c92e215d70a52c89434de349f4951561d5795
+      num_private_variables: 113
+      num_constraints: 129
+      at: be130f168a74eee3a84d691483e18bb502f9ea108babca54e87cffa327a33a50
+      bt: 8336592f28d013d9a969a0a7320a1bb5421e930a71fbd5b2ade9cf9191b4b1c0
+      ct: 2c83085a67ced9156bd6a40f7b888ef5aa8b4c7dde22d0bbf273f197c90fa22f
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  pick &v6, v2, v3, v4"
+      - "  store &v7, v6"
+      - "  eq &v8, v7, v5"
+      - "  retn v8"
+      - ""
     output:
       - input_file: i16.in
         output:

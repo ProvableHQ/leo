@@ -9,6 +9,12 @@ outputs:
       at: f130bde196ac7e190b505a42dfb30c41772c4c7eafe9e7203be9222892b767ce
       bt: 7ac37b347f82644239128aa66e9caf34375b1fd860069659581477883d92fb7a
       ct: 3e4c7833e73f9ee37e42c796e8af7a6d417a012b776b348abedbfd317110858d
+    ir:
+      - "decl f0: <0>"
+      - "  store &v0, ((), (), (), ())"
+      - "  eq &v3, v1, v2"
+      - "  assert v3"
+      - ""
     output:
       - input_file: i128.in
         output:

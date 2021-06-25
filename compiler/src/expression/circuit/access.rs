@@ -16,45 +16,29 @@
 
 //! Enforces a circuit access expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{CircuitAccessExpression, Node};
+use crate::{errors::ExpressionError, program::Program};
+use leo_asg::CircuitAccessExpression;
+use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_circuit_access<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        expr: &CircuitAccessExpression<'a>,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-        if let Some(target) = expr.target.get() {
-            //todo: we can prob pass values by ref here to avoid copying the entire circuit on access
-            let target_value = self.enforce_expression(cs, target)?;
-            match target_value {
-                ConstrainedValue::CircuitExpression(def, members) => {
-                    assert!(def == expr.circuit.get());
-                    if let Some(member) = members.into_iter().find(|x| x.0.name == expr.member.name) {
-                        Ok(member.1)
-                    } else {
-                        Err(ExpressionError::undefined_member_access(
-                            expr.circuit.get().name.borrow().to_string(),
-                            expr.member.to_string(),
-                            &expr.member.span,
-                        ))
-                    }
-                }
-                value => Err(ExpressionError::undefined_circuit(
-                    value.to_string(),
-                    &target.span().cloned().unwrap_or_default(),
-                )),
-            }
-        } else {
-            Err(ExpressionError::invalid_static_access(
-                expr.member.to_string(),
-                &expr.member.span,
-            ))
+    pub fn enforce_circuit_access(&mut self, expr: &CircuitAccessExpression<'a>) -> Result<Value, ExpressionError> {
+        let target = expr.target.get().expect("invalid static access");
+        let target_value = self.enforce_expression(target)?;
+        let members = expr.circuit.get().members.borrow();
+        let mut index = members
+            .get_index_of(expr.member.name.as_ref())
+            .expect("missing member from struct");
+
+        if let Some(category) = expr.circuit.get().input_type() {
+            index = self.input_index(category, expr.member.name.as_ref());
         }
+
+        let out = self.alloc();
+        self.emit(Instruction::TupleIndexGet(QueryData {
+            destination: out,
+            values: vec![target_value, Value::Integer(Integer::U32(index as u32))],
+        }));
+        Ok(Value::Ref(out))
     }
 }

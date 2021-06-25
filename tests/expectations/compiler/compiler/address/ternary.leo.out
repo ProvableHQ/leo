@@ -4,11 +4,22 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1022
-      num_constraints: 1022
-      at: 1b42ef63a212d2ea51cab07171c8fb1438112afdbd14501470c2477b9eeb4c99
-      bt: 15054154626f1ae748008fc4ed9a650c3873b608988ff31312fe4049957dfffb
-      ct: dbda9de51fe9897456cbbcc3b450ed7d66185fb6018c7a0c72414784f29b2ad4
+      num_private_variables: 1023
+      num_constraints: 1023
+      at: 278a8c597ed67e116cc48c47a1562d13c8f44f0d3d4b6b5e32772fddd0030a74
+      bt: 237d059231a317253c171aeef490039b72d3b47dbaf95aba5648c9c46581f080
+      ct: 88c5ce74e34d546286a456cc2945c4a58b5c73402d4405c5b72e7b7d65450971
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
+      - "  store &v4, aleo18qgam03qe483tdrcc3fkqwpp38ehff4a2xma6lu7hams6lfpgcpq3dq05r"
+      - "  eq &v5, v2, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
+      - "  eq &v6, aleo18qgam03qe483tdrcc3fkqwpp38ehff4a2xma6lu7hams6lfpgcpq3dq05r, v2"
+      - "  eq &v7, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8, v2"
+      - "  pick &v8, v5, v6, v7"
+      - "  retn v8"
+      - ""
     output:
       - input_file: inputs/address1.in
         output:

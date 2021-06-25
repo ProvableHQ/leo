@@ -4,11 +4,23 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 143
-      num_constraints: 143
-      at: f09e0b896fb2cb30fe4bbcf791b4695de26287361de6def1e75e861643d12714
-      bt: f97a8f270a0603d5674319afa5e572f5f146f02a36f9387f860a6cf1f8a786cc
-      ct: 88cc1bad895de526a15b231e1fe8065848e8008bda5e2662f7c9eec9a976ff98
+      num_private_variables: 144
+      num_constraints: 144
+      at: f5116f8f1aaab4f3f541c583d9e531bf2dbd984cf5d153c556fdeb09b20f7f31
+      bt: f1797bb230e9aa8e64831410f68e55fd69c0a6f4c37d6c5046ec4037a9856f6c
+      ct: 13625a7a6f122f17763bee41e9e6299d4bcb0e23fd5027bb4b0441c9299c5ee1
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, [[0, 0], [0, 0], [0, 0]]"
+      - "  ainitn &v4, 2, 0"
+      - "  ainitn &v5, 3, v4"
+      - "  store &v6, v5"
+      - "  eq &v7, v6, v2"
+      - "  eq &v8, v2, [[0, 0], [0, 0], [0, 0]]"
+      - "  and &v9, v7, v8"
+      - "  retn v9"
+      - ""
     output:
       - input_file: input/type_nested_value_nested_3x2.in
         output:

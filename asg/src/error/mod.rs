@@ -197,7 +197,7 @@ impl AsgConvertError {
         Self::new_from_span(format!("tuple index out of bounds: '{}'", index), span)
     }
 
-    pub fn array_index_out_of_bounds(index: usize, span: &Span) -> Self {
+    pub fn array_index_out_of_bounds(index: u32, span: &Span) -> Self {
         Self::new_from_span(format!("array index out of bounds: '{}'", index), span)
     }
 

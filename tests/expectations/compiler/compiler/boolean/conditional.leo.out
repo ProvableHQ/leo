@@ -4,11 +4,17 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 3
-      num_constraints: 3
-      at: bbd0722c65502a4b903833f9ff9e614e877f9b5c58c670593e2aa290d0457b2f
-      bt: 49e8fa1fd3f85b0f486c49f194e4fff3da5e8039685fca1f3327389cbe9fc180
-      ct: ae5c1ab4ec8811a2ec2efb38b91ab4a8b6fb80bd914b31f9a70559531aeb6a46
+      num_private_variables: 4
+      num_constraints: 4
+      at: 35930b675f335a5eb8649282639deb812d4fc8eb67d5bd6aabf6a90705cc5930
+      bt: e65be39dde9da372cdeceaf06612c1bf195710c97242861e03f70518b2bb5353
+      ct: af5971245b88239b548faf7768aceb6c0a7e16ffd5c8086b4bdb1d2ef2653b08
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  pick &v4, v2, v3, false"
+      - "  retn v4"
+      - ""
     output:
       - input_file: input/false_false.in
         output:

@@ -16,32 +16,25 @@
 
 //! Enforces constraints on the main function of a compiled Leo program.
 
-use crate::{errors::FunctionError, program::ConstrainedProgram, GroupType, Output};
+use crate::{errors::FunctionError, program::Program};
 
-use leo_asg::{Expression, Function, FunctionQualifier};
-use leo_ast::Input;
+use leo_asg::{Expression, Function, FunctionQualifier, InputCategory};
 use std::cell::Cell;
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn enforce_main_function<CS: ConstraintSystem<F>>(
+impl<'a> Program<'a> {
+    pub fn enforce_main_function(
         &mut self,
-        cs: &mut CS,
         function: &'a Function<'a>,
-        input: &Input,
-    ) -> Result<Output, FunctionError> {
-        let registers = input.get_registers();
-
+        input: &leo_ast::Input,
+    ) -> Result<(), FunctionError> {
         // Iterate over main function input variables and allocate new values
         let asg_input = function.scope.resolve_input();
 
         if let Some(asg_input) = asg_input {
-            let value =
-                self.allocate_input_keyword(cs, &function.name.borrow().span, &asg_input.container_circuit, input)?;
-
-            self.store(asg_input.container.borrow().id, value);
+            let output_value =
+                self.allocate_input_keyword(&function.name.borrow().span, &asg_input.container_circuit, input)?;
+            self.alloc_var(asg_input.container);
+            self.store(asg_input.container, output_value);
         }
 
         match function.qualifier {
@@ -54,64 +47,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let mut arguments = vec![];
 
         for (_, input_variable) in function.arguments.iter() {
-            {
-                let input_variable = input_variable.get().borrow();
-                let name = input_variable.name.name.clone();
+            let category = if input_variable.get().borrow().const_ {
+                InputCategory::ConstInput
+            } else {
+                InputCategory::MainInput
+            };
+            self.alloc_input_var(category, input_variable.get());
 
-                let input_value = match (
-                    input_variable.const_,
-                    input.get(&name),
-                    input.get_constant(name.as_ref()),
-                ) {
-                    // If variable is in both [main] and [constants] sections - error.
-                    (_, Some(_), Some(_)) => {
-                        return Err(FunctionError::double_input_declaration(
-                            name.to_string(),
-                            &input_variable.name.span,
-                        ));
-                    }
-                    // If input option is found in [main] section and input is not const.
-                    (false, Some(input_option), _) => self.allocate_main_function_input(
-                        cs,
-                        &input_variable.type_.clone(),
-                        &name,
-                        input_option,
-                        &input_variable.name.span,
-                    )?,
-                    // If input option is found in [constants] section and function argument is const.
-                    (true, _, Some(input_option)) => self.constant_main_function_input(
-                        cs,
-                        &input_variable.type_.clone(),
-                        &name,
-                        input_option,
-                        &input_variable.name.span,
-                    )?,
-                    // Function argument is const, input is not.
-                    (true, Some(_), None) => {
-                        return Err(FunctionError::expected_const_input(
-                            name.to_string(),
-                            &input_variable.name.span,
-                        ));
-                    }
-                    // Input is const, function argument is not.
-                    (false, None, Some(_)) => {
-                        return Err(FunctionError::expected_non_const_input(
-                            name.to_string(),
-                            &input_variable.name.span,
-                        ));
-                    }
-                    // When not found - Error out.
-                    (_, _, _) => {
-                        return Err(FunctionError::input_not_found(
-                            name.to_string(),
-                            &input_variable.name.span,
-                        ));
-                    }
-                };
-
-                // Store a new variable for every function input.
-                self.store(input_variable.id, input_value);
-            }
             arguments.push(Cell::new(&*function.scope.context.alloc_expression(
                 Expression::VariableRef(leo_asg::VariableRef {
                     parent: Cell::new(None),
@@ -121,10 +63,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             )));
         }
 
-        let span = function.span.clone().unwrap_or_default();
-        let result_value = self.enforce_function(cs, function, None, &arguments)?;
-        let output = Output::new(&self.asg, registers, result_value, &span)?;
+        let statement = function
+            .body
+            .get()
+            .expect("attempted to build body for function header");
+        self.enforce_statement(statement)?;
 
-        Ok(output)
+        Ok(())
     }
 }

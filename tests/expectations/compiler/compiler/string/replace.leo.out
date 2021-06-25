@@ -4,11 +4,20 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 68
-      num_constraints: 51
-      at: 45fa182371664010950da6ec3fa6360de34dda5cb814b3c8bd119a09e86b5c77
-      bt: 4da3499799890924c2910625e052c6757e7cfd857ebbd18afd3d16b5bd0e9a73
-      ct: 183c15a7bf0d7c109b082a55e696874797e7ce685096881ce803f6bfa453a875
+      num_private_variables: 69
+      num_constraints: 52
+      at: 47e996b490319c573c3995abd4106b2741c4a3ddf2b137ec1a326741a5056cfd
+      bt: c5f0cc4085929ef2a6272ecc8956d26b61bab3d2cb8b14f5a80c2305230f41d0
+      ct: c412113831b6b8aa1154a93c041f86489ebea172b5c50a9cb700c9864dcd5c16
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  asget &v4, v2, 0, 4, 4"
+      - "  asset &v2, 0, 4, v3"
+      - "  store &v2, v2"
+      - "  ne &v5, v2, [H, e, l, l, o, ,,  , W, o, r, l, d, !]"
+      - "  retn v5"
+      - ""
     output:
       - input_file: inputs/string.in
         output:
