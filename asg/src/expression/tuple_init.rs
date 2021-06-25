@@ -94,7 +94,9 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
         };
 
         if let Some(tuple_types) = tuple_types.as_ref() {
-            if tuple_types.len() != value.elements.len() {
+            // Expected type can be equal or less than actual size of a tuple.
+            // Size of expected tuple can be based on accessed index.
+            if tuple_types.len() > value.elements.len() {
                 return Err(AsgConvertError::unexpected_type(
                     &*format!("tuple of length {}", tuple_types.len()),
                     Some(&*format!("tuple of length {}", value.elements.len())),
