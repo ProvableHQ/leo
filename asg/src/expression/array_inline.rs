@@ -66,10 +66,12 @@ impl<'a> ExpressionNode<'a> for ArrayInlineExpression<'a> {
     }
 
     fn get_type(&self) -> Option<Type<'a>> {
-        Some(Type::Array(
-            Box::new(self.elements.first()?.0.get().get_type()?),
-            self.expanded_length(),
-        ))
+        let first = self.elements.first()?;
+        let inner_type = match first.0.get().get_type()? {
+            Type::Array(inner, _) if first.1 => *inner,
+            _ => first.0.get().get_type()?,
+        };
+        Some(Type::Array(Box::new(inner_type), self.expanded_length()))
     }
 
     fn is_mut_ref(&self) -> bool {

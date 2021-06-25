@@ -1327,11 +1327,278 @@
                 "content": "  const o = \"Hello, World!\";"
               }
             }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"p\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const p = [...[1u8], ...[2u8]];\\\"}\"}",
+                  "span": {
+                    "line_start": 25,
+                    "line_stop": 25,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const p = [...[1u8], ...[2u8]];"
+                  }
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "IntegerType": "U8"
+                  },
+                  [
+                    {
+                      "value": "2"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Spread": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Integer": [
+                                    "U8",
+                                    "1",
+                                    {
+                                      "line_start": 25,
+                                      "line_stop": 25,
+                                      "col_start": 18,
+                                      "col_stop": 21,
+                                      "path": "",
+                                      "content": "  const p = [...[1u8], ...[2u8]];"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "span": {
+                            "line_start": 25,
+                            "line_stop": 25,
+                            "col_start": 17,
+                            "col_stop": 22,
+                            "path": "",
+                            "content": "  const p = [...[1u8], ...[2u8]];"
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "Spread": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Integer": [
+                                    "U8",
+                                    "2",
+                                    {
+                                      "line_start": 25,
+                                      "line_stop": 25,
+                                      "col_start": 28,
+                                      "col_stop": 31,
+                                      "path": "",
+                                      "content": "  const p = [...[1u8], ...[2u8]];"
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          ],
+                          "span": {
+                            "line_start": 25,
+                            "line_stop": 25,
+                            "col_start": 27,
+                            "col_stop": 32,
+                            "path": "",
+                            "content": "  const p = [...[1u8], ...[2u8]];"
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "span": {
+                    "line_start": 25,
+                    "line_stop": 25,
+                    "col_start": 13,
+                    "col_stop": 33,
+                    "path": "",
+                    "content": "  const p = [...[1u8], ...[2u8]];"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 25,
+                "line_stop": 25,
+                "col_start": 3,
+                "col_stop": 33,
+                "path": "",
+                "content": "  const p = [...[1u8], ...[2u8]];"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"q\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const q = [...p, 3u8] == [1u8, 2u8, 3u8];\\\"}\"}",
+                  "span": {
+                    "line_start": 26,
+                    "line_stop": 26,
+                    "col_start": 9,
+                    "col_stop": 10,
+                    "path": "",
+                    "content": "  const q = [...p, 3u8] == [1u8, 2u8, 3u8];"
+                  }
+                }
+              ],
+              "type_": "Boolean",
+              "value": {
+                "Binary": {
+                  "left": {
+                    "ArrayInline": {
+                      "elements": [
+                        {
+                          "Spread": {
+                            "Identifier": "{\"name\":\"p\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  const q = [...p, 3u8] == [1u8, 2u8, 3u8];\\\"}\"}"
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Integer": [
+                                "U8",
+                                "3",
+                                {
+                                  "line_start": 26,
+                                  "line_stop": 26,
+                                  "col_start": 20,
+                                  "col_stop": 23,
+                                  "path": "",
+                                  "content": "  const q = [...p, 3u8] == [1u8, 2u8, 3u8];"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      "span": {
+                        "line_start": 26,
+                        "line_stop": 26,
+                        "col_start": 13,
+                        "col_stop": 24,
+                        "path": "",
+                        "content": "  const q = [...p, 3u8] == [1u8, 2u8, 3u8];"
+                      }
+                    }
+                  },
+                  "right": {
+                    "ArrayInline": {
+                      "elements": [
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Integer": [
+                                "U8",
+                                "1",
+                                {
+                                  "line_start": 26,
+                                  "line_stop": 26,
+                                  "col_start": 29,
+                                  "col_stop": 32,
+                                  "path": "",
+                                  "content": "  const q = [...p, 3u8] == [1u8, 2u8, 3u8];"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Integer": [
+                                "U8",
+                                "2",
+                                {
+                                  "line_start": 26,
+                                  "line_stop": 26,
+                                  "col_start": 34,
+                                  "col_stop": 37,
+                                  "path": "",
+                                  "content": "  const q = [...p, 3u8] == [1u8, 2u8, 3u8];"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "Expression": {
+                            "Value": {
+                              "Integer": [
+                                "U8",
+                                "3",
+                                {
+                                  "line_start": 26,
+                                  "line_stop": 26,
+                                  "col_start": 39,
+                                  "col_stop": 42,
+                                  "path": "",
+                                  "content": "  const q = [...p, 3u8] == [1u8, 2u8, 3u8];"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      "span": {
+                        "line_start": 26,
+                        "line_stop": 26,
+                        "col_start": 28,
+                        "col_stop": 43,
+                        "path": "",
+                        "content": "  const q = [...p, 3u8] == [1u8, 2u8, 3u8];"
+                      }
+                    }
+                  },
+                  "op": "Eq",
+                  "span": {
+                    "line_start": 26,
+                    "line_stop": 26,
+                    "col_start": 13,
+                    "col_stop": 43,
+                    "path": "",
+                    "content": "  const q = [...p, 3u8] == [1u8, 2u8, 3u8];"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 26,
+                "line_stop": 26,
+                "col_start": 3,
+                "col_stop": 43,
+                "path": "",
+                "content": "  const q = [...p, 3u8] == [1u8, 2u8, 3u8];"
+              }
+            }
           }
         ],
         "span": {
           "line_start": 9,
-          "line_stop": 25,
+          "line_stop": 27,
           "col_start": 17,
           "col_stop": 2,
           "path": "",
@@ -1340,11 +1607,11 @@
       },
       "span": {
         "line_start": 9,
-        "line_stop": 25,
+        "line_stop": 27,
         "col_start": 1,
         "col_stop": 2,
         "path": "",
-        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
       }
     }
   }

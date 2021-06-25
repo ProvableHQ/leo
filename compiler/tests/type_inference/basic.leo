@@ -22,4 +22,6 @@ function main() {
   const m = Foo {};
   const n = 'a';
   const o = "Hello, World!";
+  const p = [...[1u8], ...[2u8]];
+  const q = [...p, 3u8] == [1u8, 2u8, 3u8];
 }

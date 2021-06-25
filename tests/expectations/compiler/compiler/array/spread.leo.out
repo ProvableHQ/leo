@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 47
-      num_constraints: 47
-      at: 9034e7c6c2ae58e279196614600093d655bcdad8237302b84a66e63ec1c2f00e
-      bt: f23a0442b41c8901611d5f1a9a8493a0cb03c68e183a81a1b88c5a6600fa7420
-      ct: ad66abc1bf940dbc76573c0a516ebf633c1411f9997101d86ded0faff025d52c
+      num_private_variables: 71
+      num_constraints: 71
+      at: a08e2e54701e419ba564483a59fb3f6cc30614b8a7c903f9ff6f4b85e63da5c6
+      bt: 65113b6e5dc0f7d88f04b7e60a519801a313d2e9d4129db502ccef0dfdb14988
+      ct: 7a28ca50094ed4577eef8066cf1a814affa63139e6cc3d7ccf8d65c69499de60
     output:
       - input_file: input/three_ones.in
         output:
