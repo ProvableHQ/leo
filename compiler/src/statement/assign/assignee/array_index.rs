@@ -40,7 +40,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         mut context: ResolverContext<'a, 'b, F, G>,
         index: &'a Expression<'a>,
     ) -> Result<(), StatementError> {
-        println!("RTAAI input len {}", context.input.len());
         let input_len = context.input.len();
         if input_len == 0 {
             return Err(StatementError::array_assign_interior_index(&context.span));
