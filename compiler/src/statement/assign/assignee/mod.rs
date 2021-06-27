@@ -68,8 +68,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             self.enforce_assign_context(cs, &context, input)?;
             return Ok(());
         }
+
         let access = context.remaining_accesses[context.remaining_accesses.len() - 1];
         context.remaining_accesses = &context.remaining_accesses[..context.remaining_accesses.len() - 1];
+
         match access {
             AssignAccess::ArrayRange(start, stop) => {
                 self.resolve_target_access_array_range(cs, context, start.get(), stop.get())
