@@ -23,7 +23,7 @@ This proposal suggests adding countdown loops and inclusive loop ranges into Leo
 
 In the current design of the language only incremental ranges are allowed. Though
 in some cases there's a need for loops going in reverse direction. This example
-demonstrates bubble sort algorithm where count down loops are mocked:
+demonstrates bubble sort algorithm where countdown loops are mocked:
 
 ```ts
 function bubble_sort(mut a: [u32; 10]) -> [u32; 10] {
@@ -40,7 +40,7 @@ function bubble_sort(mut a: [u32; 10]) -> [u32; 10] {
 }
 ```
 
-Having count down loop in the example above could improve readability and 
+Having countdown loop in the example above could improve readability and 
 usability of the language by making it more natural to the developer.
 
 However, if we imagined this example using countdown loop, we would see that 
