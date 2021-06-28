@@ -18,26 +18,33 @@ DRAFT
 # Summary
 
 This proposal aims to improve the import management system in Leo programs to
-make program environment more reproducible and predictable. To achieve that
+make program environment more reproducible, predictable and compatible. To achieve that
 we suggest few changes to Leo CLI and Manifest:
 
 - add a "dependencies" section to Leo Manifest and add a command to pull those dependencies;
 - allow custom names for imports to manually resolve name conflicts;
-- store imports as they are called in Leo Manifest;
+- add "curve" and "proving system" sections to the Manifest;
+- add "inlcude" and "exclude" parameters for "proving system" and "curve";
 
 Later this solution can be improved by adding a lock-file which would lock
 imported packages based on both their contents and version. 
 
 # Motivation
 
-What problems does it solve? What is the background?
+The current design of imports does not provide any guarantees on what's stored 
+in program imports and published with the program to Aleo Package Manager. 
+When dependency is "added", it is stored inside imports folder, and it is possible
+to manually edit and/or add packages in this folder.
 
-Current state:
-- imports are published with a program to Aleo PM;
-- we treat programs as files with no verification of imports (they can be changed locally and published in that state);
-- name collisions cannot be resolved; a new import overwrites existing;
+Also, imports are stored under package name which makes it impossible to import
+two different packages with the same name. 
 
-TBD
+Another important detail in the scope of this proposal is that in future Leo
+programs will have the ability to be run with different proving systems 
+and curves, possibly creating incompatibility between programs written 
+for different proving systems or curves. To make a foundation for these features
+imports need to be managed with include/exclude lists for allowed (compatible) 
+proving systems and curves.
 
 # Design
 
@@ -54,8 +61,6 @@ author = "author"
 package = "package"
 version = "1.0"
 ```
-
-TBD
 
 ## Leo CLI 
 
