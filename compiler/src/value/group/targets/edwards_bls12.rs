@@ -41,7 +41,7 @@ use snarkvm_gadgets::{
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::{
     borrow::Borrow,
-    ops::{Mul, Neg, Sub},
+    ops::{Add, Mul, Neg, Sub},
     str::FromStr,
 };
 
@@ -153,7 +153,7 @@ impl EdwardsGroupType {
                 (number, _) => Fp256::from_str(&number).map_err(|_| GroupError::n_group(number, span))?,
             };
 
-            let result: EdwardsAffine = one.mul(&number_value);
+            let result: EdwardsAffine = one.mul(number_value);
 
             Ok(result)
         }
