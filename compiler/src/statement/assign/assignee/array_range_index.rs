@@ -32,6 +32,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         start: Option<&'a Expression<'a>>,
         stop: Option<&'a Expression<'a>>,
     ) -> Result<(), StatementError> {
+        context.from_range = true;
+
         let start_index = start
             .map(|start| self.enforce_index(cs, start, &context.span))
             .transpose()?

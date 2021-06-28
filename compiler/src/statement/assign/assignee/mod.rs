@@ -35,6 +35,7 @@ struct ResolverContext<'a, 'b, F: PrimeField, G: GroupType<F>> {
     remaining_accesses: &'b [&'b AssignAccess<'a>],
     indicator: &'b Boolean,
     operation: AssignOperation,
+    from_range: bool,
 }
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
@@ -101,6 +102,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             remaining_accesses: &accesses[..],
             indicator,
             operation: assignee.operation,
+            from_range: false,
         })?;
         *self.get_mut(variable.id).unwrap() = target;
         Ok(())

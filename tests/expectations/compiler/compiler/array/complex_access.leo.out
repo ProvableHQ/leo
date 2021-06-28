@@ -1,0 +1,18 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 239
+      num_constraints: 239
+      at: 61be39f73914fdb4059c5d5e5776840262ab56dc414aa09106ddfee1d27ba174
+      bt: 3f2d18346ecde92782f60a29649e187402d8f2059cf934b31f5606c4d4381883
+      ct: db5fb9e237a13bca372ce7d3f232661fdf07c8ae7ef3d99517438a3532f59a41
+    output:
+      - input_file: input/complex_access.in
+        output:
+          registers:
+            out:
+              type: bool
+              value: "true"
