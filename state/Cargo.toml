@@ -26,19 +26,19 @@ path = "../ast"
 version = "1.5.2"
 
 [dependencies.snarkvm-algorithms]
-version = "0.5.4"
+version = "0.6.0"
 
 [dependencies.snarkvm-curves]
-version = "0.5.5"
+version = "0.6.0"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.5.4"
+version = "0.6.0"
 default-features = false
 features = [ "testnet1" ]
 
 [dependencies.snarkvm-utilities]
-version = "0.5.4"
+version = "0.6.0"
 
 [dependencies.indexmap]
 version = "1.6.2"
