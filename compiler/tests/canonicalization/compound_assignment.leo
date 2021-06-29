@@ -12,6 +12,10 @@ function main() {
   x += 20;
   console.assert(x == 30u32);
 
+  let w = 3u32;
+  w += x;
+  console.assert(w == 33u32);
+
   let y = [1u8, 2u8];
   y[0] += 3u8;
   console.assert(y[0] == 4u8);
