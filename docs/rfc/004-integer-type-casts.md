@@ -106,7 +106,7 @@ and merely change the type of the Leo value,
 but not its mathematical integer value.
 This is always the case when the cast is to a type
 with the same signedness and with the same or larger size.
-This is sometimes the case when
+This is also the case when
 the cast is to a type whose range does not cover the range of the source type
 but the value in question is in the intersection of the two ranges.
 
@@ -180,7 +180,7 @@ typically do not check for overflow in integer operations either
 (at least, not for production code).
 Presumably, the behavior of type casts in those programming languages
 is motivated by efficiency of execution, at least in part.
-Since in Leo the input data is avaialable at compile time,
+Since in Leo the input data is available at compile time,
 considerations that apply to typical programming languages
 do not necessarily apply to Leo.
 
