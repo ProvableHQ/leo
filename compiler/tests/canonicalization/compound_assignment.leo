@@ -16,9 +16,11 @@ function main() {
   w += x;
   console.assert(w == 33u32);
 
-  let y = [1u8, 2u8];
+  let y = [1u8, 2u8, 3, 4];
   y[0] += 3u8;
+  y[0..3][1] *= 3;
   console.assert(y[0] == 4u8);
+  console.assert(y[1] == 6u8);
 
   let z = (1u8, 2u8);
   z.1 += 3u8;

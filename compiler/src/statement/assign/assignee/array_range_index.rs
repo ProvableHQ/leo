@@ -32,8 +32,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         start: Option<&'a Expression<'a>>,
         stop: Option<&'a Expression<'a>>,
     ) -> Result<(), StatementError> {
-        context.from_range = true;
-
         let start_index = start
             .map(|start| self.enforce_index(cs, start, &context.span))
             .transpose()?
@@ -52,8 +50,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             .transpose()?;
         let start_index = start_index.unwrap_or(0);
 
-        if context.input.len() == 1 {
+        if !context.from_range {
             // not a range of a range
+            context.from_range = true;
             match context.input.remove(0) {
                 ConstrainedValue::Array(old) => {
                     let stop_index = stop_index.unwrap_or(old.len());
