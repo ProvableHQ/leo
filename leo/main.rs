@@ -28,6 +28,7 @@ use commands::{
     Command,
     Deploy,
     Init,
+    Install,
     Lint,
     New,
     Prove,
@@ -137,6 +138,12 @@ enum CommandOpts {
         command: Add,
     },
 
+    #[structopt(about = "Install dependencies for this program")]
+    Install {
+        #[structopt(flatten)]
+        command: Install,
+    },
+
     #[structopt(about = "Clone a package from the Aleo Package Manager")]
     Clone {
         #[structopt(flatten)]
@@ -214,6 +221,7 @@ fn run_with_args(opt: Opt) -> Result<(), Error> {
         CommandOpts::Update { command } => command.try_execute(context),
 
         CommandOpts::Add { command } => command.try_execute(context),
+        CommandOpts::Install { command } => command.try_execute(context),
         CommandOpts::Clone { command } => command.try_execute(context),
         CommandOpts::Login { command } => command.try_execute(context),
         CommandOpts::Logout { command } => command.try_execute(context),

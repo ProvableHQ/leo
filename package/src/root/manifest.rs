@@ -19,6 +19,7 @@ use crate::{errors::ManifestError, package::Package};
 use serde::Deserialize;
 use std::{
     borrow::Cow,
+    collections::HashMap,
     convert::TryFrom,
     fs::File,
     io::{Read, Write},
@@ -33,10 +34,18 @@ pub struct Remote {
     pub author: String,
 }
 
+#[derive(Clone, Debug, Deserialize)]
+pub struct Dependency {
+    pub author: String,
+    pub version: String,
+    pub name: String,
+}
+
 #[derive(Deserialize)]
 pub struct Manifest {
     pub project: Package,
     pub remote: Option<Remote>,
+    pub dependencies: Option<HashMap<String, Dependency>>,
 }
 
 impl Manifest {
@@ -44,6 +53,7 @@ impl Manifest {
         Ok(Self {
             project: Package::new(package_name)?,
             remote: author.map(|author| Remote { author }),
+            dependencies: Some(HashMap::<String, Dependency>::new()),
         })
     }
 
@@ -69,6 +79,10 @@ impl Manifest {
 
     pub fn get_package_description(&self) -> Option<String> {
         self.project.description.clone()
+    }
+
+    pub fn get_package_dependencies(&self) -> Option<HashMap<String, Dependency>> {
+        self.dependencies.clone()
     }
 
     pub fn get_package_license(&self) -> Option<String> {

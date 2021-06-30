@@ -33,6 +33,9 @@ pub use deploy::Deploy;
 pub mod init;
 pub use init::Init;
 
+pub mod install;
+pub use install::Install;
+
 pub mod lint;
 pub use lint::Lint;
 
