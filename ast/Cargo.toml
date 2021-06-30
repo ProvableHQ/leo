@@ -22,7 +22,7 @@ path = "../input"
 version = "1.5.2"
 
 [dependencies.indexmap]
-version = "1.6.2"
+version = "1.7.0"
 features = [ "serde-1" ]
 
 [dependencies.pest]
