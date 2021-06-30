@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 239
-      num_constraints: 239
-      at: 61be39f73914fdb4059c5d5e5776840262ab56dc414aa09106ddfee1d27ba174
-      bt: 3f2d18346ecde92782f60a29649e187402d8f2059cf934b31f5606c4d4381883
-      ct: db5fb9e237a13bca372ce7d3f232661fdf07c8ae7ef3d99517438a3532f59a41
+      num_private_variables: 871
+      num_constraints: 936
+      at: f7d612942f5c3f107a3e06209c638408f12a0db8f6a4be80fca5328bf25fa80b
+      bt: 2d3d568db1dcbfca0ab1a21386e91fb10d5a14ce39a8f9115a87c4d44c8afa72
+      ct: 010cb4c6859360fa1d7385aa4f93b3ca19f441be07e933be39680fa88bb617c2
     output:
       - input_file: input/complex_access.in
         output:
