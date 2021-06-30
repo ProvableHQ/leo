@@ -93,7 +93,7 @@ version = "1.0"
 `name` field sets the name of the dependency in Leo code. That way we allow 
 developer to resolve collisions in import names manually. So, for example,
 if a developer is adding `howard/silly-sudoku` package to his program, he
-might define it's in-code name as `sudoku` and import it with that name:
+might define its in-code name as `sudoku` and import it with that name:
 
 ```ts
 import sudoku;
@@ -147,7 +147,8 @@ leo-program
 
 This change would also affect the way imports are being processed on ASG
 level, and we'd need to add imports map as an argument to the Leo compiler.
-The Leo Manifest needs to be parsed and passed as a hashmap to the compiler:
+The Leo Manifest's dependencies sections needs to be parsed and passed as 
+a hashmap to the compiler:
 
 ```
 first-program  => author1-program@0.1.0
