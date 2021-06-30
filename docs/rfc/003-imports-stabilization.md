@@ -24,7 +24,7 @@ that we suggest few changes to Leo CLI and Manifest:
 - add a "dependencies" section to Leo Manifest and add a command to pull those dependencies;
 - allow custom names for imports to manually resolve name conflicts;
 - add "curve" and "proving system" sections to the Manifest;
-- add "inlcude" and "exclude" parameters for "proving system" and "curve";
+- add "include" and "exclude" parameters for "proving system" and "curve";
 
 Later this solution can be improved by adding a lock-file which would lock
 imported packages based on both their contents and version. 
