@@ -1222,6 +1222,7 @@ dependencies = [
  "leo-imports",
  "leo-input",
  "leo-package",
+ "leo-parser",
  "leo-state",
  "leo-synthesizer",
  "notify",
