@@ -86,7 +86,7 @@ impl Ast {
     }
 
     /// Mutates the program ast by preforming canonicalization on it.
-    pub fn canonicalize(&mut self) -> Result<(), ReducerError> {
+    pub fn canonicalize(&mut self) -> Result<(), AstError> {
         self.ast = ReconstructingDirector::new(Canonicalizer::default()).reduce_program(self.as_repr())?;
         Ok(())
     }
@@ -101,12 +101,20 @@ impl Ast {
     }
 
     /// Serializes the ast into a JSON string.
-    pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
-        serde_json::to_string_pretty(&self.ast)
+    pub fn to_json_string(&self) -> Result<String, AstError> {
+        Ok(serde_json::to_string_pretty(&self.ast)?)
+    }
+
+    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<(), AstError> {
+        path.push(file_name);
+        let file = std::fs::File::create(path)?;
+        let writer = std::io::BufWriter::new(file);
+        serde_json::to_writer_pretty(writer, &self.ast)?;
+        Ok(())
     }
 
     /// Deserializes the JSON string into a ast.
-    pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {
+    pub fn from_json_string(json: &str) -> Result<Self, AstError> {
         let ast: Program = serde_json::from_str(json)?;
         Ok(Self { ast })
     }

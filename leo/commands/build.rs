@@ -19,6 +19,7 @@ use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
     CompilerOptions,
+    ProofOptions,
 };
 use leo_package::{
     inputs::*,
@@ -43,6 +44,14 @@ pub struct BuildOptions {
     pub disable_code_elimination: bool,
     #[structopt(long, help = "Disable all compiler optimizations")]
     pub disable_all_optimizations: bool,
+    #[structopt(long, help = "Enables all json ast proof generations.")]
+    pub enable_all_proofs: bool,
+    #[structopt(long, help = "Enables the initial parsed json ast proof generation.")]
+    pub enable_initial_proof: bool,
+    #[structopt(long, help = "Enables the post canonicalization json ast proof generation.")]
+    pub enable_canonicalized_proof: bool,
+    #[structopt(long, help = "Enables the post canonicalization json ast proof generation.")]
+    pub enable_type_inferenced_proof: bool,
 }
 
 impl Default for BuildOptions {
@@ -51,6 +60,10 @@ impl Default for BuildOptions {
             disable_constant_folding: true,
             disable_code_elimination: true,
             disable_all_optimizations: true,
+            enable_all_proofs: false,
+            enable_initial_proof: false,
+            enable_canonicalized_proof: false,
+            enable_type_inferenced_proof: false,
         }
     }
 }
@@ -68,6 +81,24 @@ impl From<BuildOptions> for CompilerOptions {
                 canonicalization_enabled: true,
                 constant_folding_enabled: !options.disable_constant_folding,
                 dead_code_elimination_enabled: !options.disable_code_elimination,
+            }
+        }
+    }
+}
+
+impl From<BuildOptions> for ProofOptions {
+    fn from(options: BuildOptions) -> Self {
+        if options.enable_all_proofs {
+            ProofOptions {
+                initial: true,
+                canonicalized: true,
+                type_inferenced: true,
+            }
+        } else {
+            ProofOptions {
+                initial: options.enable_initial_proof,
+                canonicalized: options.enable_canonicalized_proof,
+                type_inferenced: options.enable_type_inferenced_proof,
             }
         }
     }
@@ -141,6 +172,7 @@ impl Command for Build {
             &state_string,
             &state_path,
             thread_leaked_context(),
+            Some(self.compiler_options.clone().into()),
             Some(self.compiler_options.into()),
         )?;
 

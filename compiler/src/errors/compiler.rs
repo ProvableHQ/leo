@@ -16,7 +16,7 @@
 
 use crate::errors::{ExpressionError, FunctionError, ImportError, StatementError};
 use leo_asg::{AsgConvertError, FormattedError};
-use leo_ast::{LeoError, ReducerError};
+use leo_ast::{AstError, LeoError};
 use leo_input::InputParserError;
 use leo_parser::SyntaxError;
 use leo_state::LocalDataVerificationError;
@@ -62,7 +62,7 @@ pub enum CompilerError {
     AsgConvertError(#[from] AsgConvertError),
 
     #[error("{}", _0)]
-    ReducerError(#[from] ReducerError),
+    AstError(#[from] AstError),
 
     #[error("{}", _0)]
     StatementError(#[from] StatementError),
