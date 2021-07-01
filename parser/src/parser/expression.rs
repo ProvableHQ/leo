@@ -187,7 +187,7 @@ impl ParserContext {
     ///
     pub fn parse_equality_expression(&mut self) -> SyntaxResult<Expression> {
         let mut expr = self.parse_ordering_expression()?;
-        while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Eq, Token::NotEq]) {
+        if let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Eq, Token::NotEq]) {
             let right = self.parse_ordering_expression()?;
             expr = Expression::Binary(BinaryExpression {
                 span: expr.span() + right.span(),

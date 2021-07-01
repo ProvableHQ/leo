@@ -848,8 +848,8 @@ ordering-expression = additive-expression
 ; the rule below makes them left-associative.
 
 equality-expression = ordering-expression
-                    / equality-expression "==" ordering-expression
-                    / equality-expression "!=" ordering-expression
+                    / ordering-expression "==" ordering-expression
+                    / ordering-expression "!=" ordering-expression
 
 ; Next come conjunctive expressions, left-associative.
 

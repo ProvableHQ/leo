@@ -11,5 +11,5 @@ circuit Foo {
 function main(y: bool) -> bool {
     const a = Foo { x: 1u32 };
 
-    return a.x == 1u32 == y;
+    return (a.x == 1u32) == y;
 }
