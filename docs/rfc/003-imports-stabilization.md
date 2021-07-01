@@ -33,16 +33,16 @@ imported packages based on both their contents and version.
 
 The current design of imports does not provide any guarantees on what's stored 
 in program imports and published with the program to Aleo Package Manager. 
-When dependency is "added", it is stored inside imports folder, and it is possible
+When a dependency is "added," it is stored inside imports folder, and it is possible
 to manually edit and/or add packages in this folder.
 
-Also, imports are stored under package name which makes it impossible to import
+Also, imports are stored under the package name which makes it impossible to import
 two different packages with the same name. 
 
 Another important detail in the scope of this proposal is that in future Leo
 programs will have the ability to be run with different proving systems 
 and curves, possibly creating incompatibility between programs written 
-for different proving systems or curves. To make a foundation for these features
+for different proving systems or curves. To make a foundation for these features,
 imports need to be managed with include/exclude lists for allowed (compatible) 
 proving systems and curves.
 
@@ -50,12 +50,12 @@ proving systems and curves.
 
 ## Leo Manifest - target section
 
-To lay the foundation for future of the Leo ecosystem and start integrating
+To lay the foundation for the future of the Leo ecosystem and start integrating
 information about programs compatibility we suggest adding two new fields to
 the new `[target]` section of the Leo Manifest: `proving_system` and `curve`.
 
-Currently, Leo compiler only supports `Groth16` for proving system and `Bls12_377`
-for curve, they are meant to be default values in Leo Manifest.
+Currently, the Leo compiler only supports `Groth16` for the proving system and `Bls12_377`
+for the curve, they are meant to be default values in Leo Manifest.
 
 ```toml
 [project]
@@ -125,7 +125,7 @@ language level but also on the level of storing program imports.
 
 We suggest using set of all 3 possible program identifiers for import
 folder name: `author-package@version`. Later it can be extended to 
-include hash for version, but having inital set already solves name
+include hash for version, but having the inital set already solves name
 collisions.
 
 So, updated imports would look like:
@@ -145,8 +145,8 @@ leo-program
     └── main.leo
 ```
 
-This change would also affect the way imports are being processed on ASG
-level, and we'd need to add imports map as an argument to the Leo compiler.
+This change would also affect the way imports are being processed on the ASG
+level, and we'd need to add an imports map as an argument to the Leo compiler.
 The Leo Manifest's dependencies sections needs to be parsed and passed as 
 a hashmap to the compiler:
 
@@ -158,9 +158,9 @@ second-program => author2-program2@1.0.4
 ## Recursive Dependencies
 
 This improvement introduces recursive dependencies. To solve this case preemptively
-Leo CLI needs to check dependency tree and throw an error when recursive dependency
+Leo CLI needs to check the dependency tree and throw an error when a recursive dependency
 is met. We suggest implementing simple dependency tree checking while fetching
-imports - if imported dependency is met on higher level - abort the execution.
+imports - if imported dependency is met on a higher level - abort the execution.
 
 Later this solution can be improved by building a lock file containing all the
 information on program dependencies, and the file itself will have enough data
