@@ -453,7 +453,7 @@ identifier = letter *( letter / digit / "_" )   ; but not a keyword or aleo1...
 ; A package name consists of one or more segments separated by single dashes,
 ; where each segment is a non-empty sequence of lowercase letters and digits.
 
-package-name = 1*( lowercase-letter / digit )
+package-name = 1*lowercase-letter
                *( "-" 1*( lowercase-letter / digit ) )
 
 ; Annotations have names, which are identifiers immediately preceded by `@`.
@@ -962,7 +962,7 @@ assert-call = %s"assert" "(" expression ")"
 
 print-function = %s"debug" / %s"error" / %s"log"
 
-print-arguments = "(" [ string-literal *( "," expression ) ] ")"
+print-arguments = "(" string-literal  *( "," expression ) ")"
 
 print-call = print-function print-arguments
 
@@ -1020,7 +1020,7 @@ member-function-declaration = function-declaration
 ; this may be relaxed after the backward compatibility is removed,
 ; allowing member variables and member functions to be intermixed.
 
-circuit-declaration = *annotation %s"circuit" identifier
+circuit-declaration = %s"circuit" identifier
                       "{" [ member-variable-declarations ]
                       *member-function-declaration "}"
 
