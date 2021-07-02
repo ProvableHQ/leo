@@ -22,7 +22,7 @@ use crate::{
     GroupType,
     Output,
     OutputFile,
-    ProofOptions,
+    TheoremOptions,
     TypeInferencePhase,
 };
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
@@ -67,7 +67,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     context: AsgContext<'a>,
     asg: Option<AsgProgram<'a>>,
     options: CompilerOptions,
-    proof_options: ProofOptions,
+    proof_options: TheoremOptions,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
 }
@@ -82,7 +82,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        proof_options: Option<ProofOptions>,
+        proof_options: Option<TheoremOptions>,
     ) -> Self {
         Self {
             program_name: package_name.clone(),
@@ -112,7 +112,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        proof_options: Option<ProofOptions>,
+        proof_options: Option<TheoremOptions>,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(
             package_name,
@@ -151,7 +151,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         state_path: &Path,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        proof_options: Option<ProofOptions>,
+        proof_options: Option<TheoremOptions>,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(
             package_name,
