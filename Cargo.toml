@@ -158,7 +158,7 @@ version = "0.12.1"
 version = "0.11.2"
 
 [dev-dependencies.assert_cmd]
-version = "1.0.5"
+version = "1.0.6"
 
 [dev-dependencies.test_dir]
 version = "0.1.0"
