@@ -78,7 +78,7 @@ impl<'a> ExpressionNode<'a> for ArrayInlineExpression<'a> {
         false
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         let mut const_values = vec![];
         for (expr, spread) in self.elements.iter() {
             if *spread {

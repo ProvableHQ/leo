@@ -83,8 +83,11 @@ impl<'a> ExpressionNode<'a> for CircuitAccessExpression<'a> {
         }
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
-        None
+    fn const_value(&self) -> Option<ConstValue<'a>> {
+        match self.target.get()?.const_value()? {
+            ConstValue::Circuit(_, members) => members.get(&self.member).cloned(),
+            _ => None,
+        }
     }
 
     fn is_consty(&self) -> bool {

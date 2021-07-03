@@ -23,7 +23,7 @@ use crate::{
     program::ConstrainedProgram,
     relational::*,
     resolve_core_circuit,
-    value::{Address, Char, CharType, ConstrainedValue, Integer},
+    value::{Address, Char, CharType, ConstrainedCircuitMember, ConstrainedValue, Integer},
     FieldType,
     GroupType,
 };
@@ -37,7 +37,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_const_value<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        value: &ConstValue,
+        value: &'a ConstValue<'a>,
         span: &Span,
     ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
         Ok(match value {
@@ -75,6 +75,17 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     .map(|x| self.enforce_const_value(cs, x, span))
                     .collect::<Result<Vec<_>, _>>()?,
             ),
+            ConstValue::Circuit(circuit, members) => {
+                let mut constrained_members = Vec::new();
+                for (identifier, member) in members.iter() {
+                    constrained_members.push(ConstrainedCircuitMember(
+                        identifier.clone(),
+                        self.enforce_const_value(cs, member, span)?,
+                    ));
+                }
+
+                ConstrainedValue::CircuitExpression(circuit, constrained_members)
+            }
         })
     }
 

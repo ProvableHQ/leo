@@ -56,7 +56,7 @@ impl<'a> ExpressionNode<'a> for TupleAccessExpression<'a> {
         self.tuple_ref.get().is_mut_ref()
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         let tuple_const = self.tuple_ref.get().const_value()?;
         match tuple_const {
             ConstValue::Tuple(sub_consts) => sub_consts.get(self.index).cloned(),

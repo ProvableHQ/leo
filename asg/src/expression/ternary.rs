@@ -56,7 +56,7 @@ impl<'a> ExpressionNode<'a> for TernaryExpression<'a> {
         self.if_true.get().is_mut_ref() && self.if_false.get().is_mut_ref()
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         if let Some(ConstValue::Boolean(switch)) = self.condition.get().const_value() {
             if switch {
                 self.if_true.get().const_value()

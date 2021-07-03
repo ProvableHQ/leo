@@ -36,7 +36,7 @@ use std::cell::Cell;
 pub struct Constant<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub value: ConstValue, // should not be compound constants
+    pub value: ConstValue<'a>, // should not be compound constants
 }
 
 impl<'a> Node for Constant<'a> {
@@ -56,7 +56,7 @@ impl<'a> ExpressionNode<'a> for Constant<'a> {
 
     fn enforce_parents(&self, _expr: &'a Expression<'a>) {}
 
-    fn get_type(&self) -> Option<Type<'a>> {
+    fn get_type(&'a self) -> Option<Type<'a>> {
         self.value.get_type()
     }
 
@@ -64,7 +64,7 @@ impl<'a> ExpressionNode<'a> for Constant<'a> {
         false
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         Some(self.value.clone())
     }
 
@@ -267,6 +267,7 @@ impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
             ),
             ConstValue::Tuple(_) => unimplemented!(),
             ConstValue::Array(_) => unimplemented!(),
+            ConstValue::Circuit(_, _) => unimplemented!(),
         }
     }
 }

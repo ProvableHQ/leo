@@ -70,8 +70,12 @@ impl<'a> ExpressionNode<'a> for CircuitInitExpression<'a> {
         true
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
-        None
+    fn const_value(&self) -> Option<ConstValue<'a>> {
+        let mut members = IndexMap::new();
+        for (identifier, member) in self.values.iter() {
+            members.insert(identifier.clone(), member.get().const_value()?);
+        }
+        Some(ConstValue::Circuit(self.circuit.get(), members))
     }
 
     fn is_consty(&self) -> bool {
