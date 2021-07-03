@@ -176,6 +176,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
         } else {
             None
         };
+
         if let Some(expected_len) = expected_len {
             if let Some(length) = length {
                 if length != expected_len {

@@ -85,7 +85,10 @@ impl<'a> ExpressionNode<'a> for CircuitAccessExpression<'a> {
 
     fn const_value(&self) -> Option<ConstValue<'a>> {
         match self.target.get()?.const_value()? {
-            ConstValue::Circuit(_, members) => members.get(&self.member).cloned(),
+            ConstValue::Circuit(_, members) => {
+                let (_, const_value) = members.get(&self.member.name.to_string())?.clone();
+                Some(const_value)
+            }
             _ => None,
         }
     }

@@ -77,7 +77,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             ),
             ConstValue::Circuit(circuit, members) => {
                 let mut constrained_members = Vec::new();
-                for (identifier, member) in members.iter() {
+                for (_, (identifier, member)) in members.iter() {
                     constrained_members.push(ConstrainedCircuitMember(
                         identifier.clone(),
                         self.enforce_const_value(cs, member, span)?,

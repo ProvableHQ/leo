@@ -131,7 +131,7 @@ pub enum ConstValue<'a> {
     // compounds
     Tuple(Vec<ConstValue<'a>>),
     Array(Vec<ConstValue<'a>>),
-    Circuit(&'a Circuit<'a>, IndexMap<Identifier, ConstValue<'a>>),
+    Circuit(&'a Circuit<'a>, IndexMap<String, (Identifier, ConstValue<'a>)>),
 }
 
 macro_rules! const_int_op {
