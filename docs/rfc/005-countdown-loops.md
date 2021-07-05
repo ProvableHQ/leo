@@ -110,7 +110,7 @@ function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
             }
 
         }
-        for i in 8..=0 { // j goes from 8 to 0
+        for i in 8..=0 { // i goes from 8 to 0
             if a[i] > a[i + 1] {
                 let tmp = a[i];
                 a[i] = a[i + 1];
