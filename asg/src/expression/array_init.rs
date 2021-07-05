@@ -54,8 +54,8 @@ impl<'a> ExpressionNode<'a> for ArrayInitExpression<'a> {
     }
 
     fn const_value(&self) -> Option<ConstValue> {
-        // not implemented due to performance concerns
-        None
+        let element = self.element.get().const_value()?;
+        Some(ConstValue::Array(vec![element; self.len]))
     }
 
     fn is_consty(&self) -> bool {

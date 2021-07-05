@@ -316,7 +316,7 @@ mod cli_tests {
         let path = Some(dir.path("new"));
 
         assert!(run_cmd("leo new test", &path).is_ok());
-        assert!(run_cmd("leo new test", &path).is_err()); // 2nd time 
+        assert!(run_cmd("leo new test", &path).is_err()); // 2nd time
         assert!(run_cmd("leo new wrong_name", &path).is_err());
     }
 

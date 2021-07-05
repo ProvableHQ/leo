@@ -55,6 +55,14 @@ impl Canonicalizer {
                         span: span.clone(),
                     }));
                 }
+                AssigneeAccess::ArrayRange(start, stop) => {
+                    left = Box::new(Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                        array: left,
+                        left: start.map(Box::new),
+                        right: stop.map(Box::new),
+                        span: span.clone(),
+                    }));
+                }
                 AssigneeAccess::Tuple(positive_number, _) => {
                     left = Box::new(Expression::TupleAccess(TupleAccessExpression {
                         tuple: left,
@@ -69,7 +77,6 @@ impl Canonicalizer {
                         span: span.clone(),
                     }));
                 }
-                _ => return Err(ReducerError::from(CombinerError::illegal_compound_array_range(&span))),
             }
         }
 
@@ -593,19 +600,13 @@ impl ReconstructingReducer for Canonicalizer {
         value: Expression,
     ) -> Result<AssignStatement, ReducerError> {
         match value {
-            Expression::Binary(binary_expr) if assign.operation == AssignOperation::Assign => Ok(AssignStatement {
-                operation: AssignOperation::Assign,
-                assignee,
-                value: Expression::Binary(binary_expr),
-                span: assign.span.clone(),
-            }),
-            Expression::Binary(binary_expr) if assign.operation != AssignOperation::Assign => {
+            value if assign.operation != AssignOperation::Assign => {
                 let left = self.canonicalize_accesses(
                     Expression::Identifier(assignee.identifier.clone()),
                     &assignee.accesses,
                     &assign.span,
                 )?;
-                let right = Box::new(Expression::Binary(binary_expr));
+                let right = Box::new(value);
                 let op = self.compound_operation_converstion(&assign.operation)?;
 
                 let new_value = Expression::Binary(BinaryExpression {
@@ -622,36 +623,12 @@ impl ReconstructingReducer for Canonicalizer {
                     span: assign.span.clone(),
                 })
             }
-            Expression::Value(value_expr) if assign.operation != AssignOperation::Assign => {
-                let left = self.canonicalize_accesses(
-                    Expression::Identifier(assignee.identifier.clone()),
-                    &assignee.accesses,
-                    &assign.span,
-                )?;
-                let right = Box::new(Expression::Value(value_expr));
-                let op = self.compound_operation_converstion(&assign.operation)?;
-
-                let new_value = Expression::Binary(BinaryExpression {
-                    left,
-                    right,
-                    op,
-                    span: assign.span.clone(),
-                });
-
-                Ok(AssignStatement {
-                    operation: AssignOperation::Assign,
-                    assignee,
-                    value: new_value,
-                    span: assign.span.clone(),
-                })
-            }
-            Expression::ArrayInline(_) => Ok(AssignStatement {
+            value => Ok(AssignStatement {
                 operation: AssignOperation::Assign,
                 assignee,
                 value,
                 span: assign.span.clone(),
             }),
-            _ => Ok(assign.clone()),
         }
     }
 

@@ -2,14 +2,13 @@
   "name": "",
   "expected_input": [],
   "imports": [],
-  "global_consts": {},
   "circuits": {
     "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}": {
       "circuit_name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}",
       "members": [
         {
           "CircuitVariable": [
-            "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  f: u8,\\\"}\"}",
+            "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  f: u8;\\\"}\"}",
             {
               "IntegerType": "U8"
             }
@@ -17,7 +16,7 @@
         },
         {
           "CircuitVariable": [
-            "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y: (u8, u8),\\\"}\"}",
+            "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y: (u8, u8);\\\"}\"}",
             {
               "Tuple": [
                 {
@@ -161,7 +160,7 @@
                             "col_start": 12,
                             "col_stop": 16,
                             "path": "",
-                            "content": "    return 1u16"
+                            "content": "    return 1u16;"
                           }
                         ]
                       }
@@ -172,7 +171,7 @@
                       "col_start": 5,
                       "col_stop": 16,
                       "path": "",
-                      "content": "    return 1u16"
+                      "content": "    return 1u16;"
                     }
                   }
                 }
@@ -199,6 +198,7 @@
       ]
     }
   },
+  "global_consts": {},
   "functions": {
     "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() {\\\"}\"}": {
       "annotations": [],
@@ -226,9 +226,7 @@
                   }
                 }
               ],
-              "type_": {
-                "IntegerType": "U32"
-              },
+              "type_": null,
               "value": {
                 "Value": {
                   "Integer": [
@@ -277,8 +275,7 @@
                   },
                   "right": {
                     "Value": {
-                      "Integer": [
-                        "U32",
+                      "Implicit": [
                         "20",
                         {
                           "line_start": 12,
@@ -364,29 +361,152 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let y = [1u8, 2u8];\\\"}\"}",
+                  "identifier": "{\"name\":\"w\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let w = 3u32;\\\"}\"}",
                   "span": {
                     "line_start": 15,
                     "line_stop": 15,
                     "col_start": 7,
                     "col_stop": 8,
                     "path": "",
-                    "content": "  let y = [1u8, 2u8];"
+                    "content": "  let w = 3u32;"
                   }
                 }
               ],
-              "type_": {
-                "Array": [
-                  {
-                    "IntegerType": "U8"
-                  },
-                  [
+              "type_": null,
+              "value": {
+                "Value": {
+                  "Integer": [
+                    "U32",
+                    "3",
                     {
-                      "value": "2"
+                      "line_start": 15,
+                      "line_stop": 15,
+                      "col_start": 11,
+                      "col_stop": 15,
+                      "path": "",
+                      "content": "  let w = 3u32;"
                     }
                   ]
-                ]
+                }
               },
+              "span": {
+                "line_start": 15,
+                "line_stop": 15,
+                "col_start": 3,
+                "col_stop": 15,
+                "path": "",
+                "content": "  let w = 3u32;"
+              }
+            }
+          },
+          {
+            "Assign": {
+              "operation": "Assign",
+              "assignee": {
+                "identifier": "{\"name\":\"w\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  w += x;\\\"}\"}",
+                "accesses": [],
+                "span": {
+                  "line_start": 16,
+                  "line_stop": 16,
+                  "col_start": 3,
+                  "col_stop": 4,
+                  "path": "",
+                  "content": "  w += x;"
+                }
+              },
+              "value": {
+                "Binary": {
+                  "left": {
+                    "Identifier": "{\"name\":\"w\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  w += x;\\\"}\"}"
+                  },
+                  "right": {
+                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  w += x;\\\"}\"}"
+                  },
+                  "op": "Add",
+                  "span": {
+                    "line_start": 16,
+                    "line_stop": 16,
+                    "col_start": 3,
+                    "col_stop": 9,
+                    "path": "",
+                    "content": "  w += x;"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 16,
+                "line_stop": 16,
+                "col_start": 3,
+                "col_stop": 9,
+                "path": "",
+                "content": "  w += x;"
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Binary": {
+                    "left": {
+                      "Identifier": "{\"name\":\"w\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(w == 33u32);\\\"}\"}"
+                    },
+                    "right": {
+                      "Value": {
+                        "Integer": [
+                          "U32",
+                          "33",
+                          {
+                            "line_start": 17,
+                            "line_stop": 17,
+                            "col_start": 23,
+                            "col_stop": 28,
+                            "path": "",
+                            "content": "  console.assert(w == 33u32);"
+                          }
+                        ]
+                      }
+                    },
+                    "op": "Eq",
+                    "span": {
+                      "line_start": 17,
+                      "line_stop": 17,
+                      "col_start": 18,
+                      "col_stop": 28,
+                      "path": "",
+                      "content": "  console.assert(w == 33u32);"
+                    }
+                  }
+                }
+              },
+              "span": {
+                "line_start": 17,
+                "line_stop": 17,
+                "col_start": 3,
+                "col_stop": 28,
+                "path": "",
+                "content": "  console.assert(w == 33u32);"
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let y = [1u8, 2u8, 3, 4];\\\"}\"}",
+                  "span": {
+                    "line_start": 19,
+                    "line_stop": 19,
+                    "col_start": 7,
+                    "col_stop": 8,
+                    "path": "",
+                    "content": "  let y = [1u8, 2u8, 3, 4];"
+                  }
+                }
+              ],
+              "type_": null,
               "value": {
                 "ArrayInline": {
                   "elements": [
@@ -397,12 +517,12 @@
                             "U8",
                             "1",
                             {
-                              "line_start": 15,
-                              "line_stop": 15,
+                              "line_start": 19,
+                              "line_stop": 19,
                               "col_start": 12,
                               "col_stop": 15,
                               "path": "",
-                              "content": "  let y = [1u8, 2u8];"
+                              "content": "  let y = [1u8, 2u8, 3, 4];"
                             }
                           ]
                         }
@@ -415,12 +535,46 @@
                             "U8",
                             "2",
                             {
-                              "line_start": 15,
-                              "line_stop": 15,
+                              "line_start": 19,
+                              "line_stop": 19,
                               "col_start": 17,
                               "col_stop": 20,
                               "path": "",
-                              "content": "  let y = [1u8, 2u8];"
+                              "content": "  let y = [1u8, 2u8, 3, 4];"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Implicit": [
+                            "3",
+                            {
+                              "line_start": 19,
+                              "line_stop": 19,
+                              "col_start": 22,
+                              "col_stop": 23,
+                              "path": "",
+                              "content": "  let y = [1u8, 2u8, 3, 4];"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Value": {
+                          "Implicit": [
+                            "4",
+                            {
+                              "line_start": 19,
+                              "line_stop": 19,
+                              "col_start": 25,
+                              "col_stop": 26,
+                              "path": "",
+                              "content": "  let y = [1u8, 2u8, 3, 4];"
                             }
                           ]
                         }
@@ -428,22 +582,22 @@
                     }
                   ],
                   "span": {
-                    "line_start": 15,
-                    "line_stop": 15,
+                    "line_start": 19,
+                    "line_stop": 19,
                     "col_start": 11,
-                    "col_stop": 21,
+                    "col_stop": 27,
                     "path": "",
-                    "content": "  let y = [1u8, 2u8];"
+                    "content": "  let y = [1u8, 2u8, 3, 4];"
                   }
                 }
               },
               "span": {
-                "line_start": 15,
-                "line_stop": 15,
+                "line_start": 19,
+                "line_stop": 19,
                 "col_start": 3,
-                "col_stop": 21,
+                "col_stop": 27,
                 "path": "",
-                "content": "  let y = [1u8, 2u8];"
+                "content": "  let y = [1u8, 2u8, 3, 4];"
               }
             }
           },
@@ -451,17 +605,16 @@
             "Assign": {
               "operation": "Assign",
               "assignee": {
-                "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y[0] += 3u8;\\\"}\"}",
+                "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y[0] += 3u8;\\\"}\"}",
                 "accesses": [
                   {
                     "ArrayIndex": {
                       "Value": {
-                        "Integer": [
-                          "U32",
+                        "Implicit": [
                           "0",
                           {
-                            "line_start": 16,
-                            "line_stop": 16,
+                            "line_start": 20,
+                            "line_stop": 20,
                             "col_start": 5,
                             "col_stop": 6,
                             "path": "",
@@ -473,8 +626,8 @@
                   }
                 ],
                 "span": {
-                  "line_start": 16,
-                  "line_stop": 16,
+                  "line_start": 20,
+                  "line_stop": 20,
                   "col_start": 3,
                   "col_stop": 7,
                   "path": "",
@@ -486,16 +639,15 @@
                   "left": {
                     "ArrayAccess": {
                       "array": {
-                        "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y[0] += 3u8;\\\"}\"}"
+                        "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y[0] += 3u8;\\\"}\"}"
                       },
                       "index": {
                         "Value": {
-                          "Integer": [
-                            "U32",
+                          "Implicit": [
                             "0",
                             {
-                              "line_start": 16,
-                              "line_stop": 16,
+                              "line_start": 20,
+                              "line_stop": 20,
                               "col_start": 5,
                               "col_stop": 6,
                               "path": "",
@@ -505,8 +657,8 @@
                         }
                       },
                       "span": {
-                        "line_start": 16,
-                        "line_stop": 16,
+                        "line_start": 20,
+                        "line_stop": 20,
                         "col_start": 3,
                         "col_stop": 14,
                         "path": "",
@@ -520,8 +672,8 @@
                         "U8",
                         "3",
                         {
-                          "line_start": 16,
-                          "line_stop": 16,
+                          "line_start": 20,
+                          "line_stop": 20,
                           "col_start": 11,
                           "col_stop": 14,
                           "path": "",
@@ -532,8 +684,8 @@
                   },
                   "op": "Add",
                   "span": {
-                    "line_start": 16,
-                    "line_stop": 16,
+                    "line_start": 20,
+                    "line_stop": 20,
                     "col_start": 3,
                     "col_stop": 14,
                     "path": "",
@@ -542,12 +694,189 @@
                 }
               },
               "span": {
-                "line_start": 16,
-                "line_stop": 16,
+                "line_start": 20,
+                "line_stop": 20,
                 "col_start": 3,
                 "col_stop": 14,
                 "path": "",
                 "content": "  y[0] += 3u8;"
+              }
+            }
+          },
+          {
+            "Assign": {
+              "operation": "Assign",
+              "assignee": {
+                "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y[0..3][1] *= 3;\\\"}\"}",
+                "accesses": [
+                  {
+                    "ArrayRange": [
+                      {
+                        "Value": {
+                          "Implicit": [
+                            "0",
+                            {
+                              "line_start": 21,
+                              "line_stop": 21,
+                              "col_start": 5,
+                              "col_stop": 6,
+                              "path": "",
+                              "content": "  y[0..3][1] *= 3;"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "Value": {
+                          "Implicit": [
+                            "3",
+                            {
+                              "line_start": 21,
+                              "line_stop": 21,
+                              "col_start": 8,
+                              "col_stop": 9,
+                              "path": "",
+                              "content": "  y[0..3][1] *= 3;"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "ArrayIndex": {
+                      "Value": {
+                        "Implicit": [
+                          "1",
+                          {
+                            "line_start": 21,
+                            "line_stop": 21,
+                            "col_start": 11,
+                            "col_stop": 12,
+                            "path": "",
+                            "content": "  y[0..3][1] *= 3;"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "span": {
+                  "line_start": 21,
+                  "line_stop": 21,
+                  "col_start": 3,
+                  "col_stop": 13,
+                  "path": "",
+                  "content": "  y[0..3][1] *= 3;"
+                }
+              },
+              "value": {
+                "Binary": {
+                  "left": {
+                    "ArrayAccess": {
+                      "array": {
+                        "ArrayRangeAccess": {
+                          "array": {
+                            "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  y[0..3][1] *= 3;\\\"}\"}"
+                          },
+                          "left": {
+                            "Value": {
+                              "Implicit": [
+                                "0",
+                                {
+                                  "line_start": 21,
+                                  "line_stop": 21,
+                                  "col_start": 5,
+                                  "col_stop": 6,
+                                  "path": "",
+                                  "content": "  y[0..3][1] *= 3;"
+                                }
+                              ]
+                            }
+                          },
+                          "right": {
+                            "Value": {
+                              "Implicit": [
+                                "3",
+                                {
+                                  "line_start": 21,
+                                  "line_stop": 21,
+                                  "col_start": 8,
+                                  "col_stop": 9,
+                                  "path": "",
+                                  "content": "  y[0..3][1] *= 3;"
+                                }
+                              ]
+                            }
+                          },
+                          "span": {
+                            "line_start": 21,
+                            "line_stop": 21,
+                            "col_start": 3,
+                            "col_stop": 18,
+                            "path": "",
+                            "content": "  y[0..3][1] *= 3;"
+                          }
+                        }
+                      },
+                      "index": {
+                        "Value": {
+                          "Implicit": [
+                            "1",
+                            {
+                              "line_start": 21,
+                              "line_stop": 21,
+                              "col_start": 11,
+                              "col_stop": 12,
+                              "path": "",
+                              "content": "  y[0..3][1] *= 3;"
+                            }
+                          ]
+                        }
+                      },
+                      "span": {
+                        "line_start": 21,
+                        "line_stop": 21,
+                        "col_start": 3,
+                        "col_stop": 18,
+                        "path": "",
+                        "content": "  y[0..3][1] *= 3;"
+                      }
+                    }
+                  },
+                  "right": {
+                    "Value": {
+                      "Implicit": [
+                        "3",
+                        {
+                          "line_start": 21,
+                          "line_stop": 21,
+                          "col_start": 17,
+                          "col_stop": 18,
+                          "path": "",
+                          "content": "  y[0..3][1] *= 3;"
+                        }
+                      ]
+                    }
+                  },
+                  "op": "Mul",
+                  "span": {
+                    "line_start": 21,
+                    "line_stop": 21,
+                    "col_start": 3,
+                    "col_stop": 18,
+                    "path": "",
+                    "content": "  y[0..3][1] *= 3;"
+                  }
+                }
+              },
+              "span": {
+                "line_start": 21,
+                "line_stop": 21,
+                "col_start": 3,
+                "col_stop": 18,
+                "path": "",
+                "content": "  y[0..3][1] *= 3;"
               }
             }
           },
@@ -559,16 +888,15 @@
                     "left": {
                       "ArrayAccess": {
                         "array": {
-                          "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(y[0] == 4u8);\\\"}\"}"
+                          "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(y[0] == 4u8);\\\"}\"}"
                         },
                         "index": {
                           "Value": {
-                            "Integer": [
-                              "U32",
+                            "Implicit": [
                               "0",
                               {
-                                "line_start": 17,
-                                "line_stop": 17,
+                                "line_start": 22,
+                                "line_stop": 22,
                                 "col_start": 20,
                                 "col_stop": 21,
                                 "path": "",
@@ -578,8 +906,8 @@
                           }
                         },
                         "span": {
-                          "line_start": 17,
-                          "line_stop": 17,
+                          "line_start": 22,
+                          "line_stop": 22,
                           "col_start": 18,
                           "col_stop": 22,
                           "path": "",
@@ -593,8 +921,8 @@
                           "U8",
                           "4",
                           {
-                            "line_start": 17,
-                            "line_stop": 17,
+                            "line_start": 22,
+                            "line_stop": 22,
                             "col_start": 26,
                             "col_stop": 29,
                             "path": "",
@@ -605,8 +933,8 @@
                     },
                     "op": "Eq",
                     "span": {
-                      "line_start": 17,
-                      "line_stop": 17,
+                      "line_start": 22,
+                      "line_stop": 22,
                       "col_start": 18,
                       "col_stop": 29,
                       "path": "",
@@ -616,12 +944,85 @@
                 }
               },
               "span": {
-                "line_start": 17,
-                "line_stop": 17,
+                "line_start": 22,
+                "line_stop": 22,
                 "col_start": 3,
                 "col_stop": 29,
                 "path": "",
                 "content": "  console.assert(y[0] == 4u8);"
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Binary": {
+                    "left": {
+                      "ArrayAccess": {
+                        "array": {
+                          "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(y[1] == 6u8);\\\"}\"}"
+                        },
+                        "index": {
+                          "Value": {
+                            "Implicit": [
+                              "1",
+                              {
+                                "line_start": 23,
+                                "line_stop": 23,
+                                "col_start": 20,
+                                "col_stop": 21,
+                                "path": "",
+                                "content": "  console.assert(y[1] == 6u8);"
+                              }
+                            ]
+                          }
+                        },
+                        "span": {
+                          "line_start": 23,
+                          "line_stop": 23,
+                          "col_start": 18,
+                          "col_stop": 22,
+                          "path": "",
+                          "content": "  console.assert(y[1] == 6u8);"
+                        }
+                      }
+                    },
+                    "right": {
+                      "Value": {
+                        "Integer": [
+                          "U8",
+                          "6",
+                          {
+                            "line_start": 23,
+                            "line_stop": 23,
+                            "col_start": 26,
+                            "col_stop": 29,
+                            "path": "",
+                            "content": "  console.assert(y[1] == 6u8);"
+                          }
+                        ]
+                      }
+                    },
+                    "op": "Eq",
+                    "span": {
+                      "line_start": 23,
+                      "line_stop": 23,
+                      "col_start": 18,
+                      "col_stop": 29,
+                      "path": "",
+                      "content": "  console.assert(y[1] == 6u8);"
+                    }
+                  }
+                }
+              },
+              "span": {
+                "line_start": 23,
+                "line_stop": 23,
+                "col_start": 3,
+                "col_stop": 29,
+                "path": "",
+                "content": "  console.assert(y[1] == 6u8);"
               }
             }
           },
@@ -631,10 +1032,10 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let z = (1u8, 2u8);\\\"}\"}",
+                  "identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let z = (1u8, 2u8);\\\"}\"}",
                   "span": {
-                    "line_start": 19,
-                    "line_stop": 19,
+                    "line_start": 25,
+                    "line_stop": 25,
                     "col_start": 7,
                     "col_stop": 8,
                     "path": "",
@@ -642,16 +1043,7 @@
                   }
                 }
               ],
-              "type_": {
-                "Tuple": [
-                  {
-                    "IntegerType": "U8"
-                  },
-                  {
-                    "IntegerType": "U8"
-                  }
-                ]
-              },
+              "type_": null,
               "value": {
                 "TupleInit": {
                   "elements": [
@@ -661,8 +1053,8 @@
                           "U8",
                           "1",
                           {
-                            "line_start": 19,
-                            "line_stop": 19,
+                            "line_start": 25,
+                            "line_stop": 25,
                             "col_start": 12,
                             "col_stop": 15,
                             "path": "",
@@ -677,8 +1069,8 @@
                           "U8",
                           "2",
                           {
-                            "line_start": 19,
-                            "line_stop": 19,
+                            "line_start": 25,
+                            "line_stop": 25,
                             "col_start": 17,
                             "col_stop": 20,
                             "path": "",
@@ -689,8 +1081,8 @@
                     }
                   ],
                   "span": {
-                    "line_start": 19,
-                    "line_stop": 19,
+                    "line_start": 25,
+                    "line_stop": 25,
                     "col_start": 11,
                     "col_stop": 21,
                     "path": "",
@@ -699,8 +1091,8 @@
                 }
               },
               "span": {
-                "line_start": 19,
-                "line_stop": 19,
+                "line_start": 25,
+                "line_stop": 25,
                 "col_start": 3,
                 "col_stop": 21,
                 "path": "",
@@ -712,7 +1104,7 @@
             "Assign": {
               "operation": "Assign",
               "assignee": {
-                "identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  z.1 += 3u8;\\\"}\"}",
+                "identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  z.1 += 3u8;\\\"}\"}",
                 "accesses": [
                   {
                     "Tuple": [
@@ -720,8 +1112,8 @@
                         "value": "1"
                       },
                       {
-                        "line_start": 20,
-                        "line_stop": 20,
+                        "line_start": 26,
+                        "line_stop": 26,
                         "col_start": 3,
                         "col_stop": 6,
                         "path": "",
@@ -731,8 +1123,8 @@
                   }
                 ],
                 "span": {
-                  "line_start": 20,
-                  "line_stop": 20,
+                  "line_start": 26,
+                  "line_stop": 26,
                   "col_start": 3,
                   "col_stop": 6,
                   "path": "",
@@ -744,14 +1136,14 @@
                   "left": {
                     "TupleAccess": {
                       "tuple": {
-                        "Identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  z.1 += 3u8;\\\"}\"}"
+                        "Identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  z.1 += 3u8;\\\"}\"}"
                       },
                       "index": {
                         "value": "1"
                       },
                       "span": {
-                        "line_start": 20,
-                        "line_stop": 20,
+                        "line_start": 26,
+                        "line_stop": 26,
                         "col_start": 3,
                         "col_stop": 13,
                         "path": "",
@@ -765,8 +1157,8 @@
                         "U8",
                         "3",
                         {
-                          "line_start": 20,
-                          "line_stop": 20,
+                          "line_start": 26,
+                          "line_stop": 26,
                           "col_start": 10,
                           "col_stop": 13,
                           "path": "",
@@ -777,8 +1169,8 @@
                   },
                   "op": "Add",
                   "span": {
-                    "line_start": 20,
-                    "line_stop": 20,
+                    "line_start": 26,
+                    "line_stop": 26,
                     "col_start": 3,
                     "col_stop": 13,
                     "path": "",
@@ -787,8 +1179,8 @@
                 }
               },
               "span": {
-                "line_start": 20,
-                "line_stop": 20,
+                "line_start": 26,
+                "line_stop": 26,
                 "col_start": 3,
                 "col_stop": 13,
                 "path": "",
@@ -804,14 +1196,14 @@
                     "left": {
                       "TupleAccess": {
                         "tuple": {
-                          "Identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(z.1 == 5u8);\\\"}\"}"
+                          "Identifier": "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(z.1 == 5u8);\\\"}\"}"
                         },
                         "index": {
                           "value": "1"
                         },
                         "span": {
-                          "line_start": 21,
-                          "line_stop": 21,
+                          "line_start": 27,
+                          "line_stop": 27,
                           "col_start": 18,
                           "col_stop": 21,
                           "path": "",
@@ -825,8 +1217,8 @@
                           "U8",
                           "5",
                           {
-                            "line_start": 21,
-                            "line_stop": 21,
+                            "line_start": 27,
+                            "line_stop": 27,
                             "col_start": 25,
                             "col_stop": 28,
                             "path": "",
@@ -837,8 +1229,8 @@
                     },
                     "op": "Eq",
                     "span": {
-                      "line_start": 21,
-                      "line_stop": 21,
+                      "line_start": 27,
+                      "line_stop": 27,
                       "col_start": 18,
                       "col_stop": 28,
                       "path": "",
@@ -848,8 +1240,8 @@
                 }
               },
               "span": {
-                "line_start": 21,
-                "line_stop": 21,
+                "line_start": 27,
+                "line_stop": 27,
                 "col_start": 3,
                 "col_stop": 28,
                 "path": "",
@@ -863,10 +1255,10 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8, y: (1u8, 1u8) };\\\"}\"}",
+                  "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8, y: (1u8, 1u8) };\\\"}\"}",
                   "span": {
-                    "line_start": 23,
-                    "line_stop": 23,
+                    "line_start": 29,
+                    "line_stop": 29,
                     "col_start": 7,
                     "col_stop": 10,
                     "path": "",
@@ -874,23 +1266,21 @@
                   }
                 }
               ],
-              "type_": {
-                "Circuit": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
-              },
+              "type_": null,
               "value": {
                 "CircuitInit": {
-                  "name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8, y: (1u8, 1u8) };\\\"}\"}",
+                  "name": "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8, y: (1u8, 1u8) };\\\"}\"}",
                   "members": [
                     {
-                      "identifier": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8, y: (1u8, 1u8) };\\\"}\"}",
+                      "identifier": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8, y: (1u8, 1u8) };\\\"}\"}",
                       "expression": {
                         "Value": {
                           "Integer": [
                             "U8",
                             "6",
                             {
-                              "line_start": 23,
-                              "line_stop": 23,
+                              "line_start": 29,
+                              "line_stop": 29,
                               "col_start": 22,
                               "col_stop": 25,
                               "path": "",
@@ -901,7 +1291,7 @@
                       }
                     },
                     {
-                      "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":27,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8, y: (1u8, 1u8) };\\\"}\"}",
+                      "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":27,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let foo = Foo { f: 6u8, y: (1u8, 1u8) };\\\"}\"}",
                       "expression": {
                         "TupleInit": {
                           "elements": [
@@ -911,8 +1301,8 @@
                                   "U8",
                                   "1",
                                   {
-                                    "line_start": 23,
-                                    "line_stop": 23,
+                                    "line_start": 29,
+                                    "line_stop": 29,
                                     "col_start": 31,
                                     "col_stop": 34,
                                     "path": "",
@@ -927,8 +1317,8 @@
                                   "U8",
                                   "1",
                                   {
-                                    "line_start": 23,
-                                    "line_stop": 23,
+                                    "line_start": 29,
+                                    "line_stop": 29,
                                     "col_start": 36,
                                     "col_stop": 39,
                                     "path": "",
@@ -939,8 +1329,8 @@
                             }
                           ],
                           "span": {
-                            "line_start": 23,
-                            "line_stop": 23,
+                            "line_start": 29,
+                            "line_stop": 29,
                             "col_start": 30,
                             "col_stop": 40,
                             "path": "",
@@ -951,8 +1341,8 @@
                     }
                   ],
                   "span": {
-                    "line_start": 23,
-                    "line_stop": 23,
+                    "line_start": 29,
+                    "line_stop": 29,
                     "col_start": 13,
                     "col_stop": 42,
                     "path": "",
@@ -961,8 +1351,8 @@
                 }
               },
               "span": {
-                "line_start": 23,
-                "line_stop": 23,
+                "line_start": 29,
+                "line_stop": 29,
                 "col_start": 3,
                 "col_stop": 42,
                 "path": "",
@@ -974,15 +1364,15 @@
             "Assign": {
               "operation": "Assign",
               "assignee": {
-                "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":3,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}",
+                "identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":3,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}",
                 "accesses": [
                   {
-                    "Member": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}"
+                    "Member": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}"
                   }
                 ],
                 "span": {
-                  "line_start": 24,
-                  "line_stop": 24,
+                  "line_start": 30,
+                  "line_stop": 30,
                   "col_start": 3,
                   "col_stop": 8,
                   "path": "",
@@ -994,12 +1384,12 @@
                   "left": {
                     "CircuitMemberAccess": {
                       "circuit": {
-                        "Identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":3,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}"
+                        "Identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":3,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}"
                       },
-                      "name": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}",
+                      "name": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  foo.f += 2u8;\\\"}\"}",
                       "span": {
-                        "line_start": 24,
-                        "line_stop": 24,
+                        "line_start": 30,
+                        "line_stop": 30,
                         "col_start": 3,
                         "col_stop": 15,
                         "path": "",
@@ -1013,8 +1403,8 @@
                         "U8",
                         "2",
                         {
-                          "line_start": 24,
-                          "line_stop": 24,
+                          "line_start": 30,
+                          "line_stop": 30,
                           "col_start": 12,
                           "col_stop": 15,
                           "path": "",
@@ -1025,8 +1415,8 @@
                   },
                   "op": "Add",
                   "span": {
-                    "line_start": 24,
-                    "line_stop": 24,
+                    "line_start": 30,
+                    "line_stop": 30,
                     "col_start": 3,
                     "col_stop": 15,
                     "path": "",
@@ -1035,8 +1425,8 @@
                 }
               },
               "span": {
-                "line_start": 24,
-                "line_stop": 24,
+                "line_start": 30,
+                "line_stop": 30,
                 "col_start": 3,
                 "col_stop": 15,
                 "path": "",
@@ -1052,12 +1442,12 @@
                     "left": {
                       "CircuitMemberAccess": {
                         "circuit": {
-                          "Identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(foo.f == 8u8);\\\"}\"}"
+                          "Identifier": "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(foo.f == 8u8);\\\"}\"}"
                         },
-                        "name": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":22,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(foo.f == 8u8);\\\"}\"}",
+                        "name": "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":22,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(foo.f == 8u8);\\\"}\"}",
                         "span": {
-                          "line_start": 25,
-                          "line_stop": 25,
+                          "line_start": 31,
+                          "line_stop": 31,
                           "col_start": 18,
                           "col_stop": 23,
                           "path": "",
@@ -1071,8 +1461,8 @@
                           "U8",
                           "8",
                           {
-                            "line_start": 25,
-                            "line_stop": 25,
+                            "line_start": 31,
+                            "line_stop": 31,
                             "col_start": 27,
                             "col_stop": 30,
                             "path": "",
@@ -1083,8 +1473,8 @@
                     },
                     "op": "Eq",
                     "span": {
-                      "line_start": 25,
-                      "line_stop": 25,
+                      "line_start": 31,
+                      "line_stop": 31,
                       "col_start": 18,
                       "col_stop": 30,
                       "path": "",
@@ -1094,8 +1484,8 @@
                 }
               },
               "span": {
-                "line_start": 25,
-                "line_stop": 25,
+                "line_start": 31,
+                "line_stop": 31,
                 "col_start": 3,
                 "col_stop": 30,
                 "path": "",
@@ -1109,10 +1499,10 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"complex\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":7,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let complex = 2u8;\\\"}\"}",
+                  "identifier": "{\"name\":\"complex\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":7,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let complex = 2u8;\\\"}\"}",
                   "span": {
-                    "line_start": 27,
-                    "line_stop": 27,
+                    "line_start": 33,
+                    "line_stop": 33,
                     "col_start": 7,
                     "col_stop": 14,
                     "path": "",
@@ -1120,17 +1510,15 @@
                   }
                 }
               ],
-              "type_": {
-                "IntegerType": "U8"
-              },
+              "type_": null,
               "value": {
                 "Value": {
                   "Integer": [
                     "U8",
                     "2",
                     {
-                      "line_start": 27,
-                      "line_stop": 27,
+                      "line_start": 33,
+                      "line_stop": 33,
                       "col_start": 17,
                       "col_stop": 20,
                       "path": "",
@@ -1140,8 +1528,8 @@
                 }
               },
               "span": {
-                "line_start": 27,
-                "line_stop": 27,
+                "line_start": 33,
+                "line_stop": 33,
                 "col_start": 3,
                 "col_stop": 20,
                 "path": "",
@@ -1153,11 +1541,11 @@
             "Assign": {
               "operation": "Assign",
               "assignee": {
-                "identifier": "{\"name\":\"complex\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":3,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  complex += 22u8 - 2u8+ 1u8;\\\"}\"}",
+                "identifier": "{\"name\":\"complex\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":3,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  complex += 22u8 - 2u8+ 1u8;\\\"}\"}",
                 "accesses": [],
                 "span": {
-                  "line_start": 28,
-                  "line_stop": 28,
+                  "line_start": 34,
+                  "line_stop": 34,
                   "col_start": 3,
                   "col_stop": 10,
                   "path": "",
@@ -1167,7 +1555,7 @@
               "value": {
                 "Binary": {
                   "left": {
-                    "Identifier": "{\"name\":\"complex\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":3,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  complex += 22u8 - 2u8+ 1u8;\\\"}\"}"
+                    "Identifier": "{\"name\":\"complex\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":3,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  complex += 22u8 - 2u8+ 1u8;\\\"}\"}"
                   },
                   "right": {
                     "Binary": {
@@ -1179,8 +1567,8 @@
                                 "U8",
                                 "22",
                                 {
-                                  "line_start": 28,
-                                  "line_stop": 28,
+                                  "line_start": 34,
+                                  "line_stop": 34,
                                   "col_start": 14,
                                   "col_stop": 18,
                                   "path": "",
@@ -1195,8 +1583,8 @@
                                 "U8",
                                 "2",
                                 {
-                                  "line_start": 28,
-                                  "line_stop": 28,
+                                  "line_start": 34,
+                                  "line_stop": 34,
                                   "col_start": 21,
                                   "col_stop": 24,
                                   "path": "",
@@ -1207,8 +1595,8 @@
                           },
                           "op": "Sub",
                           "span": {
-                            "line_start": 28,
-                            "line_stop": 28,
+                            "line_start": 34,
+                            "line_stop": 34,
                             "col_start": 14,
                             "col_stop": 24,
                             "path": "",
@@ -1222,8 +1610,8 @@
                             "U8",
                             "1",
                             {
-                              "line_start": 28,
-                              "line_stop": 28,
+                              "line_start": 34,
+                              "line_stop": 34,
                               "col_start": 26,
                               "col_stop": 29,
                               "path": "",
@@ -1234,8 +1622,8 @@
                       },
                       "op": "Add",
                       "span": {
-                        "line_start": 28,
-                        "line_stop": 28,
+                        "line_start": 34,
+                        "line_stop": 34,
                         "col_start": 14,
                         "col_stop": 29,
                         "path": "",
@@ -1245,8 +1633,8 @@
                   },
                   "op": "Add",
                   "span": {
-                    "line_start": 28,
-                    "line_stop": 28,
+                    "line_start": 34,
+                    "line_stop": 34,
                     "col_start": 3,
                     "col_stop": 29,
                     "path": "",
@@ -1255,8 +1643,8 @@
                 }
               },
               "span": {
-                "line_start": 28,
-                "line_stop": 28,
+                "line_start": 34,
+                "line_stop": 34,
                 "col_start": 3,
                 "col_stop": 29,
                 "path": "",
@@ -1270,7 +1658,7 @@
                 "Assert": {
                   "Binary": {
                     "left": {
-                      "Identifier": "{\"name\":\"complex\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":18,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(complex == 23u8);\\\"}\"}"
+                      "Identifier": "{\"name\":\"complex\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":18,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(complex == 23u8);\\\"}\"}"
                     },
                     "right": {
                       "Value": {
@@ -1278,8 +1666,8 @@
                           "U8",
                           "23",
                           {
-                            "line_start": 29,
-                            "line_stop": 29,
+                            "line_start": 35,
+                            "line_stop": 35,
                             "col_start": 29,
                             "col_stop": 33,
                             "path": "",
@@ -1290,8 +1678,8 @@
                     },
                     "op": "Eq",
                     "span": {
-                      "line_start": 29,
-                      "line_stop": 29,
+                      "line_start": 35,
+                      "line_stop": 35,
                       "col_start": 18,
                       "col_stop": 33,
                       "path": "",
@@ -1301,8 +1689,8 @@
                 }
               },
               "span": {
-                "line_start": 29,
-                "line_stop": 29,
+                "line_start": 35,
+                "line_stop": 35,
                 "col_start": 3,
                 "col_stop": 33,
                 "path": "",
@@ -1316,10 +1704,10 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let a = [[0u8; 1]; 4];\\\"}\"}",
+                  "identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let a = [[0u8; 1]; 4];\\\"}\"}",
                   "span": {
-                    "line_start": 30,
-                    "line_stop": 30,
+                    "line_start": 36,
+                    "line_stop": 36,
                     "col_start": 7,
                     "col_stop": 8,
                     "path": "",
@@ -1327,27 +1715,7 @@
                   }
                 }
               ],
-              "type_": {
-                "Array": [
-                  {
-                    "Array": [
-                      {
-                        "IntegerType": "U8"
-                      },
-                      [
-                        {
-                          "value": "1"
-                        }
-                      ]
-                    ]
-                  },
-                  [
-                    {
-                      "value": "4"
-                    }
-                  ]
-                ]
-              },
+              "type_": null,
               "value": {
                 "ArrayInit": {
                   "element": {
@@ -1358,8 +1726,8 @@
                             "U8",
                             "0",
                             {
-                              "line_start": 30,
-                              "line_stop": 30,
+                              "line_start": 36,
+                              "line_stop": 36,
                               "col_start": 13,
                               "col_stop": 16,
                               "path": "",
@@ -1374,8 +1742,8 @@
                         }
                       ],
                       "span": {
-                        "line_start": 30,
-                        "line_stop": 30,
+                        "line_start": 36,
+                        "line_stop": 36,
                         "col_start": 12,
                         "col_stop": 20,
                         "path": "",
@@ -1389,8 +1757,8 @@
                     }
                   ],
                   "span": {
-                    "line_start": 30,
-                    "line_stop": 30,
+                    "line_start": 36,
+                    "line_stop": 36,
                     "col_start": 11,
                     "col_stop": 24,
                     "path": "",
@@ -1399,8 +1767,8 @@
                 }
               },
               "span": {
-                "line_start": 30,
-                "line_stop": 30,
+                "line_start": 36,
+                "line_stop": 36,
                 "col_start": 3,
                 "col_stop": 24,
                 "path": "",
@@ -1412,17 +1780,16 @@
             "Assign": {
               "operation": "Assign",
               "assignee": {
-                "identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  a[2][0] += 1u8;\\\"}\"}",
+                "identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  a[2][0] += 1u8;\\\"}\"}",
                 "accesses": [
                   {
                     "ArrayIndex": {
                       "Value": {
-                        "Integer": [
-                          "U32",
+                        "Implicit": [
                           "2",
                           {
-                            "line_start": 31,
-                            "line_stop": 31,
+                            "line_start": 37,
+                            "line_stop": 37,
                             "col_start": 5,
                             "col_stop": 6,
                             "path": "",
@@ -1435,12 +1802,11 @@
                   {
                     "ArrayIndex": {
                       "Value": {
-                        "Integer": [
-                          "U32",
+                        "Implicit": [
                           "0",
                           {
-                            "line_start": 31,
-                            "line_stop": 31,
+                            "line_start": 37,
+                            "line_stop": 37,
                             "col_start": 8,
                             "col_stop": 9,
                             "path": "",
@@ -1452,8 +1818,8 @@
                   }
                 ],
                 "span": {
-                  "line_start": 31,
-                  "line_stop": 31,
+                  "line_start": 37,
+                  "line_stop": 37,
                   "col_start": 3,
                   "col_stop": 10,
                   "path": "",
@@ -1467,16 +1833,15 @@
                       "array": {
                         "ArrayAccess": {
                           "array": {
-                            "Identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  a[2][0] += 1u8;\\\"}\"}"
+                            "Identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  a[2][0] += 1u8;\\\"}\"}"
                           },
                           "index": {
                             "Value": {
-                              "Integer": [
-                                "U32",
+                              "Implicit": [
                                 "2",
                                 {
-                                  "line_start": 31,
-                                  "line_stop": 31,
+                                  "line_start": 37,
+                                  "line_stop": 37,
                                   "col_start": 5,
                                   "col_stop": 6,
                                   "path": "",
@@ -1486,8 +1851,8 @@
                             }
                           },
                           "span": {
-                            "line_start": 31,
-                            "line_stop": 31,
+                            "line_start": 37,
+                            "line_stop": 37,
                             "col_start": 3,
                             "col_stop": 17,
                             "path": "",
@@ -1497,12 +1862,11 @@
                       },
                       "index": {
                         "Value": {
-                          "Integer": [
-                            "U32",
+                          "Implicit": [
                             "0",
                             {
-                              "line_start": 31,
-                              "line_stop": 31,
+                              "line_start": 37,
+                              "line_stop": 37,
                               "col_start": 8,
                               "col_stop": 9,
                               "path": "",
@@ -1512,8 +1876,8 @@
                         }
                       },
                       "span": {
-                        "line_start": 31,
-                        "line_stop": 31,
+                        "line_start": 37,
+                        "line_stop": 37,
                         "col_start": 3,
                         "col_stop": 17,
                         "path": "",
@@ -1527,8 +1891,8 @@
                         "U8",
                         "1",
                         {
-                          "line_start": 31,
-                          "line_stop": 31,
+                          "line_start": 37,
+                          "line_stop": 37,
                           "col_start": 14,
                           "col_stop": 17,
                           "path": "",
@@ -1539,8 +1903,8 @@
                   },
                   "op": "Add",
                   "span": {
-                    "line_start": 31,
-                    "line_stop": 31,
+                    "line_start": 37,
+                    "line_stop": 37,
                     "col_start": 3,
                     "col_stop": 17,
                     "path": "",
@@ -1549,8 +1913,8 @@
                 }
               },
               "span": {
-                "line_start": 31,
-                "line_stop": 31,
+                "line_start": 37,
+                "line_stop": 37,
                 "col_start": 3,
                 "col_stop": 17,
                 "path": "",
@@ -1568,16 +1932,15 @@
                         "array": {
                           "ArrayAccess": {
                             "array": {
-                              "Identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":32,\\\"line_stop\\\":32,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(a[2][0] == 1u8);\\\"}\"}"
+                              "Identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(a[2][0] == 1u8);\\\"}\"}"
                             },
                             "index": {
                               "Value": {
-                                "Integer": [
-                                  "U32",
+                                "Implicit": [
                                   "2",
                                   {
-                                    "line_start": 32,
-                                    "line_stop": 32,
+                                    "line_start": 38,
+                                    "line_stop": 38,
                                     "col_start": 20,
                                     "col_stop": 21,
                                     "path": "",
@@ -1587,8 +1950,8 @@
                               }
                             },
                             "span": {
-                              "line_start": 32,
-                              "line_stop": 32,
+                              "line_start": 38,
+                              "line_stop": 38,
                               "col_start": 18,
                               "col_stop": 22,
                               "path": "",
@@ -1598,12 +1961,11 @@
                         },
                         "index": {
                           "Value": {
-                            "Integer": [
-                              "U32",
+                            "Implicit": [
                               "0",
                               {
-                                "line_start": 32,
-                                "line_stop": 32,
+                                "line_start": 38,
+                                "line_stop": 38,
                                 "col_start": 23,
                                 "col_stop": 24,
                                 "path": "",
@@ -1613,8 +1975,8 @@
                           }
                         },
                         "span": {
-                          "line_start": 32,
-                          "line_stop": 32,
+                          "line_start": 38,
+                          "line_stop": 38,
                           "col_start": 18,
                           "col_stop": 25,
                           "path": "",
@@ -1628,8 +1990,8 @@
                           "U8",
                           "1",
                           {
-                            "line_start": 32,
-                            "line_stop": 32,
+                            "line_start": 38,
+                            "line_stop": 38,
                             "col_start": 29,
                             "col_stop": 32,
                             "path": "",
@@ -1640,8 +2002,8 @@
                     },
                     "op": "Eq",
                     "span": {
-                      "line_start": 32,
-                      "line_stop": 32,
+                      "line_start": 38,
+                      "line_stop": 38,
                       "col_start": 18,
                       "col_stop": 32,
                       "path": "",
@@ -1651,8 +2013,8 @@
                 }
               },
               "span": {
-                "line_start": 32,
-                "line_stop": 32,
+                "line_start": 38,
+                "line_stop": 38,
                 "col_start": 3,
                 "col_stop": 32,
                 "path": "",
@@ -1666,10 +2028,10 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let b = [0u8; (4, 1)];\\\"}\"}",
+                  "identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":40,\\\"line_stop\\\":40,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let b = [0u8; (4, 1)];\\\"}\"}",
                   "span": {
-                    "line_start": 34,
-                    "line_stop": 34,
+                    "line_start": 40,
+                    "line_stop": 40,
                     "col_start": 7,
                     "col_stop": 8,
                     "path": "",
@@ -1677,27 +2039,7 @@
                   }
                 }
               ],
-              "type_": {
-                "Array": [
-                  {
-                    "Array": [
-                      {
-                        "IntegerType": "U8"
-                      },
-                      [
-                        {
-                          "value": "1"
-                        }
-                      ]
-                    ]
-                  },
-                  [
-                    {
-                      "value": "4"
-                    }
-                  ]
-                ]
-              },
+              "type_": null,
               "value": {
                 "ArrayInit": {
                   "element": {
@@ -1708,8 +2050,8 @@
                             "U8",
                             "0",
                             {
-                              "line_start": 34,
-                              "line_stop": 34,
+                              "line_start": 40,
+                              "line_stop": 40,
                               "col_start": 12,
                               "col_stop": 15,
                               "path": "",
@@ -1724,8 +2066,8 @@
                         }
                       ],
                       "span": {
-                        "line_start": 34,
-                        "line_stop": 34,
+                        "line_start": 40,
+                        "line_stop": 40,
                         "col_start": 11,
                         "col_stop": 24,
                         "path": "",
@@ -1739,8 +2081,8 @@
                     }
                   ],
                   "span": {
-                    "line_start": 34,
-                    "line_stop": 34,
+                    "line_start": 40,
+                    "line_stop": 40,
                     "col_start": 11,
                     "col_stop": 24,
                     "path": "",
@@ -1749,8 +2091,8 @@
                 }
               },
               "span": {
-                "line_start": 34,
-                "line_stop": 34,
+                "line_start": 40,
+                "line_stop": 40,
                 "col_start": 3,
                 "col_stop": 24,
                 "path": "",
@@ -1762,17 +2104,16 @@
             "Assign": {
               "operation": "Assign",
               "assignee": {
-                "identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  b[2][0] += 1u8;\\\"}\"}",
+                "identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  b[2][0] += 1u8;\\\"}\"}",
                 "accesses": [
                   {
                     "ArrayIndex": {
                       "Value": {
-                        "Integer": [
-                          "U32",
+                        "Implicit": [
                           "2",
                           {
-                            "line_start": 35,
-                            "line_stop": 35,
+                            "line_start": 41,
+                            "line_stop": 41,
                             "col_start": 5,
                             "col_stop": 6,
                             "path": "",
@@ -1785,12 +2126,11 @@
                   {
                     "ArrayIndex": {
                       "Value": {
-                        "Integer": [
-                          "U32",
+                        "Implicit": [
                           "0",
                           {
-                            "line_start": 35,
-                            "line_stop": 35,
+                            "line_start": 41,
+                            "line_stop": 41,
                             "col_start": 8,
                             "col_stop": 9,
                             "path": "",
@@ -1802,8 +2142,8 @@
                   }
                 ],
                 "span": {
-                  "line_start": 35,
-                  "line_stop": 35,
+                  "line_start": 41,
+                  "line_stop": 41,
                   "col_start": 3,
                   "col_stop": 10,
                   "path": "",
@@ -1817,16 +2157,15 @@
                       "array": {
                         "ArrayAccess": {
                           "array": {
-                            "Identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  b[2][0] += 1u8;\\\"}\"}"
+                            "Identifier": "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  b[2][0] += 1u8;\\\"}\"}"
                           },
                           "index": {
                             "Value": {
-                              "Integer": [
-                                "U32",
+                              "Implicit": [
                                 "2",
                                 {
-                                  "line_start": 35,
-                                  "line_stop": 35,
+                                  "line_start": 41,
+                                  "line_stop": 41,
                                   "col_start": 5,
                                   "col_stop": 6,
                                   "path": "",
@@ -1836,8 +2175,8 @@
                             }
                           },
                           "span": {
-                            "line_start": 35,
-                            "line_stop": 35,
+                            "line_start": 41,
+                            "line_stop": 41,
                             "col_start": 3,
                             "col_stop": 17,
                             "path": "",
@@ -1847,12 +2186,11 @@
                       },
                       "index": {
                         "Value": {
-                          "Integer": [
-                            "U32",
+                          "Implicit": [
                             "0",
                             {
-                              "line_start": 35,
-                              "line_stop": 35,
+                              "line_start": 41,
+                              "line_stop": 41,
                               "col_start": 8,
                               "col_stop": 9,
                               "path": "",
@@ -1862,8 +2200,8 @@
                         }
                       },
                       "span": {
-                        "line_start": 35,
-                        "line_stop": 35,
+                        "line_start": 41,
+                        "line_stop": 41,
                         "col_start": 3,
                         "col_stop": 17,
                         "path": "",
@@ -1877,8 +2215,8 @@
                         "U8",
                         "1",
                         {
-                          "line_start": 35,
-                          "line_stop": 35,
+                          "line_start": 41,
+                          "line_stop": 41,
                           "col_start": 14,
                           "col_stop": 17,
                           "path": "",
@@ -1889,8 +2227,8 @@
                   },
                   "op": "Add",
                   "span": {
-                    "line_start": 35,
-                    "line_stop": 35,
+                    "line_start": 41,
+                    "line_stop": 41,
                     "col_start": 3,
                     "col_stop": 17,
                     "path": "",
@@ -1899,8 +2237,8 @@
                 }
               },
               "span": {
-                "line_start": 35,
-                "line_stop": 35,
+                "line_start": 41,
+                "line_stop": 41,
                 "col_start": 3,
                 "col_stop": 17,
                 "path": "",
@@ -1918,16 +2256,15 @@
                         "array": {
                           "ArrayAccess": {
                             "array": {
-                              "Identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(a[2][0] == 1u8);\\\"}\"}"
+                              "Identifier": "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  console.assert(a[2][0] == 1u8);\\\"}\"}"
                             },
                             "index": {
                               "Value": {
-                                "Integer": [
-                                  "U32",
+                                "Implicit": [
                                   "2",
                                   {
-                                    "line_start": 36,
-                                    "line_stop": 36,
+                                    "line_start": 42,
+                                    "line_stop": 42,
                                     "col_start": 20,
                                     "col_stop": 21,
                                     "path": "",
@@ -1937,8 +2274,8 @@
                               }
                             },
                             "span": {
-                              "line_start": 36,
-                              "line_stop": 36,
+                              "line_start": 42,
+                              "line_stop": 42,
                               "col_start": 18,
                               "col_stop": 22,
                               "path": "",
@@ -1948,12 +2285,11 @@
                         },
                         "index": {
                           "Value": {
-                            "Integer": [
-                              "U32",
+                            "Implicit": [
                               "0",
                               {
-                                "line_start": 36,
-                                "line_stop": 36,
+                                "line_start": 42,
+                                "line_stop": 42,
                                 "col_start": 23,
                                 "col_stop": 24,
                                 "path": "",
@@ -1963,8 +2299,8 @@
                           }
                         },
                         "span": {
-                          "line_start": 36,
-                          "line_stop": 36,
+                          "line_start": 42,
+                          "line_stop": 42,
                           "col_start": 18,
                           "col_stop": 25,
                           "path": "",
@@ -1978,8 +2314,8 @@
                           "U8",
                           "1",
                           {
-                            "line_start": 36,
-                            "line_stop": 36,
+                            "line_start": 42,
+                            "line_stop": 42,
                             "col_start": 29,
                             "col_stop": 32,
                             "path": "",
@@ -1990,8 +2326,8 @@
                     },
                     "op": "Eq",
                     "span": {
-                      "line_start": 36,
-                      "line_stop": 36,
+                      "line_start": 42,
+                      "line_stop": 42,
                       "col_start": 18,
                       "col_stop": 32,
                       "path": "",
@@ -2001,8 +2337,8 @@
                 }
               },
               "span": {
-                "line_start": 36,
-                "line_stop": 36,
+                "line_start": 42,
+                "line_stop": 42,
                 "col_start": 3,
                 "col_stop": 32,
                 "path": "",
@@ -2013,7 +2349,7 @@
         ],
         "span": {
           "line_start": 10,
-          "line_stop": 37,
+          "line_stop": 43,
           "col_start": 17,
           "col_stop": 2,
           "path": "",
@@ -2022,11 +2358,11 @@
       },
       "span": {
         "line_start": 10,
-        "line_stop": 37,
+        "line_stop": 43,
         "col_start": 1,
         "col_stop": 2,
         "path": "",
-        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+        "content": "function main() {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
       }
     }
   }

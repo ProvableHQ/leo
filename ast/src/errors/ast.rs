@@ -14,19 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod ast;
-pub use ast::*;
+use crate::{FormattedError, LeoError, ReducerError, Span};
 
-pub mod canonicalization;
-pub use canonicalization::*;
+#[derive(Debug, Error)]
+pub enum AstError {
+    #[error("{}", _0)]
+    Error(#[from] FormattedError),
 
-pub mod combiner;
-pub use combiner::*;
+    #[error("{}", _0)]
+    IOError(#[from] std::io::Error),
 
-pub mod error;
-pub use error::*;
+    #[error("{}", _0)]
+    ReducerError(#[from] ReducerError),
 
-pub mod reducer;
-pub use reducer::*;
+    #[error("{}", _0)]
+    SerdeJsonError(#[from] ::serde_json::Error),
+}
 
-pub trait LeoError {}
+impl LeoError for AstError {}
+
+impl AstError {
+    fn _new_from_span(message: String, span: &Span) -> Self {
+        AstError::Error(FormattedError::new_from_span(message, span))
+    }
+}
