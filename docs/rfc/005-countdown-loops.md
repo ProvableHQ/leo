@@ -23,16 +23,25 @@ This proposal suggests adding countdown loops and inclusive loop ranges into Leo
 
 In the current design of the language only incremental ranges are allowed. Though
 in some cases there's a need for loops going in the reverse direction. This example
-demonstrates the bubble sort algorithm where countdown loops are mocked:
+demonstrates the shaker sort algorithm where countdown loops are mocked:
 
 ```ts
-function bubble_sort(a: [u32; 10]) -> [u32; 10] {
-    for i in 0..9 { // i counts up
-        for j in 0..9-i { // i is flipped
-            if (a[j] > a[j+1]) {
-                let tmp = a[j];
-                a[j] = a[j+1];
-                a[j+1] = tmp;
+function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
+    for k in 0..rounds {
+        for i in 0..9 {
+            if a[i] > a[i + 1] {
+                let tmp = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = tmp;
+            }
+
+        }
+        for j in 0..9 { // j goes from 0 to 8
+            let i = 8 - j; // j is flipped
+            if a[i] > a[i + 1] {
+                let tmp = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = tmp;
             }
         }
     }
@@ -83,6 +92,34 @@ for i in 0..5 {}
 
 // inclusive range: 0,1,2,3,4,5
 for i in 0..=5 {}
+```
+
+## Example
+
+The code example demostrated in the Motivation part of this document 
+could be extended (or simplified) with suggested syntax:
+
+```ts
+function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
+    for k in 0..rounds {
+        for i in 0..9 { // i goes from 0 to 8
+            if a[i] > a[i + 1] {
+                let tmp = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = tmp;
+            }
+
+        }
+        for i in 8..=0 { // j goes from 8 to 0
+            if a[i] > a[i + 1] {
+                let tmp = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = tmp;
+            }
+        }
+    }
+    return a;
+}
 ```
 
 # Drawbacks
