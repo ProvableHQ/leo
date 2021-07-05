@@ -97,7 +97,7 @@ for i in 0..=5 {}
 ## Example
 
 The code example demostrated in the Motivation part of this document 
-could be extended (or simplified) with suggested syntax:
+could be extended (or simplified) with the suggested syntax:
 
 ```ts
 function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
