@@ -113,6 +113,7 @@ impl Command for Test {
                 thread_leaked_context(),
                 Some(self.compiler_options.clone().into()),
                 Some(self.compiler_options.clone().into()),
+                std::collections::HashMap::new(),
             )?;
 
             let temporary_program = program;

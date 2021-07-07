@@ -34,6 +34,8 @@ use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
 
+use std::collections::HashMap;
+
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug)]
@@ -126,7 +128,11 @@ impl Command for Build {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
-        let package_name = context.manifest()?.get_package_name();
+        let manifest = context
+            .manifest()
+            .map_err(|_| anyhow!("Package manifest not found, try running `leo init`"))?;
+        let package_name = manifest.get_package_name();
+        let imports_map = manifest.get_imports_map().unwrap_or(HashMap::new());
 
         // Sanitize the package path to the root directory.
         let mut package_path = path.clone();
@@ -174,6 +180,7 @@ impl Command for Build {
             thread_leaked_context(),
             Some(self.compiler_options.clone().into()),
             Some(self.compiler_options.into()),
+            imports_map,
         )?;
 
         // Compute the current program checksum

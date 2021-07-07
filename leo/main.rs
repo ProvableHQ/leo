@@ -22,13 +22,12 @@ pub mod logger;
 pub mod updater;
 
 use commands::{
-    package::{Add, Clone, Login, Logout, Publish, Remove},
+    package::{Add, Clone, Install, Login, Logout, Publish, Remove},
     Build,
     Clean,
     Command,
     Deploy,
     Init,
-    Install,
     Lint,
     New,
     Prove,

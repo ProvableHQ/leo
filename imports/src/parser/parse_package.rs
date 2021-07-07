@@ -103,21 +103,30 @@ impl<'a> ImportParser<'a> {
                 .collect::<Result<Vec<_>, std::io::Error>>()
                 .map_err(|error| ImportParserError::directory_error(error, span, &error_path))?;
 
+            // Keeping backward compatibilty for existing packages.
+            // If index_map contains key, use it or try to access directly.
+            // TODO: Remove when migration is possible.
+            let package_name = self
+                .imports_map
+                .get(package_name)
+                .unwrap_or(&package_name.to_string())
+                .clone();
+
             // Check if the imported package name is in the imports directory.
             let matched_import_entry = entries
                 .into_iter()
-                .find(|entry| entry.file_name().into_string().unwrap().eq(package_name));
+                .find(|entry| entry.file_name().into_string().unwrap().eq(&package_name));
 
             // Check if the package name was found in both the source and imports directory.
             match (matched_source_entry, matched_import_entry) {
                 (Some(_), Some(_)) => Err(ImportParserError::conflicting_imports(Identifier::new_with_span(
-                    package_name,
+                    &package_name,
                     span.clone(),
                 ))),
                 (Some(source_entry), None) => self.parse_package_access(context, &source_entry, &segments[1..], span),
                 (None, Some(import_entry)) => self.parse_package_access(context, &import_entry, &segments[1..], span),
                 (None, None) => Err(ImportParserError::unknown_package(Identifier::new_with_span(
-                    package_name,
+                    &package_name,
                     span.clone(),
                 ))),
             }

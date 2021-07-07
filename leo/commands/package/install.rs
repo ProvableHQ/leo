@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
+use crate::{
+    commands::{package::Add, Command},
+    context::Context,
+};
 
 use anyhow::{anyhow, Result};
 use structopt::StructOpt;
@@ -43,19 +46,15 @@ impl Command for Install {
             .get_package_dependencies()
             .ok_or_else(|| anyhow!("Package has no dependencies"))?;
 
-        use crate::commands::package::Add;
-
         for (_name, dep) in deps.iter() {
             Add::new(
                 None,
                 Some(dep.author.clone()),
-                Some(dep.name.clone()),
+                Some(dep.package.clone()),
                 Some(dep.version.clone()),
             )
             .execute(context.clone())?;
         }
-
-        dbg!(deps);
 
         Ok(())
     }

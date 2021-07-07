@@ -28,6 +28,7 @@ use crate::{
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, FormattedError, Program as AsgProgram};
 use leo_ast::{Input, MainInput, Program as AstProgram};
+use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
@@ -39,6 +40,7 @@ use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
 use sha2::{Digest, Sha256};
 use std::{
+    collections::HashMap,
     fs,
     marker::PhantomData,
     path::{Path, PathBuf},
@@ -68,6 +70,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     asg: Option<AsgProgram<'a>>,
     options: CompilerOptions,
     proof_options: TheoremOptions,
+    imports_map: HashMap<String, String>,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
 }
@@ -83,6 +86,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
         proof_options: Option<TheoremOptions>,
+        imports_map: HashMap<String, String>,
     ) -> Self {
         Self {
             program_name: package_name.clone(),
@@ -94,6 +98,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             context,
             options: options.unwrap_or_default(),
             proof_options: proof_options.unwrap_or_default(),
+            imports_map,
             _engine: PhantomData,
             _group: PhantomData,
         }
@@ -113,6 +118,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
         proof_options: Option<TheoremOptions>,
+        imports_map: HashMap<String, String>,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(
             package_name,
@@ -121,6 +127,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             context,
             options,
             proof_options,
+            imports_map,
         );
 
         compiler.parse_program()?;
@@ -152,6 +159,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
         proof_options: Option<TheoremOptions>,
+        imports_map: HashMap<String, String>,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(
             package_name,
@@ -160,6 +168,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             context,
             options,
             proof_options,
+            imports_map,
         );
 
         compiler.parse_input(input_string, input_path, state_string, state_path)?;
@@ -263,7 +272,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         let asg = Asg::new(
             self.context,
             &self.program,
-            &mut leo_imports::ImportParser::new(self.main_file_path.clone()),
+            &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
         )?;
 
         if self.proof_options.type_inferenced {

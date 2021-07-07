@@ -101,9 +101,9 @@ impl Command for Add {
         // Attempt to fetch the package.
         let reader = {
             let fetch = Fetch {
-                author,
+                author: author.clone(),
                 package_name: package_name.clone(),
-                version: self.version,
+                version: self.version.clone(),
             };
             let bytes = context.api.run_route(fetch)?.bytes()?;
             std::io::Cursor::new(bytes)
@@ -114,7 +114,14 @@ impl Command for Add {
         {
             ImportsDirectory::create(&path)?;
             path.push(IMPORTS_DIRECTORY_NAME);
-            path.push(package_name);
+
+            // Dumb compatibility hack.
+            // TODO: Remove once `leo add` functionality is discussed.
+            if self.version.is_some() {
+                path.push(format!("{}-{}@{}", author, package_name, self.version.unwrap()));
+            } else {
+                path.push(package_name);
+            }
             create_dir_all(&path)?;
         };
 

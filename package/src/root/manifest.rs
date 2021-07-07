@@ -38,7 +38,7 @@ pub struct Remote {
 pub struct Dependency {
     pub author: String,
     pub version: String,
-    pub name: String,
+    pub package: String,
 }
 
 #[derive(Deserialize)]
@@ -85,6 +85,23 @@ impl Manifest {
         self.dependencies.clone()
     }
 
+    /// Get HashMap of kind:
+    ///     import name => import directory
+    /// Which then used in AST/ASG to resolve import paths.
+    pub fn get_imports_map(&self) -> Option<HashMap<String, String>> {
+        self.dependencies.clone().map(|dependencies| {
+            dependencies
+                .into_iter()
+                .map(|(name, dependency)| {
+                    (
+                        name,
+                        format!("{}-{}@{}", dependency.author, dependency.package, dependency.version),
+                    )
+                })
+                .collect()
+        })
+    }
+
     pub fn get_package_license(&self) -> Option<String> {
         self.project.license.clone()
     }
@@ -119,6 +136,10 @@ license = "MIT"
 
 [remote]
 author = "{author}" # Add your Aleo Package Manager username or team name.
+
+[dependencies]
+# Define dependencies here in format:
+# name = {{ package = "package-name", author = "author", version = "version" }}
 "#,
             name = self.project.name,
             author = author

@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use leo_asg::*;
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
@@ -40,7 +43,15 @@ fn new_compiler(path: PathBuf) -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let output_dir = PathBuf::from("/output/");
 
-    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None, None)
+    EdwardsTestCompiler::new(
+        program_name,
+        path,
+        output_dir,
+        make_test_context(),
+        None,
+        None,
+        HashMap::new(),
+    )
 }
 
 pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {

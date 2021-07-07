@@ -18,7 +18,7 @@ use crate::errors::ImportParserError;
 use leo_asg::{AsgContext, AsgConvertError, ImportResolver, Program, Span};
 
 use indexmap::{IndexMap, IndexSet};
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 /// Stores imported packages.
 ///
@@ -29,14 +29,16 @@ pub struct ImportParser<'a> {
     program_path: PathBuf,
     partial_imports: IndexSet<String>,
     imports: IndexMap<String, Program<'a>>,
+    pub imports_map: HashMap<String, String>,
 }
 
 impl<'a> ImportParser<'a> {
-    pub fn new(program_path: PathBuf) -> Self {
+    pub fn new(program_path: PathBuf, imports_map: HashMap<String, String>) -> Self {
         ImportParser {
             program_path,
             partial_imports: Default::default(),
             imports: Default::default(),
+            imports_map,
         }
     }
 }
@@ -55,9 +57,8 @@ impl<'a> ImportResolver<'a> for ImportParser<'a> {
         if let Some(program) = self.imports.get(&full_path) {
             return Ok(Some(program.clone()));
         }
-        let mut imports = Self::default();
         let path = self.program_path.clone();
-
+        let mut imports = self.clone(); // Self::default() was previously
         self.partial_imports.insert(full_path.clone());
         let program = imports
             .parse_package(context, path, package_segments, span)

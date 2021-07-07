@@ -33,7 +33,7 @@ use leo_compiler::{
 use snarkvm_curves::edwards_bls12::Fq;
 use snarkvm_r1cs::TestConstraintSystem;
 
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 pub const TEST_OUTPUT_DIRECTORY: &str = "/output/";
 const EMPTY_FILE: &str = "";
@@ -52,7 +52,15 @@ fn new_compiler() -> EdwardsTestCompiler {
     let path = PathBuf::from("/test/src/main.leo");
     let output_dir = PathBuf::from(TEST_OUTPUT_DIRECTORY);
 
-    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None, None)
+    EdwardsTestCompiler::new(
+        program_name,
+        path,
+        output_dir,
+        make_test_context(),
+        None,
+        None,
+        HashMap::new(),
+    )
 }
 
 pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
