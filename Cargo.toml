@@ -70,7 +70,7 @@ path = "./synthesizer"
 version = "1.5.2"
 
 [dependencies.snarkvm-algorithms]
-version = "0.6.0"
+version = "0.7.2"
 
 [dependencies.snarkvm-curves]
 version = "0.6.0"
