@@ -38,7 +38,7 @@ default-features = false
 features = [ "testnet1" ]
 
 [dependencies.snarkvm-utilities]
-version = "0.6.0"
+version = "0.7.2"
 
 [dependencies.indexmap]
 version = "1.7.0"

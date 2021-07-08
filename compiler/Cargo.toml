@@ -77,7 +77,7 @@ version = "0.6.0"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.6.0"
+version = "0.7.2"
 
 [dependencies.bincode]
 version = "1.3"
