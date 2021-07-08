@@ -23,7 +23,7 @@ pub struct ConstantFolding<'a, 'b> {
 }
 
 impl<'a, 'b> ExpressionVisitor<'a> for ConstantFolding<'a, 'b> {
-    fn visit_expression(&mut self, input: &Cell<&Expression<'a>>) -> VisitResult {
+    fn visit_expression(&mut self, input: &Cell<&'a Expression<'a>>) -> VisitResult {
         let expr = input.get();
         if let Some(const_value) = expr.const_value() {
             let folded_expr = Expression::Constant(Constant {
