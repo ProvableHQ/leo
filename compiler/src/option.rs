@@ -36,3 +36,20 @@ impl Default for CompilerOptions {
         }
     }
 }
+
+#[derive(Clone)]
+pub struct TheoremOptions {
+    pub initial: bool,
+    pub canonicalized: bool,
+    pub type_inferenced: bool,
+}
+
+impl Default for TheoremOptions {
+    fn default() -> Self {
+        Self {
+            initial: false,
+            canonicalized: false,
+            type_inferenced: false,
+        }
+    }
+}

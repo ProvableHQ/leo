@@ -19,6 +19,7 @@ use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
     CompilerOptions,
+    TheoremOptions,
 };
 use leo_package::{
     inputs::*,
@@ -43,6 +44,14 @@ pub struct BuildOptions {
     pub disable_code_elimination: bool,
     #[structopt(long, help = "Disable all compiler optimizations")]
     pub disable_all_optimizations: bool,
+    #[structopt(long, help = "Writes all theorem input AST files.")]
+    pub enable_all_theorems: bool,
+    #[structopt(long, help = "Writes AST files needed for the initial theorem before any changes.")]
+    pub enable_initial_theorem: bool,
+    #[structopt(long, help = "Writes AST files needed for canonicalization theorem.")]
+    pub enable_canonicalized_theorem: bool,
+    #[structopt(long, help = "Writes AST files needed for type inference theorem.")]
+    pub enable_type_inferenced_theorem: bool,
 }
 
 impl Default for BuildOptions {
@@ -51,6 +60,10 @@ impl Default for BuildOptions {
             disable_constant_folding: true,
             disable_code_elimination: true,
             disable_all_optimizations: true,
+            enable_all_theorems: false,
+            enable_initial_theorem: false,
+            enable_canonicalized_theorem: false,
+            enable_type_inferenced_theorem: false,
         }
     }
 }
@@ -68,6 +81,24 @@ impl From<BuildOptions> for CompilerOptions {
                 canonicalization_enabled: true,
                 constant_folding_enabled: !options.disable_constant_folding,
                 dead_code_elimination_enabled: !options.disable_code_elimination,
+            }
+        }
+    }
+}
+
+impl From<BuildOptions> for TheoremOptions {
+    fn from(options: BuildOptions) -> Self {
+        if options.enable_all_theorems {
+            TheoremOptions {
+                initial: true,
+                canonicalized: true,
+                type_inferenced: true,
+            }
+        } else {
+            TheoremOptions {
+                initial: options.enable_initial_theorem,
+                canonicalized: options.enable_canonicalized_theorem,
+                type_inferenced: options.enable_type_inferenced_theorem,
             }
         }
     }
@@ -141,6 +172,7 @@ impl Command for Build {
             &state_string,
             &state_path,
             thread_leaked_context(),
+            Some(self.compiler_options.clone().into()),
             Some(self.compiler_options.into()),
         )?;
 

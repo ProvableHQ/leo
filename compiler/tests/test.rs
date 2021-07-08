@@ -40,7 +40,7 @@ fn new_compiler(path: PathBuf) -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let output_dir = PathBuf::from("/output/");
 
-    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None)
+    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None, None)
 }
 
 pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
