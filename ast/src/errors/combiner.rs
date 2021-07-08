@@ -34,10 +34,4 @@ impl CombinerError {
 
         Self::new_from_span(message, span)
     }
-
-    pub fn illegal_compound_array_range(span: &Span) -> Self {
-        let message = "Illegal compound assignement with array range".to_string();
-
-        Self::new_from_span(message, span)
-    }
 }

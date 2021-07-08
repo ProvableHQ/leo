@@ -55,6 +55,14 @@ impl Canonicalizer {
                         span: span.clone(),
                     }));
                 }
+                AssigneeAccess::ArrayRange(start, stop) => {
+                    left = Box::new(Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                        array: left,
+                        left: start.map(Box::new),
+                        right: stop.map(Box::new),
+                        span: span.clone(),
+                    }));
+                }
                 AssigneeAccess::Tuple(positive_number, _) => {
                     left = Box::new(Expression::TupleAccess(TupleAccessExpression {
                         tuple: left,
@@ -69,7 +77,6 @@ impl Canonicalizer {
                         span: span.clone(),
                     }));
                 }
-                _ => return Err(ReducerError::from(CombinerError::illegal_compound_array_range(&span))),
             }
         }
 

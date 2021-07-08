@@ -112,6 +112,7 @@ impl Command for Test {
                 output_directory.clone(),
                 thread_leaked_context(),
                 Some(self.compiler_options.clone().into()),
+                Some(self.compiler_options.clone().into()),
             )?;
 
             let temporary_program = program;
