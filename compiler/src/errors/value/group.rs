@@ -21,6 +21,9 @@ use snarkvm_r1cs::SynthesisError;
 pub enum GroupError {
     #[error("{}", _0)]
     Error(#[from] FormattedError),
+
+    #[error("Failed to represent group as log string.")]
+    LogError,
 }
 
 impl LeoError for GroupError {}
@@ -28,6 +31,10 @@ impl LeoError for GroupError {}
 impl GroupError {
     fn new_from_span(message: String, span: &Span) -> Self {
         GroupError::Error(FormattedError::new_from_span(message, span))
+    }
+
+    pub fn failed_to_create_log_string() -> Self {
+        GroupError::LogError
     }
 
     pub fn negate_operation(error: SynthesisError, span: &Span) -> Self {

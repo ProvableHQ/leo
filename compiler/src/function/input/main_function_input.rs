@@ -18,7 +18,7 @@
 
 use crate::{
     address::Address,
-    errors::FunctionError,
+    errors::{FunctionError, IntegerError},
     program::ConstrainedProgram,
     value::{
         boolean::input::bool_from_input,
@@ -101,9 +101,19 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 Ok(ConstrainedValue::Field(FieldType::constant(cs, value, span)?))
             }
             (Type::Group, InputValue::Group(value)) => Ok(ConstrainedValue::Group(G::constant(&value.into(), span)?)),
-            (Type::Integer(integer_type), InputValue::Integer(_, value)) => Ok(ConstrainedValue::Integer(
-                Integer::new(&ConstInt::parse(integer_type, &value, span)?),
-            )),
+            (Type::Integer(integer_type), InputValue::Integer(input_type, value)) => {
+                let parsed = ConstInt::parse(integer_type, &value, span)?;
+                let parsed_type = parsed.get_int_type();
+                let input_type = input_type.into();
+                if std::mem::discriminant(&parsed_type) != std::mem::discriminant(&input_type) {
+                    return Err(FunctionError::from(IntegerError::integer_type_mismatch(
+                        input_type.to_string(),
+                        parsed_type.to_string(),
+                        span,
+                    )));
+                }
+                Ok(ConstrainedValue::Integer(Integer::new(&parsed)))
+            }
             (Type::Array(type_, arr_len), InputValue::Array(values)) => {
                 if *arr_len != values.len() {
                     return Err(FunctionError::invalid_input_array_dimensions(

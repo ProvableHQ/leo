@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{FormattedError, IntegerType, LeoError, Span};
+use leo_ast::{FormattedError, LeoError, Span};
 
 use snarkvm_gadgets::errors::{SignedIntegerError, UnsignedIntegerError};
 use snarkvm_r1cs::SynthesisError;
@@ -68,7 +68,7 @@ impl IntegerError {
         Self::new_from_span(message, span)
     }
 
-    pub fn integer_type_mismatch(expected: &IntegerType, received: IntegerType, span: &Span) -> Self {
+    pub fn integer_type_mismatch(expected: String, received: String, span: &Span) -> Self {
         let message = format!("expected data type `{}`, found `{}`", expected, received);
 
         Self::new_from_span(message, span)
