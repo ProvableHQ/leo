@@ -16,3 +16,738 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function do_nothing(arr: [u32; 2]) {}\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function do_nothing(arr: [u32; 2]) {}\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":21,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function do_nothing(arr: [u32; 2]) {}\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  Array:
+                    - IntegerType: U32
+                    - - value: "2"
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 21
+                  col_stop: 24
+                  path: compiler-test
+                  content: "function do_nothing(arr: [u32; 2]) {}"
+          output: ~
+          block:
+            statements: []
+            span:
+              line_start: 3
+              line_stop: 3
+              col_start: 36
+              col_stop: 38
+              path: compiler-test
+              content: "function do_nothing(arr: [u32; 2]) {}"
+          span:
+            line_start: 3
+            line_stop: 3
+            col_start: 1
+            col_stop: 38
+            path: compiler-test
+            content: "function do_nothing(arr: [u32; 2]) {}"
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":11,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const arr: [u32; 2] = [0; 2];\\\"}\"}"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 11
+                        col_stop: 14
+                        path: compiler-test
+                        content: "    const arr: [u32; 2] = [0; 2];"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "2"
+                  value:
+                    ArrayInit:
+                      element:
+                        Value:
+                          Implicit:
+                            - "0"
+                            - line_start: 6
+                              line_stop: 6
+                              col_start: 28
+                              col_stop: 29
+                              path: compiler-test
+                              content: "    const arr: [u32; 2] = [0; 2];"
+                      dimensions:
+                        - value: "2"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 27
+                        col_stop: 33
+                        path: compiler-test
+                        content: "    const arr: [u32; 2] = [0; 2];"
+                  span:
+                    line_start: 6
+                    line_stop: 6
+                    col_start: 5
+                    col_stop: 33
+                    path: compiler-test
+                    content: "    const arr: [u32; 2] = [0; 2];"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr);\\\"}\"}"
+                      arguments:
+                        - Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr);\\\"}\"}"
+                      span:
+                        line_start: 8
+                        line_stop: 8
+                        col_start: 5
+                        col_stop: 20
+                        path: compiler-test
+                        content: "    do_nothing(arr);"
+                  span:
+                    line_start: 8
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 20
+                    path: compiler-test
+                    content: "    do_nothing(arr);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing([...arr]);\\\"}\"}"
+                      arguments:
+                        - ArrayInline:
+                            elements:
+                              - Spread:
+                                  Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing([...arr]);\\\"}\"}"
+                            span:
+                              line_start: 9
+                              line_stop: 9
+                              col_start: 16
+                              col_stop: 24
+                              path: compiler-test
+                              content: "    do_nothing([...arr]);"
+                      span:
+                        line_start: 9
+                        line_stop: 9
+                        col_start: 5
+                        col_stop: 25
+                        path: compiler-test
+                        content: "    do_nothing([...arr]);"
+                  span:
+                    line_start: 9
+                    line_stop: 9
+                    col_start: 5
+                    col_stop: 25
+                    path: compiler-test
+                    content: "    do_nothing([...arr]);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr[0u32..]);\\\"}\"}"
+                      arguments:
+                        - ArrayRangeAccess:
+                            array:
+                              Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr[0u32..]);\\\"}\"}"
+                            left:
+                              Value:
+                                Integer:
+                                  - U32
+                                  - "0"
+                                  - line_start: 10
+                                    line_stop: 10
+                                    col_start: 20
+                                    col_stop: 24
+                                    path: compiler-test
+                                    content: "    do_nothing(arr[0u32..]);"
+                            right: ~
+                            span:
+                              line_start: 10
+                              line_stop: 10
+                              col_start: 16
+                              col_stop: 27
+                              path: compiler-test
+                              content: "    do_nothing(arr[0u32..]);"
+                      span:
+                        line_start: 10
+                        line_stop: 10
+                        col_start: 5
+                        col_stop: 28
+                        path: compiler-test
+                        content: "    do_nothing(arr[0u32..]);"
+                  span:
+                    line_start: 10
+                    line_stop: 10
+                    col_start: 5
+                    col_stop: 28
+                    path: compiler-test
+                    content: "    do_nothing(arr[0u32..]);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 12
+                              line_stop: 12
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 12
+                        line_stop: 12
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 12
+                    line_stop: 12
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 5
+              line_stop: 13
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 5
+            line_stop: 13
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n\n\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function do_nothing(arr: [u32; 2]) {}\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function do_nothing(arr: [u32; 2]) {}\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":21,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function do_nothing(arr: [u32; 2]) {}\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  Array:
+                    - IntegerType: U32
+                    - - value: "2"
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 21
+                  col_stop: 24
+                  path: compiler-test
+                  content: "function do_nothing(arr: [u32; 2]) {}"
+          output:
+            Tuple: []
+          block:
+            statements: []
+            span:
+              line_start: 3
+              line_stop: 3
+              col_start: 36
+              col_stop: 38
+              path: compiler-test
+              content: "function do_nothing(arr: [u32; 2]) {}"
+          span:
+            line_start: 3
+            line_stop: 3
+            col_start: 1
+            col_stop: 38
+            path: compiler-test
+            content: "function do_nothing(arr: [u32; 2]) {}"
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":11,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const arr: [u32; 2] = [0; 2];\\\"}\"}"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 11
+                        col_stop: 14
+                        path: compiler-test
+                        content: "    const arr: [u32; 2] = [0; 2];"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "2"
+                  value:
+                    ArrayInit:
+                      element:
+                        Value:
+                          Implicit:
+                            - "0"
+                            - line_start: 6
+                              line_stop: 6
+                              col_start: 28
+                              col_stop: 29
+                              path: compiler-test
+                              content: "    const arr: [u32; 2] = [0; 2];"
+                      dimensions:
+                        - value: "2"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 27
+                        col_stop: 33
+                        path: compiler-test
+                        content: "    const arr: [u32; 2] = [0; 2];"
+                  span:
+                    line_start: 6
+                    line_stop: 6
+                    col_start: 5
+                    col_stop: 33
+                    path: compiler-test
+                    content: "    const arr: [u32; 2] = [0; 2];"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr);\\\"}\"}"
+                      arguments:
+                        - Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr);\\\"}\"}"
+                      span:
+                        line_start: 8
+                        line_stop: 8
+                        col_start: 5
+                        col_stop: 20
+                        path: compiler-test
+                        content: "    do_nothing(arr);"
+                  span:
+                    line_start: 8
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 20
+                    path: compiler-test
+                    content: "    do_nothing(arr);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing([...arr]);\\\"}\"}"
+                      arguments:
+                        - ArrayInline:
+                            elements:
+                              - Spread:
+                                  Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing([...arr]);\\\"}\"}"
+                            span:
+                              line_start: 9
+                              line_stop: 9
+                              col_start: 16
+                              col_stop: 24
+                              path: compiler-test
+                              content: "    do_nothing([...arr]);"
+                      span:
+                        line_start: 9
+                        line_stop: 9
+                        col_start: 5
+                        col_stop: 25
+                        path: compiler-test
+                        content: "    do_nothing([...arr]);"
+                  span:
+                    line_start: 9
+                    line_stop: 9
+                    col_start: 5
+                    col_stop: 25
+                    path: compiler-test
+                    content: "    do_nothing([...arr]);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr[0u32..]);\\\"}\"}"
+                      arguments:
+                        - ArrayRangeAccess:
+                            array:
+                              Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr[0u32..]);\\\"}\"}"
+                            left:
+                              Value:
+                                Integer:
+                                  - U32
+                                  - "0"
+                                  - line_start: 10
+                                    line_stop: 10
+                                    col_start: 20
+                                    col_stop: 24
+                                    path: compiler-test
+                                    content: "    do_nothing(arr[0u32..]);"
+                            right: ~
+                            span:
+                              line_start: 10
+                              line_stop: 10
+                              col_start: 16
+                              col_stop: 27
+                              path: compiler-test
+                              content: "    do_nothing(arr[0u32..]);"
+                      span:
+                        line_start: 10
+                        line_stop: 10
+                        col_start: 5
+                        col_stop: 28
+                        path: compiler-test
+                        content: "    do_nothing(arr[0u32..]);"
+                  span:
+                    line_start: 10
+                    line_stop: 10
+                    col_start: 5
+                    col_stop: 28
+                    path: compiler-test
+                    content: "    do_nothing(arr[0u32..]);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 12
+                              line_stop: 12
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 12
+                        line_stop: 12
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 12
+                    line_stop: 12
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 5
+              line_stop: 13
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 5
+            line_stop: 13
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n\n\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function do_nothing(arr: [u32; 2]) {}\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function do_nothing(arr: [u32; 2]) {}\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":21,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function do_nothing(arr: [u32; 2]) {}\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  Array:
+                    - IntegerType: U32
+                    - - value: "2"
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 21
+                  col_stop: 24
+                  path: compiler-test
+                  content: "function do_nothing(arr: [u32; 2]) {}"
+          output:
+            Tuple: []
+          block:
+            statements: []
+            span:
+              line_start: 3
+              line_stop: 3
+              col_start: 36
+              col_stop: 38
+              path: compiler-test
+              content: "function do_nothing(arr: [u32; 2]) {}"
+          span:
+            line_start: 3
+            line_stop: 3
+            col_start: 1
+            col_stop: 38
+            path: compiler-test
+            content: "function do_nothing(arr: [u32; 2]) {}"
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":11,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const arr: [u32; 2] = [0; 2];\\\"}\"}"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 11
+                        col_stop: 14
+                        path: compiler-test
+                        content: "    const arr: [u32; 2] = [0; 2];"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "2"
+                  value:
+                    ArrayInit:
+                      element:
+                        Value:
+                          Integer:
+                            - U32
+                            - "0"
+                            - line_start: 6
+                              line_stop: 6
+                              col_start: 28
+                              col_stop: 29
+                              path: compiler-test
+                              content: "    const arr: [u32; 2] = [0; 2];"
+                      dimensions:
+                        - value: "2"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 27
+                        col_stop: 33
+                        path: compiler-test
+                        content: "    const arr: [u32; 2] = [0; 2];"
+                  span:
+                    line_start: 6
+                    line_stop: 6
+                    col_start: 5
+                    col_stop: 33
+                    path: compiler-test
+                    content: "    const arr: [u32; 2] = [0; 2];"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr);\\\"}\"}"
+                      arguments:
+                        - Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr);\\\"}\"}"
+                      span:
+                        line_start: 8
+                        line_stop: 8
+                        col_start: 5
+                        col_stop: 20
+                        path: compiler-test
+                        content: "    do_nothing(arr);"
+                  span:
+                    line_start: 8
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 20
+                    path: compiler-test
+                    content: "    do_nothing(arr);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing([...arr]);\\\"}\"}"
+                      arguments:
+                        - ArrayInline:
+                            elements:
+                              - Spread:
+                                  Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing([...arr]);\\\"}\"}"
+                            span:
+                              line_start: 9
+                              line_stop: 9
+                              col_start: 16
+                              col_stop: 24
+                              path: compiler-test
+                              content: "    do_nothing([...arr]);"
+                      span:
+                        line_start: 9
+                        line_stop: 9
+                        col_start: 5
+                        col_stop: 25
+                        path: compiler-test
+                        content: "    do_nothing([...arr]);"
+                  span:
+                    line_start: 9
+                    line_stop: 9
+                    col_start: 5
+                    col_stop: 25
+                    path: compiler-test
+                    content: "    do_nothing([...arr]);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"do_nothing\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr[0u32..]);\\\"}\"}"
+                      arguments:
+                        - ArrayRangeAccess:
+                            array:
+                              Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    do_nothing(arr[0u32..]);\\\"}\"}"
+                            left:
+                              Value:
+                                Integer:
+                                  - U32
+                                  - "0"
+                                  - line_start: 10
+                                    line_stop: 10
+                                    col_start: 20
+                                    col_stop: 24
+                                    path: compiler-test
+                                    content: "    do_nothing(arr[0u32..]);"
+                            right: ~
+                            span:
+                              line_start: 10
+                              line_stop: 10
+                              col_start: 16
+                              col_stop: 27
+                              path: compiler-test
+                              content: "    do_nothing(arr[0u32..]);"
+                      span:
+                        line_start: 10
+                        line_stop: 10
+                        col_start: 5
+                        col_stop: 28
+                        path: compiler-test
+                        content: "    do_nothing(arr[0u32..]);"
+                  span:
+                    line_start: 10
+                    line_stop: 10
+                    col_start: 5
+                    col_stop: 28
+                    path: compiler-test
+                    content: "    do_nothing(arr[0u32..]);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 12
+                              line_stop: 12
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 12
+                        line_stop: 12
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 12
+                    line_stop: 12
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 5
+              line_stop: 13
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 5
+            line_stop: 13
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n\n\n\n"

@@ -16,3 +16,307 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const a: u8 = 255;\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 11
+                        col_stop: 12
+                        path: compiler-test
+                        content: "    const a: u8 = 255;"
+                  type_:
+                    IntegerType: U8
+                  value:
+                    Value:
+                      Implicit:
+                        - "255"
+                        - line_start: 4
+                          line_stop: 4
+                          col_start: 19
+                          col_stop: 22
+                          path: compiler-test
+                          content: "    const a: u8 = 255;"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    const a: u8 = 255;"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 5
+                              line_stop: 5
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 3
+              line_stop: 6
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 6
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const a: u8 = 255;\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 11
+                        col_stop: 12
+                        path: compiler-test
+                        content: "    const a: u8 = 255;"
+                  type_:
+                    IntegerType: U8
+                  value:
+                    Value:
+                      Implicit:
+                        - "255"
+                        - line_start: 4
+                          line_stop: 4
+                          col_start: 19
+                          col_stop: 22
+                          path: compiler-test
+                          content: "    const a: u8 = 255;"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    const a: u8 = 255;"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 5
+                              line_stop: 5
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 3
+              line_stop: 6
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 6
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const a: u8 = 255;\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 11
+                        col_stop: 12
+                        path: compiler-test
+                        content: "    const a: u8 = 255;"
+                  type_:
+                    IntegerType: U8
+                  value:
+                    Value:
+                      Integer:
+                        - U8
+                        - "255"
+                        - line_start: 4
+                          line_stop: 4
+                          col_start: 19
+                          col_stop: 22
+                          path: compiler-test
+                          content: "    const a: u8 = 255;"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    const a: u8 = 255;"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 5
+                              line_stop: 5
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 3
+              line_stop: 6
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 6
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n"

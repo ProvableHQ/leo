@@ -16,3 +16,434 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = 1u32;\\\"}\"}"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let a = 1u32;"
+                  type_: ~
+                  value:
+                    Value:
+                      Integer:
+                        - U32
+                        - "1"
+                        - line_start: 5
+                          line_stop: 5
+                          col_start: 13
+                          col_stop: 17
+                          path: compiler-test
+                          content: "    let a = 1u32;"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 17
+                    path: compiler-test
+                    content: "    let a = 1u32;"
+              - Assign:
+                  operation: Assign
+                  assignee:
+                    identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    a = 0;\\\"}\"}"
+                    accesses: []
+                    span:
+                      line_start: 6
+                      line_stop: 6
+                      col_start: 5
+                      col_stop: 6
+                      path: compiler-test
+                      content: "    a = 0;"
+                  value:
+                    Value:
+                      Implicit:
+                        - "0"
+                        - line_start: 6
+                          line_stop: 6
+                          col_start: 9
+                          col_stop: 10
+                          path: compiler-test
+                          content: "    a = 0;"
+                  span:
+                    line_start: 6
+                    line_stop: 6
+                    col_start: 5
+                    col_stop: 10
+                    path: compiler-test
+                    content: "    a = 0;"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a == 0u32 == y;\\\"}\"}"
+                          right:
+                            Value:
+                              Integer:
+                                - U32
+                                - "0"
+                                - line_start: 8
+                                  line_stop: 8
+                                  col_start: 17
+                                  col_stop: 21
+                                  path: compiler-test
+                                  content: "    return a == 0u32 == y;"
+                          op: Eq
+                          span:
+                            line_start: 8
+                            line_stop: 8
+                            col_start: 12
+                            col_stop: 21
+                            path: compiler-test
+                            content: "    return a == 0u32 == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a == 0u32 == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 8
+                        line_stop: 8
+                        col_start: 12
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    return a == 0u32 == y;"
+                  span:
+                    line_start: 8
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    return a == 0u32 == y;"
+            span:
+              line_start: 4
+              line_stop: 9
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 4
+            line_stop: 9
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = 1u32;\\\"}\"}"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let a = 1u32;"
+                  type_: ~
+                  value:
+                    Value:
+                      Integer:
+                        - U32
+                        - "1"
+                        - line_start: 5
+                          line_stop: 5
+                          col_start: 13
+                          col_stop: 17
+                          path: compiler-test
+                          content: "    let a = 1u32;"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 17
+                    path: compiler-test
+                    content: "    let a = 1u32;"
+              - Assign:
+                  operation: Assign
+                  assignee:
+                    identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    a = 0;\\\"}\"}"
+                    accesses: []
+                    span:
+                      line_start: 6
+                      line_stop: 6
+                      col_start: 5
+                      col_stop: 6
+                      path: compiler-test
+                      content: "    a = 0;"
+                  value:
+                    Value:
+                      Implicit:
+                        - "0"
+                        - line_start: 6
+                          line_stop: 6
+                          col_start: 9
+                          col_stop: 10
+                          path: compiler-test
+                          content: "    a = 0;"
+                  span:
+                    line_start: 6
+                    line_stop: 6
+                    col_start: 5
+                    col_stop: 10
+                    path: compiler-test
+                    content: "    a = 0;"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a == 0u32 == y;\\\"}\"}"
+                          right:
+                            Value:
+                              Integer:
+                                - U32
+                                - "0"
+                                - line_start: 8
+                                  line_stop: 8
+                                  col_start: 17
+                                  col_stop: 21
+                                  path: compiler-test
+                                  content: "    return a == 0u32 == y;"
+                          op: Eq
+                          span:
+                            line_start: 8
+                            line_stop: 8
+                            col_start: 12
+                            col_stop: 21
+                            path: compiler-test
+                            content: "    return a == 0u32 == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a == 0u32 == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 8
+                        line_stop: 8
+                        col_start: 12
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    return a == 0u32 == y;"
+                  span:
+                    line_start: 8
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    return a == 0u32 == y;"
+            span:
+              line_start: 4
+              line_stop: 9
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 4
+            line_stop: 9
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = 1u32;\\\"}\"}"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let a = 1u32;"
+                  type_:
+                    IntegerType: U32
+                  value:
+                    Value:
+                      Integer:
+                        - U32
+                        - "1"
+                        - line_start: 5
+                          line_stop: 5
+                          col_start: 13
+                          col_stop: 17
+                          path: compiler-test
+                          content: "    let a = 1u32;"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 17
+                    path: compiler-test
+                    content: "    let a = 1u32;"
+              - Assign:
+                  operation: Assign
+                  assignee:
+                    identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    a = 0;\\\"}\"}"
+                    accesses: []
+                    span:
+                      line_start: 6
+                      line_stop: 6
+                      col_start: 5
+                      col_stop: 6
+                      path: compiler-test
+                      content: "    a = 0;"
+                  value:
+                    Value:
+                      Integer:
+                        - U32
+                        - "0"
+                        - line_start: 6
+                          line_stop: 6
+                          col_start: 9
+                          col_stop: 10
+                          path: compiler-test
+                          content: "    a = 0;"
+                  span:
+                    line_start: 6
+                    line_stop: 6
+                    col_start: 5
+                    col_stop: 10
+                    path: compiler-test
+                    content: "    a = 0;"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a == 0u32 == y;\\\"}\"}"
+                          right:
+                            Value:
+                              Integer:
+                                - U32
+                                - "0"
+                                - line_start: 8
+                                  line_stop: 8
+                                  col_start: 17
+                                  col_stop: 21
+                                  path: compiler-test
+                                  content: "    return a == 0u32 == y;"
+                          op: Eq
+                          span:
+                            line_start: 8
+                            line_stop: 8
+                            col_start: 12
+                            col_stop: 21
+                            path: compiler-test
+                            content: "    return a == 0u32 == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a == 0u32 == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 8
+                        line_stop: 8
+                        col_start: 12
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    return a == 0u32 == y;"
+                  span:
+                    line_start: 8
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    return a == 0u32 == y;"
+            span:
+              line_start: 4
+              line_stop: 9
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 4
+            line_stop: 9
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n"

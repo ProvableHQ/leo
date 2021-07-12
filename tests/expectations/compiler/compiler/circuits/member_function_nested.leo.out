@@ -16,3 +16,933 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits:
+        "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}":
+          circuit_name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+          members:
+            - CircuitVariable:
+                - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
+                - IntegerType: U32
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"add_x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function add_x(self, y: u32) -> u32 {\\\"}\"}"
+                input:
+                  - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function add_x(self, y: u32) -> u32 {\\\"}\"}"
+                  - Variable:
+                      identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function add_x(self, y: u32) -> u32 {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_:
+                        IntegerType: U32
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 26
+                        col_stop: 27
+                        path: compiler-test
+                        content: "    function add_x(self, y: u32) -> u32 {"
+                output:
+                  IntegerType: U32
+                block:
+                  statements:
+                    - Return:
+                        expression:
+                          Binary:
+                            left:
+                              CircuitMemberAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.x + y;\\\"}\"}"
+                                name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.x + y;\\\"}\"}"
+                                span:
+                                  line_start: 7
+                                  line_stop: 7
+                                  col_start: 16
+                                  col_stop: 22
+                                  path: compiler-test
+                                  content: "        return self.x + y;"
+                            right:
+                              Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.x + y;\\\"}\"}"
+                            op: Add
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 16
+                              col_stop: 26
+                              path: compiler-test
+                              content: "        return self.x + y;"
+                        span:
+                          line_start: 7
+                          line_stop: 7
+                          col_start: 9
+                          col_stop: 26
+                          path: compiler-test
+                          content: "        return self.x + y;"
+                  span:
+                    line_start: 6
+                    line_stop: 8
+                    col_start: 41
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function add_x(self, y: u32) -> u32 {\n...\n    }"
+                span:
+                  line_start: 6
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function add_x(self, y: u32) -> u32 {\n...\n    }"
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"call_add_x\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":14,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function call_add_x(self, y: u32) -> u32 {\\\"}\"}"
+                input:
+                  - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":25,\\\"col_stop\\\":29,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function call_add_x(self, y: u32) -> u32 {\\\"}\"}"
+                  - Variable:
+                      identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":31,\\\"col_stop\\\":32,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function call_add_x(self, y: u32) -> u32 {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_:
+                        IntegerType: U32
+                      span:
+                        line_start: 10
+                        line_stop: 10
+                        col_start: 31
+                        col_stop: 32
+                        path: compiler-test
+                        content: "    function call_add_x(self, y: u32) -> u32 {"
+                output:
+                  IntegerType: U32
+                block:
+                  statements:
+                    - Return:
+                        expression:
+                          Call:
+                            function:
+                              CircuitMemberAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.add_x(y);\\\"}\"}"
+                                name: "{\"name\":\"add_x\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":21,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.add_x(y);\\\"}\"}"
+                                span:
+                                  line_start: 11
+                                  line_stop: 11
+                                  col_start: 16
+                                  col_stop: 26
+                                  path: compiler-test
+                                  content: "        return self.add_x(y);"
+                            arguments:
+                              - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":27,\\\"col_stop\\\":28,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.add_x(y);\\\"}\"}"
+                            span:
+                              line_start: 11
+                              line_stop: 11
+                              col_start: 16
+                              col_stop: 29
+                              path: compiler-test
+                              content: "        return self.add_x(y);"
+                        span:
+                          line_start: 11
+                          line_stop: 11
+                          col_start: 9
+                          col_stop: 29
+                          path: compiler-test
+                          content: "        return self.add_x(y);"
+                  span:
+                    line_start: 10
+                    line_stop: 12
+                    col_start: 46
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function call_add_x(self, y: u32) -> u32 {\n...\n    }"
+                span:
+                  line_start: 10
+                  line_stop: 12
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function call_add_x(self, y: u32) -> u32 {\n...\n    }"
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: U32
+                span:
+                  line_start: 15
+                  line_stop: 15
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(x: u32) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = Foo { x };\\\"}\"}"
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let a = Foo { x };"
+                  type_: ~
+                  value:
+                    CircuitInit:
+                      name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = Foo { x };\\\"}\"}"
+                      members:
+                        - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = Foo { x };\\\"}\"}"
+                          expression: ~
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 13
+                        col_stop: 22
+                        path: compiler-test
+                        content: "    let a = Foo { x };"
+                  span:
+                    line_start: 16
+                    line_stop: 16
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    let a = Foo { x };"
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let b = a.add_x(1u32);\\\"}\"}"
+                      span:
+                        line_start: 17
+                        line_stop: 17
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let b = a.add_x(1u32);"
+                  type_: ~
+                  value:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let b = a.add_x(1u32);\\\"}\"}"
+                          name: "{\"name\":\"add_x\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":15,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let b = a.add_x(1u32);\\\"}\"}"
+                          span:
+                            line_start: 17
+                            line_stop: 17
+                            col_start: 13
+                            col_stop: 20
+                            path: compiler-test
+                            content: "    let b = a.add_x(1u32);"
+                      arguments:
+                        - Value:
+                            Integer:
+                              - U32
+                              - "1"
+                              - line_start: 17
+                                line_stop: 17
+                                col_start: 21
+                                col_stop: 25
+                                path: compiler-test
+                                content: "    let b = a.add_x(1u32);"
+                      span:
+                        line_start: 17
+                        line_stop: 17
+                        col_start: 13
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    let b = a.add_x(1u32);"
+                  span:
+                    line_start: 17
+                    line_stop: 17
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    let b = a.add_x(1u32);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return b == x + 1;\\\"}\"}"
+                      right:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return b == x + 1;\\\"}\"}"
+                          right:
+                            Value:
+                              Implicit:
+                                - "1"
+                                - line_start: 19
+                                  line_stop: 19
+                                  col_start: 21
+                                  col_stop: 22
+                                  path: compiler-test
+                                  content: "    return b == x + 1;"
+                          op: Add
+                          span:
+                            line_start: 19
+                            line_stop: 19
+                            col_start: 17
+                            col_stop: 22
+                            path: compiler-test
+                            content: "    return b == x + 1;"
+                      op: Eq
+                      span:
+                        line_start: 19
+                        line_stop: 19
+                        col_start: 12
+                        col_stop: 22
+                        path: compiler-test
+                        content: "    return b == x + 1;"
+                  span:
+                    line_start: 19
+                    line_stop: 19
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    return b == x + 1;"
+            span:
+              line_start: 15
+              line_stop: 20
+              col_start: 31
+              col_stop: 2
+              path: compiler-test
+              content: "function main(x: u32) -> bool {\n...\n}"
+          span:
+            line_start: 15
+            line_stop: 20
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(x: u32) -> bool {\n...\n}\n\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits:
+        "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}":
+          circuit_name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+          members:
+            - CircuitVariable:
+                - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
+                - IntegerType: U32
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"add_x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function add_x(self, y: u32) -> u32 {\\\"}\"}"
+                input:
+                  - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function add_x(self, y: u32) -> u32 {\\\"}\"}"
+                  - Variable:
+                      identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function add_x(self, y: u32) -> u32 {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_:
+                        IntegerType: U32
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 26
+                        col_stop: 27
+                        path: compiler-test
+                        content: "    function add_x(self, y: u32) -> u32 {"
+                output:
+                  IntegerType: U32
+                block:
+                  statements:
+                    - Return:
+                        expression:
+                          Binary:
+                            left:
+                              CircuitMemberAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.x + y;\\\"}\"}"
+                                name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.x + y;\\\"}\"}"
+                                span:
+                                  line_start: 7
+                                  line_stop: 7
+                                  col_start: 16
+                                  col_stop: 22
+                                  path: compiler-test
+                                  content: "        return self.x + y;"
+                            right:
+                              Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.x + y;\\\"}\"}"
+                            op: Add
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 16
+                              col_stop: 26
+                              path: compiler-test
+                              content: "        return self.x + y;"
+                        span:
+                          line_start: 7
+                          line_stop: 7
+                          col_start: 9
+                          col_stop: 26
+                          path: compiler-test
+                          content: "        return self.x + y;"
+                  span:
+                    line_start: 6
+                    line_stop: 8
+                    col_start: 41
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function add_x(self, y: u32) -> u32 {\n...\n    }"
+                span:
+                  line_start: 6
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function add_x(self, y: u32) -> u32 {\n...\n    }"
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"call_add_x\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":14,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function call_add_x(self, y: u32) -> u32 {\\\"}\"}"
+                input:
+                  - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":25,\\\"col_stop\\\":29,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function call_add_x(self, y: u32) -> u32 {\\\"}\"}"
+                  - Variable:
+                      identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":31,\\\"col_stop\\\":32,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function call_add_x(self, y: u32) -> u32 {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_:
+                        IntegerType: U32
+                      span:
+                        line_start: 10
+                        line_stop: 10
+                        col_start: 31
+                        col_stop: 32
+                        path: compiler-test
+                        content: "    function call_add_x(self, y: u32) -> u32 {"
+                output:
+                  IntegerType: U32
+                block:
+                  statements:
+                    - Return:
+                        expression:
+                          Call:
+                            function:
+                              CircuitMemberAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.add_x(y);\\\"}\"}"
+                                name: "{\"name\":\"add_x\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":21,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.add_x(y);\\\"}\"}"
+                                span:
+                                  line_start: 11
+                                  line_stop: 11
+                                  col_start: 16
+                                  col_stop: 26
+                                  path: compiler-test
+                                  content: "        return self.add_x(y);"
+                            arguments:
+                              - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":27,\\\"col_stop\\\":28,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.add_x(y);\\\"}\"}"
+                            span:
+                              line_start: 11
+                              line_stop: 11
+                              col_start: 16
+                              col_stop: 29
+                              path: compiler-test
+                              content: "        return self.add_x(y);"
+                        span:
+                          line_start: 11
+                          line_stop: 11
+                          col_start: 9
+                          col_stop: 29
+                          path: compiler-test
+                          content: "        return self.add_x(y);"
+                  span:
+                    line_start: 10
+                    line_stop: 12
+                    col_start: 46
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function call_add_x(self, y: u32) -> u32 {\n...\n    }"
+                span:
+                  line_start: 10
+                  line_stop: 12
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function call_add_x(self, y: u32) -> u32 {\n...\n    }"
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: U32
+                span:
+                  line_start: 15
+                  line_stop: 15
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(x: u32) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = Foo { x };\\\"}\"}"
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let a = Foo { x };"
+                  type_: ~
+                  value:
+                    CircuitInit:
+                      name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = Foo { x };\\\"}\"}"
+                      members:
+                        - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = Foo { x };\\\"}\"}"
+                          expression: ~
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 13
+                        col_stop: 22
+                        path: compiler-test
+                        content: "    let a = Foo { x };"
+                  span:
+                    line_start: 16
+                    line_stop: 16
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    let a = Foo { x };"
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let b = a.add_x(1u32);\\\"}\"}"
+                      span:
+                        line_start: 17
+                        line_stop: 17
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let b = a.add_x(1u32);"
+                  type_: ~
+                  value:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let b = a.add_x(1u32);\\\"}\"}"
+                          name: "{\"name\":\"add_x\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":15,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let b = a.add_x(1u32);\\\"}\"}"
+                          span:
+                            line_start: 17
+                            line_stop: 17
+                            col_start: 13
+                            col_stop: 20
+                            path: compiler-test
+                            content: "    let b = a.add_x(1u32);"
+                      arguments:
+                        - Value:
+                            Integer:
+                              - U32
+                              - "1"
+                              - line_start: 17
+                                line_stop: 17
+                                col_start: 21
+                                col_stop: 25
+                                path: compiler-test
+                                content: "    let b = a.add_x(1u32);"
+                      span:
+                        line_start: 17
+                        line_stop: 17
+                        col_start: 13
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    let b = a.add_x(1u32);"
+                  span:
+                    line_start: 17
+                    line_stop: 17
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    let b = a.add_x(1u32);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return b == x + 1;\\\"}\"}"
+                      right:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return b == x + 1;\\\"}\"}"
+                          right:
+                            Value:
+                              Implicit:
+                                - "1"
+                                - line_start: 19
+                                  line_stop: 19
+                                  col_start: 21
+                                  col_stop: 22
+                                  path: compiler-test
+                                  content: "    return b == x + 1;"
+                          op: Add
+                          span:
+                            line_start: 19
+                            line_stop: 19
+                            col_start: 17
+                            col_stop: 22
+                            path: compiler-test
+                            content: "    return b == x + 1;"
+                      op: Eq
+                      span:
+                        line_start: 19
+                        line_stop: 19
+                        col_start: 12
+                        col_stop: 22
+                        path: compiler-test
+                        content: "    return b == x + 1;"
+                  span:
+                    line_start: 19
+                    line_stop: 19
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    return b == x + 1;"
+            span:
+              line_start: 15
+              line_stop: 20
+              col_start: 31
+              col_stop: 2
+              path: compiler-test
+              content: "function main(x: u32) -> bool {\n...\n}"
+          span:
+            line_start: 15
+            line_stop: 20
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(x: u32) -> bool {\n...\n}\n\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits:
+        "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}":
+          circuit_name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+          members:
+            - CircuitVariable:
+                - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
+                - IntegerType: U32
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"add_x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function add_x(self, y: u32) -> u32 {\\\"}\"}"
+                input:
+                  - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function add_x(self, y: u32) -> u32 {\\\"}\"}"
+                  - Variable:
+                      identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function add_x(self, y: u32) -> u32 {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_:
+                        IntegerType: U32
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 26
+                        col_stop: 27
+                        path: compiler-test
+                        content: "    function add_x(self, y: u32) -> u32 {"
+                output:
+                  IntegerType: U32
+                block:
+                  statements:
+                    - Return:
+                        expression:
+                          Binary:
+                            left:
+                              CircuitMemberAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.x + y;\\\"}\"}"
+                                name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.x + y;\\\"}\"}"
+                                span:
+                                  line_start: 7
+                                  line_stop: 7
+                                  col_start: 16
+                                  col_stop: 22
+                                  path: compiler-test
+                                  content: "        return self.x + y;"
+                            right:
+                              Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.x + y;\\\"}\"}"
+                            op: Add
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 16
+                              col_stop: 26
+                              path: compiler-test
+                              content: "        return self.x + y;"
+                        span:
+                          line_start: 7
+                          line_stop: 7
+                          col_start: 9
+                          col_stop: 26
+                          path: compiler-test
+                          content: "        return self.x + y;"
+                  span:
+                    line_start: 6
+                    line_stop: 8
+                    col_start: 41
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function add_x(self, y: u32) -> u32 {\n...\n    }"
+                span:
+                  line_start: 6
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function add_x(self, y: u32) -> u32 {\n...\n    }"
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"call_add_x\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":14,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function call_add_x(self, y: u32) -> u32 {\\\"}\"}"
+                input:
+                  - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":25,\\\"col_stop\\\":29,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function call_add_x(self, y: u32) -> u32 {\\\"}\"}"
+                  - Variable:
+                      identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":31,\\\"col_stop\\\":32,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function call_add_x(self, y: u32) -> u32 {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_:
+                        IntegerType: U32
+                      span:
+                        line_start: 10
+                        line_stop: 10
+                        col_start: 31
+                        col_stop: 32
+                        path: compiler-test
+                        content: "    function call_add_x(self, y: u32) -> u32 {"
+                output:
+                  IntegerType: U32
+                block:
+                  statements:
+                    - Return:
+                        expression:
+                          Call:
+                            function:
+                              CircuitMemberAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.add_x(y);\\\"}\"}"
+                                name: "{\"name\":\"add_x\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":21,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.add_x(y);\\\"}\"}"
+                                span:
+                                  line_start: 11
+                                  line_stop: 11
+                                  col_start: 16
+                                  col_stop: 26
+                                  path: compiler-test
+                                  content: "        return self.add_x(y);"
+                            arguments:
+                              - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":27,\\\"col_stop\\\":28,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        return self.add_x(y);\\\"}\"}"
+                            span:
+                              line_start: 11
+                              line_stop: 11
+                              col_start: 16
+                              col_stop: 29
+                              path: compiler-test
+                              content: "        return self.add_x(y);"
+                        span:
+                          line_start: 11
+                          line_stop: 11
+                          col_start: 9
+                          col_stop: 29
+                          path: compiler-test
+                          content: "        return self.add_x(y);"
+                  span:
+                    line_start: 10
+                    line_stop: 12
+                    col_start: 46
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function call_add_x(self, y: u32) -> u32 {\n...\n    }"
+                span:
+                  line_start: 10
+                  line_stop: 12
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function call_add_x(self, y: u32) -> u32 {\n...\n    }"
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: U32
+                span:
+                  line_start: 15
+                  line_stop: 15
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(x: u32) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = Foo { x };\\\"}\"}"
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let a = Foo { x };"
+                  type_:
+                    Circuit: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+                  value:
+                    CircuitInit:
+                      name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = Foo { x };\\\"}\"}"
+                      members:
+                        - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let a = Foo { x };\\\"}\"}"
+                          expression: ~
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 13
+                        col_stop: 22
+                        path: compiler-test
+                        content: "    let a = Foo { x };"
+                  span:
+                    line_start: 16
+                    line_stop: 16
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    let a = Foo { x };"
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let b = a.add_x(1u32);\\\"}\"}"
+                      span:
+                        line_start: 17
+                        line_stop: 17
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let b = a.add_x(1u32);"
+                  type_:
+                    IntegerType: U32
+                  value:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let b = a.add_x(1u32);\\\"}\"}"
+                          name: "{\"name\":\"add_x\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":15,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let b = a.add_x(1u32);\\\"}\"}"
+                          span:
+                            line_start: 17
+                            line_stop: 17
+                            col_start: 13
+                            col_stop: 20
+                            path: compiler-test
+                            content: "    let b = a.add_x(1u32);"
+                      arguments:
+                        - Value:
+                            Integer:
+                              - U32
+                              - "1"
+                              - line_start: 17
+                                line_stop: 17
+                                col_start: 21
+                                col_stop: 25
+                                path: compiler-test
+                                content: "    let b = a.add_x(1u32);"
+                      span:
+                        line_start: 17
+                        line_stop: 17
+                        col_start: 13
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    let b = a.add_x(1u32);"
+                  span:
+                    line_start: 17
+                    line_stop: 17
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    let b = a.add_x(1u32);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return b == x + 1;\\\"}\"}"
+                      right:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return b == x + 1;\\\"}\"}"
+                          right:
+                            Value:
+                              Integer:
+                                - U32
+                                - "1"
+                                - line_start: 19
+                                  line_stop: 19
+                                  col_start: 21
+                                  col_stop: 22
+                                  path: compiler-test
+                                  content: "    return b == x + 1;"
+                          op: Add
+                          span:
+                            line_start: 19
+                            line_stop: 19
+                            col_start: 17
+                            col_stop: 22
+                            path: compiler-test
+                            content: "    return b == x + 1;"
+                      op: Eq
+                      span:
+                        line_start: 19
+                        line_stop: 19
+                        col_start: 12
+                        col_stop: 22
+                        path: compiler-test
+                        content: "    return b == x + 1;"
+                  span:
+                    line_start: 19
+                    line_stop: 19
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    return b == x + 1;"
+            span:
+              line_start: 15
+              line_stop: 20
+              col_start: 31
+              col_stop: 2
+              path: compiler-test
+              content: "function main(x: u32) -> bool {\n...\n}"
+          span:
+            line_start: 15
+            line_stop: 20
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(x: u32) -> bool {\n...\n}\n\n\n"

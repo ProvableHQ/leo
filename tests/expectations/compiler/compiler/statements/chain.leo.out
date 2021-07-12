@@ -28,3 +28,819 @@ outputs:
             a:
               type: bool
               value: "false"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: U32
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(x: u32) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let c = 0u32;\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let c = 0u32;"
+                  type_: ~
+                  value:
+                    Value:
+                      Integer:
+                        - U32
+                        - "0"
+                        - line_start: 4
+                          line_stop: 4
+                          col_start: 13
+                          col_stop: 17
+                          path: compiler-test
+                          content: "    let c = 0u32;"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 17
+                    path: compiler-test
+                    content: "    let c = 0u32;"
+              - Conditional:
+                  condition:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    if x == 1 {\\\"}\"}"
+                      right:
+                        Value:
+                          Implicit:
+                            - "1"
+                            - line_start: 6
+                              line_stop: 6
+                              col_start: 13
+                              col_stop: 14
+                              path: compiler-test
+                              content: "    if x == 1 {"
+                      op: Eq
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 8
+                        col_stop: 14
+                        path: compiler-test
+                        content: "    if x == 1 {"
+                  block:
+                    statements:
+                      - Assign:
+                          operation: Assign
+                          assignee:
+                            identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        c = 1;\\\"}\"}"
+                            accesses: []
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 9
+                              col_stop: 10
+                              path: compiler-test
+                              content: "        c = 1;"
+                          value:
+                            Value:
+                              Implicit:
+                                - "1"
+                                - line_start: 7
+                                  line_stop: 7
+                                  col_start: 13
+                                  col_stop: 14
+                                  path: compiler-test
+                                  content: "        c = 1;"
+                          span:
+                            line_start: 7
+                            line_stop: 7
+                            col_start: 9
+                            col_stop: 14
+                            path: compiler-test
+                            content: "        c = 1;"
+                    span:
+                      line_start: 6
+                      line_stop: 8
+                      col_start: 15
+                      col_stop: 6
+                      path: compiler-test
+                      content: "    if x == 1 {\n...\n    } else if x == 2 {"
+                  next:
+                    Conditional:
+                      condition:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    } else if x == 2 {\\\"}\"}"
+                          right:
+                            Value:
+                              Implicit:
+                                - "2"
+                                - line_start: 8
+                                  line_stop: 8
+                                  col_start: 20
+                                  col_stop: 21
+                                  path: compiler-test
+                                  content: "    } else if x == 2 {"
+                          op: Eq
+                          span:
+                            line_start: 8
+                            line_stop: 8
+                            col_start: 15
+                            col_stop: 21
+                            path: compiler-test
+                            content: "    } else if x == 2 {"
+                      block:
+                        statements:
+                          - Assign:
+                              operation: Assign
+                              assignee:
+                                identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        c = 2;\\\"}\"}"
+                                accesses: []
+                                span:
+                                  line_start: 9
+                                  line_stop: 9
+                                  col_start: 9
+                                  col_stop: 10
+                                  path: compiler-test
+                                  content: "        c = 2;"
+                              value:
+                                Value:
+                                  Implicit:
+                                    - "2"
+                                    - line_start: 9
+                                      line_stop: 9
+                                      col_start: 13
+                                      col_stop: 14
+                                      path: compiler-test
+                                      content: "        c = 2;"
+                              span:
+                                line_start: 9
+                                line_stop: 9
+                                col_start: 9
+                                col_stop: 14
+                                path: compiler-test
+                                content: "        c = 2;"
+                        span:
+                          line_start: 8
+                          line_stop: 10
+                          col_start: 22
+                          col_stop: 6
+                          path: compiler-test
+                          content: "    } else if x == 2 {\n...\n    } else {"
+                      next:
+                        Block:
+                          statements:
+                            - Assign:
+                                operation: Assign
+                                assignee:
+                                  identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        c = 3;\\\"}\"}"
+                                  accesses: []
+                                  span:
+                                    line_start: 11
+                                    line_stop: 11
+                                    col_start: 9
+                                    col_stop: 10
+                                    path: compiler-test
+                                    content: "        c = 3;"
+                                value:
+                                  Value:
+                                    Implicit:
+                                      - "3"
+                                      - line_start: 11
+                                        line_stop: 11
+                                        col_start: 13
+                                        col_stop: 14
+                                        path: compiler-test
+                                        content: "        c = 3;"
+                                span:
+                                  line_start: 11
+                                  line_stop: 11
+                                  col_start: 9
+                                  col_stop: 14
+                                  path: compiler-test
+                                  content: "        c = 3;"
+                          span:
+                            line_start: 10
+                            line_stop: 12
+                            col_start: 12
+                            col_stop: 6
+                            path: compiler-test
+                            content: "    } else {\n...\n    }"
+                      span:
+                        line_start: 8
+                        line_stop: 12
+                        col_start: 12
+                        col_stop: 6
+                        path: compiler-test
+                        content: "    } else if x == 2 {\n...\n    } else {\n...\n    }"
+                  span:
+                    line_start: 6
+                    line_stop: 12
+                    col_start: 5
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    if x == 1 {\n...\n    } else if x == 2 {\n...\n    } else {\n...\n    }"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return c == x;\\\"}\"}"
+                      right:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return c == x;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 13
+                        line_stop: 13
+                        col_start: 12
+                        col_stop: 18
+                        path: compiler-test
+                        content: "    return c == x;"
+                  span:
+                    line_start: 13
+                    line_stop: 13
+                    col_start: 5
+                    col_stop: 18
+                    path: compiler-test
+                    content: "    return c == x;"
+            span:
+              line_start: 3
+              line_stop: 14
+              col_start: 31
+              col_stop: 2
+              path: compiler-test
+              content: "function main(x: u32) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 14
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(x: u32) -> bool {\n...\n}\n\n\n\n\n\n\n\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: U32
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(x: u32) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let c = 0u32;\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let c = 0u32;"
+                  type_: ~
+                  value:
+                    Value:
+                      Integer:
+                        - U32
+                        - "0"
+                        - line_start: 4
+                          line_stop: 4
+                          col_start: 13
+                          col_stop: 17
+                          path: compiler-test
+                          content: "    let c = 0u32;"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 17
+                    path: compiler-test
+                    content: "    let c = 0u32;"
+              - Conditional:
+                  condition:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    if x == 1 {\\\"}\"}"
+                      right:
+                        Value:
+                          Implicit:
+                            - "1"
+                            - line_start: 6
+                              line_stop: 6
+                              col_start: 13
+                              col_stop: 14
+                              path: compiler-test
+                              content: "    if x == 1 {"
+                      op: Eq
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 8
+                        col_stop: 14
+                        path: compiler-test
+                        content: "    if x == 1 {"
+                  block:
+                    statements:
+                      - Assign:
+                          operation: Assign
+                          assignee:
+                            identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        c = 1;\\\"}\"}"
+                            accesses: []
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 9
+                              col_stop: 10
+                              path: compiler-test
+                              content: "        c = 1;"
+                          value:
+                            Value:
+                              Implicit:
+                                - "1"
+                                - line_start: 7
+                                  line_stop: 7
+                                  col_start: 13
+                                  col_stop: 14
+                                  path: compiler-test
+                                  content: "        c = 1;"
+                          span:
+                            line_start: 7
+                            line_stop: 7
+                            col_start: 9
+                            col_stop: 14
+                            path: compiler-test
+                            content: "        c = 1;"
+                    span:
+                      line_start: 6
+                      line_stop: 8
+                      col_start: 15
+                      col_stop: 6
+                      path: compiler-test
+                      content: "    if x == 1 {\n...\n    } else if x == 2 {"
+                  next:
+                    Conditional:
+                      condition:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    } else if x == 2 {\\\"}\"}"
+                          right:
+                            Value:
+                              Implicit:
+                                - "2"
+                                - line_start: 8
+                                  line_stop: 8
+                                  col_start: 20
+                                  col_stop: 21
+                                  path: compiler-test
+                                  content: "    } else if x == 2 {"
+                          op: Eq
+                          span:
+                            line_start: 8
+                            line_stop: 8
+                            col_start: 15
+                            col_stop: 21
+                            path: compiler-test
+                            content: "    } else if x == 2 {"
+                      block:
+                        statements:
+                          - Assign:
+                              operation: Assign
+                              assignee:
+                                identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        c = 2;\\\"}\"}"
+                                accesses: []
+                                span:
+                                  line_start: 9
+                                  line_stop: 9
+                                  col_start: 9
+                                  col_stop: 10
+                                  path: compiler-test
+                                  content: "        c = 2;"
+                              value:
+                                Value:
+                                  Implicit:
+                                    - "2"
+                                    - line_start: 9
+                                      line_stop: 9
+                                      col_start: 13
+                                      col_stop: 14
+                                      path: compiler-test
+                                      content: "        c = 2;"
+                              span:
+                                line_start: 9
+                                line_stop: 9
+                                col_start: 9
+                                col_stop: 14
+                                path: compiler-test
+                                content: "        c = 2;"
+                        span:
+                          line_start: 8
+                          line_stop: 10
+                          col_start: 22
+                          col_stop: 6
+                          path: compiler-test
+                          content: "    } else if x == 2 {\n...\n    } else {"
+                      next:
+                        Block:
+                          statements:
+                            - Assign:
+                                operation: Assign
+                                assignee:
+                                  identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        c = 3;\\\"}\"}"
+                                  accesses: []
+                                  span:
+                                    line_start: 11
+                                    line_stop: 11
+                                    col_start: 9
+                                    col_stop: 10
+                                    path: compiler-test
+                                    content: "        c = 3;"
+                                value:
+                                  Value:
+                                    Implicit:
+                                      - "3"
+                                      - line_start: 11
+                                        line_stop: 11
+                                        col_start: 13
+                                        col_stop: 14
+                                        path: compiler-test
+                                        content: "        c = 3;"
+                                span:
+                                  line_start: 11
+                                  line_stop: 11
+                                  col_start: 9
+                                  col_stop: 14
+                                  path: compiler-test
+                                  content: "        c = 3;"
+                          span:
+                            line_start: 10
+                            line_stop: 12
+                            col_start: 12
+                            col_stop: 6
+                            path: compiler-test
+                            content: "    } else {\n...\n    }"
+                      span:
+                        line_start: 8
+                        line_stop: 12
+                        col_start: 12
+                        col_stop: 6
+                        path: compiler-test
+                        content: "    } else if x == 2 {\n...\n    } else {\n...\n    }"
+                  span:
+                    line_start: 6
+                    line_stop: 12
+                    col_start: 5
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    if x == 1 {\n...\n    } else if x == 2 {\n...\n    } else {\n...\n    }"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return c == x;\\\"}\"}"
+                      right:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return c == x;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 13
+                        line_stop: 13
+                        col_start: 12
+                        col_stop: 18
+                        path: compiler-test
+                        content: "    return c == x;"
+                  span:
+                    line_start: 13
+                    line_stop: 13
+                    col_start: 5
+                    col_stop: 18
+                    path: compiler-test
+                    content: "    return c == x;"
+            span:
+              line_start: 3
+              line_stop: 14
+              col_start: 31
+              col_stop: 2
+              path: compiler-test
+              content: "function main(x: u32) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 14
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(x: u32) -> bool {\n...\n}\n\n\n\n\n\n\n\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(x: u32) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: U32
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(x: u32) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let c = 0u32;\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let c = 0u32;"
+                  type_:
+                    IntegerType: U32
+                  value:
+                    Value:
+                      Integer:
+                        - U32
+                        - "0"
+                        - line_start: 4
+                          line_stop: 4
+                          col_start: 13
+                          col_stop: 17
+                          path: compiler-test
+                          content: "    let c = 0u32;"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 17
+                    path: compiler-test
+                    content: "    let c = 0u32;"
+              - Conditional:
+                  condition:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    if x == 1 {\\\"}\"}"
+                      right:
+                        Value:
+                          Integer:
+                            - U32
+                            - "1"
+                            - line_start: 6
+                              line_stop: 6
+                              col_start: 13
+                              col_stop: 14
+                              path: compiler-test
+                              content: "    if x == 1 {"
+                      op: Eq
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 8
+                        col_stop: 14
+                        path: compiler-test
+                        content: "    if x == 1 {"
+                  block:
+                    statements:
+                      - Assign:
+                          operation: Assign
+                          assignee:
+                            identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        c = 1;\\\"}\"}"
+                            accesses: []
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 9
+                              col_stop: 10
+                              path: compiler-test
+                              content: "        c = 1;"
+                          value:
+                            Value:
+                              Integer:
+                                - U32
+                                - "1"
+                                - line_start: 7
+                                  line_stop: 7
+                                  col_start: 13
+                                  col_stop: 14
+                                  path: compiler-test
+                                  content: "        c = 1;"
+                          span:
+                            line_start: 7
+                            line_stop: 7
+                            col_start: 9
+                            col_stop: 14
+                            path: compiler-test
+                            content: "        c = 1;"
+                    span:
+                      line_start: 6
+                      line_stop: 8
+                      col_start: 15
+                      col_stop: 6
+                      path: compiler-test
+                      content: "    if x == 1 {\n...\n    } else if x == 2 {"
+                  next:
+                    Conditional:
+                      condition:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    } else if x == 2 {\\\"}\"}"
+                          right:
+                            Value:
+                              Integer:
+                                - U32
+                                - "2"
+                                - line_start: 8
+                                  line_stop: 8
+                                  col_start: 20
+                                  col_stop: 21
+                                  path: compiler-test
+                                  content: "    } else if x == 2 {"
+                          op: Eq
+                          span:
+                            line_start: 8
+                            line_stop: 8
+                            col_start: 15
+                            col_stop: 21
+                            path: compiler-test
+                            content: "    } else if x == 2 {"
+                      block:
+                        statements:
+                          - Assign:
+                              operation: Assign
+                              assignee:
+                                identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        c = 2;\\\"}\"}"
+                                accesses: []
+                                span:
+                                  line_start: 9
+                                  line_stop: 9
+                                  col_start: 9
+                                  col_stop: 10
+                                  path: compiler-test
+                                  content: "        c = 2;"
+                              value:
+                                Value:
+                                  Integer:
+                                    - U32
+                                    - "2"
+                                    - line_start: 9
+                                      line_stop: 9
+                                      col_start: 13
+                                      col_stop: 14
+                                      path: compiler-test
+                                      content: "        c = 2;"
+                              span:
+                                line_start: 9
+                                line_stop: 9
+                                col_start: 9
+                                col_stop: 14
+                                path: compiler-test
+                                content: "        c = 2;"
+                        span:
+                          line_start: 8
+                          line_stop: 10
+                          col_start: 22
+                          col_stop: 6
+                          path: compiler-test
+                          content: "    } else if x == 2 {\n...\n    } else {"
+                      next:
+                        Block:
+                          statements:
+                            - Assign:
+                                operation: Assign
+                                assignee:
+                                  identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        c = 3;\\\"}\"}"
+                                  accesses: []
+                                  span:
+                                    line_start: 11
+                                    line_stop: 11
+                                    col_start: 9
+                                    col_stop: 10
+                                    path: compiler-test
+                                    content: "        c = 3;"
+                                value:
+                                  Value:
+                                    Integer:
+                                      - U32
+                                      - "3"
+                                      - line_start: 11
+                                        line_stop: 11
+                                        col_start: 13
+                                        col_stop: 14
+                                        path: compiler-test
+                                        content: "        c = 3;"
+                                span:
+                                  line_start: 11
+                                  line_stop: 11
+                                  col_start: 9
+                                  col_stop: 14
+                                  path: compiler-test
+                                  content: "        c = 3;"
+                          span:
+                            line_start: 10
+                            line_stop: 12
+                            col_start: 12
+                            col_stop: 6
+                            path: compiler-test
+                            content: "    } else {\n...\n    }"
+                      span:
+                        line_start: 8
+                        line_stop: 12
+                        col_start: 12
+                        col_stop: 6
+                        path: compiler-test
+                        content: "    } else if x == 2 {\n...\n    } else {\n...\n    }"
+                  span:
+                    line_start: 6
+                    line_stop: 12
+                    col_start: 5
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    if x == 1 {\n...\n    } else if x == 2 {\n...\n    } else {\n...\n    }"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return c == x;\\\"}\"}"
+                      right:
+                        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":17,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return c == x;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 13
+                        line_stop: 13
+                        col_start: 12
+                        col_stop: 18
+                        path: compiler-test
+                        content: "    return c == x;"
+                  span:
+                    line_start: 13
+                    line_stop: 13
+                    col_start: 5
+                    col_stop: 18
+                    path: compiler-test
+                    content: "    return c == x;"
+            span:
+              line_start: 3
+              line_stop: 14
+              col_start: 31
+              col_stop: 2
+              path: compiler-test
+              content: "function main(x: u32) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 14
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(x: u32) -> bool {\n...\n}\n\n\n\n\n\n\n\n\n"

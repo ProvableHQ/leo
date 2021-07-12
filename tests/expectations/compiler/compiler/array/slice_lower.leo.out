@@ -16,3 +16,894 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":11,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 11
+                        col_stop: 14
+                        path: compiler-test
+                        content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "9"
+                  value:
+                    ArrayInline:
+                      elements:
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "0"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 28
+                                  col_stop: 29
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "1"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 31
+                                  col_stop: 32
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "2"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 34
+                                  col_stop: 35
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "3"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 37
+                                  col_stop: 38
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "4"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 40
+                                  col_stop: 41
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "5"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 43
+                                  col_stop: 44
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "6"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 46
+                                  col_stop: 47
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "7"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 49
+                                  col_stop: 50
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "8"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 52
+                                  col_stop: 53
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 27
+                        col_stop: 54
+                        path: compiler-test
+                        content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 54
+                    path: compiler-test
+                    content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const expected: [u32; 2] = [0, 1];\\\"}\"}"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 11
+                        col_stop: 19
+                        path: compiler-test
+                        content: "    const expected: [u32; 2] = [0, 1];"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "2"
+                  value:
+                    ArrayInline:
+                      elements:
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "0"
+                                - line_start: 5
+                                  line_stop: 5
+                                  col_start: 33
+                                  col_stop: 34
+                                  path: compiler-test
+                                  content: "    const expected: [u32; 2] = [0, 1];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "1"
+                                - line_start: 5
+                                  line_stop: 5
+                                  col_start: 36
+                                  col_stop: 37
+                                  path: compiler-test
+                                  content: "    const expected: [u32; 2] = [0, 1];"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 32
+                        col_stop: 38
+                        path: compiler-test
+                        content: "    const expected: [u32; 2] = [0, 1];"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 38
+                    path: compiler-test
+                    content: "    const expected: [u32; 2] = [0, 1];"
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"actual\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":11,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const actual = arr[..2];     // Should produce [0, 1]\\\"}\"}"
+                      span:
+                        line_start: 7
+                        line_stop: 7
+                        col_start: 11
+                        col_stop: 17
+                        path: compiler-test
+                        content: "    const actual = arr[..2];     // Should produce [0, 1]"
+                  type_: ~
+                  value:
+                    ArrayRangeAccess:
+                      array:
+                        Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const actual = arr[..2];     // Should produce [0, 1]\\\"}\"}"
+                      left: ~
+                      right:
+                        Value:
+                          Implicit:
+                            - "2"
+                            - line_start: 7
+                              line_stop: 7
+                              col_start: 26
+                              col_stop: 27
+                              path: compiler-test
+                              content: "    const actual = arr[..2];     // Should produce [0, 1]"
+                      span:
+                        line_start: 7
+                        line_stop: 7
+                        col_start: 20
+                        col_stop: 28
+                        path: compiler-test
+                        content: "    const actual = arr[..2];     // Should produce [0, 1]"
+                  span:
+                    line_start: 7
+                    line_stop: 7
+                    col_start: 5
+                    col_stop: 28
+                    path: compiler-test
+                    content: "    const actual = arr[..2];     // Should produce [0, 1]"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":12,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return expected == actual == y;\\\"}\"}"
+                          right:
+                            Identifier: "{\"name\":\"actual\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":24,\\\"col_stop\\\":30,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return expected == actual == y;\\\"}\"}"
+                          op: Eq
+                          span:
+                            line_start: 9
+                            line_stop: 9
+                            col_start: 12
+                            col_stop: 30
+                            path: compiler-test
+                            content: "    return expected == actual == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return expected == actual == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 9
+                        line_stop: 9
+                        col_start: 12
+                        col_stop: 35
+                        path: compiler-test
+                        content: "    return expected == actual == y;"
+                  span:
+                    line_start: 9
+                    line_stop: 9
+                    col_start: 5
+                    col_stop: 35
+                    path: compiler-test
+                    content: "    return expected == actual == y;"
+            span:
+              line_start: 3
+              line_stop: 10
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 10
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":11,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 11
+                        col_stop: 14
+                        path: compiler-test
+                        content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "9"
+                  value:
+                    ArrayInline:
+                      elements:
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "0"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 28
+                                  col_stop: 29
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "1"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 31
+                                  col_stop: 32
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "2"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 34
+                                  col_stop: 35
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "3"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 37
+                                  col_stop: 38
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "4"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 40
+                                  col_stop: 41
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "5"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 43
+                                  col_stop: 44
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "6"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 46
+                                  col_stop: 47
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "7"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 49
+                                  col_stop: 50
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "8"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 52
+                                  col_stop: 53
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 27
+                        col_stop: 54
+                        path: compiler-test
+                        content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 54
+                    path: compiler-test
+                    content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const expected: [u32; 2] = [0, 1];\\\"}\"}"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 11
+                        col_stop: 19
+                        path: compiler-test
+                        content: "    const expected: [u32; 2] = [0, 1];"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "2"
+                  value:
+                    ArrayInline:
+                      elements:
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "0"
+                                - line_start: 5
+                                  line_stop: 5
+                                  col_start: 33
+                                  col_stop: 34
+                                  path: compiler-test
+                                  content: "    const expected: [u32; 2] = [0, 1];"
+                        - Expression:
+                            Value:
+                              Implicit:
+                                - "1"
+                                - line_start: 5
+                                  line_stop: 5
+                                  col_start: 36
+                                  col_stop: 37
+                                  path: compiler-test
+                                  content: "    const expected: [u32; 2] = [0, 1];"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 32
+                        col_stop: 38
+                        path: compiler-test
+                        content: "    const expected: [u32; 2] = [0, 1];"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 38
+                    path: compiler-test
+                    content: "    const expected: [u32; 2] = [0, 1];"
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"actual\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":11,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const actual = arr[..2];     // Should produce [0, 1]\\\"}\"}"
+                      span:
+                        line_start: 7
+                        line_stop: 7
+                        col_start: 11
+                        col_stop: 17
+                        path: compiler-test
+                        content: "    const actual = arr[..2];     // Should produce [0, 1]"
+                  type_: ~
+                  value:
+                    ArrayRangeAccess:
+                      array:
+                        Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const actual = arr[..2];     // Should produce [0, 1]\\\"}\"}"
+                      left: ~
+                      right:
+                        Value:
+                          Implicit:
+                            - "2"
+                            - line_start: 7
+                              line_stop: 7
+                              col_start: 26
+                              col_stop: 27
+                              path: compiler-test
+                              content: "    const actual = arr[..2];     // Should produce [0, 1]"
+                      span:
+                        line_start: 7
+                        line_stop: 7
+                        col_start: 20
+                        col_stop: 28
+                        path: compiler-test
+                        content: "    const actual = arr[..2];     // Should produce [0, 1]"
+                  span:
+                    line_start: 7
+                    line_stop: 7
+                    col_start: 5
+                    col_stop: 28
+                    path: compiler-test
+                    content: "    const actual = arr[..2];     // Should produce [0, 1]"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":12,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return expected == actual == y;\\\"}\"}"
+                          right:
+                            Identifier: "{\"name\":\"actual\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":24,\\\"col_stop\\\":30,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return expected == actual == y;\\\"}\"}"
+                          op: Eq
+                          span:
+                            line_start: 9
+                            line_stop: 9
+                            col_start: 12
+                            col_stop: 30
+                            path: compiler-test
+                            content: "    return expected == actual == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return expected == actual == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 9
+                        line_stop: 9
+                        col_start: 12
+                        col_stop: 35
+                        path: compiler-test
+                        content: "    return expected == actual == y;"
+                  span:
+                    line_start: 9
+                    line_stop: 9
+                    col_start: 5
+                    col_stop: 35
+                    path: compiler-test
+                    content: "    return expected == actual == y;"
+            span:
+              line_start: 3
+              line_stop: 10
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 10
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":11,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 11
+                        col_stop: 14
+                        path: compiler-test
+                        content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "9"
+                  value:
+                    ArrayInline:
+                      elements:
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "0"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 28
+                                  col_stop: 29
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "1"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 31
+                                  col_stop: 32
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "2"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 34
+                                  col_stop: 35
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "3"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 37
+                                  col_stop: 38
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "4"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 40
+                                  col_stop: 41
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "5"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 43
+                                  col_stop: 44
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "6"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 46
+                                  col_stop: 47
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "7"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 49
+                                  col_stop: 50
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "8"
+                                - line_start: 4
+                                  line_stop: 4
+                                  col_start: 52
+                                  col_stop: 53
+                                  path: compiler-test
+                                  content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 27
+                        col_stop: 54
+                        path: compiler-test
+                        content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 54
+                    path: compiler-test
+                    content: "    const arr: [u32; 9] = [0, 1, 2, 3, 4, 5, 6, 7, 8];"
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const expected: [u32; 2] = [0, 1];\\\"}\"}"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 11
+                        col_stop: 19
+                        path: compiler-test
+                        content: "    const expected: [u32; 2] = [0, 1];"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "2"
+                  value:
+                    ArrayInline:
+                      elements:
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "0"
+                                - line_start: 5
+                                  line_stop: 5
+                                  col_start: 33
+                                  col_stop: 34
+                                  path: compiler-test
+                                  content: "    const expected: [u32; 2] = [0, 1];"
+                        - Expression:
+                            Value:
+                              Integer:
+                                - U32
+                                - "1"
+                                - line_start: 5
+                                  line_stop: 5
+                                  col_start: 36
+                                  col_stop: 37
+                                  path: compiler-test
+                                  content: "    const expected: [u32; 2] = [0, 1];"
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 32
+                        col_stop: 38
+                        path: compiler-test
+                        content: "    const expected: [u32; 2] = [0, 1];"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 38
+                    path: compiler-test
+                    content: "    const expected: [u32; 2] = [0, 1];"
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"actual\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":11,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const actual = arr[..2];     // Should produce [0, 1]\\\"}\"}"
+                      span:
+                        line_start: 7
+                        line_stop: 7
+                        col_start: 11
+                        col_stop: 17
+                        path: compiler-test
+                        content: "    const actual = arr[..2];     // Should produce [0, 1]"
+                  type_:
+                    Array:
+                      - IntegerType: U32
+                      - - value: "2"
+                  value:
+                    ArrayRangeAccess:
+                      array:
+                        Identifier: "{\"name\":\"arr\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const actual = arr[..2];     // Should produce [0, 1]\\\"}\"}"
+                      left: ~
+                      right:
+                        Value:
+                          Integer:
+                            - U32
+                            - "2"
+                            - line_start: 7
+                              line_stop: 7
+                              col_start: 26
+                              col_stop: 27
+                              path: compiler-test
+                              content: "    const actual = arr[..2];     // Should produce [0, 1]"
+                      span:
+                        line_start: 7
+                        line_stop: 7
+                        col_start: 20
+                        col_stop: 28
+                        path: compiler-test
+                        content: "    const actual = arr[..2];     // Should produce [0, 1]"
+                  span:
+                    line_start: 7
+                    line_stop: 7
+                    col_start: 5
+                    col_stop: 28
+                    path: compiler-test
+                    content: "    const actual = arr[..2];     // Should produce [0, 1]"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":12,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return expected == actual == y;\\\"}\"}"
+                          right:
+                            Identifier: "{\"name\":\"actual\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":24,\\\"col_stop\\\":30,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return expected == actual == y;\\\"}\"}"
+                          op: Eq
+                          span:
+                            line_start: 9
+                            line_stop: 9
+                            col_start: 12
+                            col_stop: 30
+                            path: compiler-test
+                            content: "    return expected == actual == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return expected == actual == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 9
+                        line_stop: 9
+                        col_start: 12
+                        col_stop: 35
+                        path: compiler-test
+                        content: "    return expected == actual == y;"
+                  span:
+                    line_start: 9
+                    line_stop: 9
+                    col_start: 5
+                    col_stop: 35
+                    path: compiler-test
+                    content: "    return expected == actual == y;"
+            span:
+              line_start: 3
+              line_stop: 10
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 10
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n\n\n"

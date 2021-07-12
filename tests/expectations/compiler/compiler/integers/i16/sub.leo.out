@@ -16,3 +16,306 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: I16
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(a: i16, b: i16, c: i16) -> bool {"
+            - Variable:
+                identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: I16
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 23
+                  col_stop: 24
+                  path: compiler-test
+                  content: "function main(a: i16, b: i16, c: i16) -> bool {"
+            - Variable:
+                identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":31,\\\"col_stop\\\":32,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: I16
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 31
+                  col_stop: 32
+                  path: compiler-test
+                  content: "function main(a: i16, b: i16, c: i16) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a - b == c;\\\"}\"}"
+                          right:
+                            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a - b == c;\\\"}\"}"
+                          op: Sub
+                          span:
+                            line_start: 4
+                            line_stop: 4
+                            col_start: 12
+                            col_stop: 17
+                            path: compiler-test
+                            content: "    return a - b == c;"
+                      right:
+                        Identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a - b == c;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 12
+                        col_stop: 22
+                        path: compiler-test
+                        content: "    return a - b == c;"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    return a - b == c;"
+            span:
+              line_start: 3
+              line_stop: 5
+              col_start: 47
+              col_stop: 2
+              path: compiler-test
+              content: "function main(a: i16, b: i16, c: i16) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 5
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(a: i16, b: i16, c: i16) -> bool {\n...\n}"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: I16
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(a: i16, b: i16, c: i16) -> bool {"
+            - Variable:
+                identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: I16
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 23
+                  col_stop: 24
+                  path: compiler-test
+                  content: "function main(a: i16, b: i16, c: i16) -> bool {"
+            - Variable:
+                identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":31,\\\"col_stop\\\":32,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: I16
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 31
+                  col_stop: 32
+                  path: compiler-test
+                  content: "function main(a: i16, b: i16, c: i16) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a - b == c;\\\"}\"}"
+                          right:
+                            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a - b == c;\\\"}\"}"
+                          op: Sub
+                          span:
+                            line_start: 4
+                            line_stop: 4
+                            col_start: 12
+                            col_stop: 17
+                            path: compiler-test
+                            content: "    return a - b == c;"
+                      right:
+                        Identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a - b == c;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 12
+                        col_stop: 22
+                        path: compiler-test
+                        content: "    return a - b == c;"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    return a - b == c;"
+            span:
+              line_start: 3
+              line_stop: 5
+              col_start: 47
+              col_stop: 2
+              path: compiler-test
+              content: "function main(a: i16, b: i16, c: i16) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 5
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(a: i16, b: i16, c: i16) -> bool {\n...\n}"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: I16
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(a: i16, b: i16, c: i16) -> bool {"
+            - Variable:
+                identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: I16
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 23
+                  col_stop: 24
+                  path: compiler-test
+                  content: "function main(a: i16, b: i16, c: i16) -> bool {"
+            - Variable:
+                identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":31,\\\"col_stop\\\":32,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: i16, b: i16, c: i16) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  IntegerType: I16
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 31
+                  col_stop: 32
+                  path: compiler-test
+                  content: "function main(a: i16, b: i16, c: i16) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a - b == c;\\\"}\"}"
+                          right:
+                            Identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a - b == c;\\\"}\"}"
+                          op: Sub
+                          span:
+                            line_start: 4
+                            line_stop: 4
+                            col_start: 12
+                            col_stop: 17
+                            path: compiler-test
+                            content: "    return a - b == c;"
+                      right:
+                        Identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return a - b == c;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 12
+                        col_stop: 22
+                        path: compiler-test
+                        content: "    return a - b == c;"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    return a - b == c;"
+            span:
+              line_start: 3
+              line_stop: 5
+              col_start: 47
+              col_stop: 2
+              path: compiler-test
+              content: "function main(a: i16, b: i16, c: i16) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 5
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(a: i16, b: i16, c: i16) -> bool {\n...\n}"

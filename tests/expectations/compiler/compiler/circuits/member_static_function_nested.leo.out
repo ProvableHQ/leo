@@ -16,3 +16,687 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits:
+        "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}":
+          circuit_name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+          members:
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"qux\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function qux() {}\\\"}\"}"
+                input: []
+                output: ~
+                block:
+                  statements: []
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 20
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    function qux() {}"
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 5
+                  col_stop: 22
+                  path: compiler-test
+                  content: "    function qux() {}"
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function bar() {\\\"}\"}"
+                input: []
+                output: ~
+                block:
+                  statements:
+                    - Expression:
+                        expression:
+                          Call:
+                            function:
+                              CircuitStaticFunctionAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::qux();\\\"}\"}"
+                                name: "{\"name\":\"qux\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::qux();\\\"}\"}"
+                                span:
+                                  line_start: 7
+                                  line_stop: 7
+                                  col_start: 9
+                                  col_stop: 18
+                                  path: compiler-test
+                                  content: "        Self::qux();"
+                            arguments: []
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 9
+                              col_stop: 20
+                              path: compiler-test
+                              content: "        Self::qux();"
+                        span:
+                          line_start: 7
+                          line_stop: 7
+                          col_start: 9
+                          col_stop: 20
+                          path: compiler-test
+                          content: "        Self::qux();"
+                  span:
+                    line_start: 6
+                    line_stop: 8
+                    col_start: 20
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function bar() {\n...\n    }"
+                span:
+                  line_start: 6
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function bar() {\n...\n    }"
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function baz() {\\\"}\"}"
+                input: []
+                output: ~
+                block:
+                  statements:
+                    - Expression:
+                        expression:
+                          Call:
+                            function:
+                              CircuitStaticFunctionAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::bar();\\\"}\"}"
+                                name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::bar();\\\"}\"}"
+                                span:
+                                  line_start: 11
+                                  line_stop: 11
+                                  col_start: 9
+                                  col_stop: 18
+                                  path: compiler-test
+                                  content: "        Self::bar();"
+                            arguments: []
+                            span:
+                              line_start: 11
+                              line_stop: 11
+                              col_start: 9
+                              col_stop: 20
+                              path: compiler-test
+                              content: "        Self::bar();"
+                        span:
+                          line_start: 11
+                          line_stop: 11
+                          col_start: 9
+                          col_stop: 20
+                          path: compiler-test
+                          content: "        Self::bar();"
+                  span:
+                    line_start: 10
+                    line_stop: 12
+                    col_start: 20
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function baz() {\n...\n    }"
+                span:
+                  line_start: 10
+                  line_stop: 12
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function baz() {\n...\n    }"
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 15
+                  line_stop: 15
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitStaticFunctionAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    Foo::baz();\\\"}\"}"
+                          name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    Foo::baz();\\\"}\"}"
+                          span:
+                            line_start: 16
+                            line_stop: 16
+                            col_start: 5
+                            col_stop: 13
+                            path: compiler-test
+                            content: "    Foo::baz();"
+                      arguments: []
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 5
+                        col_stop: 15
+                        path: compiler-test
+                        content: "    Foo::baz();"
+                  span:
+                    line_start: 16
+                    line_stop: 16
+                    col_start: 5
+                    col_stop: 15
+                    path: compiler-test
+                    content: "    Foo::baz();"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 18
+                              line_stop: 18
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 18
+                        line_stop: 18
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 18
+                    line_stop: 18
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 15
+              line_stop: 19
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 15
+            line_stop: 19
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits:
+        "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}":
+          circuit_name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+          members:
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"qux\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function qux() {}\\\"}\"}"
+                input: []
+                output:
+                  Tuple: []
+                block:
+                  statements: []
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 20
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    function qux() {}"
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 5
+                  col_stop: 22
+                  path: compiler-test
+                  content: "    function qux() {}"
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function bar() {\\\"}\"}"
+                input: []
+                output:
+                  Tuple: []
+                block:
+                  statements:
+                    - Expression:
+                        expression:
+                          Call:
+                            function:
+                              CircuitStaticFunctionAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::qux();\\\"}\"}"
+                                name: "{\"name\":\"qux\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::qux();\\\"}\"}"
+                                span:
+                                  line_start: 7
+                                  line_stop: 7
+                                  col_start: 9
+                                  col_stop: 18
+                                  path: compiler-test
+                                  content: "        Self::qux();"
+                            arguments: []
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 9
+                              col_stop: 20
+                              path: compiler-test
+                              content: "        Self::qux();"
+                        span:
+                          line_start: 7
+                          line_stop: 7
+                          col_start: 9
+                          col_stop: 20
+                          path: compiler-test
+                          content: "        Self::qux();"
+                  span:
+                    line_start: 6
+                    line_stop: 8
+                    col_start: 20
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function bar() {\n...\n    }"
+                span:
+                  line_start: 6
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function bar() {\n...\n    }"
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function baz() {\\\"}\"}"
+                input: []
+                output:
+                  Tuple: []
+                block:
+                  statements:
+                    - Expression:
+                        expression:
+                          Call:
+                            function:
+                              CircuitStaticFunctionAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::bar();\\\"}\"}"
+                                name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::bar();\\\"}\"}"
+                                span:
+                                  line_start: 11
+                                  line_stop: 11
+                                  col_start: 9
+                                  col_stop: 18
+                                  path: compiler-test
+                                  content: "        Self::bar();"
+                            arguments: []
+                            span:
+                              line_start: 11
+                              line_stop: 11
+                              col_start: 9
+                              col_stop: 20
+                              path: compiler-test
+                              content: "        Self::bar();"
+                        span:
+                          line_start: 11
+                          line_stop: 11
+                          col_start: 9
+                          col_stop: 20
+                          path: compiler-test
+                          content: "        Self::bar();"
+                  span:
+                    line_start: 10
+                    line_stop: 12
+                    col_start: 20
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function baz() {\n...\n    }"
+                span:
+                  line_start: 10
+                  line_stop: 12
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function baz() {\n...\n    }"
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 15
+                  line_stop: 15
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitStaticFunctionAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    Foo::baz();\\\"}\"}"
+                          name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    Foo::baz();\\\"}\"}"
+                          span:
+                            line_start: 16
+                            line_stop: 16
+                            col_start: 5
+                            col_stop: 13
+                            path: compiler-test
+                            content: "    Foo::baz();"
+                      arguments: []
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 5
+                        col_stop: 15
+                        path: compiler-test
+                        content: "    Foo::baz();"
+                  span:
+                    line_start: 16
+                    line_stop: 16
+                    col_start: 5
+                    col_stop: 15
+                    path: compiler-test
+                    content: "    Foo::baz();"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 18
+                              line_stop: 18
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 18
+                        line_stop: 18
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 18
+                    line_stop: 18
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 15
+              line_stop: 19
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 15
+            line_stop: 19
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits:
+        "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}":
+          circuit_name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+          members:
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"qux\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function qux() {}\\\"}\"}"
+                input: []
+                output:
+                  Tuple: []
+                block:
+                  statements: []
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 20
+                    col_stop: 22
+                    path: compiler-test
+                    content: "    function qux() {}"
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 5
+                  col_stop: 22
+                  path: compiler-test
+                  content: "    function qux() {}"
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function bar() {\\\"}\"}"
+                input: []
+                output:
+                  Tuple: []
+                block:
+                  statements:
+                    - Expression:
+                        expression:
+                          Call:
+                            function:
+                              CircuitStaticFunctionAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::qux();\\\"}\"}"
+                                name: "{\"name\":\"qux\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::qux();\\\"}\"}"
+                                span:
+                                  line_start: 7
+                                  line_stop: 7
+                                  col_start: 9
+                                  col_stop: 18
+                                  path: compiler-test
+                                  content: "        Self::qux();"
+                            arguments: []
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 9
+                              col_stop: 20
+                              path: compiler-test
+                              content: "        Self::qux();"
+                        span:
+                          line_start: 7
+                          line_stop: 7
+                          col_start: 9
+                          col_stop: 20
+                          path: compiler-test
+                          content: "        Self::qux();"
+                  span:
+                    line_start: 6
+                    line_stop: 8
+                    col_start: 20
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function bar() {\n...\n    }"
+                span:
+                  line_start: 6
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function bar() {\n...\n    }"
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function baz() {\\\"}\"}"
+                input: []
+                output:
+                  Tuple: []
+                block:
+                  statements:
+                    - Expression:
+                        expression:
+                          Call:
+                            function:
+                              CircuitStaticFunctionAccess:
+                                circuit:
+                                  Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::bar();\\\"}\"}"
+                                name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        Self::bar();\\\"}\"}"
+                                span:
+                                  line_start: 11
+                                  line_stop: 11
+                                  col_start: 9
+                                  col_stop: 18
+                                  path: compiler-test
+                                  content: "        Self::bar();"
+                            arguments: []
+                            span:
+                              line_start: 11
+                              line_stop: 11
+                              col_start: 9
+                              col_stop: 20
+                              path: compiler-test
+                              content: "        Self::bar();"
+                        span:
+                          line_start: 11
+                          line_stop: 11
+                          col_start: 9
+                          col_stop: 20
+                          path: compiler-test
+                          content: "        Self::bar();"
+                  span:
+                    line_start: 10
+                    line_stop: 12
+                    col_start: 20
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function baz() {\n...\n    }"
+                span:
+                  line_start: 10
+                  line_stop: 12
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function baz() {\n...\n    }"
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 15
+                  line_stop: 15
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitStaticFunctionAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    Foo::baz();\\\"}\"}"
+                          name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    Foo::baz();\\\"}\"}"
+                          span:
+                            line_start: 16
+                            line_stop: 16
+                            col_start: 5
+                            col_stop: 13
+                            path: compiler-test
+                            content: "    Foo::baz();"
+                      arguments: []
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 5
+                        col_stop: 15
+                        path: compiler-test
+                        content: "    Foo::baz();"
+                  span:
+                    line_start: 16
+                    line_stop: 16
+                    col_start: 5
+                    col_stop: 15
+                    path: compiler-test
+                    content: "    Foo::baz();"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 18
+                              line_stop: 18
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 18
+                        line_stop: 18
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 18
+                    line_stop: 18
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 15
+              line_stop: 19
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 15
+            line_stop: 19
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n"

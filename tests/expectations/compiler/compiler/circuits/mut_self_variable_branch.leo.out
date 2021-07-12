@@ -16,3 +16,1287 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits:
+        "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}":
+          circuit_name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+          members:
+            - CircuitVariable:
+                - "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    a: u8;\\\"}\"}"
+                - IntegerType: U8
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                input:
+                  - MutSelfKeyword: "{\"name\":\"mut self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":20,\\\"col_stop\\\":28,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                  - Variable:
+                      identifier: "{\"name\":\"condition\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":30,\\\"col_stop\\\":39,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_: Boolean
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 30
+                        col_stop: 39
+                        path: compiler-test
+                        content: "    function set_a(mut self, condition: bool, new: u8) {"
+                  - Variable:
+                      identifier: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":47,\\\"col_stop\\\":50,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_:
+                        IntegerType: U8
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 47
+                        col_stop: 50
+                        path: compiler-test
+                        content: "    function set_a(mut self, condition: bool, new: u8) {"
+                output: ~
+                block:
+                  statements:
+                    - Conditional:
+                        condition:
+                          Identifier: "{\"name\":\"condition\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":12,\\\"col_stop\\\":21,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        if condition {\\\"}\"}"
+                        block:
+                          statements:
+                            - Assign:
+                                operation: Assign
+                                assignee:
+                                  identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"            self.a = new;\\\"}\"}"
+                                  accesses:
+                                    - Member: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"            self.a = new;\\\"}\"}"
+                                  span:
+                                    line_start: 8
+                                    line_stop: 8
+                                    col_start: 13
+                                    col_stop: 19
+                                    path: compiler-test
+                                    content: "            self.a = new;"
+                                value:
+                                  Identifier: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":22,\\\"col_stop\\\":25,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"            self.a = new;\\\"}\"}"
+                                span:
+                                  line_start: 8
+                                  line_stop: 8
+                                  col_start: 13
+                                  col_stop: 25
+                                  path: compiler-test
+                                  content: "            self.a = new;"
+                          span:
+                            line_start: 7
+                            line_stop: 9
+                            col_start: 22
+                            col_stop: 10
+                            path: compiler-test
+                            content: "        if condition {\n...\n        }"
+                        next: ~
+                        span:
+                          line_start: 7
+                          line_stop: 9
+                          col_start: 9
+                          col_stop: 10
+                          path: compiler-test
+                          content: "        if condition {\n...\n        }"
+                  span:
+                    line_start: 6
+                    line_stop: 10
+                    col_start: 56
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function set_a(mut self, condition: bool, new: u8) {\n...\n    }"
+                span:
+                  line_start: 6
+                  line_stop: 10
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function set_a(mut self, condition: bool, new: u8) {\n...\n    }\n\n"
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 13
+                  line_stop: 13
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let f = Foo { a: 0u8 };\\\"}\"}"
+                      span:
+                        line_start: 14
+                        line_stop: 14
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let f = Foo { a: 0u8 };"
+                  type_: ~
+                  value:
+                    CircuitInit:
+                      name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let f = Foo { a: 0u8 };\\\"}\"}"
+                      members:
+                        - identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let f = Foo { a: 0u8 };\\\"}\"}"
+                          expression:
+                            Value:
+                              Integer:
+                                - U8
+                                - "0"
+                                - line_start: 14
+                                  line_stop: 14
+                                  col_start: 22
+                                  col_stop: 25
+                                  path: compiler-test
+                                  content: "    let f = Foo { a: 0u8 };"
+                      span:
+                        line_start: 14
+                        line_stop: 14
+                        col_start: 13
+                        col_stop: 27
+                        path: compiler-test
+                        content: "    let f = Foo { a: 0u8 };"
+                  span:
+                    line_start: 14
+                    line_stop: 14
+                    col_start: 5
+                    col_stop: 27
+                    path: compiler-test
+                    content: "    let f = Foo { a: 0u8 };"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 1u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 1u8);\\\"}\"}"
+                          span:
+                            line_start: 16
+                            line_stop: 16
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(false, 1u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "false"
+                              - line_start: 16
+                                line_stop: 16
+                                col_start: 13
+                                col_stop: 18
+                                path: compiler-test
+                                content: "    f.set_a(false, 1u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "1"
+                              - line_start: 16
+                                line_stop: 16
+                                col_start: 20
+                                col_stop: 23
+                                path: compiler-test
+                                content: "    f.set_a(false, 1u8);"
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 5
+                        col_stop: 24
+                        path: compiler-test
+                        content: "    f.set_a(false, 1u8);"
+                  span:
+                    line_start: 16
+                    line_stop: 16
+                    col_start: 5
+                    col_stop: 24
+                    path: compiler-test
+                    content: "    f.set_a(false, 1u8);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 1u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 1u8);\\\"}\"}"
+                          span:
+                            line_start: 17
+                            line_stop: 17
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(true, 1u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "true"
+                              - line_start: 17
+                                line_stop: 17
+                                col_start: 13
+                                col_stop: 17
+                                path: compiler-test
+                                content: "    f.set_a(true, 1u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "1"
+                              - line_start: 17
+                                line_stop: 17
+                                col_start: 19
+                                col_stop: 22
+                                path: compiler-test
+                                content: "    f.set_a(true, 1u8);"
+                      span:
+                        line_start: 17
+                        line_stop: 17
+                        col_start: 5
+                        col_stop: 23
+                        path: compiler-test
+                        content: "    f.set_a(true, 1u8);"
+                  span:
+                    line_start: 17
+                    line_stop: 17
+                    col_start: 5
+                    col_stop: 23
+                    path: compiler-test
+                    content: "    f.set_a(true, 1u8);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 2u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 2u8);\\\"}\"}"
+                          span:
+                            line_start: 18
+                            line_stop: 18
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(false, 2u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "false"
+                              - line_start: 18
+                                line_stop: 18
+                                col_start: 13
+                                col_stop: 18
+                                path: compiler-test
+                                content: "    f.set_a(false, 2u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "2"
+                              - line_start: 18
+                                line_stop: 18
+                                col_start: 20
+                                col_stop: 23
+                                path: compiler-test
+                                content: "    f.set_a(false, 2u8);"
+                      span:
+                        line_start: 18
+                        line_stop: 18
+                        col_start: 5
+                        col_stop: 24
+                        path: compiler-test
+                        content: "    f.set_a(false, 2u8);"
+                  span:
+                    line_start: 18
+                    line_stop: 18
+                    col_start: 5
+                    col_stop: 24
+                    path: compiler-test
+                    content: "    f.set_a(false, 2u8);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 2u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 2u8);\\\"}\"}"
+                          span:
+                            line_start: 19
+                            line_stop: 19
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(true, 2u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "true"
+                              - line_start: 19
+                                line_stop: 19
+                                col_start: 13
+                                col_stop: 17
+                                path: compiler-test
+                                content: "    f.set_a(true, 2u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "2"
+                              - line_start: 19
+                                line_stop: 19
+                                col_start: 19
+                                col_stop: 22
+                                path: compiler-test
+                                content: "    f.set_a(true, 2u8);"
+                      span:
+                        line_start: 19
+                        line_stop: 19
+                        col_start: 5
+                        col_stop: 23
+                        path: compiler-test
+                        content: "    f.set_a(true, 2u8);"
+                  span:
+                    line_start: 19
+                    line_stop: 19
+                    col_start: 5
+                    col_stop: 23
+                    path: compiler-test
+                    content: "    f.set_a(true, 2u8);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            CircuitMemberAccess:
+                              circuit:
+                                Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return f.a == 2u8 == y;\\\"}\"}"
+                              name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return f.a == 2u8 == y;\\\"}\"}"
+                              span:
+                                line_start: 21
+                                line_stop: 21
+                                col_start: 12
+                                col_stop: 15
+                                path: compiler-test
+                                content: "    return f.a == 2u8 == y;"
+                          right:
+                            Value:
+                              Integer:
+                                - U8
+                                - "2"
+                                - line_start: 21
+                                  line_stop: 21
+                                  col_start: 19
+                                  col_stop: 22
+                                  path: compiler-test
+                                  content: "    return f.a == 2u8 == y;"
+                          op: Eq
+                          span:
+                            line_start: 21
+                            line_stop: 21
+                            col_start: 12
+                            col_stop: 22
+                            path: compiler-test
+                            content: "    return f.a == 2u8 == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return f.a == 2u8 == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 21
+                        line_stop: 21
+                        col_start: 12
+                        col_stop: 27
+                        path: compiler-test
+                        content: "    return f.a == 2u8 == y;"
+                  span:
+                    line_start: 21
+                    line_stop: 21
+                    col_start: 5
+                    col_stop: 27
+                    path: compiler-test
+                    content: "    return f.a == 2u8 == y;"
+            span:
+              line_start: 13
+              line_stop: 22
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 13
+            line_stop: 22
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n\n\n\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits:
+        "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}":
+          circuit_name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+          members:
+            - CircuitVariable:
+                - "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    a: u8;\\\"}\"}"
+                - IntegerType: U8
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                input:
+                  - MutSelfKeyword: "{\"name\":\"mut self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":20,\\\"col_stop\\\":28,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                  - Variable:
+                      identifier: "{\"name\":\"condition\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":30,\\\"col_stop\\\":39,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_: Boolean
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 30
+                        col_stop: 39
+                        path: compiler-test
+                        content: "    function set_a(mut self, condition: bool, new: u8) {"
+                  - Variable:
+                      identifier: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":47,\\\"col_stop\\\":50,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_:
+                        IntegerType: U8
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 47
+                        col_stop: 50
+                        path: compiler-test
+                        content: "    function set_a(mut self, condition: bool, new: u8) {"
+                output:
+                  Tuple: []
+                block:
+                  statements:
+                    - Conditional:
+                        condition:
+                          Identifier: "{\"name\":\"condition\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":12,\\\"col_stop\\\":21,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        if condition {\\\"}\"}"
+                        block:
+                          statements:
+                            - Assign:
+                                operation: Assign
+                                assignee:
+                                  identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"            self.a = new;\\\"}\"}"
+                                  accesses:
+                                    - Member: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"            self.a = new;\\\"}\"}"
+                                  span:
+                                    line_start: 8
+                                    line_stop: 8
+                                    col_start: 13
+                                    col_stop: 19
+                                    path: compiler-test
+                                    content: "            self.a = new;"
+                                value:
+                                  Identifier: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":22,\\\"col_stop\\\":25,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"            self.a = new;\\\"}\"}"
+                                span:
+                                  line_start: 8
+                                  line_stop: 8
+                                  col_start: 13
+                                  col_stop: 25
+                                  path: compiler-test
+                                  content: "            self.a = new;"
+                          span:
+                            line_start: 7
+                            line_stop: 9
+                            col_start: 22
+                            col_stop: 10
+                            path: compiler-test
+                            content: "        if condition {\n...\n        }"
+                        next: ~
+                        span:
+                          line_start: 7
+                          line_stop: 9
+                          col_start: 9
+                          col_stop: 10
+                          path: compiler-test
+                          content: "        if condition {\n...\n        }"
+                  span:
+                    line_start: 6
+                    line_stop: 10
+                    col_start: 56
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function set_a(mut self, condition: bool, new: u8) {\n...\n    }"
+                span:
+                  line_start: 6
+                  line_stop: 10
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function set_a(mut self, condition: bool, new: u8) {\n...\n    }\n\n"
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 13
+                  line_stop: 13
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let f = Foo { a: 0u8 };\\\"}\"}"
+                      span:
+                        line_start: 14
+                        line_stop: 14
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let f = Foo { a: 0u8 };"
+                  type_: ~
+                  value:
+                    CircuitInit:
+                      name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let f = Foo { a: 0u8 };\\\"}\"}"
+                      members:
+                        - identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let f = Foo { a: 0u8 };\\\"}\"}"
+                          expression:
+                            Value:
+                              Integer:
+                                - U8
+                                - "0"
+                                - line_start: 14
+                                  line_stop: 14
+                                  col_start: 22
+                                  col_stop: 25
+                                  path: compiler-test
+                                  content: "    let f = Foo { a: 0u8 };"
+                      span:
+                        line_start: 14
+                        line_stop: 14
+                        col_start: 13
+                        col_stop: 27
+                        path: compiler-test
+                        content: "    let f = Foo { a: 0u8 };"
+                  span:
+                    line_start: 14
+                    line_stop: 14
+                    col_start: 5
+                    col_stop: 27
+                    path: compiler-test
+                    content: "    let f = Foo { a: 0u8 };"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 1u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 1u8);\\\"}\"}"
+                          span:
+                            line_start: 16
+                            line_stop: 16
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(false, 1u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "false"
+                              - line_start: 16
+                                line_stop: 16
+                                col_start: 13
+                                col_stop: 18
+                                path: compiler-test
+                                content: "    f.set_a(false, 1u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "1"
+                              - line_start: 16
+                                line_stop: 16
+                                col_start: 20
+                                col_stop: 23
+                                path: compiler-test
+                                content: "    f.set_a(false, 1u8);"
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 5
+                        col_stop: 24
+                        path: compiler-test
+                        content: "    f.set_a(false, 1u8);"
+                  span:
+                    line_start: 16
+                    line_stop: 16
+                    col_start: 5
+                    col_stop: 24
+                    path: compiler-test
+                    content: "    f.set_a(false, 1u8);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 1u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 1u8);\\\"}\"}"
+                          span:
+                            line_start: 17
+                            line_stop: 17
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(true, 1u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "true"
+                              - line_start: 17
+                                line_stop: 17
+                                col_start: 13
+                                col_stop: 17
+                                path: compiler-test
+                                content: "    f.set_a(true, 1u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "1"
+                              - line_start: 17
+                                line_stop: 17
+                                col_start: 19
+                                col_stop: 22
+                                path: compiler-test
+                                content: "    f.set_a(true, 1u8);"
+                      span:
+                        line_start: 17
+                        line_stop: 17
+                        col_start: 5
+                        col_stop: 23
+                        path: compiler-test
+                        content: "    f.set_a(true, 1u8);"
+                  span:
+                    line_start: 17
+                    line_stop: 17
+                    col_start: 5
+                    col_stop: 23
+                    path: compiler-test
+                    content: "    f.set_a(true, 1u8);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 2u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 2u8);\\\"}\"}"
+                          span:
+                            line_start: 18
+                            line_stop: 18
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(false, 2u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "false"
+                              - line_start: 18
+                                line_stop: 18
+                                col_start: 13
+                                col_stop: 18
+                                path: compiler-test
+                                content: "    f.set_a(false, 2u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "2"
+                              - line_start: 18
+                                line_stop: 18
+                                col_start: 20
+                                col_stop: 23
+                                path: compiler-test
+                                content: "    f.set_a(false, 2u8);"
+                      span:
+                        line_start: 18
+                        line_stop: 18
+                        col_start: 5
+                        col_stop: 24
+                        path: compiler-test
+                        content: "    f.set_a(false, 2u8);"
+                  span:
+                    line_start: 18
+                    line_stop: 18
+                    col_start: 5
+                    col_stop: 24
+                    path: compiler-test
+                    content: "    f.set_a(false, 2u8);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 2u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 2u8);\\\"}\"}"
+                          span:
+                            line_start: 19
+                            line_stop: 19
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(true, 2u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "true"
+                              - line_start: 19
+                                line_stop: 19
+                                col_start: 13
+                                col_stop: 17
+                                path: compiler-test
+                                content: "    f.set_a(true, 2u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "2"
+                              - line_start: 19
+                                line_stop: 19
+                                col_start: 19
+                                col_stop: 22
+                                path: compiler-test
+                                content: "    f.set_a(true, 2u8);"
+                      span:
+                        line_start: 19
+                        line_stop: 19
+                        col_start: 5
+                        col_stop: 23
+                        path: compiler-test
+                        content: "    f.set_a(true, 2u8);"
+                  span:
+                    line_start: 19
+                    line_stop: 19
+                    col_start: 5
+                    col_stop: 23
+                    path: compiler-test
+                    content: "    f.set_a(true, 2u8);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            CircuitMemberAccess:
+                              circuit:
+                                Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return f.a == 2u8 == y;\\\"}\"}"
+                              name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return f.a == 2u8 == y;\\\"}\"}"
+                              span:
+                                line_start: 21
+                                line_stop: 21
+                                col_start: 12
+                                col_stop: 15
+                                path: compiler-test
+                                content: "    return f.a == 2u8 == y;"
+                          right:
+                            Value:
+                              Integer:
+                                - U8
+                                - "2"
+                                - line_start: 21
+                                  line_stop: 21
+                                  col_start: 19
+                                  col_stop: 22
+                                  path: compiler-test
+                                  content: "    return f.a == 2u8 == y;"
+                          op: Eq
+                          span:
+                            line_start: 21
+                            line_stop: 21
+                            col_start: 12
+                            col_stop: 22
+                            path: compiler-test
+                            content: "    return f.a == 2u8 == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return f.a == 2u8 == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 21
+                        line_stop: 21
+                        col_start: 12
+                        col_stop: 27
+                        path: compiler-test
+                        content: "    return f.a == 2u8 == y;"
+                  span:
+                    line_start: 21
+                    line_stop: 21
+                    col_start: 5
+                    col_stop: 27
+                    path: compiler-test
+                    content: "    return f.a == 2u8 == y;"
+            span:
+              line_start: 13
+              line_stop: 22
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 13
+            line_stop: 22
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n\n\n\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits:
+        "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}":
+          circuit_name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+          members:
+            - CircuitVariable:
+                - "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    a: u8;\\\"}\"}"
+                - IntegerType: U8
+            - CircuitFunction:
+                annotations: []
+                identifier: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                input:
+                  - MutSelfKeyword: "{\"name\":\"mut self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":20,\\\"col_stop\\\":28,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                  - Variable:
+                      identifier: "{\"name\":\"condition\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":30,\\\"col_stop\\\":39,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_: Boolean
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 30
+                        col_stop: 39
+                        path: compiler-test
+                        content: "    function set_a(mut self, condition: bool, new: u8) {"
+                  - Variable:
+                      identifier: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":47,\\\"col_stop\\\":50,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    function set_a(mut self, condition: bool, new: u8) {\\\"}\"}"
+                      const_: false
+                      mutable: true
+                      type_:
+                        IntegerType: U8
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 47
+                        col_stop: 50
+                        path: compiler-test
+                        content: "    function set_a(mut self, condition: bool, new: u8) {"
+                output:
+                  Tuple: []
+                block:
+                  statements:
+                    - Conditional:
+                        condition:
+                          Identifier: "{\"name\":\"condition\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":12,\\\"col_stop\\\":21,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        if condition {\\\"}\"}"
+                        block:
+                          statements:
+                            - Assign:
+                                operation: Assign
+                                assignee:
+                                  identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"            self.a = new;\\\"}\"}"
+                                  accesses:
+                                    - Member: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"            self.a = new;\\\"}\"}"
+                                  span:
+                                    line_start: 8
+                                    line_stop: 8
+                                    col_start: 13
+                                    col_stop: 19
+                                    path: compiler-test
+                                    content: "            self.a = new;"
+                                value:
+                                  Identifier: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":22,\\\"col_stop\\\":25,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"            self.a = new;\\\"}\"}"
+                                span:
+                                  line_start: 8
+                                  line_stop: 8
+                                  col_start: 13
+                                  col_stop: 25
+                                  path: compiler-test
+                                  content: "            self.a = new;"
+                          span:
+                            line_start: 7
+                            line_stop: 9
+                            col_start: 22
+                            col_stop: 10
+                            path: compiler-test
+                            content: "        if condition {\n...\n        }"
+                        next: ~
+                        span:
+                          line_start: 7
+                          line_stop: 9
+                          col_start: 9
+                          col_stop: 10
+                          path: compiler-test
+                          content: "        if condition {\n...\n        }"
+                  span:
+                    line_start: 6
+                    line_stop: 10
+                    col_start: 56
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    function set_a(mut self, condition: bool, new: u8) {\n...\n    }"
+                span:
+                  line_start: 6
+                  line_stop: 10
+                  col_start: 5
+                  col_stop: 6
+                  path: compiler-test
+                  content: "    function set_a(mut self, condition: bool, new: u8) {\n...\n    }\n\n"
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 13
+                  line_stop: 13
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let f = Foo { a: 0u8 };\\\"}\"}"
+                      span:
+                        line_start: 14
+                        line_stop: 14
+                        col_start: 9
+                        col_stop: 10
+                        path: compiler-test
+                        content: "    let f = Foo { a: 0u8 };"
+                  type_:
+                    Circuit: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"circuit Foo {\\\"}\"}"
+                  value:
+                    CircuitInit:
+                      name: "{\"name\":\"Foo\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let f = Foo { a: 0u8 };\\\"}\"}"
+                      members:
+                        - identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":19,\\\"col_stop\\\":20,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let f = Foo { a: 0u8 };\\\"}\"}"
+                          expression:
+                            Value:
+                              Integer:
+                                - U8
+                                - "0"
+                                - line_start: 14
+                                  line_stop: 14
+                                  col_start: 22
+                                  col_stop: 25
+                                  path: compiler-test
+                                  content: "    let f = Foo { a: 0u8 };"
+                      span:
+                        line_start: 14
+                        line_stop: 14
+                        col_start: 13
+                        col_stop: 27
+                        path: compiler-test
+                        content: "    let f = Foo { a: 0u8 };"
+                  span:
+                    line_start: 14
+                    line_stop: 14
+                    col_start: 5
+                    col_stop: 27
+                    path: compiler-test
+                    content: "    let f = Foo { a: 0u8 };"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 1u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 1u8);\\\"}\"}"
+                          span:
+                            line_start: 16
+                            line_stop: 16
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(false, 1u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "false"
+                              - line_start: 16
+                                line_stop: 16
+                                col_start: 13
+                                col_stop: 18
+                                path: compiler-test
+                                content: "    f.set_a(false, 1u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "1"
+                              - line_start: 16
+                                line_stop: 16
+                                col_start: 20
+                                col_stop: 23
+                                path: compiler-test
+                                content: "    f.set_a(false, 1u8);"
+                      span:
+                        line_start: 16
+                        line_stop: 16
+                        col_start: 5
+                        col_stop: 24
+                        path: compiler-test
+                        content: "    f.set_a(false, 1u8);"
+                  span:
+                    line_start: 16
+                    line_stop: 16
+                    col_start: 5
+                    col_stop: 24
+                    path: compiler-test
+                    content: "    f.set_a(false, 1u8);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 1u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 1u8);\\\"}\"}"
+                          span:
+                            line_start: 17
+                            line_stop: 17
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(true, 1u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "true"
+                              - line_start: 17
+                                line_stop: 17
+                                col_start: 13
+                                col_stop: 17
+                                path: compiler-test
+                                content: "    f.set_a(true, 1u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "1"
+                              - line_start: 17
+                                line_stop: 17
+                                col_start: 19
+                                col_stop: 22
+                                path: compiler-test
+                                content: "    f.set_a(true, 1u8);"
+                      span:
+                        line_start: 17
+                        line_stop: 17
+                        col_start: 5
+                        col_stop: 23
+                        path: compiler-test
+                        content: "    f.set_a(true, 1u8);"
+                  span:
+                    line_start: 17
+                    line_stop: 17
+                    col_start: 5
+                    col_stop: 23
+                    path: compiler-test
+                    content: "    f.set_a(true, 1u8);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 2u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(false, 2u8);\\\"}\"}"
+                          span:
+                            line_start: 18
+                            line_stop: 18
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(false, 2u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "false"
+                              - line_start: 18
+                                line_stop: 18
+                                col_start: 13
+                                col_stop: 18
+                                path: compiler-test
+                                content: "    f.set_a(false, 2u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "2"
+                              - line_start: 18
+                                line_stop: 18
+                                col_start: 20
+                                col_stop: 23
+                                path: compiler-test
+                                content: "    f.set_a(false, 2u8);"
+                      span:
+                        line_start: 18
+                        line_stop: 18
+                        col_start: 5
+                        col_stop: 24
+                        path: compiler-test
+                        content: "    f.set_a(false, 2u8);"
+                  span:
+                    line_start: 18
+                    line_stop: 18
+                    col_start: 5
+                    col_stop: 24
+                    path: compiler-test
+                    content: "    f.set_a(false, 2u8);"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        CircuitMemberAccess:
+                          circuit:
+                            Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 2u8);\\\"}\"}"
+                          name: "{\"name\":\"set_a\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    f.set_a(true, 2u8);\\\"}\"}"
+                          span:
+                            line_start: 19
+                            line_stop: 19
+                            col_start: 5
+                            col_stop: 12
+                            path: compiler-test
+                            content: "    f.set_a(true, 2u8);"
+                      arguments:
+                        - Value:
+                            Boolean:
+                              - "true"
+                              - line_start: 19
+                                line_stop: 19
+                                col_start: 13
+                                col_stop: 17
+                                path: compiler-test
+                                content: "    f.set_a(true, 2u8);"
+                        - Value:
+                            Integer:
+                              - U8
+                              - "2"
+                              - line_start: 19
+                                line_stop: 19
+                                col_start: 19
+                                col_stop: 22
+                                path: compiler-test
+                                content: "    f.set_a(true, 2u8);"
+                      span:
+                        line_start: 19
+                        line_stop: 19
+                        col_start: 5
+                        col_stop: 23
+                        path: compiler-test
+                        content: "    f.set_a(true, 2u8);"
+                  span:
+                    line_start: 19
+                    line_stop: 19
+                    col_start: 5
+                    col_stop: 23
+                    path: compiler-test
+                    content: "    f.set_a(true, 2u8);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            CircuitMemberAccess:
+                              circuit:
+                                Identifier: "{\"name\":\"f\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return f.a == 2u8 == y;\\\"}\"}"
+                              name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return f.a == 2u8 == y;\\\"}\"}"
+                              span:
+                                line_start: 21
+                                line_stop: 21
+                                col_start: 12
+                                col_stop: 15
+                                path: compiler-test
+                                content: "    return f.a == 2u8 == y;"
+                          right:
+                            Value:
+                              Integer:
+                                - U8
+                                - "2"
+                                - line_start: 21
+                                  line_stop: 21
+                                  col_start: 19
+                                  col_stop: 22
+                                  path: compiler-test
+                                  content: "    return f.a == 2u8 == y;"
+                          op: Eq
+                          span:
+                            line_start: 21
+                            line_stop: 21
+                            col_start: 12
+                            col_stop: 22
+                            path: compiler-test
+                            content: "    return f.a == 2u8 == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return f.a == 2u8 == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 21
+                        line_stop: 21
+                        col_start: 12
+                        col_stop: 27
+                        path: compiler-test
+                        content: "    return f.a == 2u8 == y;"
+                  span:
+                    line_start: 21
+                    line_stop: 21
+                    col_start: 5
+                    col_stop: 27
+                    path: compiler-test
+                    content: "    return f.a == 2u8 == y;"
+            span:
+              line_start: 13
+              line_stop: 22
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 13
+            line_stop: 22
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n\n\n\n\n\n"

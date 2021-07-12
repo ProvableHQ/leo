@@ -16,3 +16,519 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function foo(a: [u8; 1]) {}\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function foo(a: [u8; 1]) {}\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function foo(a: [u8; 1]) {}\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  Array:
+                    - IntegerType: U8
+                    - - value: "1"
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 14
+                  col_stop: 15
+                  path: compiler-test
+                  content: "function foo(a: [u8; 1]) {}"
+          output: ~
+          block:
+            statements: []
+            span:
+              line_start: 3
+              line_stop: 3
+              col_start: 26
+              col_stop: 28
+              path: compiler-test
+              content: "function foo(a: [u8; 1]) {}"
+          span:
+            line_start: 3
+            line_stop: 3
+            col_start: 1
+            col_stop: 28
+            path: compiler-test
+            content: "function foo(a: [u8; 1]) {}"
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const a: [u8; 1] = [1; 1];\\\"}\"}"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 11
+                        col_stop: 12
+                        path: compiler-test
+                        content: "    const a: [u8; 1] = [1; 1];"
+                  type_:
+                    Array:
+                      - IntegerType: U8
+                      - - value: "1"
+                  value:
+                    ArrayInit:
+                      element:
+                        Value:
+                          Implicit:
+                            - "1"
+                            - line_start: 6
+                              line_stop: 6
+                              col_start: 25
+                              col_stop: 26
+                              path: compiler-test
+                              content: "    const a: [u8; 1] = [1; 1];"
+                      dimensions:
+                        - value: "1"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 24
+                        col_stop: 30
+                        path: compiler-test
+                        content: "    const a: [u8; 1] = [1; 1];"
+                  span:
+                    line_start: 6
+                    line_stop: 6
+                    col_start: 5
+                    col_stop: 30
+                    path: compiler-test
+                    content: "    const a: [u8; 1] = [1; 1];"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    foo(a);\\\"}\"}"
+                      arguments:
+                        - Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    foo(a);\\\"}\"}"
+                      span:
+                        line_start: 7
+                        line_stop: 7
+                        col_start: 5
+                        col_stop: 11
+                        path: compiler-test
+                        content: "    foo(a);"
+                  span:
+                    line_start: 7
+                    line_stop: 7
+                    col_start: 5
+                    col_stop: 11
+                    path: compiler-test
+                    content: "    foo(a);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 8
+                              line_stop: 8
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 8
+                        line_stop: 8
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 8
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 5
+              line_stop: 9
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 5
+            line_stop: 9
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function foo(a: [u8; 1]) {}\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function foo(a: [u8; 1]) {}\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function foo(a: [u8; 1]) {}\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  Array:
+                    - IntegerType: U8
+                    - - value: "1"
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 14
+                  col_stop: 15
+                  path: compiler-test
+                  content: "function foo(a: [u8; 1]) {}"
+          output:
+            Tuple: []
+          block:
+            statements: []
+            span:
+              line_start: 3
+              line_stop: 3
+              col_start: 26
+              col_stop: 28
+              path: compiler-test
+              content: "function foo(a: [u8; 1]) {}"
+          span:
+            line_start: 3
+            line_stop: 3
+            col_start: 1
+            col_stop: 28
+            path: compiler-test
+            content: "function foo(a: [u8; 1]) {}"
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const a: [u8; 1] = [1; 1];\\\"}\"}"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 11
+                        col_stop: 12
+                        path: compiler-test
+                        content: "    const a: [u8; 1] = [1; 1];"
+                  type_:
+                    Array:
+                      - IntegerType: U8
+                      - - value: "1"
+                  value:
+                    ArrayInit:
+                      element:
+                        Value:
+                          Implicit:
+                            - "1"
+                            - line_start: 6
+                              line_stop: 6
+                              col_start: 25
+                              col_stop: 26
+                              path: compiler-test
+                              content: "    const a: [u8; 1] = [1; 1];"
+                      dimensions:
+                        - value: "1"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 24
+                        col_stop: 30
+                        path: compiler-test
+                        content: "    const a: [u8; 1] = [1; 1];"
+                  span:
+                    line_start: 6
+                    line_stop: 6
+                    col_start: 5
+                    col_stop: 30
+                    path: compiler-test
+                    content: "    const a: [u8; 1] = [1; 1];"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    foo(a);\\\"}\"}"
+                      arguments:
+                        - Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    foo(a);\\\"}\"}"
+                      span:
+                        line_start: 7
+                        line_stop: 7
+                        col_start: 5
+                        col_stop: 11
+                        path: compiler-test
+                        content: "    foo(a);"
+                  span:
+                    line_start: 7
+                    line_stop: 7
+                    col_start: 5
+                    col_stop: 11
+                    path: compiler-test
+                    content: "    foo(a);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 8
+                              line_stop: 8
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 8
+                        line_stop: 8
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 8
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 5
+              line_stop: 9
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 5
+            line_stop: 9
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function foo(a: [u8; 1]) {}\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function foo(a: [u8; 1]) {}\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function foo(a: [u8; 1]) {}\\\"}\"}"
+                const_: false
+                mutable: true
+                type_:
+                  Array:
+                    - IntegerType: U8
+                    - - value: "1"
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 14
+                  col_stop: 15
+                  path: compiler-test
+                  content: "function foo(a: [u8; 1]) {}"
+          output:
+            Tuple: []
+          block:
+            statements: []
+            span:
+              line_start: 3
+              line_stop: 3
+              col_start: 26
+              col_stop: 28
+              path: compiler-test
+              content: "function foo(a: [u8; 1]) {}"
+          span:
+            line_start: 3
+            line_stop: 3
+            col_start: 1
+            col_stop: 28
+            path: compiler-test
+            content: "function foo(a: [u8; 1]) {}"
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Const
+                  variable_names:
+                    - mutable: false
+                      identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    const a: [u8; 1] = [1; 1];\\\"}\"}"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 11
+                        col_stop: 12
+                        path: compiler-test
+                        content: "    const a: [u8; 1] = [1; 1];"
+                  type_:
+                    Array:
+                      - IntegerType: U8
+                      - - value: "1"
+                  value:
+                    ArrayInit:
+                      element:
+                        Value:
+                          Integer:
+                            - U8
+                            - "1"
+                            - line_start: 6
+                              line_stop: 6
+                              col_start: 25
+                              col_stop: 26
+                              path: compiler-test
+                              content: "    const a: [u8; 1] = [1; 1];"
+                      dimensions:
+                        - value: "1"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 24
+                        col_stop: 30
+                        path: compiler-test
+                        content: "    const a: [u8; 1] = [1; 1];"
+                  span:
+                    line_start: 6
+                    line_stop: 6
+                    col_start: 5
+                    col_stop: 30
+                    path: compiler-test
+                    content: "    const a: [u8; 1] = [1; 1];"
+              - Expression:
+                  expression:
+                    Call:
+                      function:
+                        Identifier: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    foo(a);\\\"}\"}"
+                      arguments:
+                        - Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    foo(a);\\\"}\"}"
+                      span:
+                        line_start: 7
+                        line_stop: 7
+                        col_start: 5
+                        col_stop: 11
+                        path: compiler-test
+                        content: "    foo(a);"
+                  span:
+                    line_start: 7
+                    line_stop: 7
+                    col_start: 5
+                    col_stop: 11
+                    path: compiler-test
+                    content: "    foo(a);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return y == true;\\\"}\"}"
+                      right:
+                        Value:
+                          Boolean:
+                            - "true"
+                            - line_start: 8
+                              line_stop: 8
+                              col_start: 17
+                              col_stop: 21
+                              path: compiler-test
+                              content: "    return y == true;"
+                      op: Eq
+                      span:
+                        line_start: 8
+                        line_stop: 8
+                        col_start: 12
+                        col_stop: 21
+                        path: compiler-test
+                        content: "    return y == true;"
+                  span:
+                    line_start: 8
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 21
+                    path: compiler-test
+                    content: "    return y == true;"
+            span:
+              line_start: 5
+              line_stop: 9
+              col_start: 32
+              col_stop: 2
+              path: compiler-test
+              content: "function main(y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 5
+            line_stop: 9
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(y: bool) -> bool {\n...\n}\n\n"

@@ -17,6 +17,7 @@
 use std::path::{Path, PathBuf};
 
 use leo_asg::*;
+use leo_ast::{Ast, Program};
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
@@ -25,7 +26,13 @@ use leo_test_framework::{
 use serde_yaml::Value;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
-use leo_compiler::{compiler::Compiler, errors::CompilerError, targets::edwards_bls12::EdwardsGroupType, Output};
+use leo_compiler::{
+    compiler::Compiler,
+    errors::CompilerError,
+    targets::edwards_bls12::EdwardsGroupType,
+    Output,
+    TheoremOptions,
+};
 
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
 // pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
@@ -36,15 +43,26 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
     new_context(allocator)
 }
 
-fn new_compiler(path: PathBuf) -> EdwardsTestCompiler {
+fn new_compiler(path: PathBuf, theorem_options: Option<TheoremOptions>) -> EdwardsTestCompiler {
     let program_name = "test".to_string();
-    let output_dir = PathBuf::from("/output/");
+    let output_dir = PathBuf::from("/tmp/output/");
+    std::fs::create_dir_all(output_dir.clone()).unwrap();
 
-    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None, None)
+    EdwardsTestCompiler::new(
+        program_name,
+        path,
+        output_dir,
+        make_test_context(),
+        None,
+        theorem_options,
+    )
 }
 
-pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler("compiler-test".into());
+pub(crate) fn parse_program(
+    program_string: &str,
+    theorem_options: Option<TheoremOptions>,
+) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler("compiler-test".into(), theorem_options);
 
     compiler.parse_program_from_string(program_string)?;
 
@@ -63,6 +81,9 @@ struct OutputItem {
 struct CompileOutput {
     pub circuit: SummarizedCircuit,
     pub output: Vec<OutputItem>,
+    pub initial_theorem: Program,
+    pub canonicalized_theorem: Program,
+    pub type_inferenced_theorem: Program,
 }
 
 impl Namespace for CompileNamespace {
@@ -85,7 +106,15 @@ impl Namespace for CompileNamespace {
         //     })
         //     .unwrap_or(test.path.clone());
 
-        let parsed = parse_program(&test.content).map_err(|x| x.to_string())?;
+        let parsed = parse_program(
+            &test.content,
+            Some(TheoremOptions {
+                initial: true,
+                canonicalized: true,
+                type_inferenced: true,
+            }),
+        )
+        .map_err(|x| x.to_string())?;
 
         // (name, content)
         let mut inputs = vec![];
@@ -169,15 +198,33 @@ impl Namespace for CompileNamespace {
             } else {
                 last_circuit = Some(circuit);
             }
+
             output_items.push(OutputItem {
                 input_file: input.0,
                 output,
             });
         }
 
+        let initial_theorem: Program = Ast::from_json_file("/tmp/output/initial_ast.json".into())
+            .unwrap_or(Ast::new(Program::new("Error reading initial theorem.".to_string())))
+            .into_repr();
+        let canonicalized_theorem: Program = Ast::from_json_file("/tmp/output/canonicalization_ast.json".into())
+            .unwrap_or(Ast::new(Program::new(
+                "Error reading canonicalized theorem.".to_string(),
+            )))
+            .into_repr();
+        let type_inferenced_theorem: Program = Ast::from_json_file("/tmp/output/type_inferenced_ast.json".into())
+            .unwrap_or(Ast::new(Program::new(
+                "Error reading type inferenced theorem.".to_string(),
+            )))
+            .into_repr();
+
         let final_output = CompileOutput {
             circuit: last_circuit.unwrap(),
             output: output_items,
+            initial_theorem,
+            canonicalized_theorem,
+            type_inferenced_theorem,
         };
         Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
     }

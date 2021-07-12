@@ -16,3 +16,398 @@ outputs:
       - input_file: cond_2.in
         output:
           registers: {}
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: bool) {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: bool) {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: bool) {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(a: bool) {"
+          output: ~
+          block:
+            statements:
+              - Conditional:
+                  condition:
+                    Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    if a {\\\"}\"}"
+                  block:
+                    statements:
+                      - Console:
+                          function:
+                            Assert:
+                              Binary:
+                                left:
+                                  Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        console.assert(a == true);\\\"}\"}"
+                                right:
+                                  Value:
+                                    Boolean:
+                                      - "true"
+                                      - line_start: 5
+                                        line_stop: 5
+                                        col_start: 29
+                                        col_stop: 33
+                                        path: compiler-test
+                                        content: "        console.assert(a == true);"
+                                op: Eq
+                                span:
+                                  line_start: 5
+                                  line_stop: 5
+                                  col_start: 24
+                                  col_stop: 33
+                                  path: compiler-test
+                                  content: "        console.assert(a == true);"
+                          span:
+                            line_start: 5
+                            line_stop: 5
+                            col_start: 9
+                            col_stop: 33
+                            path: compiler-test
+                            content: "        console.assert(a == true);"
+                    span:
+                      line_start: 4
+                      line_stop: 6
+                      col_start: 10
+                      col_stop: 6
+                      path: compiler-test
+                      content: "    if a {\n...\n    } else {"
+                  next:
+                    Block:
+                      statements:
+                        - Console:
+                            function:
+                              Assert:
+                                Binary:
+                                  left:
+                                    Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        console.assert(a == false);\\\"}\"}"
+                                  right:
+                                    Value:
+                                      Boolean:
+                                        - "false"
+                                        - line_start: 7
+                                          line_stop: 7
+                                          col_start: 29
+                                          col_stop: 34
+                                          path: compiler-test
+                                          content: "        console.assert(a == false);"
+                                  op: Eq
+                                  span:
+                                    line_start: 7
+                                    line_stop: 7
+                                    col_start: 24
+                                    col_stop: 34
+                                    path: compiler-test
+                                    content: "        console.assert(a == false);"
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 9
+                              col_stop: 34
+                              path: compiler-test
+                              content: "        console.assert(a == false);"
+                      span:
+                        line_start: 6
+                        line_stop: 8
+                        col_start: 12
+                        col_stop: 6
+                        path: compiler-test
+                        content: "    } else {\n...\n    }"
+                  span:
+                    line_start: 4
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    if a {\n...\n    } else {\n...\n    }"
+            span:
+              line_start: 3
+              line_stop: 9
+              col_start: 24
+              col_stop: 2
+              path: compiler-test
+              content: "function main(a: bool) {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 9
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(a: bool) {\n...\n}\n\n\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: bool) {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: bool) {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: bool) {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(a: bool) {"
+          output:
+            Tuple: []
+          block:
+            statements:
+              - Conditional:
+                  condition:
+                    Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    if a {\\\"}\"}"
+                  block:
+                    statements:
+                      - Console:
+                          function:
+                            Assert:
+                              Binary:
+                                left:
+                                  Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        console.assert(a == true);\\\"}\"}"
+                                right:
+                                  Value:
+                                    Boolean:
+                                      - "true"
+                                      - line_start: 5
+                                        line_stop: 5
+                                        col_start: 29
+                                        col_stop: 33
+                                        path: compiler-test
+                                        content: "        console.assert(a == true);"
+                                op: Eq
+                                span:
+                                  line_start: 5
+                                  line_stop: 5
+                                  col_start: 24
+                                  col_stop: 33
+                                  path: compiler-test
+                                  content: "        console.assert(a == true);"
+                          span:
+                            line_start: 5
+                            line_stop: 5
+                            col_start: 9
+                            col_stop: 33
+                            path: compiler-test
+                            content: "        console.assert(a == true);"
+                    span:
+                      line_start: 4
+                      line_stop: 6
+                      col_start: 10
+                      col_stop: 6
+                      path: compiler-test
+                      content: "    if a {\n...\n    } else {"
+                  next:
+                    Block:
+                      statements:
+                        - Console:
+                            function:
+                              Assert:
+                                Binary:
+                                  left:
+                                    Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        console.assert(a == false);\\\"}\"}"
+                                  right:
+                                    Value:
+                                      Boolean:
+                                        - "false"
+                                        - line_start: 7
+                                          line_stop: 7
+                                          col_start: 29
+                                          col_stop: 34
+                                          path: compiler-test
+                                          content: "        console.assert(a == false);"
+                                  op: Eq
+                                  span:
+                                    line_start: 7
+                                    line_stop: 7
+                                    col_start: 24
+                                    col_stop: 34
+                                    path: compiler-test
+                                    content: "        console.assert(a == false);"
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 9
+                              col_stop: 34
+                              path: compiler-test
+                              content: "        console.assert(a == false);"
+                      span:
+                        line_start: 6
+                        line_stop: 8
+                        col_start: 12
+                        col_stop: 6
+                        path: compiler-test
+                        content: "    } else {\n...\n    }"
+                  span:
+                    line_start: 4
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    if a {\n...\n    } else {\n...\n    }"
+            span:
+              line_start: 3
+              line_stop: 9
+              col_start: 24
+              col_stop: 2
+              path: compiler-test
+              content: "function main(a: bool) {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 9
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(a: bool) {\n...\n}\n\n\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: bool) {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: bool) {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(a: bool) {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 15
+                  col_stop: 16
+                  path: compiler-test
+                  content: "function main(a: bool) {"
+          output:
+            Tuple: []
+          block:
+            statements:
+              - Conditional:
+                  condition:
+                    Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    if a {\\\"}\"}"
+                  block:
+                    statements:
+                      - Console:
+                          function:
+                            Assert:
+                              Binary:
+                                left:
+                                  Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        console.assert(a == true);\\\"}\"}"
+                                right:
+                                  Value:
+                                    Boolean:
+                                      - "true"
+                                      - line_start: 5
+                                        line_stop: 5
+                                        col_start: 29
+                                        col_stop: 33
+                                        path: compiler-test
+                                        content: "        console.assert(a == true);"
+                                op: Eq
+                                span:
+                                  line_start: 5
+                                  line_stop: 5
+                                  col_start: 24
+                                  col_stop: 33
+                                  path: compiler-test
+                                  content: "        console.assert(a == true);"
+                          span:
+                            line_start: 5
+                            line_stop: 5
+                            col_start: 9
+                            col_stop: 33
+                            path: compiler-test
+                            content: "        console.assert(a == true);"
+                    span:
+                      line_start: 4
+                      line_stop: 6
+                      col_start: 10
+                      col_stop: 6
+                      path: compiler-test
+                      content: "    if a {\n...\n    } else {"
+                  next:
+                    Block:
+                      statements:
+                        - Console:
+                            function:
+                              Assert:
+                                Binary:
+                                  left:
+                                    Identifier: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        console.assert(a == false);\\\"}\"}"
+                                  right:
+                                    Value:
+                                      Boolean:
+                                        - "false"
+                                        - line_start: 7
+                                          line_stop: 7
+                                          col_start: 29
+                                          col_stop: 34
+                                          path: compiler-test
+                                          content: "        console.assert(a == false);"
+                                  op: Eq
+                                  span:
+                                    line_start: 7
+                                    line_stop: 7
+                                    col_start: 24
+                                    col_stop: 34
+                                    path: compiler-test
+                                    content: "        console.assert(a == false);"
+                            span:
+                              line_start: 7
+                              line_stop: 7
+                              col_start: 9
+                              col_stop: 34
+                              path: compiler-test
+                              content: "        console.assert(a == false);"
+                      span:
+                        line_start: 6
+                        line_stop: 8
+                        col_start: 12
+                        col_stop: 6
+                        path: compiler-test
+                        content: "    } else {\n...\n    }"
+                  span:
+                    line_start: 4
+                    line_stop: 8
+                    col_start: 5
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    if a {\n...\n    } else {\n...\n    }"
+            span:
+              line_start: 3
+              line_stop: 9
+              col_start: 24
+              col_stop: 2
+              path: compiler-test
+              content: "function main(a: bool) {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 9
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(a: bool) {\n...\n}\n\n\n\n"

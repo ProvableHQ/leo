@@ -19,3 +19,1773 @@ outputs:
             r1:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"in1\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in1: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in1: char,"
+            - Variable:
+                identifier: "{\"name\":\"in2\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in2: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in2: char,"
+            - Variable:
+                identifier: "{\"name\":\"in3\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in3: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in3: char,"
+            - Variable:
+                identifier: "{\"name\":\"in4\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in4: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 6
+                  line_stop: 6
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in4: char,"
+            - Variable:
+                identifier: "{\"name\":\"in5\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in5: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 7
+                  line_stop: 7
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in5: char,"
+            - Variable:
+                identifier: "{\"name\":\"in6\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in6: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 8
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in6: char,"
+            - Variable:
+                identifier: "{\"name\":\"in7\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in7: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 9
+                  line_stop: 9
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in7: char,"
+            - Variable:
+                identifier: "{\"name\":\"in8\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in8: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 10
+                  line_stop: 10
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in8: char,"
+            - Variable:
+                identifier: "{\"name\":\"in9\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in9: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 11
+                  line_stop: 11
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in9: char,"
+            - Variable:
+                identifier: "{\"name\":\"in10\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in10: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 12
+                  line_stop: 12
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in10: char,"
+            - Variable:
+                identifier: "{\"name\":\"in11\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in11: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 13
+                  line_stop: 13
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in11: char,"
+            - Variable:
+                identifier: "{\"name\":\"in12\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in12: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 14
+                  line_stop: 14
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in12: char,"
+            - Variable:
+                identifier: "{\"name\":\"in13\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in13: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 15
+                  line_stop: 15
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in13: char,"
+            - Variable:
+                identifier: "{\"name\":\"in14\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in14: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 16
+                  line_stop: 16
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in14: char,"
+            - Variable:
+                identifier: "{\"name\":\"in15\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in15: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 17
+                  line_stop: 17
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in15: char,"
+            - Variable:
+                identifier: "{\"name\":\"in16\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in16: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 18
+                  line_stop: 18
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in16: char,"
+            - Variable:
+                identifier: "{\"name\":\"in17\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in17: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 19
+                  line_stop: 19
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in17: char,"
+            - Variable:
+                identifier: "{\"name\":\"in18\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in18: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 20
+                  line_stop: 20
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in18: char,"
+            - Variable:
+                identifier: "{\"name\":\"in19\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in19: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 21
+                  line_stop: 21
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in19: char,"
+            - Variable:
+                identifier: "{\"name\":\"in20\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in20: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 22
+                  line_stop: 22
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in20: char,"
+            - Variable:
+                identifier: "{\"name\":\"in21\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in21: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 23
+                  line_stop: 23
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in21: char,"
+            - Variable:
+                identifier: "{\"name\":\"in22\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in22: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 24
+                  line_stop: 24
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in22: char,"
+            - Variable:
+                identifier: "{\"name\":\"in23\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in23: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 25
+                  line_stop: 25
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in23: char,"
+            - Variable:
+                identifier: "{\"name\":\"in24\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in24: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 26
+                  line_stop: 26
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in24: char,"
+            - Variable:
+                identifier: "{\"name\":\"in25\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in25: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 27
+                  line_stop: 27
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in25: char,"
+            - Variable:
+                identifier: "{\"name\":\"in26\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in26: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 28
+                  line_stop: 28
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in26: char,"
+            - Variable:
+                identifier: "{\"name\":\"in27\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in27: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 29
+                  line_stop: 29
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in27: char,"
+            - Variable:
+                identifier: "{\"name\":\"in28\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in28: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 30
+                  line_stop: 30
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in28: char,"
+            - Variable:
+                identifier: "{\"name\":\"in29\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in29: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 31
+                  line_stop: 31
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in29: char,"
+            - Variable:
+                identifier: "{\"name\":\"in30\",\"span\":\"{\\\"line_start\\\":32,\\\"line_stop\\\":32,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in30: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 32
+                  line_stop: 32
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in30: char,"
+            - Variable:
+                identifier: "{\"name\":\"in31\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in31: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 33
+                  line_stop: 33
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in31: char,"
+            - Variable:
+                identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in32: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 34
+                  line_stop: 34
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in32: char,"
+            - Variable:
+                identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in32: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 35
+                  line_stop: 35
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in32: char,"
+          output:
+            Tuple:
+              - Array:
+                  - Char
+                  - - value: "33"
+              - Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let str = [\\\"}\"}"
+                      span:
+                        line_start: 37
+                        line_stop: 37
+                        col_start: 9
+                        col_stop: 12
+                        path: compiler-test
+                        content: "    let str = ["
+                  type_: ~
+                  value:
+                    ArrayInline:
+                      elements:
+                        - Expression:
+                            Identifier: "{\"name\":\"in1\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in1,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in2\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in2,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in3\",\"span\":\"{\\\"line_start\\\":40,\\\"line_stop\\\":40,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in3,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in4\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in4,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in5\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in5,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in6\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in6,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in7\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in7,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in8\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in8,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in9\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in9,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in10\",\"span\":\"{\\\"line_start\\\":47,\\\"line_stop\\\":47,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in10,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in11\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in11,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in12\",\"span\":\"{\\\"line_start\\\":49,\\\"line_stop\\\":49,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in12,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in13\",\"span\":\"{\\\"line_start\\\":50,\\\"line_stop\\\":50,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in13,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in14\",\"span\":\"{\\\"line_start\\\":51,\\\"line_stop\\\":51,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in14,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in15\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in15,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in16\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in16,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in17\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in17,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in18\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in18,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in19\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in19,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in20\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in20,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in21\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in21,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in22\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in22,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in23\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in23,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in24\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in24,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in25\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in25,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in26\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in26,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in27\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in27,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in28\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in28,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in29\",\"span\":\"{\\\"line_start\\\":66,\\\"line_stop\\\":66,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in29,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in30\",\"span\":\"{\\\"line_start\\\":67,\\\"line_stop\\\":67,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in30,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in31\",\"span\":\"{\\\"line_start\\\":68,\\\"line_stop\\\":68,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in31,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":69,\\\"line_stop\\\":69,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in32,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":70,\\\"line_stop\\\":70,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in32,\\\"}\"}"
+                      span:
+                        line_start: 37
+                        line_stop: 71
+                        col_start: 15
+                        col_stop: 6
+                        path: compiler-test
+                        content: "    let str = [\n...\n    ];"
+                  span:
+                    line_start: 37
+                    line_stop: 71
+                    col_start: 5
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    let str = [\n...\n    ];\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+              - Console:
+                  function:
+                    Log:
+                      parts:
+                        - Const: ""
+                        - Container
+                      parameters:
+                        - Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":72,\\\"line_stop\\\":72,\\\"col_start\\\":23,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", str);\\\"}\"}"
+                      span:
+                        line_start: 72
+                        line_stop: 72
+                        col_start: 17
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    console.log(\"{}\", str);"
+                  span:
+                    line_start: 72
+                    line_stop: 72
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    console.log(\"{}\", str);"
+              - Return:
+                  expression:
+                    TupleInit:
+                      elements:
+                        - Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":73,\\\"line_stop\\\":73,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return (str, in1 == '\\\\\\\\x00');\\\"}\"}"
+                        - Binary:
+                            left:
+                              Identifier: "{\"name\":\"in1\",\"span\":\"{\\\"line_start\\\":73,\\\"line_stop\\\":73,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return (str, in1 == '\\\\\\\\x00');\\\"}\"}"
+                            right:
+                              Value:
+                                Char:
+                                  character:
+                                    Scalar: 0
+                                  span:
+                                    line_start: 73
+                                    line_stop: 73
+                                    col_start: 25
+                                    col_stop: 31
+                                    path: compiler-test
+                                    content: "    return (str, in1 == '\\x00');"
+                            op: Eq
+                            span:
+                              line_start: 73
+                              line_stop: 73
+                              col_start: 18
+                              col_stop: 31
+                              path: compiler-test
+                              content: "    return (str, in1 == '\\x00');"
+                      span:
+                        line_start: 73
+                        line_stop: 73
+                        col_start: 12
+                        col_stop: 32
+                        path: compiler-test
+                        content: "    return (str, in1 == '\\x00');"
+                  span:
+                    line_start: 73
+                    line_stop: 73
+                    col_start: 5
+                    col_stop: 32
+                    path: compiler-test
+                    content: "    return (str, in1 == '\\x00');"
+            span:
+              line_start: 36
+              line_stop: 74
+              col_start: 25
+              col_stop: 2
+              path: compiler-test
+              content: ") -> ([char; 33], bool) {\n...\n}"
+          span:
+            line_start: 2
+            line_stop: 74
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(\n...\n) -> ([char; 33], bool) {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"in1\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in1: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in1: char,"
+            - Variable:
+                identifier: "{\"name\":\"in2\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in2: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in2: char,"
+            - Variable:
+                identifier: "{\"name\":\"in3\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in3: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in3: char,"
+            - Variable:
+                identifier: "{\"name\":\"in4\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in4: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 6
+                  line_stop: 6
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in4: char,"
+            - Variable:
+                identifier: "{\"name\":\"in5\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in5: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 7
+                  line_stop: 7
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in5: char,"
+            - Variable:
+                identifier: "{\"name\":\"in6\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in6: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 8
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in6: char,"
+            - Variable:
+                identifier: "{\"name\":\"in7\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in7: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 9
+                  line_stop: 9
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in7: char,"
+            - Variable:
+                identifier: "{\"name\":\"in8\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in8: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 10
+                  line_stop: 10
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in8: char,"
+            - Variable:
+                identifier: "{\"name\":\"in9\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in9: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 11
+                  line_stop: 11
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in9: char,"
+            - Variable:
+                identifier: "{\"name\":\"in10\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in10: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 12
+                  line_stop: 12
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in10: char,"
+            - Variable:
+                identifier: "{\"name\":\"in11\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in11: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 13
+                  line_stop: 13
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in11: char,"
+            - Variable:
+                identifier: "{\"name\":\"in12\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in12: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 14
+                  line_stop: 14
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in12: char,"
+            - Variable:
+                identifier: "{\"name\":\"in13\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in13: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 15
+                  line_stop: 15
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in13: char,"
+            - Variable:
+                identifier: "{\"name\":\"in14\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in14: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 16
+                  line_stop: 16
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in14: char,"
+            - Variable:
+                identifier: "{\"name\":\"in15\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in15: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 17
+                  line_stop: 17
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in15: char,"
+            - Variable:
+                identifier: "{\"name\":\"in16\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in16: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 18
+                  line_stop: 18
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in16: char,"
+            - Variable:
+                identifier: "{\"name\":\"in17\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in17: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 19
+                  line_stop: 19
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in17: char,"
+            - Variable:
+                identifier: "{\"name\":\"in18\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in18: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 20
+                  line_stop: 20
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in18: char,"
+            - Variable:
+                identifier: "{\"name\":\"in19\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in19: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 21
+                  line_stop: 21
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in19: char,"
+            - Variable:
+                identifier: "{\"name\":\"in20\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in20: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 22
+                  line_stop: 22
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in20: char,"
+            - Variable:
+                identifier: "{\"name\":\"in21\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in21: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 23
+                  line_stop: 23
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in21: char,"
+            - Variable:
+                identifier: "{\"name\":\"in22\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in22: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 24
+                  line_stop: 24
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in22: char,"
+            - Variable:
+                identifier: "{\"name\":\"in23\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in23: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 25
+                  line_stop: 25
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in23: char,"
+            - Variable:
+                identifier: "{\"name\":\"in24\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in24: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 26
+                  line_stop: 26
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in24: char,"
+            - Variable:
+                identifier: "{\"name\":\"in25\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in25: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 27
+                  line_stop: 27
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in25: char,"
+            - Variable:
+                identifier: "{\"name\":\"in26\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in26: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 28
+                  line_stop: 28
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in26: char,"
+            - Variable:
+                identifier: "{\"name\":\"in27\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in27: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 29
+                  line_stop: 29
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in27: char,"
+            - Variable:
+                identifier: "{\"name\":\"in28\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in28: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 30
+                  line_stop: 30
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in28: char,"
+            - Variable:
+                identifier: "{\"name\":\"in29\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in29: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 31
+                  line_stop: 31
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in29: char,"
+            - Variable:
+                identifier: "{\"name\":\"in30\",\"span\":\"{\\\"line_start\\\":32,\\\"line_stop\\\":32,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in30: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 32
+                  line_stop: 32
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in30: char,"
+            - Variable:
+                identifier: "{\"name\":\"in31\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in31: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 33
+                  line_stop: 33
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in31: char,"
+            - Variable:
+                identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in32: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 34
+                  line_stop: 34
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in32: char,"
+            - Variable:
+                identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in32: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 35
+                  line_stop: 35
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in32: char,"
+          output:
+            Tuple:
+              - Array:
+                  - Char
+                  - - value: "33"
+              - Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let str = [\\\"}\"}"
+                      span:
+                        line_start: 37
+                        line_stop: 37
+                        col_start: 9
+                        col_stop: 12
+                        path: compiler-test
+                        content: "    let str = ["
+                  type_: ~
+                  value:
+                    ArrayInline:
+                      elements:
+                        - Expression:
+                            Identifier: "{\"name\":\"in1\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in1,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in2\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in2,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in3\",\"span\":\"{\\\"line_start\\\":40,\\\"line_stop\\\":40,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in3,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in4\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in4,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in5\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in5,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in6\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in6,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in7\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in7,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in8\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in8,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in9\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in9,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in10\",\"span\":\"{\\\"line_start\\\":47,\\\"line_stop\\\":47,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in10,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in11\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in11,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in12\",\"span\":\"{\\\"line_start\\\":49,\\\"line_stop\\\":49,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in12,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in13\",\"span\":\"{\\\"line_start\\\":50,\\\"line_stop\\\":50,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in13,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in14\",\"span\":\"{\\\"line_start\\\":51,\\\"line_stop\\\":51,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in14,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in15\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in15,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in16\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in16,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in17\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in17,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in18\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in18,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in19\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in19,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in20\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in20,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in21\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in21,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in22\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in22,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in23\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in23,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in24\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in24,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in25\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in25,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in26\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in26,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in27\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in27,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in28\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in28,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in29\",\"span\":\"{\\\"line_start\\\":66,\\\"line_stop\\\":66,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in29,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in30\",\"span\":\"{\\\"line_start\\\":67,\\\"line_stop\\\":67,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in30,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in31\",\"span\":\"{\\\"line_start\\\":68,\\\"line_stop\\\":68,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in31,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":69,\\\"line_stop\\\":69,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in32,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":70,\\\"line_stop\\\":70,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in32,\\\"}\"}"
+                      span:
+                        line_start: 37
+                        line_stop: 71
+                        col_start: 15
+                        col_stop: 6
+                        path: compiler-test
+                        content: "    let str = [\n...\n    ];"
+                  span:
+                    line_start: 37
+                    line_stop: 71
+                    col_start: 5
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    let str = [\n...\n    ];\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+              - Console:
+                  function:
+                    Log:
+                      parts:
+                        - Const: ""
+                        - Container
+                      parameters:
+                        - Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":72,\\\"line_stop\\\":72,\\\"col_start\\\":23,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", str);\\\"}\"}"
+                      span:
+                        line_start: 72
+                        line_stop: 72
+                        col_start: 17
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    console.log(\"{}\", str);"
+                  span:
+                    line_start: 72
+                    line_stop: 72
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    console.log(\"{}\", str);"
+              - Return:
+                  expression:
+                    TupleInit:
+                      elements:
+                        - Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":73,\\\"line_stop\\\":73,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return (str, in1 == '\\\\\\\\x00');\\\"}\"}"
+                        - Binary:
+                            left:
+                              Identifier: "{\"name\":\"in1\",\"span\":\"{\\\"line_start\\\":73,\\\"line_stop\\\":73,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return (str, in1 == '\\\\\\\\x00');\\\"}\"}"
+                            right:
+                              Value:
+                                Char:
+                                  character:
+                                    Scalar: 0
+                                  span:
+                                    line_start: 73
+                                    line_stop: 73
+                                    col_start: 25
+                                    col_stop: 31
+                                    path: compiler-test
+                                    content: "    return (str, in1 == '\\x00');"
+                            op: Eq
+                            span:
+                              line_start: 73
+                              line_stop: 73
+                              col_start: 18
+                              col_stop: 31
+                              path: compiler-test
+                              content: "    return (str, in1 == '\\x00');"
+                      span:
+                        line_start: 73
+                        line_stop: 73
+                        col_start: 12
+                        col_stop: 32
+                        path: compiler-test
+                        content: "    return (str, in1 == '\\x00');"
+                  span:
+                    line_start: 73
+                    line_stop: 73
+                    col_start: 5
+                    col_stop: 32
+                    path: compiler-test
+                    content: "    return (str, in1 == '\\x00');"
+            span:
+              line_start: 36
+              line_stop: 74
+              col_start: 25
+              col_stop: 2
+              path: compiler-test
+              content: ") -> ([char; 33], bool) {\n...\n}"
+          span:
+            line_start: 2
+            line_stop: 74
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(\n...\n) -> ([char; 33], bool) {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"in1\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in1: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in1: char,"
+            - Variable:
+                identifier: "{\"name\":\"in2\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in2: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in2: char,"
+            - Variable:
+                identifier: "{\"name\":\"in3\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in3: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 5
+                  line_stop: 5
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in3: char,"
+            - Variable:
+                identifier: "{\"name\":\"in4\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in4: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 6
+                  line_stop: 6
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in4: char,"
+            - Variable:
+                identifier: "{\"name\":\"in5\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in5: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 7
+                  line_stop: 7
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in5: char,"
+            - Variable:
+                identifier: "{\"name\":\"in6\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in6: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 8
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in6: char,"
+            - Variable:
+                identifier: "{\"name\":\"in7\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in7: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 9
+                  line_stop: 9
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in7: char,"
+            - Variable:
+                identifier: "{\"name\":\"in8\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in8: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 10
+                  line_stop: 10
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in8: char,"
+            - Variable:
+                identifier: "{\"name\":\"in9\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in9: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 11
+                  line_stop: 11
+                  col_start: 5
+                  col_stop: 8
+                  path: compiler-test
+                  content: "    in9: char,"
+            - Variable:
+                identifier: "{\"name\":\"in10\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in10: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 12
+                  line_stop: 12
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in10: char,"
+            - Variable:
+                identifier: "{\"name\":\"in11\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in11: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 13
+                  line_stop: 13
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in11: char,"
+            - Variable:
+                identifier: "{\"name\":\"in12\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in12: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 14
+                  line_stop: 14
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in12: char,"
+            - Variable:
+                identifier: "{\"name\":\"in13\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in13: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 15
+                  line_stop: 15
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in13: char,"
+            - Variable:
+                identifier: "{\"name\":\"in14\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in14: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 16
+                  line_stop: 16
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in14: char,"
+            - Variable:
+                identifier: "{\"name\":\"in15\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in15: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 17
+                  line_stop: 17
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in15: char,"
+            - Variable:
+                identifier: "{\"name\":\"in16\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in16: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 18
+                  line_stop: 18
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in16: char,"
+            - Variable:
+                identifier: "{\"name\":\"in17\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in17: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 19
+                  line_stop: 19
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in17: char,"
+            - Variable:
+                identifier: "{\"name\":\"in18\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in18: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 20
+                  line_stop: 20
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in18: char,"
+            - Variable:
+                identifier: "{\"name\":\"in19\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in19: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 21
+                  line_stop: 21
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in19: char,"
+            - Variable:
+                identifier: "{\"name\":\"in20\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in20: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 22
+                  line_stop: 22
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in20: char,"
+            - Variable:
+                identifier: "{\"name\":\"in21\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in21: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 23
+                  line_stop: 23
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in21: char,"
+            - Variable:
+                identifier: "{\"name\":\"in22\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in22: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 24
+                  line_stop: 24
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in22: char,"
+            - Variable:
+                identifier: "{\"name\":\"in23\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in23: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 25
+                  line_stop: 25
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in23: char,"
+            - Variable:
+                identifier: "{\"name\":\"in24\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in24: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 26
+                  line_stop: 26
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in24: char,"
+            - Variable:
+                identifier: "{\"name\":\"in25\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in25: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 27
+                  line_stop: 27
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in25: char,"
+            - Variable:
+                identifier: "{\"name\":\"in26\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in26: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 28
+                  line_stop: 28
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in26: char,"
+            - Variable:
+                identifier: "{\"name\":\"in27\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in27: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 29
+                  line_stop: 29
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in27: char,"
+            - Variable:
+                identifier: "{\"name\":\"in28\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in28: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 30
+                  line_stop: 30
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in28: char,"
+            - Variable:
+                identifier: "{\"name\":\"in29\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in29: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 31
+                  line_stop: 31
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in29: char,"
+            - Variable:
+                identifier: "{\"name\":\"in30\",\"span\":\"{\\\"line_start\\\":32,\\\"line_stop\\\":32,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in30: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 32
+                  line_stop: 32
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in30: char,"
+            - Variable:
+                identifier: "{\"name\":\"in31\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in31: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 33
+                  line_stop: 33
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in31: char,"
+            - Variable:
+                identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in32: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 34
+                  line_stop: 34
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in32: char,"
+            - Variable:
+                identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":5,\\\"col_stop\\\":9,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    in32: char,\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Char
+                span:
+                  line_start: 35
+                  line_stop: 35
+                  col_start: 5
+                  col_stop: 9
+                  path: compiler-test
+                  content: "    in32: char,"
+          output:
+            Tuple:
+              - Array:
+                  - Char
+                  - - value: "33"
+              - Boolean
+          block:
+            statements:
+              - Definition:
+                  declaration_type: Let
+                  variable_names:
+                    - mutable: true
+                      identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    let str = [\\\"}\"}"
+                      span:
+                        line_start: 37
+                        line_stop: 37
+                        col_start: 9
+                        col_stop: 12
+                        path: compiler-test
+                        content: "    let str = ["
+                  type_:
+                    Array:
+                      - Char
+                      - - value: "33"
+                  value:
+                    ArrayInline:
+                      elements:
+                        - Expression:
+                            Identifier: "{\"name\":\"in1\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in1,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in2\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in2,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in3\",\"span\":\"{\\\"line_start\\\":40,\\\"line_stop\\\":40,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in3,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in4\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in4,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in5\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in5,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in6\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in6,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in7\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in7,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in8\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in8,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in9\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in9,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in10\",\"span\":\"{\\\"line_start\\\":47,\\\"line_stop\\\":47,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in10,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in11\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in11,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in12\",\"span\":\"{\\\"line_start\\\":49,\\\"line_stop\\\":49,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in12,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in13\",\"span\":\"{\\\"line_start\\\":50,\\\"line_stop\\\":50,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in13,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in14\",\"span\":\"{\\\"line_start\\\":51,\\\"line_stop\\\":51,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in14,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in15\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in15,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in16\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in16,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in17\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in17,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in18\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in18,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in19\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in19,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in20\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in20,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in21\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in21,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in22\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in22,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in23\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in23,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in24\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in24,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in25\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in25,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in26\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in26,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in27\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in27,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in28\",\"span\":\"{\\\"line_start\\\":65,\\\"line_stop\\\":65,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in28,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in29\",\"span\":\"{\\\"line_start\\\":66,\\\"line_stop\\\":66,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in29,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in30\",\"span\":\"{\\\"line_start\\\":67,\\\"line_stop\\\":67,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in30,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in31\",\"span\":\"{\\\"line_start\\\":68,\\\"line_stop\\\":68,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in31,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":69,\\\"line_stop\\\":69,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in32,\\\"}\"}"
+                        - Expression:
+                            Identifier: "{\"name\":\"in32\",\"span\":\"{\\\"line_start\\\":70,\\\"line_stop\\\":70,\\\"col_start\\\":9,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"        in32,\\\"}\"}"
+                      span:
+                        line_start: 37
+                        line_stop: 71
+                        col_start: 15
+                        col_stop: 6
+                        path: compiler-test
+                        content: "    let str = [\n...\n    ];"
+                  span:
+                    line_start: 37
+                    line_stop: 71
+                    col_start: 5
+                    col_stop: 6
+                    path: compiler-test
+                    content: "    let str = [\n...\n    ];\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+              - Console:
+                  function:
+                    Log:
+                      parts:
+                        - Const: ""
+                        - Container
+                      parameters:
+                        - Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":72,\\\"line_stop\\\":72,\\\"col_start\\\":23,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", str);\\\"}\"}"
+                      span:
+                        line_start: 72
+                        line_stop: 72
+                        col_start: 17
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    console.log(\"{}\", str);"
+                  span:
+                    line_start: 72
+                    line_stop: 72
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    console.log(\"{}\", str);"
+              - Return:
+                  expression:
+                    TupleInit:
+                      elements:
+                        - Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":73,\\\"line_stop\\\":73,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return (str, in1 == '\\\\\\\\x00');\\\"}\"}"
+                        - Binary:
+                            left:
+                              Identifier: "{\"name\":\"in1\",\"span\":\"{\\\"line_start\\\":73,\\\"line_stop\\\":73,\\\"col_start\\\":18,\\\"col_stop\\\":21,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return (str, in1 == '\\\\\\\\x00');\\\"}\"}"
+                            right:
+                              Value:
+                                Char:
+                                  character:
+                                    Scalar: 0
+                                  span:
+                                    line_start: 73
+                                    line_stop: 73
+                                    col_start: 25
+                                    col_stop: 31
+                                    path: compiler-test
+                                    content: "    return (str, in1 == '\\x00');"
+                            op: Eq
+                            span:
+                              line_start: 73
+                              line_stop: 73
+                              col_start: 18
+                              col_stop: 31
+                              path: compiler-test
+                              content: "    return (str, in1 == '\\x00');"
+                      span:
+                        line_start: 73
+                        line_stop: 73
+                        col_start: 12
+                        col_stop: 32
+                        path: compiler-test
+                        content: "    return (str, in1 == '\\x00');"
+                  span:
+                    line_start: 73
+                    line_stop: 73
+                    col_start: 5
+                    col_stop: 32
+                    path: compiler-test
+                    content: "    return (str, in1 == '\\x00');"
+            span:
+              line_start: 36
+              line_stop: 74
+              col_start: 25
+              col_stop: 2
+              path: compiler-test
+              content: ") -> ([char; 33], bool) {\n...\n}"
+          span:
+            line_start: 2
+            line_stop: 74
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(\n...\n) -> ([char; 33], bool) {\n...\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"

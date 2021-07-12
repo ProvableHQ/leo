@@ -16,3 +16,419 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}"
+                const_: true
+                mutable: false
+                type_:
+                  Array:
+                    - IntegerType: I16
+                    - - value: "1"
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 21
+                  col_stop: 22
+                  path: compiler-test
+                  content: "function main(const x: [i16; 1], y: bool) -> bool {"
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 34
+                  col_stop: 35
+                  path: compiler-test
+                  content: "function main(const x: [i16; 1], y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Console:
+                  function:
+                    Log:
+                      parts:
+                        - Const: ""
+                        - Container
+                      parameters:
+                        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 17
+                        col_stop: 24
+                        path: compiler-test
+                        content: "    console.log(\"{}\", x);"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 24
+                    path: compiler-test
+                    content: "    console.log(\"{}\", x);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            ArrayAccess:
+                              array:
+                                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return x[0] == 0 == y;\\\"}\"}"
+                              index:
+                                Value:
+                                  Implicit:
+                                    - "0"
+                                    - line_start: 5
+                                      line_stop: 5
+                                      col_start: 14
+                                      col_stop: 15
+                                      path: compiler-test
+                                      content: "    return x[0] == 0 == y;"
+                              span:
+                                line_start: 5
+                                line_stop: 5
+                                col_start: 12
+                                col_stop: 16
+                                path: compiler-test
+                                content: "    return x[0] == 0 == y;"
+                          right:
+                            Value:
+                              Implicit:
+                                - "0"
+                                - line_start: 5
+                                  line_stop: 5
+                                  col_start: 20
+                                  col_stop: 21
+                                  path: compiler-test
+                                  content: "    return x[0] == 0 == y;"
+                          op: Eq
+                          span:
+                            line_start: 5
+                            line_stop: 5
+                            col_start: 12
+                            col_stop: 21
+                            path: compiler-test
+                            content: "    return x[0] == 0 == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return x[0] == 0 == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 12
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    return x[0] == 0 == y;"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    return x[0] == 0 == y;"
+            span:
+              line_start: 3
+              line_stop: 6
+              col_start: 51
+              col_stop: 2
+              path: compiler-test
+              content: "function main(const x: [i16; 1], y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 6
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(const x: [i16; 1], y: bool) -> bool {\n...\n}\n"
+    canonicalized_theorem:
+      name: ""
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}"
+                const_: true
+                mutable: false
+                type_:
+                  Array:
+                    - IntegerType: I16
+                    - - value: "1"
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 21
+                  col_stop: 22
+                  path: compiler-test
+                  content: "function main(const x: [i16; 1], y: bool) -> bool {"
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 34
+                  col_stop: 35
+                  path: compiler-test
+                  content: "function main(const x: [i16; 1], y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Console:
+                  function:
+                    Log:
+                      parts:
+                        - Const: ""
+                        - Container
+                      parameters:
+                        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 17
+                        col_stop: 24
+                        path: compiler-test
+                        content: "    console.log(\"{}\", x);"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 24
+                    path: compiler-test
+                    content: "    console.log(\"{}\", x);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            ArrayAccess:
+                              array:
+                                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return x[0] == 0 == y;\\\"}\"}"
+                              index:
+                                Value:
+                                  Implicit:
+                                    - "0"
+                                    - line_start: 5
+                                      line_stop: 5
+                                      col_start: 14
+                                      col_stop: 15
+                                      path: compiler-test
+                                      content: "    return x[0] == 0 == y;"
+                              span:
+                                line_start: 5
+                                line_stop: 5
+                                col_start: 12
+                                col_stop: 16
+                                path: compiler-test
+                                content: "    return x[0] == 0 == y;"
+                          right:
+                            Value:
+                              Implicit:
+                                - "0"
+                                - line_start: 5
+                                  line_stop: 5
+                                  col_start: 20
+                                  col_stop: 21
+                                  path: compiler-test
+                                  content: "    return x[0] == 0 == y;"
+                          op: Eq
+                          span:
+                            line_start: 5
+                            line_stop: 5
+                            col_start: 12
+                            col_stop: 21
+                            path: compiler-test
+                            content: "    return x[0] == 0 == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return x[0] == 0 == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 12
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    return x[0] == 0 == y;"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    return x[0] == 0 == y;"
+            span:
+              line_start: 3
+              line_stop: 6
+              col_start: 51
+              col_stop: 2
+              path: compiler-test
+              content: "function main(const x: [i16; 1], y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 6
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(const x: [i16; 1], y: bool) -> bool {\n...\n}\n"
+    type_inferenced_theorem:
+      name: test
+      expected_input: []
+      imports: []
+      circuits: {}
+      global_consts: {}
+      functions:
+        "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}":
+          annotations: []
+          identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}"
+          input:
+            - Variable:
+                identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}"
+                const_: true
+                mutable: false
+                type_:
+                  Array:
+                    - IntegerType: I16
+                    - - value: "1"
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 21
+                  col_stop: 22
+                  path: compiler-test
+                  content: "function main(const x: [i16; 1], y: bool) -> bool {"
+            - Variable:
+                identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"function main(const x: [i16; 1], y: bool) -> bool {\\\"}\"}"
+                const_: false
+                mutable: true
+                type_: Boolean
+                span:
+                  line_start: 3
+                  line_stop: 3
+                  col_start: 34
+                  col_stop: 35
+                  path: compiler-test
+                  content: "function main(const x: [i16; 1], y: bool) -> bool {"
+          output: Boolean
+          block:
+            statements:
+              - Console:
+                  function:
+                    Log:
+                      parts:
+                        - Const: ""
+                        - Container
+                      parameters:
+                        - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", x);\\\"}\"}"
+                      span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 17
+                        col_stop: 24
+                        path: compiler-test
+                        content: "    console.log(\"{}\", x);"
+                  span:
+                    line_start: 4
+                    line_stop: 4
+                    col_start: 5
+                    col_stop: 24
+                    path: compiler-test
+                    content: "    console.log(\"{}\", x);"
+              - Return:
+                  expression:
+                    Binary:
+                      left:
+                        Binary:
+                          left:
+                            ArrayAccess:
+                              array:
+                                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return x[0] == 0 == y;\\\"}\"}"
+                              index:
+                                Value:
+                                  Integer:
+                                    - U32
+                                    - "0"
+                                    - line_start: 5
+                                      line_stop: 5
+                                      col_start: 14
+                                      col_stop: 15
+                                      path: compiler-test
+                                      content: "    return x[0] == 0 == y;"
+                              span:
+                                line_start: 5
+                                line_stop: 5
+                                col_start: 12
+                                col_stop: 16
+                                path: compiler-test
+                                content: "    return x[0] == 0 == y;"
+                          right:
+                            Value:
+                              Integer:
+                                - I16
+                                - "0"
+                                - line_start: 5
+                                  line_stop: 5
+                                  col_start: 20
+                                  col_stop: 21
+                                  path: compiler-test
+                                  content: "    return x[0] == 0 == y;"
+                          op: Eq
+                          span:
+                            line_start: 5
+                            line_stop: 5
+                            col_start: 12
+                            col_stop: 21
+                            path: compiler-test
+                            content: "    return x[0] == 0 == y;"
+                      right:
+                        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":25,\\\"col_stop\\\":26,\\\"path\\\":\\\"compiler-test\\\",\\\"content\\\":\\\"    return x[0] == 0 == y;\\\"}\"}"
+                      op: Eq
+                      span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 12
+                        col_stop: 26
+                        path: compiler-test
+                        content: "    return x[0] == 0 == y;"
+                  span:
+                    line_start: 5
+                    line_stop: 5
+                    col_start: 5
+                    col_stop: 26
+                    path: compiler-test
+                    content: "    return x[0] == 0 == y;"
+            span:
+              line_start: 3
+              line_stop: 6
+              col_start: 51
+              col_stop: 2
+              path: compiler-test
+              content: "function main(const x: [i16; 1], y: bool) -> bool {\n...\n}"
+          span:
+            line_start: 3
+            line_stop: 6
+            col_start: 1
+            col_stop: 2
+            path: compiler-test
+            content: "function main(const x: [i16; 1], y: bool) -> bool {\n...\n}\n"
