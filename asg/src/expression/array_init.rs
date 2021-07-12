@@ -53,7 +53,7 @@ impl<'a> ExpressionNode<'a> for ArrayInitExpression<'a> {
         false
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         let element = self.element.get().const_value()?;
         Some(ConstValue::Array(vec![element; self.len]))
     }

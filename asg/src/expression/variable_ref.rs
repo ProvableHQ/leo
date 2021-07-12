@@ -66,7 +66,7 @@ impl<'a> ExpressionNode<'a> for VariableRef<'a> {
     }
 
     // todo: we can use use hacky ssa here to catch more cases, or just enforce ssa before asg generation finished
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         let variable = self.variable.borrow();
         if variable.mutable || variable.assignments.len() != 1 {
             return None;

@@ -30,8 +30,6 @@ jobs:
 
       - name: cargo fmt --check
         uses: actions-rs/cargo@v1
-        env:
-          CARGO_NET_GIT_FETCH_WITH_CLI: true
         with:
           command: fmt
           args: --all -- --check
@@ -120,7 +118,6 @@ jobs:
           command: test
           args: --all --features ci_skip
         env:
-          CARGO_NET_GIT_FETCH_WITH_CLI: true
           CARGO_INCREMENTAL: "0"
 
       - name: Install dependencies for code coverage

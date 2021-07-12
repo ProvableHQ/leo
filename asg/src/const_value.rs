@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, IntegerType, Span, Type};
+use crate::{AsgConvertError, Circuit, Identifier, IntegerType, Span, Type};
 
+use indexmap::IndexMap;
 use num_bigint::BigInt;
 use std::{convert::TryInto, fmt};
 use tendril::StrTendril;
@@ -118,8 +119,8 @@ impl From<leo_ast::CharValue> for CharValue {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum ConstValue {
+#[derive(Clone, PartialEq)]
+pub enum ConstValue<'a> {
     Int(ConstInt),
     Group(GroupValue),
     Field(BigInt),
@@ -128,8 +129,9 @@ pub enum ConstValue {
     Char(CharValue),
 
     // compounds
-    Tuple(Vec<ConstValue>),
-    Array(Vec<ConstValue>),
+    Tuple(Vec<ConstValue<'a>>),
+    Array(Vec<ConstValue<'a>>),
+    Circuit(&'a Circuit<'a>, IndexMap<String, (Identifier, ConstValue<'a>)>),
 }
 
 macro_rules! const_int_op {
@@ -311,8 +313,8 @@ impl ConstInt {
     }
 }
 
-impl ConstValue {
-    pub fn get_type<'a>(&self) -> Option<Type<'a>> {
+impl<'a> ConstValue<'a> {
+    pub fn get_type(&'a self) -> Option<Type<'a>> {
         Some(match self {
             ConstValue::Int(i) => i.get_type(),
             ConstValue::Group(_) => Type::Group,
@@ -324,6 +326,7 @@ impl ConstValue {
                 Type::Tuple(sub_consts.iter().map(|x| x.get_type()).collect::<Option<Vec<Type>>>()?)
             }
             ConstValue::Array(values) => Type::Array(Box::new(values.get(0)?.get_type()?), values.len()),
+            ConstValue::Circuit(circuit, _) => Type::Circuit(circuit),
         })
     }
 
