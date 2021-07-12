@@ -96,14 +96,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<'a, F
                     .unwrap_or_else(|| "[allocated]".to_string())
             ),
             ConstrainedValue::Char(ref value) => write!(f, "{}", value),
-            ConstrainedValue::Field(ref value) => {
-                if let Some(value) = value.get_value() {
-                    write!(f, "{}", value)
-                } else {
-                    Err(std::fmt::Error)
-                }
-            }
-            ConstrainedValue::Group(ref value) => write!(f, "{}", value.log_string().unwrap_or_else(|e| e.to_string())),
+            ConstrainedValue::Field(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Group(ref value) => write!(f, "{}", value),
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
 
             // Data type wrappers

@@ -45,8 +45,6 @@ pub trait GroupType<F: Field>:
     + ToBitsBEGadget<F>
     + ToBytesGadget<F>
 {
-    fn log_string(&self) -> Result<String, GroupError>;
-
     fn constant(value: &GroupValue, span: &Span) -> Result<Self, GroupError>;
 
     fn to_allocated<CS: ConstraintSystem<F>>(&self, cs: CS, span: &Span) -> Result<Self, GroupError>;

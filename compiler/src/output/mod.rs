@@ -155,8 +155,6 @@ impl Output {
 
                     format!("({})", values)
                 }
-                ConstrainedValue::Field(field) => format!("{:?}", field),
-                ConstrainedValue::Group(group) => format!("{:?}", group),
                 _ => value.to_string(),
             };
 
