@@ -20,6 +20,7 @@ use crate::{
 };
 
 use anyhow::{anyhow, Result};
+use indexmap::set::IndexSet;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -29,31 +30,65 @@ use tracing::span::Span;
 pub struct Install {}
 
 impl Command for Install {
-    type Input = ();
+    /// Names of dependencies in the current branch of a dependency tree.
+    type Input = IndexSet<String>;
     type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Installing")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
-        Ok(())
+    fn prelude(&self, context: Context) -> Result<Self::Input> {
+        let package_name = context.manifest()?.get_package_name();
+
+        let mut set = IndexSet::new();
+        set.insert(package_name);
+
+        Ok(set)
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
-        let deps = context
-            .manifest()?
-            .get_package_dependencies()
-            .ok_or_else(|| anyhow!("Package has no dependencies"))?;
+    fn apply(self, context: Context, mut tree: Self::Input) -> Result<Self::Output> {
+        let dependencies = context
+            .manifest()
+            .map_err(|_| anyhow!("Package Manifest not found"))?
+            .get_package_dependencies();
 
-        for (_name, dep) in deps.iter() {
-            Add::new(
+        let dependencies = match dependencies {
+            Some(value) => value,
+            None => return Ok(()),
+        };
+
+        // Go through each dependency in Leo.toml and add it to the imports.
+        // While adding, pull dependencies of this package as well and check for recursion.
+        for (_name, dependency) in dependencies.iter() {
+            let package_name = dependency.package.clone();
+            let path = Add::new(
                 None,
-                Some(dep.author.clone()),
-                Some(dep.package.clone()),
-                Some(dep.version.clone()),
+                Some(dependency.author.clone()),
+                Some(package_name.clone()),
+                Some(dependency.version.clone()),
             )
-            .execute(context.clone())?;
+            .apply(context.clone(), ())?;
+
+            // Try inserting a new dependency to the branch. If not inserted,
+            // then fail because this dependency was added on a higher level.
+            if !tree.insert(package_name.clone()) {
+                // Pretty format for the message - show dependency structure.
+                let mut message: Vec<String> = tree
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, val)| format!("{}└─{}", " ".repeat(i * 2), val))
+                    .collect();
+
+                message.push(format!("{}└─{} (FAILURE)", " ".repeat(message.len() * 2), package_name));
+
+                return Err(anyhow!("recursive dependency found \n{}", message.join("\n")));
+            }
+
+            // Run the same command for installed dependency.
+            let mut new_context = context.clone();
+            new_context.path = Some(path);
+            (Install {}).apply(new_context, tree.clone())?;
         }
 
         Ok(())

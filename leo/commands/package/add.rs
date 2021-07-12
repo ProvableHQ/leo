@@ -21,6 +21,7 @@ use anyhow::{anyhow, Result};
 use std::{
     fs::{create_dir_all, File},
     io::{Read, Write},
+    path::PathBuf,
 };
 use structopt::StructOpt;
 use tracing::Span;
@@ -80,7 +81,7 @@ impl Add {
 
 impl Command for Add {
     type Input = ();
-    type Output = ();
+    type Output = PathBuf;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Adding")
@@ -97,6 +98,8 @@ impl Command for Add {
         };
 
         let (author, package_name) = self.try_read_arguments()?;
+
+        tracing::info!("Package: {}/{}", &author, &package_name);
 
         // Attempt to fetch the package.
         let reader = {
@@ -118,9 +121,9 @@ impl Command for Add {
             // Dumb compatibility hack.
             // TODO: Remove once `leo add` functionality is discussed.
             if self.version.is_some() {
-                path.push(format!("{}-{}@{}", author, package_name, self.version.unwrap()));
+                path.push(format!("{}-{}@{}", author.clone(), package_name, self.version.unwrap()));
             } else {
-                path.push(package_name);
+                path.push(package_name.clone());
             }
             create_dir_all(&path)?;
         };
@@ -152,8 +155,8 @@ impl Command for Add {
             }
         }
 
-        tracing::info!("Successfully added a package");
+        tracing::info!("Successfully added package {}/{}", author, package_name);
 
-        Ok(())
+        Ok(path)
     }
 }

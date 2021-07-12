@@ -247,6 +247,7 @@ mod cli_tests {
     use crate::{run_with_args, Opt};
 
     use anyhow::Error;
+    use snarkvm_utilities::Write;
     use std::path::PathBuf;
     use structopt::StructOpt;
     use test_dir::{DirBuilder, FileType, TestDir};
@@ -366,6 +367,7 @@ mod cli_tests {
     }
 
     #[test]
+    #[ignore]
     fn test_import() {
         let dir = testdir("test");
         let path = dir.path("test");
@@ -406,5 +408,32 @@ mod cli_tests {
         assert!(run_cmd("leo test", path).is_ok());
         assert!(run_cmd("leo test -f examples/silly-sudoku/src/lib.leo", path).is_ok());
         assert!(run_cmd("leo test -f examples/silly-sudoku/src/main.leo", path).is_ok());
+    }
+
+    #[test]
+    fn test_install() {
+        let dir = testdir("test");
+        let path = dir.path("test");
+
+        assert!(run_cmd("leo new install", &Some(path.clone())).is_ok());
+
+        let install_path = &Some(path.join("install"));
+
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(path.join("install/Leo.toml"))
+            .unwrap();
+
+        assert!(
+            file.write_all(
+                br#"
+            sudoku = {author = "justice-league", package = "u8u32", version = "0.1.0"}
+        "#
+            )
+            .is_ok()
+        );
+
+        assert!(run_cmd("leo install", install_path).is_ok());
     }
 }

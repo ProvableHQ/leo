@@ -1216,6 +1216,7 @@ dependencies = [
  "console",
  "dirs",
  "from-pest",
+ "indexmap",
  "lazy_static",
  "leo-ast",
  "leo-compiler",
