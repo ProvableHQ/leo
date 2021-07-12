@@ -241,7 +241,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
         if self.proof_options.initial {
-            ast.to_json_file(self.output_directory.clone(), "inital_ast.json")?;
+            ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
         }
 
         // Preform compiler optimization via canonicalizing AST if its enabled.
