@@ -22,7 +22,7 @@ pub mod logger;
 pub mod updater;
 
 use commands::{
-    package::{Add, Clone, Install, Login, Logout, Publish, Remove},
+    package::{Add, Clone, Fetch, Login, Logout, Publish, Remove},
     Build,
     Clean,
     Command,
@@ -138,9 +138,9 @@ enum CommandOpts {
     },
 
     #[structopt(about = "Install dependencies for this program")]
-    Install {
+    Fetch {
         #[structopt(flatten)]
-        command: Install,
+        command: Fetch,
     },
 
     #[structopt(about = "Clone a package from the Aleo Package Manager")]
@@ -220,7 +220,7 @@ fn run_with_args(opt: Opt) -> Result<(), Error> {
         CommandOpts::Update { command } => command.try_execute(context),
 
         CommandOpts::Add { command } => command.try_execute(context),
-        CommandOpts::Install { command } => command.try_execute(context),
+        CommandOpts::Fetch { command } => command.try_execute(context),
         CommandOpts::Clone { command } => command.try_execute(context),
         CommandOpts::Login { command } => command.try_execute(context),
         CommandOpts::Logout { command } => command.try_execute(context),

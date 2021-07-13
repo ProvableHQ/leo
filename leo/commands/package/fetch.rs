@@ -27,15 +27,15 @@ use tracing::span::Span;
 /// Install dependencies Leo code command
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Install {}
+pub struct Fetch {}
 
-impl Command for Install {
+impl Command for Fetch {
     /// Names of dependencies in the current branch of a dependency tree.
     type Input = IndexSet<String>;
     type Output = ();
 
     fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Installing")
+        tracing::span!(tracing::Level::INFO, "Fetching")
     }
 
     fn prelude(&self, context: Context) -> Result<Self::Input> {
@@ -88,7 +88,7 @@ impl Command for Install {
             // Run the same command for installed dependency.
             let mut new_context = context.clone();
             new_context.path = Some(path);
-            (Install {}).apply(new_context, tree.clone())?;
+            (Fetch {}).apply(new_context, tree.clone())?;
         }
 
         Ok(())
