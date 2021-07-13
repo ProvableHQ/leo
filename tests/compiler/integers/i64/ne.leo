@@ -21,5 +21,5 @@ inputs:
 */
 
 function main(a: i64, b: i64, c: bool) -> bool{
-    return a != b == c;
+    return (a != b) == c;
 }

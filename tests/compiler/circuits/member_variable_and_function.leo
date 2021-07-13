@@ -16,5 +16,5 @@ function main(y: bool) -> bool {
     const a = Foo { foo: 1 };
     const b = a.foo + Foo::bar();
 
-    return b == 2u32 == y;
+    return (b == 2u32) == y;
 }

@@ -21,5 +21,5 @@ inputs:
 */
 
 function main(a: u16, b: u16, c: bool) -> bool {
-    return a == b == c;
+    return (a == b) == c;
 }

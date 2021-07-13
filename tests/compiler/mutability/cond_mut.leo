@@ -11,5 +11,5 @@ function main(y: bool) -> bool {
         x *= 100i8;
     }
     
-    return x == 100i8 == y;
+    return (x == 100i8) == y;
 }

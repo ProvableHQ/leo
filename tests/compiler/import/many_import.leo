@@ -27,5 +27,5 @@ function main(y: bool) -> bool {
 
     const car = Car { c: 1u32 };
 
-    return car.c == 1u32 == y;
+    return (car.c == 1u32) == y;
 }

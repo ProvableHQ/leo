@@ -72,55 +72,6 @@ outputs:
                   col_start: 1
                   col_stop: 2
                   path: test
-                  content: 1 != 2 != 3
-          right:
-            Value:
-              Implicit:
-                - "2"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 6
-                  col_stop: 7
-                  path: test
-                  content: 1 != 2 != 3
-          op: Ne
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 7
-            path: test
-            content: 1 != 2 != 3
-      right:
-        Value:
-          Implicit:
-            - "3"
-            - line_start: 1
-              line_stop: 1
-              col_start: 11
-              col_stop: 12
-              path: test
-              content: 1 != 2 != 3
-      op: Ne
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 12
-        path: test
-        content: 1 != 2 != 3
-  - Binary:
-      left:
-        Binary:
-          left:
-            Value:
-              Implicit:
-                - "1"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 1
-                  col_stop: 2
-                  path: test
                   content: 1 < 2 != 3 < 4
           right:
             Value:
@@ -182,55 +133,6 @@ outputs:
       left:
         Binary:
           left:
-            Value:
-              Implicit:
-                - "1"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 1
-                  col_stop: 2
-                  path: test
-                  content: 1 != 2 != 3
-          right:
-            Value:
-              Implicit:
-                - "2"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 6
-                  col_stop: 7
-                  path: test
-                  content: 1 != 2 != 3
-          op: Ne
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 7
-            path: test
-            content: 1 != 2 != 3
-      right:
-        Value:
-          Implicit:
-            - "3"
-            - line_start: 1
-              line_stop: 1
-              col_start: 11
-              col_stop: 12
-              path: test
-              content: 1 != 2 != 3
-      op: Ne
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 12
-        path: test
-        content: 1 != 2 != 3
-  - Binary:
-      left:
-        Binary:
-          left:
             Binary:
               left:
                 Value:
@@ -241,7 +143,7 @@ outputs:
                       col_start: 1
                       col_stop: 2
                       path: test
-                      content: 1 < 2 != 3 < 4 != 5 < 6
+                      content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
               right:
                 Value:
                   Implicit:
@@ -251,7 +153,7 @@ outputs:
                       col_start: 5
                       col_stop: 6
                       path: test
-                      content: 1 < 2 != 3 < 4 != 5 < 6
+                      content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
               op: Lt
               span:
                 line_start: 1
@@ -259,7 +161,7 @@ outputs:
                 col_start: 1
                 col_stop: 6
                 path: test
-                content: 1 < 2 != 3 < 4 != 5 < 6
+                content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
           right:
             Binary:
               left:
@@ -271,7 +173,7 @@ outputs:
                       col_start: 10
                       col_stop: 11
                       path: test
-                      content: 1 < 2 != 3 < 4 != 5 < 6
+                      content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
               right:
                 Value:
                   Implicit:
@@ -281,7 +183,7 @@ outputs:
                       col_start: 14
                       col_stop: 15
                       path: test
-                      content: 1 < 2 != 3 < 4 != 5 < 6
+                      content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
               op: Lt
               span:
                 line_start: 1
@@ -289,7 +191,7 @@ outputs:
                 col_start: 10
                 col_stop: 15
                 path: test
-                content: 1 < 2 != 3 < 4 != 5 < 6
+                content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
           op: Ne
           span:
             line_start: 1
@@ -297,42 +199,82 @@ outputs:
             col_start: 1
             col_stop: 15
             path: test
-            content: 1 < 2 != 3 < 4 != 5 < 6
+            content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
       right:
         Binary:
           left:
-            Value:
-              Implicit:
-                - "5"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 19
-                  col_stop: 20
-                  path: test
-                  content: 1 < 2 != 3 < 4 != 5 < 6
+            Binary:
+              left:
+                Value:
+                  Implicit:
+                    - "3"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 19
+                      col_stop: 20
+                      path: test
+                      content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
+              right:
+                Value:
+                  Implicit:
+                    - "4"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 23
+                      col_stop: 24
+                      path: test
+                      content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
+              op: Lt
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 19
+                col_stop: 24
+                path: test
+                content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
           right:
-            Value:
-              Implicit:
-                - "6"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 23
-                  col_stop: 24
-                  path: test
-                  content: 1 < 2 != 3 < 4 != 5 < 6
-          op: Lt
+            Binary:
+              left:
+                Value:
+                  Implicit:
+                    - "5"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 28
+                      col_stop: 29
+                      path: test
+                      content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
+              right:
+                Value:
+                  Implicit:
+                    - "6"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 32
+                      col_stop: 33
+                      path: test
+                      content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
+              op: Lt
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 28
+                col_stop: 33
+                path: test
+                content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
+          op: Ne
           span:
             line_start: 1
             line_stop: 1
             col_start: 19
-            col_stop: 24
+            col_stop: 33
             path: test
-            content: 1 < 2 != 3 < 4 != 5 < 6
-      op: Ne
+            content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6
+      op: Or
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 24
+        col_stop: 33
         path: test
-        content: 1 < 2 != 3 < 4 != 5 < 6
+        content: 1 < 2 != 3 < 4 || 3 < 4 != 5 < 6

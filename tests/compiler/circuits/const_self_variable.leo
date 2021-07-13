@@ -15,5 +15,5 @@ circuit Foo {
 function main(y: bool) -> bool {
     let f  = Foo { a: 0u8 };
 
-    return 1u8 == f.use_a() == true;
+    return (1u8 == f.use_a()) == true;
 }

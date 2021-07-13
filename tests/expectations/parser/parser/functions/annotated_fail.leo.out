@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "    --> test:3:12\n     |\n   3 | @test(test,)\n     |            ^\n     |\n     = expected 'identifier', 'number' -- got ')'"

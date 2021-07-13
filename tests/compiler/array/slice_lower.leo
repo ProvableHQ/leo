@@ -10,5 +10,5 @@ function main(y: bool) -> bool {
 
     const actual = arr[..2];     // Should produce [0, 1]
 
-    return expected == actual == y;
+    return (expected == actual) == y;
 }

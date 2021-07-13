@@ -13,5 +13,5 @@ function main(y: bool) -> bool{
     let a = Foo { x: 1 };
     a.x = 0;
 
-    return a.x == 0u32 == y;
+    return (a.x == 0u32) == y;
 }
