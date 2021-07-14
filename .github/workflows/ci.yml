@@ -13,68 +13,51 @@ env:
   RUST_BACKTRACE: 1
 
 jobs:
-  style:
-    name: Check Style
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: nightly
-          override: true
-          components: rustfmt
-
-      - name: cargo fmt --check
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
-
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
+  test-package:
+    name: Test Package ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      os: [macOS-latest, windows-latest, ubuntu-latest]
+      include:
+        - os: ubuntu-latest
+          sccache-path: /home/runner/.cache/sccache
+        - os: macos-latest
+          sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
+        - os: windows-latest
+          sccache-path: "C:\\Users\\runneradmin\\AppData\\Local\\Mozilla\\sccache"
     env:
-      RUSTFLAGS: -Dwarnings
+      RUSTC_WRAPPER: sccache
+      SCCACHE_CACHE_SIZE: 2G
+      SCCACHE_DIR: ${{ matrix.sccache-path }}
+      # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: clippy
+      - name: Install sccache Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          LINK: https://github.com/mozilla/sccache/releases/download
+          SCCACHE_VERSION: 0.2.15
+        run: |
+          SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
+          mkdir -p $HOME/.local/bin
+          curl -L "$LINK/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
+          mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      
+      - name: Install sccache Macos
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install sccache
 
-      - name: Check examples
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --examples --all
-
-      - name: Check examples with all features on stable
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --examples --all-features --all
-
-      - name: Check benchmarks on nightly
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-features --examples --all --benches
-
-  test-package-linux:
-    name: Test Package Linux
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Install sccache Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          iwr -useb get.scoop.sh | iex
+          Set-ExecutionPolicy RemoteSigned -scope CurrentUser
+          scoop install sccache
 
       - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
@@ -83,60 +66,43 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Install cargo-all-features
-        run: |
-          cargo install cargo-all-features
-
-      - name: Test
-        run: |
-          cd package
-          cargo test-all-features
-
-  test-package-windows:
-    name: Test Package Windows
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install Rust Stable
-        uses: actions-rs/toolchain@v1
+      - name: Cache cargo registry
+        uses: actions/cache@v2
+        continue-on-error: false
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Install cargo-all-features
-        run: |
-          cargo install cargo-all-features
-
-      - name: Test
-        run: |
-          cd package
-          cargo test-all-features
-
-  test-package-macos:
-    name: Test Package macOS
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Install Rust Stable
-        uses: actions-rs/toolchain@v1
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+            
+      - name: Save sccache
+        uses: actions/cache@v2
+        continue-on-error: false
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
+          path: ${{ matrix.sccache-path }}
+          key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+            
+      - name: Start sccache server
+        run: sccache --start-server
 
       - name: Install cargo-all-features
         run: |
           cargo install cargo-all-features
-
+      
       - name: Test
         run: |
           cd package
           cargo test-all-features
+
+      - name: Print sccache stats
+        run: sccache --show-stats
+        
+      - name: Stop sccache server
+        run: sccache --stop-server || true
 
   test-package-macos_m1:
     name: Test Package macOS M1
@@ -173,7 +139,7 @@ jobs:
     name: Code Coverage
     runs-on: ubuntu-latest
     env:
-      RUSTC_BOOTSTRAP=1
+      RUSTC_BOOTSTRAP: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -185,6 +151,14 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all --features ci_skip
+        env:
+          CARGO_INCREMENTAL: "0"
 
       - name: Install dependencies for code coverage
         run: |
