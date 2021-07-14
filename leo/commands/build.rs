@@ -18,8 +18,7 @@ use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
-    CompilerOptions,
-    TheoremOptions,
+    CompilerOptions, TheoremOptions,
 };
 use leo_package::{
     inputs::*,

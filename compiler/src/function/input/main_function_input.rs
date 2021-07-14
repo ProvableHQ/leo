@@ -21,16 +21,10 @@ use crate::{
     errors::{FunctionError, IntegerError},
     program::ConstrainedProgram,
     value::{
-        boolean::input::bool_from_input,
-        char::char_from_input,
-        field::input::field_from_input,
-        group::input::group_from_input,
-        ConstrainedValue,
+        boolean::input::bool_from_input, char::char_from_input, field::input::field_from_input,
+        group::input::group_from_input, ConstrainedValue,
     },
-    CharType,
-    FieldType,
-    GroupType,
-    Integer,
+    CharType, FieldType, GroupType, Integer,
 };
 use leo_asg::{ConstInt, Type};
 use leo_ast::{Char, InputValue, Span};

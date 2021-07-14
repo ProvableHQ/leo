@@ -23,10 +23,7 @@ pub mod type_inference;
 
 use leo_asg::{new_alloc_context, new_context, AsgContext};
 use leo_compiler::{
-    compiler::Compiler,
-    errors::CompilerError,
-    group::targets::edwards_bls12::EdwardsGroupType,
-    ConstrainedValue,
+    compiler::Compiler, errors::CompilerError, group::targets::edwards_bls12::EdwardsGroupType, ConstrainedValue,
     OutputBytes,
 };
 

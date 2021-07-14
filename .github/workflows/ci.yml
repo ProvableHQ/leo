@@ -70,7 +70,7 @@ jobs:
           args: --all-features --examples --all --benches
 
   test-package-linux:
-    name: Test Package
+    name: Test Package Linux
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -93,7 +93,7 @@ jobs:
           cargo test-all-features
 
   test-package-windows:
-    name: Test Package
+    name: Test Package Windows
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -115,9 +115,65 @@ jobs:
           cd package
           cargo test-all-features
 
+  test-package-macos:
+    name: Test Package macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust Stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Install cargo-all-features
+        run: |
+          cargo install cargo-all-features
+
+      - name: Test
+        run: |
+          cd package
+          cargo test-all-features
+
+  test-package-macos_m1:
+    name: Test Package macOS M1
+    runs-on: macos-latest
+    steps:
+      - name: Xcode Select
+        uses: devbotsxyz/xcode-select@v1.1.0
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          target: aarch64-apple-darwin
+          toolchain: stable
+          override: true
+          components: rustfmt
+          
+      - name: Install cargo-all-features
+        run: |
+          SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
+          cargo install cargo-all-features
+          
+      - name: Test
+        run: |
+          SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
+          cd package && cargo test-all-features
+
   codecov:
     name: Code Coverage
     runs-on: ubuntu-latest
+    env:
+      RUSTC_BOOTSTRAP=1
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -126,7 +182,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: nightly
+          toolchain: stable
           override: true
           components: rustfmt
 

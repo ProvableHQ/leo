@@ -22,8 +22,7 @@ use crate::{
     errors::{ExpressionError, StatementError},
     program::ConstrainedProgram,
     value::ConstrainedValue,
-    GroupType,
-    Integer,
+    GroupType, Integer,
 };
 use leo_asg::{ConstInt, Expression, Node};
 

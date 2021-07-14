@@ -17,16 +17,7 @@
 use leo_ast::IntegerType;
 
 use crate::{
-    AsgConvertError,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    InnerVariable,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Statement,
+    AsgConvertError, Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Span, Statement,
     Variable,
 };
 

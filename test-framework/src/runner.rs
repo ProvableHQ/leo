@@ -174,11 +174,14 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
 
         if errors.is_empty() {
             if expectations.is_none() {
-                outputs.push((expectation_path, TestExpectation {
-                    namespace: config.namespace,
-                    expectation: config.expectation,
-                    outputs: new_outputs,
-                }));
+                outputs.push((
+                    expectation_path,
+                    TestExpectation {
+                        namespace: config.namespace,
+                        expectation: config.expectation,
+                        outputs: new_outputs,
+                    },
+                ));
             }
             pass_categories += 1;
         } else {

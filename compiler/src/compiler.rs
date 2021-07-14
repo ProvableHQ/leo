@@ -18,12 +18,7 @@
 use crate::{
     constraints::{generate_constraints, generate_test_constraints},
     errors::CompilerError,
-    CompilerOptions,
-    GroupType,
-    Output,
-    OutputFile,
-    TheoremOptions,
-    TypeInferencePhase,
+    CompilerOptions, GroupType, Output, OutputFile, TheoremOptions, TypeInferencePhase,
 };
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, FormattedError, Program as AsgProgram};

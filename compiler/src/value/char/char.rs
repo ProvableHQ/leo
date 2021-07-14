@@ -17,8 +17,7 @@
 use crate::{
     errors::CharError,
     value::{field::input::allocate_field, ConstrainedValue},
-    FieldType,
-    GroupType,
+    FieldType, GroupType,
 };
 
 use leo_ast::{InputValue, Span};

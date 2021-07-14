@@ -21,13 +21,9 @@ use tendril::StrTendril;
 use crate::Node;
 use serde::{
     de::{
-        Visitor,
-        {self},
+        Visitor, {self},
     },
-    Deserialize,
-    Deserializer,
-    Serialize,
-    Serializer,
+    Deserialize, Deserializer, Serialize, Serializer,
 };
 use std::{
     collections::BTreeMap,

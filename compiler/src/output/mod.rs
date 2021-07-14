@@ -158,10 +158,13 @@ impl Output {
                 _ => value.to_string(),
             };
 
-            registers.insert(name.to_string(), OutputRegister {
-                type_: register_type.to_string(),
-                value,
-            });
+            registers.insert(
+                name.to_string(),
+                OutputRegister {
+                    type_: register_type.to_string(),
+                    value,
+                },
+            );
         }
 
         Ok(Output { registers })
