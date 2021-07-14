@@ -34,8 +34,6 @@ use leo_compiler::{
     TheoremOptions,
 };
 
-use sha2::Sha256;
-
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
 // pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
 
@@ -61,6 +59,8 @@ fn new_compiler(path: PathBuf, theorem_options: Option<TheoremOptions>) -> Edwar
 }
 
 fn hash(input: String) -> String {
+    use sha2::{Digest, Sha256};
+
     let mut hasher = Sha256::new();
     hasher.update(input.as_bytes());
     let output = hasher.finalize();
