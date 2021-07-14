@@ -31,7 +31,7 @@ use leo_compiler::{
     errors::CompilerError,
     targets::edwards_bls12::EdwardsGroupType,
     Output,
-    TheoremOptions,
+    AstSnapshotOptions,
 };
 
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
@@ -43,7 +43,7 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
     new_context(allocator)
 }
 
-fn new_compiler(path: PathBuf, theorem_options: Option<TheoremOptions>) -> EdwardsTestCompiler {
+fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let output_dir = PathBuf::from("/tmp/output/");
     std::fs::create_dir_all(output_dir.clone()).unwrap();
@@ -69,7 +69,7 @@ fn hash(input: String) -> String {
 
 pub(crate) fn parse_program(
     program_string: &str,
-    theorem_options: Option<TheoremOptions>,
+    theorem_options: Option<AstSnapshotOptions>,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
     let mut compiler = new_compiler("compiler-test".into(), theorem_options);
 
@@ -117,7 +117,7 @@ impl Namespace for CompileNamespace {
 
         let parsed = parse_program(
             &test.content,
-            Some(TheoremOptions {
+            Some(AstSnapshotOptions {
                 initial: true,
                 canonicalized: true,
                 type_inferenced: true,
