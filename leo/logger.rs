@@ -215,7 +215,7 @@ pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
     #[cfg(target_family = "windows")]
     match ansi_term::enable_ansi_support() {
         Ok(_) => {}
-        Err(_) => return Err(anyhow::anyhow!("Error: Failedto enable ansi_support")),
+        Err(_) => return Err(anyhow::anyhow!("Error: Failed to enable ansi_support")),
     };
 
     let subscriber = FmtSubscriber::builder()
