@@ -16,6 +16,7 @@
 
 use std::{fmt, sync::Once};
 
+use anyhow::Result;
 use colored::Colorize;
 use tracing::{event::Event, subscriber::Subscriber};
 use tracing_subscriber::{
@@ -181,17 +182,23 @@ where
 
             let mut message = "".to_string();
 
-            let scope = context.scope();
-            for span in scope {
-                message += span.metadata().name();
+            match context.lookup_current() {
+                Some(span_ref) => {
+                    let scope = span_ref.scope();
 
-                let ext = span.extensions();
-                let fields = &ext
-                    .get::<FormattedFields<N>>()
-                    .expect("Unable to find FormattedFields in extensions; this is a bug");
-                if !fields.is_empty() {
-                    message += &format!("{{{}}}", fields);
+                    for span in scope {
+                        message += span.metadata().name();
+
+                        let ext = span.extensions();
+                        let fields = &ext
+                            .get::<FormattedFields<N>>()
+                            .expect("Unable to find FormattedFields in extensions; this is a bug");
+                        if !fields.is_empty() {
+                            message += &format!("{{{}}}", fields);
+                        }
+                    }
                 }
+                None => return Err(std::fmt::Error),
             }
 
             write!(writer, "{:>10} ", colored_string(meta.level(), &message)).expect("Error writing event");
@@ -203,10 +210,13 @@ where
 }
 
 /// Initialize logger with custom format and verbosity.
-pub fn init_logger(_app_name: &'static str, verbosity: usize) {
+pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
     // This line enables Windows 10 ANSI coloring API.
     #[cfg(target_family = "windows")]
-    ansi_term::enable_ansi_support();
+    match ansi_term::enable_ansi_support() {
+        Ok(_) => {}
+        Err(_) => return Err(anyhow::anyhow!("Error: Failed to enable ansi_support")),
+    };
 
     let subscriber = FmtSubscriber::builder()
         // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
@@ -226,4 +236,5 @@ pub fn init_logger(_app_name: &'static str, verbosity: usize) {
     START.call_once(|| {
         tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     });
+    Ok(())
 }

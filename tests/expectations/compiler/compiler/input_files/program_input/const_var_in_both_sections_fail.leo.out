@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:3:21\n     |\n   3 | function main(const a: u32) {\n     |                     ^\n     |\n     = Input variable a declared twice"

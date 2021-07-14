@@ -160,7 +160,11 @@ impl Integer {
                 if let InputValue::Integer(type_, number) = input {
                     let asg_type = IntegerType::from(type_);
                     if std::mem::discriminant(&asg_type) != std::mem::discriminant(integer_type) {
-                        return Err(IntegerError::integer_type_mismatch(integer_type, asg_type, span));
+                        return Err(IntegerError::integer_type_mismatch(
+                            integer_type.to_string(),
+                            asg_type.to_string(),
+                            span,
+                        ));
                     }
                     Some(number)
                 } else {

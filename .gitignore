@@ -8,3 +8,8 @@
 **/.crates.toml
 **/.crates2.json
 **/bin/
+
+# Emacs gitignore files
+*~
+\#*\#
+.\#*
