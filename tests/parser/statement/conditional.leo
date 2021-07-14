@@ -15,9 +15,9 @@ if (x) {
     return ();
 }
 
-if (x) {}
+if (x) {} else {}
 
-if x+y {}
+if x+y {} else if x+z {} else {}
 
 if x+y {
     expr;

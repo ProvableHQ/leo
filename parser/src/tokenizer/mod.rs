@@ -22,6 +22,7 @@
 pub(crate) mod token;
 use std::sync::Arc;
 
+pub use self::token::KEYWORD_TOKENS;
 pub(crate) use self::token::*;
 
 pub(crate) mod lexer;

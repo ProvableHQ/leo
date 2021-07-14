@@ -25,5 +25,5 @@ function main(const x: u8, y: bool) -> bool {
     const a = Foo { x };
     const b = Foo::new(x);
 
-    return b.x == a.x == y;
+    return (b.x == a.x) == y;
 }
