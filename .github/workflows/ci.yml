@@ -1,14 +1,14 @@
 name: CI
 on:
   pull_request:
-  push:
-    branches:
-      - master
-      - staging
-      - trying
-    paths-ignore:
-      - 'docs/**'
-      - 'documentation/**'
+    push:
+      branches:
+        - master
+        - staging
+        - trying
+      paths-ignore:
+        - 'docs/**'
+        - 'documentation/**'
 env:
   RUST_BACKTRACE: 1
 
@@ -17,14 +17,15 @@ jobs:
     name: Test Package ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
-      os: [macOS-latest, windows-latest, ubuntu-latest]
-      include:
-        - os: ubuntu-latest
-          sccache-path: /home/runner/.cache/sccache
-        - os: macos-latest
-          sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
-        - os: windows-latest
-          sccache-path: "C:\\Users\\runneradmin\\AppData\\Local\\Mozilla\\sccache"
+      matrix:
+        os: [macOS-latest, windows-latest, ubuntu-latest]
+        include:
+          - os: ubuntu-latest
+            sccache-path: /home/runner/.cache/sccache
+          - os: macos-latest
+            sccache-path: /Users/runner/Library/Caches/Mozilla.sccache
+          - os: windows-latest
+            sccache-path: "C:\\Users\\runneradmin\\AppData\\Local\\Mozilla\\sccache"
     env:
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: 2G
@@ -38,12 +39,13 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         env:
           LINK: https://github.com/mozilla/sccache/releases/download
-          SCCACHE_VERSION: 0.2.15
+          SCCACHE_VERSION: v0.2.15
         run: |
           SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
           mkdir -p $HOME/.local/bin
           curl -L "$LINK/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
           mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+          chmod +x $HOME/.local/bin/sccache
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       
       - name: Install sccache Macos
@@ -58,6 +60,9 @@ jobs:
           iwr -useb get.scoop.sh | iex
           Set-ExecutionPolicy RemoteSigned -scope CurrentUser
           scoop install sccache
+          Get-ChildItem C:\Users\runneradmin\scoop\shims
+          echo "C:\Users\runneradmin\scoop\shims" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$GITHUB_PATH"
 
       - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
@@ -87,7 +92,9 @@ jobs:
             ${{ runner.os }}-sccache-
             
       - name: Start sccache server
-        run: sccache --start-server
+        run: |
+          echo "$GITHUB_PATH"
+          sccache --start-server
 
       - name: Install cargo-all-features
         run: |
