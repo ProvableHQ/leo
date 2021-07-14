@@ -69,23 +69,41 @@ jobs:
           command: clippy
           args: --all-features --examples --all --benches
 
-  test-package:
+  test-package-linux:
     name: Test Package
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        rust:
-          - stable
-          - nightly
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install Rust (${{ matrix.rust }})
+      - name: Install Rust Stable
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: ${{ matrix.rust }}
+          toolchain: stable
+          override: true
+
+      - name: Install cargo-all-features
+        run: |
+          cargo install cargo-all-features
+
+      - name: Test
+        run: |
+          cd package
+          cargo test-all-features
+
+  test-package-windows:
+    name: Test Package
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust Stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
           override: true
 
       - name: Install cargo-all-features
@@ -111,14 +129,6 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt
-
-      - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all --features ci_skip
-        env:
-          CARGO_INCREMENTAL: "0"
 
       - name: Install dependencies for code coverage
         run: |

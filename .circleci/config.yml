@@ -60,21 +60,6 @@ jobs:
       - clear_environment:
           cache_key: leo-stable-cache
 
-  rust-nightly:
-    docker:
-      - image: howardwu/snarkos-ci:2021-03-25
-    resource_class: xlarge
-    steps:
-      - checkout
-      - setup_environment:
-          cache_key: leo-nightly-cache
-      - run:
-          name: Build and test
-          no_output_timeout: 30m
-          command: cargo test --all
-      - clear_environment:
-          cache_key: leo-nightly-cache
-
   leo-executable:
     docker:
       - image: cimg/rust:1.52.1
@@ -215,7 +200,6 @@ workflows:
   main-workflow:
     jobs:
       - rust-stable
-      - rust-nightly
       - leo-executable
       - leo-new:
           requires:
