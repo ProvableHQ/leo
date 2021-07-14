@@ -34,6 +34,8 @@ use leo_compiler::{
     TheoremOptions,
 };
 
+use sha2::Sha256;
+
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
 // pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
 
@@ -56,6 +58,13 @@ fn new_compiler(path: PathBuf, theorem_options: Option<TheoremOptions>) -> Edwar
         None,
         theorem_options,
     )
+}
+
+fn hash(input: String) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(input.as_bytes());
+    let output = hasher.finalize();
+    hex::encode(&output[..])
 }
 
 pub(crate) fn parse_program(
@@ -81,9 +90,9 @@ struct OutputItem {
 struct CompileOutput {
     pub circuit: SummarizedCircuit,
     pub output: Vec<OutputItem>,
-    pub initial_theorem: Program,
-    pub canonicalized_theorem: Program,
-    pub type_inferenced_theorem: Program,
+    pub initial_theorem: String,
+    pub canonicalized_theorem: String,
+    pub type_inferenced_theorem: String,
 }
 
 impl Namespace for CompileNamespace {
@@ -205,19 +214,28 @@ impl Namespace for CompileNamespace {
             });
         }
 
-        let initial_theorem: Program = Ast::from_json_file("/tmp/output/initial_ast.json".into())
-            .unwrap_or(Ast::new(Program::new("Error reading initial theorem.".to_string())))
-            .into_repr();
-        let canonicalized_theorem: Program = Ast::from_json_file("/tmp/output/canonicalization_ast.json".into())
-            .unwrap_or(Ast::new(Program::new(
-                "Error reading canonicalized theorem.".to_string(),
-            )))
-            .into_repr();
-        let type_inferenced_theorem: Program = Ast::from_json_file("/tmp/output/type_inferenced_ast.json".into())
-            .unwrap_or(Ast::new(Program::new(
-                "Error reading type inferenced theorem.".to_string(),
-            )))
-            .into_repr();
+        let initial_theorem: String = hash(
+            Ast::from_json_file("/tmp/output/initial_ast.json".into())
+                .unwrap_or(Ast::new(Program::new("Error reading initial theorem.".to_string())))
+                .to_json_string()
+                .unwrap_or("Error converting ast to string.".to_string()),
+        );
+        let canonicalized_theorem: String = hash(
+            Ast::from_json_file("/tmp/output/canonicalization_ast.json".into())
+                .unwrap_or(Ast::new(Program::new(
+                    "Error reading canonicalized theorem.".to_string(),
+                )))
+                .to_json_string()
+                .unwrap_or("Error converting ast to string.".to_string()),
+        );
+        let type_inferenced_theorem = hash(
+            Ast::from_json_file("/tmp/output/type_inferenced_ast.json".into())
+                .unwrap_or(Ast::new(Program::new(
+                    "Error reading type inferenced theorem.".to_string(),
+                )))
+                .to_json_string()
+                .unwrap_or("Error converting ast to string.".to_string()),
+        );
 
         let final_output = CompileOutput {
             circuit: last_circuit.unwrap(),
