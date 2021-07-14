@@ -44,7 +44,7 @@ pub fn init_logger() -> Result<()> {
 
 #[test]
 pub fn format_event() -> Result<()> {
-   crate::logger::init_logger("test_format_event", 1)?;
+    crate::logger::init_logger("test_format_event", 1)?;
     tracing::info!("test");
     Ok(())
 }
