@@ -70,7 +70,7 @@ impl<'a> ExpressionNode<'a> for ArrayRangeAccessExpression<'a> {
         self.array.get().is_mut_ref()
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         let mut array = match self.array.get().const_value()? {
             ConstValue::Array(values) => values,
             _ => return None,
@@ -176,6 +176,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
         } else {
             None
         };
+
         if let Some(expected_len) = expected_len {
             if let Some(length) = length {
                 if length != expected_len {

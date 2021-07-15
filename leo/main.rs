@@ -38,7 +38,7 @@ use commands::{
     Watch,
 };
 
-use anyhow::Error;
+use anyhow::Result;
 use std::{path::PathBuf, process::exit};
 use structopt::{clap::AppSettings, StructOpt};
 
@@ -191,13 +191,13 @@ fn main() {
 }
 
 /// Run command with custom build arguments.
-fn run_with_args(opt: Opt) -> Result<(), Error> {
+fn run_with_args(opt: Opt) -> Result<()> {
     if !opt.quiet {
         // Init logger with optional debug flag.
         logger::init_logger("leo", match opt.debug {
             false => 1,
             true => 2,
-        });
+        })?;
     }
 
     // Get custom root folder and create context for it.
@@ -232,7 +232,7 @@ fn run_with_args(opt: Opt) -> Result<(), Error> {
     }
 }
 
-fn handle_error<T>(res: Result<T, Error>) -> T {
+fn handle_error<T>(res: Result<T>) -> T {
     match res {
         Ok(t) => t,
         Err(err) => {
@@ -246,14 +246,14 @@ fn handle_error<T>(res: Result<T, Error>) -> T {
 mod cli_tests {
     use crate::{run_with_args, Opt};
 
-    use anyhow::Error;
+    use anyhow::Result;
     use snarkvm_utilities::Write;
     use std::path::PathBuf;
     use structopt::StructOpt;
     use test_dir::{DirBuilder, FileType, TestDir};
 
     // Runs Command from cmd-like argument "leo run --arg1 --arg2".
-    fn run_cmd(args: &str, path: &Option<PathBuf>) -> Result<(), Error> {
+    fn run_cmd(args: &str, path: &Option<PathBuf>) -> Result<()> {
         let args = args.split(' ').collect::<Vec<&str>>();
         let mut opts = Opt::from_iter_safe(args)?;
 
@@ -434,6 +434,6 @@ mod cli_tests {
             .is_ok()
         );
 
-        assert!(run_cmd("leo install", install_path).is_ok());
+        assert!(run_cmd("leo fetch", install_path).is_ok());
     }
 }

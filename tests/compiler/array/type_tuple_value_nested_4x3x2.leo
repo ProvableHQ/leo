@@ -12,5 +12,5 @@ function main(y: bool) -> bool {
 
     const b: [u8; (4, 3, 2)] = [[[0; 2]; 3]; 4]; // initializer
 
-    return a == b == y;
+    return (a == b) == y;
 }

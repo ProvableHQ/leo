@@ -9,5 +9,5 @@ function main(y: bool) -> bool {
 
     const b: [u8; (3, 2)] = [0; (3, 2)]; // initializer
 
-    return a == b == y;
+    return (a == b) == y;
 }

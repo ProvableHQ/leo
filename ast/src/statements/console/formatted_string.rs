@@ -74,7 +74,7 @@ impl fmt::Display for FormatString {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{}",
+            "\"{}\", {}",
             self.parts
                 .iter()
                 .map(|x| match x {
@@ -82,7 +82,12 @@ impl fmt::Display for FormatString {
                     FormatStringPart::Container => "{}".to_string(),
                 })
                 .collect::<Vec<_>>()
-                .join("")
+                .join(""),
+            self.parameters
+                .iter()
+                .map(|p| p.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
         )
     }
 }

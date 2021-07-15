@@ -61,6 +61,10 @@ version = "1.5.2"
 path = "./package"
 version = "1.5.2"
 
+[dependencies.leo-parser]
+path = "./parser"
+version = "1.5.2"
+
 [dependencies.leo-state]
 path = "./state"
 version = "1.5.2"
@@ -148,7 +152,7 @@ version = "0.5"
 version = "0.1"
 
 [dependencies.tracing-subscriber]
-version = "0.2"
+version = "0.2.19"
 features = [ "fmt" ]
 
 [dependencies.zip]
@@ -161,7 +165,7 @@ version = "0.12.1"
 version = "0.11.2"
 
 [dev-dependencies.assert_cmd]
-version = "1.0.5"
+version = "1.0.7"
 
 [dev-dependencies.test_dir]
 version = "0.1.0"

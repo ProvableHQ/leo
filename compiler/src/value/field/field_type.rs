@@ -247,6 +247,9 @@ impl<F: PrimeField> ToBytesGadget<F> for FieldType<F> {
 
 impl<F: PrimeField> std::fmt::Display for FieldType<F> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{:?}", self.get_value().ok_or(std::fmt::Error))
+        match self.get_value().ok_or(std::fmt::Error) {
+            Ok(value) => write!(f, "{}", value),
+            value => write!(f, "{:?}", value),
+        }
     }
 }

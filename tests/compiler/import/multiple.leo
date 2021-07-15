@@ -11,5 +11,5 @@ import test-import.(
 function main(y: bool) -> bool {
     const a = Point { x: 1u32, y: 0u32 };
 
-    return a.x == 1u32 == y;
+    return (a.x == 1u32) == y;
 }

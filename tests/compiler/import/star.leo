@@ -8,5 +8,5 @@ import test-import.*;
 function main(y: bool) -> bool {
     const a = Point { x: 1u32, y: 0u32 };
 
-    return foo() == 1u32 == y;
+    return (foo() == 1u32) == y;
 }

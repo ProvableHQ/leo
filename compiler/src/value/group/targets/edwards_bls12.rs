@@ -539,8 +539,11 @@ impl One for EdwardsGroupType {
 impl std::fmt::Display for EdwardsGroupType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            EdwardsGroupType::Constant(constant) => write!(f, "{:?}", constant),
-            EdwardsGroupType::Allocated(allocated) => write!(f, "{:?}", allocated),
+            EdwardsGroupType::Constant(constant) => write!(f, "({}, {})group", constant.x, constant.y),
+            EdwardsGroupType::Allocated(allocated) => match (allocated.x.get_value(), allocated.y.get_value()) {
+                (Some(x), Some(y)) => write!(f, "({}, {})group", x, y),
+                allocated => write!(f, "{:?}", allocated),
+            },
         }
     }
 }

@@ -11,5 +11,5 @@ function one() -> bool {
 function main(y: bool) -> bool {
     const a = one() && one();
 
-    return a == true == y;
+    return (a == true) == y;
 }

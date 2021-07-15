@@ -9,5 +9,5 @@ function main(a: (bool, bool)) -> (bool, bool) {
     let c = (false, true, false).1;
     let d = (true, false, false).2;
 
-    return (a.0 == b, a.1 == c == d);
+    return (a.0 == b, (a.1 == c) == d);
 }

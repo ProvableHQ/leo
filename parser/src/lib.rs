@@ -25,6 +25,7 @@
 extern crate thiserror;
 
 pub(crate) mod tokenizer;
+pub use tokenizer::KEYWORD_TOKENS;
 pub(crate) use tokenizer::*;
 
 pub mod errors;

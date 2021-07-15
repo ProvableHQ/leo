@@ -102,11 +102,20 @@ impl ParserContext {
         let end_span;
         let arguments = if self.eat(Token::LeftParen).is_some() {
             let mut args = Vec::new();
+            let mut comma = false;
             loop {
                 if let Some(end) = self.eat(Token::RightParen) {
+                    if comma {
+                        return Err(SyntaxError::unexpected(
+                            &Token::RightParen,
+                            &[Token::Ident("identifier".into()), Token::Int("number".into())],
+                            &end.span,
+                        ));
+                    }
                     end_span = end.span;
                     break;
                 }
+                comma = false;
                 if let Some(ident) = self.eat_identifier() {
                     args.push(ident.name);
                 } else if let Some((int, _)) = self.eat_int() {
@@ -115,10 +124,11 @@ impl ParserContext {
                     let token = self.peek()?;
                     return Err(SyntaxError::unexpected_str(&token.token, "ident or int", &token.span));
                 }
-                if self.eat(Token::Comma).is_none() {
+                if self.eat(Token::Comma).is_none() && !comma {
                     end_span = self.expect(Token::RightParen)?;
                     break;
                 }
+                comma = true;
             }
             args
         } else {

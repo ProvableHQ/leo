@@ -19,12 +19,9 @@ DRAFT
 
 This proposal provides support for casts among integer types in Leo.
 The syntax is similar to Rust.
-Two possible semantics are discussed:
-_value-preserving casts_,
-which just serve to change types
-but cause errors when values are not representable in the new types;
-and _values-changing casts_,
-which never cause errors but may change the mathematical values.
+The semantics is _value-preserving_,
+i.e. the casts just serve to change types
+but cause errors when the mathematical values are not representable in the new types.
 
 # Motivation
 
@@ -33,7 +30,7 @@ arithmetic integer operations require operands of the same type
 and return results of the same type.
 There are no implicit or explicit ways to turn, for example,
 a `u8` into a `u16`, even though
-every non-negative integers that fits in 8 bits also fits in 16 bits.
+every non-negative integer that fits in 8 bits also fits in 16 bits.
 However, the ability to convert values between different (integer) types
 is a useful feature that is normally found in programming languages.
 
@@ -68,7 +65,7 @@ The proposed syntax is
 ```
 where `<expression>` must have an integer type.
 
-The ABNF grammar is modified as follows:
+The ABNF grammar of Leo is modified as follows:
 ```
 ; add this rule:
 cast-expression = unary-expression
@@ -112,21 +109,33 @@ but the value in question is in the intersection of the two ranges.
 
 When the mathematical integer value of the expression
 is not representable in the type that the expression is cast to,
-there are two possible approaches, discussed below.
+there are two possible approaches:
+_value-preserving casts_,
+which just serve to change types
+but cause errors when values are not representable in the new types;
+and _values-changing casts_,
+which never cause errors but may change the mathematical values.
 
-### Value-Preserving Casts
+Based on discussion and consensus within the Leo team,
+this RFC proposes value-preserving casts;
+value-changing casts are discussed in the 'Alternatives' section,
+for completeness.
 
-The first approach is to deem that situation erroneous.
-That is, to require casts to always preserve the mathematical integer values.
+With value-preserving casts,
+when the mathematical integer value of the expression
+is not representable in the type that the expression is cast to,
+it is an error.
+That is, we require casts to always preserve the mathematical integer values.
+Recall that all inputs are known at compile time in Leo,
+so these checks can be performed easily.
 
-In this approach, casts only serve to change types, never values.
+Thus integer casts only serve to change types, never values.
 When values are to be changed, separate (built-in) functions can be used,
 e.g. to mask bits and achieve the same effect as
 the value-changing casts discussed below.
 
-From a point of view, this approach seems to match Leo's
-treatment of potentially erroneous situations like integer overflows:
-the principle is that developers should explicitly use
+This approach Leo's treatment of potentially erroneous situations like integer overflows.
+The principle is that developers should explicitly use
 operations that may overflow if that is their intention,
 rather than having those situation possibly occur unexpectedly.
 
@@ -159,9 +168,32 @@ let r_low16: u32 = r & 0xFFFF; // assuming we have bitwise ops and hex literals
 let s: u16 = r_low16 as u16; // no value change here
 ```
 
-### Value-Changing Casts
+## Compilation to R1CS
 
-The second approach is the following:
+It may be more efficient (in terms of number of R1CS constraints)
+to compile Leo casts as if they had a value-changing semantics.
+If the R1CS constraints represent Leo integers as bits,
+the bits of the new value can be determined from the bits of the old value,
+with additional zero or sign extension bits when needed
+(see the details of the value-changing semantics in the 'Alternatives' section).
+There is no need to add checks to the R1CS constraints
+because the compiler ensures that the cast values do not actually change given the known inputs,
+and therefore the value-changing and value-preserving semantics are equivalent on the known inputs.
+The idea is that the R1CS constraints can have a "don't care" behavior on inputs that cause errors in Leo.
+
+# Drawbacks
+
+This proposal does not appear to bring any drawbacks,
+other than making the language and compiler inevitably more complex.
+But the benefits to support type casts justifies the extra complexity.
+
+# Effect on Ecosystem
+
+This proposal does not appear to have any direct effects on the ecosystem.
+
+# Alternatives
+
+As mentioned above, an alternative semantics for casts is value-changing:
  1. `uN` to `uM` with `N < M`: just change type of value.
  2. `uN` to `uM` with `N > M`: take low `M` bits of value.
  3. `iN` to `iM` with `N < M`: just change type of value.
@@ -185,7 +217,7 @@ considerations that apply to typical programming languages
 do not necessarily apply to Leo.
 
 Back to the somewhat abstract example in the section on value-preserving casts,
-with value-changing casts, the expectation that the final result fits in `u16`
+note that, with value-changing casts, the expectation that the final result fits in `u16`
 would have to be checked with explicit code:
 ```
 ... // some computations on u32 values, which could not be done with u16
@@ -197,35 +229,3 @@ let s: u16 = r as u16; // could change value in principle, but does not here
 ```
 However, it would be easy for a developer to neglect to add the checking code,
 and thus have the Leo code silently produce an unexpected result.
-
-## Compilation to R1CS
-
-It should be possible to compile Leo casts to the same R1CS constraints
-whether we choose the value-preserving or value-changing semantics.
-If the R1CS constraints represent Leo integers as bits,
-the bits of the new value can be determined from the bits of the old value,
-with additional zero or sign extension bits when needed.
-This is clearly the value-changing behavior.
-With the value-preserving behavior,
-all casts for the known inputs are checked,
-and thus we value-changing behavior coincides
-with the value-preserving behavior if the checks succeed.
-Thus, if he behavior of the R1CS constraints is "don't care"
-for Leo program inputs that cause errors (such as cast errors),
-the compilation strategy for value-changing casts
-should be also adequate for value-preserving casts.
-
-# Drawbacks
-
-This proposal does not appear to bring any drawbacks,
-other than making the language and compiler inevitably more complex.
-But the benefits to support type casts justifies the extra complexity.
-
-# Effect on Ecosystem
-
-This proposal does not appear to have any direct effects on the ecosystem.
-
-# Alternatives
-
-The 'Design' section above already discusses two alternative semantics.
-After we settle on one, the other one could be mentioned in this section.
