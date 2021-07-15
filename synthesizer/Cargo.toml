@@ -26,7 +26,7 @@ version = "0.6.0"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.6.0"
+version = "0.7.4"
 
 [dependencies.snarkvm-r1cs]
 version = "0.6.0"
