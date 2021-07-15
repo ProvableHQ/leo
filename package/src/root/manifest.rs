@@ -137,6 +137,10 @@ license = "MIT"
 [remote]
 author = "{author}" # Add your Aleo Package Manager username or team name.
 
+[target]
+curve = "bls12_377"
+proving_system = "groth16"
+
 [dependencies]
 # Define dependencies here in format:
 # name = {{ package = "package-name", author = "author", version = "version" }}
