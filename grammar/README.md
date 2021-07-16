@@ -633,7 +633,7 @@ Go to: _[letter](#user-content-letter)_;
 
 A package name consists of one or more segments separated by single dashes,
 where each segment is a non-empty sequence of lowercase letters and digits.
-Similarly to an identifier, a package name must not be keyword
+Similarly to an identifier, a package name must not be a keyword
 and must not be or start with `aleo1`.
 
 <a name="package-name"></a>
@@ -1817,4 +1817,3 @@ It does not apply to the lines of the languages described by the grammar.
 ABNF grammars may describe any kind of languages,
 with any kind of line terminators,
 or even without line terminators at all (e.g. for "binary" languages).
-
