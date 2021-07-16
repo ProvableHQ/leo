@@ -13,5 +13,5 @@ circuit Foo {
 function main(y: bool) -> bool {
     const a = Foo::echo(1u32);
 
-    return a == 1u32 == y;
+    return (a == 1u32) == y;
 }

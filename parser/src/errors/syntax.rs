@@ -100,6 +100,10 @@ impl SyntaxError {
         )
     }
 
+    pub fn unexpected_statement(got: String, expected: &str, span: &Span) -> Self {
+        Self::new_from_span(format!("expected '{}', got '{}'", expected, got), span)
+    }
+
     pub fn unexpected_str(got: &Token, expected: &str, span: &Span) -> Self {
         Self::new_from_span(format!("expected '{}', got '{}'", expected, got.to_string()), span)
     }

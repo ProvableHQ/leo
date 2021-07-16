@@ -20,6 +20,7 @@ use leo_package::{
     outputs::OutputsDirectory,
     root::{ZipFile, AUTHOR_PLACEHOLDER},
 };
+use leo_parser::KEYWORD_TOKENS;
 
 use anyhow::{anyhow, Result};
 use structopt::StructOpt;
@@ -47,6 +48,10 @@ impl Command for Publish {
         let manifest = context.manifest()?;
 
         let package_name = manifest.get_package_name();
+        if KEYWORD_TOKENS.iter().any(|keyword| keyword.to_string() == package_name) {
+            return Err(anyhow!("Cannot name a package after a keyword"));
+        }
+
         let package_version = manifest.get_package_version();
 
         match (

@@ -8,5 +8,5 @@ function main(y: bool) -> bool {
     const a = [[0u8, 0u8], [0u8, 0u8], [0u8, 0u8]]; // inline
     const b: [[u8; 2]; 3] = [0; (3, 2)]; // initializer
 
-    return a == b == y;
+    return (a == b) == y;
 }

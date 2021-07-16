@@ -38,6 +38,8 @@ use tracing::span::Span;
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug)]
 pub struct BuildOptions {
+    #[structopt(long, help = "Disable canonicaliztion compiler optimization")]
+    pub disable_canonicalization: bool,
     #[structopt(long, help = "Disable constant folding compiler optimization")]
     pub disable_constant_folding: bool,
     #[structopt(long, help = "Disable dead code elimination compiler optimization")]
@@ -57,6 +59,7 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
+            disable_canonicalization: true,
             disable_constant_folding: true,
             disable_code_elimination: true,
             disable_all_optimizations: true,
@@ -78,7 +81,7 @@ impl From<BuildOptions> for CompilerOptions {
             }
         } else {
             CompilerOptions {
-                canonicalization_enabled: true,
+                canonicalization_enabled: !options.disable_canonicalization,
                 constant_folding_enabled: !options.disable_constant_folding,
                 dead_code_elimination_enabled: !options.disable_code_elimination,
             }
@@ -161,6 +164,12 @@ impl Command for Build {
 
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
+
+        if self.compiler_options.disable_canonicalization && self.compiler_options.enable_canonicalized_theorem {
+            tracing::warn!(
+                "Can not ask for canonicalization theorem without having canonicalization compiler feature enabled."
+            );
+        }
 
         // Load the program at `main_file_path`
         let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(

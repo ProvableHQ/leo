@@ -185,7 +185,17 @@ impl ParserContext {
         self.fuzzy_struct_state = false;
         let body = self.parse_block()?;
         let next = if self.eat(Token::Else).is_some() {
-            Some(Box::new(self.parse_statement()?))
+            let s = self.parse_statement()?;
+            match s {
+                Statement::Block(_) | Statement::Conditional(_) => Some(Box::new(s)),
+                s => {
+                    return Err(SyntaxError::unexpected_statement(
+                        s.to_string(),
+                        "Block or Conditional",
+                        s.span(),
+                    ));
+                }
+            }
         } else {
             None
         };

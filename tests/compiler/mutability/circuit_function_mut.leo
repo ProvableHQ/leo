@@ -18,5 +18,5 @@ function main(y: bool) -> bool {
     
     a.foo();
 
-    return a.x == 10u32 == y;
+    return (a.x == 10u32) == y;
 }

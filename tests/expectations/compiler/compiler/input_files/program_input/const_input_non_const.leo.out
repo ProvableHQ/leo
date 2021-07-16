@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:3:15\n     |\n   3 | function main(a: u32) {\n     |               ^\n     |\n     = Expected input variable `a` to be non-constant. Move input variable `a` to [main] section of input file"

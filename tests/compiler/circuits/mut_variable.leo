@@ -14,5 +14,5 @@ function main(y: bool) -> bool {
     f.a = 1u8;
     f.a = 2u8;
 
-    return f.a == 2u8 == true;
+    return (f.a == 2u8) == true;
 }

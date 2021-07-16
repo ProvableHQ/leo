@@ -6,5 +6,5 @@
 import test-import.foo as bar;
 
 function main(y: bool) -> bool {
-    return bar() == 1u32 == y;
+    return (bar() == 1u32) == y;
 }

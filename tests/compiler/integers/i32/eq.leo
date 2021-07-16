@@ -13,5 +13,5 @@ inputs:
 */
 
 function main(a: i32, b: i32, c: bool) -> bool {
-    return a == b == c;
+    return (a == b) == c;
 }

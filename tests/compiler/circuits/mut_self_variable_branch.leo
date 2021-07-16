@@ -22,5 +22,5 @@ function main(y: bool) -> bool {
     f.set_a(false, 2u8);
     f.set_a(true, 2u8);
 
-    return f.a == 2u8 == y;
+    return (f.a == 2u8) == y;
 }

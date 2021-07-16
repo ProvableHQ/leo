@@ -17,7 +17,7 @@ DRAFT
 
 # Summary
 
-This proposal suggests adding countdown loops and inclusive loop ranges into Leo language.
+This proposal suggests adding countdown loops and inclusive loop ranges into the Leo language.
 
 # Motivation
 
@@ -122,9 +122,36 @@ function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
 }
 ```
 
+## Possible Future Extension
+
+While the ability to designate the ending bound of a loop as either exclusive or inclusive is critical as discussed below,
+we could also consider adding the ability to designate the starting bound of a loop as either exclusive or inclusive.
+If we do that, we run into a sort of asymmetry in the defaults for starting and ending bounds:
+the default for the starting bound is inclusive, while the default for ending bounds is exclusive.
+
+The most symmetric but verbose approach is exemplified as follows:
+* `0=..=5` for `0 1 2 3 4 5`
+* `0<..=5` for `1 2 3 4 5`
+* `0=..<5` for `0 1 2 3 4`
+* `0<..<5` for `1 2 3 4`
+* `5=..=0` for `5 4 3 2 1 0`
+* `5>..=0` for `4 3 2 1 0`
+* `5=..>0` for `5 4 3 2 1`
+* `5>..>0` for `4 3 2 1`
+That is, this approach makes exclusivensss an inclusiveness implicit.
+The use of `<` vs. `>` also indicates a loop direction, which can be inferred anyhow when the `const` bounds are resolved,
+so that would entail an additional consistency check,
+namely that the inequality sign/signs is/are consistent with the inferred loop direction.
+
+Within the symmetric approach above, there are different options for defaults.
+The most symmetric default would be perhaps `=` for both bounds,
+but that would be a different behavior from current Leo.
+We could instead go for different defaults for starting and ending bounds,
+i.e. `=` for the starting bound and `<` or `>` (depending on direction) for the ending bound.
+
 # Drawbacks
 
-- 
+No obvious drawback.
 
 # Effect on Ecosystem
 

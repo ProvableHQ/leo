@@ -37,6 +37,19 @@ use crate::{
 const PEDERSEN_HASH_PATH: &str = "./examples/pedersen-hash/";
 
 #[test]
+pub fn init_logger() -> Result<()> {
+    crate::logger::init_logger("test_init_logger", 1)?;
+    Ok(())
+}
+
+#[test]
+pub fn format_event() -> Result<()> {
+    crate::logger::init_logger("test_format_event", 1)?;
+    tracing::info!("test");
+    Ok(())
+}
+
+#[test]
 pub fn build_pedersen_hash() -> Result<()> {
     (Build {
         compiler_options: Default::default(),
