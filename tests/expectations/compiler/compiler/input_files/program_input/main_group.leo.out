@@ -13,6 +13,6 @@ outputs:
       - input_file: input/main_group.in
         output:
           registers: {}
-    initial_theorem: b44ed4078cfd47b305648f8b661e63a925d296608b6e05e68922153dc384e5a6
-    canonicalized_theorem: f63a180228feec0dd67f648abb07cbf595d43820ea1a98f3fcb746bbd7a6abe9
-    type_inferenced_theorem: b3179dda593e9c7cd3607416273206a5ae8d171f2c46e6a724f6877e7f3e94b1
+    initial_ast: b44ed4078cfd47b305648f8b661e63a925d296608b6e05e68922153dc384e5a6
+    canonicalized_ast: f63a180228feec0dd67f648abb07cbf595d43820ea1a98f3fcb746bbd7a6abe9
+    type_inferenced_ast: b3179dda593e9c7cd3607416273206a5ae8d171f2c46e6a724f6877e7f3e94b1

@@ -16,6 +16,6 @@ outputs:
       - input_file: u128_f.in
         output:
           registers: {}
-    initial_theorem: 8c2309bdacd6b025d2462e08376db93e25406d164abc8955e039a338a0a58c00
-    canonicalized_theorem: 7bec6018459ad543c408f4f911200b81dc05f855ef680a3b12c6b8f58558f216
-    type_inferenced_theorem: d495e9868687b702dc07201da22b59dfd91212f2d6632e67f0a967b0fc748995
+    initial_ast: 8c2309bdacd6b025d2462e08376db93e25406d164abc8955e039a338a0a58c00
+    canonicalized_ast: 7bec6018459ad543c408f4f911200b81dc05f855ef680a3b12c6b8f58558f216
+    type_inferenced_ast: d495e9868687b702dc07201da22b59dfd91212f2d6632e67f0a967b0fc748995

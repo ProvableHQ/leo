@@ -22,6 +22,6 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_theorem: 8c6fea5199db90bc83b06a665def03d3d3f9dc21d0880e870afd5316e882d020
-    canonicalized_theorem: 8c6fea5199db90bc83b06a665def03d3d3f9dc21d0880e870afd5316e882d020
-    type_inferenced_theorem: 55b7d570fcaafdbd2f19c3bfae73c089e92ed89837f5d71bd8a72800870bc0fd
+    initial_ast: 8c6fea5199db90bc83b06a665def03d3d3f9dc21d0880e870afd5316e882d020
+    canonicalized_ast: 8c6fea5199db90bc83b06a665def03d3d3f9dc21d0880e870afd5316e882d020
+    type_inferenced_ast: 55b7d570fcaafdbd2f19c3bfae73c089e92ed89837f5d71bd8a72800870bc0fd

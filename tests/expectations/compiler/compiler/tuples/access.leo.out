@@ -19,6 +19,6 @@ outputs:
             c:
               type: bool
               value: "false"
-    initial_theorem: 02efc1a786611a1cb0fa0e03d86c4d4f8cb3e54c8a6d7815505272447ceef122
-    canonicalized_theorem: 02efc1a786611a1cb0fa0e03d86c4d4f8cb3e54c8a6d7815505272447ceef122
-    type_inferenced_theorem: f1fceaf70ce698e7fe0040fed31f1a03d0cc8133338712ea0957122d84d1da9d
+    initial_ast: 02efc1a786611a1cb0fa0e03d86c4d4f8cb3e54c8a6d7815505272447ceef122
+    canonicalized_ast: 02efc1a786611a1cb0fa0e03d86c4d4f8cb3e54c8a6d7815505272447ceef122
+    type_inferenced_ast: f1fceaf70ce698e7fe0040fed31f1a03d0cc8133338712ea0957122d84d1da9d

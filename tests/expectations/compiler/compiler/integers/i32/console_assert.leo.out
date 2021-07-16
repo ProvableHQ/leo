@@ -13,6 +13,6 @@ outputs:
       - input_file: i32.in
         output:
           registers: {}
-    initial_theorem: 0827f6332d1efc21bf2d0875dbe60a00ca0af5b8fac88831402c1289d5cb561a
-    canonicalized_theorem: 2744510f89a25b5b0cac8cdd335cfaad65f6df030b01b3bbf543d1766c7392b4
-    type_inferenced_theorem: 03dfb3c4eabf1f32ffc24ef5cd2f682346a9b9aa03a081dae718954070ac4460
+    initial_ast: 0827f6332d1efc21bf2d0875dbe60a00ca0af5b8fac88831402c1289d5cb561a
+    canonicalized_ast: 2744510f89a25b5b0cac8cdd335cfaad65f6df030b01b3bbf543d1766c7392b4
+    type_inferenced_ast: 03dfb3c4eabf1f32ffc24ef5cd2f682346a9b9aa03a081dae718954070ac4460

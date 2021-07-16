@@ -1,3 +1,9 @@
+/*
+namespace: Compile
+expectation: Fail
+input_file: input/dummy.in
+*/
+
 circuit Foo {
   x: u32;
 
@@ -8,12 +14,8 @@ circuit Foo {
 
     return new;
   }
-
-  function etc() {
-     y[Self {x: 0}.func()] += 2;
-  }
 }
 
 function main() {
-  let foo: Foo = Foo::new();
+  let foo: Self = Foo::new();
 }

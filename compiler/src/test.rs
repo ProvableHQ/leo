@@ -26,7 +26,7 @@ use leo_test_framework::{
 use serde_yaml::Value;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
-use leo_compiler::{
+use crate::{
     compiler::Compiler,
     errors::CompilerError,
     targets::edwards_bls12::EdwardsGroupType,
@@ -90,9 +90,9 @@ struct OutputItem {
 struct CompileOutput {
     pub circuit: SummarizedCircuit,
     pub output: Vec<OutputItem>,
-    pub initial_theorem: String,
-    pub canonicalized_theorem: String,
-    pub type_inferenced_theorem: String,
+    pub initial_ast: String,
+    pub canonicalized_ast: String,
+    pub type_inferenced_ast: String,
 }
 
 impl Namespace for CompileNamespace {
@@ -214,13 +214,13 @@ impl Namespace for CompileNamespace {
             });
         }
 
-        let initial_theorem: String = hash(
+        let initial_ast: String = hash(
             Ast::from_json_file("/tmp/output/initial_ast.json".into())
                 .unwrap_or(Ast::new(Program::new("Error reading initial theorem.".to_string())))
                 .to_json_string()
                 .unwrap_or("Error converting ast to string.".to_string()),
         );
-        let canonicalized_theorem: String = hash(
+        let canonicalized_ast: String = hash(
             Ast::from_json_file("/tmp/output/canonicalization_ast.json".into())
                 .unwrap_or(Ast::new(Program::new(
                     "Error reading canonicalized theorem.".to_string(),
@@ -228,7 +228,7 @@ impl Namespace for CompileNamespace {
                 .to_json_string()
                 .unwrap_or("Error converting ast to string.".to_string()),
         );
-        let type_inferenced_theorem = hash(
+        let type_inferenced_ast = hash(
             Ast::from_json_file("/tmp/output/type_inferenced_ast.json".into())
                 .unwrap_or(Ast::new(Program::new(
                     "Error reading type inferenced theorem.".to_string(),
@@ -240,9 +240,9 @@ impl Namespace for CompileNamespace {
         let final_output = CompileOutput {
             circuit: last_circuit.unwrap(),
             output: output_items,
-            initial_theorem,
-            canonicalized_theorem,
-            type_inferenced_theorem,
+            initial_ast,
+            canonicalized_ast,
+            type_inferenced_ast,
         };
         Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
     }

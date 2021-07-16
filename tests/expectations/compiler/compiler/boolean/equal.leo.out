@@ -34,6 +34,6 @@ outputs:
             x:
               type: bool
               value: "true"
-    initial_theorem: dcd562246dac98c86986cd3c8519ef6bab0d6ad9eb910ef2b797e25eebf66160
-    canonicalized_theorem: dcd562246dac98c86986cd3c8519ef6bab0d6ad9eb910ef2b797e25eebf66160
-    type_inferenced_theorem: ac5fc2712e702bdd3735bdac2885d028ed66ced47e0f3c310f8c17191a6aa9fe
+    initial_ast: dcd562246dac98c86986cd3c8519ef6bab0d6ad9eb910ef2b797e25eebf66160
+    canonicalized_ast: dcd562246dac98c86986cd3c8519ef6bab0d6ad9eb910ef2b797e25eebf66160
+    type_inferenced_ast: ac5fc2712e702bdd3735bdac2885d028ed66ced47e0f3c310f8c17191a6aa9fe

@@ -19,6 +19,6 @@ outputs:
             b:
               type: u32
               value: "0"
-    initial_theorem: 1e4cdf32e452509a2da4d4ef7a49fd51ba4773eb9582693e47f4838a506aa404
-    canonicalized_theorem: 1e4cdf32e452509a2da4d4ef7a49fd51ba4773eb9582693e47f4838a506aa404
-    type_inferenced_theorem: 8a61717cc7c59824571deaeb55dfcc499d26ef21617c9e8ef4814752374518eb
+    initial_ast: 1e4cdf32e452509a2da4d4ef7a49fd51ba4773eb9582693e47f4838a506aa404
+    canonicalized_ast: 1e4cdf32e452509a2da4d4ef7a49fd51ba4773eb9582693e47f4838a506aa404
+    type_inferenced_ast: 8a61717cc7c59824571deaeb55dfcc499d26ef21617c9e8ef4814752374518eb
