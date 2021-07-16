@@ -16,11 +16,17 @@
 
 use crate::{
     commands::{package::Add, Command},
-    context::Context,
+    context::{create_context, Context},
+};
+
+use leo_package::root::{
+    lock_file::{LockFile, Package},
+    Dependency,
 };
 
 use anyhow::{anyhow, Result};
 use indexmap::set::IndexSet;
+use std::collections::HashMap;
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -47,32 +53,52 @@ impl Command for Fetch {
         Ok(set)
     }
 
-    fn apply(self, context: Context, mut tree: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context, tree: Self::Input) -> Result<Self::Output> {
         let dependencies = context
             .manifest()
             .map_err(|_| anyhow!("Package Manifest not found"))?
             .get_package_dependencies();
 
         let dependencies = match dependencies {
-            Some(value) => value,
+            Some(dependencies) => dependencies,
             None => return Ok(()),
         };
 
+        if dependencies.is_empty() {
+            return Ok(());
+        }
+
+        let mut lock_file = LockFile::new();
+        self.add_dependencies(context.clone(), tree, &mut lock_file, dependencies)?;
+        lock_file.write_to(&context.dir()?)?;
+
+        Ok(())
+    }
+}
+
+impl Fetch {
+    fn add_dependencies(
+        &self,
+        context: Context,
+        mut tree: IndexSet<String>,
+        lock_file: &mut LockFile,
+        dependencies: HashMap<String, Dependency>,
+    ) -> Result<()> {
         // Go through each dependency in Leo.toml and add it to the imports.
         // While adding, pull dependencies of this package as well and check for recursion.
-        for (_name, dependency) in dependencies.iter() {
-            let package_name = dependency.package.clone();
+        for (_import_name, dependency) in dependencies.into_iter() {
+            let mut package = Package::from(dependency);
             let path = Add::new(
                 None,
-                Some(dependency.author.clone()),
-                Some(package_name.clone()),
-                Some(dependency.version.clone()),
+                Some(package.author.clone()),
+                Some(package.name.clone()),
+                Some(package.version.clone()),
             )
             .apply(context.clone(), ())?;
 
             // Try inserting a new dependency to the branch. If not inserted,
             // then fail because this dependency was added on a higher level.
-            if !tree.insert(package_name.clone()) {
+            if !tree.insert(package.name.clone()) {
                 // Pretty format for the message - show dependency structure.
                 let mut message: Vec<String> = tree
                     .into_iter()
@@ -80,15 +106,28 @@ impl Command for Fetch {
                     .map(|(i, val)| format!("{}└─{}", " ".repeat(i * 2), val))
                     .collect();
 
-                message.push(format!("{}└─{} (FAILURE)", " ".repeat(message.len() * 2), package_name));
+                message.push(format!("{}└─{} (FAILURE)", " ".repeat(message.len() * 2), package.name));
 
                 return Err(anyhow!("recursive dependency found \n{}", message.join("\n")));
             }
 
-            // Run the same command for installed dependency.
-            let mut new_context = context.clone();
-            new_context.path = Some(path);
-            (Fetch {}).apply(new_context, tree.clone())?;
+            // Check imported dependency's dependencies.
+            let imported_dependencies = create_context(path, None)?.manifest()?.get_package_dependencies();
+            if let Some(dependencies) = imported_dependencies {
+                if !dependencies.is_empty() {
+                    // Fill in the lock file with imported dependency and information about its dependencies.
+                    package.add_dependencies(&dependencies);
+                    lock_file.add_package(package);
+
+                    // Recursively call this method for imported program.
+                    self.add_dependencies(context.clone(), tree.clone(), lock_file, dependencies)?;
+
+                    continue;
+                }
+            }
+
+            // If there are no dependencies for the new import, add a single record.
+            lock_file.add_package(package);
         }
 
         Ok(())
