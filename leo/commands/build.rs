@@ -165,7 +165,7 @@ impl Command for Build {
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
 
-        if self.compiler_options.disable_canonicalization && self.compiler_options.enable_canonicalized_theorem {
+        if self.compiler_options.disable_canonicalization && self.compiler_options.enable_canonicalized_ast_snapshot {
             tracing::warn!(
                 "Can not ask for canonicalization theorem without having canonicalization compiler feature enabled."
             );
