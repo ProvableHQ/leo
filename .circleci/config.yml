@@ -40,12 +40,11 @@ commands:
           paths:
             - .cache/sccache
             - .cargo
+# orbs:
+#   codecov: codecov/codecov@1.2.3
 
-orbs:
-  win: circleci/windows@2.4.0
-  
 jobs:
-  fmt:
+  check-style:
     docker:
       - image: cimg/rust:1.53.0
     resource_class: xlarge
@@ -75,23 +74,47 @@ jobs:
       - clear_environment:
           cache_key: leo-clippy-cache
           
-  rust-stable:
-    docker:
-      - image: cimg/rust:1.53.0
-    resource_class: xlarge
-    steps:
-      - checkout
-      - setup_environment:
-          cache_key: leo-stable-cache
-      - run:
-          name: Build and run tests
-          no_output_timeout: 30m
-          command: cargo test --all
-      - persist_to_workspace:
-          root: ~/
-          paths: project/
-      - clear_environment:
-          cache_key: leo-stable-cache
+  # code-cov:
+  #   docker:
+  #     - image: cimg/rust:1.53.0
+  #   resource_class: xlarge
+  #   environment:
+  #     RUSTC_BOOTSTRAP: 1
+  #   steps:
+  #     - checkout
+  #     - setup_environment:
+  #         cache_key: leo-codecov-cache
+  #     - run:
+  #         name: Build and run tests
+  #         no_output_timeout: 30m
+  #         command: cargo test --all
+  #     - run:
+  #         name: Install Code Cov Deps
+  #         no_output_timeout: 30m
+  #         command: |
+  #           sudo apt-get update
+  #           sudo apt-get -y install binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
+  #     - run:
+  #         name: Generate Coverage Report
+  #         no_output_timeout: 30m
+  #         command: |
+  #           wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
+  #           tar xzf master.tar.gz
+  #           cd kcov-master
+  #           mkdir build && cd build
+  #           cmake .. && make
+  #           make install DESTDIR=../../kcov-build
+  #           cd ../..
+  #           rm -rf kcov-master
+  #           for file in target/debug/deps/*-*; do if [[ "$file" != *\.* ]]; then mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --exclude-region='@kcov_skip(start):@kcov_skip(end)' --verify "target/cov/$(basename $file)" "$file"; fi done
+  #     steps:
+  #     - codecov/upload:
+  #         file: {{}}
+  #     - persist_to_workspace:
+  #         root: ~/
+  #         paths: project/
+  #     - clear_environment:
+  #         cache_key: leo-codecov-cache
 
   leo-executable:
     docker:
@@ -232,9 +255,8 @@ workflows:
   version: 2
   main-workflow:
     jobs:
-      - fmt
+      - check-style
       - clippy
-      - rust-stable
       - leo-executable
       - leo-new:
           requires:
