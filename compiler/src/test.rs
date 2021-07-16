@@ -30,8 +30,8 @@ use crate::{
     compiler::Compiler,
     errors::CompilerError,
     targets::edwards_bls12::EdwardsGroupType,
-    Output,
     AstSnapshotOptions,
+    Output,
 };
 
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
@@ -128,19 +128,17 @@ impl Namespace for CompileNamespace {
         // (name, content)
         let mut inputs = vec![];
 
-        if let Some(input) = test.config.get("inputs") {
-            if let Value::Sequence(field) = input {
-                for map in field {
-                    for (name, value) in map.as_mapping().unwrap().iter() {
-                        // Try to parse string from 'inputs' map, else fail
-                        let value = if let serde_yaml::Value::String(value) = value {
-                            value
-                        } else {
-                            return Err("Expected string in 'inputs' map".to_string());
-                        };
+        if let Some(Value::Sequence(field)) = test.config.get("inputs") {
+            for map in field {
+                for (name, value) in map.as_mapping().unwrap().iter() {
+                    // Try to parse string from 'inputs' map, else fail
+                    let value = if let serde_yaml::Value::String(value) = value {
+                        value
+                    } else {
+                        return Err("Expected string in 'inputs' map".to_string());
+                    };
 
-                        inputs.push((name.as_str().unwrap().to_string(), value.clone()));
-                    }
+                    inputs.push((name.as_str().unwrap().to_string(), value.clone()));
                 }
             }
         }
@@ -216,25 +214,21 @@ impl Namespace for CompileNamespace {
 
         let initial_ast: String = hash(
             Ast::from_json_file("/tmp/output/initial_ast.json".into())
-                .unwrap_or(Ast::new(Program::new("Error reading initial theorem.".to_string())))
+                .unwrap_or_else(|_| Ast::new(Program::new("Error reading initial theorem.".to_string())))
                 .to_json_string()
-                .unwrap_or("Error converting ast to string.".to_string()),
+                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
         );
         let canonicalized_ast: String = hash(
             Ast::from_json_file("/tmp/output/canonicalization_ast.json".into())
-                .unwrap_or(Ast::new(Program::new(
-                    "Error reading canonicalized theorem.".to_string(),
-                )))
+                .unwrap_or_else(|_| Ast::new(Program::new("Error reading canonicalized theorem.".to_string())))
                 .to_json_string()
-                .unwrap_or("Error converting ast to string.".to_string()),
+                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
         );
         let type_inferenced_ast = hash(
             Ast::from_json_file("/tmp/output/type_inferenced_ast.json".into())
-                .unwrap_or(Ast::new(Program::new(
-                    "Error reading type inferenced theorem.".to_string(),
-                )))
+                .unwrap_or_else(|_| Ast::new(Program::new("Error reading type inferenced theorem.".to_string())))
                 .to_json_string()
-                .unwrap_or("Error converting ast to string.".to_string()),
+                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
         );
 
         let final_output = CompileOutput {
