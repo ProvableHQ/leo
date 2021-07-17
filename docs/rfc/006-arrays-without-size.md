@@ -1,4 +1,4 @@
-# Leo RFC 005: Array Types with Unspecified Size
+# Leo RFC 006: Array Types with Unspecified Size
 
 ## Authors
 
@@ -57,7 +57,7 @@ The ABNF grammar changes as follows:
 array-dimension = natural / "_"
 
 ; modified rule:
-array-dimensions = array-dimension 
+array-dimensions = array-dimension
                  / "(" array-dimension *( "," array-dimension ) ")"
 ```
 That is, an array dimension may be unspecified; this is also the case for multidimensional array types.
@@ -138,7 +138,7 @@ function f(x: [u8; _]) -> u8 {
 
 # Drawbacks
 
-None, aside from inevitably making the language and compiler slightly more complex. 
+None, aside from inevitably making the language and compiler slightly more complex.
 
 # Effect on Ecosystem
 
