@@ -157,7 +157,7 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     }
 
     fn is_in_setup_mode(&self) -> bool {
-        true
+        false
     }
 }
 
