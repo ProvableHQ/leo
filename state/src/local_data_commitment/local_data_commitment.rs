@@ -22,25 +22,22 @@ use snarkvm_algorithms::{
     traits::{CommitmentScheme, CRH},
 };
 use snarkvm_dpc::{
-    testnet1::{
-        instantiated::{Components, LocalDataCRH, LocalDataCommitment},
-        parameters::SystemParameters,
-    },
-    traits::DPCComponents,
+    testnet1::{instantiated::Components, parameters::SystemParameters},
+    DPCComponents,
 };
-use snarkvm_utilities::{bytes::ToBytes, to_bytes, FromBytes};
+use snarkvm_utilities::{bytes::ToBytes, to_bytes_le, FromBytes};
 
 use std::convert::TryFrom;
 
 /// Returns `true` if the path to the local data commitment leaf is a valid path in the record
 /// commitment Merkle tree.
 pub fn verify_local_data_commitment(
-    system_parameters: &SystemParameters<Components>,
+    dpc: &SystemParameters<Components>,
     ast_input: &AstInput,
 ) -> Result<bool, LocalDataVerificationError> {
     // Verify record commitment.
     let typed_record = ast_input.get_record();
-    let dpc_record_values = verify_record_commitment(system_parameters, typed_record)?;
+    let dpc_record_values = verify_record_commitment(dpc, typed_record)?;
     let record_commitment: Vec<u8> = dpc_record_values.commitment;
     let record_serial_number: Vec<u8> = dpc_record_values.serial_number;
 
@@ -61,26 +58,32 @@ pub fn verify_local_data_commitment(
     // Select local data commitment input bytes.
     let is_death = leaf_index < (Components::NUM_INPUT_RECORDS as u32);
     let input_bytes = if is_death {
-        to_bytes![record_serial_number, record_commitment, memo, network_id]?
+        to_bytes_le![record_serial_number, record_commitment, memo, network_id]?
     } else {
-        to_bytes![record_commitment, memo, network_id]?
+        to_bytes_le![record_commitment, memo, network_id]?
     };
 
     // Construct local data commitment leaf.
-    let local_data_leaf_randomness = <LocalDataCommitment as CommitmentScheme>::Randomness::read(&leaf_randomness[..])?;
-    let local_data_commitment_leaf = LocalDataCommitment::commit(
-        &system_parameters.local_data_commitment,
+    let local_data_leaf_randomness =
+        <<Components as DPCComponents>::LocalDataCommitment as CommitmentScheme>::Randomness::read_le(
+            &leaf_randomness[..],
+        )?;
+    let local_data_commitment_leaf = <Components as DPCComponents>::LocalDataCommitment::commit(
+        &dpc.local_data_commitment,
         &input_bytes,
         &local_data_leaf_randomness,
     )?;
 
     // Construct record commitment merkle path.
-    let local_data_merkle_path = CommitmentMerklePath::<LocalDataCommitment, LocalDataCRH>::read(&path[..])?;
+    let local_data_merkle_path = CommitmentMerklePath::<
+        <Components as DPCComponents>::LocalDataCommitment,
+        <Components as DPCComponents>::LocalDataCRH,
+    >::read_le(&path[..])?;
 
     // Check record commitment merkle path is valid for the given local data commitment root.
-    let local_data_commitment_root = <LocalDataCRH as CRH>::Output::read(&root[..])?;
+    let local_data_commitment_root = <<Components as DPCComponents>::LocalDataCRH as CRH>::Output::read_le(&root[..])?;
     let result = local_data_merkle_path.verify(
-        &system_parameters.local_data_crh,
+        &dpc.local_data_crh,
         &local_data_commitment_root,
         &local_data_commitment_leaf,
     )?;

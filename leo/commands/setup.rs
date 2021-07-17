@@ -24,6 +24,7 @@ use snarkvm_algorithms::{
     traits::snark::SNARK,
 };
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
+use snarkvm_utilities::ToBytes;
 
 use anyhow::{anyhow, Result};
 use rand::thread_rng;
@@ -86,7 +87,7 @@ impl Command for Setup {
             let proving_key_file = ProvingKeyFile::new(&package_name);
             tracing::info!("Saving proving key ({:?})", proving_key_file.full_path(&path));
             let mut proving_key_bytes = vec![];
-            proving_key.write(&mut proving_key_bytes)?;
+            proving_key.write_le(&mut proving_key_bytes)?;
             let _ = proving_key_file.write_to(&path, &proving_key_bytes)?;
             tracing::info!("Complete");
 
@@ -94,7 +95,7 @@ impl Command for Setup {
             let verification_key_file = VerificationKeyFile::new(&package_name);
             tracing::info!("Saving verification key ({:?})", verification_key_file.full_path(&path));
             let mut verification_key = vec![];
-            proving_key.vk.write(&mut verification_key)?;
+            proving_key.vk.write_le(&mut verification_key)?;
             let _ = verification_key_file.write_to(&path, &verification_key)?;
             tracing::info!("Complete");
 

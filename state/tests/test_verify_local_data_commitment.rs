@@ -72,10 +72,10 @@
 //     let noop_program_snark_pp =
 //         InstantiatedDPC::generate_noop_program_snark_parameters(&system_parameters, &mut rng).unwrap();
 //
-//     let noop_program_id = to_bytes![
+//     let noop_program_id = to_bytes_le![
 //         ProgramVerificationKeyCRH::hash(
 //             &system_parameters.program_verification_key_crh,
-//             &to_bytes![noop_program_snark_pp.verification_key].unwrap()
+//             &to_bytes_le![noop_program_snark_pp.verification_key].unwrap()
 //         )
 //         .unwrap()
 //     ]
@@ -160,11 +160,11 @@
 //     let root = local_data.local_data_merkle_tree.root();
 //
 //     let serial_number = local_data.old_serial_numbers[0];
-//     let serial_number_bytes = to_bytes![serial_number].unwrap();
+//     let serial_number_bytes = to_bytes_le![serial_number].unwrap();
 //
 //     let memorandum = local_data.memorandum;
 //     let network_id = local_data.network_id;
-//     let input_bytes = to_bytes![serial_number, record.commitment(), memorandum, network_id].unwrap();
+//     let input_bytes = to_bytes_le![serial_number, record.commitment(), memorandum, network_id].unwrap();
 //     let leaf_randomness = local_data.local_data_commitment_randomizers[0];
 //
 //     let old_record_leaf = <LocalDataCommitment as CommitmentScheme>::commit(
@@ -185,7 +185,7 @@
 //     println!();
 //     println!("[state]");
 //     println!("leaf index {}", leaf_index);
-//     println!("root {:?}", to_bytes![root].unwrap());
+//     println!("root {:?}", to_bytes_le![root].unwrap());
 //     println!();
 //     println!("[record]");
 //     println!(
@@ -193,7 +193,7 @@
 //         serial_number_bytes,
 //         serial_number_bytes.len()
 //     );
-//     println!("commitment {:?}", to_bytes![record.commitment()].unwrap());
+//     println!("commitment {:?}", to_bytes_le![record.commitment()].unwrap());
 //     println!("owner {}", record.owner());
 //     println!("is_dummy {:?}", record.is_dummy());
 //     println!("value {:?}", record.value());
@@ -202,18 +202,18 @@
 //     println!("death_program_id {:?}", record.death_program_id());
 //     println!(
 //         "serial number nonce {:?}",
-//         to_bytes![record.serial_number_nonce()].unwrap()
+//         to_bytes_le![record.serial_number_nonce()].unwrap()
 //     );
 //     println!(
 //         "commitment randomness {:?}",
-//         to_bytes![record.commitment_randomness()].unwrap()
+//         to_bytes_le![record.commitment_randomness()].unwrap()
 //     );
 //     println!();
 //     println!("[state_leaf]");
-//     println!("path {:?}", to_bytes![path].unwrap());
+//     println!("path {:?}", to_bytes_le![path].unwrap());
 //     println!("memo {:?}", memorandum);
 //     println!("network id {:?}", network_id);
-//     println!("leaf randomness {:?}", to_bytes![leaf_randomness].unwrap());
+//     println!("leaf randomness {:?}", to_bytes_le![leaf_randomness].unwrap());
 //     println!();
 //     println!("////////////////////////////////////////////////////");
 // }
