@@ -135,6 +135,11 @@ impl Command for Build {
         let package_name = manifest.get_package_name();
         let imports_map = manifest.get_imports_map().unwrap_or_default();
 
+        // Error out if there are dependencies but no lock file found.
+        if !imports_map.is_empty() && !context.lock_file_exists()? {
+            return Err(anyhow!("Dependencies are not installed, please run `leo fetch` first"));
+        }
+
         // Sanitize the package path to the root directory.
         let mut package_path = path.clone();
         if package_path.is_file() {
@@ -174,6 +179,14 @@ impl Command for Build {
                 "Can not ask for canonicalization theorem without having canonicalization compiler feature enabled."
             );
         }
+
+        let imports_map = if context.lock_file_exists()? {
+            context.lock_file()?.to_hashmap()
+        } else {
+            Default::default()
+        };
+
+        dbg!(&imports_map);
 
         // Load the program at `main_file_path`
         let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(

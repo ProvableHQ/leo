@@ -45,3 +45,9 @@ impl From<toml::ser::Error> for LockFileError {
         LockFileError::Crate("toml", error.to_string())
     }
 }
+
+impl From<toml::de::Error> for LockFileError {
+    fn from(error: toml::de::Error) -> Self {
+        LockFileError::Crate("toml", error.to_string())
+    }
+}

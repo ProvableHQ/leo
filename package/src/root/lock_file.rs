@@ -17,7 +17,14 @@
 use crate::{errors::LockFileError, root::Dependency};
 
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, collections::HashMap, fs::File, io::Write, path::Path};
+use std::{
+    borrow::Cow,
+    collections::HashMap,
+    convert::TryFrom,
+    fs::File,
+    io::{Read, Write},
+    path::Path,
+};
 
 pub const LOCKFILE_FILENAME: &str = "Leo.lock";
 
@@ -31,16 +38,26 @@ pub struct LockFile {
 /// Single dependency record.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Package {
-    // pub import_name: String,
     pub name: String,
     pub version: String,
     pub author: String,
+    pub import_name: Option<String>,
+    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
     pub dependencies: HashMap<String, String>,
 }
 
 impl LockFile {
     pub fn new() -> Self {
         LockFile { package: vec![] }
+    }
+
+    /// Check if LockFile exists in a directory.
+    pub fn exists_at(path: &Path) -> bool {
+        let mut path = Cow::from(path);
+        if path.is_dir() {
+            path.to_mut().push(LOCKFILE_FILENAME);
+        }
+        path.exists()
     }
 
     /// Add Package record to the lock file. Chainable.
@@ -51,6 +68,18 @@ impl LockFile {
 
     pub fn to_string(&self) -> Result<String, LockFileError> {
         Ok(toml::to_string(self)?)
+    }
+
+    pub fn to_hashmap(&self) -> HashMap<String, String> {
+        let mut result = HashMap::new();
+        for package in self.package.iter() {
+            match &package.import_name {
+                Some(name) => result.insert(name.clone(), package.to_identifier()),
+                None => result.insert(package.name.clone(), package.to_identifier()),
+            };
+        }
+
+        result
     }
 
     /// Write Leo.lock to the given location.
@@ -66,29 +95,53 @@ impl LockFile {
     }
 }
 
+impl TryFrom<&Path> for LockFile {
+    type Error = LockFileError;
+
+    fn try_from(path: &Path) -> Result<Self, Self::Error> {
+        let mut path = Cow::from(path);
+        if path.is_dir() {
+            path.to_mut().push(LOCKFILE_FILENAME);
+        }
+
+        let mut file = File::open(path.clone()).map_err(|error| LockFileError::Opening(LOCKFILE_FILENAME, error))?;
+        let size = file
+            .metadata()
+            .map_err(|error| LockFileError::Metadata(LOCKFILE_FILENAME, error))?
+            .len() as usize;
+
+        let mut buffer = String::with_capacity(size);
+        file.read_to_string(&mut buffer)
+            .map_err(|error| LockFileError::Reading(LOCKFILE_FILENAME, error))?;
+
+        toml::from_str(&buffer).map_err(|error| LockFileError::Parsing(LOCKFILE_FILENAME, error))
+    }
+}
+
 impl Package {
     /// Fill dependencies from Leo Manifest data.
     pub fn add_dependencies(&mut self, dependencies: &HashMap<String, Dependency>) {
         for (import_name, dependency) in dependencies.iter() {
             self.dependencies
-                .insert(import_name.clone(), dependency.package.clone());
+                .insert(import_name.clone(), Package::from(dependency).to_identifier());
         }
+    }
+
+    /// Form an path identifier for a package. It is the path under which package is stored
+    /// inside the `imports/` directory.
+    pub fn to_identifier(&self) -> String {
+        format!("{}-{}@{}", self.author, self.name, self.version)
     }
 }
 
-impl From<Dependency> for Package {
-    fn from(dependency: Dependency) -> Package {
-        let Dependency {
-            author,
-            version,
-            package,
-        } = dependency;
-
+impl From<&Dependency> for Package {
+    fn from(dependency: &Dependency) -> Package {
         Package {
-            name: package,
-            author,
-            version,
+            name: dependency.package.clone(),
+            author: dependency.author.clone(),
+            version: dependency.version.clone(),
             dependencies: Default::default(),
+            import_name: None,
         }
     }
 }

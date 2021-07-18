@@ -22,7 +22,7 @@ pub mod logger;
 pub mod updater;
 
 use commands::{
-    package::{Add, Clone, Fetch, Login, Logout, Publish, Remove},
+    package::{Clone, Fetch, Login, Logout, Publish},
     Build,
     Clean,
     Command,
@@ -131,13 +131,12 @@ enum CommandOpts {
         command: Test,
     },
 
-    #[structopt(about = "Import a package from the Aleo Package Manager")]
-    Add {
-        #[structopt(flatten)]
-        command: Add,
-    },
-
-    #[structopt(about = "Install dependencies for this program")]
+    // #[structopt(about = "Import a package from the Aleo Package Manager")]
+    // Add {
+    //     #[structopt(flatten)]
+    //     command: Add,
+    // },
+    #[structopt(about = "Pull dependencies from Aleo Package Manager")]
     Fetch {
         #[structopt(flatten)]
         command: Fetch,
@@ -167,12 +166,11 @@ enum CommandOpts {
         command: Publish,
     },
 
-    #[structopt(about = "Uninstall a package from the current package")]
-    Remove {
-        #[structopt(flatten)]
-        command: Remove,
-    },
-
+    // #[structopt(about = "Uninstall a package from the current package")]
+    // Remove {
+    //     #[structopt(flatten)]
+    //     command: Remove,
+    // },
     #[structopt(about = "Lints the Leo files in the package (*)")]
     Lint {
         #[structopt(flatten)]
@@ -219,14 +217,13 @@ fn run_with_args(opt: Opt) -> Result<()> {
         CommandOpts::Watch { command } => command.try_execute(context),
         CommandOpts::Update { command } => command.try_execute(context),
 
-        CommandOpts::Add { command } => command.try_execute(context),
+        // CommandOpts::Add { command } => command.try_execute(context),
         CommandOpts::Fetch { command } => command.try_execute(context),
         CommandOpts::Clone { command } => command.try_execute(context),
         CommandOpts::Login { command } => command.try_execute(context),
         CommandOpts::Logout { command } => command.try_execute(context),
         CommandOpts::Publish { command } => command.try_execute(context),
-        CommandOpts::Remove { command } => command.try_execute(context),
-
+        // CommandOpts::Remove { command } => command.try_execute(context),
         CommandOpts::Lint { command } => command.try_execute(context),
         CommandOpts::Deploy { command } => command.try_execute(context),
     }
@@ -425,6 +422,7 @@ mod cli_tests {
             .open(path.join("install/Leo.toml"))
             .unwrap();
 
+        assert!(run_cmd("leo fetch", install_path).is_ok());
         assert!(
             file.write_all(
                 br#"
@@ -435,5 +433,6 @@ mod cli_tests {
         );
 
         assert!(run_cmd("leo fetch", install_path).is_ok());
+        assert!(run_cmd("leo build", install_path).is_ok());
     }
 }

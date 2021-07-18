@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// COMMAND TEMPORARILY DISABLED
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 use crate::{api::Fetch, commands::Command, context::Context};
 use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
 

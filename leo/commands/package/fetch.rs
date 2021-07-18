@@ -59,6 +59,7 @@ impl Command for Fetch {
             .map_err(|_| anyhow!("Package Manifest not found"))?
             .get_package_dependencies();
 
+        // If program has no dependencies in the Leo.toml, exit with success.
         let dependencies = match dependencies {
             Some(dependencies) => dependencies,
             None => return Ok(()),
@@ -77,6 +78,8 @@ impl Command for Fetch {
 }
 
 impl Fetch {
+    /// Pulls dependencies and fills in the lock file. Also checks for
+    /// recursive dependencies with dependency tree.
     fn add_dependencies(
         &self,
         context: Context,
@@ -86,8 +89,11 @@ impl Fetch {
     ) -> Result<()> {
         // Go through each dependency in Leo.toml and add it to the imports.
         // While adding, pull dependencies of this package as well and check for recursion.
-        for (_import_name, dependency) in dependencies.into_iter() {
-            let mut package = Package::from(dependency);
+        for (import_name, dependency) in dependencies.into_iter() {
+            let mut package = Package::from(&dependency);
+            package.import_name = Some(import_name);
+
+            // Pull the dependency first.
             let path = Add::new(
                 None,
                 Some(package.author.clone()),
@@ -112,7 +118,11 @@ impl Fetch {
             }
 
             // Check imported dependency's dependencies.
-            let imported_dependencies = create_context(path, None)?.manifest()?.get_package_dependencies();
+            let imported_dependencies = create_context(path, None)?
+                .manifest()
+                .map_err(|_| anyhow!("Unable to parse imported dependency's manifest"))?
+                .get_package_dependencies();
+
             if let Some(dependencies) = imported_dependencies {
                 if !dependencies.is_empty() {
                     // Fill in the lock file with imported dependency and information about its dependencies.
