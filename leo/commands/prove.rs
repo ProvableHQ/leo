@@ -70,7 +70,7 @@ impl Command for Prove {
 
         // Write the proof file to the output directory
         let mut proof = vec![];
-        program_proof.write(&mut proof)?;
+        program_proof.write_le(&mut proof)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
 
         Ok((program_proof, prepared_verifying_key))

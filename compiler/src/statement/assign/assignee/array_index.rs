@@ -28,7 +28,7 @@ use crate::{
 use leo_asg::{ConstInt, Expression, Node};
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::{eq::EvaluateEqGadget, select::CondSelectGadget};
+use snarkvm_gadgets::traits::{eq::EvaluateEqGadget, select::CondSelectGadget};
 use snarkvm_r1cs::ConstraintSystem;
 
 use super::ResolverContext;

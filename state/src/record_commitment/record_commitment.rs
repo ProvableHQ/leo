@@ -18,25 +18,25 @@ use crate::{DPCRecordValues, RecordVerificationError};
 use leo_ast::Record as AstRecord;
 
 use snarkvm_algorithms::traits::CommitmentScheme;
-use snarkvm_dpc::testnet1::{
-    instantiated::{Components, RecordCommitment},
-    parameters::SystemParameters,
+use snarkvm_dpc::{
+    testnet1::{instantiated::Components, parameters::SystemParameters},
+    DPCComponents,
 };
-use snarkvm_utilities::{bytes::ToBytes, to_bytes, FromBytes};
+use snarkvm_utilities::{bytes::ToBytes, to_bytes_le, FromBytes};
 
 use std::convert::TryFrom;
 
 /// Returns a serialized [`DPCRecordValues`] type if the record commitment is valid given the
 /// system parameters.
 pub fn verify_record_commitment(
-    system_parameters: &SystemParameters<Components>,
+    dpc: &SystemParameters<Components>,
     ast_record: &AstRecord,
 ) -> Result<DPCRecordValues, RecordVerificationError> {
     // generate a dpc record from the typed record
     let record = DPCRecordValues::try_from(ast_record)?;
 
     // verify record commitment
-    let record_commitment_input = to_bytes![
+    let record_commitment_input = to_bytes_le![
         record.owner,
         record.is_dummy,
         record.value,
@@ -46,12 +46,15 @@ pub fn verify_record_commitment(
         record.serial_number_nonce
     ]?;
 
-    let commitment = <RecordCommitment as CommitmentScheme>::Output::read(&record.commitment[..])?;
+    let commitment =
+        <<Components as DPCComponents>::RecordCommitment as CommitmentScheme>::Output::read_le(&record.commitment[..])?;
     let commitment_randomness =
-        <RecordCommitment as CommitmentScheme>::Randomness::read(&record.commitment_randomness[..])?;
+        <<Components as DPCComponents>::RecordCommitment as CommitmentScheme>::Randomness::read_le(
+            &record.commitment_randomness[..],
+        )?;
 
-    let record_commitment = RecordCommitment::commit(
-        &system_parameters.record_commitment,
+    let record_commitment = <Components as DPCComponents>::RecordCommitment::commit(
+        &dpc.record_commitment,
         &record_commitment_input,
         &commitment_randomness,
     )?;

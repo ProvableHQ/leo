@@ -31,8 +31,10 @@ use leo_asg::{ConstInt, Expression, Span};
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     boolean::Boolean,
-    eq::{EqGadget, EvaluateEqGadget},
-    select::CondSelectGadget,
+    traits::{
+        eq::{EqGadget, EvaluateEqGadget},
+        select::CondSelectGadget,
+    },
 };
 use snarkvm_r1cs::ConstraintSystem;
 
