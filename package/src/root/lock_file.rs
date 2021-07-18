@@ -66,16 +66,20 @@ impl LockFile {
         self
     }
 
+    /// Print LockFile as toml.
     pub fn to_string(&self) -> Result<String, LockFileError> {
         Ok(toml::to_string(self)?)
     }
 
-    pub fn to_hashmap(&self) -> HashMap<String, String> {
+    /// Form a HashMap of kind:
+    /// ``` imported_name => package_name ```
+    /// for all imported packages.
+    pub fn to_import_map(&self) -> HashMap<String, String> {
         let mut result = HashMap::new();
         for package in self.package.iter() {
             match &package.import_name {
-                Some(name) => result.insert(name.clone(), package.to_identifier()),
-                None => result.insert(package.name.clone(), package.to_identifier()),
+                Some(name) => result.insert(name.clone(), package.to_string()),
+                None => result.insert(package.name.clone(), package.to_string()),
             };
         }
 
@@ -123,13 +127,13 @@ impl Package {
     pub fn add_dependencies(&mut self, dependencies: &HashMap<String, Dependency>) {
         for (import_name, dependency) in dependencies.iter() {
             self.dependencies
-                .insert(import_name.clone(), Package::from(dependency).to_identifier());
+                .insert(import_name.clone(), Package::from(dependency).to_string());
         }
     }
 
     /// Form an path identifier for a package. It is the path under which package is stored
     /// inside the `imports/` directory.
-    pub fn to_identifier(&self) -> String {
+    pub fn to_string(&self) -> String {
         format!("{}-{}@{}", self.author, self.name, self.version)
     }
 }

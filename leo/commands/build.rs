@@ -181,12 +181,10 @@ impl Command for Build {
         }
 
         let imports_map = if context.lock_file_exists()? {
-            context.lock_file()?.to_hashmap()
+            context.lock_file()?.to_import_map()
         } else {
             Default::default()
         };
-
-        dbg!(&imports_map);
 
         // Load the program at `main_file_path`
         let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(

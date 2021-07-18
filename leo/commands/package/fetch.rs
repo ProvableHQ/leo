@@ -30,7 +30,7 @@ use std::collections::HashMap;
 use structopt::StructOpt;
 use tracing::span::Span;
 
-/// Install dependencies Leo code command
+/// Pull dependencies specified in Leo toml.
 #[derive(StructOpt, Debug)]
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Fetch {}
