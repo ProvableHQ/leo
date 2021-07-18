@@ -44,7 +44,7 @@ jobs:
 
   rust-stable:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - checkout
@@ -60,24 +60,9 @@ jobs:
       - clear_environment:
           cache_key: leo-stable-cache
 
-  rust-nightly:
-    docker:
-      - image: howardwu/snarkos-ci:2021-03-25
-    resource_class: xlarge
-    steps:
-      - checkout
-      - setup_environment:
-          cache_key: leo-nightly-cache
-      - run:
-          name: Build and test
-          no_output_timeout: 30m
-          command: cargo test --all
-      - clear_environment:
-          cache_key: leo-nightly-cache
-
   leo-executable:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - checkout
@@ -95,7 +80,7 @@ jobs:
 
   leo-new:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -108,7 +93,7 @@ jobs:
 
   leo-init:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -121,7 +106,7 @@ jobs:
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -134,7 +119,7 @@ jobs:
 
   leo-setup:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -147,7 +132,7 @@ jobs:
 
   # leo-add-remove:
   #   docker:
-  #     - image: cimg/rust:1.52.1
+  #     - image: cimg/rust:1.53
   #   resource_class: xlarge
   #   steps:
   #     - attach_workspace:
@@ -160,7 +145,7 @@ jobs:
 
   leo-check-constraints:
     docker:
-      - image: cimg/rust:1.50.0
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -173,7 +158,7 @@ jobs:
 
   leo-login-logout:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -186,7 +171,7 @@ jobs:
 
   leo-clone:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -199,7 +184,7 @@ jobs:
 
   leo-publish:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.53
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -215,7 +200,6 @@ workflows:
   main-workflow:
     jobs:
       - rust-stable
-      - rust-nightly
       - leo-executable
       - leo-new:
           requires:
