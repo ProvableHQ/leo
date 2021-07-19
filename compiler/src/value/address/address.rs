@@ -17,7 +17,7 @@
 use crate::{errors::AddressError, ConstrainedValue, GroupType, IntegerTrait};
 use leo_ast::{InputValue, Span};
 
-use snarkvm_dpc::{account::AccountAddress, testnet1::instantiated::Components};
+use snarkvm_dpc::{account::Address as AleoAddress, testnet1::instantiated::Components};
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     boolean::Boolean,
@@ -35,16 +35,16 @@ use std::{borrow::Borrow, str::FromStr};
 /// A public address
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Address {
-    pub address: Option<AccountAddress<Components>>,
+    pub address: Option<AleoAddress<Components>>,
     pub bytes: Vec<UInt8>,
 }
 
 impl Address {
     pub(crate) fn constant(address: String, span: &Span) -> Result<Self, AddressError> {
-        let address = AccountAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
+        let address = AleoAddress::from_str(&address).map_err(|error| AddressError::account_error(error, span))?;
 
         let mut address_bytes = vec![];
-        address.write(&mut address_bytes).unwrap();
+        address.write_le(&mut address_bytes).unwrap();
 
         let bytes = UInt8::constant_vec(&address_bytes[..]);
 
@@ -87,7 +87,7 @@ impl Address {
 
     pub(crate) fn alloc_helper<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>>(
         value_gen: Fn,
-    ) -> Result<AccountAddress<Components>, SynthesisError> {
+    ) -> Result<AleoAddress<Components>, SynthesisError> {
         let address_string = match value_gen() {
             Ok(value) => {
                 let string_value = value.borrow().clone();
@@ -96,7 +96,7 @@ impl Address {
             _ => Err(SynthesisError::AssignmentMissing),
         }?;
 
-        AccountAddress::from_str(&address_string).map_err(|_| SynthesisError::AssignmentMissing)
+        AleoAddress::from_str(&address_string).map_err(|_| SynthesisError::AssignmentMissing)
     }
 }
 
@@ -108,7 +108,7 @@ impl<F: PrimeField> AllocGadget<String, F> for Address {
         let address = Self::alloc_helper(value_gen)?;
         let mut address_bytes = vec![];
         address
-            .write(&mut address_bytes)
+            .write_le(&mut address_bytes)
             .map_err(|_| SynthesisError::AssignmentMissing)?;
 
         let bytes = UInt8::alloc_vec(cs, &address_bytes[..])?;
@@ -126,7 +126,7 @@ impl<F: PrimeField> AllocGadget<String, F> for Address {
         let address = Self::alloc_helper(value_gen)?;
         let mut address_bytes = vec![];
         address
-            .write(&mut address_bytes)
+            .write_le(&mut address_bytes)
             .map_err(|_| SynthesisError::AssignmentMissing)?;
 
         let bytes = UInt8::alloc_input_vec_le(cs, &address_bytes[..])?;

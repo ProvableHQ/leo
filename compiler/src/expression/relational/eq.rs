@@ -20,7 +20,7 @@ use crate::{enforce_and, errors::ExpressionError, value::ConstrainedValue, Group
 use leo_asg::Span;
 
 use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::{boolean::Boolean, eq::EvaluateEqGadget};
+use snarkvm_gadgets::{boolean::Boolean, traits::eq::EvaluateEqGadget};
 use snarkvm_r1cs::ConstraintSystem;
 
 pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(

@@ -24,9 +24,11 @@ use leo_ast::{InputValue, Span};
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     boolean::Boolean,
-    eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget, NEqGadget},
-    select::CondSelectGadget,
-    traits::bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+    traits::{
+        bits::comparator::{ComparatorGadget, EvaluateLtGadget},
+        eq::{ConditionalEqGadget, EqGadget, EvaluateEqGadget, NEqGadget},
+        select::CondSelectGadget,
+    },
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 

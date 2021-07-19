@@ -19,3 +19,6 @@ edition = "2018"
 
 [dependencies.anyhow]
 version = "1.0"
+
+[dependencies.abnf]
+version = "0.12.0"
