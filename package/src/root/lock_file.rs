@@ -30,7 +30,7 @@ pub const LOCKFILE_FILENAME: &str = "Leo.lock";
 
 /// Lock-file struct, contains all information about imported dependencies
 /// and their relationships.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct LockFile {
     pub package: Vec<Package>,
 }
