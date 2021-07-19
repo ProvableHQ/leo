@@ -21,6 +21,7 @@ use std::{
     borrow::Cow,
     collections::HashMap,
     convert::TryFrom,
+    fmt::{self, Display},
     fs::File,
     io::{Read, Write},
     path::Path,
@@ -130,11 +131,13 @@ impl Package {
                 .insert(import_name.clone(), Package::from(dependency).to_string());
         }
     }
+}
 
+impl Display for Package {
     /// Form an path identifier for a package. It is the path under which package is stored
     /// inside the `imports/` directory.
-    pub fn to_string(&self) -> String {
-        format!("{}-{}@{}", self.author, self.name, self.version)
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}-{}@{}", self.author, self.name, self.version)
     }
 }
 
