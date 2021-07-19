@@ -17,7 +17,7 @@
 use crate::{utilities::*, DPCRecordValuesError};
 use leo_ast::Record as AstRecord;
 
-use snarkvm_dpc::{testnet1::instantiated::Components, AccountAddress};
+use snarkvm_dpc::{testnet1::instantiated::Components, Address};
 
 use std::{convert::TryFrom, str::FromStr};
 
@@ -36,7 +36,7 @@ static COMMITMENT_RANDOMNESS_PARAMETER_STRING: &str = "commitment_randomness";
 /// A new [`DPCRecordValues`] type can be constructed from an [`AstRecord`] type.
 pub struct DPCRecordValues {
     pub serial_number: Vec<u8>,
-    pub owner: AccountAddress<Components>,
+    pub owner: Address<Components>,
     pub is_dummy: bool,
     pub value: u64,
     pub payload: Vec<u8>,
@@ -59,7 +59,7 @@ impl TryFrom<&AstRecord> for DPCRecordValues {
 
         // Lookup record owner
         let owner_value = find_input(OWNER_PARAMETER_STRING.to_owned(), &parameters)?;
-        let owner = AccountAddress::<Components>::from_str(&owner_value.to_string())?;
+        let owner = Address::<Components>::from_str(&owner_value.to_string())?;
 
         // Lookup record is_dummy
         let is_dummy_value = find_input(IS_DUMMY_PARAMETER_STRING.to_owned(), &parameters)?;

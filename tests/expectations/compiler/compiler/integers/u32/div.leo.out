@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 3361
-      num_constraints: 3457
-      at: b4586913c6db620e8148b90ba3be229f924a47980b735a0c4e2cece8f1334761
-      bt: 4984a34e571417eb6ce209b1542beefad525200e782ec88e6f5c58c440402f33
-      ct: a0b70b0006b80beff40b0f991739c129cdf3a759c4d7c85c274f59ad62e103d5
+      num_private_variables: 16572
+      num_constraints: 20795
+      at: 4f6450d5e7991f179adb08e1b026e453c4c6abd66f38ea4a175a888b3c1bdbf1
+      bt: 3f6fd055b4a8dacc1138d93848e7ea7424a5bc64af98ad3ee1e6e5ff4719e3c3
+      ct: a5941a2d70ce52e20004890f9a7198b0f22c93803e9d159824e716ff2ed2d223
     output:
       - input_file: u32.in
         output:

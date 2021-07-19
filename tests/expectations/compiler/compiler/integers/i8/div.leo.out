@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1900
-      num_constraints: 2146
-      at: 78254e9ffa335030ec73b144fe62ec20ae56e25f40dda07a761f8dae73d4a5ec
-      bt: b857cea12f4b3716495ef7dffecf8cc30b26e4f560fa0464c4a04df43a1f18ef
-      ct: b45ff088d9439c294745b670408d93a081733efdff5b80d9369e287974cd22b8
+      num_private_variables: 1150
+      num_constraints: 1438
+      at: ea4e10bc92af056bb4b3797063565094853fe4ba595f03fd6d4a8a0fc30ca195
+      bt: a41852ab8ac16bc91220ddd5b2fd1dacf3bebb624715cf2c3dc53f5dd172da9b
+      ct: 0449683ea39f4822da71f08082f051f005ecf6b846ab99e48c6ab9ac5aaa75be
     output:
       - input_file: i8.in
         output:
