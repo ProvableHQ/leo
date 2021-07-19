@@ -125,7 +125,7 @@ impl Command for Add {
             // Dumb compatibility hack.
             // TODO: Remove once `leo add` functionality is discussed.
             if self.version.is_some() {
-                path.push(format!("{}-{}@{}", author.clone(), package_name, self.version.unwrap()));
+                path.push(format!("{}-{}@{}", author, package_name, self.version.unwrap()));
             } else {
                 path.push(package_name.clone());
             }
