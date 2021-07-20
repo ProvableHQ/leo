@@ -94,6 +94,26 @@ for i in 0..5 {}
 for i in 0..=5 {}
 ```
 
+## Step and Direction
+
+We remark that the step of both counting-up and counting-down loops is implicitly 1;
+that is, the loop variable is incremented or decremented by 1.
+
+Whether the loop counts up or down is determined by how the starting and ending bounds compare.
+Note that the bounds are not necessarily literals;
+they may be more complex `const` expressions, and thus in general their values are resolved at code flattening time.
+Because of the type restrictions on bounds, their values are always non-negative integers.
+If `S` is the integer value of the starting bound and `E` is the integer value of the ending bound,
+there are several cases to consider:
+1. If `S == E` and the ending bound is exclusive, there is no actual loop; the range is empty.
+2. If `S == E` and the ending bound is inclusive, the loop consists of just one iteration; the loop counts neither up nor down.
+3. If `S < E` and the ending bound is exclusive, the loop counts up, from `S` to `E-1`.
+4. If `S < E` and the ending bound is inclusive, the loop counts up, from `S` to `E`.
+5. If `S > E` and the ending bound is exclusive, the loop counts down, from `S` to `E+1`.
+6. If `S > E` and the ending bound is inclusive, the loop counts down, from `S` to `E`.
+
+Cases 3 and 5 consist of one or more iterations; cases 4 and 6 consist of two or more iterations.
+
 ## Example
 
 The code example demostrated in the Motivation part of this document 
