@@ -559,7 +559,7 @@ unicode-character-escape = %s"\u{" 1*6hexadecimal-digit "}"
 ; because string literals denote character arrays,
 ; and arrays must not be empty.
 
-string-literal = double-quote 1*string-literal-element double-quote
+string-literal = double-quote *string-literal-element double-quote
 
 string-literal-element = not-double-quote-or-backslash
                        / simple-character-escape

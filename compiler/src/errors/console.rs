@@ -33,6 +33,18 @@ impl ConsoleError {
         ConsoleError::Error(FormattedError::new_from_span(message, span))
     }
 
+    pub fn expected_left_or_right_brace(span: &Span) -> Self {
+        let message = "Formatter given a {. Expected a { or } after".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
+    pub fn expected_escaped_right_brace(span: &Span) -> Self {
+        let message = "Formatter given a }. Expected a container {} or }}".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn length(containers: usize, parameters: usize, span: &Span) -> Self {
         let message = format!(
             "Formatter given {} containers and found {} parameters",

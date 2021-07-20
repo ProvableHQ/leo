@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
-use leo_ast::{ConsoleFunction as AstConsoleFunction, FormatStringPart};
+use crate::{AsgConvertError, CharValue, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
+use leo_ast::ConsoleFunction as AstConsoleFunction;
 
 use std::cell::Cell;
 
 // TODO (protryon): Refactor to not require/depend on span
 #[derive(Clone)]
-pub struct FormatString<'a> {
-    pub parts: Vec<FormatStringPart>,
+pub struct ConsoleArgs<'a> {
+    pub string: Vec<CharValue>,
     pub parameters: Vec<Cell<&'a Expression<'a>>>,
     pub span: Span,
 }
@@ -30,9 +30,9 @@ pub struct FormatString<'a> {
 #[derive(Clone)]
 pub enum ConsoleFunction<'a> {
     Assert(Cell<&'a Expression<'a>>),
-    Debug(FormatString<'a>),
-    Error(FormatString<'a>),
-    Log(FormatString<'a>),
+    Debug(ConsoleArgs<'a>),
+    Error(ConsoleArgs<'a>),
+    Log(ConsoleArgs<'a>),
 }
 
 #[derive(Clone)]
@@ -48,41 +48,42 @@ impl<'a> Node for ConsoleStatement<'a> {
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::FormatString> for FormatString<'a> {
+impl<'a> FromAst<'a, leo_ast::ConsoleArgs> for ConsoleArgs<'a> {
     fn from_ast(
         scope: &'a Scope<'a>,
-        value: &leo_ast::FormatString,
+        value: &leo_ast::ConsoleArgs,
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
-        let expected_param_len = value
-            .parts
-            .iter()
-            .filter(|x| matches!(x, FormatStringPart::Container))
-            .count();
-        if value.parameters.len() != expected_param_len {
-            // + 1 for formatting string as to not confuse user
-            return Err(AsgConvertError::unexpected_call_argument_count(
-                expected_param_len + 1,
-                value.parameters.len() + 1,
-                &value.span,
-            ));
-        }
+        // let expected_param_len = value
+        //     .parts
+        //     .iter()
+        //     .filter(|x| matches!(x, FormatStringPart::Container))
+        //     .count();
+        // if value.parameters.len() != expected_param_len {
+        //     + 1 for formatting string as to not confuse user
+        //     return Err(AsgConvertError::unexpected_call_argument_count(
+        //         expected_param_len + 1,
+        //         value.parameters.len() + 1,
+        //         &value.span,
+        //     ));
+        // }
+
         let mut parameters = vec![];
         for parameter in value.parameters.iter() {
             parameters.push(Cell::new(<&Expression<'a>>::from_ast(scope, parameter, None)?));
         }
-        Ok(FormatString {
-            parts: value.parts.clone(),
+        Ok(ConsoleArgs {
+            string: value.string.iter().map(CharValue::from).collect::<Vec<_>>(),
             parameters,
             span: value.span.clone(),
         })
     }
 }
 
-impl<'a> Into<leo_ast::FormatString> for &FormatString<'a> {
-    fn into(self) -> leo_ast::FormatString {
-        leo_ast::FormatString {
-            parts: self.parts.clone(),
+impl<'a> Into<leo_ast::ConsoleArgs> for &ConsoleArgs<'a> {
+    fn into(self) -> leo_ast::ConsoleArgs {
+        leo_ast::ConsoleArgs {
+            string: self.string.iter().map(|c| c.into()).collect::<Vec<_>>(),
             parameters: self.parameters.iter().map(|e| e.get().into()).collect(),
             span: self.span.clone(),
         }
@@ -102,15 +103,9 @@ impl<'a> FromAst<'a, leo_ast::ConsoleStatement> for ConsoleStatement<'a> {
                 AstConsoleFunction::Assert(expression) => ConsoleFunction::Assert(Cell::new(
                     <&Expression<'a>>::from_ast(scope, expression, Some(Type::Boolean.into()))?,
                 )),
-                AstConsoleFunction::Debug(formatted_string) => {
-                    ConsoleFunction::Debug(FormatString::from_ast(scope, formatted_string, None)?)
-                }
-                AstConsoleFunction::Error(formatted_string) => {
-                    ConsoleFunction::Error(FormatString::from_ast(scope, formatted_string, None)?)
-                }
-                AstConsoleFunction::Log(formatted_string) => {
-                    ConsoleFunction::Log(FormatString::from_ast(scope, formatted_string, None)?)
-                }
+                AstConsoleFunction::Debug(args) => ConsoleFunction::Debug(ConsoleArgs::from_ast(scope, args, None)?),
+                AstConsoleFunction::Error(args) => ConsoleFunction::Error(ConsoleArgs::from_ast(scope, args, None)?),
+                AstConsoleFunction::Log(args) => ConsoleFunction::Log(ConsoleArgs::from_ast(scope, args, None)?),
             },
         })
     }
@@ -122,9 +117,9 @@ impl<'a> Into<leo_ast::ConsoleStatement> for &ConsoleStatement<'a> {
         leo_ast::ConsoleStatement {
             function: match &self.function {
                 Assert(e) => AstConsoleFunction::Assert(e.get().into()),
-                Debug(formatted_string) => AstConsoleFunction::Debug(formatted_string.into()),
-                Error(formatted_string) => AstConsoleFunction::Error(formatted_string.into()),
-                Log(formatted_string) => AstConsoleFunction::Log(formatted_string.into()),
+                Debug(args) => AstConsoleFunction::Debug(args.into()),
+                Error(args) => AstConsoleFunction::Error(args.into()),
+                Log(args) => AstConsoleFunction::Log(args.into()),
             },
             span: self.span.clone().unwrap_or_default(),
         }

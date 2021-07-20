@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, FormatString, Node, Span};
+use crate::{ConsoleArgs, Expression, Node, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -22,9 +22,9 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum ConsoleFunction {
     Assert(Expression),
-    Debug(FormatString),
-    Error(FormatString),
-    Log(FormatString),
+    Debug(ConsoleArgs),
+    Error(ConsoleArgs),
+    Log(ConsoleArgs),
 }
 
 impl fmt::Display for ConsoleFunction {
