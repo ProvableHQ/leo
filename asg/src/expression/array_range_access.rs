@@ -148,24 +148,28 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
             _ => None,
         };
         let const_right = match right.map(|x| x.const_value()) {
-            Some(Some(ConstValue::Int(value))) => {
-                let value = value.to_usize();
-                if let Some(value) = value {
-                    if value > parent_size {
-                        return Err(AsgConvertError::array_index_out_of_bounds(
-                            value,
-                            &right.unwrap().span().cloned().unwrap_or_default(),
-                        ));
+            Some(Some(ConstValue::Int(inner_value))) => {
+                let usize_value = inner_value.to_usize();
+                if let Some(inner_value) = usize_value {
+                    if inner_value > parent_size {
+                        let error_span = if let Some(right) = right {
+                            right.span().cloned().unwrap_or_default()
+                        } else {
+                            value.span.clone()
+                        };
+                        return Err(AsgConvertError::array_index_out_of_bounds(inner_value, &error_span));
                     } else if let Some(left) = const_left {
-                        if left > value {
-                            return Err(AsgConvertError::array_index_out_of_bounds(
-                                value,
-                                &right.unwrap().span().cloned().unwrap_or_default(),
-                            ));
+                        if left > inner_value {
+                            let error_span = if let Some(right) = right {
+                                right.span().cloned().unwrap_or_default()
+                            } else {
+                                value.span.clone()
+                            };
+                            return Err(AsgConvertError::array_index_out_of_bounds(inner_value, &error_span));
                         }
                     }
                 }
-                value
+                usize_value
             }
             None => Some(parent_size),
             _ => None,
@@ -188,12 +192,14 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
                     ));
                 }
             }
-            if let Some(value) = const_left {
-                if value + expected_len > parent_size {
-                    return Err(AsgConvertError::array_index_out_of_bounds(
-                        value,
-                        &left.unwrap().span().cloned().unwrap_or_default(),
-                    ));
+            if let Some(left_value) = const_left {
+                if left_value + expected_len > parent_size {
+                    let error_span = if let Some(left) = left {
+                        left.span().cloned().unwrap_or_default()
+                    } else {
+                        value.span.clone()
+                    };
+                    return Err(AsgConvertError::array_index_out_of_bounds(left_value, &error_span));
                 }
             }
             length = Some(expected_len);
