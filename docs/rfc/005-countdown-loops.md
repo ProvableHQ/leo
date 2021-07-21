@@ -185,3 +185,44 @@ i.e. `=` for the starting bound and `<` or `>` (depending on direction) for the 
 
 A drawback of this approach is that it is somewhat verbose.
 Furthermore, some of the authors of this RFC do not find it very readable.
+
+## Flipping Bound Defaults for Countdown
+
+In the proposed design, there is an asymmetry between the treatment of loops that count up vs. down.
+This can be seen clearly by thinking how to iterate through an array of size `N`:
+```ts
+for i in 0..n { ... a[i] ... } // count up -- 0 1 2 ... n-1
+for i in n-1..=0 { ... a[i] ... } // count down -- n-1 ... 2 1 0
+```
+While the loop that counts up has nice and simple bounds `0` and `n`,
+the loop that counts down needs `n-1` and `=0`.
+
+So a possible idea is to use different defaults depending on the loop direction:
+* For a loop that counts up:
+  * The starting (i.e. lower) bound is always inclusive.
+  * The ending (i.e. upper) bound is exclusive by default, inclusive with `=`.
+* For loop that counts down:
+  * The ending (i.e. lower) bound is always inclusive.
+  * The starting (i.e. upper) bound is exclusive by default, inclusive with `=`.
+
+That is, different defaults apply to lower vs. upper bound, rather than to starting and ending bounds.
+
+Things become more symmetric in a way:
+```ts
+for i in 0..n { ... a[i] ... } // count up -- 0 1 2 ... n-1
+for i in n..0 { ... a[i] ... } // count down -- n-1 ... 2 1 0
+```
+
+This is also consistent with Rust in a way,
+where countdown loops are obtained by reversing the increasing range into a decreasing range, which flips the bounds.
+
+However, if we consider a possible extension in which the step may be larger than 1, we run into some issues.
+Imagine an extension in which `step` is specified:
+```ts
+for i in 10..0 step 2 ... // i = 8 6 4 2 0 -- starts at 10-2 = 8
+for i in 10..0 step 3 ... // i = 9 6 3 0 -- starts at 10-1 = 9
+```
+
+Note how the actual starting index does not depend on starting/upper bound and step,
+but rather on ending/lower bound and step, and must be calculated explicitly;
+it doesn't "jump" at the reader.
