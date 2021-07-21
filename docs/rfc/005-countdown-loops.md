@@ -216,7 +216,7 @@ for i in n..0 { ... a[i] ... } // count down -- n-1 ... 2 1 0
 This is also consistent with Rust in a way,
 where countdown loops are obtained by reversing the increasing range into a decreasing range, which flips the bounds.
 
-However, if we consider a possible extension in which the step may be larger than 1, we run into some issues.
+However, if we consider a possible extension in which the step may be larger than 1, we run into some awkwardness.
 Imagine an extension in which `step` is specified:
 ```ts
 for i in 10..0 step 2 ... // i = 8 6 4 2 0 -- starts at 10-2 = 8
@@ -226,3 +226,22 @@ for i in 10..0 step 3 ... // i = 9 6 3 0 -- starts at 10-1 = 9
 Note how the actual starting index does not depend on starting/upper bound and step,
 but rather on ending/lower bound and step, and must be calculated explicitly;
 it doesn't "jump" at the reader.
+
+## Explicit Indication of Loop Direction
+
+Another idea that was brought up is to always write the range as `<lower>..<upper>`,
+but include an explicit indication when the loop must count down, e.g.
+```ts
+for i in 0..n down { ... array[i] ... } // where 'down' indicates count down
+```
+
+The advantages are that
+we retain the default that the first/lower bound is inclusive and the second/upper bound is exclusive,
+and the direction is explicit and does not have to be inferred.
+The direction matches starting/ending bound to lower/upper bound or upper/lower bound.
+
+But the awkwardness with larger steps than 1 remains:
+```ts
+for i in 0..10 down step 2 ... // i = 8 6 4 2 0 -- starts at 10-2 = 8
+for i in 0..10 down step 3 ... // i = 9 6 3 0 -- starts at 10-1 = 9
+```
