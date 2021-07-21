@@ -142,7 +142,21 @@ function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
 }
 ```
 
-## Possible Future Extension
+# Drawbacks
+
+No obvious drawback.
+
+# Effect on Ecosystem
+
+Suggested change should have no effect on ecosystem because of its backward compatibility.
+
+# Alternatives
+
+## Mocking
+
+Coundown loops can be mocked manually.
+
+## Exclusive Starting Bounds
 
 While the ability to designate the ending bound of a loop as either exclusive or inclusive is critical as discussed below,
 we could also consider adding the ability to designate the starting bound of a loop as either exclusive or inclusive.
@@ -158,7 +172,7 @@ The most symmetric but verbose approach is exemplified as follows:
 * `5>..=0` for `4 3 2 1 0`
 * `5=..>0` for `5 4 3 2 1`
 * `5>..>0` for `4 3 2 1`
-That is, this approach makes exclusivensss an inclusiveness implicit.
+That is, this approach makes exclusivensss and inclusiveness implicit.
 The use of `<` vs. `>` also indicates a loop direction, which can be inferred anyhow when the `const` bounds are resolved,
 so that would entail an additional consistency check,
 namely that the inequality sign/signs is/are consistent with the inferred loop direction.
@@ -168,17 +182,3 @@ The most symmetric default would be perhaps `=` for both bounds,
 but that would be a different behavior from current Leo.
 We could instead go for different defaults for starting and ending bounds,
 i.e. `=` for the starting bound and `<` or `>` (depending on direction) for the ending bound.
-
-# Drawbacks
-
-No obvious drawback.
-
-# Effect on Ecosystem
-
-Suggested change should have no effect on ecosystem because of its backward compatibility.
-
-# Alternatives
-
-## Mocking
-
-Coundown loops can be mocked manually. 
