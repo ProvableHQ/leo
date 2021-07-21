@@ -16,3 +16,6 @@ outputs:
             a:
               type: u32
               value: "4"
+    initial_ast: 0f75f5cb48d7ef68bc14fad54adc07e94d3ffbe2f3ea9e4c7b3a0720bf51dec6
+    canonicalized_ast: 0f75f5cb48d7ef68bc14fad54adc07e94d3ffbe2f3ea9e4c7b3a0720bf51dec6
+    type_inferenced_ast: 09c9b20ba2ff94cfca66a5e2e9eda0ce0e5970ca6ebbd111968445f028294cb7

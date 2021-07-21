@@ -19,3 +19,6 @@ outputs:
             c:
               type: bool
               value: "false"
+    initial_ast: 8d3a5cc77cf14db7140dace16fc2f590f6ddc73ed98932021bad4f90b5e99824
+    canonicalized_ast: 8d3a5cc77cf14db7140dace16fc2f590f6ddc73ed98932021bad4f90b5e99824
+    type_inferenced_ast: 7cd799d02f04c5426c8a316c9654db286bbab879e8ced2505152f6264764ba63

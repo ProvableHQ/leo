@@ -1,0 +1,5 @@
+[main]
+s2: [char; 2] = "he";
+
+[registers]
+out: bool = true;
