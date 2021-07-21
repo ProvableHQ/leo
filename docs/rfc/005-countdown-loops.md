@@ -245,3 +245,18 @@ But the awkwardness with larger steps than 1 remains:
 for i in 0..10 down step 2 ... // i = 8 6 4 2 0 -- starts at 10-2 = 8
 for i in 0..10 down step 3 ... // i = 9 6 3 0 -- starts at 10-1 = 9
 ```
+
+## Variable in the Middle of Range with Equalities or Inequalities
+
+Another approach is to put the variable in the middle of the range,
+along with equality or inequality signs around the variable, e.g.
+```ts
+  for 0 <= i < 5   // 0 1 2 3 4
+  for 0 <= i <= 5   // 0 1 2 3 4 5
+  for 5 > i >= 0    // 4 3 2 1 0
+```
+
+This maximizes explicitness, but it may need tweaking to avoid parsing ambiguities or difficulties
+(recall that the bounds may be complex `const` expressions).
+
+This could be a future addition to consider, but it seems that it would not replace the current Rust-like syntax.
