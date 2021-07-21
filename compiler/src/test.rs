@@ -17,6 +17,7 @@
 use std::path::{Path, PathBuf};
 
 use leo_asg::*;
+use leo_ast::{Ast, Program};
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
@@ -25,7 +26,9 @@ use leo_test_framework::{
 use serde_yaml::Value;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
-use leo_compiler::{compiler::Compiler, errors::CompilerError, targets::edwards_bls12::EdwardsGroupType, Output};
+use crate::{
+    compiler::Compiler, errors::CompilerError, targets::edwards_bls12::EdwardsGroupType, AstSnapshotOptions, Output,
+};
 
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
 // pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
@@ -36,15 +39,35 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
     new_context(allocator)
 }
 
-fn new_compiler(path: PathBuf) -> EdwardsTestCompiler {
+fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> EdwardsTestCompiler {
     let program_name = "test".to_string();
-    let output_dir = PathBuf::from("/output/");
+    let output_dir = PathBuf::from("/tmp/output/");
+    std::fs::create_dir_all(output_dir.clone()).unwrap();
 
-    EdwardsTestCompiler::new(program_name, path, output_dir, make_test_context(), None, None)
+    EdwardsTestCompiler::new(
+        program_name,
+        path,
+        output_dir,
+        make_test_context(),
+        None,
+        theorem_options,
+    )
 }
 
-pub(crate) fn parse_program(program_string: &str) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler("compiler-test".into());
+fn hash(input: String) -> String {
+    use sha2::{Digest, Sha256};
+
+    let mut hasher = Sha256::new();
+    hasher.update(input.as_bytes());
+    let output = hasher.finalize();
+    hex::encode(&output[..])
+}
+
+pub(crate) fn parse_program(
+    program_string: &str,
+    theorem_options: Option<AstSnapshotOptions>,
+) -> Result<EdwardsTestCompiler, CompilerError> {
+    let mut compiler = new_compiler("compiler-test".into(), theorem_options);
 
     compiler.parse_program_from_string(program_string)?;
 
@@ -63,6 +86,9 @@ struct OutputItem {
 struct CompileOutput {
     pub circuit: SummarizedCircuit,
     pub output: Vec<OutputItem>,
+    pub initial_ast: String,
+    pub canonicalized_ast: String,
+    pub type_inferenced_ast: String,
 }
 
 impl Namespace for CompileNamespace {
@@ -85,24 +111,30 @@ impl Namespace for CompileNamespace {
         //     })
         //     .unwrap_or(test.path.clone());
 
-        let parsed = parse_program(&test.content).map_err(|x| x.to_string())?;
+        let parsed = parse_program(
+            &test.content,
+            Some(AstSnapshotOptions {
+                initial: true,
+                canonicalized: true,
+                type_inferenced: true,
+            }),
+        )
+        .map_err(|x| x.to_string())?;
 
         // (name, content)
         let mut inputs = vec![];
 
-        if let Some(input) = test.config.get("inputs") {
-            if let Value::Sequence(field) = input {
-                for map in field {
-                    for (name, value) in map.as_mapping().unwrap().iter() {
-                        // Try to parse string from 'inputs' map, else fail
-                        let value = if let serde_yaml::Value::String(value) = value {
-                            value
-                        } else {
-                            return Err("Expected string in 'inputs' map".to_string());
-                        };
+        if let Some(Value::Sequence(field)) = test.config.get("inputs") {
+            for map in field {
+                for (name, value) in map.as_mapping().unwrap().iter() {
+                    // Try to parse string from 'inputs' map, else fail
+                    let value = if let serde_yaml::Value::String(value) = value {
+                        value
+                    } else {
+                        return Err("Expected string in 'inputs' map".to_string());
+                    };
 
-                        inputs.push((name.as_str().unwrap().to_string(), value.clone()));
-                    }
+                    inputs.push((name.as_str().unwrap().to_string(), value.clone()));
                 }
             }
         }
@@ -169,15 +201,38 @@ impl Namespace for CompileNamespace {
             } else {
                 last_circuit = Some(circuit);
             }
+
             output_items.push(OutputItem {
                 input_file: input.0,
                 output,
             });
         }
 
+        let initial_ast: String = hash(
+            Ast::from_json_file("/tmp/output/initial_ast.json".into())
+                .unwrap_or_else(|_| Ast::new(Program::new("Error reading initial theorem.".to_string())))
+                .to_json_string()
+                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
+        );
+        let canonicalized_ast: String = hash(
+            Ast::from_json_file("/tmp/output/canonicalization_ast.json".into())
+                .unwrap_or_else(|_| Ast::new(Program::new("Error reading canonicalized theorem.".to_string())))
+                .to_json_string()
+                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
+        );
+        let type_inferenced_ast = hash(
+            Ast::from_json_file("/tmp/output/type_inferenced_ast.json".into())
+                .unwrap_or_else(|_| Ast::new(Program::new("Error reading type inferenced theorem.".to_string())))
+                .to_json_string()
+                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
+        );
+
         let final_output = CompileOutput {
             circuit: last_circuit.unwrap(),
             output: output_items,
+            initial_ast,
+            canonicalized_ast,
+            type_inferenced_ast,
         };
         Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
     }

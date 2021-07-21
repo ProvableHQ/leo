@@ -1,0 +1,2 @@
+[constants]
+x: u32 = 1u32;

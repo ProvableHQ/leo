@@ -100,3 +100,6 @@ outputs:
             r:
               type: char
               value: "'a'"
+    initial_ast: 66ea1340fc8ae77142ea3d254d8d3350a2775549ea7ba0ab550ec88b5c5721d4
+    canonicalized_ast: 66ea1340fc8ae77142ea3d254d8d3350a2775549ea7ba0ab550ec88b5c5721d4
+    type_inferenced_ast: 7b07de0d440a813b674c11dcc71fa4daee8224d5136844d66bc7fafa60f38725
