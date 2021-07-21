@@ -555,9 +555,6 @@ unicode-character-escape = %s"\u{" 1*6hexadecimal-digit "}"
 ; A string literal consists of one or more elements surrounded by double quotes.
 ; Each element is any character other than double quote or backslash,
 ; or an escape among the same ones used for elements of character literals.
-; There must be at least one element
-; because string literals denote character arrays,
-; and arrays must not be empty.
 
 string-literal = double-quote *string-literal-element double-quote
 
