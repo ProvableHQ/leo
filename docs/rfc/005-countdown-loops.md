@@ -179,4 +179,6 @@ Suggested change should have no effect on ecosystem because of its backward comp
 
 # Alternatives
 
+## Mocking
+
 Coundown loops can be mocked manually. 
