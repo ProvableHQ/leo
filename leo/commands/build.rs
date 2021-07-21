@@ -18,8 +18,8 @@ use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
+    AstSnapshotOptions,
     CompilerOptions,
-    TheoremOptions,
 };
 use leo_package::{
     inputs::*,
@@ -46,14 +46,14 @@ pub struct BuildOptions {
     pub disable_code_elimination: bool,
     #[structopt(long, help = "Disable all compiler optimizations")]
     pub disable_all_optimizations: bool,
-    #[structopt(long, help = "Writes all theorem input AST files.")]
-    pub enable_all_theorems: bool,
-    #[structopt(long, help = "Writes AST files needed for the initial theorem before any changes.")]
-    pub enable_initial_theorem: bool,
-    #[structopt(long, help = "Writes AST files needed for canonicalization theorem.")]
-    pub enable_canonicalized_theorem: bool,
-    #[structopt(long, help = "Writes AST files needed for type inference theorem.")]
-    pub enable_type_inferenced_theorem: bool,
+    #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
+    pub enable_all_ast_snapshots: bool,
+    #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
+    pub enable_initial_ast_snapshot: bool,
+    #[structopt(long, help = "Writes AST snapshot after the canonicalization phase.")]
+    pub enable_canonicalized_ast_snapshot: bool,
+    #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
+    pub enable_type_inferenced_ast_snapshot: bool,
 }
 
 impl Default for BuildOptions {
@@ -63,10 +63,10 @@ impl Default for BuildOptions {
             disable_constant_folding: true,
             disable_code_elimination: true,
             disable_all_optimizations: true,
-            enable_all_theorems: false,
-            enable_initial_theorem: false,
-            enable_canonicalized_theorem: false,
-            enable_type_inferenced_theorem: false,
+            enable_all_ast_snapshots: false,
+            enable_initial_ast_snapshot: false,
+            enable_canonicalized_ast_snapshot: false,
+            enable_type_inferenced_ast_snapshot: false,
         }
     }
 }
@@ -89,19 +89,19 @@ impl From<BuildOptions> for CompilerOptions {
     }
 }
 
-impl From<BuildOptions> for TheoremOptions {
+impl From<BuildOptions> for AstSnapshotOptions {
     fn from(options: BuildOptions) -> Self {
-        if options.enable_all_theorems {
-            TheoremOptions {
+        if options.enable_all_ast_snapshots {
+            AstSnapshotOptions {
                 initial: true,
                 canonicalized: true,
                 type_inferenced: true,
             }
         } else {
-            TheoremOptions {
-                initial: options.enable_initial_theorem,
-                canonicalized: options.enable_canonicalized_theorem,
-                type_inferenced: options.enable_type_inferenced_theorem,
+            AstSnapshotOptions {
+                initial: options.enable_initial_ast_snapshot,
+                canonicalized: options.enable_canonicalized_ast_snapshot,
+                type_inferenced: options.enable_type_inferenced_ast_snapshot,
             }
         }
     }
@@ -165,7 +165,7 @@ impl Command for Build {
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
 
-        if self.compiler_options.disable_canonicalization && self.compiler_options.enable_canonicalized_theorem {
+        if self.compiler_options.disable_canonicalization && self.compiler_options.enable_canonicalized_ast_snapshot {
             tracing::warn!(
                 "Can not ask for canonicalization theorem without having canonicalization compiler feature enabled."
             );

@@ -22,3 +22,6 @@ outputs:
             r0:
               type: bool
               value: "true"
+    initial_ast: d6025ab5243349142231d66100fe3e6001606095303d39aaf28663c6f0984369
+    canonicalized_ast: d6025ab5243349142231d66100fe3e6001606095303d39aaf28663c6f0984369
+    type_inferenced_ast: 06ff7de0309de0c4e88adc23d837363f0951bf96859c1dc18076d2deff17474f

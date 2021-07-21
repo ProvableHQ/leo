@@ -28,3 +28,6 @@ outputs:
             r0:
               type: bool
               value: "false"
+    initial_ast: 3b6aa21f4293ef2b0557303f8ba98a62a72afda56be36f9feff58ede48c87aae
+    canonicalized_ast: 3b6aa21f4293ef2b0557303f8ba98a62a72afda56be36f9feff58ede48c87aae
+    type_inferenced_ast: 854beacb056af4a0e44c2f824467105a8ac4334efd0d2b51e7e09b44ff300d79

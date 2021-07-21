@@ -18,11 +18,11 @@
 use crate::{
     constraints::{generate_constraints, generate_test_constraints},
     errors::CompilerError,
+    AstSnapshotOptions,
     CompilerOptions,
     GroupType,
     Output,
     OutputFile,
-    TheoremOptions,
     TypeInferencePhase,
 };
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
@@ -67,7 +67,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     context: AsgContext<'a>,
     asg: Option<AsgProgram<'a>>,
     options: CompilerOptions,
-    proof_options: TheoremOptions,
+    ast_snapshot_options: AstSnapshotOptions,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
 }
@@ -82,7 +82,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        proof_options: Option<TheoremOptions>,
+        ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Self {
         Self {
             program_name: package_name.clone(),
@@ -93,7 +93,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             asg: None,
             context,
             options: options.unwrap_or_default(),
-            proof_options: proof_options.unwrap_or_default(),
+            ast_snapshot_options: ast_snapshot_options.unwrap_or_default(),
             _engine: PhantomData,
             _group: PhantomData,
         }
@@ -112,7 +112,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        proof_options: Option<TheoremOptions>,
+        ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(
             package_name,
@@ -120,7 +120,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             output_directory,
             context,
             options,
-            proof_options,
+            ast_snapshot_options,
         );
 
         compiler.parse_program()?;
@@ -151,7 +151,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         state_path: &Path,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        proof_options: Option<TheoremOptions>,
+        ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Result<Self, CompilerError> {
         let mut compiler = Self::new(
             package_name,
@@ -159,7 +159,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             output_directory,
             context,
             options,
-            proof_options,
+            ast_snapshot_options,
         );
 
         compiler.parse_input(input_string, input_path, state_string, state_path)?;
@@ -240,7 +240,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
 
         let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
-        if self.proof_options.initial {
+        if self.ast_snapshot_options.initial {
             ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
         }
 
@@ -248,7 +248,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         if self.options.canonicalization_enabled {
             ast.canonicalize()?;
 
-            if self.proof_options.canonicalized {
+            if self.ast_snapshot_options.canonicalized {
                 ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
             }
         }
@@ -266,7 +266,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             &mut leo_imports::ImportParser::new(self.main_file_path.clone()),
         )?;
 
-        if self.proof_options.type_inferenced {
+        if self.ast_snapshot_options.type_inferenced {
             let new_ast = TypeInferencePhase::default()
                 .phase_ast(&self.program, &asg.clone().into_repr())
                 .expect("Failed to produce type inference ast.");

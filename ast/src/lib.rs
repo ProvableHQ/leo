@@ -118,6 +118,11 @@ impl Ast {
         let ast: Program = serde_json::from_str(json)?;
         Ok(Self { ast })
     }
+
+    pub fn from_json_file(path: std::path::PathBuf) -> Result<Self, AstError> {
+        let data = std::fs::read_to_string(path)?;
+        Self::from_json_string(&data)
+    }
 }
 
 impl AsRef<Program> for Ast {

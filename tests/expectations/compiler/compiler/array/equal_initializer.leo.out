@@ -22,3 +22,6 @@ outputs:
             x:
               type: bool
               value: "false"
+    initial_ast: 25f4af112eb1512952d78bb7fa1d5287e3ab778255307f69304bbe1756575085
+    canonicalized_ast: 248b7cc7462c3f035f337c9232a08bb5a911d7f4e153dd804a32bc597adb0210
+    type_inferenced_ast: ebc3a5632c2d65e51cd9934b1ee4e395867808deeda3ecddfeaebb1b08093ed7
