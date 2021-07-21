@@ -22,8 +22,8 @@ This proposal suggests adding countdown loops and inclusive loop ranges into the
 # Motivation
 
 In the current design of the language only incremental ranges are allowed. Though
-in some cases there's a need for loops going in the reverse direction. This example
-demonstrates the shaker sort algorithm where countdown loops are mocked:
+in some cases there's a need for loops going in the reverse direction. These examples
+demonstrate the shaker sort and bubble sort algorithms where countdown loops are mocked:
 
 ```ts
 function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
@@ -49,7 +49,22 @@ function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
 }
 ```
 
-Having a countdown loop in the example above could improve readability and 
+```ts
+function bubble_sort(a: [u32; 10]) -> [u32; 10] {
+    for i in 0..9 { // i counts up
+        for j in 0..9-i { // i is flipped
+            if (a[j] > a[j+1]) {
+                let tmp = a[j];
+                a[j] = a[j+1];
+                a[j+1] = tmp;
+            }
+        }
+    }
+    return a
+}
+```
+
+Having a countdown loop in the examples above could improve readability and
 usability of the language by making it more natural to the developer.
 
 However, if we imagined this example using a countdown loop, we would see that 
@@ -114,9 +129,9 @@ there are several cases to consider:
 
 Cases 3 and 5 consist of one or more iterations; cases 4 and 6 consist of two or more iterations.
 
-## Example
+## Examples
 
-The code example demostrated in the Motivation part of this document 
+The code examples demostrated in the Motivation part of this document
 could be extended (or simplified) with the suggested syntax:
 
 ```ts
@@ -139,6 +154,21 @@ function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
         }
     }
     return a;
+}
+```
+
+```ts
+function bubble_sort(a: [u32; 10]) -> [u32; 10] {
+    for i in 9..0 { // counts down
+        for j in 0..i { // no flipping
+            if (a[j] > a[j+1]) {
+                let tmp = a[j];
+                a[j] = a[j+1];
+                a[j+1] = tmp;
+            }
+        }
+    }
+    return a
 }
 ```
 
