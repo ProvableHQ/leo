@@ -182,3 +182,6 @@ The most symmetric default would be perhaps `=` for both bounds,
 but that would be a different behavior from current Leo.
 We could instead go for different defaults for starting and ending bounds,
 i.e. `=` for the starting bound and `<` or `>` (depending on direction) for the ending bound.
+
+A drawback of this approach is that it is somewhat verbose.
+Furthermore, some of the authors of this RFC do not find it very readable.
