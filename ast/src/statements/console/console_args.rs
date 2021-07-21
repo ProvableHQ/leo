@@ -18,50 +18,6 @@ use crate::{Char, Expression, Node, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
-// use tendril::StrTendril;
-
-// #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-// pub enum FormatStringPart {
-//     Const(#[serde(with = "crate::common::tendril_json")] StrTendril),
-//     Container,
-// }
-
-// impl FormatStringPart {
-//     pub fn from_string(string: Vec<Char>) -> Vec<Self> {
-//         let mut parts = Vec::new();
-//         let mut in_container = false;
-//         let mut substring = String::new();
-//         for (_, character) in string.iter().enumerate() {
-//             match character {
-//                 Char::Scalar(scalar) => match scalar {
-//                     '{' if !in_container => {
-//                         parts.push(FormatStringPart::Const(substring.clone().into()));
-//                         substring.clear();
-//                         in_container = true;
-//                     }
-//                     '}' if in_container => {
-//                         in_container = false;
-//                         parts.push(FormatStringPart::Container);
-//                     }
-//                     _ if in_container => {
-//                         in_container = false;
-//                     }
-//                     _ => substring.push(*scalar),
-//                 },
-//                 Char::NonScalar(non_scalar) => {
-//                     substring.push_str(format!("\\u{{{:x}}}", non_scalar).as_str());
-//                     in_container = false;
-//                 }
-//             }
-//         }
-
-//         if !substring.is_empty() {
-//             parts.push(FormatStringPart::Const(substring.into()));
-//         }
-
-//         parts
-//     }
-// }
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub struct ConsoleArgs {

@@ -80,7 +80,7 @@ The field type an unsigned number up to the modulus length of the field.
 
 The group type a set of affine points on the elliptic curve passed.
 
-#### IntegerType
+#### [IntegerType](./src/types/integer_type.rs)
 
 The integer type represents a range of integer types.
 
@@ -140,57 +140,204 @@ The circuit type, every circuit represents a different type.
 
 The self type represented by `Self` and only usable inside a circuit.
 
-### Statements
+### [Statements](./src/statements/statement.rs)
 
 The statement level nodes in a Leo Program.
 
-#### Assignment Statements
+#### [Assignment Statements](./src/statements/assign/)
 
-#### Block Statements
+An assignment statement node stores the following:
 
-#### Conditional Statements
+- The operation.
+  - **=**
+  - **+=**
+  - **-=**
+  - **=**
+  - **/=**
+  - **=**
+  - **&&=**
+  - **||=**
+- The assignee which is a variable that has context of any access expressions on it.
+- The value which is an expression.
 
-#### Console Statements
+#### [Block Statements](./src/statements/block.rs)
 
-#### Definition Statements
+A block statement node stores the following:
 
-#### Expression Statements
+- The list of statements inside the block.
 
-#### Iteration Statements
+#### [Conditional Statements](./src/statements/conditional.rs)
 
-#### Return Statements
+A conditional statement node stores the following:
+
+- The condition which is an expression.
+- The block statement.
+- The next block of the conditional if it exists.
+
+#### [Console Statements](./src/statements/)
+
+A console statement node stores the following:
+
+- The console function being called which stores the type of console function it is and its arguments.
+
+#### [Definition Statements](./src/statements/definition/mod.rs)
+
+A definition statement node stores the following:
+
+- The declaration type:
+  - `let` for mutable definitions.
+  - `const` for cosntant definitions.
+- The names of the varaibles defined.
+- The optional type.
+- The values to be assigned to the varaibles.
+
+#### [Expression Statements](./src/statements/expression.rs)
+
+An expression statement node stores the following:
+
+- The expression.
+
+#### [Iteration Statements](./src/statements/iteration.rs)
+
+A iteration statement node stores the following:
+
+- The loop iterator variable name.
+- The expression to define the starting loop value.
+- The expression to define the stoping loop value.
+- The block to run for the loop.
+
+#### [Return Statements](./src/statements/return_statement.rs)
+
+A return statement node stores the following:
+
+- The expression that is being returned.
 
 ### Expressions
 
 The expression nodes in a Leo Program.
 
-#### ArrayAccess Expressions
+#### [ArrayAccess Expressions](./src/expression/array_acces.rs)
 
-#### ArrayInit Expressions
+An array access expression node stores the following:
 
-#### ArrayInline Expressions
+- The array expression.
+- The index represented by an expression.
 
-#### ArrayRangeAccess Expressions
+#### [ArrayInit Expressions](./src/expression/array_init.rs)
 
-#### Binary Expressions
+An array init expression node stores the following:
 
-#### Call Expressions
+- The element expression to fill the array with.
+- The dimensions of the array to build.
 
-#### CircuitInit Expressions
+#### [ArrayInline Expressions](./src/expression/array_inline.rs)
 
-#### CircuitMemberAccess Expressions
+An array inline expression node stores the following:
 
-#### CircuitStaticFunctionAccess Expressions
+- The elments of an array which is either an spread or an expression.
 
-#### Identifier Expressions
+#### [ArrayRangeAccess Expressions](./src/expression/array_range_access.rs)
 
-#### Ternary Expressions
+An array range access expression node stores the following:
 
-#### TupleAccess Expressions
+- The array expression.
+- The optional left side of the range of the array bounds to access.
+- The optional right side of the range of the array bounds to access.
 
-#### TupleInit Expressions
+#### [Binary Expressions](./src/expression/binary.rs)
 
-#### Unary Expressions
+A binary expression node stores the following:
 
-#### Value Expressions
+- The left side of the expression.
+- The right side of the expression.
+- The binary operation of the expression:
+  - **+**
+  - **-**
+  - **\***
+  - **/**
+  - **\*\***
+  - **||**
+  - **&&**
+  - **==**
+  - **!=**
+  - **>=**
+  - **>**
+  - **<=**
+  - **<**
 
+#### [Call Expressions](./src/expression/call.rs)
+
+A call expression node stores the following:
+
+- The function expression being called.
+- The aruments a list of expressions.
+
+#### [CircuitInit Expressions](./src/expression/circuit_init.rs)
+
+A circuit init expression node stores the following:
+
+- The name of the circuit expression being initialized.
+- The aruments a list of expressions.
+
+#### [CircuitMemberAccess Expressions](./src/expression/circuit_member_access.rs)
+
+A circuit member access expression node stores the following:
+
+- The circut expression being accessed.
+- The name of the expression being accessed from the circuit.
+
+#### [CircuitStaticFunctionAccess Expressions](./src/expression/circuit_static_function_access.rs)
+
+A circuit static function access expression node stores the following:
+
+- The circut expression being accessed.
+- The name of the expression being statically accessed from the circuit.
+
+#### [Identifier Expressions](./src/common/identifier.rs)
+
+An identifer expression node stores the following:
+
+- An identifier stores the string name.
+
+#### [Ternary Expressions](./src/expression/ternary.rs)
+
+A ternary expression node stores the following:
+
+- The condition of the ternary stored as an expression.
+- The expression returned if the condition is true.
+- The expression returned if the condition is false.
+
+#### [TupleAccess Expressions](./src/expression/tuple_access.rs)
+
+A tuple access expression node stores the following:
+
+- The tuple expression being accessed.
+- The index a positive number greater than or equal to 0.
+
+#### [TupleInit Expressions](./src/expression/tuple_init.rs)
+
+A tuple init expression node stores the following:
+
+- The element expressions to fill the tuple with.
+
+#### [Unary Expressions](./src/expression/unary.rs)
+
+An unary expression node stores the following:
+
+- The inner expression.
+- The unary operator:
+  - **!**
+  - **-**
+
+#### [Value Expressions](./src/expression/value.rs)
+
+A value expression node stores one of the following:
+
+- Address and its value and span.
+- Boolean and its value and span.
+- Char and its value and span.
+- Field and its value and span.
+- Group and its value and span.
+- Implicit and its value and span.
+- Integer and its value and span.
+- String and its value and span.

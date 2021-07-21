@@ -54,20 +54,6 @@ impl<'a> FromAst<'a, leo_ast::ConsoleArgs> for ConsoleArgs<'a> {
         value: &leo_ast::ConsoleArgs,
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, AsgConvertError> {
-        // let expected_param_len = value
-        //     .parts
-        //     .iter()
-        //     .filter(|x| matches!(x, FormatStringPart::Container))
-        //     .count();
-        // if value.parameters.len() != expected_param_len {
-        //     + 1 for formatting string as to not confuse user
-        //     return Err(AsgConvertError::unexpected_call_argument_count(
-        //         expected_param_len + 1,
-        //         value.parameters.len() + 1,
-        //         &value.span,
-        //     ));
-        // }
-
         let mut parameters = vec![];
         for parameter in value.parameters.iter() {
             parameters.push(Cell::new(<&Expression<'a>>::from_ast(scope, parameter, None)?));
