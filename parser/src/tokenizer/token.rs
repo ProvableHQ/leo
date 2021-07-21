@@ -58,9 +58,8 @@ pub enum Token {
     AddressLit(#[serde(with = "leo_ast::common::tendril_json")] StrTendril),
     CharLit(Char),
 
-    At,
-
     // Symbols
+    At,
     Not,
     And,
     Or,
