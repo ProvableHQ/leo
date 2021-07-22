@@ -16,154 +16,25 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Introduction
-; ------------
-
-; This file contains an ABNF (Augmented Backus-Naur Form) grammar of Leo string formatting.
-; Background on ABNF is provided later in this file.
-
-; This grammar provides an official definition of how format strings
-; are parsed for printed by the Leo compiler.
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ; Background on ABNF
 ; ------------------
 
 ; ABNF is an Internet standard:
-; see RFC 5234 at https://www.rfc-editor.org/info/rfc5234
-; and RFC 7405 at https://www.rfc-editor.org/info/rfc7405.
-; It is used to specify the syntax of JSON, HTTP, and other standards.
-
-; ABNF adds conveniences and makes slight modifications
-; to Backus-Naur Form (BNF),
-; without going beyond context-free grammars.
-
-; Instead of BNF's angle-bracket notation for nonterminals,
-; ABNF uses case-insensitive names consisting of letters, digits, and dashes,
-; e.g. `HTTP-message` and `IPv6address`.
-; ABNF includes an angle-bracket notation for prose descriptions,
-; e.g. `<host, see [RFC3986], Section 3.2.2>`,
-; usable as last resort in the definiens of a nonterminal.
-
-; While BNF allows arbitrary terminals,
-; ABNF uses only natural numbers as terminals,
-; and denotes them via:
-; (i) binary, decimal, or hexadecimal sequences,
-; e.g. `%b1.11.1010`, `%d1.3.10`, and `%x.1.3.A`
-; all denote the sequence of terminals [1, 3, 10];
-; (ii) binary, decimal, or hexadecimal ranges,
-; e.g. `%x30-39` denotes any singleton sequence of terminals
-; [_n_] with 48 <= _n_ <= 57 (an ASCII digit);
-; (iii) case-sensitive ASCII strings,
-; e.g. `%s"Ab"` denotes the sequence of terminals [65, 98];
-; and (iv) case-insensitive ASCII strings,
-; e.g. `%i"ab"`, or just `"ab"`, denotes
-; any sequence of terminals among
-; [65, 66],
-; [65, 98],
-; [97, 66], and
-; [97, 98].
-; ABNF terminals in suitable sets represent ASCII or Unicode characters.
-
-; ABNF allows repetition prefixes `n*m`,
-; where `n` and `m` are natural numbers in decimal notation;
-; if absent,
-; `n` defaults to 0, and
-; `m` defaults to infinity.
-; For example,
-; `1*4HEXDIG` denotes one to four `HEXDIG`s,
-; `*3DIGIT` denotes up to three `DIGIT`s, and
-; `1*OCTET` denotes one or more `OCTET`s.
-; A single `n` prefix
-; abbreviates `n*n`,
-; e.g. `3DIGIT` denotes three `DIGIT`s.
-
-; Instead of BNF's `|`, ABNF uses `/` to separate alternatives.
-; Repetition prefixes have precedence over juxtapositions,
-; which have precedence over `/`.
-; Round brackets group things and override the aforementioned precedence rules,
-; e.g. `*(WSP / CRLF WSP)` denotes sequences of terminals
-; obtained by repeating, zero or more times,
-; either (i) a `WSP` or (ii) a `CRLF` followed by a `WSP`.
-; Square brackets also group things but make them optional,
-; e.g. `[":" port]` is equivalent to `0*1(":" port)`.
-
-; Instead of BNF's `::=`, ABNF uses `=` to define nonterminals,
-; and `=/` to incrementally add alternatives
-; to previously defined nonterminals.
-; For example, the rule `BIT = "0" / "1"`
-; is equivalent to `BIT = "0"` followed by `BIT =/ "1"`.
-
-; The syntax of ABNF itself is formally specified in ABNF
-; (in Section 4 of the aforementioned RFC 5234,
-; after the syntax and semantics of ABNF
-; are informally specified in natural language
-; (in Sections 1, 2, and 3 of the aforementioned RFC 5234).
-; The syntax rules of ABNF prescribe the ASCII codes allowed for
-; white space (spaces and horizontal tabs),
-; line endings (carriage returns followed by line feeds),
-; and comments (semicolons to line endings).
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Structure
-; ---------
-
-; This ABNF grammar consists of one grammar:
-; that describes how a Leo string-literal is parsed
-; for formatting.
+; for more info please checkout the
+; [README](./README.md) in this directory.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Format String
 ; -------------------
 
-not-double-quote-or-backslash-or-brace = %x0-21
-                                         / %x23-5B
-                                         / %x5D-7A
-                                         / %x7C
-                                         / %x7E-10FFFF
-                                         ; anything but " or \ or { or }
+; This ABNF grammar consists of one grammar:
+; that describes how a Leo string-literal is parsed
+; for formatting.  Meaning in this context
+; all characters are already parsed and we don't
+; have to worry about escapes or etc.
 
-double-quote = %x22   ; "
-
-single-quote = %x27   ; '
-
-single-quote-escape = "\" single-quote   ; \'
-
-double-quote-escape = "\" double-quote   ; \"
-
-backslash-escape = "\\"
-
-line-feed-escape = %s"\n"
-
-carriage-return-escape = %s"\r"
-
-horizontal-tab-escape = %s"\t"
-
-null-character-escape = "\0"
-
-simple-character-escape = single-quote-escape
-                        / double-quote-escape
-                        / backslash-escape
-                        / line-feed-escape
-                        / carriage-return-escape
-                        / horizontal-tab-escape
-                        / null-character-escape
-
-octal-digit = %x30-37   ; 0-7
-
-hexadecimal-digit = digit / "a" / "b" / "c" / "d" / "e" / "f"
-
-ascii-character-escape = %s"\x" octal-digit hexadecimal-digit
-
-unicode-character-escape = %s"\u{" 1*6hexadecimal-digit "}"
-
-format-string-element-not-brace = not-double-quote-or-backslash-or-brace
-                                 / simple-character-escape
-                                 / ascii-character-escape
-                                 / unicode-character-escape
+not-brace = %x0-7A / %x7C / %x7E-10FFFF ; anything but { or }
 
 format-string-container = "{}"
 
@@ -171,9 +42,9 @@ format-string-open-brace = "{{"
 
 format-string-close-brace = "}}"
 
-format-string-element = format-string-element-not-brace
-                      / format-string-container
-                      / format-string-open-brace
-                      / format-string-close-brace
-
-format-string = double-quote *format-string-element double-quote
+format-string-element = not-brace
+                        / format-string-container
+                        / format-string-open-brace
+                        / format-string-close-brace
+		      
+format-string = *format-string-element
