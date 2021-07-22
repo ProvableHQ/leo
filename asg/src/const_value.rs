@@ -109,13 +109,29 @@ pub enum CharValue {
     NonScalar(u32),
 }
 
+impl From<&leo_ast::Char> for CharValue {
+    fn from(other: &leo_ast::Char) -> Self {
+        use leo_ast::Char::*;
+        match other {
+            Scalar(value) => CharValue::Scalar(*value),
+            NonScalar(value) => CharValue::NonScalar(*value),
+        }
+    }
+}
+
+impl Into<leo_ast::Char> for &CharValue {
+    fn into(self) -> leo_ast::Char {
+        use leo_ast::Char::*;
+        match self {
+            CharValue::Scalar(value) => Scalar(*value),
+            CharValue::NonScalar(value) => NonScalar(*value),
+        }
+    }
+}
+
 impl From<leo_ast::CharValue> for CharValue {
     fn from(other: leo_ast::CharValue) -> Self {
-        use leo_ast::Char::*;
-        match other.character {
-            Scalar(value) => CharValue::Scalar(value),
-            NonScalar(value) => CharValue::NonScalar(value),
-        }
+        Self::from(&other.character)
     }
 }
 

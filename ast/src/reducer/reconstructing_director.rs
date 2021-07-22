@@ -390,23 +390,23 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     ) -> Result<ConsoleStatement, ReducerError> {
         let function = match &console_function_call.function {
             ConsoleFunction::Assert(expression) => ConsoleFunction::Assert(self.reduce_expression(expression)?),
-            ConsoleFunction::Debug(format) | ConsoleFunction::Error(format) | ConsoleFunction::Log(format) => {
+            ConsoleFunction::Debug(args) | ConsoleFunction::Error(args) | ConsoleFunction::Log(args) => {
                 let mut parameters = vec![];
-                for parameter in format.parameters.iter() {
+                for parameter in args.parameters.iter() {
                     parameters.push(self.reduce_expression(parameter)?);
                 }
 
-                let formatted = FormatString {
-                    parts: format.parts.clone(),
+                let formatted = ConsoleArgs {
+                    string: args.string.clone(),
                     parameters,
-                    span: format.span.clone(),
+                    span: args.span.clone(),
                 };
 
                 match &console_function_call.function {
                     ConsoleFunction::Debug(_) => ConsoleFunction::Debug(formatted),
                     ConsoleFunction::Error(_) => ConsoleFunction::Error(formatted),
                     ConsoleFunction::Log(_) => ConsoleFunction::Log(formatted),
-                    _ => return Err(ReducerError::impossible_console_assert_call(&format.span)),
+                    _ => return Err(ReducerError::impossible_console_assert_call(&args.span)),
                 }
             }
         };

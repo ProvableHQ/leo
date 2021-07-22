@@ -38,13 +38,13 @@ impl Default for CompilerOptions {
 }
 
 #[derive(Clone)]
-pub struct TheoremOptions {
+pub struct AstSnapshotOptions {
     pub initial: bool,
     pub canonicalized: bool,
     pub type_inferenced: bool,
 }
 
-impl Default for TheoremOptions {
+impl Default for AstSnapshotOptions {
     fn default() -> Self {
         Self {
             initial: false,

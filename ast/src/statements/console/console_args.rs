@@ -14,23 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Node, Span};
+use crate::{Char, Expression, Node, Span};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct FormattedContainer {
+pub struct ConsoleArgs {
+    pub string: Vec<Char>,
+    pub parameters: Vec<Expression>,
     pub span: Span,
 }
 
-impl fmt::Display for FormattedContainer {
+impl fmt::Display for ConsoleArgs {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{{}}")
+        write!(
+            f,
+            "\"{}\", {}",
+            self.string.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(""),
+            self.parameters
+                .iter()
+                .map(|p| p.to_string())
+                .collect::<Vec<_>>()
+                .join(",")
+        )
     }
 }
 
-impl Node for FormattedContainer {
+impl Node for ConsoleArgs {
     fn span(&self) -> &Span {
         &self.span
     }

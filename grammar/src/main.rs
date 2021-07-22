@@ -40,7 +40,7 @@
 //
 
 use abnf::types::{Node, Rule};
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use std::collections::{HashMap, HashSet};
 
 /// Processor's scope. Used when code block or definition starts or ends.
@@ -197,18 +197,24 @@ fn parse_abnf_node(node: &Node, sum: &mut Vec<String>) {
 
 fn main() -> Result<()> {
     // Take Leo ABNF grammar file.
-    let grammar = include_str!("../abnf-grammar.txt");
+    let args: Vec<String> = std::env::args().collect();
+    let abnf_path = if let Some(path) = args.get(1) {
+        std::path::Path::new(path)
+    } else {
+        return Err(anyhow!("Usage Error: expects one argument to abnf file to convert."));
+    };
+    let grammar = std::fs::read_to_string(abnf_path)?;
 
     // Parse ABNF to get list of all definitions.
     // Rust ABNF does not provide support for `%s` (case sensitive strings, part of
     // the standard); so we need to remove all occurrences before parsing.
-    let parsed = abnf::rulelist(&str::replace(grammar, "%s", "")).map_err(|e| {
+    let parsed = abnf::rulelist(&str::replace(&grammar, "%s", "")).map_err(|e| {
         eprintln!("{}", &e);
         anyhow::anyhow!(e)
     })?;
 
     // Init parser and run it. That's it.
-    let mut parser = Processor::new(grammar, parsed);
+    let mut parser = Processor::new(&grammar, parsed);
     parser.process();
 
     // Print result of conversion to STDOUT.

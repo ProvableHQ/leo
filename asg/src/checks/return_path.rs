@@ -92,7 +92,7 @@ impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
         if_true.append(if_false.unwrap_or(BoolAnd(false)))
     }
 
-    fn reduce_formatted_string(&mut self, input: &FormatString, parameters: Vec<BoolAnd>) -> BoolAnd {
+    fn reduce_formatted_string(&mut self, input: &ConsoleArgs, parameters: Vec<BoolAnd>) -> BoolAnd {
         BoolAnd(false)
     }
 

@@ -1,0 +1,50 @@
+; Copyright (C) 2019-2021 Aleo Systems Inc.
+; This file is part of the Leo library.
+
+; The Leo library is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+
+; The Leo library is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+; GNU General Public License for more details.
+
+; You should have received a copy of the GNU General Public License
+; along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Background on ABNF
+; ------------------
+
+; ABNF is an Internet standard:
+; for more info please checkout the
+; [README](./README.md) in this directory.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Format String
+; -------------------
+
+; This ABNF grammar consists of one grammar:
+; that describes how a Leo string-literal is parsed
+; for formatting.  Meaning in this context
+; all characters are already parsed and we don't
+; have to worry about escapes or etc.
+
+not-brace = %x0-7A / %x7C / %x7E-10FFFF ; anything but { or }
+
+format-string-container = "{}"
+
+format-string-open-brace = "{{"
+
+format-string-close-brace = "}}"
+
+format-string-element = not-brace
+                        / format-string-container
+                        / format-string-open-brace
+                        / format-string-close-brace
+		      
+format-string = *format-string-element

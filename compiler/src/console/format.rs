@@ -17,8 +17,7 @@
 //! Evaluates a formatted string in a compiled Leo program.
 
 use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
-use leo_asg::FormatString;
-use leo_ast::FormatStringPart;
+use leo_asg::{CharValue, ConsoleArgs};
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
@@ -26,34 +25,64 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn format<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        formatted: &FormatString<'a>,
+        args: &ConsoleArgs<'a>,
     ) -> Result<String, ConsoleError> {
-        // Check that containers and parameters match
-        let container_count = formatted
-            .parts
-            .iter()
-            .filter(|x| matches!(x, FormatStringPart::Container))
-            .count();
-        if container_count != formatted.parameters.len() {
-            return Err(ConsoleError::length(
-                container_count,
-                formatted.parameters.len(),
-                &formatted.span,
-            ));
-        }
-
-        let mut executed_containers = Vec::with_capacity(formatted.parameters.len());
-        for parameter in formatted.parameters.iter() {
-            executed_containers.push(self.enforce_expression(cs, parameter.get())?.to_string());
-        }
-
-        let mut out = vec![];
-        let mut parameters = executed_containers.iter();
-        for part in formatted.parts.iter() {
-            match part {
-                FormatStringPart::Const(c) => out.push(c.to_string()),
-                FormatStringPart::Container => out.push(parameters.next().unwrap().to_string()),
+        let mut out = Vec::new();
+        let mut in_container = false;
+        let mut substring = String::new();
+        let mut arg_index = 0;
+        let mut escape_right_bracket = false;
+        for (index, character) in args.string.iter().enumerate() {
+            match character {
+                _ if escape_right_bracket => {
+                    escape_right_bracket = false;
+                    continue;
+                }
+                CharValue::Scalar(scalar) => match scalar {
+                    '{' if !in_container => {
+                        out.push(substring.clone());
+                        substring.clear();
+                        in_container = true;
+                    }
+                    '{' if in_container => {
+                        substring.push('{');
+                        in_container = false;
+                    }
+                    '}' if in_container => {
+                        in_container = false;
+                        let parameter = match args.parameters.get(arg_index) {
+                            Some(index) => index,
+                            None => return Err(ConsoleError::length(arg_index + 1, args.parameters.len(), &args.span)),
+                        };
+                        out.push(self.enforce_expression(cs, parameter.get())?.to_string());
+                        arg_index += 1;
+                    }
+                    '}' if !in_container => {
+                        if let Some(CharValue::Scalar(next)) = args.string.get(index + 1) {
+                            if *next == '}' {
+                                substring.push('}');
+                                escape_right_bracket = true;
+                            } else {
+                                return Err(ConsoleError::expected_escaped_right_brace(&args.span));
+                            }
+                        }
+                    }
+                    _ if in_container => {
+                        return Err(ConsoleError::expected_left_or_right_brace(&args.span));
+                    }
+                    _ => substring.push(*scalar),
+                },
+                CharValue::NonScalar(non_scalar) => {
+                    substring.push_str(format!("\\u{{{:x}}}", non_scalar).as_str());
+                    in_container = false;
+                }
             }
+        }
+        out.push(substring);
+
+        // Check that containers and parameters match
+        if arg_index != args.parameters.len() {
+            return Err(ConsoleError::length(arg_index, args.parameters.len(), &args.span));
         }
 
         Ok(out.join(""))

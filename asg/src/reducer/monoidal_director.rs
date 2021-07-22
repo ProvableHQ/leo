@@ -225,7 +225,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
             .reduce_conditional_statement(input, condition, if_true, if_false)
     }
 
-    pub fn reduce_formatted_string(&mut self, input: &FormatString<'a>) -> T {
+    pub fn reduce_formatted_string(&mut self, input: &ConsoleArgs<'a>) -> T {
         let parameters = input
             .parameters
             .iter()

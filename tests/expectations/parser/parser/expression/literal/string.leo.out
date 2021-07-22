@@ -2,6 +2,7 @@
 namespace: Token
 expectation: Pass
 outputs:
+  - "'\"\"' @ 1:1-3"
   - "'\"string\"' @ 1:1-9"
   - "'\"another { } string\"' @ 1:1-21"
   - "'\"{ ] [ ; a\"' @ 1:1-12"
