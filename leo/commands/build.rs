@@ -59,10 +59,10 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            disable_canonicalization: true,
-            disable_constant_folding: true,
-            disable_code_elimination: true,
-            disable_all_optimizations: true,
+            disable_canonicalization: false,
+            disable_constant_folding: false,
+            disable_code_elimination: false,
+            disable_all_optimizations: false,
             enable_all_ast_snapshots: false,
             enable_initial_ast_snapshot: false,
             enable_canonicalized_ast_snapshot: false,
@@ -73,11 +73,11 @@ impl Default for BuildOptions {
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
-        if !options.disable_all_optimizations {
+        if options.disable_all_optimizations {
             CompilerOptions {
-                canonicalization_enabled: true,
-                constant_folding_enabled: true,
-                dead_code_elimination_enabled: true,
+                canonicalization_enabled: false,
+                constant_folding_enabled: false,
+                dead_code_elimination_enabled: false,
             }
         } else {
             CompilerOptions {
