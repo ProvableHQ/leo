@@ -319,7 +319,7 @@ impl<'a, R: StatementVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    pub fn visit_formatted_string(&mut self, input: &FormatString<'a>) -> ConcreteVisitResult {
+    pub fn visit_formatted_string(&mut self, input: &ConsoleArgs<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_formatted_string(input) {
             VisitResult::VisitChildren => {
                 for parameter in input.parameters.iter() {

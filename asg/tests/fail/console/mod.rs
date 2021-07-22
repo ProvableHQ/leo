@@ -27,15 +27,3 @@ fn test_log_parameter_fail_unknown() {
     let program_string = include_str!("log_parameter_fail_unknown.leo");
     load_asg(program_string).err().unwrap();
 }
-
-#[test]
-fn test_log_parameter_fail_empty() {
-    let program_string = include_str!("log_parameter_fail_empty.leo");
-    load_asg(program_string).err().unwrap();
-}
-
-#[test]
-fn test_log_parameter_fail_none() {
-    let program_string = include_str!("log_parameter_fail_empty.leo");
-    load_asg(program_string).err().unwrap();
-}

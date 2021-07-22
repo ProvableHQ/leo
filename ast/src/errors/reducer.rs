@@ -35,6 +35,13 @@ impl ReducerError {
         ReducerError::Error(FormattedError::new_from_span(message, span))
     }
 
+    pub fn empty_string(span: &Span) -> Self {
+        let message =
+            "Cannot constrcut an empty string: it has the type of [char; 0] which is not possible.".to_string();
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn impossible_console_assert_call(span: &Span) -> Self {
         let message = "Console::Assert cannot be matched here, its handled in another case.".to_string();
 
