@@ -220,7 +220,7 @@ pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
 
     use tracing_subscriber::fmt::writer::MakeWriterExt;
 
-    let stderr = std::io::stderr.with_max_level(tracing::Level::ERROR);
+    let stderr = std::io::stderr.with_max_level(tracing::Level::WARN);
     let mk_writer = stderr.or_else(std::io::stdout);
 
     let subscriber = FmtSubscriber::builder()

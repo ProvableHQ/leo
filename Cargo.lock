@@ -1202,6 +1202,7 @@ name = "leo-ast"
 version = "1.5.2"
 dependencies = [
  "anyhow",
+ "colored",
  "criterion",
  "indexmap",
  "leo-input",
