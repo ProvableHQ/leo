@@ -53,7 +53,7 @@ jobs:
       - run:
           name: Build and run tests
           no_output_timeout: 30m
-          command: cargo test --all -- --nocapture
+          command: cargo test --all
       - persist_to_workspace:
           root: ~/
           paths: project/
