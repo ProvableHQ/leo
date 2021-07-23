@@ -53,7 +53,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             .to_usize()
             .ok_or_else(|| StatementError::loop_index_const(&span))?;
 
-        for i in from..to {
+        let iter: Box<dyn Iterator<Item = usize>> = if from < to {
+            Box::new(from..to)
+        } else {
+            Box::new((to..from).rev())
+        };
+
+        for i in iter {
             // Store index in current function scope.
             // For loop scope is not implemented.
             let variable = statement.variable.borrow();
