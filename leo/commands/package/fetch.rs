@@ -25,8 +25,7 @@ use leo_package::root::{
 };
 
 use anyhow::{anyhow, Result};
-use indexmap::set::IndexSet;
-use std::collections::HashMap;
+use indexmap::{set::IndexSet, IndexMap};
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -85,7 +84,7 @@ impl Fetch {
         context: Context,
         mut tree: IndexSet<String>,
         lock_file: &mut LockFile,
-        dependencies: HashMap<String, Dependency>,
+        dependencies: IndexMap<String, Dependency>,
     ) -> Result<()> {
         // Go through each dependency in Leo.toml and add it to the imports.
         // While adding, pull dependencies of this package as well and check for recursion.

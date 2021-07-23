@@ -16,6 +16,7 @@
 
 use crate::{errors::ManifestError, package::Package};
 
+use indexmap::IndexMap;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -45,7 +46,7 @@ pub struct Dependency {
 pub struct Manifest {
     pub project: Package,
     pub remote: Option<Remote>,
-    pub dependencies: Option<HashMap<String, Dependency>>,
+    pub dependencies: Option<IndexMap<String, Dependency>>,
 }
 
 impl Manifest {
@@ -53,7 +54,7 @@ impl Manifest {
         Ok(Self {
             project: Package::new(package_name)?,
             remote: author.map(|author| Remote { author }),
-            dependencies: Some(HashMap::<String, Dependency>::new()),
+            dependencies: Some(IndexMap::<String, Dependency>::new()),
         })
     }
 
@@ -81,7 +82,7 @@ impl Manifest {
         self.project.description.clone()
     }
 
-    pub fn get_package_dependencies(&self) -> Option<HashMap<String, Dependency>> {
+    pub fn get_package_dependencies(&self) -> Option<IndexMap<String, Dependency>> {
         self.dependencies.clone()
     }
 

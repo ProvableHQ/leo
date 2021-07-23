@@ -16,6 +16,7 @@
 
 use crate::{errors::LockFileError, root::Dependency};
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::{
     borrow::Cow,
@@ -43,8 +44,8 @@ pub struct Package {
     pub version: String,
     pub author: String,
     pub import_name: Option<String>,
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
-    pub dependencies: HashMap<String, String>,
+    #[serde(skip_serializing_if = "IndexMap::is_empty", default)]
+    pub dependencies: IndexMap<String, String>,
 }
 
 impl LockFile {
@@ -125,7 +126,7 @@ impl TryFrom<&Path> for LockFile {
 
 impl Package {
     /// Fill dependencies from Leo Manifest data.
-    pub fn add_dependencies(&mut self, dependencies: &HashMap<String, Dependency>) {
+    pub fn add_dependencies(&mut self, dependencies: &IndexMap<String, Dependency>) {
         for (import_name, dependency) in dependencies.iter() {
             self.dependencies
                 .insert(import_name.clone(), Package::from(dependency).to_string());

@@ -17,6 +17,9 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
+[dependencies.indexmap]
+version = "1.7"
+
 [dependencies.serde]
 version = "1.0"
 features = [ "derive" ]

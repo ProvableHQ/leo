@@ -1326,6 +1326,7 @@ version = "1.5.2"
 name = "leo-package"
 version = "1.5.2"
 dependencies = [
+ "indexmap",
  "lazy_static",
  "serde",
  "thiserror",
