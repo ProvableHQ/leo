@@ -211,6 +211,13 @@ impl Namespace for CompileNamespace {
                 output,
             });
         }
+        if test.name.contains("reverse") {
+            println!(
+                "debug print initial ast {:?}",
+                Ast::from_json_file("/tmp/output/initial_ast.json".into())
+                    .unwrap_or_else(|_| Ast::new(Program::new("Error reading initial theorem.".to_string())))
+            );
+        }
 
         let initial_ast: String = hash(
             Ast::from_json_file("/tmp/output/initial_ast.json".into())

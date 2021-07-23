@@ -116,7 +116,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --features ci_skip
+          args: --all --features ci_skip -- --nocapture
         env:
           CARGO_INCREMENTAL: "0"
 
