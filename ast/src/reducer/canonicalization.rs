@@ -382,6 +382,7 @@ impl Canonicalizer {
                     variable: iteration.variable.clone(),
                     start,
                     stop,
+                    inclusive: iteration.inclusive,
                     block,
                     span: iteration.span.clone(),
                 })

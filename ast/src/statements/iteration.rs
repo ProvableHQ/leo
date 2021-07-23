@@ -24,16 +24,18 @@ pub struct IterationStatement {
     pub variable: Identifier,
     pub start: Expression,
     pub stop: Expression,
+    pub inclusive: bool,
     pub block: Block,
     pub span: Span,
 }
 
 impl fmt::Display for IterationStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let eq = if self.inclusive { "=" } else { "" };
         write!(
             f,
-            "for {} in {}..{} {}",
-            self.variable, self.start, self.stop, self.block
+            "for {} in {}..{}{} {}",
+            self.variable, self.start, eq, self.stop, self.block
         )
     }
 }

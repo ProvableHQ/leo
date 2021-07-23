@@ -53,10 +53,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             .to_usize()
             .ok_or_else(|| StatementError::loop_index_const(&span))?;
 
-        let iter: Box<dyn Iterator<Item = usize>> = if from < to {
-            Box::new(from..to)
-        } else {
-            Box::new((to..from).rev())
+        let iter: Box<dyn Iterator<Item = usize>> = match (from < to, statement.inclusive) {
+            (true, true) => Box::new(from..=to),
+            (true, false) => Box::new(from..to),
+            (false, true) => Box::new((to..=from).rev()),
+            (false, false) => Box::new((to..from).rev()),
         };
 
         for i in iter {
