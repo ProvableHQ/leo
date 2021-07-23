@@ -54,14 +54,10 @@ impl<'a> ImportParser<'a> {
         // Build the package abstract syntax tree.
         let program_string =
             &std::fs::read_to_string(&file_path).map_err(|x| ImportParserError::io_error(span, file_path_str, x))?;
-        let mut ast = leo_parser::parse_ast(&file_path_str, &program_string)?;
-        if let Err(_) = ast.canonicalize() {
-            todo!("Import canonicalization failed. Conversion to ImportError is not implemented.");
-        };
-
-        let mut ast = ast.into_repr();
-
-        ast.name = file_name;
-        Ok(ast)
+        let mut program = leo_parser::parse(&file_path_str, &program_string)?;
+        program.name = file_name;
+        let mut ast = leo_ast::Ast::new(program);
+        ast.canonicalize()?;
+        Ok(ast.into_repr())
     }
 }
