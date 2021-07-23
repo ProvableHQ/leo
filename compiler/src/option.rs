@@ -19,7 +19,6 @@
 ///
 #[derive(Clone, Debug)]
 pub struct CompilerOptions {
-    pub canonicalization_enabled: bool,
     pub constant_folding_enabled: bool,
     pub dead_code_elimination_enabled: bool,
 }
@@ -30,7 +29,6 @@ impl Default for CompilerOptions {
     ///
     fn default() -> Self {
         CompilerOptions {
-            canonicalization_enabled: true,
             constant_folding_enabled: true,
             dead_code_elimination_enabled: true,
         }

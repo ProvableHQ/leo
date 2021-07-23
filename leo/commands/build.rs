@@ -38,8 +38,6 @@ use tracing::span::Span;
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug)]
 pub struct BuildOptions {
-    #[structopt(long, help = "Disable canonicaliztion compiler optimization")]
-    pub disable_canonicalization: bool,
     #[structopt(long, help = "Disable constant folding compiler optimization")]
     pub disable_constant_folding: bool,
     #[structopt(long, help = "Disable dead code elimination compiler optimization")]
@@ -59,7 +57,6 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            disable_canonicalization: false,
             disable_constant_folding: false,
             disable_code_elimination: false,
             disable_all_optimizations: false,
@@ -75,13 +72,11 @@ impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         if options.disable_all_optimizations {
             CompilerOptions {
-                canonicalization_enabled: false,
                 constant_folding_enabled: false,
                 dead_code_elimination_enabled: false,
             }
         } else {
             CompilerOptions {
-                canonicalization_enabled: !options.disable_canonicalization,
                 constant_folding_enabled: !options.disable_constant_folding,
                 dead_code_elimination_enabled: !options.disable_code_elimination,
             }
@@ -173,12 +168,6 @@ impl Command for Build {
 
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
-
-        if self.compiler_options.disable_canonicalization && self.compiler_options.enable_canonicalized_ast_snapshot {
-            tracing::warn!(
-                "Can not ask for canonicalization theorem without having canonicalization compiler feature enabled."
-            );
-        }
 
         let imports_map = if context.lock_file_exists()? {
             context.lock_file()?.to_import_map()

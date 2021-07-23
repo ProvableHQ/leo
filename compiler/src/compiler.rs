@@ -253,13 +253,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
         }
 
-        // Preform compiler optimization via canonicalizing AST if its enabled.
-        if self.options.canonicalization_enabled {
-            ast.canonicalize()?;
+        // Always canonicalize AST.
+        ast.canonicalize()?;
 
-            if self.ast_snapshot_options.canonicalized {
-                ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
-            }
+        if self.ast_snapshot_options.canonicalized {
+            ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
         }
 
         // Store the main program file.
