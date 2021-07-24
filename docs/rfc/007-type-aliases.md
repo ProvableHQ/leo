@@ -39,6 +39,8 @@ With the array types of unspecified size proposed in RFC 006,
 
 # Design
 
+## Syntax
+
 The ABNF grammar changes as follows:
 ```
 ; modified rule:
@@ -62,6 +64,8 @@ declaration = import-declaration
 A type alias declaration introduces the identifier to stand for the type.
 Only top-level type alias declarations are supported;
 they are not supported inside functions or circuit types.
+
+## Semantics
 
 There must be no direct or indirect circularity in the type aliases.
 That is, it must be possible to expand all the type aliases away,
