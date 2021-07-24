@@ -204,6 +204,12 @@ impl AsgConvertError {
         Self::new_from_span(format!("array index out of bounds: '{}'", index), span)
     }
 
+    pub fn ternary_different_types(left: &str, right: &str, span: &Span) -> Self {
+        let message = format!("ternary sides had different types: left {}, right {}", left, right);
+
+        Self::new_from_span(message, span)
+    }
+
     pub fn unknown_array_size(span: &Span) -> Self {
         Self::new_from_span("array size cannot be inferred, add explicit types".to_string(), span)
     }
