@@ -42,7 +42,7 @@ With the array types of unspecified size proposed in RFC 006,
 ## Syntax
 
 The ABNF grammar changes as follows:
-```
+```ts
 ; modified rule:
 keyword = ...
         / %s"true"
@@ -92,6 +92,35 @@ In any case, it seems beneficial to expand type aliases away
 (whether during canonicalization or as part or preamble to type checking and inference)
 prior to performing more processing of the program for eventual compilation to R1CS.
 
+## Examples
+
+The aforementioned 3x3 matrix example could be written as follows:
+```ts
+type matrix = [u32; (3, 3)];
+
+function matrix_multiply(x: matrix, y: matrix) -> matrix {
+    ...
+}
+```
+
+The aforementioned balance example could be written as follows:
+```ts
+type balance = u64;
+
+function f(...) -> (..., balance, ...) {
+    ...
+}
+```
+
+The aforementioned string example could be written as follows:
+```ts
+type string = [char; _];
+
+function f(str: string) -> ... {
+    ...
+}
+```
+
 # Drawbacks
 
 As other extensions of the language, this makes things inherently a bit more complicated.
@@ -103,17 +132,17 @@ None; this is just a convenience for the Leo developer.
 # Alternatives
 
 An alternative to creating a type alias
-```
+```ts
 type T = U;
 ```
 is to create a circuit type
-```
+```ts
 circuit T { get: U }
 ```
 that contains a single member variable.
 
 This is clearly not equivalent to a type alias, because it involves conversions between `T` and `U`
-```
+```ts
 T { get: u } // convert u:U to T
 t.get // convert t:T to U
 ```
