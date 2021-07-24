@@ -936,7 +936,7 @@ conditional-statement = branch
 ; that goes from a starting value (inclusive) to an ending value (exclusive).
 ; The body is a block.
 
-loop-statement = %s"for" identifier %s"in" expression ".." expression block
+loop-statement = %s"for" identifier %s"in" expression ".." [ "=" ] expression block
 
 ; An assignment statement is straightforward.
 ; Based on the operator, the assignment may be simple (i.e. `=`)
