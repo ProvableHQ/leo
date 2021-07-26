@@ -41,14 +41,15 @@ use leo_ast::{
     CastExpression as AstCastExpression, Char, CharValue as AstCharValue, Circuit as AstCircuit,
     CircuitImpliedVariableDefinition, CircuitInitExpression as AstCircuitInitExpression,
     CircuitMember as AstCircuitMember, CircuitMemberAccessExpression, CircuitStaticFunctionAccessExpression,
-    CombinerError, ConditionalStatement as AstConditionalStatement, ConsoleFunction as AstConsoleFunction,
-    ConsoleStatement as AstConsoleStatement, DefinitionStatement as AstDefinitionStatement,
-    Expression as AstExpression, ExpressionStatement as AstExpressionStatement, FormatString, Function as AstFunction,
-    GroupTuple, GroupValue as AstGroupValue, IterationStatement as AstIterationStatement, PositiveNumber,
-    ReconstructingReducer, ReducerError, ReturnStatement as AstReturnStatement, Span, SpreadOrExpression,
-    Statement as AstStatement, TernaryExpression as AstTernaryExpression,
-    TupleAccessExpression as AstTupleAccessExpression, TupleInitExpression as AstTupleInitExpression, Type as AstType,
-    UnaryExpression as AstUnaryExpression, ValueExpression,
+    CombinerError, ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
+    ConsoleFunction as AstConsoleFunction, ConsoleStatement as AstConsoleStatement,
+    DefinitionStatement as AstDefinitionStatement, Expression as AstExpression,
+    ExpressionStatement as AstExpressionStatement, Function as AstFunction, GroupTuple, GroupValue as AstGroupValue,
+    IterationStatement as AstIterationStatement, PositiveNumber, ReconstructingReducer, ReducerError,
+    ReturnStatement as AstReturnStatement, Span, SpreadOrExpression, Statement as AstStatement,
+    TernaryExpression as AstTernaryExpression, TupleAccessExpression as AstTupleAccessExpression,
+    TupleInitExpression as AstTupleInitExpression, Type as AstType, UnaryExpression as AstUnaryExpression,
+    ValueExpression,
 };
 use tendril::StrTendril;
 
@@ -547,25 +548,27 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             (AstConsoleFunction::Assert(ast_expression), AsgConsoleFunction::Assert(asg_expression)) => {
                 AstConsoleFunction::Assert(self.reduce_expression(&ast_expression, asg_expression.get())?)
             }
-            (AstConsoleFunction::Debug(ast_format), AsgConsoleFunction::Debug(asg_format))
-            | (AstConsoleFunction::Error(ast_format), AsgConsoleFunction::Error(asg_format))
-            | (AstConsoleFunction::Log(ast_format), AsgConsoleFunction::Log(asg_format)) => {
+            (AstConsoleFunction::Debug(ast_console_args), AsgConsoleFunction::Debug(asg_format))
+            | (AstConsoleFunction::Error(ast_console_args), AsgConsoleFunction::Error(asg_format))
+            | (AstConsoleFunction::Log(ast_console_args), AsgConsoleFunction::Log(asg_format)) => {
                 let mut parameters = vec![];
-                for (ast_parameter, asg_parameter) in ast_format.parameters.iter().zip(asg_format.parameters.iter()) {
+                for (ast_parameter, asg_parameter) in
+                    ast_console_args.parameters.iter().zip(asg_format.parameters.iter())
+                {
                     parameters.push(self.reduce_expression(&ast_parameter, asg_parameter.get())?);
                 }
 
-                let formatted = FormatString {
-                    parts: ast_format.parts.clone(),
+                let args = AstConsoleArgs {
+                    string: ast_console_args.string.clone(),
                     parameters,
-                    span: ast_format.span.clone(),
+                    span: ast_console_args.span.clone(),
                 };
 
                 match &ast.function {
-                    AstConsoleFunction::Debug(_) => AstConsoleFunction::Debug(formatted),
-                    AstConsoleFunction::Error(_) => AstConsoleFunction::Error(formatted),
-                    AstConsoleFunction::Log(_) => AstConsoleFunction::Log(formatted),
-                    _ => return Err(ReducerError::impossible_console_assert_call(&ast_format.span)),
+                    AstConsoleFunction::Debug(_) => AstConsoleFunction::Debug(args),
+                    AstConsoleFunction::Error(_) => AstConsoleFunction::Error(args),
+                    AstConsoleFunction::Log(_) => AstConsoleFunction::Log(args),
+                    _ => return Err(ReducerError::impossible_console_assert_call(&ast_console_args.span)),
                 }
             }
             _ => ast.function.clone(),

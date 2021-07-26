@@ -274,12 +274,12 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
 
     fn reduce_formatted_string(
         &mut self,
-        input: FormatString<'a>,
+        input: ConsoleArgs<'a>,
         parameters: Vec<&'a Expression<'a>>,
-    ) -> FormatString<'a> {
-        FormatString {
+    ) -> ConsoleArgs<'a> {
+        ConsoleArgs {
             span: input.span,
-            parts: input.parts,
+            string: input.string,
             parameters: parameters.into_iter().map(Cell::new).collect(),
         }
     }
@@ -293,7 +293,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
         })
     }
 
-    fn reduce_console_log(&mut self, input: ConsoleStatement<'a>, argument: FormatString<'a>) -> Statement<'a> {
+    fn reduce_console_log(&mut self, input: ConsoleStatement<'a>, argument: ConsoleArgs<'a>) -> Statement<'a> {
         assert!(!matches!(input.function, ConsoleFunction::Assert(_)));
         Statement::Console(ConsoleStatement {
             parent: input.parent,
@@ -341,6 +341,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
             variable: input.variable,
             start: Cell::new(start),
             stop: Cell::new(stop),
+            inclusive: input.inclusive,
             body: Cell::new(body),
         })
     }

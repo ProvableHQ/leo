@@ -555,11 +555,8 @@ unicode-character-escape = %s"\u{" 1*6hexadecimal-digit "}"
 ; A string literal consists of one or more elements surrounded by double quotes.
 ; Each element is any character other than double quote or backslash,
 ; or an escape among the same ones used for elements of character literals.
-; There must be at least one element
-; because string literals denote character arrays,
-; and arrays must not be empty.
 
-string-literal = double-quote 1*string-literal-element double-quote
+string-literal = double-quote *string-literal-element double-quote
 
 string-literal-element = not-double-quote-or-backslash
                        / simple-character-escape
@@ -939,7 +936,7 @@ conditional-statement = branch
 ; that goes from a starting value (inclusive) to an ending value (exclusive).
 ; The body is a block.
 
-loop-statement = %s"for" identifier %s"in" expression ".." expression block
+loop-statement = %s"for" identifier %s"in" expression ".." [ "=" ] expression block
 
 ; An assignment statement is straightforward.
 ; Based on the operator, the assignment may be simple (i.e. `=`)

@@ -17,11 +17,8 @@
 pub mod console_function;
 pub use console_function::*;
 
+pub mod console_args;
+pub use console_args::*;
+
 pub mod console_statement;
 pub use console_statement::*;
-
-pub mod formatted_container;
-pub use formatted_container::*;
-
-pub mod formatted_string;
-pub use formatted_string::*;

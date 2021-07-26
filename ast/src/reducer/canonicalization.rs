@@ -382,6 +382,7 @@ impl Canonicalizer {
                     variable: iteration.variable.clone(),
                     start,
                     stop,
+                    inclusive: iteration.inclusive,
                     block,
                     span: iteration.span.clone(),
                 })
@@ -391,23 +392,23 @@ impl Canonicalizer {
                     ConsoleFunction::Assert(expression) => {
                         ConsoleFunction::Assert(self.canonicalize_expression(expression))
                     }
-                    ConsoleFunction::Debug(format) | ConsoleFunction::Error(format) | ConsoleFunction::Log(format) => {
-                        let parameters = format
+                    ConsoleFunction::Debug(args) | ConsoleFunction::Error(args) | ConsoleFunction::Log(args) => {
+                        let parameters = args
                             .parameters
                             .iter()
                             .map(|parameter| self.canonicalize_expression(parameter))
                             .collect();
 
-                        let formatted = FormatString {
-                            parts: format.parts.clone(),
+                        let console_args = ConsoleArgs {
+                            string: args.string.clone(),
                             parameters,
-                            span: format.span.clone(),
+                            span: args.span.clone(),
                         };
 
                         match &console_function_call.function {
-                            ConsoleFunction::Debug(_) => ConsoleFunction::Debug(formatted),
-                            ConsoleFunction::Error(_) => ConsoleFunction::Error(formatted),
-                            ConsoleFunction::Log(_) => ConsoleFunction::Log(formatted),
+                            ConsoleFunction::Debug(_) => ConsoleFunction::Debug(console_args),
+                            ConsoleFunction::Error(_) => ConsoleFunction::Error(console_args),
+                            ConsoleFunction::Log(_) => ConsoleFunction::Log(console_args),
                             _ => unimplemented!(), // impossible
                         }
                     }
@@ -493,6 +494,10 @@ impl ReconstructingReducer for Canonicalizer {
     }
 
     fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, ReducerError> {
+        if string.is_empty() {
+            return Err(ReducerError::empty_string(span));
+        }
+
         let mut elements = Vec::new();
         let mut col_adder = 0;
         for (index, character) in string.iter().enumerate() {

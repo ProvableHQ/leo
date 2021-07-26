@@ -30,6 +30,7 @@ pub struct IterationStatement<'a> {
     pub variable: &'a Variable<'a>,
     pub start: Cell<&'a Expression<'a>>,
     pub stop: Cell<&'a Expression<'a>>,
+    pub inclusive: bool,
     pub body: Cell<&'a Statement<'a>>,
 }
 
@@ -84,6 +85,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
             variable,
             stop: Cell::new(stop),
             start: Cell::new(start),
+            inclusive: statement.inclusive,
             body: Cell::new(
                 scope
                     .context
@@ -105,6 +107,7 @@ impl<'a> Into<leo_ast::IterationStatement> for &IterationStatement<'a> {
             variable: self.variable.borrow().name.clone(),
             start: self.start.get().into(),
             stop: self.stop.get().into(),
+            inclusive: self.inclusive,
             block: match self.body.get() {
                 Statement::Block(block) => block.into(),
                 _ => unimplemented!(),

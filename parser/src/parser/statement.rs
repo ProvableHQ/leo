@@ -217,6 +217,7 @@ impl ParserContext {
         self.expect(Token::In)?;
         let start = self.parse_expression()?;
         self.expect(Token::DotDot)?;
+        let inclusive = self.eat(Token::Assign).is_some();
         self.fuzzy_struct_state = true;
         let stop = self.parse_conditional_expression()?;
         self.fuzzy_struct_state = false;
@@ -227,14 +228,15 @@ impl ParserContext {
             variable: ident,
             start,
             stop,
+            inclusive,
             block,
         })
     }
 
     ///
-    /// Returns a [`FormatString`] AST node if the next tokens represent a formatted string.
+    /// Returns a [`ConsoleArgs`] AST node if the next tokens represent a formatted string.
     ///
-    pub fn parse_formatted_string(&mut self) -> SyntaxResult<FormatString> {
+    pub fn parse_console_args(&mut self) -> SyntaxResult<ConsoleArgs> {
         let start_span;
         let string = match self.expect_any()? {
             SpannedToken {
@@ -247,7 +249,7 @@ impl ParserContext {
             SpannedToken { token, span } => return Err(SyntaxError::unexpected_str(&token, "formatted string", &span)),
         };
 
-        let parts = FormatStringPart::from_string(string);
+        // let parts = FormatStringPart::from_string(string);
 
         let mut parameters = Vec::new();
         while self.eat(Token::Comma).is_some() {
@@ -255,8 +257,8 @@ impl ParserContext {
             parameters.push(param);
         }
 
-        Ok(FormatString {
-            parts,
+        Ok(ConsoleArgs {
+            string,
             span: &start_span + parameters.last().map(|x| x.span()).unwrap_or(&start_span),
             parameters,
         })
@@ -275,9 +277,9 @@ impl ParserContext {
                 let expr = self.parse_expression()?;
                 ConsoleFunction::Assert(expr)
             }
-            "debug" => ConsoleFunction::Debug(self.parse_formatted_string()?),
-            "error" => ConsoleFunction::Error(self.parse_formatted_string()?),
-            "log" => ConsoleFunction::Log(self.parse_formatted_string()?),
+            "debug" => ConsoleFunction::Debug(self.parse_console_args()?),
+            "error" => ConsoleFunction::Error(self.parse_console_args()?),
+            "log" => ConsoleFunction::Log(self.parse_console_args()?),
             x => {
                 return Err(SyntaxError::unexpected_ident(
                     &x,

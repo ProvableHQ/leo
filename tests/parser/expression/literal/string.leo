@@ -3,6 +3,8 @@ namespace: Token
 expectation: Pass
 */
 
+""
+
 "string"
 
 "another { } string"

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:4:17\n     |\n   4 |     console.log(\"\", 1u32);\n     |                 ^\n     |\n     = unexpected token: '\"'"
+  - "    --> compiler-test:4:17\n     |\n   4 |     console.log(\"\", 1u32);\n     |                 ^^^^^^^^\n     |\n     = Formatter given 0 containers and found 1 parameters"

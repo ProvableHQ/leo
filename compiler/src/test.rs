@@ -227,6 +227,8 @@ impl Namespace for CompileNamespace {
                 .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
         );
 
+        std::fs::remove_dir_all(std::path::Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+
         let final_output = CompileOutput {
             circuit: last_circuit.unwrap(),
             output: output_items,
