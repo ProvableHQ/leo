@@ -37,7 +37,7 @@ version = "0.7.4"
 features = [ "testnet1" ]
 
 [dependencies.snarkvm-utilities]
-version = "0.7.4"
+version = "0.7.5"
 
 [dependencies.indexmap]
 version = "1.7.0"
