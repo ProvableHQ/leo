@@ -79,6 +79,24 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
         value: &leo_ast::TernaryExpression,
         expected_type: Option<PartialType<'a>>,
     ) -> Result<TernaryExpression<'a>, AsgConvertError> {
+        let if_true = Cell::new(<&Expression<'a>>::from_ast(
+            scope,
+            &*value.if_true,
+            expected_type.clone(),
+        )?);
+        let left: PartialType = if_true.get().get_type().unwrap().into();
+
+        let if_false = Cell::new(<&Expression<'a>>::from_ast(scope, &*value.if_false, expected_type)?);
+        let right = if_false.get().get_type().unwrap().into();
+
+        if left != right {
+            return Err(AsgConvertError::ternary_different_types(
+                &left.to_string(),
+                &right.to_string(),
+                &value.span,
+            ));
+        }
+
         Ok(TernaryExpression {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
@@ -87,12 +105,8 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
                 &*value.condition,
                 Some(Type::Boolean.partial()),
             )?),
-            if_true: Cell::new(<&Expression<'a>>::from_ast(
-                scope,
-                &*value.if_true,
-                expected_type.clone(),
-            )?),
-            if_false: Cell::new(<&Expression<'a>>::from_ast(scope, &*value.if_false, expected_type)?),
+            if_true,
+            if_false,
         })
     }
 }

@@ -341,6 +341,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
             variable: input.variable,
             start: Cell::new(start),
             stop: Cell::new(stop),
+            inclusive: input.inclusive,
             body: Cell::new(body),
         })
     }

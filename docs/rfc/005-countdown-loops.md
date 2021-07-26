@@ -13,7 +13,7 @@
 
 ## Status
 
-DRAFT
+IMPLEMENTED
 
 # Summary
 
@@ -22,8 +22,8 @@ This proposal suggests adding countdown loops and inclusive loop ranges into the
 # Motivation
 
 In the current design of the language only incremental ranges are allowed. Though
-in some cases there's a need for loops going in the reverse direction. This example
-demonstrates the shaker sort algorithm where countdown loops are mocked:
+in some cases there's a need for loops going in the reverse direction. These examples
+demonstrate the shaker sort and bubble sort algorithms where countdown loops are mocked:
 
 ```ts
 function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
@@ -49,7 +49,22 @@ function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
 }
 ```
 
-Having a countdown loop in the example above could improve readability and 
+```ts
+function bubble_sort(a: [u32; 10]) -> [u32; 10] {
+    for i in 0..9 { // i counts up
+        for j in 0..9-i { // i is flipped
+            if (a[j] > a[j+1]) {
+                let tmp = a[j];
+                a[j] = a[j+1];
+                a[j+1] = tmp;
+            }
+        }
+    }
+    return a
+}
+```
+
+Having a countdown loop in the examples above could improve readability and
 usability of the language by making it more natural to the developer.
 
 However, if we imagined this example using a countdown loop, we would see that 
@@ -114,9 +129,9 @@ there are several cases to consider:
 
 Cases 3 and 5 consist of one or more iterations; cases 4 and 6 consist of two or more iterations.
 
-## Example
+## Examples
 
-The code example demostrated in the Motivation part of this document 
+The code examples demostrated in the Motivation part of this document
 could be extended (or simplified) with the suggested syntax:
 
 ```ts
@@ -142,7 +157,36 @@ function shaker_sort(a: [u32; 10], const rounds: u32) -> [u32; 10] {
 }
 ```
 
-## Possible Future Extension
+```ts
+function bubble_sort(a: [u32; 10]) -> [u32; 10] {
+    for i in 9..0 { // counts down
+        for j in 0..i { // no flipping
+            if (a[j] > a[j+1]) {
+                let tmp = a[j];
+                a[j] = a[j+1];
+                a[j+1] = tmp;
+            }
+        }
+    }
+    return a
+}
+```
+
+# Drawbacks
+
+No obvious drawback.
+
+# Effect on Ecosystem
+
+Suggested change should have no effect on ecosystem because of its backward compatibility.
+
+# Alternatives
+
+## Mocking
+
+Coundown loops can be mocked manually.
+
+## Exclusive Starting Bounds
 
 While the ability to designate the ending bound of a loop as either exclusive or inclusive is critical as discussed below,
 we could also consider adding the ability to designate the starting bound of a loop as either exclusive or inclusive.
@@ -158,7 +202,7 @@ The most symmetric but verbose approach is exemplified as follows:
 * `5>..=0` for `4 3 2 1 0`
 * `5=..>0` for `5 4 3 2 1`
 * `5>..>0` for `4 3 2 1`
-That is, this approach makes exclusivensss an inclusiveness implicit.
+That is, this approach makes exclusivensss and inclusiveness implicit.
 The use of `<` vs. `>` also indicates a loop direction, which can be inferred anyhow when the `const` bounds are resolved,
 so that would entail an additional consistency check,
 namely that the inequality sign/signs is/are consistent with the inferred loop direction.
@@ -169,14 +213,80 @@ but that would be a different behavior from current Leo.
 We could instead go for different defaults for starting and ending bounds,
 i.e. `=` for the starting bound and `<` or `>` (depending on direction) for the ending bound.
 
-# Drawbacks
+A drawback of this approach is that it is somewhat verbose.
+Furthermore, some of the authors of this RFC do not find it very readable.
 
-No obvious drawback.
+## Flipping Bound Defaults for Countdown
 
-# Effect on Ecosystem
+In the proposed design, there is an asymmetry between the treatment of loops that count up vs. down.
+This can be seen clearly by thinking how to iterate through an array of size `N`:
+```ts
+for i in 0..n { ... a[i] ... } // count up -- 0 1 2 ... n-1
+for i in n-1..=0 { ... a[i] ... } // count down -- n-1 ... 2 1 0
+```
+While the loop that counts up has nice and simple bounds `0` and `n`,
+the loop that counts down needs `n-1` and `=0`.
 
-Suggested change should have no effect on ecosystem because of its backward compatibility.
+So a possible idea is to use different defaults depending on the loop direction:
+* For a loop that counts up:
+  * The starting (i.e. lower) bound is always inclusive.
+  * The ending (i.e. upper) bound is exclusive by default, inclusive with `=`.
+* For loop that counts down:
+  * The ending (i.e. lower) bound is always inclusive.
+  * The starting (i.e. upper) bound is exclusive by default, inclusive with `=`.
 
-# Alternatives
+That is, different defaults apply to lower vs. upper bound, rather than to starting and ending bounds.
 
-Coundown loops can be mocked manually. 
+Things become more symmetric in a way:
+```ts
+for i in 0..n { ... a[i] ... } // count up -- 0 1 2 ... n-1
+for i in n..0 { ... a[i] ... } // count down -- n-1 ... 2 1 0
+```
+
+This is also consistent with Rust in a way,
+where countdown loops are obtained by reversing the increasing range into a decreasing range, which flips the bounds.
+
+However, if we consider a possible extension in which the step may be larger than 1, we run into some awkwardness.
+Imagine an extension in which `step` is specified:
+```ts
+for i in 10..0 step 2 ... // i = 8 6 4 2 0 -- starts at 10-2 = 8
+for i in 10..0 step 3 ... // i = 9 6 3 0 -- starts at 10-1 = 9
+```
+
+Note how the actual starting index does not depend on starting/upper bound and step,
+but rather on ending/lower bound and step, and must be calculated explicitly;
+it doesn't "jump" at the reader.
+
+## Explicit Indication of Loop Direction
+
+Another idea that was brought up is to always write the range as `<lower>..<upper>`,
+but include an explicit indication when the loop must count down, e.g.
+```ts
+for i in 0..n down { ... array[i] ... } // where 'down' indicates count down
+```
+
+The advantages are that
+we retain the default that the first/lower bound is inclusive and the second/upper bound is exclusive,
+and the direction is explicit and does not have to be inferred.
+The direction matches starting/ending bound to lower/upper bound or upper/lower bound.
+
+But the awkwardness with larger steps than 1 remains:
+```ts
+for i in 0..10 down step 2 ... // i = 8 6 4 2 0 -- starts at 10-2 = 8
+for i in 0..10 down step 3 ... // i = 9 6 3 0 -- starts at 10-1 = 9
+```
+
+## Variable in the Middle of Range with Equalities or Inequalities
+
+Another approach is to put the variable in the middle of the range,
+along with equality or inequality signs around the variable, e.g.
+```ts
+  for 0 <= i < 5   // 0 1 2 3 4
+  for 0 <= i <= 5   // 0 1 2 3 4 5
+  for 5 > i >= 0    // 4 3 2 1 0
+```
+
+This maximizes explicitness, but it may need tweaking to avoid parsing ambiguities or difficulties
+(recall that the bounds may be complex `const` expressions).
+
+This could be a future addition to consider, but it seems that it would not replace the current Rust-like syntax.
