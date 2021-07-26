@@ -2490,9 +2490,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-derives"
-version = "0.7.4"
+version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ffcfd2f005ec8c25c627516dfe4245e330792d22a21f6176627309072cd65176"
+checksum = "d42f4d5abda149130149ce3865aef23d380dfcdd97fea7f75fd79b0aee369b29"
 dependencies = [
  "proc-macro-crate",
  "proc-macro-error",
@@ -2535,9 +2535,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-fields"
-version = "0.7.4"
+version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aab09f08aee0e85613772242a442ad7057f166c54150ac52d5d5fbe00df77f1b"
+checksum = "2ecd058b3608140610276be1eb1139a032a1bb171969b3ad70550c471d3ae503"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2648,9 +2648,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-utilities"
-version = "0.7.4"
+version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c47f9b27b3dadda802b019e494bd6ddb6b4b3cc001b402eb217b75d66ff7758f"
+checksum = "15b7ecf6a7afdd60a45cbd5ffab75185c296d8a4bf5eb20f3912384b1d4027c2"
 dependencies = [
  "anyhow",
  "bincode",
