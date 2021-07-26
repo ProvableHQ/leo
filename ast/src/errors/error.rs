@@ -17,8 +17,6 @@
 use crate::{LeoError, Span};
 use std::{fmt, sync::Arc};
 
-use colored::Colorize;
-
 pub const INDENT: &str = "    ";
 
 /// Formatted compiler error type
@@ -85,9 +83,7 @@ impl fmt::Display for FormattedError {
             path = &*self.path,
             line_start = self.line_start,
             start = self.col_start,
-        )
-        .bold()
-        .red();
+        );
 
         write!(f, "{}", error_message)?;
 

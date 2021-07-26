@@ -48,6 +48,9 @@ version = "1.7"
 [dependencies.tendril]
 version = "0.4"
 
+[dev-dependencies.colored]
+version = "2.0"
+
 [dev-dependencies.criterion]
 version = "0.3"
 

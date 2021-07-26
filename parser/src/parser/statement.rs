@@ -277,13 +277,12 @@ impl ParserContext {
                 let expr = self.parse_expression()?;
                 ConsoleFunction::Assert(expr)
             }
-            "debug" => ConsoleFunction::Debug(self.parse_console_args()?),
             "error" => ConsoleFunction::Error(self.parse_console_args()?),
             "log" => ConsoleFunction::Log(self.parse_console_args()?),
             x => {
                 return Err(SyntaxError::unexpected_ident(
                     &x,
-                    &["assert", "debug", "error", "log"],
+                    &["assert", "error", "log"],
                     &function.span,
                 ));
             }

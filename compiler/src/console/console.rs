@@ -39,13 +39,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     &console.span.clone().unwrap_or_default(),
                 )?;
             }
-            ConsoleFunction::Debug(string) => {
-                let string = self.format(cs, string)?;
-
-                if get_indicator_value(indicator) {
-                    tracing::debug!("{}", string);
-                }
-            }
             ConsoleFunction::Error(string) => {
                 let string = self.format(cs, string)?;
 

@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use colored::Colorize;
 use leo_ast::{Expression, ExpressionStatement, Span, Statement, ValueExpression};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
@@ -95,7 +96,11 @@ impl Namespace for ParseStatementNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
+        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| {
+            let s = x.to_string();
+            println!("s is {}", s);
+            s
+        })?;
         if tokenizer
             .iter()
             .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
@@ -108,7 +113,11 @@ impl Namespace for ParseStatementNamespace {
         }
         let mut tokens = ParserContext::new(tokenizer);
 
-        let parsed = tokens.parse_statement().map_err(|x| x.to_string())?;
+        let parsed = tokens.parse_statement().map_err(|x| {
+            let s = x.to_string();
+            println!("bruh {}", s);
+            s
+        })?;
         not_fully_consumed(&mut tokens)?;
 
         Ok(serde_yaml::to_value(&parsed).expect("serialization failed"))

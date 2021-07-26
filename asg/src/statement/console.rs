@@ -30,7 +30,6 @@ pub struct ConsoleArgs<'a> {
 #[derive(Clone)]
 pub enum ConsoleFunction<'a> {
     Assert(Cell<&'a Expression<'a>>),
-    Debug(ConsoleArgs<'a>),
     Error(ConsoleArgs<'a>),
     Log(ConsoleArgs<'a>),
 }
@@ -89,7 +88,6 @@ impl<'a> FromAst<'a, leo_ast::ConsoleStatement> for ConsoleStatement<'a> {
                 AstConsoleFunction::Assert(expression) => ConsoleFunction::Assert(Cell::new(
                     <&Expression<'a>>::from_ast(scope, expression, Some(Type::Boolean.into()))?,
                 )),
-                AstConsoleFunction::Debug(args) => ConsoleFunction::Debug(ConsoleArgs::from_ast(scope, args, None)?),
                 AstConsoleFunction::Error(args) => ConsoleFunction::Error(ConsoleArgs::from_ast(scope, args, None)?),
                 AstConsoleFunction::Log(args) => ConsoleFunction::Log(ConsoleArgs::from_ast(scope, args, None)?),
             },
@@ -103,7 +101,6 @@ impl<'a> Into<leo_ast::ConsoleStatement> for &ConsoleStatement<'a> {
         leo_ast::ConsoleStatement {
             function: match &self.function {
                 Assert(e) => AstConsoleFunction::Assert(e.get().into()),
-                Debug(args) => AstConsoleFunction::Debug(args.into()),
                 Error(args) => AstConsoleFunction::Error(args.into()),
                 Log(args) => AstConsoleFunction::Log(args.into()),
             },

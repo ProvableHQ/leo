@@ -336,9 +336,7 @@ impl<'a, R: StatementVisitor<'a>> VisitorDirector<'a, R> {
             VisitResult::VisitChildren => {
                 match &input.function {
                     ConsoleFunction::Assert(e) => self.visit_expression(e)?,
-                    ConsoleFunction::Debug(f) | ConsoleFunction::Error(f) | ConsoleFunction::Log(f) => {
-                        self.visit_formatted_string(f)?
-                    }
+                    ConsoleFunction::Error(f) | ConsoleFunction::Log(f) => self.visit_formatted_string(f)?,
                 }
                 Ok(())
             }
