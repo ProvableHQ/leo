@@ -2633,9 +2633,9 @@ checksum = "2a428f675f2df8c3aa3683ee583ea36fd8ecff5959cdcd528c07f209986d3614"
 
 [[package]]
 name = "snarkvm-r1cs"
-version = "0.7.4"
+version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42fc7eaab616b21fb6e0dab4f0c9402a8c831d7c65fa5e4eb941919bf7d9ea33"
+checksum = "2aca9bb7105244ebc91f964b11a1ae63f173a77181307d1fa94f04e15dbde137"
 dependencies = [
  "cfg-if 1.0.0",
  "fxhash",
