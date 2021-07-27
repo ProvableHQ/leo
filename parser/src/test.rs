@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use colored::Colorize;
 use leo_ast::{Expression, ExpressionStatement, Span, Statement, ValueExpression};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},

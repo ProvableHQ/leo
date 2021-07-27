@@ -1338,7 +1338,6 @@ dependencies = [
 name = "leo-parser"
 version = "1.5.2"
 dependencies = [
- "colored",
  "criterion",
  "indexmap",
  "lazy_static",
