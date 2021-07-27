@@ -395,7 +395,6 @@ keyword = %s"address"
         / %s"console"
         / %s"const"
         / %s"else"
-        / %s"false"
         / %s"field"
         / %s"for"
         / %s"function"
@@ -416,7 +415,6 @@ keyword = %s"address"
         / %s"self"
         / %s"static"
         / %s"string"
-        / %s"true"
         / %s"u8"
         / %s"u16"
         / %s"u32"
@@ -448,7 +446,8 @@ hexadecimal-digit = digit / "a" / "b" / "c" / "d" / "e" / "f"
 ; because that is used for address literals:
 ; this is another extra-grammatical requirement.
 
-identifier = letter *( letter / digit / "_" )   ; but not a keyword or aleo1...
+identifier = letter *( letter / digit / "_" )
+             ; but not a keyword or a boolean literal or aleo1...
 
 ; A package name consists of one or more segments separated by single dashes,
 ; where each segment is a non-empty sequence of lowercase letters and digits.
@@ -457,7 +456,7 @@ identifier = letter *( letter / digit / "_" )   ; but not a keyword or aleo1...
 
 package-name = lowercase-letter *( lowercase-letter / digit )
                *( "-" 1*( lowercase-letter / digit ) )
-               ; but not a keyword or aleo1...
+               ; but not a keyword or a boolean literal or aleo1...
 
 ; Note that, grammatically, identifiers are also package names.
 ; They are disambiguated from context, based on the syntactic grammar.
