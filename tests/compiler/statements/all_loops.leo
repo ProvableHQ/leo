@@ -6,7 +6,7 @@ input_file: inputs/dummy.in
 
 function main(k: bool) -> bool {
     let reverse: u32 = 0;
-    for i in 10..0 {
+    for i in 9..0 {
         reverse += i;
     }
 

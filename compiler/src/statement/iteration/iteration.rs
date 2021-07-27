@@ -57,7 +57,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             (true, true) => Box::new(from..=to),
             (true, false) => Box::new(from..to),
             (false, true) => Box::new((to..=from).rev()),
-            (false, false) => Box::new((to..from).rev()),
+            // add the range to the values to get correct bound
+            (false, false) => Box::new(((to + 1)..(from + 1)).rev()),
         };
 
         for i in iter {
