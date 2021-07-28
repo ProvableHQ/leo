@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:6:12\n     |\n   6 |     return 10u32; \n     |            ^^^^^\n     |\n     = unexpected type, expected: '()', received: 'u32'"
+  - "- Circuit has no constraints, use inputs and registers in program to produce them"

@@ -22,7 +22,6 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum ConsoleFunction {
     Assert(Expression),
-    Debug(ConsoleArgs),
     Error(ConsoleArgs),
     Log(ConsoleArgs),
 }
@@ -31,7 +30,6 @@ impl fmt::Display for ConsoleFunction {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             ConsoleFunction::Assert(assert) => write!(f, "assert({})", assert),
-            ConsoleFunction::Debug(debug) => write!(f, "debug({})", debug),
             ConsoleFunction::Error(error) => write!(f, "error{})", error),
             ConsoleFunction::Log(log) => write!(f, "log({})", log),
         }
@@ -42,18 +40,14 @@ impl Node for ConsoleFunction {
     fn span(&self) -> &Span {
         match self {
             ConsoleFunction::Assert(assert) => assert.span(),
-            ConsoleFunction::Debug(formatted) | ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => {
-                &formatted.span
-            }
+            ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => &formatted.span,
         }
     }
 
     fn set_span(&mut self, span: Span) {
         match self {
             ConsoleFunction::Assert(assert) => assert.set_span(span),
-            ConsoleFunction::Debug(formatted) | ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => {
-                formatted.set_span(span)
-            }
+            ConsoleFunction::Error(formatted) | ConsoleFunction::Log(formatted) => formatted.set_span(span),
         }
     }
 }

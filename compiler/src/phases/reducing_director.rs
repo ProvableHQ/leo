@@ -597,8 +597,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             (AstConsoleFunction::Assert(ast_expression), AsgConsoleFunction::Assert(asg_expression)) => {
                 AstConsoleFunction::Assert(self.reduce_expression(&ast_expression, asg_expression.get())?)
             }
-            (AstConsoleFunction::Debug(ast_console_args), AsgConsoleFunction::Debug(asg_format))
-            | (AstConsoleFunction::Error(ast_console_args), AsgConsoleFunction::Error(asg_format))
+            (AstConsoleFunction::Error(ast_console_args), AsgConsoleFunction::Error(asg_format))
             | (AstConsoleFunction::Log(ast_console_args), AsgConsoleFunction::Log(asg_format)) => {
                 let mut parameters = vec![];
                 for (ast_parameter, asg_parameter) in
@@ -614,7 +613,6 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 };
 
                 match &ast.function {
-                    AstConsoleFunction::Debug(_) => AstConsoleFunction::Debug(args),
                     AstConsoleFunction::Error(_) => AstConsoleFunction::Error(args),
                     AstConsoleFunction::Log(_) => AstConsoleFunction::Log(args),
                     _ => return Err(ReducerError::impossible_console_assert_call(&ast_console_args.span)),

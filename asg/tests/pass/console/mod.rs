@@ -40,14 +40,6 @@ fn test_log_input() {
     load_asg(program_string).unwrap();
 }
 
-// Debug
-
-#[test]
-fn test_debug() {
-    let program_string = include_str!("debug.leo");
-    load_asg(program_string).unwrap();
-}
-
 // Error
 
 #[test]

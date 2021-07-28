@@ -238,9 +238,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
     pub fn reduce_console(&mut self, input: &ConsoleStatement<'a>) -> T {
         let argument = match &input.function {
             ConsoleFunction::Assert(e) => self.reduce_expression(e.get()),
-            ConsoleFunction::Debug(f) | ConsoleFunction::Error(f) | ConsoleFunction::Log(f) => {
-                self.reduce_formatted_string(f)
-            }
+            ConsoleFunction::Error(f) | ConsoleFunction::Log(f) => self.reduce_formatted_string(f),
         };
 
         self.reducer.reduce_console(input, argument)
