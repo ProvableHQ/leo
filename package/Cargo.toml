@@ -19,6 +19,7 @@ edition = "2018"
 
 [dependencies.indexmap]
 version = "1.7"
+features = ["serde"]
 
 [dependencies.serde]
 version = "1.0"
