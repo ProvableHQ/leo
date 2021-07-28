@@ -217,6 +217,7 @@ impl ParserContext {
         self.expect(Token::In)?;
         let start = self.parse_expression()?;
         self.expect(Token::DotDot)?;
+        let inclusive = self.eat(Token::Assign).is_some();
         self.fuzzy_struct_state = true;
         let stop = self.parse_conditional_expression()?;
         self.fuzzy_struct_state = false;
@@ -227,6 +228,7 @@ impl ParserContext {
             variable: ident,
             start,
             stop,
+            inclusive,
             block,
         })
     }

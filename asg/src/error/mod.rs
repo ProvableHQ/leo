@@ -192,6 +192,13 @@ impl AsgConvertError {
         )
     }
 
+    pub fn duplicate_variable_definition(name: &str, span: &Span) -> Self {
+        Self::new_from_span(
+            format!("a variable named \"{}\" already exists in this scope", name),
+            span,
+        )
+    }
+
     pub fn index_into_non_tuple(name: &str, span: &Span) -> Self {
         Self::new_from_span(format!("failed to index into non-tuple '{}'", name), span)
     }
@@ -202,6 +209,12 @@ impl AsgConvertError {
 
     pub fn array_index_out_of_bounds(index: usize, span: &Span) -> Self {
         Self::new_from_span(format!("array index out of bounds: '{}'", index), span)
+    }
+
+    pub fn ternary_different_types(left: &str, right: &str, span: &Span) -> Self {
+        let message = format!("ternary sides had different types: left {}, right {}", left, right);
+
+        Self::new_from_span(message, span)
     }
 
     pub fn unknown_array_size(span: &Span) -> Self {

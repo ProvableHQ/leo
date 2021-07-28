@@ -77,15 +77,15 @@ version = "1.5.2"
 version = "0.7.4"
 
 [dependencies.snarkvm-curves]
-version = "0.7.4"
+version = "0.7.5"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.7.4"
+version = "0.7.5"
 default-features = false
 
 [dependencies.snarkvm-r1cs]
-version = "0.7.4"
+version = "0.7.5"
 default-features = false
 
 [dependencies.snarkvm-utilities]

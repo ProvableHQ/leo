@@ -130,10 +130,16 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         }
 
         for variable in variables.iter() {
-            scope
-                .variables
-                .borrow_mut()
-                .insert(variable.borrow().name.name.to_string(), *variable);
+            let mut variables = scope.variables.borrow_mut();
+            let var_name = variable.borrow().name.name.to_string();
+            if variables.contains_key(&var_name) {
+                return Err(AsgConvertError::duplicate_variable_definition(
+                    &var_name,
+                    &statement.span,
+                ));
+            }
+
+            variables.insert(var_name, *variable);
         }
 
         let statement = scope

@@ -10,12 +10,12 @@ outputs:
       bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
       ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
     output:
-      - input_file: input/dummy.in
+      - input_file: inputs/dummy.in
         output:
           registers:
             r0:
               type: bool
               value: "true"
-    initial_ast: 96155896f4993bd97a8e15281e92c4e9352ed02343bccddb9c3cd0f8ca55b408
-    canonicalized_ast: ae4a2dfa82f00621192f117bea664e58768d57376b68a90ce0e15c5bc9535e22
-    type_inferenced_ast: 2452ad985e23efbc07a94f2945d406a959aca68ec37e9c349a30edcc12839c04
+    initial_ast: 280277fb32e4eece0eab1f72338a9b60b6792d7f11124e8c4a5678ef3fc4a04e
+    canonicalized_ast: 84769d3580d79825fef6fd00dd9ab88dc6eaf16bf2e3f3c46feae654f8f1f746
+    type_inferenced_ast: 078070bc5df73c49f8de0ca37ac624c93a67551e0221dc1c65a84588507a2a6f

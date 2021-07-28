@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "    --> compiler-test:4:13\n     |\n   4 |     let x = true ? x: true;\n     |             ^^^^^^^^^^^^^^\n     |\n     = ternary sides had different types: left u32, right bool"

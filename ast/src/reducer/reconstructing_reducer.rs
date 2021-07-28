@@ -359,6 +359,7 @@ pub trait ReconstructingReducer {
             variable,
             start,
             stop,
+            inclusive: iteration.inclusive,
             block,
             span: iteration.span.clone(),
         })
