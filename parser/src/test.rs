@@ -95,11 +95,7 @@ impl Namespace for ParseStatementNamespace {
     }
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
-        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| {
-            let s = x.to_string();
-            println!("s is {}", s);
-            s
-        })?;
+        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
         if tokenizer
             .iter()
             .all(|x| matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
@@ -112,11 +108,7 @@ impl Namespace for ParseStatementNamespace {
         }
         let mut tokens = ParserContext::new(tokenizer);
 
-        let parsed = tokens.parse_statement().map_err(|x| {
-            let s = x.to_string();
-            println!("bruh {}", s);
-            s
-        })?;
+        let parsed = tokens.parse_statement().map_err(|x| x.to_string())?;
         not_fully_consumed(&mut tokens)?;
 
         Ok(serde_yaml::to_value(&parsed).expect("serialization failed"))
