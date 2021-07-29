@@ -25,7 +25,7 @@ impl ParserContext {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     ///
     pub fn parse_program(&mut self) -> SyntaxResult<Program> {
-        let mut imports = Vec::new();
+        let mut import_statements = Vec::new();
         let mut circuits = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut global_consts = IndexMap::new();
@@ -35,7 +35,7 @@ impl ParserContext {
             let token = self.peek()?;
             match &token.token {
                 Token::Import => {
-                    imports.push(self.parse_import()?);
+                    import_statements.push(self.parse_import_statement()?);
                 }
                 Token::Circuit => {
                     let (id, circuit) = self.parse_circuit()?;
@@ -49,12 +49,6 @@ impl ParserContext {
                     return Err(SyntaxError::DeprecatedError(DeprecatedError::test_function(
                         &token.span,
                     )));
-                    // self.expect(Token::Test)?;
-                    // let (id, function) = self.parse_function_declaration()?;
-                    // tests.insert(id, TestFunction {
-                    //     function,
-                    //     input_file: None,
-                    // });
                 }
                 Token::Const => {
                     let (name, global_const) = self.parse_global_const_declaration()?;
@@ -78,7 +72,8 @@ impl ParserContext {
         Ok(Program {
             name: String::new(),
             expected_input: Vec::new(),
-            imports,
+            import_statements,
+            imports: IndexMap::new(),
             circuits,
             functions,
             global_consts,
@@ -281,7 +276,7 @@ impl ParserContext {
     ///
     /// Returns a [`ImportStatement`] AST node if the next tokens represent an import statement.
     ///
-    pub fn parse_import(&mut self) -> SyntaxResult<ImportStatement> {
+    pub fn parse_import_statement(&mut self) -> SyntaxResult<ImportStatement> {
         self.expect(Token::Import)?;
         let package_or_packages = self.parse_package_path()?;
         self.expect(Token::Semicolon)?;

@@ -18,7 +18,6 @@
 
 use crate::Span;
 use leo_ast::{AstError, FormattedError, LeoError};
-use leo_parser::SyntaxError;
 
 #[derive(Debug, Error)]
 pub enum AsgConvertError {

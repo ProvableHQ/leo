@@ -85,6 +85,12 @@ impl Ast {
         Self { ast: program }
     }
 
+    /// Mutates the program ast by resolving the imports.
+    pub fn importer<T: ImportResolver>(&mut self, importer: T) -> Result<(), AstError> {
+        self.ast = ReconstructingDirector::new(Importer::new(importer)).reduce_program(self.as_repr())?;
+        Ok(())
+    }
+
     /// Mutates the program ast by preforming canonicalization on it.
     pub fn canonicalize(&mut self) -> Result<(), AstError> {
         self.ast = ReconstructingDirector::new(Canonicalizer::default()).reduce_program(self.as_repr())?;

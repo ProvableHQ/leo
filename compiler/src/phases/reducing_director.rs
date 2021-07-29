@@ -706,6 +706,11 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         ast: &leo_ast::Program,
         asg: &leo_asg::Program,
     ) -> Result<leo_ast::Program, leo_ast::ReducerError> {
+        let mut imports = IndexMap::new();
+        for ((ast_ident, ast_program), (_asg_ident, asg_program)) in ast.imports.iter().zip(&asg.imported_modules) {
+            imports.insert(ast_ident.clone(), self.reduce_program(ast_program, asg_program)?);
+        }
+
         self.ast_reducer.swap_in_circuit();
         let mut circuits = IndexMap::new();
         for ((ast_ident, ast_circuit), (_asg_ident, asg_circuit)) in ast.circuits.iter().zip(&asg.circuits) {
@@ -727,7 +732,8 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         self.ast_reducer.reduce_program(
             ast,
             ast.expected_input.clone(),
-            ast.imports.clone(),
+            ast.import_statements.clone(),
+            imports,
             circuits,
             functions,
             global_consts,

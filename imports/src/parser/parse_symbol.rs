@@ -21,7 +21,7 @@ use std::fs::DirEntry;
 
 static MAIN_FILE: &str = "src/main.leo";
 
-impl<'a> ImportParser<'a> {
+impl ImportParser {
     ///
     /// Returns a Leo syntax tree from a given package.
     ///
@@ -56,8 +56,6 @@ impl<'a> ImportParser<'a> {
             &std::fs::read_to_string(&file_path).map_err(|x| ImportParserError::io_error(span, file_path_str, x))?;
         let mut program = leo_parser::parse(&file_path_str, &program_string)?;
         program.name = file_name;
-        let mut ast = leo_ast::Ast::new(program);
-        ast.canonicalize()?;
-        Ok(ast.into_repr())
+        Ok(program)
     }
 }

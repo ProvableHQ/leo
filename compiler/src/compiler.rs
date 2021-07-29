@@ -244,6 +244,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
         }
 
+        ast.importer(&mut leo_imports::ImportParser::new(self.main_file_path.clone()))?;
+
         // Preform compiler optimization via canonicalizing AST if its enabled.
         if self.options.canonicalization_enabled {
             ast.canonicalize()?;
@@ -260,11 +262,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
         // Create a new symbol table from the program, imported_programs, and program_input.
-        let asg = Asg::new(
-            self.context,
-            &self.program,
-            &mut leo_imports::ImportParser::new(self.main_file_path.clone()),
-        )?;
+        let asg = Asg::new(self.context, &self.program)?;
 
         if self.ast_snapshot_options.type_inferenced {
             let new_ast = TypeInferencePhase::default()

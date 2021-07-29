@@ -28,7 +28,8 @@ use std::fmt;
 pub struct Program {
     pub name: String,
     pub expected_input: Vec<FunctionInput>,
-    pub imports: Vec<ImportStatement>,
+    pub import_statements: Vec<ImportStatement>,
+    pub imports: IndexMap<String, Program>,
     pub circuits: IndexMap<Identifier, Circuit>,
     pub global_consts: IndexMap<String, DefinitionStatement>,
     pub functions: IndexMap<Identifier, Function>,
@@ -42,7 +43,12 @@ impl AsRef<Program> for Program {
 
 impl fmt::Display for Program {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        for import in self.imports.iter() {
+        for import in self.import_statements.iter() {
+            import.fmt(f)?;
+            writeln!(f,)?;
+        }
+        writeln!(f,)?;
+        for (_, import) in self.imports.iter() {
             import.fmt(f)?;
             writeln!(f,)?;
         }
@@ -65,7 +71,8 @@ impl Program {
         Self {
             name,
             expected_input: vec![],
-            imports: vec![],
+            import_statements: vec![],
+            imports: IndexMap::new(),
             circuits: IndexMap::new(),
             global_consts: IndexMap::new(),
             functions: IndexMap::new(),

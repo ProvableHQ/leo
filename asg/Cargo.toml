@@ -33,10 +33,6 @@ version = "1.0"
 version = "1.5.2"
 path = "../ast"
 
-[dependencies.leo-parser]
-version = "1.5.2"
-path = "../parser"
-
 [dependencies.num-bigint]
 version = "0.4"
 

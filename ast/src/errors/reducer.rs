@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{CanonicalizeError, CombinerError, FormattedError, LeoError, Span};
+use leo_parser::SyntaxError;
 
 #[derive(Debug, Error)]
 pub enum ReducerError {
@@ -26,6 +27,12 @@ pub enum ReducerError {
 
     #[error("{}", _0)]
     CombinerError(#[from] CombinerError),
+
+    #[error("{}", _0)]
+    ImportError(FormattedError),
+
+    #[error("{}", _0)]
+    SyntaxError(#[from] SyntaxError),
 }
 
 impl LeoError for ReducerError {}
@@ -46,5 +53,11 @@ impl ReducerError {
         let message = "Console::Assert cannot be matched here, its handled in another case.".to_string();
 
         Self::new_from_span(message, span)
+    }
+
+    pub fn ast_err() -> Self {
+	let message = "ahhhh";
+
+	Self::new_from_span(mesage, Span::default())
     }
 }

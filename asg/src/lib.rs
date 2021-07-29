@@ -96,11 +96,10 @@ impl<'a> Asg<'a> {
     pub fn new<T: ImportResolver<'a>, Y: AsRef<leo_ast::Program>>(
         context: AsgContext<'a>,
         ast: Y,
-        resolver: &mut T,
     ) -> Result<Self, AsgConvertError> {
         Ok(Self {
             context,
-            asg: Program::new(context, ast.as_ref(), resolver)?,
+            asg: Program::new(context, ast.as_ref())?,
         })
     }
 
@@ -134,7 +133,7 @@ pub fn load_asg<'a, T: ImportResolver<'a>>(
     // Parses the Leo file and constructs a grammar ast.
     let ast = leo_parser::parse_ast("input.leo", content)?;
 
-    Program::new(context, ast.as_repr(), resolver)
+    Program::new(context, ast.as_repr())
 }
 
 pub fn new_alloc_context<'a>() -> Arena<ArenaNode<'a>> {

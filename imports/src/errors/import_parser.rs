@@ -13,8 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-use leo_asg::AsgConvertError;
-use leo_ast::{AstError, FormattedError, Identifier, LeoError, Span};
+use leo_ast::{AstError, FormattedError, Identifier, LeoError, Span, ReducerError};
 use leo_parser::SyntaxError;
 
 use std::{io, path::Path};
@@ -31,18 +30,18 @@ pub enum ImportParserError {
     AstError(#[from] AstError),
 
     #[error("{}", _0)]
-    AsgConvertError(#[from] AsgConvertError),
+    ReducerError(#[from] ReducerError),
 }
 
 impl LeoError for ImportParserError {}
 
-impl Into<AsgConvertError> for ImportParserError {
-    fn into(self) -> AsgConvertError {
+impl Into<ReducerError> for ImportParserError {
+    fn into(self) -> ReducerError {
         match self {
-            ImportParserError::Error(x) => AsgConvertError::ImportError(x),
+            ImportParserError::Error(x) => ReducerError::ImportError(x),
             ImportParserError::SyntaxError(x) => x.into(),
-            ImportParserError::AstError(x) => AsgConvertError::AstError(x),
-            ImportParserError::AsgConvertError(x) => x,
+            ImportParserError::AstError(x) => ReducerError::ast_err(),
+            ImportParserError::ReducerError(x) => x,
         }
     }
 }

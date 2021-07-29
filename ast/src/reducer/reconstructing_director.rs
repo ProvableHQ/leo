@@ -437,9 +437,15 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             inputs.push(self.reduce_function_input(input)?);
         }
 
-        let mut imports = vec![];
-        for import in program.imports.iter() {
-            imports.push(self.reduce_import(import)?);
+        let mut import_statements = vec![];
+        for import in program.import_statements.iter() {
+            import_statements.push(self.reduce_import_statement(import)?);
+        }
+
+        let mut imports = IndexMap::new();
+        for (identifier, program) in program.imports.iter() {
+            let (ident, import) = self.reduce_import(identifier, program)?;
+            imports.insert(ident, import);
         }
 
         let mut circuits = IndexMap::new();
@@ -459,8 +465,15 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             global_consts.insert(name.clone(), self.reduce_definition(&definition)?);
         }
 
-        self.reducer
-            .reduce_program(program, inputs, imports, circuits, functions, global_consts)
+        self.reducer.reduce_program(
+            program,
+            inputs,
+            import_statements,
+            imports,
+            circuits,
+            functions,
+            global_consts,
+        )
     }
 
     pub fn reduce_function_input_variable(
@@ -504,10 +517,16 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_package_or_packages(package_or_packages, new)
     }
 
-    pub fn reduce_import(&mut self, import: &ImportStatement) -> Result<ImportStatement, ReducerError> {
+    pub fn reduce_import_statement(&mut self, import: &ImportStatement) -> Result<ImportStatement, ReducerError> {
         let package_or_packages = self.reduce_package_or_packages(&import.package_or_packages)?;
 
-        self.reducer.reduce_import(import, package_or_packages)
+        self.reducer.reduce_import_statement(import, package_or_packages)
+    }
+
+    pub fn reduce_import(&mut self, identifier: &str, import: &Program) -> Result<(String, Program), ReducerError> {
+        let new_identifer = identifier.to_string();
+        let new_import = self.reduce_program(import)?;
+        self.reducer.reduce_import(new_identifer, new_import)
     }
 
     pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> Result<CircuitMember, ReducerError> {

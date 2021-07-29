@@ -21,6 +21,10 @@ edition = "2018"
 path = "../input"
 version = "1.5.2"
 
+[dependencies.leo-parser]
+path = "../parser"
+version = "1.5.2"
+
 [dependencies.indexmap]
 version = "1.7.0"
 features = [ "serde-1" ]

@@ -35,7 +35,7 @@ use crate::{
     Scope,
     Statement,
 };
-use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
+use leo_ast::{PackageAccess, PackageOrPackages, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -67,72 +67,6 @@ pub struct Program<'a> {
     pub scope: &'a Scope<'a>,
 }
 
-/// Enumerates what names are imported from a package.
-#[derive(Clone)]
-enum ImportSymbol {
-    /// Import the symbol by name.
-    Direct(String),
-
-    /// Import the symbol by name and store it under an alias.
-    Alias(String, String), // from remote -> to local
-
-    /// Import all symbols from the package.
-    All,
-}
-
-fn resolve_import_package(
-    output: &mut Vec<(Vec<String>, ImportSymbol, Span)>,
-    mut package_segments: Vec<String>,
-    package_or_packages: &PackageOrPackages,
-) {
-    match package_or_packages {
-        PackageOrPackages::Package(package) => {
-            package_segments.push(package.name.name.to_string());
-            resolve_import_package_access(output, package_segments, &package.access);
-        }
-        PackageOrPackages::Packages(packages) => {
-            package_segments.push(packages.name.name.to_string());
-            for access in packages.accesses.clone() {
-                resolve_import_package_access(output, package_segments.clone(), &access);
-            }
-        }
-    }
-}
-
-fn resolve_import_package_access(
-    output: &mut Vec<(Vec<String>, ImportSymbol, Span)>,
-    mut package_segments: Vec<String>,
-    package: &PackageAccess,
-) {
-    match package {
-        PackageAccess::Star { span } => {
-            output.push((package_segments, ImportSymbol::All, span.clone()));
-        }
-        PackageAccess::SubPackage(subpackage) => {
-            resolve_import_package(
-                output,
-                package_segments,
-                &PackageOrPackages::Package(*(*subpackage).clone()),
-            );
-        }
-        PackageAccess::Symbol(symbol) => {
-            let span = symbol.symbol.span.clone();
-            let symbol = if let Some(alias) = symbol.alias.as_ref() {
-                ImportSymbol::Alias(symbol.symbol.name.to_string(), alias.name.to_string())
-            } else {
-                ImportSymbol::Direct(symbol.symbol.name.to_string())
-            };
-            output.push((package_segments, symbol, span));
-        }
-        PackageAccess::Multiple(packages) => {
-            package_segments.push(packages.name.name.to_string());
-            for subaccess in packages.accesses.iter() {
-                resolve_import_package_access(output, package_segments.clone(), &subaccess);
-            }
-        }
-    }
-}
-
 impl<'a> Program<'a> {
     /// Returns a new Leo program ASG from the given Leo program AST and its imports.
     ///
@@ -142,88 +76,21 @@ impl<'a> Program<'a> {
     /// 3. finalize declared functions
     /// 4. resolve all asg nodes
     ///
-    pub fn new<T: ImportResolver<'a>>(
-        context: AsgContext<'a>,
-        program: &leo_ast::Program,
-        import_resolver: &mut T,
-    ) -> Result<Program<'a>, AsgConvertError> {
-        // Recursively extract imported symbols.
-        let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
-        for import in program.imports.iter() {
-            resolve_import_package(&mut imported_symbols, vec![], &import.package_or_packages);
-        }
-
-        // Create package list.
-        let mut deduplicated_imports: IndexMap<Vec<String>, Span> = IndexMap::new();
-        for (package, _symbol, span) in imported_symbols.iter() {
-            deduplicated_imports.insert(package.clone(), span.clone());
-        }
-
-        let mut wrapped_resolver = crate::CoreImportResolver::new(import_resolver);
-
-        // Load imported programs.
-        let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new();
-        for (package, span) in deduplicated_imports.iter() {
-            let pretty_package = package.join(".");
-
-            let resolved_package = match wrapped_resolver.resolve_package(
-                context,
-                &package.iter().map(|x| &**x).collect::<Vec<_>>()[..],
-                span,
-            )? {
-                Some(x) => x,
-                None => return Err(AsgConvertError::unresolved_import(&*pretty_package, &Span::default())),
-            };
-
-            resolved_packages.insert(package.clone(), resolved_package);
-        }
-
+    pub fn new(context: AsgContext<'a>, program: &leo_ast::Program) -> Result<Program<'a>, AsgConvertError> {
         let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
         let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
         let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
+        let mut imported_modules: IndexMap<String, Program> = IndexMap::new();
 
-        // Prepare locally relevant scope of imports.
-        for (package, symbol, span) in imported_symbols.into_iter() {
-            let pretty_package = package.join(".");
+        for (name, program) in program.imports.iter() {
+            let program = Program::new(context, program)?;
 
-            let resolved_package = resolved_packages
-                .get(&package)
-                .expect("could not find preloaded package");
-            match symbol {
-                ImportSymbol::All => {
-                    imported_functions.extend(resolved_package.functions.clone().into_iter());
-                    imported_circuits.extend(resolved_package.circuits.clone().into_iter());
-                    imported_global_consts.extend(resolved_package.global_consts.clone().into_iter());
-                }
-                ImportSymbol::Direct(name) => {
-                    if let Some(function) = resolved_package.functions.get(&name) {
-                        imported_functions.insert(name.clone(), *function);
-                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
-                        imported_circuits.insert(name.clone(), *circuit);
-                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
-                        imported_global_consts.insert(name.clone(), *global_const);
-                    } else {
-                        return Err(AsgConvertError::unresolved_import(
-                            &*format!("{}.{}", pretty_package, name),
-                            &span,
-                        ));
-                    }
-                }
-                ImportSymbol::Alias(name, alias) => {
-                    if let Some(function) = resolved_package.functions.get(&name) {
-                        imported_functions.insert(alias.clone(), *function);
-                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
-                        imported_circuits.insert(alias.clone(), *circuit);
-                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
-                        imported_global_consts.insert(alias.clone(), *global_const);
-                    } else {
-                        return Err(AsgConvertError::unresolved_import(
-                            &*format!("{}.{}", pretty_package, name),
-                            &span,
-                        ));
-                    }
-                }
-            }
+            // TODO only take the ones specified.
+            imported_functions.extend(program.functions.clone());
+            imported_circuits.extend(program.circuits.clone());
+            imported_global_consts.extend(program.global_consts.clone());
+
+            imported_modules.insert(name.clone(), program);
         }
 
         let import_scope = match context.arena.alloc(ArenaNode::Scope(Box::new(Scope {
@@ -334,10 +201,7 @@ impl<'a> Program<'a> {
             functions,
             global_consts,
             circuits,
-            imported_modules: resolved_packages
-                .into_iter()
-                .map(|(package, program)| (package.join("."), program))
-                .collect(),
+            imported_modules,
             scope,
         })
     }
@@ -345,138 +209,6 @@ impl<'a> Program<'a> {
     pub(crate) fn set_core_mapping(&self, mapping: &str) {
         for (_, circuit) in self.circuits.iter() {
             circuit.core_mapping.replace(Some(mapping.to_string()));
-        }
-    }
-}
-
-struct InternalIdentifierGenerator {
-    next: usize,
-}
-
-impl Iterator for InternalIdentifierGenerator {
-    type Item = String;
-
-    fn next(&mut self) -> Option<String> {
-        let out = format!("$_{}_", self.next);
-        self.next += 1;
-        Some(out)
-    }
-}
-/// Returns an AST from the given ASG program.
-pub fn reform_ast<'a>(program: &Program<'a>) -> leo_ast::Program {
-    let mut all_programs: IndexMap<String, Program> = IndexMap::new();
-    let mut program_stack = program.imported_modules.clone();
-    while let Some((module, program)) = program_stack.pop() {
-        if all_programs.contains_key(&module) {
-            continue;
-        }
-        all_programs.insert(module, program.clone());
-        program_stack.extend(program.imported_modules.clone());
-    }
-    all_programs.insert("".to_string(), program.clone());
-    let core_programs: Vec<_> = all_programs
-        .iter()
-        .filter(|(module, _)| module.starts_with("core."))
-        .map(|(module, program)| (module.clone(), program.clone()))
-        .collect();
-    all_programs.retain(|module, _| !module.starts_with("core."));
-
-    let mut all_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
-    let mut all_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
-    let mut all_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
-    let mut identifiers = InternalIdentifierGenerator { next: 0 };
-    for (_, program) in all_programs.into_iter() {
-        for (name, circuit) in program.circuits.iter() {
-            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-            circuit.name.borrow_mut().name = identifier.clone().into();
-            all_circuits.insert(identifier, *circuit);
-        }
-        for (name, function) in program.functions.iter() {
-            let identifier = if name == "main" {
-                "main".to_string()
-            } else {
-                format!("{}{}", identifiers.next().unwrap(), name)
-            };
-            function.name.borrow_mut().name = identifier.clone().into();
-            all_functions.insert(identifier, *function);
-        }
-
-        for (name, global_const) in program.global_consts.iter() {
-            let identifier = format!("{}{}", identifiers.next().unwrap(), name);
-            all_global_consts.insert(identifier, *global_const);
-        }
-    }
-
-    leo_ast::Program {
-        name: "ast_aggregate".to_string(),
-        imports: core_programs
-            .iter()
-            .map(|(module, _)| leo_ast::ImportStatement {
-                package_or_packages: leo_ast::PackageOrPackages::Package(leo_ast::Package {
-                    name: Identifier::new(module.clone().into()),
-                    access: leo_ast::PackageAccess::Star { span: Span::default() },
-                    span: Default::default(),
-                }),
-                span: Span::default(),
-            })
-            .collect(),
-        expected_input: vec![],
-        functions: all_functions
-            .into_iter()
-            .map(|(_, function)| (function.name.borrow().clone(), function.into()))
-            .collect(),
-        circuits: all_circuits
-            .into_iter()
-            .map(|(_, circuit)| (circuit.name.borrow().clone(), circuit.into()))
-            .collect(),
-        global_consts: all_global_consts
-            .into_iter()
-            .map(|(_, global_const)| {
-                (
-                    global_const
-                        .variables
-                        .iter()
-                        .fold("".to_string(), |joined, variable_name| {
-                            format!("{}, {}", joined, variable_name.borrow().name.name)
-                        }),
-                    global_const.into(),
-                )
-            })
-            .collect(),
-    }
-}
-
-impl<'a> Into<leo_ast::Program> for &Program<'a> {
-    fn into(self) -> leo_ast::Program {
-        leo_ast::Program {
-            name: self.name.clone(),
-            imports: vec![],
-            expected_input: vec![],
-            circuits: self
-                .circuits
-                .iter()
-                .map(|(_, circuit)| (circuit.name.borrow().clone(), (*circuit).into()))
-                .collect(),
-            functions: self
-                .functions
-                .iter()
-                .map(|(_, function)| (function.name.borrow().clone(), (*function).into()))
-                .collect(),
-            global_consts: self
-                .global_consts
-                .iter()
-                .map(|(_, global_const)| {
-                    (
-                        global_const
-                            .variables
-                            .iter()
-                            .fold("".to_string(), |joined, variable_name| {
-                                format!("{}, {}", joined, variable_name.borrow().name.name)
-                            }),
-                        (*global_const).into(),
-                    )
-                })
-                .collect(),
         }
     }
 }

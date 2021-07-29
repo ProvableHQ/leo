@@ -399,7 +399,8 @@ pub trait ReconstructingReducer {
         &mut self,
         program: &Program,
         expected_input: Vec<FunctionInput>,
-        imports: Vec<ImportStatement>,
+        import_statements: Vec<ImportStatement>,
+        imports: IndexMap<String, Program>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
         global_consts: IndexMap<String, DefinitionStatement>,
@@ -407,6 +408,7 @@ pub trait ReconstructingReducer {
         Ok(Program {
             name: program.name.clone(),
             expected_input,
+            import_statements,
             imports,
             circuits,
             functions,
@@ -445,7 +447,7 @@ pub trait ReconstructingReducer {
         Ok(new)
     }
 
-    fn reduce_import(
+    fn reduce_import_statement(
         &mut self,
         import: &ImportStatement,
         package_or_packages: PackageOrPackages,
@@ -454,6 +456,10 @@ pub trait ReconstructingReducer {
             package_or_packages,
             span: import.span.clone(),
         })
+    }
+
+    fn reduce_import(&mut self, identifier: String, import: Program) -> Result<(String, Program), ReducerError> {
+        Ok((identifier, import))
     }
 
     fn reduce_circuit_member(
