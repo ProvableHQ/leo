@@ -48,9 +48,3 @@ version = "1.5.2"
 [dependencies.leo-compiler]
 path = "../compiler"
 version = "1.5.2"
-
-
-[[bin]]
-name = "tgc"
-test = false
-bench = false
