@@ -31,17 +31,18 @@ jobs:
 
       - name: Run tgc over the asts
         run: |
+          ARRAY=();
           for dir in `ls tmp/tgc`;
           do
-            # enter the directory
-            cd tmp/tgc/$dir; 
-
-            # run tgc over the files in this directory
-            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp
-
-            # go back to the root path
+            cd tmp/tgc/$dir; # enter the directory
+            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp || ARRAY+=("$dir");
             cd ../../..
-          done
+          done;
+          echo "Failures:";
+          for i in ${ARRAY[@]};
+          do
+          echo $i;
+          done;
         
       # - name: Run files generation for pedersen hash
       #   run: |
