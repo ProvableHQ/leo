@@ -1,0 +1,74 @@
+name: Leo-ACL2
+on: 
+  push:
+env: 
+  RUST_BACKTRACE: 1
+
+jobs:
+  acl2:
+    name: leo-acl2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+
+      - name: Prepare tgc
+        run: |
+          cd acl2 && gunzip leo-acl2.lx86cl64.gz
+          ls -la .
+
+      - name: Generate asts
+        run: |
+          cargo run -p leo-test-framework --bin tgc
+          ls -l tmp
+
+      - name: Run tgc over the asts
+        run: |
+          for dir in `ls tmp/tgc`;
+          do
+            # enter the directory
+            cd tmp/tgc/$dir; 
+
+            # run tgc over the files in this directory
+            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp
+
+            # go back to the root path
+            cd ../../..
+          done
+        
+      # - name: Run files generation for pedersen hash
+      #   run: |
+      #     mkdir TEMPDIR && cd TEMPDIR
+      #     ls -la
+      #     cargo run -p stages -- \
+      #     --file ../examples/pedersen-hash/src/main.leo \
+      #     --input ../examples/pedersen-hash/inputs/pedersen-hash.in --all
+          
+      # - name: Run leo-acl2 executable 
+      #   run: |
+      #     ls -la stages
+      #     cd stages && gunzip leo-acl2.lx86cl64.gz && cd ..
+      #     pwd
+      
+      #     export TEMPLATE_DIR="$(pwd)/stages/"
+
+      #     cd TEMPDIR
+      #     ls -la
+      #     pwd
+          
+      #     # print command
+      #     cat << EOF
+      #     (tgc "$TEMPLATE_DIR" "th.lisp" "initial.json" "canonicalization.json")
+      #     EOF
+          
+      #     # run command
+      #     cat << EOF | ../stages/leo-acl2
+      #     (tgc "$TEMPLATE_DIR" "th.lisp" "initial.json" "canonicalization.json")
+      #     EOF

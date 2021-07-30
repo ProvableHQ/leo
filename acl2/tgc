@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# NAME
+#     tgc - generate and check a correctness theorem for a Leo compiler stage
+#
+# USAGE
+#     tgc STAGE ASTFILE1 ASTFILE2 THEOREMFILE
+#
+#     STAGE:
+#         canonicalization   Checks if ASTFILE2 is a valid canonicalization of ASTFILE1
+#         (pending) type-inference     Checks if ASTFILE2 is a valid type inference of ASTFILE1
+#
+# DESCRIPTION
+#     Generate and check a correctness theorem for the Leo compiler stage given by STAGEFLAG,
+#     using ASTFILE1 and ASTFILE2 as the before and after AST files the Leo compiler.
+#     Write THEOREMFILE containing an ACL2 theorem of correctness of the given compiler stage.
+#     Check (prove) the correctness of THEOREMFILE, and if proved, exit with status 0.
+#
+# NOTES
+#     This script expects a number of files to accompany it in a bundle:
+#       lx86cl64
+#       leo-acl2.lx86cl64
+#       theorem-template.tl
+
+
+# Ast and theorem file names, if relative, are relative to the current directory.
+# Record this directory in case something later changes PWD.
+initialPWD="$PWD"
+
+# Bundle files are in the directory containing this script.
+# That includes theorem template files.
+thisDir=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+
+if [ $# -ne 4 ]; then
+    echo "tgc: wrong number of arguments" >&2
+    exit 2
+fi
+
+if [ "$1" != canonicalization ]; then
+    echo "tgc: STAGE must be 'canonicalization'" >&2
+    exit 2
+fi
+
+ASTFILE1=$2
+ASTFILE2="$3"
+
+# When THEOREMFILE is passed to the lisp command, it must be
+# an absolute path.  (If the ASTFILEs are relative to PWD, it is fine.)
+# Here we add PWD to THEOREMFILE.  This could be made smarter to handle ~.
+if [[ "$4" == "/*" ]]
+then
+    THEOREMFILE="$4"
+else
+    THEOREMFILE="$initialPWD"/"$4"
+fi
+
+# TODO: put this in a case statement with different names based on the value of STAGE
+TEMPLATEFILE="${thisDir}/theorem-template.tl"
+
+# add literal double quotes
+TEMPLF="\"$TEMPLATEFILE\""
+AF1="\"$ASTFILE1\""
+AF2="\"$ASTFILE2\""
+THEOF="\"$THEOREMFILE\""
+lispCommand="(tgc $TEMPLF $AF1 $AF2 $THEOF)"
+
+# This might be needed --- see any saved_acl2 script
+export CCL_DEFAULT_DIRECTORY="$thisDir"
+
+# Prevents package from being switched to LEO at startup.
+export ACL2_CUSTOMIZATION=NONE
+
+echo Running Lisp Command: $lispCommand
+echo  "$lispCommand" | exec "$thisDir/lx86cl64" -I "$thisDir/leo-acl2.lx86cl64" -K ISO-8859-1 -e "(acl2::acl2-default-restart)"
