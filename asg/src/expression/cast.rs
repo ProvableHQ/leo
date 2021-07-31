@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 pub use leo_ast::UnaryOperation;
+use leo_errors::{AsgError, LeoError, Span};
 
 use std::cell::Cell;
 
@@ -75,15 +76,15 @@ impl<'a> FromAst<'a, leo_ast::CastExpression> for CastExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::CastExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<CastExpression<'a>, AsgConvertError> {
-        let target_type = scope.resolve_ast_type(&value.target_type)?;
+    ) -> Result<CastExpression<'a>, LeoError> {
+        let target_type = scope.resolve_ast_type(&value.target_type, &value.span)?;
         if let Some(expected_type) = &expected_type {
             if !expected_type.matches(&target_type) {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     &expected_type.to_string(),
                     Some(&target_type.to_string()),
                     &value.span,
-                ));
+                )));
             }
         }
 

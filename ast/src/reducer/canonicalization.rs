@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
+use leo_errors::{AstError, LeoError, Span};
 
 /// Replace Self when it is in a enclosing circuit type.
 /// Error when Self is outside an enclosing circuit type.
@@ -43,7 +44,7 @@ impl Canonicalizer {
         start: Expression,
         accesses: &[AssigneeAccess],
         span: &Span,
-    ) -> Result<Box<Expression>, ReducerError> {
+    ) -> Result<Box<Expression>, LeoError> {
         let mut left = Box::new(start);
 
         for access in accesses.iter() {
@@ -83,10 +84,7 @@ impl Canonicalizer {
         Ok(left)
     }
 
-    pub fn compound_operation_converstion(
-        &mut self,
-        operation: &AssignOperation,
-    ) -> Result<BinaryOperation, ReducerError> {
+    pub fn compound_operation_converstion(&mut self, operation: &AssignOperation) -> Result<BinaryOperation, LeoError> {
         match operation {
             AssignOperation::Assign => unreachable!(),
             AssignOperation::Add => Ok(BinaryOperation::Add),
@@ -462,13 +460,11 @@ impl ReconstructingReducer for Canonicalizer {
         self.in_circuit = !self.in_circuit;
     }
 
-    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type, ReducerError> {
+    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type, LeoError> {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
-                    return Err(ReducerError::from(CanonicalizeError::invalid_array_dimension_size(
-                        span,
-                    )));
+                    return Err(LeoError::from(AstError::invalid_array_dimension_size(span)));
                 }
 
                 let mut next = Type::Array(type_, ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
@@ -485,16 +481,14 @@ impl ReconstructingReducer for Canonicalizer {
 
                 Ok(array)
             }
-            Type::SelfType if !self.in_circuit => {
-                Err(ReducerError::from(CanonicalizeError::big_self_outside_of_circuit(span)))
-            }
+            Type::SelfType if !self.in_circuit => Err(LeoError::from(AstError::big_self_outside_of_circuit(span))),
             _ => Ok(new.clone()),
         }
     }
 
-    fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, ReducerError> {
+    fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, LeoError> {
         if string.is_empty() {
-            return Err(ReducerError::empty_string(span));
+            return Err(LeoError::from(AstError::empty_string(span)));
         }
 
         let mut elements = Vec::new();
@@ -529,14 +523,14 @@ impl ReconstructingReducer for Canonicalizer {
             elements.push(SpreadOrExpression::Expression(Expression::Value(
                 ValueExpression::Char(CharValue {
                     character: character.clone(),
-                    span: Span {
-                        line_start: span.line_start,
-                        line_stop: span.line_stop,
+                    span: Span::new(
+                        span.line_start,
+                        span.line_stop,
                         col_start,
                         col_stop,
-                        path: span.path.clone(),
-                        content: span.content.clone(),
-                    },
+                        span.path.clone(),
+                        span.content.clone(),
+                    ),
                 }),
             )));
         }
@@ -551,11 +545,9 @@ impl ReconstructingReducer for Canonicalizer {
         &mut self,
         array_init: &ArrayInitExpression,
         element: Expression,
-    ) -> Result<ArrayInitExpression, ReducerError> {
+    ) -> Result<ArrayInitExpression, LeoError> {
         if array_init.dimensions.is_zero() {
-            return Err(ReducerError::from(CanonicalizeError::invalid_array_dimension_size(
-                &array_init.span,
-            )));
+            return Err(LeoError::from(AstError::invalid_array_dimension_size(&array_init.span)));
         }
 
         let element = Box::new(element);
@@ -602,7 +594,7 @@ impl ReconstructingReducer for Canonicalizer {
         assign: &AssignStatement,
         assignee: Assignee,
         value: Expression,
-    ) -> Result<AssignStatement, ReducerError> {
+    ) -> Result<AssignStatement, LeoError> {
         match value {
             value if assign.operation != AssignOperation::Assign => {
                 let left = self.canonicalize_accesses(
@@ -644,7 +636,7 @@ impl ReconstructingReducer for Canonicalizer {
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
-    ) -> Result<Function, ReducerError> {
+    ) -> Result<Function, LeoError> {
         let new_output = match output {
             None => Some(Type::Tuple(vec![])),
             _ => output,
@@ -665,7 +657,7 @@ impl ReconstructingReducer for Canonicalizer {
         _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
-    ) -> Result<Circuit, ReducerError> {
+    ) -> Result<Circuit, LeoError> {
         self.circuit_name = Some(circuit_name.clone());
         let circ = Circuit {
             circuit_name,

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::common::span::Span;
+use leo_errors::Span;
 use leo_input::values::{
     GroupCoordinate as InputGroupCoordinate,
     Inferred as InputInferred,

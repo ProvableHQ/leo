@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use leo_errors::{AsgError, LeoError, Span};
 
 use std::cell::Cell;
 
@@ -68,16 +69,16 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayInitExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayInitExpression<'a>, AsgConvertError> {
+    ) -> Result<ArrayInitExpression<'a>, LeoError> {
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     &type_.to_string(),
                     Some("array"),
                     &value.span,
-                ));
+                )));
             }
         };
         let dimensions = value
@@ -87,18 +88,20 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             .map(|x| {
                 x.value
                     .parse::<usize>()
-                    .map_err(|_| AsgConvertError::parse_dimension_error())
+                    .map_err(|_| LeoError::from(AsgError::parse_dimension_error(&value.span)))
             })
-            .collect::<Result<Vec<_>, AsgConvertError>>()?;
+            .collect::<Result<Vec<_>, LeoError>>()?;
 
-        let len = *dimensions.get(0).ok_or_else(AsgConvertError::parse_dimension_error)?;
+        let len = *dimensions
+            .get(0)
+            .ok_or_else(|| LeoError::from(AsgError::parse_dimension_error(&value.span)))?;
         if let Some(expected_len) = expected_len {
             if expected_len != len {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     &*format!("array of length {}", expected_len),
                     Some(&*format!("array of length {}", len)),
                     &value.span,
-                ));
+                )));
             }
         }
 
@@ -107,11 +110,11 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                 Some(PartialType::Array(item, len)) => {
                     if let Some(len) = len {
                         if len != dimension {
-                            return Err(AsgConvertError::unexpected_type(
+                            return Err(LeoError::from(AsgError::unexpected_type(
                                 &*format!("array of length {}", dimension),
                                 Some(&*format!("array of length {}", len)),
                                 &value.span,
-                            ));
+                            )));
                         }
                     }
 
@@ -119,11 +122,11 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                 }
                 None => None,
                 Some(type_) => {
-                    return Err(AsgConvertError::unexpected_type(
+                    return Err(LeoError::from(AsgError::unexpected_type(
                         "array",
                         Some(&type_.to_string()),
                         &value.span,
-                    ));
+                    )));
                 }
             }
         }

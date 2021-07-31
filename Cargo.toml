@@ -30,6 +30,7 @@ members = [
   "asg-passes",
   "ast",
   "compiler",
+  "errors",
   "grammar",
   "imports",
   "input",

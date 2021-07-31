@@ -21,15 +21,9 @@
 
 #![allow(clippy::vec_init_then_push)]
 
-#[macro_use]
-extern crate thiserror;
-
 pub(crate) mod tokenizer;
 pub use tokenizer::KEYWORD_TOKENS;
 pub(crate) use tokenizer::*;
-
-pub mod errors;
-pub use errors::*;
 
 pub mod parser;
 pub use parser::*;

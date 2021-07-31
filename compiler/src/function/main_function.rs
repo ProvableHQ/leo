@@ -31,7 +31,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         function: &'a Function<'a>,
         input: &Input,
-    ) -> Result<Output, FunctionError> {
+    ) -> Result<Output, LeoError> {
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
@@ -65,7 +65,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 ) {
                     // If variable is in both [main] and [constants] sections - error.
                     (_, Some(_), Some(_)) => {
-                        return Err(FunctionError::double_input_declaration(
+                        return Err(LeoError::from(CompilerError::double_input_declaration()
                             name.to_string(),
                             &input_variable.name.span,
                         ));
@@ -88,21 +88,21 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     )?,
                     // Function argument is const, input is not.
                     (true, Some(_), None) => {
-                        return Err(FunctionError::expected_const_input(
+                        return Err(LeoError::from(CompilerError::expected_const_input()
                             name.to_string(),
                             &input_variable.name.span,
                         ));
                     }
                     // Input is const, function argument is not.
                     (false, None, Some(_)) => {
-                        return Err(FunctionError::expected_non_const_input(
+                        return Err(LeoError::from(CompilerError::expected_non_const_input()
                             name.to_string(),
                             &input_variable.name.span,
                         ));
                     }
                     // When not found - Error out.
                     (_, _, _) => {
-                        return Err(FunctionError::input_not_found(
+                        return Err(LeoError::from(CompilerError::input_not_found()
                             name.to_string(),
                             &input_variable.name.span,
                         ));

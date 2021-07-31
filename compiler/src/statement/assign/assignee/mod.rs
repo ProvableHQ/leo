@@ -16,8 +16,9 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{AssignAccess, AssignOperation, AssignStatement, Span};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{AssignAccess, AssignOperation, AssignStatement};
+use leo_errors::{CompilerError, LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -44,7 +45,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         context: &ResolverContext<'a, 'b, F, G>,
         target: &mut ConstrainedValue<'a, F, G>,
-    ) -> Result<(), StatementError> {
+    ) -> Result<(), LeoError> {
         Self::enforce_assign_operation(
             cs,
             context.indicator,
@@ -60,7 +61,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         mut context: ResolverContext<'a, 'b, F, G>,
-    ) -> Result<(), StatementError> {
+    ) -> Result<(), LeoError> {
         if context.remaining_accesses.is_empty() {
             if context.input.len() != 1 {
                 panic!("invalid non-array-context multi-value assignment");
@@ -89,7 +90,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         assignee: &AssignStatement<'a>,
         target_value: ConstrainedValue<'a, F, G>,
         indicator: &Boolean,
-    ) -> Result<(), StatementError> {
+    ) -> Result<(), LeoError> {
         let span = assignee.span.clone().unwrap_or_default();
         let variable = assignee.target_variable.get().borrow();
 
@@ -113,18 +114,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         stop_index: usize,
         len: usize,
         span: &Span,
-    ) -> Result<(), StatementError> {
+    ) -> Result<(), LeoError> {
         if stop_index < start_index {
-            Err(StatementError::array_assign_range_order(
+            Err(LeoError::from(CompilerError::array_assign_range_order(
                 start_index,
                 stop_index,
                 len,
                 span,
-            ))
+            )))
         } else if start_index > len {
-            Err(StatementError::array_assign_index_bounds(start_index, len, span))
+            Err(LeoError::from(CompilerError::array_assign_index_bounds(start_index, len, span)))
         } else if stop_index > len {
-            Err(StatementError::array_assign_index_bounds(stop_index, len, span))
+            Err(LeoError::from(CompilerError::array_assign_index_bounds(stop_index, len, span)))
         } else {
             Ok(())
         }

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, FromAst, Node, PartialType, Scope, Span, Statement};
+use crate::{FromAst, Node, PartialType, Scope, Statement};
+use leo_errors::{LeoError, Span};
 
 use std::cell::Cell;
 
@@ -37,7 +38,7 @@ impl<'a> FromAst<'a, leo_ast::Block> for BlockStatement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::Block,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self, LeoError> {
         let new_scope = scope.make_subscope();
 
         let mut output = vec![];

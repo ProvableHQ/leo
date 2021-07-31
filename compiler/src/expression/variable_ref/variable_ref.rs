@@ -16,21 +16,23 @@
 
 //! Enforces an identifier expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::VariableRef;
+use leo_errors::{CompilerError, LeoError};
+
 
 use snarkvm_fields::PrimeField;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce a variable expression by getting the resolved value
-    pub fn evaluate_ref(&mut self, variable_ref: &VariableRef) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    pub fn evaluate_ref(&mut self, variable_ref: &VariableRef) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
         // Evaluate the identifier name in the current function scope
         let variable = variable_ref.variable.borrow();
 
         let result_value = if let Some(value) = self.get(variable.id) {
             value.clone()
         } else {
-            return Err(ExpressionError::undefined_identifier(variable.name.clone()));
+            return Err(LeoError::from(CompilerError::undefined_identifier(variable.name.clone())));
             // todo: probably can be a panic here instead
         };
 

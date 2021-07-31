@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use leo_errors::{AsgError, LeoError, Span};
 
 use std::cell::Cell;
 
@@ -80,16 +81,16 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::TupleInitExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<TupleInitExpression<'a>, AsgConvertError> {
+    ) -> Result<TupleInitExpression<'a>, LeoError> {
         let tuple_types = match expected_type {
             Some(PartialType::Tuple(sub_types)) => Some(sub_types),
             None => None,
             x => {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     "tuple",
                     x.map(|x| x.to_string()).as_deref(),
                     &value.span,
-                ));
+                )));
             }
         };
 
@@ -97,11 +98,11 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
             // Expected type can be equal or less than actual size of a tuple.
             // Size of expected tuple can be based on accessed index.
             if tuple_types.len() > value.elements.len() {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     &*format!("tuple of length {}", tuple_types.len()),
                     Some(&*format!("tuple of length {}", value.elements.len())),
                     &value.span,
-                ));
+                )));
             }
         }
 
@@ -117,7 +118,7 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
                 )
                 .map(Cell::new)
             })
-            .collect::<Result<Vec<_>, AsgConvertError>>()?;
+            .collect::<Result<Vec<_>, LeoError>>()?;
 
         Ok(TupleInitExpression {
             parent: Cell::new(None),

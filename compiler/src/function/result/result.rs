@@ -40,7 +40,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         expected_return: &Type<'a>,
         results: Vec<(Boolean, ConstrainedValue<'a, F, G>)>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, StatementError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
         // Initialize empty return value.
         let mut return_value = None;
 
@@ -60,7 +60,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             if get_indicator_value(&indicator) {
                 // Error if we already have a return value.
                 if return_value.is_some() {
-                    return Err(StatementError::multiple_returns(span));
+                    return Err(LeoError::from(CompilerError::multiple_returns(span));)
                 } else {
                     // Set the function return value.
                     return_value = Some(result);
@@ -84,7 +84,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         &result,
                         &value,
                     )
-                    .map_err(|_| StatementError::select_fail(result.to_string(), value.to_string(), span))?,
+                    .map_err(|_| LeoError::from(CompilerError::select_fail(result.to_string(), value.to_string(), span)))?,
                 );
             } else {
                 return_value = Some(result); // we ignore indicator for default -- questionable
@@ -94,7 +94,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if expected_return.is_unit() {
             Ok(ConstrainedValue::Tuple(vec![]))
         } else {
-            return_value.ok_or_else(|| StatementError::no_returns(&expected_return, span))
+            return_value.ok_or_else(|| LeoError::from(CompilerError::no_returns(&expected_return, span)))
         }
     }
 }

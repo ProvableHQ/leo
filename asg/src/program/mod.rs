@@ -24,18 +24,9 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
-use crate::{
-    node::FromAst,
-    ArenaNode,
-    AsgContext,
-    AsgConvertError,
-    DefinitionStatement,
-    ImportResolver,
-    Input,
-    Scope,
-    Statement,
-};
-use leo_ast::{Identifier, PackageAccess, PackageOrPackages, Span};
+use crate::{node::FromAst, ArenaNode, AsgContext, DefinitionStatement, ImportResolver, Input, Scope, Statement};
+use leo_ast::{Identifier, PackageAccess, PackageOrPackages};
+use leo_errors::{AsgError, LeoError, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -146,7 +137,7 @@ impl<'a> Program<'a> {
         context: AsgContext<'a>,
         program: &leo_ast::Program,
         import_resolver: &mut T,
-    ) -> Result<Program<'a>, AsgConvertError> {
+    ) -> Result<Program<'a>, LeoError> {
         // Recursively extract imported symbols.
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
         for import in program.imports.iter() {
@@ -172,7 +163,12 @@ impl<'a> Program<'a> {
                 span,
             )? {
                 Some(x) => x,
-                None => return Err(AsgConvertError::unresolved_import(&*pretty_package, &Span::default())),
+                None => {
+                    return Err(LeoError::from(AsgError::unresolved_import(
+                        &*pretty_package,
+                        &Span::default(),
+                    )));
+                }
             };
 
             resolved_packages.insert(package.clone(), resolved_package);
@@ -203,10 +199,10 @@ impl<'a> Program<'a> {
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         imported_global_consts.insert(name.clone(), *global_const);
                     } else {
-                        return Err(AsgConvertError::unresolved_import(
+                        return Err(LeoError::from(AsgError::unresolved_import(
                             &*format!("{}.{}", pretty_package, name),
                             &span,
-                        ));
+                        )));
                     }
                 }
                 ImportSymbol::Alias(name, alias) => {
@@ -217,10 +213,10 @@ impl<'a> Program<'a> {
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         imported_global_consts.insert(alias.clone(), *global_const);
                     } else {
-                        return Err(AsgConvertError::unresolved_import(
+                        return Err(LeoError::from(AsgError::unresolved_import(
                             &*format!("{}.{}", pretty_package, name),
                             &span,
-                        ));
+                        )));
                     }
                 }
             }
@@ -285,7 +281,7 @@ impl<'a> Program<'a> {
                 .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name.to_string())));
             let gc = <&Statement<'a>>::from_ast(scope, global_const, None)?;
             if let Statement::Definition(gc) = gc {
-                scope.global_consts.borrow_mut().insert(name.clone(), gc);
+                scope.global_consts.borrow_mut().insert(name.clone(), &gc);
             }
         }
 
@@ -311,7 +307,10 @@ impl<'a> Program<'a> {
             let name = name.name.to_string();
 
             if functions.contains_key(&name) {
-                return Err(AsgConvertError::duplicate_function_definition(&name, &function.span));
+                return Err(LeoError::from(AsgError::duplicate_function_definition(
+                    &name,
+                    &function.span,
+                )));
             }
 
             functions.insert(name, asg_function);

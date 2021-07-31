@@ -16,8 +16,9 @@
 
 use std::{borrow::Cow, unimplemented};
 
-use crate::{assert_no_whitespace, tokenizer::*, SyntaxError, SyntaxResult, Token, KEYWORD_TOKENS};
+use crate::{assert_no_whitespace, tokenizer::*, SyntaxResult, Token, KEYWORD_TOKENS};
 use leo_ast::*;
+use leo_errors::{LeoError, ParserError, Span};
 use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.
@@ -62,8 +63,8 @@ impl ParserContext {
     ///
     /// Returns an unexpected end of function [`SyntaxError`].
     ///
-    pub fn eof(&self) -> SyntaxError {
-        SyntaxError::unexpected_eof(&self.end_span)
+    pub fn eof(&self) -> LeoError {
+        LeoError::from(ParserError::unexpected_eof(&self.end_span))
     }
 
     ///
@@ -299,7 +300,11 @@ impl ParserContext {
             if &token == inner {
                 Ok(self.tokens.pop().unwrap().span)
             } else {
-                Err(SyntaxError::unexpected(inner, &[token], span))
+                Err(LeoError::from(ParserError::unexpected(
+                    inner.to_string(),
+                    token.to_string(),
+                    span,
+                )))
             }
         } else {
             Err(self.eof())
@@ -314,7 +319,11 @@ impl ParserContext {
             if token.iter().any(|x| x == inner) {
                 Ok(self.tokens.pop().unwrap())
             } else {
-                Err(SyntaxError::unexpected(inner, token, span))
+                Err(LeoError::from(ParserError::unexpected(
+                    inner.to_string(),
+                    token.iter().map(|x| format!("'{}'", x)).collect::<Vec<_>>().join(", "),
+                    span,
+                )))
             }
         } else {
             Err(self.eof())
@@ -355,7 +364,11 @@ impl ParserContext {
                     unimplemented!()
                 }
             } else {
-                Err(SyntaxError::unexpected_str(inner, "ident", span))
+                Err(LeoError::from(ParserError::unexpected_str(
+                    inner.to_string(),
+                    "ident",
+                    span,
+                )))
             }
         } else {
             Err(self.eof())

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span, Statement};
+use crate::{Expression, FromAst, Node, PartialType, Scope, Statement};
+use leo_errors::{LeoError, Span};
 
 use std::cell::Cell;
 
@@ -36,7 +37,7 @@ impl<'a> FromAst<'a, leo_ast::ExpressionStatement> for ExpressionStatement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::ExpressionStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self, LeoError> {
         let expression = <&Expression<'a>>::from_ast(scope, &statement.expression, None)?;
 
         Ok(ExpressionStatement {

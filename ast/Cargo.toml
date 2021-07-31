@@ -21,6 +21,14 @@ edition = "2018"
 path = "../input"
 version = "1.5.3"
 
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
+[dependencies.eyre]
+version = "0.6.5"
+default-features = false
+
 [dependencies.indexmap]
 version = "1.7.0"
 features = [ "serde-1" ]

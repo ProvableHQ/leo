@@ -14,16 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    statement::*,
-    BoolAnd,
-    Expression,
-    Monoid,
-    MonoidalReducerExpression,
-    MonoidalReducerStatement,
-    Node,
-    Span,
-};
+use crate::{statement::*, BoolAnd, Expression, Monoid, MonoidalReducerExpression, MonoidalReducerStatement, Node};
+
+use leo_errors::Span;
 
 pub struct ReturnPathReducer {
     pub errors: Vec<(Span, String)>,

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConditionalStatement, Node, Span};
+use crate::{ConditionalStatement, Node};
+use leo_errors::Span;
 
 use super::*;
 use serde::{Deserialize, Serialize};

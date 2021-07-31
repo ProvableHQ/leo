@@ -16,8 +16,8 @@
 
 //! Enforces a relational `>=` operator in a resolved Leo program.
 
-use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_asg::Span;
+use crate::{value::ConstrainedValue, GroupType};
+use leo_errors::{CompilerError, LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::bits::ComparatorGadget;
@@ -28,21 +28,21 @@ pub fn evaluate_ge<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     left: ConstrainedValue<'a, F, G>,
     right: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
     let unique_namespace = cs.ns(|| format!("evaluate {} >= {} {}:{}", left, right, span.line_start, span.col_start));
     let constraint_result = match (left, right) {
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             num_1.greater_than_or_equal(unique_namespace, &num_2)
         }
         (val_1, val_2) => {
-            return Err(ExpressionError::incompatible_types(
+            return Err(LeoError::from(CompilerError::incompatible_types(
                 format!("{} >= {}", val_1, val_2),
                 span,
-            ));
+            )));
         }
     };
 
-    let boolean = constraint_result.map_err(|_| ExpressionError::cannot_evaluate(">=".to_string(), span))?;
+    let boolean = constraint_result.map_err(|_| LeoError::from(CompilerError::cannot_evaluate(">=".to_string(), span)))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

@@ -16,19 +16,8 @@
 
 use leo_ast::IntegerType;
 
-use crate::{
-    AsgConvertError,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    InnerVariable,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Statement,
-    Variable,
-};
+use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
+use leo_errors::{AsgError, LeoError, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -54,21 +43,21 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::IterationStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self, LeoError> {
         let expected_index_type = Some(PartialType::Integer(Some(IntegerType::U32), None));
         let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone())?;
         let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type)?;
 
         // Return an error if start or stop is not constant.
         if !start.is_consty() {
-            return Err(AsgConvertError::unexpected_nonconst(
+            return Err(LeoError::from(AsgError::unexpected_nonconst(
                 &start.span().cloned().unwrap_or_default(),
-            ));
+            )));
         }
         if !stop.is_consty() {
-            return Err(AsgConvertError::unexpected_nonconst(
+            return Err(LeoError::from(AsgError::unexpected_nonconst(
                 &stop.span().cloned().unwrap_or_default(),
-            ));
+            )));
         }
 
         let variable = scope.context.alloc_variable(RefCell::new(InnerVariable {
@@ -76,7 +65,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
             name: statement.variable.clone(),
             type_: start
                 .get_type()
-                .ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?,
+                .ok_or_else(|| LeoError::from(AsgError::unresolved_type(&statement.variable.name, &statement.span)))?,
             mutable: false,
             const_: true,
             declaration: crate::VariableDeclaration::IterationDefinition,

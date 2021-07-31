@@ -42,7 +42,8 @@ pub use iteration::*;
 mod return_;
 pub use return_::*;
 
-use crate::{AsgConvertError, FromAst, Node, PartialType, Scope, Span};
+use crate::{FromAst, Node, PartialType, Scope};
+use leo_errors::{LeoError, Span};
 
 #[derive(Clone)]
 pub enum Statement<'a> {
@@ -79,7 +80,7 @@ impl<'a> FromAst<'a, leo_ast::Statement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::Statement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<&'a Statement<'a>, AsgConvertError> {
+    ) -> Result<&'a Statement<'a>, LeoError> {
         use leo_ast::Statement::*;
         Ok(match value {
             Return(statement) => scope

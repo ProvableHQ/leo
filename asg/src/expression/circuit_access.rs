@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
     Circuit,
     CircuitMember,
     ConstValue,
@@ -26,10 +25,10 @@ use crate::{
     Node,
     PartialType,
     Scope,
-    Span,
     Type,
 };
 
+use leo_errors::{AsgError, LeoError, Span};
 use std::cell::Cell;
 
 #[derive(Clone)]
@@ -103,16 +102,16 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
         scope: &'a Scope<'a>,
         value: &leo_ast::CircuitMemberAccessExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<CircuitAccessExpression<'a>, AsgConvertError> {
+    ) -> Result<CircuitAccessExpression<'a>, LeoError> {
         let target = <&'a Expression<'a>>::from_ast(scope, &*value.circuit, None)?;
         let circuit = match target.get_type() {
             Some(Type::Circuit(circuit)) => circuit,
             x => {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     "circuit",
                     x.map(|x| x.to_string()).as_deref(),
                     &value.span,
-                ));
+                )));
             }
         };
 
@@ -123,11 +122,11 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
                     if let CircuitMember::Variable(type_) = &member {
                         let type_: Type = type_.clone();
                         if !expected_type.matches(&type_) {
-                            return Err(AsgConvertError::unexpected_type(
+                            return Err(LeoError::from(AsgError::unexpected_type(
                                 &expected_type.to_string(),
                                 Some(&type_.to_string()),
                                 &value.span,
-                            ));
+                            )));
                         }
                     } // used by call expression
                 }
@@ -147,18 +146,18 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
                     CircuitMember::Variable(expected_type.clone()),
                 );
             } else {
-                return Err(AsgConvertError::input_ref_needs_type(
+                return Err(LeoError::from(AsgError::input_ref_needs_type(
                     &circuit.name.borrow().name,
                     &value.name.name,
                     &value.span,
-                ));
+                )));
             }
         } else {
-            return Err(AsgConvertError::unresolved_circuit_member(
+            return Err(LeoError::from(AsgError::unresolved_circuit_member(
                 &circuit.name.borrow().name,
                 &value.name.name,
                 &value.span,
-            ));
+            )));
         }
 
         Ok(CircuitAccessExpression {
@@ -176,36 +175,36 @@ impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for Circuit
         scope: &Scope<'a>,
         value: &leo_ast::CircuitStaticFunctionAccessExpression,
         expected_type: Option<PartialType>,
-    ) -> Result<CircuitAccessExpression<'a>, AsgConvertError> {
+    ) -> Result<CircuitAccessExpression<'a>, LeoError> {
         let circuit = match &*value.circuit {
             leo_ast::Expression::Identifier(name) => scope
                 .resolve_circuit(&name.name)
-                .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
+                .ok_or_else(|| LeoError::from(AsgError::unresolved_circuit(&name.name, &name.span)))?,
             _ => {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     "circuit",
                     Some("unknown"),
                     &value.span,
-                ));
+                )));
             }
         };
 
         if let Some(expected_type) = expected_type {
-            return Err(AsgConvertError::unexpected_type(
+            return Err(LeoError::from(AsgError::unexpected_type(
                 &expected_type.to_string(),
                 Some("none"),
                 &value.span,
-            ));
+            )));
         }
 
         if let Some(CircuitMember::Function(_)) = circuit.members.borrow().get(value.name.name.as_ref()) {
             // okay
         } else {
-            return Err(AsgConvertError::unresolved_circuit_member(
+            return Err(LeoError::from(AsgError::unresolved_circuit_member(
                 &circuit.name.borrow().name,
                 &value.name.name,
                 &value.span,
-            ));
+            )));
         }
 
         Ok(CircuitAccessExpression {

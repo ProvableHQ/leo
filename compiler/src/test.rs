@@ -18,6 +18,8 @@ use std::path::{Path, PathBuf};
 
 use leo_asg::*;
 use leo_ast::{Ast, Program};
+use leo_errors::LeoError;
+
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
@@ -28,7 +30,6 @@ use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
 use crate::{
     compiler::Compiler,
-    errors::CompilerError,
     targets::edwards_bls12::EdwardsGroupType,
     AstSnapshotOptions,
     Output,
@@ -70,7 +71,7 @@ fn hash(input: String) -> String {
 pub(crate) fn parse_program(
     program_string: &str,
     theorem_options: Option<AstSnapshotOptions>,
-) -> Result<EdwardsTestCompiler, CompilerError> {
+) -> Result<EdwardsTestCompiler, LeoError> {
     let mut compiler = new_compiler("compiler-test".into(), theorem_options);
 
     compiler.parse_program_from_string(program_string)?;

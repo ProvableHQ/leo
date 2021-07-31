@@ -16,8 +16,10 @@
 
 //! Enforces a circuit access expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{CircuitAccessExpression, Node};
+use leo_errors::{CompilerError, LeoError};
+
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -28,7 +30,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         expr: &CircuitAccessExpression<'a>,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
         if let Some(target) = expr.target.get() {
             //todo: we can prob pass values by ref here to avoid copying the entire circuit on access
             let target_value = self.enforce_expression(cs, target)?;
@@ -38,23 +40,23 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     if let Some(member) = members.into_iter().find(|x| x.0.name == expr.member.name) {
                         Ok(member.1)
                     } else {
-                        Err(ExpressionError::undefined_member_access(
+                        Err(LeoError::from(CompilerError::undefined_member_access(
                             expr.circuit.get().name.borrow().to_string(),
                             expr.member.to_string(),
                             &expr.member.span,
-                        ))
+                        )))
                     }
                 }
-                value => Err(ExpressionError::undefined_circuit(
+                value => Err(LeoError::from(CompilerError::undefined_circuit(
                     value.to_string(),
                     &target.span().cloned().unwrap_or_default(),
-                )),
+                ))),
             }
         } else {
-            Err(ExpressionError::invalid_static_access(
+            Err(LeoError::from(CompilerError::invalid_static_access(
                 expr.member.to_string(),
                 &expr.member.span,
-            ))
+            )))
         }
     }
 }

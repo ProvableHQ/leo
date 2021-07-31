@@ -14,12 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{FormattedError, LeoError};
+use eyre::ErrReport;
 
 #[derive(Debug, Error)]
-pub enum ImportError {
-    #[error("{}", _0)]
-    Error(#[from] FormattedError),
+pub enum SnarkVMError {
+    #[error(transparent)]
+    SnarkVMError(#[from] ErrReport),
 }
-
-impl LeoError for ImportError {}

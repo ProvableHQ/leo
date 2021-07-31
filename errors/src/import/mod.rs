@@ -14,28 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::FieldError;
-use leo_ast::{FormattedError, LeoError, Span};
-
-#[derive(Debug, Error)]
-pub enum CharError {
-    #[error("{}", _0)]
-    Error(#[from] FormattedError),
-
-    #[error("{}", _0)]
-    FieldError(#[from] FieldError),
-}
-
-impl LeoError for CharError {}
-
-impl CharError {
-    fn new_from_span(message: String, span: &Span) -> Self {
-        CharError::Error(FormattedError::new_from_span(message, span))
-    }
-
-    pub fn invalid_char(actual: String, span: &Span) -> Self {
-        let message = format!("expected char element input type, found `{}`", actual);
-
-        Self::new_from_span(message, span)
-    }
-}
+pub mod import;
+pub use self::import::*;

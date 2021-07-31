@@ -16,7 +16,8 @@
 
 //! The `program.out` file.
 
-use crate::errors::OutputFileError;
+use leo_errors::{CompilerError, LeoError};
+
 
 use std::{
     borrow::Cow,
@@ -43,7 +44,7 @@ impl OutputFile {
     }
 
     /// Writes output to a file.
-    pub fn write(&self, path: &Path, bytes: &[u8]) -> Result<(), OutputFileError> {
+    pub fn write(&self, path: &Path, bytes: &[u8]) -> Result<(), LeoError> {
         // create output file
         let path = self.setup_file_path(path);
         let mut file = File::create(&path)?;
@@ -53,13 +54,13 @@ impl OutputFile {
 
     /// Removes the output file at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool, OutputFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, LeoError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| OutputFileError::FileRemovalError(path.into_owned()))?;
+        fs::remove_file(&path).map_err(|_| LeoError::from(CompilerError::FileRemovalError(path.into_owned())))?;
         Ok(true)
     }
 

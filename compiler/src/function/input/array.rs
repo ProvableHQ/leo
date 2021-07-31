@@ -16,10 +16,11 @@
 
 //! Allocates an array as a main function input parameter in a compiled Leo program.
 
-use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::Type;
-use leo_ast::{InputValue, Span};
+use leo_ast::InputValue;
+use leo_errors::{CompilerError, LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -33,18 +34,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         array_len: usize,
         input_value: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
         // Build the array value using the expected types.
         let mut array_value = vec![];
 
         match input_value {
             Some(InputValue::Array(arr)) => {
                 if array_len != arr.len() {
-                    return Err(FunctionError::invalid_input_array_dimensions(
+                    return Err(LeoError::from(CompilerError::invalid_input_array_dimensions(
                         arr.len(),
                         array_len,
                         span,
-                    ));
+                    )));
                 }
 
                 // Allocate each value in the current row
@@ -69,7 +70,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(FunctionError::invalid_array(input_value.unwrap().to_string(), span));
+                return Err(LeoError::from(CompilerError::invalid_array(input_value.unwrap().to_string(), span)));
             }
         }
 

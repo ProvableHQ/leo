@@ -39,9 +39,9 @@ impl LeoError for ImportParserError {}
 impl Into<AsgConvertError> for ImportParserError {
     fn into(self) -> AsgConvertError {
         match self {
-            ImportParserError::Error(x) => AsgConvertError::ImportError(x),
+            ImportParserError::Error(x) => LeoError::from(AsgError::ImportError(x),)
             ImportParserError::SyntaxError(x) => x.into(),
-            ImportParserError::AstError(x) => AsgConvertError::AstError(x),
+            ImportParserError::AstError(x) => LeoError::from(AsgError::AstError(x),)
             ImportParserError::AsgConvertError(x) => x,
         }
     }

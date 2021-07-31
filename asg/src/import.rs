@@ -18,7 +18,8 @@
 
 use std::marker::PhantomData;
 
-use crate::{AsgContext, AsgConvertError, Program, Span};
+use crate::{AsgContext, Program};
+use leo_errors::{LeoError, Span};
 
 use indexmap::IndexMap;
 
@@ -28,7 +29,7 @@ pub trait ImportResolver<'a> {
         context: AsgContext<'a>,
         package_segments: &[&str],
         span: &Span,
-    ) -> Result<Option<Program<'a>>, AsgConvertError>;
+    ) -> Result<Option<Program<'a>>, LeoError>;
 }
 
 pub struct NullImportResolver;
@@ -39,7 +40,7 @@ impl<'a> ImportResolver<'a> for NullImportResolver {
         _context: AsgContext<'a>,
         _package_segments: &[&str],
         _span: &Span,
-    ) -> Result<Option<Program<'a>>, AsgConvertError> {
+    ) -> Result<Option<Program<'a>>, LeoError> {
         Ok(None)
     }
 }
@@ -64,7 +65,7 @@ impl<'a, 'b, T: ImportResolver<'b>> ImportResolver<'b> for CoreImportResolver<'a
         context: AsgContext<'b>,
         package_segments: &[&str],
         span: &Span,
-    ) -> Result<Option<Program<'b>>, AsgConvertError> {
+    ) -> Result<Option<Program<'b>>, LeoError> {
         if !package_segments.is_empty() && package_segments.get(0).unwrap() == &"core" {
             Ok(crate::resolve_core_module(context, &*package_segments[1..].join("."))?)
         } else {
@@ -83,7 +84,7 @@ impl<'a> ImportResolver<'a> for MockedImportResolver<'a> {
         _context: AsgContext<'a>,
         package_segments: &[&str],
         _span: &Span,
-    ) -> Result<Option<Program<'a>>, AsgConvertError> {
+    ) -> Result<Option<Program<'a>>, LeoError> {
         Ok(self.packages.get(&package_segments.join(".")).cloned())
     }
 }

@@ -32,7 +32,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         function: &'a Function<'a>,
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
-    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
         let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
 
         let self_var = if let Some(target) = &target_value {
@@ -47,7 +47,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
 
         if function.arguments.len() != arguments.len() {
-            return Err(FunctionError::input_not_found(
+            return Err(LeoError::from(CompilerError::input_not_found()
                 "arguments length invalid".to_string(),
                 &function.span.clone().unwrap_or_default(),
             ));
@@ -90,6 +90,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         // Conditionally select a result based on returned indicators
         Self::conditionally_select_result(cs, &output, results, &function.span.clone().unwrap_or_default())
-            .map_err(FunctionError::StatementError)
+            .map_err(LeoError::from(CompilerError::StatementError))
     }
 }

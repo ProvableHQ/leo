@@ -16,8 +16,10 @@
 
 //! Methods to enforce constraints on input boolean values in a resolved Leo program.
 
-use crate::{errors::BooleanError, value::ConstrainedValue, GroupType};
-use leo_ast::{InputValue, Span};
+use crate::{value::ConstrainedValue, GroupType};
+use leo_ast::InputValue;
+use leo_errors::{CompilerError, LeoError, Span};
+
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{boolean::Boolean, traits::alloc::AllocGadget};
@@ -28,12 +30,12 @@ pub(crate) fn allocate_bool<F: PrimeField, CS: ConstraintSystem<F>>(
     name: &str,
     option: Option<bool>,
     span: &Span,
-) -> Result<Boolean, BooleanError> {
+) -> Result<Boolean, LeoError> {
     Boolean::alloc(
         cs.ns(|| format!("`{}: bool` {}:{}", name, span.line_start, span.col_start)),
         || option.ok_or(SynthesisError::AssignmentMissing),
     )
-    .map_err(|_| BooleanError::missing_boolean(format!("{}: bool", name), span))
+    .map_err(|_| LeoError::from(CompilerError::missing_boolean(format!("{}: bool", name), span)))
 }
 
 pub(crate) fn bool_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -41,14 +43,14 @@ pub(crate) fn bool_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, BooleanError> {
+) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
     // Check that the input value is the correct type
     let option = match input_value {
         Some(input) => {
             if let InputValue::Boolean(bool) = input {
                 Some(bool)
             } else {
-                return Err(BooleanError::invalid_boolean(name.to_owned(), span));
+                return Err(LeoError::from(CompilerError::invalid_boolean(name.to_owned(), span)));
             }
         }
         None => None,

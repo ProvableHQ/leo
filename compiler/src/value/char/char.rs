@@ -15,13 +15,14 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    errors::CharError,
     value::{field::input::allocate_field, ConstrainedValue},
     FieldType,
     GroupType,
 };
 
-use leo_ast::{InputValue, Span};
+use leo_ast::InputValue;
+use leo_errors::{CompilerError, LeoError, Span};
+
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     boolean::Boolean,
@@ -52,7 +53,7 @@ impl<F: PrimeField> Char<F> {
         character: CharType,
         field: String,
         span: &Span,
-    ) -> Result<Self, CharError> {
+    ) -> Result<Self, LeoError> {
         Ok(Self {
             character,
             field: FieldType::constant(cs, field, span)?,
@@ -147,7 +148,7 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, CharError> {
+) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
     // Check that the parameter value is the correct type
     let option = match input_value {
         Some(input) => {
@@ -159,7 +160,7 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
                     }
                 }
             } else {
-                return Err(CharError::invalid_char(input.to_string(), span));
+                return Err(LeoError::from(CompilerError::invalid_char(input.to_string(), span)));
             }
         }
         None => (CharType::Scalar(0 as char), None),

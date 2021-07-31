@@ -16,11 +16,5 @@
 
 #![allow(clippy::from_over_into)]
 
-#[macro_use]
-extern crate thiserror;
-
-pub mod errors;
-pub use self::errors::*;
-
 pub mod parser;
 pub use self::parser::*;

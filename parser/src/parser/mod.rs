@@ -29,11 +29,27 @@ pub mod type_;
 
 use std::unimplemented;
 
-use crate::{errors::assert_no_whitespace, tokenizer::*, DeprecatedError, SyntaxError, Token};
+use crate::{tokenizer::*, Token};
 use indexmap::IndexMap;
 use leo_ast::*;
+use leo_errors::{LeoError, ParserError, Span};
 
-pub type SyntaxResult<T> = Result<T, SyntaxError>;
+pub type SyntaxResult<T> = Result<T, LeoError>;
+
+pub(crate) fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> SyntaxResult<()> {
+    if left_span.col_stop != right_span.col_start {
+        let mut error_span = left_span + right_span;
+        error_span.col_start = left_span.col_stop - 1;
+        error_span.col_stop = right_span.col_start - 1;
+        return Err(LeoError::from(ParserError::unexpected_whitespace(
+            left,
+            right,
+            &error_span,
+        )));
+    }
+
+    Ok(())
+}
 
 /// Creates a new program from a given file path and source code text.
 pub fn parse(path: &str, source: &str) -> SyntaxResult<Program> {

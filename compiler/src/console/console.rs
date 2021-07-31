@@ -16,8 +16,9 @@
 
 //! Evaluates a macro in a compiled Leo program.
 
-use crate::{errors::ConsoleError, program::ConstrainedProgram, statement::get_indicator_value, GroupType};
+use crate::{program::ConstrainedProgram, statement::get_indicator_value, GroupType};
 use leo_asg::{ConsoleFunction, ConsoleStatement};
+use leo_errors::LeoError;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -29,7 +30,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         indicator: &Boolean,
         console: &ConsoleStatement<'a>,
-    ) -> Result<(), ConsoleError> {
+    ) -> Result<(), LeoError> {
         match &console.function {
             ConsoleFunction::Assert(expression) => {
                 self.evaluate_console_assert(

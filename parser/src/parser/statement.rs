@@ -16,6 +16,8 @@
 
 use super::*;
 
+use leo_errors::{LeoError, ParserError};
+
 const ASSIGN_TOKENS: &[Token] = &[
     Token::Assign,
     Token::AddEq,
@@ -62,7 +64,7 @@ impl ParserContext {
                 accesses.push(AssigneeAccess::ArrayIndex(*expr.index));
             }
             Expression::Identifier(id) => identifier = id,
-            _ => return Err(SyntaxError::invalid_assignment_target(expr.span())),
+            _ => return Err(LeoError::from(ParserError::invalid_assignment_target(expr.span()))),
         }
         Ok(identifier)
     }
@@ -189,11 +191,11 @@ impl ParserContext {
             match s {
                 Statement::Block(_) | Statement::Conditional(_) => Some(Box::new(s)),
                 s => {
-                    return Err(SyntaxError::unexpected_statement(
+                    return Err(LeoError::from(ParserError::unexpected_statement(
                         s.to_string(),
                         "Block or Conditional",
                         s.span(),
-                    ));
+                    )));
                 }
             }
         } else {
@@ -246,7 +248,13 @@ impl ParserContext {
                 start_span = span;
                 chars
             }
-            SpannedToken { token, span } => return Err(SyntaxError::unexpected_str(&token, "formatted string", &span)),
+            SpannedToken { token, span } => {
+                return Err(LeoError::from(ParserError::unexpected_str(
+                    token.to_string(),
+                    "formatted string",
+                    &span,
+                )));
+            }
         };
 
         // let parts = FormatStringPart::from_string(string);
@@ -280,11 +288,11 @@ impl ParserContext {
             "error" => ConsoleFunction::Error(self.parse_console_args()?),
             "log" => ConsoleFunction::Log(self.parse_console_args()?),
             x => {
-                return Err(SyntaxError::unexpected_ident(
+                return Err(LeoError::from(ParserError::unexpected_ident(
                     &x,
                     &["assert", "error", "log"],
                     &function.span,
-                ));
+                )));
             }
         };
         self.expect(Token::RightParen)?;
@@ -303,7 +311,7 @@ impl ParserContext {
     pub fn parse_variable_name(&mut self, span: &SpannedToken) -> SyntaxResult<VariableName> {
         let mutable = self.eat(Token::Mut);
         if let Some(mutable) = &mutable {
-            return Err(SyntaxError::DeprecatedError(DeprecatedError::let_mut_statement(
+            return Err(LeoError::from(ParserError::let_mut_statement(
                 &mutable.span + &span.span,
             )));
         }

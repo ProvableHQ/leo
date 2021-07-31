@@ -14,28 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::{AddressError, BooleanError, FieldError, GroupError, IntegerError};
-use leo_ast::{FormattedError, LeoError};
-
-#[derive(Debug, Error)]
-pub enum ValueError {
-    #[error("{}", _0)]
-    AddressError(#[from] AddressError),
-
-    #[error("{}", _0)]
-    BooleanError(#[from] BooleanError),
-
-    #[error("{}", _0)]
-    Error(#[from] FormattedError),
-
-    #[error("{}", _0)]
-    FieldError(#[from] FieldError),
-
-    #[error("{}", _0)]
-    GroupError(#[from] GroupError),
-
-    #[error("{}", _0)]
-    IntegerError(#[from] IntegerError),
-}
-
-impl LeoError for ValueError {}
+pub mod ast;
+pub use self::ast::*;

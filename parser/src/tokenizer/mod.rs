@@ -28,12 +28,12 @@ pub(crate) use self::token::*;
 pub(crate) mod lexer;
 pub(crate) use self::lexer::*;
 
-use crate::TokenError;
-use leo_ast::Span;
+use leo_errors::{LeoError, ParserError, Span};
+
 use tendril::StrTendril;
 
 /// Creates a new vector of spanned tokens from a given file path and source code text.
-pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken>, TokenError> {
+pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken>, LeoError> {
     let path = Arc::new(path.to_string());
     let mut tokens = vec![];
     let mut index = 0usize;
@@ -42,17 +42,17 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
     while input.len() > index {
         match Token::eat(input.subtendril(index as u32, (input.len() - index) as u32)) {
             (token_len, Some(token)) => {
-                let mut span = Span {
-                    line_start: line_no,
-                    line_stop: line_no,
-                    col_start: index - line_start + 1,
-                    col_stop: index - line_start + token_len + 1,
-                    path: path.clone(),
-                    content: input.subtendril(
+                let mut span = Span::new(
+                    line_no,
+                    line_no,
+                    index - line_start + 1,
+                    index - line_start + token_len + 1,
+                    path.clone(),
+                    input.subtendril(
                         line_start as u32,
                         input[line_start..].find('\n').unwrap_or(input.len() - line_start) as u32,
                     ),
-                };
+                );
                 match &token {
                     Token::CommentLine(_) => {
                         line_no += 1;
@@ -70,7 +70,7 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                     }
                     Token::AddressLit(address) => {
                         if !check_address(address) {
-                            return Err(TokenError::invalid_address_lit(address, &span));
+                            return Err(LeoError::from(ParserError::invalid_address_lit(address, &span)));
                         }
                     }
                     _ => (),
@@ -82,17 +82,21 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                 if token_len == 0 && index == input.len() {
                     break;
                 } else if token_len == 0 {
-                    return Err(TokenError::unexpected_token(&input[index..index + 1], &Span {
-                        line_start: line_no,
-                        line_stop: line_no,
-                        col_start: index - line_start + 1,
-                        col_stop: index - line_start + 2,
-                        path,
-                        content: input.subtendril(
-                            line_start as u32,
-                            input[line_start..].find('\n').unwrap_or_else(|| input.len()) as u32,
+                    return Err(LeoError::from(ParserError::unexpected_token(
+                        input[index..index + 1].to_string(),
+                        "HELP TODO".to_string(),
+                        &Span::new(
+                            line_no,
+                            line_no,
+                            index - line_start + 1,
+                            index - line_start + 2,
+                            path,
+                            input.subtendril(
+                                line_start as u32,
+                                input[line_start..].find('\n').unwrap_or_else(|| input.len()) as u32,
+                            ),
                         ),
-                    }));
+                    )));
                 }
                 if input.as_bytes()[index] == b'\n' {
                     line_no += 1;

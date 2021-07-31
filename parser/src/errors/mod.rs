@@ -13,12 +13,3 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
-pub mod token;
-pub use token::*;
-
-pub mod syntax;
-pub use syntax::*;
-
-pub mod deprecated;
-pub use deprecated::*;

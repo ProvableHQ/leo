@@ -16,14 +16,15 @@
 
 //! Enforces a statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Node, Statement};
+use leo_errors::{CompilerError, LeoError};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
-pub type StatementResult<T> = Result<T, StatementError>;
+pub type StatementResult<T> = Result<T, LeoError>;
 pub type IndicatorAndConstrainedValue<'a, T, U> = (Boolean, ConstrainedValue<'a, T, U>);
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
@@ -81,7 +82,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         }
                     }
                     _ => {
-                        return Err(StatementError::unassigned(&statement.span.clone().unwrap_or_default()));
+                        return Err(LeoError::from(CompilerError::unassigned(&statement.span.clone().unwrap_or_default())));
                     }
                 }
             }

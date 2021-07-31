@@ -14,25 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{io, path::PathBuf};
-
-#[derive(Debug, Error)]
-pub enum OutputFileError {
-    #[error("{}: {}", _0, _1)]
-    Crate(&'static str, String),
-
-    #[error("Cannot read from the provided file path - {:?}", _0)]
-    FileReadError(PathBuf),
-
-    #[error("Cannot remove the provided file - {:?}", _0)]
-    FileRemovalError(PathBuf),
-
-    #[error("writing: {}", _0)]
-    Writing(io::Error),
-}
-
-impl From<std::io::Error> for OutputFileError {
-    fn from(error: std::io::Error) -> Self {
-        OutputFileError::Crate("std::io", error.to_string())
-    }
-}
+pub mod parser;
+pub use self::parser::*;

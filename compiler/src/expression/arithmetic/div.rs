@@ -16,8 +16,8 @@
 
 //! Enforces an arithmetic `/` operator in a resolved Leo program.
 
-use crate::{errors::ExpressionError, value::ConstrainedValue, GroupType};
-use leo_ast::Span;
+use crate::{value::ConstrainedValue, GroupType};
+use leo_errors::{CompilerError, LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -27,7 +27,7 @@ pub fn enforce_div<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     left: ConstrainedValue<'a, F, G>,
     right: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
     match (left, right) {
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             Ok(ConstrainedValue::Integer(num_1.div(cs, num_2, span)?))
@@ -35,9 +35,9 @@ pub fn enforce_div<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
             Ok(ConstrainedValue::Field(field_1.div(cs, &field_2, span)?))
         }
-        (val_1, val_2) => Err(ExpressionError::incompatible_types(
+        (val_1, val_2) => Err(LeoError::from(CompilerError::incompatible_types(
             format!("{} / {}", val_1, val_2,),
             span,
-        )),
+        ))),
     }
 }

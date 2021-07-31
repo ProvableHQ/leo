@@ -26,6 +26,10 @@ harness = false
 path = "../ast"
 version = "1.5.3"
 
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
 [dependencies.lazy_static]
 version = "1.3.0"
 

@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::SpreadOrExpression;
+use leo_errors::{AsgError, LeoError, Span};
 
 use std::cell::Cell;
 
@@ -103,16 +104,16 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayInlineExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayInlineExpression<'a>, AsgConvertError> {
+    ) -> Result<ArrayInlineExpression<'a>, LeoError> {
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     &type_.to_string(),
                     Some("array"),
                     &value.span,
-                ));
+                )));
             }
         };
 
@@ -169,7 +170,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                                 len += spread_len;
                             }
                             type_ => {
-                                return Err(AsgConvertError::unexpected_type(
+                                return Err(LeoError::from(AsgError::unexpected_type(
                                     expected_item
                                         .as_ref()
                                         .map(|x| x.to_string())
@@ -177,21 +178,21 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                                         .unwrap_or("unknown"),
                                     type_.map(|x| x.to_string()).as_deref(),
                                     &value.span,
-                                ));
+                                )));
                             }
                         }
                         Ok((Cell::new(expr), true))
                     }
                 })
-                .collect::<Result<Vec<_>, AsgConvertError>>()?,
+                .collect::<Result<Vec<_>, LeoError>>()?,
         };
         if let Some(expected_len) = expected_len {
             if len != expected_len {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     &*format!("array of length {}", expected_len),
                     Some(&*format!("array of length {}", len)),
                     &value.span,
-                ));
+                )));
             }
         }
         Ok(output)

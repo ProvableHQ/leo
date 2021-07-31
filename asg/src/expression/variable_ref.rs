@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
     ConstValue,
     Constant,
     DefinitionStatement,
@@ -25,11 +24,12 @@ use crate::{
     Node,
     PartialType,
     Scope,
-    Span,
     Statement,
     Type,
     Variable,
 };
+
+use leo_errors::{AsgError, LeoError, Span};
 
 use std::cell::Cell;
 
@@ -135,14 +135,15 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::Identifier,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<&'a Expression<'a>, AsgConvertError> {
+    ) -> Result<&'a Expression<'a>, LeoError> {
         let variable = if value.name.as_ref() == "input" {
             if let Some(input) = scope.resolve_input() {
                 input.container
             } else {
-                return Err(AsgConvertError::InternalError(
-                    "attempted to reference input when none is in scope".to_string(),
-                ));
+                return Err(LeoError::from(AsgError::illegal_input_variable_reference(
+                    "attempted to reference input when none is in scope",
+                    &value.span,
+                )));
             }
         } else {
             match scope.resolve_variable(&value.name) {
@@ -155,7 +156,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
                             value: ConstValue::Address(value.name.clone()),
                         })));
                     }
-                    return Err(AsgConvertError::unresolved_reference(&value.name, &value.span));
+                    return Err(LeoError::from(AsgError::unresolved_reference(&value.name, &value.span)));
                 }
             }
         };
@@ -170,13 +171,13 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
         if let Some(expected_type) = expected_type {
             let type_ = expression
                 .get_type()
-                .ok_or_else(|| AsgConvertError::unresolved_reference(&value.name, &value.span))?;
+                .ok_or_else(|| LeoError::from(AsgError::unresolved_reference(&value.name, &value.span)))?;
             if !expected_type.matches(&type_) {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     &expected_type.to_string(),
                     Some(&*type_.to_string()),
                     &value.span,
-                ));
+                )));
             }
         }
 

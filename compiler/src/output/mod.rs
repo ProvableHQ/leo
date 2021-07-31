@@ -22,9 +22,10 @@ pub use self::output_file::*;
 pub mod output_bytes;
 pub use self::output_bytes::*;
 
-use crate::{errors::OutputBytesError, Char, CharType, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
+use crate::{Char, CharType, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
 use leo_asg::Program;
-use leo_ast::{Parameter, Registers, Span};
+use leo_ast::{Parameter, Registers};
+use leo_errors::{CompilerError, LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 
@@ -88,7 +89,7 @@ impl Output {
         registers: &Registers,
         value: ConstrainedValue<'a, F, G>,
         span: &Span,
-    ) -> Result<Self, OutputBytesError> {
+    ) -> Result<Self, LeoError> {
         let return_values = match value {
             ConstrainedValue::Tuple(tuple) => tuple,
             value => vec![value],
@@ -105,7 +106,7 @@ impl Output {
 
         // Return an error if we do not have enough return registers
         if register_values.len() < return_values.len() {
-            return Err(OutputBytesError::not_enough_registers(span));
+            return Err(LeoError::from(CompilerError::not_enough_registers(span));)
         }
 
         let mut registers = BTreeMap::new();
@@ -118,11 +119,11 @@ impl Output {
             let return_value_type = value.to_type(span)?;
 
             if !register_type.is_assignable_from(&return_value_type) {
-                return Err(OutputBytesError::mismatched_output_types(
+                return Err(LeoError::from(CompilerError::mismatched_output_types(
                     &register_type,
                     &return_value_type,
                     span,
-                ));
+                )));
             }
 
             let value = match value {

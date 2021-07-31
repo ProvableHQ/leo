@@ -16,8 +16,10 @@
 
 //! The in memory stored value for a defined name in a compiled Leo program.
 
-use crate::{errors::ValueError, Address, Char, FieldType, GroupType, Integer};
-use leo_asg::{Circuit, Identifier, Span, Type};
+use crate::{Address, Char, FieldType, GroupType, Integer};
+use leo_asg::{Circuit, Identifier, Type};
+use leo_errors::{CompilerError, LeoError, Span};
+
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
@@ -51,7 +53,7 @@ pub enum ConstrainedValue<'a, F: PrimeField, G: GroupType<F>> {
 }
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedValue<'a, F, G> {
-    pub(crate) fn to_type(&self, span: &Span) -> Result<Type<'a>, ValueError> {
+    pub(crate) fn to_type(&self, span: &Span) -> Result<Type<'a>, LeoError> {
         Ok(match self {
             // Data types
             ConstrainedValue::Address(_address) => Type::Address,

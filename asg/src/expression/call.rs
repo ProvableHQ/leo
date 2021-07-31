@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
     CircuitMember,
     ConstValue,
     Expression,
@@ -26,10 +25,10 @@ use crate::{
     Node,
     PartialType,
     Scope,
-    Span,
     Type,
 };
 pub use leo_ast::{BinaryOperation, Node as AstNode};
+use leo_errors::{AsgError, LeoError, Span};
 
 use std::cell::Cell;
 
@@ -89,13 +88,13 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::CallExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<CallExpression<'a>, AsgConvertError> {
+    ) -> Result<CallExpression<'a>, LeoError> {
         let (target, function) = match &*value.function {
             leo_ast::Expression::Identifier(name) => (
                 None,
                 scope
                     .resolve_function(&name.name)
-                    .ok_or_else(|| AsgConvertError::unresolved_function(&name.name, &name.span))?,
+                    .ok_or_else(|| LeoError::from(AsgError::unresolved_function(&name.name, &name.span)))?,
             ),
             leo_ast::Expression::CircuitMemberAccess(leo_ast::CircuitMemberAccessExpression {
                 circuit: ast_circuit,
@@ -106,37 +105,41 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 let circuit = match target.get_type() {
                     Some(Type::Circuit(circuit)) => circuit,
                     type_ => {
-                        return Err(AsgConvertError::unexpected_type(
+                        return Err(LeoError::from(AsgError::unexpected_type(
                             "circuit",
                             type_.map(|x| x.to_string()).as_deref(),
                             span,
-                        ));
+                        )));
                     }
                 };
                 let circuit_name = circuit.name.borrow().name.clone();
                 let member = circuit.members.borrow();
-                let member = member
-                    .get(name.name.as_ref())
-                    .ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
+                let member = member.get(name.name.as_ref()).ok_or_else(|| {
+                    LeoError::from(AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))
+                })?;
                 match member {
                     CircuitMember::Function(body) => {
                         if body.qualifier == FunctionQualifier::Static {
-                            return Err(AsgConvertError::circuit_static_call_invalid(
+                            return Err(LeoError::from(AsgError::circuit_static_call_invalid(
                                 &circuit_name,
                                 &name.name,
                                 span,
-                            ));
+                            )));
                         } else if body.qualifier == FunctionQualifier::MutSelfRef && !target.is_mut_ref() {
-                            return Err(AsgConvertError::circuit_member_mut_call_invalid(
+                            return Err(LeoError::from(AsgError::circuit_member_mut_call_invalid(
                                 &circuit_name,
                                 &name.name,
                                 span,
-                            ));
+                            )));
                         }
                         (Some(target), *body)
                     }
                     CircuitMember::Variable(_) => {
-                        return Err(AsgConvertError::circuit_variable_call(&circuit_name, &name.name, span));
+                        return Err(LeoError::from(AsgError::circuit_variable_call(
+                            &circuit_name,
+                            &name.name,
+                            span,
+                        )));
                     }
                 }
             }
@@ -146,56 +149,61 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 span,
             }) => {
                 let circuit = if let leo_ast::Expression::Identifier(circuit_name) = &**ast_circuit {
-                    scope
-                        .resolve_circuit(&circuit_name.name)
-                        .ok_or_else(|| AsgConvertError::unresolved_circuit(&circuit_name.name, &circuit_name.span))?
+                    scope.resolve_circuit(&circuit_name.name).ok_or_else(|| {
+                        LeoError::from(AsgError::unresolved_circuit(&circuit_name.name, &circuit_name.span))
+                    })?
                 } else {
-                    return Err(AsgConvertError::unexpected_type("circuit", None, span));
+                    return Err(LeoError::from(AsgError::unexpected_type("circuit", None, span)));
                 };
                 let circuit_name = circuit.name.borrow().name.clone();
 
                 let member = circuit.members.borrow();
-                let member = member
-                    .get(name.name.as_ref())
-                    .ok_or_else(|| AsgConvertError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
+                let member = member.get(name.name.as_ref()).ok_or_else(|| {
+                    LeoError::from(AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))
+                })?;
                 match member {
                     CircuitMember::Function(body) => {
                         if body.qualifier != FunctionQualifier::Static {
-                            return Err(AsgConvertError::circuit_member_call_invalid(
+                            return Err(LeoError::from(AsgError::circuit_member_call_invalid(
                                 &circuit_name,
                                 &name.name,
                                 span,
-                            ));
+                            )));
                         }
                         (None, *body)
                     }
                     CircuitMember::Variable(_) => {
-                        return Err(AsgConvertError::circuit_variable_call(&circuit_name, &name.name, span));
+                        return Err(LeoError::from(AsgError::circuit_variable_call(
+                            &circuit_name,
+                            &name.name,
+                            span,
+                        )));
                     }
                 }
             }
             _ => {
-                return Err(AsgConvertError::illegal_ast_structure(
+                return Err(LeoError::from(AsgError::illegal_ast_structure(
                     "non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess as call target",
-                ));
+                    &value.span,
+                )));
             }
         };
         if let Some(expected) = expected_type {
             let output: Type = function.output.clone();
             if !expected.matches(&output) {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(LeoError::from(AsgError::unexpected_type(
                     &expected.to_string(),
                     Some(&*output.to_string()),
                     &value.span,
-                ));
+                )));
             }
         }
         if value.arguments.len() != function.arguments.len() {
-            return Err(AsgConvertError::unexpected_call_argument_count(
+            return Err(LeoError::from(AsgError::unexpected_call_argument_count(
                 function.arguments.len(),
                 value.arguments.len(),
                 &value.span,
-            ));
+            )));
         }
 
         let arguments = value
@@ -206,14 +214,14 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 let argument = argument.get().borrow();
                 let converted = <&Expression<'a>>::from_ast(scope, expr, Some(argument.type_.clone().partial()))?;
                 if argument.const_ && !converted.is_consty() {
-                    return Err(AsgConvertError::unexpected_nonconst(expr.span()));
+                    return Err(LeoError::from(AsgError::unexpected_nonconst(expr.span())));
                 }
                 Ok(Cell::new(converted))
             })
-            .collect::<Result<Vec<_>, AsgConvertError>>()?;
+            .collect::<Result<Vec<_>, LeoError>>()?;
 
         if function.is_test() {
-            return Err(AsgConvertError::call_test_function(&value.span));
+            return Err(LeoError::from(AsgError::call_test_function(&value.span)));
         }
         Ok(CallExpression {
             parent: Cell::new(None),

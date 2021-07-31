@@ -16,8 +16,10 @@
 
 //! Enforces an array index expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType, Integer};
-use leo_asg::{Expression, Span};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType, Integer};
+use leo_asg::Expression;
+use leo_errors::{CompilerError, LeoError, Span};
+
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -28,10 +30,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         index: &'a Expression<'a>,
         span: &Span,
-    ) -> Result<Integer, ExpressionError> {
+    ) -> Result<Integer, LeoError> {
         match self.enforce_expression(cs, index)? {
             ConstrainedValue::Integer(number) => Ok(number),
-            value => Err(ExpressionError::invalid_index(value.to_string(), span)),
+            value => Err(LeoError::from(CompilerError::invalid_index(value.to_string(), span))),
         }
     }
 }

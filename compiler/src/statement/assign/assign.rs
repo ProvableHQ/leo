@@ -16,8 +16,10 @@
 
 //! Enforces an assign statement in a compiled Leo program.
 
-use crate::{arithmetic::*, errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{AssignOperation, AssignStatement, Span};
+use crate::{arithmetic::*, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{AssignOperation, AssignStatement};
+use leo_errors::{CompilerError, LeoError};
+
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{boolean::Boolean, traits::select::CondSelectGadget};
@@ -30,7 +32,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         indicator: &Boolean,
         statement: &AssignStatement<'a>,
-    ) -> Result<(), StatementError> {
+    ) -> Result<(), LeoError> {
         // Get the name of the variable we are assigning to
         let new_value = self.enforce_expression(cs, statement.value.get())?;
 
@@ -47,7 +49,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         target: &mut ConstrainedValue<'a, F, G>,
         new_value: ConstrainedValue<'a, F, G>,
         span: &Span,
-    ) -> Result<(), StatementError> {
+    ) -> Result<(), LeoError> {
         let new_value = match operation {
             AssignOperation::Assign => new_value,
             AssignOperation::Add => enforce_add(cs, target.clone(), new_value, span)?,
@@ -58,7 +60,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             _ => unimplemented!("unimplemented assign operator"),
         };
         let selected_value = ConstrainedValue::conditionally_select(cs.ns(|| scope), condition, &new_value, target)
-            .map_err(|_| StatementError::select_fail(new_value.to_string(), target.to_string(), span))?;
+            .map_err(|_| LeoError::from(CompilerError::select_fail(new_value.to_string(), target.to_string(), span)))?;
 
         *target = selected_value;
         Ok(())

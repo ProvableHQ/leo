@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{common::span::Span, groups::GroupCoordinate};
+use crate::groups::GroupCoordinate;
+use leo_errors::Span;
 use leo_input::values::{
     GroupRepresentation as InputGroupRepresentation,
     GroupTuple as InputGroupTuple,

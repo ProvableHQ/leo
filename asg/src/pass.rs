@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Program;
-pub use leo_ast::FormattedError;
+use leo_errors::LeoError;
 
 pub trait AsgPass<'a> {
-    fn do_pass(asg: Program<'a>) -> Result<Program<'a>, FormattedError>;
+    fn do_pass(asg: Program<'a>) -> Result<Program<'a>, LeoError>;
 }

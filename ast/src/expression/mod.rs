@@ -20,15 +20,15 @@ use crate::{
     GroupValue,
     Identifier,
     IntegerType,
+    Node,
     PositiveNumber,
-    Span,
     SpreadOrExpression,
 };
 
+use leo_errors::Span;
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
-
-use crate::Node;
 
 mod binary;
 pub use binary::*;

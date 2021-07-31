@@ -14,18 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    AsgContextInner,
-    AsgConvertError,
-    Circuit,
-    Expression,
-    Function,
-    PartialType,
-    Scope,
-    Span,
-    Statement,
-    Variable,
-};
+use crate::{AsgContextInner, Circuit, Expression, Function, PartialType, Scope, Statement, Variable};
+
+use leo_errors::{LeoError, Span};
 
 /// A node in the abstract semantic graph.
 pub trait Node {
@@ -35,11 +26,7 @@ pub trait Node {
 pub(super) trait FromAst<'a, T: leo_ast::Node + 'static>: Sized {
     // expected_type contract: if present, output expression must be of type expected_type.
     // type of an element may NEVER be None unless it is functionally a non-expression. (static call targets, function ref call targets are not expressions)
-    fn from_ast(
-        scope: &'a Scope<'a>,
-        value: &T,
-        expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError>;
+    fn from_ast(scope: &'a Scope<'a>, value: &T, expected_type: Option<PartialType<'a>>) -> Result<Self, LeoError>;
 }
 
 pub enum ArenaNode<'a> {

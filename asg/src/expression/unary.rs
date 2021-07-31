@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 pub use leo_ast::UnaryOperation;
+use leo_errors::{AsgError, LeoError, Span};
 
 use std::cell::Cell;
 
@@ -89,16 +90,16 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::UnaryExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<UnaryExpression<'a>, AsgConvertError> {
+    ) -> Result<UnaryExpression<'a>, LeoError> {
         let expected_type = match value.op {
             UnaryOperation::Not => match expected_type.map(|x| x.full()).flatten() {
                 Some(Type::Boolean) | None => Some(Type::Boolean),
                 Some(type_) => {
-                    return Err(AsgConvertError::unexpected_type(
+                    return Err(LeoError::from(AsgError::unexpected_type(
                         &type_.to_string(),
                         Some(&*Type::Boolean.to_string()),
                         &value.span,
-                    ));
+                    )));
                 }
             },
             UnaryOperation::Negate => match expected_type.map(|x| x.full()).flatten() {
@@ -107,22 +108,22 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
                 Some(Type::Field) => Some(Type::Field),
                 None => None,
                 Some(type_) => {
-                    return Err(AsgConvertError::unexpected_type(
+                    return Err(LeoError::from(AsgError::unexpected_type(
                         &type_.to_string(),
                         Some("integer, group, field"),
                         &value.span,
-                    ));
+                    )));
                 }
             },
             UnaryOperation::BitNot => match expected_type.map(|x| x.full()).flatten() {
                 Some(type_ @ Type::Integer(_)) => Some(type_),
                 None => None,
                 Some(type_) => {
-                    return Err(AsgConvertError::unexpected_type(
+                    return Err(LeoError::from(AsgError::unexpected_type(
                         &type_.to_string(),
                         Some("integer"),
                         &value.span,
-                    ));
+                    )));
                 }
             },
         };
@@ -137,7 +138,7 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
                 })
                 .unwrap_or(false);
             if is_expr_unsigned {
-                return Err(AsgConvertError::unsigned_negation(&value.span));
+                return Err(LeoError::from(AsgError::unsigned_negation(&value.span)));
             }
         }
         Ok(UnaryExpression {

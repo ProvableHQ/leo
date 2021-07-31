@@ -16,6 +16,8 @@
 
 use tendril::format_tendril;
 
+use leo_errors::{LeoError, ParserError};
+
 use crate::KEYWORD_TOKENS;
 
 use super::*;
@@ -46,9 +48,7 @@ impl ParserContext {
                     functions.insert(id, function);
                 }
                 Token::Ident(ident) if ident.as_ref() == "test" => {
-                    return Err(SyntaxError::DeprecatedError(DeprecatedError::test_function(
-                        &token.span,
-                    )));
+                    return Err(LeoError::from(ParserError::test_function(&token.span)));
                     // self.expect(Token::Test)?;
                     // let (id, function) = self.parse_function_declaration()?;
                     // tests.insert(id, TestFunction {
@@ -61,17 +61,21 @@ impl ParserContext {
                     global_consts.insert(name, global_const);
                 }
                 _ => {
-                    return Err(SyntaxError::unexpected(
-                        &token.token,
-                        &[
+                    return Err(LeoError::from(ParserError::unexpected(
+                        token.token.to_string(),
+                        [
                             Token::Import,
                             Token::Circuit,
                             Token::Function,
                             Token::Ident("test".into()),
                             Token::At,
-                        ],
+                        ]
+                        .iter()
+                        .map(|x| format!("'{}'", x))
+                        .collect::<Vec<_>>()
+                        .join(", "),
                         &token.span,
-                    ));
+                    )));
                 }
             }
         }
@@ -92,9 +96,7 @@ impl ParserContext {
         let start = self.expect(Token::At)?;
         let name = self.expect_ident()?;
         if name.name.as_ref() == "context" {
-            return Err(SyntaxError::DeprecatedError(DeprecatedError::context_annotation(
-                &name.span,
-            )));
+            return Err(LeoError::from(ParserError::context_annotation(&name.span)));
         }
 
         assert_no_whitespace(&start, &name.span, &name.name, "@")?;
@@ -106,11 +108,15 @@ impl ParserContext {
             loop {
                 if let Some(end) = self.eat(Token::RightParen) {
                     if comma {
-                        return Err(SyntaxError::unexpected(
-                            &Token::RightParen,
-                            &[Token::Ident("identifier".into()), Token::Int("number".into())],
+                        return Err(LeoError::from(ParserError::unexpected(
+                            Token::RightParen.to_string(),
+                            [Token::Ident("identifier".into()), Token::Int("number".into())]
+                                .iter()
+                                .map(|x| format!("'{}'", x))
+                                .collect::<Vec<_>>()
+                                .join(", "),
                             &end.span,
-                        ));
+                        )));
                     }
                     end_span = end.span;
                     break;
@@ -122,7 +128,11 @@ impl ParserContext {
                     args.push(int.value);
                 } else {
                     let token = self.peek()?;
-                    return Err(SyntaxError::unexpected_str(&token.token, "ident or int", &token.span));
+                    return Err(LeoError::from(ParserError::unexpected_str(
+                        token.token.to_string(),
+                        "ident or int",
+                        &token.span,
+                    )));
                 }
                 if self.eat(Token::Comma).is_none() && !comma {
                     end_span = self.expect(Token::RightParen)?;
@@ -159,7 +169,7 @@ impl ParserContext {
         }
 
         if out.is_empty() {
-            return Err(SyntaxError::invalid_import_list(span));
+            return Err(LeoError::from(ParserError::invalid_import_list(span)));
         }
 
         Ok(out)
@@ -238,7 +248,11 @@ impl ParserContext {
 
         // Return an error if the package name contains a keyword.
         if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.to_string() == base.name.as_ref()) {
-            return Err(SyntaxError::unexpected_str(token, "package name", &base.span));
+            return Err(LeoError::from(ParserError::unexpected_str(
+                token.to_string(),
+                "package name",
+                &base.span,
+            )));
         }
 
         // Return an error if the package name contains invalid characters.
@@ -247,7 +261,7 @@ impl ParserContext {
             .chars()
             .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit() || x == '-' || x == '_')
         {
-            return Err(SyntaxError::invalid_package_name(&base.span));
+            return Err(LeoError::from(ParserError::invalid_package_name(&base.span)));
         }
 
         // Return the package name.
@@ -309,14 +323,14 @@ impl ParserContext {
                 let peeked = &self.peek()?;
                 if peeked.token == Token::Semicolon {
                     if commas {
-                        return Err(SyntaxError::mixed_commas_and_semicolons(&peeked.span));
+                        return Err(LeoError::from(ParserError::mixed_commas_and_semicolons(&peeked.span)));
                     }
 
                     semi_colons = true;
                     self.expect(Token::Semicolon)?;
                 } else {
                     if semi_colons {
-                        return Err(SyntaxError::mixed_commas_and_semicolons(&peeked.span));
+                        return Err(LeoError::from(ParserError::mixed_commas_and_semicolons(&peeked.span)));
                     }
 
                     commas = true;
@@ -366,11 +380,15 @@ impl ParserContext {
             let function = self.parse_function_declaration()?;
             Ok(CircuitMember::CircuitFunction(function.1))
         } else {
-            Err(SyntaxError::unexpected(
-                peeked_token,
-                &[Token::Function, Token::At],
+            Err(LeoError::from(ParserError::unexpected(
+                peeked_token.to_string(),
+                [Token::Function, Token::At]
+                    .iter()
+                    .map(|x| format!("'{}'", x))
+                    .collect::<Vec<_>>()
+                    .join(", "),
                 &peeked.span,
-            ))
+            )))
         }
     }
 
@@ -421,7 +439,7 @@ impl ParserContext {
         }
 
         if let Some(mutable) = &mutable {
-            return Err(SyntaxError::DeprecatedError(DeprecatedError::mut_function_input(
+            return Err(LeoError::from(ParserError::mut_function_input(
                 &mutable.span + &name.span,
             )));
         }

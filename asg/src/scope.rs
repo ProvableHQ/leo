@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgContext, AsgConvertError, Circuit, DefinitionStatement, Function, Input, Type, Variable};
+use crate::{AsgContext, Circuit, DefinitionStatement, Function, Input, Type, Variable};
+use leo_errors::{AsgError, LeoError, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -173,7 +174,7 @@ impl<'a> Scope<'a> {
     ///
     /// Returns the type returned by the current scope.
     ///
-    pub fn resolve_ast_type(&self, type_: &leo_ast::Type) -> Result<Type<'a>, AsgConvertError> {
+    pub fn resolve_ast_type(&self, type_: &leo_ast::Type, span: &Span) -> Result<Type<'a>, LeoError> {
         use leo_ast::Type::*;
         Ok(match type_ {
             Address => Type::Address,
@@ -183,12 +184,12 @@ impl<'a> Scope<'a> {
             Group => Type::Group,
             IntegerType(int_type) => Type::Integer(int_type.clone()),
             Array(sub_type, dimensions) => {
-                let mut item = Box::new(self.resolve_ast_type(&*sub_type)?);
+                let mut item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
                 for dimension in dimensions.0.iter().rev() {
                     let dimension = dimension
                         .value
                         .parse::<usize>()
-                        .map_err(|_| AsgConvertError::parse_index_error())?;
+                        .map_err(|_| LeoError::from(AsgError::parse_index_error(span)))?;
                     item = Box::new(Type::Array(item, dimension));
                 }
                 *item
@@ -196,20 +197,20 @@ impl<'a> Scope<'a> {
             Tuple(sub_types) => Type::Tuple(
                 sub_types
                     .iter()
-                    .map(|x| self.resolve_ast_type(x))
-                    .collect::<Result<Vec<_>, AsgConvertError>>()?,
+                    .map(|x| self.resolve_ast_type(x, span))
+                    .collect::<Result<Vec<_>, LeoError>>()?,
             ),
             Circuit(name) if name.name.as_ref() == "Self" => Type::Circuit(
                 self.resolve_circuit_self()
-                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
+                    .ok_or_else(|| LeoError::from(AsgError::unresolved_circuit(&name.name, &name.span)))?,
             ),
             SelfType => Type::Circuit(
                 self.resolve_circuit_self()
-                    .ok_or_else(AsgConvertError::reference_self_outside_circuit)?,
+                    .ok_or_else(|| LeoError::from(AsgError::reference_self_outside_circuit(span)))?,
             ),
             Circuit(name) => Type::Circuit(
                 self.resolve_circuit(&name.name)
-                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
+                    .ok_or_else(|| LeoError::from(AsgError::unresolved_circuit(&name.name, &name.span)))?,
             ),
         })
     }

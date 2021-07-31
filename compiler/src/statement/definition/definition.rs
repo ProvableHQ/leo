@@ -16,8 +16,9 @@
 
 //! Enforces a definition statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_asg::{DefinitionStatement, Span, Variable};
+use crate::{program::ConstrainedProgram, ConstrainedValue, GroupType};
+use leo_asg::{DefinitionStatement, Variable};
+use leo_errors::{CompilerError, LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -28,13 +29,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         variable_names: &[&'a Variable<'a>],
         values: Vec<ConstrainedValue<'a, F, G>>,
         span: &Span,
-    ) -> Result<(), StatementError> {
+    ) -> Result<(), LeoError> {
         if values.len() != variable_names.len() {
-            return Err(StatementError::invalid_number_of_definitions(
+            return Err(LeoError::from(CompilerError::invalid_number_of_definitions(
                 values.len(),
                 variable_names.len(),
                 span,
-            ));
+            )));
         }
 
         for (variable, value) in variable_names.iter().zip(values.into_iter()) {
@@ -49,7 +50,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         statement: &DefinitionStatement<'a>,
-    ) -> Result<(), StatementError> {
+    ) -> Result<(), LeoError> {
         let num_variables = statement.variables.len();
         let expression = self.enforce_expression(cs, statement.value.get())?;
 
@@ -63,7 +64,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             let values = match expression {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
-                value => return Err(StatementError::multiple_definition(value.to_string(), &span)),
+                value => return Err(LeoError::from(CompilerError::multiple_definition(value.to_string(), &span))),
             };
 
             self.enforce_multiple_definition(&statement.variables[..], values, &span)

@@ -16,8 +16,9 @@
 
 //! A data type that represents members in the group formed by the set of affine points on a curve.
 
-use crate::errors::GroupError;
-use leo_asg::{GroupValue, Span};
+use leo_asg::GroupValue;
+use leo_errors::{LeoError, Span};
+
 
 use snarkvm_fields::{Field, One};
 use snarkvm_gadgets::{
@@ -45,13 +46,13 @@ pub trait GroupType<F: Field>:
     + ToBitsBEGadget<F>
     + ToBytesGadget<F>
 {
-    fn constant(value: &GroupValue, span: &Span) -> Result<Self, GroupError>;
+    fn constant(value: &GroupValue, span: &Span) -> Result<Self, LeoError>;
 
-    fn to_allocated<CS: ConstraintSystem<F>>(&self, cs: CS, span: &Span) -> Result<Self, GroupError>;
+    fn to_allocated<CS: ConstraintSystem<F>>(&self, cs: CS, span: &Span) -> Result<Self, LeoError>;
 
-    fn negate<CS: ConstraintSystem<F>>(&self, cs: CS, span: &Span) -> Result<Self, GroupError>;
+    fn negate<CS: ConstraintSystem<F>>(&self, cs: CS, span: &Span) -> Result<Self, LeoError>;
 
-    fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, GroupError>;
+    fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, LeoError>;
 
-    fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, GroupError>;
+    fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, LeoError>;
 }

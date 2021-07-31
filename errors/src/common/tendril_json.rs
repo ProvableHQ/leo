@@ -14,23 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod address;
-pub use self::address::*;
+use serde::{Deserialize, Deserializer, Serializer};
+use tendril::StrTendril;
 
-pub mod boolean;
-pub use self::boolean::*;
+pub fn serialize<S: Serializer>(tendril: &StrTendril, serializer: S) -> Result<S::Ok, S::Error> {
+    serializer.serialize_str(&tendril[..])
+}
 
-pub mod char;
-pub use self::char::*;
-
-pub mod field;
-pub use self::field::*;
-
-pub mod group;
-pub use self::group::*;
-
-pub mod integer;
-pub use self::integer::*;
-
-pub mod value;
-pub use self::value::*;
+pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<StrTendril, D::Error> {
+    Ok(String::deserialize(deserializer)?.into())
+}

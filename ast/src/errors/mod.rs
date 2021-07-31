@@ -13,20 +13,3 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
-pub mod ast;
-pub use ast::*;
-
-pub mod canonicalization;
-pub use canonicalization::*;
-
-pub mod combiner;
-pub use combiner::*;
-
-pub mod error;
-pub use error::*;
-
-pub mod reducer;
-pub use reducer::*;
-
-pub trait LeoError {}

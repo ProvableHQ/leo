@@ -21,9 +21,6 @@
 #![allow(clippy::module_inception)]
 #![allow(clippy::upper_case_acronyms)]
 
-#[macro_use]
-extern crate thiserror;
-
 pub mod compiler;
 
 pub mod console;
@@ -33,8 +30,6 @@ pub mod constraints;
 pub use constraints::*;
 
 pub mod definition;
-
-pub mod errors;
 
 pub mod expression;
 pub use expression::*;

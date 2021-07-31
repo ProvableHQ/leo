@@ -40,7 +40,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     fn prepare_mut_access(
         out: &mut Vec<AssignAccess<'a>>,
         expr: &'a Expression<'a>,
-    ) -> Result<Option<&'a Variable<'a>>, StatementError> {
+    ) -> Result<Option<&'a Variable<'a>>, LeoError> {
         match expr {
             Expression::ArrayRangeAccess(ArrayRangeAccessExpression { array, left, right, .. }) => {
                 let inner = Self::prepare_mut_access(out, array.get())?;
@@ -84,7 +84,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         assignee: &'a Expression<'a>,
         target_value: ConstrainedValue<'a, F, G>,
         indicator: &Boolean,
-    ) -> Result<bool, StatementError> {
+    ) -> Result<bool, LeoError> {
         let mut accesses = vec![];
         let target = Self::prepare_mut_access(&mut accesses, assignee)?;
         if target.is_none() {
