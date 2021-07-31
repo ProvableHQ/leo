@@ -39,6 +39,9 @@ pub use self::parser::*;
 pub mod snarkvm;
 pub use self::snarkvm::*;
 
+pub mod state;
+pub use self::state::*;
+
 #[macro_use]
 extern crate thiserror;
 

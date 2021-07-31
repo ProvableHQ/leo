@@ -14,30 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ErrorCode, FormattedError, LeoErrorCode, new_from_span, Span};
+use crate::create_errors;
 
-#[derive(Debug, Error)]
-pub enum StateError {
-    #[error(transparent)]
-    FormattedError(#[from] FormattedError),
-}
-
-impl LeoErrorCode for StateError {}
-
-impl ErrorCode for StateError {
-    #[inline(always)]
-    fn exit_code_mask() -> u32 {
-        6000
-    }
-
-    #[inline(always)]
-    fn error_type() -> String {
-        "P".to_string()
-    }
-
-    new_from_span!();
-}
-
-impl StateError {
-    
-}
+create_errors!(
+    PackageError,
+    exit_code_mask: 6000u32,
+    error_code_prefix: "S",
+);
