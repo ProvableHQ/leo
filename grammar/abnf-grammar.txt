@@ -611,6 +611,10 @@ token = keyword
       / annotation-name
       / symbol
 
+; Tokens, comments, and whitespace are lexemes, i.e. lexical units.
+
+lexeme = token / comment / whitespace
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Syntactic Grammar
