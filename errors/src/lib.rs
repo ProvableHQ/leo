@@ -20,6 +20,7 @@ pub use self::asg::*;
 pub mod ast;
 pub use self::ast::*;
 
+#[macro_use]
 pub mod common;
 pub use self::common::*;
 
@@ -28,6 +29,9 @@ pub use self::compiler::*;
 
 pub mod import;
 pub use self::import::*;
+
+pub mod package;
+pub use self::package::*;
 
 pub mod parser;
 pub use self::parser::*;

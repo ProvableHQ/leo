@@ -440,7 +440,7 @@ impl ParserContext {
 
         if let Some(mutable) = &mutable {
             return Err(LeoError::from(ParserError::mut_function_input(
-                &mutable.span + &name.span,
+                &(&mutable.span + &name.span),
             )));
         }
 

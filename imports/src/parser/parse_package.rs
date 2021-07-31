@@ -83,9 +83,9 @@ impl<'a> ImportParser<'a> {
 
         // Get a vector of all packages in the source directory.
         let entries = fs::read_dir(path)
-            .map_err(|error| LeoError::from(ImportError::directory_error(error, span, &error_path)))?
+            .map_err(|error| LeoError::from(ImportError::directory_error(error, &error_path, span)))?
             .collect::<Result<Vec<_>, std::io::Error>>()
-            .map_err(|error| LeoError::from(ImportError::directory_error(error, span, &error_path)))?;
+            .map_err(|error| LeoError::from(ImportError::directory_error(error, &error_path, span)))?;
 
         // Check if the imported package name is in the source directory.
         let matched_source_entry = entries.into_iter().find(|entry| {
@@ -100,9 +100,9 @@ impl<'a> ImportParser<'a> {
         if imports_directory.exists() {
             // Get a vector of all packages in the imports directory.
             let entries = fs::read_dir(imports_directory)
-                .map_err(|error| LeoError::from(ImportError::directory_error(error, span, &error_path)))?
+                .map_err(|error| LeoError::from(ImportError::directory_error(error, &error_path, span)))?
                 .collect::<Result<Vec<_>, std::io::Error>>()
-                .map_err(|error| LeoError::from(ImportError::directory_error(error, span, &error_path)))?;
+                .map_err(|error| LeoError::from(ImportError::directory_error(error, &error_path, span)))?;
 
             // Check if the imported package name is in the imports directory.
             let matched_import_entry = entries

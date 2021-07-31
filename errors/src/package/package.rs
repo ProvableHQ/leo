@@ -14,11 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod directory;
-pub use directory::*;
+use crate::create_errors;
 
-pub mod lib;
-pub use lib::*;
-
-pub mod main;
-pub use main::*;
+create_errors!(
+    PackageError,
+    exit_code_mask: 4000u32,
+    error_code_prefix: "PA",
+);

@@ -14,68 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ErrorCode, FormattedError, LeoErrorCode, Span};
+use crate::create_errors;
 
-#[derive(Debug, Error)]
-pub enum AstError {
-    #[error(transparent)]
-    FormattedError(#[from] FormattedError),
-}
+create_errors!(
+    AstError,
+    exit_code_mask: 1000u32,
+    error_code_prefix: "T",
 
-impl LeoErrorCode for AstError {}
-
-impl ErrorCode for AstError {
-    #[inline(always)]
-    fn exit_code_mask() -> u32 {
-        1000
+    big_self_outside_of_circuit {
+        args: (),
+        msg: "cannot call keyword `Self` outside of a circuit function",
+        help: None,
     }
 
-    #[inline(always)]
-    fn error_type() -> String {
-        "T".to_string()
+    invalid_array_dimension_size {
+        args: (),
+        msg: "received dimension size of 0, expected it to be 1 or larger.",
+        help: None,
     }
 
-    fn new_from_span(message: String, help: Option<String>, exit_code: u32, span: &Span) -> Self {
-        Self::FormattedError(FormattedError::new_from_span(
-            message,
-            help,
-            exit_code ^ Self::exit_code_mask(),
-            Self::code_identifier(),
-            Self::error_type(),
-            span,
-        ))
-    }
-}
-
-impl AstError {
-    pub fn big_self_outside_of_circuit(span: &Span) -> Self {
-        let message = "cannot call keyword `Self` outside of a circuit function".to_string();
-
-        Self::new_from_span(message, None, 1, span)
+    asg_statement_not_block {
+        args: (),
+        msg: "AstStatement should be be a block",
+        help: None,
     }
 
-    pub fn invalid_array_dimension_size(span: &Span) -> Self {
-        let message = "received dimension size of 0, expected it to be 1 or larger.".to_string();
-
-        Self::new_from_span(message, None, 2, span)
+    empty_string {
+        args: (),
+        msg: "Cannot constrcut an empty string: it has the type of [char; 0] which is not possible.",
+        help: None,
     }
 
-    pub fn asg_statement_not_block(span: &Span) -> Self {
-        let message = "AstStatement should be be a block".to_string();
-
-        Self::new_from_span(message, None, 3, span)
+    impossible_console_assert_call {
+        args: (),
+        msg: "Console::Assert cannot be matched here, its handled in another case.",
+        help: None,
     }
-
-    pub fn empty_string(span: &Span) -> Self {
-        let message =
-            "Cannot constrcut an empty string: it has the type of [char; 0] which is not possible.".to_string();
-
-        Self::new_from_span(message, None, 5, span)
-    }
-
-    pub fn impossible_console_assert_call(span: &Span) -> Self {
-        let message = "Console::Assert cannot be matched here, its handled in another case.".to_string();
-
-        Self::new_from_span(message, None, 6, span)
-    }
-}
+);

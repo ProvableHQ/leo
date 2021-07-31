@@ -14,395 +14,323 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ErrorCode, FormattedError, LeoErrorCode, Span};
+use crate::create_errors;
 
-#[derive(Debug, Error)]
-pub enum AsgError {
-    #[error(transparent)]
-    FormattedError(#[from] FormattedError),
-}
+create_errors!(
+    AsgError,
+    exit_code_mask: 0u32,
+    error_code_prefix: "G",
 
-impl LeoErrorCode for AsgError {}
-
-impl ErrorCode for AsgError {
-    #[inline(always)]
-    fn exit_code_mask() -> u32 {
-        2000
+    unresolved_circuit {
+        args: (name: &str),
+        msg: format!("failed to resolve circuit: '{}'", name),
+        help: None,
     }
 
-    #[inline(always)]
-    fn error_type() -> String {
-        "G".to_string()
+    unresolved_import {
+        args: (name: &str),
+        msg: format!("failed to resolve import: '{}'", name),
+        help: None,
     }
 
-    fn new_from_span(message: String, help: Option<String>, exit_code: u32, span: &Span) -> Self {
-        Self::FormattedError(FormattedError::new_from_span(
-            message,
-            help,
-            exit_code ^ Self::exit_code_mask(),
-            Self::code_identifier(),
-            Self::error_type(),
-            span,
-        ))
-    }
-}
-
-impl AsgError {
-    pub fn unresolved_circuit(name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("failed to resolve circuit: '{}'", name), None, 0, span)
+    unresolved_circuit_member {
+        args: (circuit_name: &str, name: &str),
+        msg: format!(
+            "illegal reference to non-existant member '{}' of circuit '{}'",
+            name, circuit_name
+        ),
+        help: None,
     }
 
-    pub fn unresolved_import(name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("failed to resolve import: '{}'", name), None, 1, span)
+    missing_circuit_member {
+        args: (circuit_name: &str, name: &str),
+        msg: format!(
+            "missing circuit member '{}' for initialization of circuit '{}'",
+            name, circuit_name
+        ),
+        help: None,
     }
 
-    pub fn unresolved_circuit_member(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "illegal reference to non-existant member '{}' of circuit '{}'",
-                name, circuit_name
-            ),
-            None,
-            2,
-            span,
-        )
+    overridden_circuit_member {
+        args: (circuit_name: &str, name: &str),
+        msg: format!(
+            "cannot declare circuit member '{}' more than once for initialization of circuit '{}'",
+            name, circuit_name
+        ),
+        help: None,
     }
 
-    pub fn missing_circuit_member(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "missing circuit member '{}' for initialization of circuit '{}'",
-                name, circuit_name
-            ),
-            None,
-            3,
-            span,
-        )
+    redefined_circuit_member {
+        args: (circuit_name: &str, name: &str),
+        msg: format!(
+            "cannot declare circuit member '{}' multiple times in circuit '{}'",
+            name, circuit_name
+        ),
+        help: None,
     }
 
-    pub fn overridden_circuit_member(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "cannot declare circuit member '{}' more than once for initialization of circuit '{}'",
-                name, circuit_name
-            ),
-            None,
-            4,
-            span,
-        )
+    extra_circuit_member {
+        args: (circuit_name: &str, name: &str),
+        msg: format!(
+            "extra circuit member '{}' for initialization of circuit '{}' is not allowed",
+            name, circuit_name
+        ),
+        help: None,
     }
 
-    pub fn redefined_circuit_member(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "cannot declare circuit member '{}' multiple times in circuit '{}'",
-                name, circuit_name
-            ),
-            None,
-            5,
-            span,
-        )
+    illegal_function_assign {
+        args: (name: &str),
+        msg: format!("attempt to assign to function '{}'", name),
+        help: None,
     }
 
-    pub fn extra_circuit_member(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "extra circuit member '{}' for initialization of circuit '{}' is not allowed",
-                name, circuit_name
-            ),
-            None,
-            6,
-            span,
-        )
+    circuit_variable_call {
+        args: (circuit_name: &str, name: &str),
+        msg: format!("cannot call variable member '{}' of circuit '{}'", name, circuit_name),
+        help: None,
     }
 
-    pub fn illegal_function_assign(name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("attempt to assign to function '{}'", name), None, 7, span)
+    circuit_static_call_invalid {
+        args: (circuit_name: &str, name: &str),
+        msg: format!(
+            "cannot call static function '{}' of circuit '{}' from target",
+            name, circuit_name
+        ),
+        help: None,
     }
 
-    pub fn circuit_variable_call(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("cannot call variable member '{}' of circuit '{}'", name, circuit_name),
-            None,
-            8,
-            span,
-        )
+    circuit_member_mut_call_invalid {
+        args: (circuit_name: &str, name: &str),
+        msg: format!(
+            "cannot call mutable member function '{}' of circuit '{}' from immutable context",
+            name, circuit_name
+        ),
+        help: None,
     }
 
-    pub fn circuit_static_call_invalid(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "cannot call static function '{}' of circuit '{}' from target",
-                name, circuit_name
-            ),
-            None,
-            9,
-            span,
-        )
+    circuit_member_call_invalid {
+        args: (circuit_name: &str, name: &str),
+        msg: format!(
+            "cannot call member function '{}' of circuit '{}' from static context",
+            name, circuit_name
+        ),
+        help: None,
     }
 
-    pub fn circuit_member_mut_call_invalid(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "cannot call mutable member function '{}' of circuit '{}' from immutable context",
-                name, circuit_name
-            ),
-            None,
-            10,
-            span,
-        )
+    circuit_function_ref {
+        args: (circuit_name: &str, name: &str),
+        msg: format!(
+            "cannot reference function member '{}' of circuit '{}' as value",
+            name, circuit_name
+        ),
+        help: None,
     }
 
-    pub fn circuit_member_call_invalid(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "cannot call member function '{}' of circuit '{}' from static context",
-                name, circuit_name
-            ),
-            None,
-            11,
-            span,
-        )
+    index_into_non_array {
+        args: (name: &str),
+        msg: format!("failed to index into non-array '{}'", name),
+        help: None,
+    }
+    
+    invalid_assign_index {
+        args: (name: &str, num: &str),
+        msg: format!("failed to index array with invalid integer '{}'[{}]", name, num),
+        help: None,
+    }
+    
+    invalid_backwards_assignment {
+        args: (name: &str, left: usize, right: usize),
+        msg: format!(
+            "failed to index array range for assignment with left > right '{}'[{}..{}]",
+            name, left, right
+        ),
+        help: None,
     }
 
-    pub fn circuit_function_ref(circuit_name: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "cannot reference function member '{}' of circuit '{}' as value",
-                name, circuit_name
-            ),
-            None,
-            12,
-            span,
-        )
+    invalid_const_assign {
+        args: (name: &str),
+        msg: format!(
+            "failed to create const variable(s) '{}' with non constant values.",
+            name
+        ),
+        help: None,
     }
 
-    pub fn index_into_non_array(name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("failed to index into non-array '{}'", name), None, 13, span)
+    duplicate_function_definition {
+        args: (name: &str),
+        msg: format!("a function named \"{}\" already exists in this scope", name),
+        help: None,
     }
 
-    pub fn invalid_assign_index(name: &str, num: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("failed to index array with invalid integer '{}'[{}]", name, num),
-            None,
-            14,
-            span,
-        )
+    duplicate_variable_definition {
+        args: (name: &str),
+        msg: format!("a variable named \"{}\" already exists in this scope", name),
+        help: None,
     }
 
-    pub fn invalid_backwards_assignment(name: &str, left: usize, right: usize, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "failed to index array range for assignment with left > right '{}'[{}..{}]",
-                name, left, right
-            ),
-            None,
-            15,
-            span,
-        )
+    index_into_non_tuple {
+        args: (name: &str),
+        msg: format!("failed to index into non-tuple '{}'", name),
+        help: None,
     }
 
-    pub fn invalid_const_assign(name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "failed to create const variable(s) '{}' with non constant values.",
-                name
-            ),
-            None,
-            16,
-            span,
-        )
+    tuple_index_out_of_bounds {
+        args: (index: usize),
+        msg: format!("tuple index out of bounds: '{}'", index),
+        help: None,
     }
 
-    pub fn duplicate_function_definition(name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("a function named \"{}\" already exists in this scope", name),
-            None,
-            17,
-            span,
-        )
+    array_index_out_of_bounds {
+        args: (index: usize),
+        msg: format!("array index out of bounds: '{}'", index),
+        help: None,
     }
 
-    pub fn duplicate_variable_definition(name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("a variable named \"{}\" already exists in this scope", name),
-            None,
-            18,
-            span,
-        )
+    ternary_different_types {
+        args: (left: &str, right: &str),
+        msg: format!("ternary sides had different types: left {}, right {}", left, right),
+        help: None,
     }
 
-    pub fn index_into_non_tuple(name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("failed to index into non-tuple '{}'", name), None, 19, span)
+    unknown_array_size {
+        args: (),
+        msg: "array size cannot be inferred, add explicit types",
+        help: None,
     }
 
-    pub fn tuple_index_out_of_bounds(index: usize, span: &Span) -> Self {
-        Self::new_from_span(format!("tuple index out of bounds: '{}'", index), None, 20, span)
+    unexpected_call_argument_count {
+        args: (expected: usize, got: usize),
+        msg: format!("function call expected {} arguments, got {}", expected, got),
+        help: None,
     }
 
-    pub fn array_index_out_of_bounds(index: usize, span: &Span) -> Self {
-        Self::new_from_span(format!("array index out of bounds: '{}'", index), None, 21, span)
+    unresolved_function {
+        args: (name: &str),
+        msg: format!("failed to resolve function: '{}'", name),
+        help: None,
     }
 
-    pub fn ternary_different_types(left: &str, right: &str, span: &Span) -> Self {
-        let message = format!("ternary sides had different types: left {}, right {}", left, right);
-
-        Self::new_from_span(message, None, 22, span)
+    unresolved_type {
+        args: (name: &str),
+        msg: format!("failed to resolve type for variable definition '{}'", name),
+        help: None,
     }
 
-    pub fn unknown_array_size(span: &Span) -> Self {
-        Self::new_from_span(
-            "array size cannot be inferred, add explicit types".to_string(),
-            None,
-            23,
-            span,
-        )
+    unexpected_type {
+        args: (expected: &str, received: Option<&str>),
+        msg: format!(
+            "unexpected type, expected: '{}', received: '{}'",
+            expected,
+            received.unwrap_or("unknown")
+        ),
+        help: None,
     }
 
-    pub fn unexpected_call_argument_count(expected: usize, got: usize, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("function call expected {} arguments, got {}", expected, got),
-            None,
-            24,
-            span,
-        )
+    unexpected_nonconst {
+        args: (),
+        msg: "expected const, found non-const value",
+        help: None,
     }
 
-    pub fn unresolved_function(name: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("failed to resolve function: '{}'", name), None, 25, span)
+    unresolved_reference {
+        args: (name: &str),
+        msg: format!("failed to resolve variable reference '{}'", name),
+        help: None,
     }
 
-    pub fn unresolved_type(name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("failed to resolve type for variable definition '{}'", name),
-            None,
-            26,
-            span,
-        )
+    invalid_boolean {
+        args: (value: &str),
+        msg: format!("failed to parse boolean value '{}'", value),
+        help: None,
     }
 
-    pub fn unexpected_type(expected: &str, received: Option<&str>, span: &Span) -> Self {
-        Self::new_from_span(
-            format!(
-                "unexpected type, expected: '{}', received: '{}'",
-                expected,
-                received.unwrap_or("unknown")
-            ),
-            None,
-            27,
-            span,
-        )
+    invalid_char {
+        args: (value: &str),
+        msg: format!("failed to parse char value '{}'", value),
+        help: None,
     }
 
-    pub fn unexpected_nonconst(span: &Span) -> Self {
-        Self::new_from_span("expected const, found non-const value".to_string(), None, 28, span)
+    invalid_int {
+        args: (value: &str),
+        msg: format!("failed to parse int value '{}'", value),
+        help: None,
     }
 
-    pub fn unresolved_reference(name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("failed to resolve variable reference '{}'", name),
-            None,
-            29,
-            span,
-        )
+    unsigned_negation {
+        args: (),
+        msg: "cannot negate unsigned integer",
+        help: None,
     }
 
-    pub fn invalid_boolean(value: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("failed to parse boolean value '{}'", value), None, 30, span)
+    immutable_assignment {
+        args: (name: &str),
+        msg: format!("illegal assignment to immutable variable '{}'", name),
+        help: None,
     }
 
-    pub fn invalid_char(value: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("failed to parse char value '{}'", value), None, 31, span)
+    function_missing_return {
+        args: (name: &str),
+        msg: format!("function '{}' missing return for all paths", name),
+        help: None,
     }
 
-    pub fn invalid_int(value: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("failed to parse int value '{}'", value), None, 32, span)
+    function_return_validation {
+        args: (name: &str, description: &str),
+        msg: format!("function '{}' failed to validate return path: '{}'", name, description),
+        help: None,
     }
 
-    pub fn unsigned_negation(span: &Span) -> Self {
-        Self::new_from_span("cannot negate unsigned integer".to_string(), None, 33, span)
+    input_ref_needs_type {
+        args: (category: &str, name: &str),
+        msg: format!("could not infer type for input in '{}': '{}'", category, name),
+        help: None,
     }
 
-    pub fn immutable_assignment(name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("illegal assignment to immutable variable '{}'", name),
-            None,
-            34,
-            span,
-        )
+    invalid_self_in_global {
+        args: (),
+        msg: "cannot have `mut self` or `self` arguments in global functions", 
+        help: None,
     }
 
-    pub fn function_missing_return(name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("function '{}' missing return for all paths", name),
-            None,
-            35,
-            span,
-        )
+    call_test_function {
+        args: (),
+        msg: "cannot call test function",
+        help: None,
     }
 
-    pub fn function_return_validation(name: &str, description: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("function '{}' failed to validate return path: '{}'", name, description),
-            None,
-            36,
-            span,
-        )
+    circuit_test_function {
+        args: (),
+        msg: "cannot have test function as member of circuit",
+        help: None,
     }
 
-    pub fn input_ref_needs_type(category: &str, name: &str, span: &Span) -> Self {
-        Self::new_from_span(
-            format!("could not infer type for input in '{}': '{}'", category, name),
-            None,
-            37,
-            span,
-        )
+    parse_index_error {
+        args: (),
+        msg: "failed to parse index",
+        help: None,
     }
 
-    pub fn invalid_self_in_global(span: &Span) -> Self {
-        Self::new_from_span(
-            "cannot have `mut self` or `self` arguments in global functions".to_string(),
-            None,
-            38,
-            span,
-        )
+    parse_dimension_error {
+        args: (),
+        msg: "failed to parse dimension",
+        help: None,
     }
 
-    pub fn call_test_function(span: &Span) -> Self {
-        Self::new_from_span("cannot call test function".to_string(), None, 39, span)
+    reference_self_outside_circuit {
+        args: (),
+        msg: "referenced self outside of circuit function",
+        help: None,
     }
 
-    pub fn circuit_test_function(span: &Span) -> Self {
-        Self::new_from_span(
-            "cannot have test function as member of circuit".to_string(),
-            None,
-            40,
-            span,
-        )
+    illegal_ast_structure {
+        args: (details: &str),
+        msg: format!("illegal ast structure: {}", details),
+        help: None,
     }
 
-    pub fn parse_index_error(span: &Span) -> Self {
-        Self::new_from_span("failed to parse index".to_string(), None, 41, span)
+    illegal_input_variable_reference {
+        args: (details: &str),
+        msg: format!("illegal ast structure: {}", details),
+        help: None,
     }
-
-    pub fn parse_dimension_error(span: &Span) -> Self {
-        Self::new_from_span("failed to parse dimension".to_string(), None, 42, span)
-    }
-
-    pub fn reference_self_outside_circuit(span: &Span) -> Self {
-        Self::new_from_span(
-            "referenced self outside of circuit function".to_string(),
-            None,
-            43,
-            span,
-        )
-    }
-
-    pub fn illegal_ast_structure(details: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("illegal ast structure: {}", details), None, 44, span)
-    }
-
-    pub fn illegal_input_variable_reference(details: &str, span: &Span) -> Self {
-        Self::new_from_span(format!("illegal ast structure: {}", details), None, 45, span)
-    }
-}
+);

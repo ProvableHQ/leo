@@ -17,6 +17,10 @@
 pub mod formatted;
 pub use self::formatted::*;
 
+#[macro_use]
+pub mod macros;
+pub use self::macros::*;
+
 pub mod span;
 pub use self::span::*;
 

@@ -14,110 +14,71 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ErrorCode, FormattedError, LeoErrorCode, Span};
+use crate::create_errors;
 
-#[derive(Debug, Error)]
-pub enum ImportError {
-    #[error(transparent)]
-    FormattedError(#[from] FormattedError),
-}
+create_errors!(
+    ImportError,
+    exit_code_mask: 3000u32,
+    error_code_prefix: "I",
 
-impl LeoErrorCode for ImportError {}
-
-impl ErrorCode for ImportError {
-    #[inline(always)]
-    fn exit_code_mask() -> u32 {
-        3000
+    // An imported package has the same name as an imported core_package.
+    conflicting_imports {
+        args: (name: &str),
+        msg: format!("conflicting imports found for `{}`.", name),
+        help: None,
     }
 
-    #[inline(always)]
-    fn error_type() -> String {
-        "I".to_string()
+    recursive_imports {
+        args: (package: &str),
+        msg: format!("recursive imports for `{}`.", package),
+        help: None,
     }
 
-    fn new_from_span(message: String, help: Option<String>, exit_code: u32, span: &Span) -> Self {
-        Self::FormattedError(FormattedError::new_from_span(
-            message,
-            help,
-            exit_code ^ Self::exit_code_mask(),
-            Self::code_identifier(),
-            Self::error_type(),
-            span,
-        ))
-    }
-}
-
-impl ImportError {
-    ///
-    /// An imported package has the same name as an imported core_package.
-    ///
-    pub fn conflicting_imports(name: &str, span: &Span) -> Self {
-        let message = format!("conflicting imports found for `{}`.", name);
-
-        Self::new_from_span(message, None, 0, span)
+    // Failed to convert a file path into an os string.
+    convert_os_string {
+        args: (),
+        msg: "Failed to convert file string name, maybe an illegal character?",
+        help: None,
     }
 
-    pub fn recursive_imports(package: &str, span: &Span) -> Self {
-        let message = format!("recursive imports for `{}`.", package);
-
-        Self::new_from_span(message, None, 1, span)
+    // Failed to find the directory of the current file.
+    current_directory_error {
+        args: (error: std::io::Error),
+        msg: format!("Compilation failed trying to find current directory - {:?}.", error),
+        help: None,
     }
 
-    ///
-    /// Failed to convert a file path into an os string.
-    ///
-    pub fn convert_os_string(span: &Span) -> Self {
-        let message = "Failed to convert file string name, maybe an illegal character?".to_string();
-
-        Self::new_from_span(message, None, 2, span)
-    }
-
-    ///
-    /// Failed to find the directory of the current file.
-    ///
-    pub fn current_directory_error(error: std::io::Error) -> Self {
-        let message = format!("Compilation failed trying to find current directory - {:?}.", error);
-
-        Self::new_from_span(message, None, 3, &Span::default())
-    }
-
-    ///
-    /// Failed to open or get the name of a directory.
-    ///
-    pub fn directory_error(error: std::io::Error, span: &Span, path: &std::path::Path) -> Self {
-        let message = format!(
+    // Failed to open or get the name of a directory.
+    directory_error {
+        args: (error: std::io::Error, path: &std::path::Path),
+        msg: format!(
             "Compilation failed due to directory error @ '{}' - {:?}.",
             path.to_str().unwrap_or_default(),
             error
-        );
-
-        Self::new_from_span(message, None, 4, span)
+        ),
+        help: None,
     }
 
-    ///
-    /// Failed to find a main file for the current package.
-    ///
-    pub fn expected_main_file(entry: String, span: &Span) -> Self {
-        let message = format!("Expected main file at `{}`.", entry,);
-
-        Self::new_from_span(message, None, 5, span)
+    // Failed to find a main file for the current package.
+    expected_main_file {
+        args: (entry: String),
+        msg: format!("Expected main file at `{}`.", entry),
+        help: None,
     }
 
-    ///
-    /// Failed to import a package name.
-    ///
-    pub fn unknown_package(name: &str, span: &Span) -> Self {
-        let message = format!(
+    // Failed to import a package name.
+    unknown_package {
+        args: (name: &str),
+        msg: format!(
             "Cannot find imported package `{}` in source files or import directory.",
             name
-        );
-
-        Self::new_from_span(message, None, 6, span)
+        ),
+        help: None,
     }
 
-    pub fn io_error(span: &Span, path: &str, error: std::io::Error) -> Self {
-        let message = format!("cannot read imported file '{}': {:?}", path, error,);
-
-        Self::new_from_span(message, None, 7, span)
+    io_error {
+        args: (path: &str, error: std::io::Error),
+        msg: format!("cannot read imported file '{}': {:?}", path, error),
+        help: None,
     }
-}
+);

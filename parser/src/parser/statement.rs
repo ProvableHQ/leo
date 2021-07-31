@@ -312,7 +312,7 @@ impl ParserContext {
         let mutable = self.eat(Token::Mut);
         if let Some(mutable) = &mutable {
             return Err(LeoError::from(ParserError::let_mut_statement(
-                &mutable.span + &span.span,
+                &(&mutable.span + &span.span),
             )));
         }
 

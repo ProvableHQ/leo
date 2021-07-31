@@ -21,7 +21,8 @@ pub trait ErrorCode: Sized {
 
     fn error_type() -> String;
 
-    fn new_from_span(message: String, help: Option<String>, exit_code: u32, span: &Span) -> Self;
+    fn new_from_span<T>(message: T, help: Option<String>, exit_code: u32, span: &Span) -> Self
+    where T: ToString;
 }
 
 pub trait LeoErrorCode: ErrorCode {

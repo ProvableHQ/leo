@@ -14,19 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::path::PathBuf;
-
-#[derive(Debug, Error)]
-pub enum InputFileError {
-    #[error("{}: {}", _0, _1)]
-    Crate(&'static str, String),
-
-    #[error("Cannot read from the provided file path - {:?}", _0)]
-    FileReadError(PathBuf),
-}
-
-impl From<std::io::Error> for InputFileError {
-    fn from(error: std::io::Error) -> Self {
-        InputFileError::Crate("std::io", error.to_string())
-    }
-}
+pub mod state;
+pub use self::state::*;

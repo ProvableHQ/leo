@@ -14,33 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{InputFileError, StateFileError};
-
-use std::{ffi::OsString, fs::FileType, io};
+use crate::{ErrorCode, FormattedError, LeoErrorCode, new_from_span, Span};
 
 #[derive(Debug, Error)]
-pub enum InputsDirectoryError {
-    #[error("creating: {}", _0)]
-    Creating(io::Error),
+pub enum StateError {
+    #[error(transparent)]
+    FormattedError(#[from] FormattedError),
+}
 
-    #[error("file entry getting: {}", _0)]
-    GettingFileEntry(io::Error),
+impl LeoErrorCode for StateError {}
 
-    #[error("file {:?} name getting", _0)]
-    GettingFileName(OsString),
+impl ErrorCode for StateError {
+    #[inline(always)]
+    fn exit_code_mask() -> u32 {
+        6000
+    }
 
-    #[error("file {:?} type getting: {}", _0, _1)]
-    GettingFileType(OsString, io::Error),
+    #[inline(always)]
+    fn error_type() -> String {
+        "P".to_string()
+    }
 
-    #[error("{}", _0)]
-    InputFileError(#[from] InputFileError),
+    new_from_span!();
+}
 
-    #[error("invalid file {:?} type: {:?}", _0, _1)]
-    InvalidFileType(OsString, FileType),
-
-    #[error("reading: {}", _0)]
-    Reading(io::Error),
-
-    #[error("{}", _0)]
-    StateFileError(#[from] StateFileError),
+impl StateError {
+    
 }
