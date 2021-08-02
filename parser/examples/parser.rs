@@ -48,7 +48,7 @@ fn main() -> Result<(), SyntaxError> {
     let input_filepath = Path::new(&cli_arguments[1]);
 
     // Construct the serialized syntax tree.
-    let serialized_leo_tree = to_leo_tree(&input_filepath)?;
+    let serialized_leo_tree = to_leo_tree(input_filepath)?;
     println!("{}", serialized_leo_tree);
 
     // Determine the output directory.

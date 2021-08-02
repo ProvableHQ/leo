@@ -42,7 +42,7 @@ impl<'a> FromAst<'a, leo_ast::Block> for BlockStatement<'a> {
 
         let mut output = vec![];
         for item in statement.statements.iter() {
-            output.push(Cell::new(<&'a Statement<'a>>::from_ast(&new_scope, item, None)?));
+            output.push(Cell::new(<&'a Statement<'a>>::from_ast(new_scope, item, None)?));
         }
         Ok(BlockStatement {
             parent: Cell::new(None),
