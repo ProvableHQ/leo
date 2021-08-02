@@ -14,36 +14,45 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::Asg;
+use leo_compiler::{compiler::thread_leaked_context, TypeInferencePhase};
+use leo_imports::ImportParser;
 use leo_test_framework::{
     fetch::find_tests,
     test::{extract_test_config, TestExpectationMode as Expectation},
 };
-// use leo_test_framework::runner::{Runner, Namespace};
 
-use leo_asg::Asg;
-use leo_compiler::{compiler::thread_leaked_context, TypeInferencePhase};
-use leo_imports::ImportParser;
+use std::{error::Error, fs, path::PathBuf};
+use structopt::{clap::AppSettings, StructOpt};
 
-use std::{
-    error::Error,
-    path::{Path, PathBuf},
-};
+#[derive(StructOpt)]
+#[structopt(name = "ast-stages-generator", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
+struct Opt {
+    #[structopt(
+        short,
+        long,
+        help = "Path to the output folder (auto generated)",
+        default_value = "tmp/tgc"
+    )]
+    path: PathBuf,
 
-use std::fs;
+    #[structopt(short, long, help = "Filter test names and run only matching")]
+    filter: Option<String>,
+}
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() {
+    handle_error(run_with_args(Opt::from_args()));
+}
+
+fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
+    // Variable that stores all the tests.
     let mut tests = Vec::new();
     let mut test_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     test_dir.push("../tests/");
-
     find_tests(&test_dir, &mut tests);
 
-    if !Path::new("tmp").exists() {
-        fs::create_dir("tmp")?;
-    }
-
-    if !Path::new("tmp/tgc").exists() {
-        fs::create_dir("tmp/tgc")?;
+    if !opt.path.exists() {
+        fs::create_dir_all(&opt.path)?;
     }
 
     // Prepare directory for placing results.
@@ -60,12 +69,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                 .unwrap()
                 .replace(".leo", "");
 
+            // Filter out the tests that do not match pattern, if pattern is set.
+            if let Some(filter) = &opt.filter {
+                if !test_name.contains(filter) {
+                    continue;
+                }
+            }
+
             test_name.push_str(&format!("_{}", index));
 
             // Create directory for this file.
             let mut target = PathBuf::from("tmp/tgc");
             target.push(test_name);
-            fs::create_dir(target.clone())?;
+
+            if !target.exists() {
+                fs::create_dir_all(target.clone())?;
+            }
 
             // Write all files into the directory.
             let (initial, canonicalized, _type_inferenced) = generate_asts(path, text)?;
@@ -102,4 +121,14 @@ fn generate_asts(path: &String, text: &String) -> Result<(String, String, String
         .to_json_string()?;
 
     Ok((initial, canonicalized, type_inferenced))
+}
+
+fn handle_error(res: Result<(), Box<dyn Error>>) {
+    match res {
+        Ok(_) => (),
+        Err(err) => {
+            eprintln!("Error: {}", err);
+            std::process::exit(1);
+        }
+    }
 }
