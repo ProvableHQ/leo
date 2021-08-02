@@ -263,6 +263,14 @@ impl Canonicalizer {
                 });
             }
             Expression::CircuitStaticFunctionAccess(circuit_static_func_access) => {
+                // dbg!(&circuit_static_func_access.name);
+                // dbg!(&circuit_static_func_access.circuit);
+
+                // let canonicalized_name = self.canonicalize_expression(&circuit_static_func_access.circuit);
+
+                // dbg!(&canonicalized_name);
+                // dbg!(circuit_static_func_access.name.clone());
+
                 return Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression {
                     circuit: Box::new(self.canonicalize_expression(&circuit_static_func_access.circuit)),
                     name: circuit_static_func_access.name.clone(),
@@ -278,10 +286,13 @@ impl Canonicalizer {
             }
             Expression::Identifier(identifier) => {
                 if identifier.name.as_ref() == "Self" && self.circuit_name.is_some() {
-                    return Expression::Identifier(self.circuit_name.as_ref().unwrap().clone());
+                    let name = self.circuit_name.as_ref().unwrap().clone();
+
+                    dbg!(&name);
+                    return Expression::Identifier(name);
                 }
             }
-            _ => {}
+            _ => (),
         }
 
         expression.clone()
