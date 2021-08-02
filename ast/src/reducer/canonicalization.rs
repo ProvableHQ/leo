@@ -278,10 +278,7 @@ impl Canonicalizer {
             }
             Expression::Identifier(identifier) => {
                 if identifier.name.as_ref() == "Self" && self.circuit_name.is_some() {
-                    let name = self.circuit_name.as_ref().unwrap().clone();
-
-                    dbg!(&name);
-                    return Expression::Identifier(name);
+                    return Expression::Identifier(self.circuit_name.as_ref().unwrap().clone());
                 }
             }
             _ => (),
