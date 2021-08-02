@@ -227,7 +227,7 @@ impl ParserContext {
                     base.name = format_tendril!("{}{}", base.name, next.name);
                     base.span = base.span + next.span;
                 }
-                x if KEYWORD_TOKENS.contains(&x) => {
+                x if KEYWORD_TOKENS.contains(x) => {
                     let next = self.expect_loose_identifier()?;
                     base.name = format_tendril!("{}{}", base.name, next.name);
                     base.span = base.span + next.span;

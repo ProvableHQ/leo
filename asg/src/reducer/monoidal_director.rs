@@ -308,6 +308,6 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
         let circuits = input.circuits.iter().map(|(_, c)| self.reduce_circuit(c)).collect();
 
         self.reducer
-            .reduce_program(&input, imported_modules, functions, circuits)
+            .reduce_program(input, imported_modules, functions, circuits)
     }
 }

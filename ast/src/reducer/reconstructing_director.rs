@@ -50,34 +50,32 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     // Expressions
     pub fn reduce_expression(&mut self, expression: &Expression) -> Result<Expression, ReducerError> {
         let new = match expression {
-            Expression::Identifier(identifier) => Expression::Identifier(self.reduce_identifier(&identifier)?),
-            Expression::Value(value) => self.reduce_value(&value)?,
-            Expression::Binary(binary) => Expression::Binary(self.reduce_binary(&binary)?),
-            Expression::Unary(unary) => Expression::Unary(self.reduce_unary(&unary)?),
-            Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(&ternary)?),
-            Expression::Cast(cast) => Expression::Cast(self.reduce_cast(&cast)?),
+            Expression::Identifier(identifier) => Expression::Identifier(self.reduce_identifier(identifier)?),
+            Expression::Value(value) => self.reduce_value(value)?,
+            Expression::Binary(binary) => Expression::Binary(self.reduce_binary(binary)?),
+            Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
+            Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
+            Expression::Cast(cast) => Expression::Cast(self.reduce_cast(cast)?),
 
-            Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(&array_inline)?),
-            Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(&array_init)?),
-            Expression::ArrayAccess(array_access) => Expression::ArrayAccess(self.reduce_array_access(&array_access)?),
+            Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(array_inline)?),
+            Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(array_init)?),
+            Expression::ArrayAccess(array_access) => Expression::ArrayAccess(self.reduce_array_access(array_access)?),
             Expression::ArrayRangeAccess(array_range_access) => {
-                Expression::ArrayRangeAccess(self.reduce_array_range_access(&array_range_access)?)
+                Expression::ArrayRangeAccess(self.reduce_array_range_access(array_range_access)?)
             }
 
-            Expression::TupleInit(tuple_init) => Expression::TupleInit(self.reduce_tuple_init(&tuple_init)?),
-            Expression::TupleAccess(tuple_access) => Expression::TupleAccess(self.reduce_tuple_access(&tuple_access)?),
+            Expression::TupleInit(tuple_init) => Expression::TupleInit(self.reduce_tuple_init(tuple_init)?),
+            Expression::TupleAccess(tuple_access) => Expression::TupleAccess(self.reduce_tuple_access(tuple_access)?),
 
-            Expression::CircuitInit(circuit_init) => Expression::CircuitInit(self.reduce_circuit_init(&circuit_init)?),
+            Expression::CircuitInit(circuit_init) => Expression::CircuitInit(self.reduce_circuit_init(circuit_init)?),
             Expression::CircuitMemberAccess(circuit_member_access) => {
-                Expression::CircuitMemberAccess(self.reduce_circuit_member_access(&circuit_member_access)?)
+                Expression::CircuitMemberAccess(self.reduce_circuit_member_access(circuit_member_access)?)
             }
             Expression::CircuitStaticFunctionAccess(circuit_static_fn_access) => {
-                Expression::CircuitStaticFunctionAccess(
-                    self.reduce_circuit_static_fn_access(&circuit_static_fn_access)?,
-                )
+                Expression::CircuitStaticFunctionAccess(self.reduce_circuit_static_fn_access(circuit_static_fn_access)?)
             }
 
-            Expression::Call(call) => Expression::Call(self.reduce_call(&call)?),
+            Expression::Call(call) => Expression::Call(self.reduce_call(call)?),
         };
 
         self.reducer.reduce_expression(expression, new)
@@ -93,7 +91,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_group_value(&mut self, group_value: &GroupValue) -> Result<GroupValue, ReducerError> {
         let new = match group_value {
-            GroupValue::Tuple(group_tuple) => GroupValue::Tuple(self.reduce_group_tuple(&group_tuple)?),
+            GroupValue::Tuple(group_tuple) => GroupValue::Tuple(self.reduce_group_tuple(group_tuple)?),
             _ => group_value.clone(),
         };
 
@@ -107,9 +105,9 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_value(&mut self, value: &ValueExpression) -> Result<Expression, ReducerError> {
         let new = match value {
             ValueExpression::Group(group_value) => {
-                Expression::Value(ValueExpression::Group(Box::new(self.reduce_group_value(&group_value)?)))
+                Expression::Value(ValueExpression::Group(Box::new(self.reduce_group_value(group_value)?)))
             }
-            ValueExpression::String(string, span) => self.reduce_string(string, &span)?,
+            ValueExpression::String(string, span) => self.reduce_string(string, span)?,
             _ => Expression::Value(value.clone()),
         };
 
@@ -284,14 +282,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     // Statements
     pub fn reduce_statement(&mut self, statement: &Statement) -> Result<Statement, ReducerError> {
         let new = match statement {
-            Statement::Return(return_statement) => Statement::Return(self.reduce_return(&return_statement)?),
-            Statement::Definition(definition) => Statement::Definition(self.reduce_definition(&definition)?),
-            Statement::Assign(assign) => Statement::Assign(self.reduce_assign(&assign)?),
-            Statement::Conditional(conditional) => Statement::Conditional(self.reduce_conditional(&conditional)?),
-            Statement::Iteration(iteration) => Statement::Iteration(self.reduce_iteration(&iteration)?),
-            Statement::Console(console) => Statement::Console(self.reduce_console(&console)?),
-            Statement::Expression(expression) => Statement::Expression(self.reduce_expression_statement(&expression)?),
-            Statement::Block(block) => Statement::Block(self.reduce_block(&block)?),
+            Statement::Return(return_statement) => Statement::Return(self.reduce_return(return_statement)?),
+            Statement::Definition(definition) => Statement::Definition(self.reduce_definition(definition)?),
+            Statement::Assign(assign) => Statement::Assign(self.reduce_assign(assign)?),
+            Statement::Conditional(conditional) => Statement::Conditional(self.reduce_conditional(conditional)?),
+            Statement::Iteration(iteration) => Statement::Iteration(self.reduce_iteration(iteration)?),
+            Statement::Console(console) => Statement::Console(self.reduce_console(console)?),
+            Statement::Expression(expression) => Statement::Expression(self.reduce_expression_statement(expression)?),
+            Statement::Block(block) => Statement::Block(self.reduce_block(block)?),
         };
 
         self.reducer.reduce_statement(statement, new)
@@ -334,8 +332,8 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
                 AssigneeAccess::ArrayRange(left, right)
             }
-            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.reduce_expression(&index)?),
-            AssigneeAccess::Member(identifier) => AssigneeAccess::Member(self.reduce_identifier(&identifier)?),
+            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.reduce_expression(index)?),
+            AssigneeAccess::Member(identifier) => AssigneeAccess::Member(self.reduce_identifier(identifier)?),
             _ => access.clone(),
         };
 
@@ -456,7 +454,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let mut global_consts = IndexMap::new();
         for (name, definition) in program.global_consts.iter() {
-            global_consts.insert(name.clone(), self.reduce_definition(&definition)?);
+            global_consts.insert(name.clone(), self.reduce_definition(definition)?);
         }
 
         self.reducer
@@ -513,12 +511,10 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> Result<CircuitMember, ReducerError> {
         let new = match circuit_member {
             CircuitMember::CircuitVariable(identifier, type_) => CircuitMember::CircuitVariable(
-                self.reduce_identifier(&identifier)?,
-                self.reduce_type(&type_, &identifier.span)?,
+                self.reduce_identifier(identifier)?,
+                self.reduce_type(type_, &identifier.span)?,
             ),
-            CircuitMember::CircuitFunction(function) => {
-                CircuitMember::CircuitFunction(self.reduce_function(&function)?)
-            }
+            CircuitMember::CircuitFunction(function) => CircuitMember::CircuitFunction(self.reduce_function(function)?),
         };
 
         self.reducer.reduce_circuit_member(circuit_member, new)
