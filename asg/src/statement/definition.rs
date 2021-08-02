@@ -70,7 +70,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         let type_ = statement
             .type_
             .as_ref()
-            .map(|x| scope.resolve_ast_type(&x))
+            .map(|x| scope.resolve_ast_type(x))
             .transpose()?;
 
         let value = <&Expression<'a>>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;

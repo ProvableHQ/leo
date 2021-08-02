@@ -44,7 +44,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
 
         let return_value = self
-            .enforce_function(&mut cs.ns(name_unique), &function, target, arguments)
+            .enforce_function(&mut cs.ns(name_unique), function, target, arguments)
             .map_err(|error| ExpressionError::from(Box::new(error)))?;
 
         Ok(return_value)

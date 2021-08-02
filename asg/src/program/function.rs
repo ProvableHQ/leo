@@ -101,7 +101,7 @@ impl<'a> Function<'a> {
                         let variable = scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                             id: scope.context.get_id(),
                             name: identifier.clone(),
-                            type_: scope.resolve_ast_type(&type_)?,
+                            type_: scope.resolve_ast_type(type_)?,
                             mutable: *mutable,
                             const_: *const_,
                             declaration: crate::VariableDeclaration::Parameter,

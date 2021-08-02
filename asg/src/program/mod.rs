@@ -127,7 +127,7 @@ fn resolve_import_package_access(
         PackageAccess::Multiple(packages) => {
             package_segments.push(packages.name.name.to_string());
             for subaccess in packages.accesses.iter() {
-                resolve_import_package_access(output, package_segments.clone(), &subaccess);
+                resolve_import_package_access(output, package_segments.clone(), subaccess);
             }
         }
     }
