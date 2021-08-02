@@ -47,7 +47,7 @@ impl Canonicalizer {
         let mut left = Box::new(start);
 
         for access in accesses.iter() {
-            match self.canonicalize_assignee_access(&access) {
+            match self.canonicalize_assignee_access(access) {
                 AssigneeAccess::ArrayIndex(index) => {
                     left = Box::new(Expression::ArrayAccess(ArrayAccessExpression {
                         array: left,
@@ -295,7 +295,7 @@ impl Canonicalizer {
 
                 AssigneeAccess::ArrayRange(left, right)
             }
-            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.canonicalize_expression(&index)),
+            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.canonicalize_expression(index)),
             _ => access.clone(),
         }
     }
@@ -318,7 +318,7 @@ impl Canonicalizer {
         let statements = block
             .statements
             .iter()
-            .map(|block_statement| self.canonicalize_statement(&block_statement))
+            .map(|block_statement| self.canonicalize_statement(block_statement))
             .collect();
 
         Block {
