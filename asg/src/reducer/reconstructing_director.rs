@@ -259,7 +259,7 @@ impl<'a, R: ReconstructingReducerStatement<'a>> ReconstructingDirector<'a, R> {
                 let argument = self.reduce_expression(argument.get());
                 self.reducer.reduce_console_assert(input, argument)
             }
-            ConsoleFunction::Debug(f) | ConsoleFunction::Error(f) | ConsoleFunction::Log(f) => {
+            ConsoleFunction::Error(f) | ConsoleFunction::Log(f) => {
                 let formatted = self.reduce_formatted_string(f.clone());
                 self.reducer.reduce_console_log(input, formatted)
             }

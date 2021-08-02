@@ -300,7 +300,6 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
             span: input.span,
             function: match input.function {
                 ConsoleFunction::Assert(_) => unimplemented!(),
-                ConsoleFunction::Debug(_) => ConsoleFunction::Debug(argument),
                 ConsoleFunction::Error(_) => ConsoleFunction::Error(argument),
                 ConsoleFunction::Log(_) => ConsoleFunction::Log(argument),
             },

@@ -120,6 +120,15 @@ Thus, this RFC also proposed to extend Leo with such an operator.
 A possibility is `<expression>.length`, where `<expression>` is an expression of array type.
 A variation is `<expression>.length()`, if we want it look more like a built-in method on arrays.
 Yet another option is `length(<expression>)`, which is more like a built-in function.
+A shorter name could be `len`, leading to the three possibilities
+`<expression>.len`, `<expression>.len()`, and `len(<expression>)`.
+So one dimension of the choice is the name (`length` vs. `len`),
+and another dimension is the style:
+member variable style,
+member function style,
+or global function style.
+The decision on the latter should be driven by broader considerations
+of how we want to treat this kind of built-in operators.
 
 Note that the result of this operator can, and in fact must, be calculated at compile time;
 not as part of the Leo interpreter, but rather as part of the flattening of Leo to R1CS.

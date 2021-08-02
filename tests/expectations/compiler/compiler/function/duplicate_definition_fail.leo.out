@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:6:12\n     |\n   6 |     return 10u32; \n     |            ^^^^^\n     |\n     = unexpected type, expected: '()', received: 'u32'"
+  - "    --> compiler-test:8:1\n     |\n   8 | function main() {\n|\n   9 | ...\n|\n  10 | }\n     | ^\n     |\n     = a function named \"main\" already exists in this scope"

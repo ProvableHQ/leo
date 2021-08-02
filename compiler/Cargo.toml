@@ -1,6 +1,6 @@
 [package]
 name = "leo-compiler"
-version = "1.5.2"
+version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Compiler of the Leo programming language"
 homepage = "https://aleo.org"
@@ -19,39 +19,39 @@ edition = "2018"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-imports]
 path = "../imports"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-input]
 path = "../input"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-package]
 path = "../package"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-state]
 path = "../state"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-asg]
 path = "../asg"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-parser]
 path = "../parser"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-asg-passes]
 path = "../asg-passes"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-synthesizer]
 path = "../synthesizer"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.tendril]
 version = "0.4"
@@ -71,7 +71,7 @@ default-features = false
 [dependencies.snarkvm-gadgets]
 version = "0.7.5"
 default-features = false
-features = ["curves"]
+features = [ "curves" ]
 
 [dependencies.snarkvm-r1cs]
 version = "0.7.5"

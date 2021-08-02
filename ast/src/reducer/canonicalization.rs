@@ -392,7 +392,7 @@ impl Canonicalizer {
                     ConsoleFunction::Assert(expression) => {
                         ConsoleFunction::Assert(self.canonicalize_expression(expression))
                     }
-                    ConsoleFunction::Debug(args) | ConsoleFunction::Error(args) | ConsoleFunction::Log(args) => {
+                    ConsoleFunction::Error(args) | ConsoleFunction::Log(args) => {
                         let parameters = args
                             .parameters
                             .iter()
@@ -406,7 +406,6 @@ impl Canonicalizer {
                         };
 
                         match &console_function_call.function {
-                            ConsoleFunction::Debug(_) => ConsoleFunction::Debug(console_args),
                             ConsoleFunction::Error(_) => ConsoleFunction::Error(console_args),
                             ConsoleFunction::Log(_) => ConsoleFunction::Log(console_args),
                             _ => unimplemented!(), // impossible

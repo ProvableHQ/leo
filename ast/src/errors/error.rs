@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{LeoError, Span};
-
 use std::{fmt, sync::Arc};
 
 pub const INDENT: &str = "    ";
@@ -77,20 +76,21 @@ impl fmt::Display for FormattedError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let underline = underline(self.col_start, self.col_stop);
 
-        write!(
-            f,
+        let error_message = format!(
             "{indent     }--> {path}:{line_start}:{start}\n\
-             {indent     } |\n",
+             {indent     } ",
             indent = INDENT,
             path = &*self.path,
             line_start = self.line_start,
             start = self.col_start,
-        )?;
+        );
+
+        write!(f, "{}", error_message)?;
 
         for (line_no, line) in self.content.lines().enumerate() {
             writeln!(
                 f,
-                "{line_no:width$} | {text}",
+                "|\n{line_no:width$} | {text}",
                 width = INDENT.len(),
                 line_no = self.line_start + line_no,
                 text = line,

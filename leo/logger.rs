@@ -218,6 +218,11 @@ pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
         Err(_) => return Err(anyhow::anyhow!("Error: Failed to enable ansi_support")),
     };
 
+    use tracing_subscriber::fmt::writer::MakeWriterExt;
+
+    let stderr = std::io::stderr.with_max_level(tracing::Level::WARN);
+    let mk_writer = stderr.or_else(std::io::stdout);
+
     let subscriber = FmtSubscriber::builder()
         // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
         // will be written to stdout.
@@ -227,6 +232,7 @@ pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
             2 => tracing::Level::DEBUG,
             _ => tracing::Level::TRACE
         })
+        .with_writer(mk_writer)
         .without_time()
         .with_target(false)
         .event_format(Format::default())

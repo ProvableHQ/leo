@@ -1,6 +1,6 @@
 [package]
 name = "leo-synthesizer"
-version = "1.5.2"
+version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Circuit synthesizer of the Leo programming language"
 homepage = "https://aleo.org"

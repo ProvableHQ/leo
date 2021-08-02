@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "1.5.2"
+version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
@@ -43,35 +43,35 @@ members = [
 
 [dependencies.leo-ast]
 path = "./ast"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-compiler]
 path = "./compiler"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-imports]
 path = "./imports"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-input]
 path = "./input"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-package]
 path = "./package"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-parser]
 path = "./parser"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-state]
 path = "./state"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-synthesizer]
 path = "./synthesizer"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.snarkvm-algorithms]
 version = "0.7.4"
