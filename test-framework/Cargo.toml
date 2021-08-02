@@ -48,3 +48,6 @@ version = "1.5.2"
 [dependencies.leo-compiler]
 path = "../compiler"
 version = "1.5.2"
+
+[dependencies.structopt]
+version = "0.3"
