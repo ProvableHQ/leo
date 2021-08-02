@@ -65,7 +65,7 @@ version = "0.7.6"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.7.5"
+version = "0.7.6"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
