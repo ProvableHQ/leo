@@ -276,6 +276,11 @@ impl Canonicalizer {
                     span: call.span.clone(),
                 });
             }
+            Expression::Identifier(identifier) => {
+                if identifier.name.as_ref() == "Self" && self.circuit_name.is_some() {
+                    return Expression::Identifier(self.circuit_name.as_ref().unwrap().clone());
+                }
+            }
             _ => {}
         }
 
