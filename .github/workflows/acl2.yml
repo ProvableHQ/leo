@@ -43,33 +43,3 @@ jobs:
           do
           echo $i;
           done;
-        
-      # - name: Run files generation for pedersen hash
-      #   run: |
-      #     mkdir TEMPDIR && cd TEMPDIR
-      #     ls -la
-      #     cargo run -p stages -- \
-      #     --file ../examples/pedersen-hash/src/main.leo \
-      #     --input ../examples/pedersen-hash/inputs/pedersen-hash.in --all
-          
-      # - name: Run leo-acl2 executable 
-      #   run: |
-      #     ls -la stages
-      #     cd stages && gunzip leo-acl2.lx86cl64.gz && cd ..
-      #     pwd
-      
-      #     export TEMPLATE_DIR="$(pwd)/stages/"
-
-      #     cd TEMPDIR
-      #     ls -la
-      #     pwd
-          
-      #     # print command
-      #     cat << EOF
-      #     (tgc "$TEMPLATE_DIR" "th.lisp" "initial.json" "canonicalization.json")
-      #     EOF
-          
-      #     # run command
-      #     cat << EOF | ../stages/leo-acl2
-      #     (tgc "$TEMPLATE_DIR" "th.lisp" "initial.json" "canonicalization.json")
-      #     EOF
