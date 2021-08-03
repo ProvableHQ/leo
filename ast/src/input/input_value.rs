@@ -42,7 +42,7 @@ pub enum InputValue {
     Boolean(bool),
     Char(CharValue),
     Field(String),
-    Group(GroupValue),
+    Group(Box<GroupValue>),
     Integer(IntegerType, String),
     Array(Vec<InputValue>),
     Tuple(Vec<InputValue>),
@@ -80,7 +80,7 @@ impl InputValue {
     }
 
     fn from_group(group: InputGroupValue) -> Self {
-        InputValue::Group(GroupValue::from(group))
+        InputValue::Group(Box::new(GroupValue::from(group)))
     }
 
     fn from_field(field: FieldValue) -> Self {

@@ -92,9 +92,7 @@ impl VerificationKeyFile {
         match fs::remove_file(&path) {
             Ok(_) => Ok(true),
             Err(_) => {
-                return Err(
-                    PackageError::failed_to_remove_verification_key_file(path.into_owned(), Backtrace::new()).into(),
-                );
+                Err(PackageError::failed_to_remove_verification_key_file(path.into_owned(), Backtrace::new()).into())
             }
         }
     }

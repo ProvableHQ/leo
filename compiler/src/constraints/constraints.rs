@@ -46,7 +46,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
 
     match main {
         Some(function) => {
-            let result = resolved_program.enforce_main_function(cs, &function, input)?;
+            let result = resolved_program.enforce_main_function(cs, function, input)?;
             Ok(result)
         }
         _ => Err(CompilerError::no_main_function(Backtrace::new()).into()),
@@ -111,7 +111,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
                     }
                 }
             }
-            None => default.ok_or(LeoError::from(CompilerError::no_test_input(Backtrace::new())))?,
+            None => default.ok_or_else(|| LeoError::from(CompilerError::no_test_input(Backtrace::new())))?,
         };
 
         // parse input files to abstract syntax trees

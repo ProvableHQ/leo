@@ -62,7 +62,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 span,
             )?)),
             Type::Array(type_, len) => self.allocate_array(cs, name, &*type_, *len, input_option, span),
-            Type::Tuple(types) => self.allocate_tuple(cs, &name, types, input_option, span),
+            Type::Tuple(types) => self.allocate_tuple(cs, name, types, input_option, span),
             _ => unimplemented!("main function input not implemented for type {}", type_), // Should not happen.
         }
     }
@@ -106,7 +106,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             (Type::Field, InputValue::Field(value)) => {
                 Ok(ConstrainedValue::Field(FieldType::constant(cs, value, span)?))
             }
-            (Type::Group, InputValue::Group(value)) => Ok(ConstrainedValue::Group(G::constant(&value.into(), span)?)),
+            (Type::Group, InputValue::Group(value)) => {
+                Ok(ConstrainedValue::Group(G::constant(&(*value).into(), span)?))
+            }
             (Type::Integer(integer_type), InputValue::Integer(input_type, value)) => {
                 let parsed = ConstInt::parse(integer_type, &value, span)?;
                 let parsed_type = parsed.get_int_type();

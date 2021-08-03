@@ -40,7 +40,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         if let Some(asg_input) = asg_input {
             let value =
-                self.allocate_input_keyword(cs, &function.name.borrow().span, &asg_input.container_circuit, input)?;
+                self.allocate_input_keyword(cs, &function.name.borrow().span, asg_input.container_circuit, input)?;
 
             self.store(asg_input.container.borrow().id, value);
         }

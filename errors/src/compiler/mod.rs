@@ -14,5 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod compiler;
-pub use self::compiler::*;
+pub mod compiler_errors;
+pub use self::compiler_errors::*;

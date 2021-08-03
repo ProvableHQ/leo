@@ -29,7 +29,7 @@ use tendril::StrTendril;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupValue {
     Single(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
-    Tuple(GroupTuple),
+    Tuple(Box<GroupTuple>),
 }
 
 impl GroupValue {
@@ -54,7 +54,7 @@ impl<'ast> From<InputGroupValue<'ast>> for GroupValue {
 
         match ast_group.value {
             InputGroupRepresentation::Single(number) => GroupValue::Single(number.to_string().into(), span),
-            InputGroupRepresentation::Tuple(tuple) => GroupValue::Tuple(GroupTuple::from(tuple)),
+            InputGroupRepresentation::Tuple(tuple) => GroupValue::Tuple(Box::new(GroupTuple::from(tuple))),
         }
     }
 }

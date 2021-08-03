@@ -25,8 +25,8 @@ use std::fmt;
 pub enum FunctionInput {
     SelfKeyword(SelfKeyword),
     ConstSelfKeyword(ConstSelfKeyword),
-    MutSelfKeyword(MutSelfKeyword),
-    Variable(FunctionInputVariable),
+    MutSelfKeyword(Box<MutSelfKeyword>),
+    Variable(Box<FunctionInputVariable>),
 }
 
 impl FunctionInput {

@@ -77,7 +77,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         cs.ns(|| format!("select result {} {}:{}", i, span.line_start, span.col_start)),
                         &indicator,
                         &result,
-                        &value,
+                        value,
                     )
                     .map_err(|_| {
                         LeoError::from(CompilerError::statement_select_fail(

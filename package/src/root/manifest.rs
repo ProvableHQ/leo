@@ -103,8 +103,11 @@ impl Manifest {
 
         // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
         match file.write_all(self.template().as_bytes()) {
-            Ok(v) => return Ok(v),
-            Err(e) => return Err(PackageError::io_error_manifest_file(eyre!(e), Backtrace::new()).into()),
+            Ok(v) => Ok(v),
+            Err(e) => Err(LeoError::from(PackageError::io_error_manifest_file(
+                eyre!(e),
+                Backtrace::new(),
+            ))),
         }
     }
 
@@ -143,9 +146,11 @@ impl TryFrom<&Path> for Manifest {
         let mut file = match File::open(path.clone()) {
             Ok(file) => file,
             Err(e) => {
-                return Err(
-                    PackageError::failed_to_open_manifest_file(MANIFEST_FILENAME, eyre!(e), Backtrace::new()).into(),
-                );
+                return Err(PackageError::failed_to_open_manifest_file(
+                    MANIFEST_FILENAME,
+                    eyre!(e),
+                    Backtrace::new(),
+                ));
             }
         };
 
@@ -157,17 +162,18 @@ impl TryFrom<&Path> for Manifest {
                     MANIFEST_FILENAME,
                     eyre!(e),
                     Backtrace::new(),
-                )
-                .into());
+                ));
             }
         };
 
         let mut buffer = String::with_capacity(size);
         // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
         if let Err(e) = file.read_to_string(&mut buffer) {
-            return Err(
-                PackageError::failed_to_read_manifest_file(MANIFEST_FILENAME, eyre!(e), Backtrace::new()).into(),
-            );
+            return Err(PackageError::failed_to_read_manifest_file(
+                MANIFEST_FILENAME,
+                eyre!(e),
+                Backtrace::new(),
+            ));
         }
 
         // Determine if the old remote format is being used, and update to new convention
@@ -261,22 +267,22 @@ author = "{author}"
                         MANIFEST_FILENAME,
                         eyre!(e),
                         Backtrace::new(),
-                    )
-                    .into());
+                    ));
                 }
             };
 
             // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
             if let Err(e) = file.write_all(refactored_toml.as_bytes()) {
-                return Err(
-                    PackageError::failed_to_write_manifest_file(MANIFEST_FILENAME, eyre!(e), Backtrace::new()).into(),
-                );
+                return Err(PackageError::failed_to_write_manifest_file(
+                    MANIFEST_FILENAME,
+                    eyre!(e),
+                    Backtrace::new(),
+                ));
             }
         }
 
         // Read the toml file
-        toml::from_str(&final_toml).map_err(|e| {
-            PackageError::failed_to_parse_manifest_file(MANIFEST_FILENAME, eyre!(e), Backtrace::new()).into()
-        })
+        toml::from_str(&final_toml)
+            .map_err(|e| PackageError::failed_to_parse_manifest_file(MANIFEST_FILENAME, eyre!(e), Backtrace::new()))
     }
 }

@@ -78,8 +78,8 @@ impl InputFile {
 
         // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
         match file.write_all(self.template().as_bytes()) {
-            Ok(_) => return Ok(()),
-            Err(e) => return Err(PackageError::io_error_input_file(eyre!(e), Backtrace::new()).into()),
+            Ok(_) => Ok(()),
+            Err(e) => Err(PackageError::io_error_input_file(eyre!(e), Backtrace::new()).into()),
         }
     }
 

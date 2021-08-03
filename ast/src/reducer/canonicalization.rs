@@ -48,7 +48,7 @@ impl Canonicalizer {
         let mut left = Box::new(start);
 
         for access in accesses.iter() {
-            match self.canonicalize_assignee_access(&access) {
+            match self.canonicalize_assignee_access(access) {
                 AssigneeAccess::ArrayIndex(index) => {
                     left = Box::new(Expression::ArrayAccess(ArrayAccessExpression {
                         array: left,
@@ -274,6 +274,11 @@ impl Canonicalizer {
                     span: call.span.clone(),
                 });
             }
+            Expression::Identifier(identifier) => {
+                if identifier.name.as_ref() == "Self" && self.circuit_name.is_some() {
+                    return Expression::Identifier(self.circuit_name.as_ref().unwrap().clone());
+                }
+            }
             _ => {}
         }
 
@@ -288,7 +293,7 @@ impl Canonicalizer {
 
                 AssigneeAccess::ArrayRange(left, right)
             }
-            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.canonicalize_expression(&index)),
+            AssigneeAccess::ArrayIndex(index) => AssigneeAccess::ArrayIndex(self.canonicalize_expression(index)),
             _ => access.clone(),
         }
     }
@@ -311,7 +316,7 @@ impl Canonicalizer {
         let statements = block
             .statements
             .iter()
-            .map(|block_statement| self.canonicalize_statement(&block_statement))
+            .map(|block_statement| self.canonicalize_statement(block_statement))
             .collect();
 
         Block {
@@ -349,12 +354,12 @@ impl Canonicalizer {
                 let assignee = self.canonicalize_assignee(&assign.assignee);
                 let value = self.canonicalize_expression(&assign.value);
 
-                Statement::Assign(AssignStatement {
+                Statement::Assign(Box::new(AssignStatement {
                     assignee,
                     value,
                     operation: assign.operation,
                     span: assign.span.clone(),
-                })
+                }))
             }
             Statement::Conditional(conditional) => {
                 let condition = self.canonicalize_expression(&conditional.condition);
@@ -376,14 +381,14 @@ impl Canonicalizer {
                 let stop = self.canonicalize_expression(&iteration.stop);
                 let block = self.canonicalize_block(&iteration.block);
 
-                Statement::Iteration(IterationStatement {
+                Statement::Iteration(Box::new(IterationStatement {
                     variable: iteration.variable.clone(),
                     start,
                     stop,
                     inclusive: iteration.inclusive,
                     block,
                     span: iteration.span.clone(),
-                })
+                }))
             }
             Statement::Console(console_function_call) => {
                 let function = match &console_function_call.function {
@@ -436,14 +441,14 @@ impl Canonicalizer {
                     output = Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone()));
                 }
 
-                return CircuitMember::CircuitFunction(Function {
+                return CircuitMember::CircuitFunction(Box::new(Function {
                     annotations: function.annotations.clone(),
                     identifier: function.identifier.clone(),
                     input,
                     output,
                     block,
                     span: function.span.clone(),
-                });
+                }));
             }
         }
 

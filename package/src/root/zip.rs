@@ -166,7 +166,7 @@ impl ZipFile {
         }
 
         // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        if let Err(_) = fs::remove_file(&path) {
+        if fs::remove_file(&path).is_err() {
             return Err(PackageError::failed_to_remove_zip_file(path.into_owned(), Backtrace::new()).into());
         }
 

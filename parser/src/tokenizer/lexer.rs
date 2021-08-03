@@ -101,7 +101,7 @@ impl Token {
                 return None;
             }
 
-            if let Ok(ascii_number) = u8::from_str_radix(&hex_string, 16) {
+            if let Ok(ascii_number) = u8::from_str_radix(hex_string, 16) {
                 // According to RFC, we allow only values less than 128.
                 if ascii_number > 127 {
                     return None;
@@ -123,7 +123,7 @@ impl Token {
                 return None;
             }
 
-            if let Ok(hex) = u32::from_str_radix(&unicode_number, 16) {
+            if let Ok(hex) = u32::from_str_radix(unicode_number, 16) {
                 if let Some(character) = std::char::from_u32(hex) {
                     // scalar
                     return Some(Char::Scalar(character));

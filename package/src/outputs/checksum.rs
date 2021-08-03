@@ -87,9 +87,7 @@ impl ChecksumFile {
         // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
         match fs::remove_file(&path) {
             Ok(_) => Ok(true),
-            Err(_) => {
-                return Err(PackageError::failed_to_remove_checksum_file(path.into_owned(), Backtrace::new()).into());
-            }
+            Err(_) => Err(PackageError::failed_to_remove_checksum_file(path.into_owned(), Backtrace::new()).into()),
         }
     }
 

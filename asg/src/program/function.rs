@@ -90,24 +90,18 @@ impl<'a> Function<'a> {
                     FunctionInput::MutSelfKeyword(_) => {
                         qualifier = FunctionQualifier::MutSelfRef;
                     }
-                    FunctionInput::Variable(leo_ast::FunctionInputVariable {
-                        type_,
-                        identifier,
-                        const_,
-                        mutable,
-                        ..
-                    }) => {
+                    FunctionInput::Variable(input_variable) => {
                         let variable = scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                             id: scope.context.get_id(),
-                            name: identifier.clone(),
-                            type_: scope.resolve_ast_type(&type_, &value.span)?,
-                            mutable: *mutable,
-                            const_: *const_,
+                            name: input_variable.identifier.clone(),
+                            type_: scope.resolve_ast_type(&input_variable.type_, &value.span)?,
+                            mutable: input_variable.mutable,
+                            const_: input_variable.const_,
                             declaration: crate::VariableDeclaration::Parameter,
                             references: vec![],
                             assignments: vec![],
                         }));
-                        arguments.insert(identifier.name.to_string(), Cell::new(&*variable));
+                        arguments.insert(input_variable.identifier.name.to_string(), Cell::new(&*variable));
                     }
                 }
             }
@@ -190,13 +184,13 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
             .iter()
             .map(|(_, variable)| {
                 let variable = variable.get().borrow();
-                leo_ast::FunctionInput::Variable(leo_ast::FunctionInputVariable {
+                leo_ast::FunctionInput::Variable(Box::new(leo_ast::FunctionInputVariable {
                     identifier: variable.name.clone(),
                     mutable: variable.mutable,
                     const_: variable.const_,
                     type_: (&variable.type_).into(),
                     span: Span::default(),
-                })
+                }))
             })
             .collect();
         let (body, span) = match self.body.get() {

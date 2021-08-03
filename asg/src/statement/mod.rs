@@ -87,7 +87,7 @@ impl<'a> FromAst<'a, leo_ast::Statement> for &'a Statement<'a> {
                 .context
                 .alloc_statement(Statement::Return(ReturnStatement::from_ast(scope, statement, None)?)),
             Definition(statement) => Self::from_ast(scope, statement, None)?,
-            Assign(statement) => Self::from_ast(scope, statement, None)?,
+            Assign(statement) => Self::from_ast(scope, &**statement, None)?,
             Conditional(statement) => {
                 scope
                     .context
@@ -95,7 +95,7 @@ impl<'a> FromAst<'a, leo_ast::Statement> for &'a Statement<'a> {
                         scope, statement, None,
                     )?))
             }
-            Iteration(statement) => Self::from_ast(scope, statement, None)?,
+            Iteration(statement) => Self::from_ast(scope, &**statement, None)?,
             Console(statement) => scope
                 .context
                 .alloc_statement(Statement::Console(ConsoleStatement::from_ast(scope, statement, None)?)),
@@ -119,9 +119,9 @@ impl<'a> Into<leo_ast::Statement> for &Statement<'a> {
         match self {
             Return(statement) => leo_ast::Statement::Return(statement.into()),
             Definition(statement) => leo_ast::Statement::Definition(statement.into()),
-            Assign(statement) => leo_ast::Statement::Assign(statement.into()),
+            Assign(statement) => leo_ast::Statement::Assign(Box::new(statement.into())),
             Conditional(statement) => leo_ast::Statement::Conditional(statement.into()),
-            Iteration(statement) => leo_ast::Statement::Iteration(statement.into()),
+            Iteration(statement) => leo_ast::Statement::Iteration(Box::new(statement.into())),
             Console(statement) => leo_ast::Statement::Console(statement.into()),
             Expression(statement) => leo_ast::Statement::Expression(statement.into()),
             Block(statement) => leo_ast::Statement::Block(statement.into()),

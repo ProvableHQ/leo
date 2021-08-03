@@ -61,7 +61,7 @@ impl<'a> ImportResolver<'a> for ImportParser<'a> {
         self.partial_imports.insert(full_path.clone());
         let program = imports
             .parse_package(context, path, package_segments, span)
-            .map_err(|x| -> LeoError { x.into() })?;
+            .map_err(|x| -> LeoError { x })?;
         self.partial_imports.remove(&full_path);
         self.imports.insert(full_path, program.clone());
         Ok(Some(program))

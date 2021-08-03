@@ -93,7 +93,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         );
         let branch_2_indicator = Boolean::and(
             &mut cs.ns(|| format!("branch 2 {}:{}", &span.line_start, &span.col_start)),
-            &outer_indicator,
+            outer_indicator,
             &inner_indicator,
         )
         .map_err(|_| LeoError::from(CompilerError::statement_indicator_calculation(branch_2_name, &span)))?;

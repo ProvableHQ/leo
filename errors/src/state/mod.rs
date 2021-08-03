@@ -14,5 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod state;
-pub use self::state::*;
+pub mod state_errors;
+pub use self::state_errors::*;

@@ -91,7 +91,7 @@ impl ParserContext {
         match &self.peek()?.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
-            Token::For => Ok(Statement::Iteration(self.parse_loop_statement()?)),
+            Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
             Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
@@ -109,7 +109,7 @@ impl ParserContext {
             let value = self.parse_expression()?;
             let assignee = Self::construct_assignee(expr)?;
             self.expect(Token::Semicolon)?;
-            Ok(Statement::Assign(AssignStatement {
+            Ok(Statement::Assign(Box::new(AssignStatement {
                 span: &assignee.span + value.span(),
                 assignee,
                 operation: match operator.token {
@@ -131,7 +131,7 @@ impl ParserContext {
                     _ => unimplemented!(),
                 },
                 value,
-            }))
+            })))
         } else {
             self.expect(Token::Semicolon)?;
             Ok(Statement::Expression(ExpressionStatement {
@@ -289,7 +289,7 @@ impl ParserContext {
             "log" => ConsoleFunction::Log(self.parse_console_args()?),
             x => {
                 return Err(LeoError::from(ParserError::unexpected_ident(
-                    &x,
+                    x,
                     &["assert", "error", "log"],
                     &function.span,
                 )));

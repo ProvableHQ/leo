@@ -118,7 +118,7 @@ fn resolve_import_package_access(
         PackageAccess::Multiple(packages) => {
             package_segments.push(packages.name.name.to_string());
             for subaccess in packages.accesses.iter() {
-                resolve_import_package_access(output, package_segments.clone(), &subaccess);
+                resolve_import_package_access(output, package_segments.clone(), subaccess);
             }
         }
     }
@@ -281,7 +281,7 @@ impl<'a> Program<'a> {
                 .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name.to_string())));
             let gc = <&Statement<'a>>::from_ast(scope, global_const, None)?;
             if let Statement::Definition(gc) = gc {
-                scope.global_consts.borrow_mut().insert(name.clone(), &gc);
+                scope.global_consts.borrow_mut().insert(name.clone(), gc);
             }
         }
 

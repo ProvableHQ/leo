@@ -342,7 +342,7 @@ impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
                 .context
                 .alloc_expression(CallExpression::from_ast(scope, call, expected_type).map(Expression::Call)?),
         };
-        expression.enforce_parents(&expression);
+        expression.enforce_parents(expression);
         Ok(expression)
     }
 }

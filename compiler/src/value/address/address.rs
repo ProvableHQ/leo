@@ -91,33 +91,57 @@ impl Address {
         Ok(ConstrainedValue::Address(address))
     }
 
-    pub(crate) fn alloc_helper<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>>(
+    pub(crate) fn alloc_helper<
+        F: PrimeField,
+        CS: ConstraintSystem<F>,
+        Fn: FnOnce() -> Result<T, SynthesisError>,
+        T: Borrow<String>,
+    >(
+        cs: CS,
         value_gen: Fn,
     ) -> Result<AleoAddress<Components>, SynthesisError> {
-        let address_string = match value_gen() {
-            Ok(value) => {
-                let string_value = value.borrow().clone();
-                Ok(string_value)
-            }
-            _ => Err(SynthesisError::AssignmentMissing),
-        }?;
-
-        AleoAddress::from_str(&address_string).map_err(|_| SynthesisError::AssignmentMissing)
+        if cs.is_in_setup_mode() {
+            Ok(AleoAddress::<Components>::default())
+        } else {
+            let address_string = value_gen()?.borrow().clone();
+            AleoAddress::from_str(&address_string).map_err(|_| SynthesisError::AssignmentMissing)
+        }
     }
 }
 
 impl<F: PrimeField> AllocGadget<String, F> for Address {
-    fn alloc<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
-        cs: CS,
+    fn alloc_constant<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
+        _cs: CS,
         value_gen: Fn,
     ) -> Result<Self, SynthesisError> {
-        let address = Self::alloc_helper(value_gen)?;
+        let address = {
+            let address_string = value_gen()?.borrow().clone();
+            AleoAddress::from_str(&address_string).map_err(|_| SynthesisError::AssignmentMissing)?
+        };
         let mut address_bytes = vec![];
         address
             .write_le(&mut address_bytes)
             .map_err(|_| SynthesisError::AssignmentMissing)?;
 
-        let bytes = UInt8::alloc_vec(cs, &address_bytes[..])?;
+        let bytes = UInt8::constant_vec(&address_bytes[..]);
+
+        Ok(Address {
+            address: Some(address),
+            bytes,
+        })
+    }
+
+    fn alloc<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
+        mut cs: CS,
+        value_gen: Fn,
+    ) -> Result<Self, SynthesisError> {
+        let address = Self::alloc_helper(cs.ns(|| "allocate the address"), value_gen)?;
+        let mut address_bytes = vec![];
+        address
+            .write_le(&mut address_bytes)
+            .map_err(|_| SynthesisError::AssignmentMissing)?;
+
+        let bytes = UInt8::alloc_vec(cs.ns(|| "allocate the address bytes"), &address_bytes[..])?;
 
         Ok(Address {
             address: Some(address),
@@ -126,16 +150,16 @@ impl<F: PrimeField> AllocGadget<String, F> for Address {
     }
 
     fn alloc_input<Fn: FnOnce() -> Result<T, SynthesisError>, T: Borrow<String>, CS: ConstraintSystem<F>>(
-        cs: CS,
+        mut cs: CS,
         value_gen: Fn,
     ) -> Result<Self, SynthesisError> {
-        let address = Self::alloc_helper(value_gen)?;
+        let address = Self::alloc_helper(cs.ns(|| "allocate the address"), value_gen)?;
         let mut address_bytes = vec![];
         address
             .write_le(&mut address_bytes)
             .map_err(|_| SynthesisError::AssignmentMissing)?;
 
-        let bytes = UInt8::alloc_input_vec_le(cs, &address_bytes[..])?;
+        let bytes = UInt8::alloc_input_vec_le(cs.ns(|| "allocate the address bytes"), &address_bytes[..])?;
 
         Ok(Address {
             address: Some(address),

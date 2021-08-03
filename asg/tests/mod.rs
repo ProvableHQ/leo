@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_asg::*;
+use leo_errors::LeoError;
 use leo_parser::parse_ast;
 
 mod fail;
@@ -22,7 +23,7 @@ mod pass;
 
 const TESTING_FILEPATH: &str = "input.leo";
 
-fn load_asg(program_string: &str) -> Result<Program<'static>, AsgConvertError> {
+fn load_asg(program_string: &str) -> Result<Program<'static>, LeoError> {
     load_asg_imports(make_test_context(), program_string, &mut NullImportResolver)
 }
 
@@ -30,7 +31,7 @@ fn load_asg_imports<'a, T: ImportResolver<'a>>(
     context: AsgContext<'a>,
     program_string: &str,
     imports: &mut T,
-) -> Result<Program<'a>, AsgConvertError> {
+) -> Result<Program<'a>, LeoError> {
     let ast = parse_ast(&TESTING_FILEPATH, program_string)?;
     Program::new(context, &ast.as_repr(), imports)
 }

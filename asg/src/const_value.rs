@@ -319,52 +319,52 @@ impl ConstInt {
             IntegerType::I8 => ConstInt::I8(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
             IntegerType::I16 => ConstInt::I16(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
             IntegerType::I32 => ConstInt::I32(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
             IntegerType::I64 => ConstInt::I64(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
             IntegerType::I128 => ConstInt::I128(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
             IntegerType::U8 => ConstInt::U8(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
             IntegerType::U16 => ConstInt::U16(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
             IntegerType::U32 => ConstInt::U32(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
             IntegerType::U64 => ConstInt::U64(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
             IntegerType::U128 => ConstInt::U128(
                 value
                     .parse()
-                    .map_err(|_| LeoError::from(AsgError::invalid_int(&value, span)))?,
+                    .map_err(|_| LeoError::from(AsgError::invalid_int(value, span)))?,
             ),
         })
     }

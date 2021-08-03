@@ -65,7 +65,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                                 .len()
                                 .try_into()
                                 .map_err(|_| LeoError::from(CompilerError::array_length_out_of_bounds(&span)))?;
-                            self.array_bounds_check(cs, &&index_resolved, array_len, &span)?;
+                            self.array_bounds_check(cs, &index_resolved, array_len, &span)?;
                         }
 
                         for (i, item) in input.iter_mut().enumerate() {
@@ -114,7 +114,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                                 unique_namespace,
                                 &index_comparison,
                                 &temp_item,
-                                &item,
+                                item,
                             )
                             .map_err(|e| {
                                 LeoError::from(CompilerError::cannot_enforce_expression(
@@ -159,7 +159,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         .len()
                         .try_into()
                         .map_err(|_| LeoError::from(CompilerError::array_length_out_of_bounds(&span)))?;
-                    self.array_bounds_check(cs, &&index_resolved, array_len, &span)?;
+                    self.array_bounds_check(cs, &index_resolved, array_len, &span)?;
                 }
 
                 for (i, item) in context.input.iter_mut().enumerate() {
@@ -205,14 +205,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         item
                     };
                     let value =
-                        ConstrainedValue::conditionally_select(unique_namespace, &index_comparison, &temp_item, &item)
+                        ConstrainedValue::conditionally_select(unique_namespace, &index_comparison, &temp_item, item)
                             .map_err(|e| {
-                                LeoError::from(CompilerError::cannot_enforce_expression(
-                                    "conditional select".to_string(),
-                                    eyre!(e),
-                                    &span,
-                                ))
-                            })?;
+                            LeoError::from(CompilerError::cannot_enforce_expression(
+                                "conditional select".to_string(),
+                                eyre!(e),
+                                &span,
+                            ))
+                        })?;
                     **item = value;
                 }
                 Ok(())

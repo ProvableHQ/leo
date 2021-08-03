@@ -183,7 +183,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         state_string: &str,
         state_path: &Path,
     ) -> Result<(), LeoError> {
-        let input_syntax_tree = LeoInputParser::parse_file(&input_string).map_err(|mut e| {
+        let input_syntax_tree = LeoInputParser::parse_file(input_string).map_err(|mut e| {
             e.set_path(
                 input_path.to_str().unwrap_or_default(),
                 &input_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
@@ -191,7 +191,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
 
             e
         })?;
-        let state_syntax_tree = LeoInputParser::parse_file(&state_string).map_err(|mut e| {
+        let state_syntax_tree = LeoInputParser::parse_file(state_string).map_err(|mut e| {
             e.set_path(
                 state_path.to_str().unwrap_or_default(),
                 &state_string.lines().map(|x| x.to_string()).collect::<Vec<String>>()[..],
@@ -315,14 +315,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     /// Synthesizes the circuit with program input to verify correctness.
     ///
     pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<Output, LeoError> {
-        generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input)
+        generate_constraints::<F, G, CS>(cs, self.asg.as_ref().unwrap(), &self.program_input)
     }
 
     ///
     /// Synthesizes the circuit for test functions with program input.
     ///
     pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), LeoError> {
-        generate_test_constraints::<F, G>(&self.asg.as_ref().unwrap(), input_pairs, &self.output_directory)
+        generate_test_constraints::<F, G>(self.asg.as_ref().unwrap(), input_pairs, &self.output_directory)
     }
 
     ///

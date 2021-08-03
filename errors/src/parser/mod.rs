@@ -14,5 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod parser;
-pub use self::parser::*;
+pub mod parser_errors;
+pub use self::parser_errors::*;

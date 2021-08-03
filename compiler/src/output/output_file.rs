@@ -52,9 +52,8 @@ impl OutputFile {
         let mut file = File::create(&path)
             .map_err(|e| LeoError::from(CompilerError::output_file_io_error(eyre!(e), Backtrace::new())))?;
 
-        Ok(file
-            .write_all(bytes)
-            .map_err(|e| LeoError::from(CompilerError::output_file_io_error(eyre!(e), Backtrace::new())))?)
+        file.write_all(bytes)
+            .map_err(|e| LeoError::from(CompilerError::output_file_io_error(eyre!(e), Backtrace::new())))
     }
 
     /// Removes the output file at the given path if it exists. Returns `true` on success,

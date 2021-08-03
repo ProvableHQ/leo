@@ -26,9 +26,9 @@ use std::fmt;
 pub enum Statement {
     Return(ReturnStatement),
     Definition(DefinitionStatement),
-    Assign(AssignStatement),
+    Assign(Box<AssignStatement>),
     Conditional(ConditionalStatement),
-    Iteration(IterationStatement),
+    Iteration(Box<IterationStatement>),
     Console(ConsoleStatement),
     Expression(ExpressionStatement),
     Block(Block),

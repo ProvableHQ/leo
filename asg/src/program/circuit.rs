@@ -153,7 +153,7 @@ impl<'a> Into<leo_ast::Circuit> for &Circuit<'a> {
                 CircuitMember::Variable(type_) => {
                     leo_ast::CircuitMember::CircuitVariable(Identifier::new((&**name).into()), type_.into())
                 }
-                CircuitMember::Function(func) => leo_ast::CircuitMember::CircuitFunction((*func).into()),
+                CircuitMember::Function(func) => leo_ast::CircuitMember::CircuitFunction(Box::new((*func).into())),
             })
             .collect();
         leo_ast::Circuit {

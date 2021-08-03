@@ -17,7 +17,7 @@
 use tendril::StrTendril;
 
 use super::*;
-use crate::{Char, CharValue, GroupTuple};
+use crate::{Char, CharValue};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ValueExpression {
@@ -69,7 +69,8 @@ impl Node for ValueExpression {
             | String(_, span) => span,
             Char(character) => &character.span,
             Group(group) => match &**group {
-                GroupValue::Single(_, span) | GroupValue::Tuple(GroupTuple { span, .. }) => span,
+                GroupValue::Single(_, span) => span,
+                GroupValue::Tuple(tuple) => &tuple.span,
             },
         }
     }
@@ -85,7 +86,8 @@ impl Node for ValueExpression {
             | String(_, span) => *span = new_span,
             Char(character) => character.span = new_span,
             Group(group) => match &mut **group {
-                GroupValue::Single(_, span) | GroupValue::Tuple(GroupTuple { span, .. }) => *span = new_span,
+                GroupValue::Single(_, span) => *span = new_span,
+                GroupValue::Tuple(tuple) => tuple.span = new_span,
             },
         }
     }
