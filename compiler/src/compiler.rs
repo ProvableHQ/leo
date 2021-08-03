@@ -381,7 +381,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'
         let package_name = self.program_name.clone();
         // TODO WHAT TO DO HERE
         let result = self.compile_constraints(cs).map_err(|e| {
-            tracing::error!("Error: {}", e);
+            tracing::error!("Error {}", e);
             SynthesisError::Unsatisfiable
         })?;
 

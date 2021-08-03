@@ -83,7 +83,7 @@ impl fmt::Display for BacktracedError {
             write!(f, "{indent     } = {help}", indent = INDENT, help = help)?;
         }
 
-        write!(f, "{:?}", self.backtrace)
+        write!(f, "stack backtrace:\n{:?}", self.backtrace)
     }
 }
 

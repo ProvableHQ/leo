@@ -94,8 +94,8 @@ impl fmt::Display for FormattedError {
         let underlined = underline(self.col_start, self.col_start);
 
         let error_message = format!(
-            "{indent     }[E{error_type}{code_identifier}{exit_code}]: {message}\
-             {indent     }--> {path}:{line_start}:{start}\n\
+            "[E{error_type}{code_identifier}{exit_code:0>4}]: {message}\n\
+             --> {path}:{line_start}:{start}\n\
 	  {indent     } ",
             indent = INDENT,
             error_type = self.backtrace.error_type,
@@ -131,7 +131,7 @@ impl fmt::Display for FormattedError {
             write!(f, "{indent     } = {help}", indent = INDENT, help = help)?;
         }
 
-        write!(f, "{:?}", self.backtrace)
+        write!(f, "stack backtrace:\n{:?}", self.backtrace.backtrace)
     }
 }
 
