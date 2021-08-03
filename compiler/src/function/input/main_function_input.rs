@@ -35,7 +35,6 @@ use leo_asg::{ConstInt, Type};
 use leo_ast::{Char, InputValue};
 use leo_errors::{CompilerError, LeoError, Span};
 
-
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
@@ -79,7 +78,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         input_option: Option<InputValue>,
         span: &Span,
     ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
-        let input = input_option.ok_or_else(|| LeoError::from(CompilerError::input_not_found(name.to_string(), span)))?;
+        let input = input_option.ok_or_else(|| {
+            LeoError::from(CompilerError::function_input_not_found(
+                "main".to_string(),
+                name.to_string(),
+                span,
+            ))
+        })?;
 
         match (type_, input) {
             (Type::Address, InputValue::Address(addr)) => Ok(ConstrainedValue::Address(Address::constant(addr, span)?)),
@@ -107,7 +112,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let parsed_type = parsed.get_int_type();
                 let input_type = input_type.into();
                 if std::mem::discriminant(&parsed_type) != std::mem::discriminant(&input_type) {
-                    return Err(LeoError::from(CompilerError::integer_type_mismatch(
+                    return Err(LeoError::from(CompilerError::integer_value_integer_type_mismatch(
                         input_type.to_string(),
                         parsed_type.to_string(),
                         span,
@@ -133,7 +138,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             }
             (Type::Tuple(types), InputValue::Tuple(values)) => {
                 if values.len() != types.len() {
-                    return Err(LeoError::from(CompilerError::tuple_size_mismatch(types.len(), values.len(), span)));
+                    return Err(LeoError::from(CompilerError::input_tuple_size_mismatch(
+                        types.len(),
+                        values.len(),
+                        span,
+                    )));
                 }
 
                 Ok(ConstrainedValue::Tuple(
@@ -149,7 +158,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             (Type::Circuit(_), _) => unimplemented!("main function input not implemented for type {}", type_), // Should not happen.
 
             // Return an error if the input type and input value do not match.
-            (_, input) => Err(LeoError::from(CompilerError::input_type_mismatch(
+            (_, input) => Err(LeoError::from(CompilerError::input_variable_type_mismatch(
                 type_.to_string(),
                 input.to_string(),
                 name.to_string(),

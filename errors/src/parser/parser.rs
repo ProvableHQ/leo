@@ -21,48 +21,56 @@ create_errors!(
     exit_code_mask: 5000u32,
     error_code_prefix: "P",
 
+    @formatted
     unexpected_token {
         args: (message: String, help: String),
         msg: message,
         help: Some(help),
     }
 
+    @formatted
     invalid_address_lit {
         args: (token: &str),
         msg: format!("invalid address literal: '{}'", token),
         help: None,
     }
 
+    @formatted
     invalid_import_list {
         args: (),
         msg: "Cannot import empty list",
         help: None,
     }
 
+    @formatted
     unexpected_eof {
         args: (),
         msg: "unexpected EOF",
         help: None,
     }
 
+    @formatted
     unexpected_whitespace {
         args: (left: &str, right: &str),
         msg: format!("Unexpected white space between terms {} and {}", left, right),
         help: None,
     }
 
+    @formatted
     unexpected {
         args: (got: String, expected: String),
         msg: format!("expected {} -- got '{}'", expected, got),
         help: None,
     }
 
+    @formatted
     mixed_commas_and_semicolons {
         args: (),
         msg: "Cannot mix use of commas and semi-colons for circuit member variable declarations.",
         help: None,
     }
 
+    @formatted
     unexpected_ident {
         args: (got: &str, expected: &[&str]),
         msg: format!(
@@ -77,60 +85,70 @@ create_errors!(
         help: None,
     }
 
+    @formatted
     unexpected_statement {
         args: (got: String, expected: &str),
         msg: format!("unexpected statement: expected '{}', got '{}'", expected, got),
         help: None,
     }
 
+    @formatted
     unexpected_str {
         args: (got: String, expected: &str),
         msg: format!("unexpected string: expected '{}', got '{}'", expected, got),
         help: None,
     }
 
+    @formatted
     spread_in_array_init {
         args: (),
         msg: "illegal spread in array initializer",
         help: None,
     }
 
+    @formatted
     invalid_assignment_target {
         args: (),
         msg: "invalid assignment target",
         help: None,
     }
 
+    @formatted
     invalid_package_name {
         args: (),
         msg: "package names must be lowercase alphanumeric ascii with underscores and singular dashes",
         help: None,
     }
 
+    @formatted
     illegal_self_const {
         args: (),
         msg: "cannot have const self",
         help: None,
     }
 
+    @formatted
     mut_function_input {
         args: (),
         msg: "function func(mut a: u32) { ... } is deprecated. Passed variables are mutable by default.",
         help: None,
     }
 
+    @formatted
     let_mut_statement {
         args: (),
         msg: "let mut = ... is deprecated. `let` keyword implies mutabality by default.",
         help: None,
     }
 
+    @formatted
     test_function {
         args: (),
         msg: "\"test function...\" is deprecated. Did you mean @test annotation?",
         help: None,
     }
 
+    @formatted
     context_annotation {
         args: (),
         msg: "\"@context(...)\" is deprecated. Did you mean @test annotation?",

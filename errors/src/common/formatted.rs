@@ -14,12 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Span;
+use crate::{BacktracedError, Span};
 
 use std::{fmt, sync::Arc};
-
-use backtrace::Backtrace;
-use derivative::Derivative;
 
 pub const INDENT: &str = "    ";
 
@@ -31,8 +28,7 @@ pub const INDENT: &str = "    ";
 ///      |         ^
 ///      |
 ///      = help: Initialize a variable `x` first.
-#[derive(Derivative)]
-#[derivative(Clone, Debug, Default, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Hash, PartialEq)]
 pub struct FormattedError {
     pub line_start: usize,
     pub line_stop: usize,
@@ -40,25 +36,21 @@ pub struct FormattedError {
     pub col_stop: usize,
     pub path: Arc<String>,
     pub content: String,
-    pub message: String,
-    pub help: Option<String>,
-    pub exit_code: u32,
-    pub code_identifier: String,
-    pub error_type: String,
-    #[derivative(PartialEq = "ignore")]
-    #[derivative(Hash = "ignore")]
-    pub backtrace: Backtrace,
+    pub backtrace: BacktracedError,
 }
 
 impl FormattedError {
-    pub fn new_from_span(
-        message: String,
-        help: Option<String>,
+    pub fn new_from_span<S>(
+        message: S,
+        help: Option<S>,
         exit_code: u32,
         code_identifier: String,
         error_type: String,
         span: &Span,
-    ) -> Self {
+    ) -> Self
+    where
+        S: ToString,
+    {
         Self {
             line_start: span.line_start,
             line_stop: span.line_stop,
@@ -66,12 +58,14 @@ impl FormattedError {
             col_stop: span.col_stop,
             path: span.path.clone(),
             content: span.content.to_string(),
-            message,
-            help,
-            exit_code,
-            code_identifier,
-            error_type,
-            backtrace: Backtrace::new(),
+            backtrace: BacktracedError::new_from_backtrace(
+                message.to_string(),
+                help.map(|help| help.to_string()),
+                exit_code,
+                code_identifier,
+                error_type,
+                span.backtrace.clone(),
+            ),
         }
     }
 }
@@ -104,10 +98,10 @@ impl fmt::Display for FormattedError {
              {indent     }--> {path}:{line_start}:{start}\n\
 	  {indent     } ",
             indent = INDENT,
-            error_type = self.error_type,
-            code_identifier = self.code_identifier,
-            exit_code = self.exit_code,
-            message = self.message,
+            error_type = self.backtrace.error_type,
+            code_identifier = self.backtrace.code_identifier,
+            exit_code = self.backtrace.exit_code,
+            message = self.backtrace.message,
             path = &*self.path,
             line_start = self.line_start,
             start = self.col_start,
@@ -133,16 +127,16 @@ impl fmt::Display for FormattedError {
             underlined = underlined,
         )?;
 
-        if let Some(help) = &self.help {
+        if let Some(help) = &self.backtrace.help {
             write!(f, "{indent     } = {help}", indent = INDENT, help = help)?;
         }
 
-        write!(f, "{:?}", self.backtrace,)
+        write!(f, "{:?}", self.backtrace)
     }
 }
 
 impl std::error::Error for FormattedError {
     fn description(&self) -> &str {
-        &self.message
+        &self.backtrace.message
     }
 }

@@ -15,13 +15,15 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    errors::PackageError,
     imports::ImportsDirectory,
     inputs::{InputFile, InputsDirectory, StateFile},
     root::{Gitignore, Manifest, README},
     source::{MainFile, SourceDirectory},
 };
 
+use leo_errors::{LeoError, PackageError};
+
+use backtrace::Backtrace;
 use serde::Deserialize;
 use std::path::Path;
 
@@ -34,10 +36,10 @@ pub struct Package {
 }
 
 impl Package {
-    pub fn new(package_name: &str) -> Result<Self, PackageError> {
+    pub fn new(package_name: &str) -> Result<Self, LeoError> {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
-            return Err(PackageError::InvalidPackageName(package_name.to_string()));
+            return Err(PackageError::invalid_package_name(package_name.to_string(), Backtrace::new()).into());
         }
 
         Ok(Self {
@@ -182,14 +184,16 @@ impl Package {
     }
 
     /// Creates a package at the given path
-    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<(), PackageError> {
+    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<(), LeoError> {
         // First, verify that this directory is not already initialized as a Leo package.
         {
             if !Self::can_initialize(package_name, path) {
-                return Err(PackageError::FailedToInitialize(
+                return Err(PackageError::failed_to_initialize_package(
                     package_name.to_owned(),
                     path.as_os_str().to_owned(),
-                ));
+                    Backtrace::new(),
+                )
+                .into());
             }
         }
         // Next, initialize this directory as a Leo package.
@@ -227,10 +231,12 @@ impl Package {
         // Next, verify that a valid Leo package has been initialized in this directory
         {
             if !Self::is_initialized(package_name, path) {
-                return Err(PackageError::FailedToInitialize(
+                return Err(PackageError::failed_to_initialize_package(
                     package_name.to_owned(),
                     path.as_os_str().to_owned(),
-                ));
+                    Backtrace::new(),
+                )
+                .into());
             }
         }
 
@@ -238,7 +244,7 @@ impl Package {
     }
 
     /// Removes the package at the given path
-    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), PackageError> {
+    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), LeoError> {
         Ok(ImportsDirectory::remove_import(path, package_name)?)
     }
 }

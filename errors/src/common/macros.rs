@@ -17,13 +17,18 @@
 #[macro_export]
 macro_rules! create_errors {
     (@step $_code:expr,) => {};
-    ($error_type:ident, exit_code_mask: $exit_code_mask:expr, error_code_prefix: $error_code_prefix:expr, $($names:ident { args: ($($arg_names:ident: $arg_types:ty$(,)?)*), msg: $messages:expr, help: $helps:expr, })*) => {
-        use crate::{ErrorCode, FormattedError, LeoErrorCode, Span};
+    ($error_type:ident, exit_code_mask: $exit_code_mask:expr, error_code_prefix: $error_code_prefix:expr, $(@$formatted_or_backtraced_list:ident $names:ident { args: ($($arg_names:ident: $arg_types:ty$(,)?)*), msg: $messages:expr, help: $helps:expr, })*) => {
+        use crate::{BacktracedError, ErrorCode, FormattedError, LeoErrorCode, Span};
+
+        use backtrace::Backtrace;
 
         #[derive(Debug, Error)]
         pub enum $error_type {
             #[error(transparent)]
             FormattedError(#[from] FormattedError),
+
+	        #[error(transparent)]
+            BacktracedError(#[from] BacktracedError),
         }
 
         impl LeoErrorCode for $error_type {}
@@ -33,36 +38,57 @@ macro_rules! create_errors {
             fn exit_code_mask() -> u32 {
                 $exit_code_mask
             }
-        
+
             #[inline(always)]
             fn error_type() -> String {
                 $error_code_prefix.to_string()
             }
-        
-            fn new_from_span<T>(message: T, help: Option<String>, exit_code: u32, span: &Span) -> Self
-            where T: ToString {
-                Self::FormattedError(FormattedError::new_from_span(
-                        message.to_string(),
+
+	    fn new_from_backtrace<S>(message: S, help: Option<S>, exit_code: u32, backtrace: Backtrace) -> Self
+	    where
+		S: ToString {
+		BacktracedError::new_from_backtrace(
+		    message,
+                        help,
+                        exit_code + Self::exit_code_mask(),
+                        Self::code_identifier(),
+                    Self::error_type(),
+		    backtrace,
+		).into()
+	    }
+
+            fn new_from_span<S>(message: S, help: Option<S>, exit_code: u32, span: &Span) -> Self
+            where S: ToString {
+                FormattedError::new_from_span(
+                        message,
                         help,
                         exit_code + Self::exit_code_mask(),
                         Self::code_identifier(),
                         Self::error_type(),
                         span,
-                ))
-            } 
+                ).into()
+            }
         }
-        
+
         impl $error_type {
-            create_errors!(@step 0u32, $(($names($($arg_names: $arg_types,)*), $messages, $helps),)*);
+            create_errors!(@step 0u32, $(($formatted_or_backtraced_list, $names($($arg_names: $arg_types,)*), $messages, $helps),)*);
         }
     };
-    (@step $code:expr, ($error_name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
+    (@step $code:expr, (formatted, $error_name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($formatted_or_backtraced_tail:ident, $names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
         pub fn $error_name($($arg_names: $arg_types,)* span: &Span) -> Self {
-            
+
             Self::new_from_span($message, $help, $code, span)
         }
 
-        create_errors!(@step $code + 1u32, $(($names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
+        create_errors!(@step $code + 1u32, $(($formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
+    };
+    (@step $code:expr, (backtraced, $error_name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($formatted_or_backtraced_tail:ident, $names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
+        pub fn $error_name($($arg_names: $arg_types,)* backtrace: Backtrace) -> Self {
+
+            Self::new_from_backtrace($message, $help, $code, backtrace)
+        }
+
+        create_errors!(@step $code + 1u32, $(($formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
     };
 
 }

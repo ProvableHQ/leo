@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod backtraced;
+pub use self::backtraced::*;
+
 pub mod formatted;
 pub use self::formatted::*;
 

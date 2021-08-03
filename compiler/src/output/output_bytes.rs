@@ -55,7 +55,7 @@ impl OutputBytes {
 
         // Return an error if we do not have enough return registers
         if register_values.len() < return_values.len() {
-            return Err(LeoError::from(CompilerError::not_enough_registers(span));)
+            return Err(LeoError::from(CompilerError::output_not_enough_registers(span)));
         }
 
         // Manually construct result string
@@ -69,13 +69,13 @@ impl OutputBytes {
             let name = parameter.variable.name;
 
             // Check register type == return value type.
-            let register_type = program.scope.resolve_ast_type(&parameter.type_)?;
+            let register_type = program.scope.resolve_ast_type(&parameter.type_, &parameter.span)?;
             let return_value_type = value.to_type(span)?;
 
             if !register_type.is_assignable_from(&return_value_type) {
-                return Err(LeoError::from(CompilerError::mismatched_output_types(
-                    &register_type,
-                    &return_value_type,
+                return Err(LeoError::from(CompilerError::output_mismatched_types(
+                    register_type.to_string(),
+                    return_value_type.to_string(),
                     span,
                 )));
             }

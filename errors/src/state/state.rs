@@ -17,7 +17,7 @@
 use crate::create_errors;
 
 create_errors!(
-    PackageError,
+    StateError,
     exit_code_mask: 6000u32,
     error_code_prefix: "S",
 );

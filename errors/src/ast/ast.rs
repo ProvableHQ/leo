@@ -21,30 +21,35 @@ create_errors!(
     exit_code_mask: 1000u32,
     error_code_prefix: "T",
 
+    @formatted
     big_self_outside_of_circuit {
         args: (),
         msg: "cannot call keyword `Self` outside of a circuit function",
         help: None,
     }
 
+    @formatted
     invalid_array_dimension_size {
         args: (),
         msg: "received dimension size of 0, expected it to be 1 or larger.",
         help: None,
     }
 
+    @formatted
     asg_statement_not_block {
         args: (),
         msg: "AstStatement should be be a block",
         help: None,
     }
 
+    @formatted
     empty_string {
         args: (),
         msg: "Cannot constrcut an empty string: it has the type of [char; 0] which is not possible.",
         help: None,
     }
 
+    @formatted
     impossible_console_assert_call {
         args: (),
         msg: "Console::Assert cannot be matched here, its handled in another case.",

@@ -20,7 +20,6 @@ use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType, Int
 use leo_asg::Expression;
 use leo_errors::{CompilerError, LeoError, Span};
 
-
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
@@ -33,7 +32,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<Integer, LeoError> {
         match self.enforce_expression(cs, index)? {
             ConstrainedValue::Integer(number) => Ok(number),
-            value => Err(LeoError::from(CompilerError::invalid_index(value.to_string(), span))),
+            value => Err(LeoError::from(CompilerError::invalid_index_expression(
+                value.to_string(),
+                span,
+            ))),
         }
     }
 }

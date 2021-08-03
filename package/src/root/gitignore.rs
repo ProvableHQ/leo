@@ -16,8 +16,10 @@
 
 //! The `.gitignore` file.
 
-use crate::errors::GitignoreError;
+use leo_errors::{LeoError, PackageError};
 
+use backtrace::Backtrace;
+use eyre::eyre;
 use serde::Deserialize;
 use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
@@ -39,14 +41,23 @@ impl Gitignore {
         path.exists()
     }
 
-    pub fn write_to(self, path: &Path) -> Result<(), GitignoreError> {
+    pub fn write_to(self, path: &Path) -> Result<(), LeoError> {
         let mut path = Cow::from(path);
         if path.is_dir() {
             path.to_mut().push(GITIGNORE_FILENAME);
         }
 
-        let mut file = File::create(&path)?;
-        Ok(file.write_all(self.template().as_bytes())?)
+        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+        let mut file = match File::create(&path) {
+            Ok(file) => file,
+            Err(e) => return Err(PackageError::io_error_gitignore_file(eyre!(e), Backtrace::new()).into()),
+        };
+
+        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+        match file.write_all(self.template().as_bytes()) {
+            Ok(v) => Ok(v),
+            Err(e) => Err(PackageError::io_error_gitignore_file(eyre!(e), Backtrace::new()).into()),
+        }
     }
 
     fn template(&self) -> String {

@@ -20,6 +20,7 @@ use leo_asg::{ConstInt, IntegerType};
 use leo_ast::InputValue;
 use leo_errors::{CompilerError, LeoError, Span};
 
+use eyre::eyre;
 use snarkvm_fields::{Field, PrimeField};
 use snarkvm_gadgets::{
     boolean::Boolean,
@@ -161,7 +162,7 @@ impl Integer {
                 if let InputValue::Integer(type_, number) = input {
                     let asg_type = IntegerType::from(type_);
                     if std::mem::discriminant(&asg_type) != std::mem::discriminant(integer_type) {
-                        return Err(LeoError::from(CompilerError::integer_type_mismatch(
+                        return Err(LeoError::from(CompilerError::integer_value_integer_type_mismatch(
                             integer_type.to_string(),
                             asg_type.to_string(),
                             span,
@@ -169,7 +170,10 @@ impl Integer {
                     }
                     Some(number)
                 } else {
-                    return Err(LeoError::from(CompilerError::invalid_integer(input.to_string(), span)));
+                    return Err(LeoError::from(CompilerError::integer_value_invalid_integer(
+                        input.to_string(),
+                        span,
+                    )));
                 }
             }
             None => None,
@@ -178,18 +182,14 @@ impl Integer {
         Self::allocate_type(cs, integer_type, name, option, span)
     }
 
-    pub fn negate<F: PrimeField, CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-        span: &Span,
-    ) -> Result<Self, LeoError> {
+    pub fn negate<F: PrimeField, CS: ConstraintSystem<F>>(self, cs: &mut CS, span: &Span) -> Result<Self, LeoError> {
         let unique_namespace = format!("enforce -{} {}:{}", self, span.line_start, span.col_start);
 
         let a = self;
 
         let result = match_signed_integer!(a, span => a.neg(cs.ns(|| unique_namespace)));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::invalid_unsigned_negate(span)))
+        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_negate_operation(span)))
     }
 
     pub fn add<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -205,7 +205,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.add(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::invalid_integer_binary_operation("+".to_string(), span)))
+        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("+".to_string(), span)))
     }
 
     pub fn sub<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -221,7 +221,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.sub(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::invalid_integer_binary_operation("-".to_string(), span)))
+        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("-".to_string(), span)))
     }
 
     pub fn mul<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -237,7 +237,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.mul(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::invalid_integer_binary_operation("*".to_string(), span)))
+        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("*".to_string(), span)))
     }
 
     pub fn div<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -253,7 +253,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.div(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::invalid_integer_binary_operation("÷".to_string(), span)))
+        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("÷".to_string(), span)))
     }
 
     pub fn pow<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -269,7 +269,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.pow(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::invalid_integer_binary_operation("**".to_string(), span)))
+        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("**".to_string(), span)))
     }
 }
 

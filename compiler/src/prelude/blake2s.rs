@@ -19,6 +19,7 @@ use crate::{ConstrainedValue, GroupType, Integer};
 use leo_asg::Function;
 use leo_errors::{CompilerError, LeoError, Span};
 
+use eyre::eyre;
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     algorithms::prf::Blake2sGadget,
@@ -62,13 +63,25 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuit<'a, F, G> for Blake2s {
         let input = unwrap_argument(arguments.remove(1));
         let seed = unwrap_argument(arguments.remove(0));
 
-        let digest = Blake2sGadget::check_evaluation_gadget(cs.ns(|| "blake2s hash"), &seed[..], &input[..])
-            .map_err(|e| LeoError::from(CompilerError::cannot_enforce("Blake2s check evaluation gadget".to_owned(), e, span)))?;
+        let digest =
+            Blake2sGadget::check_evaluation_gadget(cs.ns(|| "blake2s hash"), &seed[..], &input[..]).map_err(|e| {
+                LeoError::from(CompilerError::cannot_enforce_expression(
+                    "Blake2s check evaluation gadget".to_owned(),
+                    eyre!(e),
+                    span,
+                ))
+            })?;
 
         Ok(ConstrainedValue::Array(
             digest
                 .to_bytes(cs)
-                .map_err(|e| LeoError::from(CompilerError::cannot_enforce("Vec<UInt8> ToBytes".to_owned(), e, span)))?
+                .map_err(|e| {
+                    LeoError::from(CompilerError::cannot_enforce_expression(
+                        "Vec<UInt8> ToBytes".to_owned(),
+                        eyre!(e),
+                        span,
+                    ))
+                })?
                 .into_iter()
                 .map(Integer::U8)
                 .map(ConstrainedValue::Integer)

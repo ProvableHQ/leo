@@ -19,7 +19,6 @@
 use leo_asg::GroupValue;
 use leo_errors::{LeoError, Span};
 
-
 use snarkvm_fields::{Field, One};
 use snarkvm_gadgets::{
     bits::{ToBitsBEGadget, ToBytesGadget},

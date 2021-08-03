@@ -18,6 +18,7 @@ use crate::{ConstrainedValue, GroupType, IntegerTrait};
 use leo_ast::InputValue;
 use leo_errors::{CompilerError, LeoError, Span};
 
+use eyre::eyre;
 use snarkvm_dpc::{account::Address as AleoAddress, testnet1::instantiated::Components};
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
@@ -42,7 +43,8 @@ pub struct Address {
 
 impl Address {
     pub(crate) fn constant(address: String, span: &Span) -> Result<Self, LeoError> {
-        let address = AleoAddress::from_str(&address).map_err(|error| LeoError::from(CompilerError::account_error(error, span)))?;
+        let address = AleoAddress::from_str(&address)
+            .map_err(|e| LeoError::from(CompilerError::address_value_account_error(eyre!(e), span)))?;
 
         let mut address_bytes = vec![];
         address.write_le(&mut address_bytes).unwrap();
@@ -71,7 +73,10 @@ impl Address {
                 if let InputValue::Address(string) = input {
                     Some(string)
                 } else {
-                    return Err(LeoError::from(CompilerError::invalid_address(name.to_owned(), span)));
+                    return Err(LeoError::from(CompilerError::address_value_invalid_address(
+                        name.to_owned(),
+                        span,
+                    )));
                 }
             }
             None => None,
@@ -81,7 +86,7 @@ impl Address {
             cs.ns(|| format!("`{}: address` {}:{}", name, span.line_start, span.col_start)),
             || address_value.ok_or(SynthesisError::AssignmentMissing),
         )
-        .map_err(|_| LeoError::from(CompilerError::missing_address(span)))?;
+        .map_err(|_| LeoError::from(CompilerError::address_value_missing_address(span)))?;
 
         Ok(ConstrainedValue::Address(address))
     }

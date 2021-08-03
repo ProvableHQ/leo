@@ -19,7 +19,6 @@ use leo_asg::{Circuit, CircuitMember, Type};
 use leo_ast::{Identifier, Input};
 use leo_errors::{LeoError, Span};
 
-
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 

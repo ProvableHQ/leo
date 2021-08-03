@@ -20,7 +20,7 @@ use std::cell::Cell;
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Function};
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -44,9 +44,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             )
         };
 
-        let return_value = self
-            .enforce_function(&mut cs.ns(name_unique), &function, target, arguments)
-            .map_err(|error| LeoError::from(CompilerError::from(Box::new(error))))?;
+        let return_value = self.enforce_function(&mut cs.ns(name_unique), &function, target, arguments)?;
 
         Ok(return_value)
     }

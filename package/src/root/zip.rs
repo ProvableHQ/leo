@@ -17,7 +17,6 @@
 //! The program package zip file.
 
 use crate::{
-    errors::ZipFileError,
     imports::IMPORTS_DIRECTORY_NAME,
     inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION},
     outputs::{
@@ -31,6 +30,10 @@ use crate::{
     root::{MANIFEST_FILENAME, README_FILENAME},
     source::{SOURCE_DIRECTORY_NAME, SOURCE_FILE_EXTENSION},
 };
+use leo_errors::{LeoError, PackageError};
+
+use backtrace::Backtrace;
+use eyre::eyre;
 
 use serde::Deserialize;
 use std::{
@@ -69,21 +72,25 @@ impl ZipFile {
     }
 
     // /// Reads the program bytes from the given file path if it exists.
-    // pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, ZipFileError> {
+    // pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, LeoError> {
     //     let path = self.setup_file_path(path);
     //
-    //     Ok(fs::read(&path).map_err(|_| ZipFileError::FileReadError(path.clone()))?)
+    //     Ok(fs::read(&path).map_err(|_| PackageError::FileReadError(path.clone()))?)
     // }
 
     /// Writes the current package contents to a zip file.
-    pub fn write(&self, src_dir: &Path) -> Result<(), ZipFileError> {
+    pub fn write(&self, src_dir: &Path) -> Result<(), LeoError> {
         // Build walkdir iterator from current package
         let walkdir = WalkDir::new(src_dir);
 
         // Create zip file
         let path = self.setup_file_path(src_dir);
 
-        let file = &mut File::create(&path)?;
+        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+        let file = match File::create(&path) {
+            Ok(file) => file,
+            Err(e) => return Err(PackageError::failed_to_create_zip_file(eyre!(e), Backtrace::new()).into()),
+        };
         let mut zip = ZipWriter::new(file);
         let options = FileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
@@ -107,22 +114,43 @@ impl ZipFile {
             if path.is_file() {
                 tracing::info!("Adding file {:?} as {:?}", path, name);
                 #[allow(deprecated)]
-                zip.start_file_from_path(name, options)?;
-                let mut f = File::open(path)?;
+                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+                if let Err(e) = zip.start_file_from_path(name, options) {
+                    return Err(PackageError::io_error_zip_file(eyre!(e), Backtrace::new()).into());
+                }
 
-                f.read_to_end(&mut buffer)?;
-                zip.write_all(&*buffer)?;
+                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+                let mut f = match File::open(path) {
+                    Ok(file) => file,
+                    Err(e) => return Err(PackageError::failed_to_open_zip_file(eyre!(e), Backtrace::new()).into()),
+                };
+
+                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+                if let Err(e) = f.read_to_end(&mut buffer) {
+                    return Err(PackageError::failed_to_read_zip_file(eyre!(e), Backtrace::new()).into());
+                }
+
+                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+                if let Err(e) = zip.write_all(&*buffer) {
+                    return Err(PackageError::failed_to_write_zip_file(eyre!(e), Backtrace::new()).into());
+                }
+
                 buffer.clear();
             } else if !name.as_os_str().is_empty() {
                 // Only if not root Avoids path spec / warning
                 // and mapname conversion failed error on unzip
                 tracing::info!("Adding directory {:?} as {:?}", path, name);
                 #[allow(deprecated)]
-                zip.add_directory_from_path(name, options)?;
+                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+                if let Err(e) = zip.add_directory_from_path(name, options) {
+                    return Err(PackageError::io_error_zip_file(eyre!(e), Backtrace::new()).into());
+                }
             }
         }
 
-        zip.finish()?;
+        if let Err(e) = zip.finish() {
+            return Err(PackageError::io_error_zip_file(eyre!(e), Backtrace::new()).into());
+        }
 
         tracing::info!("Package zip file created successfully {:?}", path);
 
@@ -131,13 +159,17 @@ impl ZipFile {
 
     /// Removes the zip file at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool, ZipFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, LeoError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ZipFileError::FileRemovalError(path.into_owned()))?;
+        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+        if let Err(_) = fs::remove_file(&path) {
+            return Err(PackageError::failed_to_remove_zip_file(path.into_owned(), Backtrace::new()).into());
+        }
+
         Ok(true)
     }
 

@@ -28,7 +28,7 @@ use crate::{
 use leo_asg::{ConstInt, Expression};
 use leo_errors::{CompilerError, LeoError, Span};
 
-
+use eyre::eyre;
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     boolean::Boolean,
@@ -63,7 +63,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let mut unique_namespace = cs.ns(|| namespace_string);
         bounds_check
             .enforce_equal(&mut unique_namespace, &Boolean::Constant(true))
-            .map_err(|e| LeoError::from(CompilerError::cannot_enforce("array bounds check".to_string(), e, span)))?;
+            .map_err(|e| {
+                LeoError::from(CompilerError::cannot_enforce_expression(
+                    "array bounds check".to_string(),
+                    eyre!(e),
+                    span,
+                ))
+            })?;
         Ok(())
     }
 
@@ -83,12 +89,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let index_resolved = self.enforce_index(cs, index, span)?;
         if let Some(resolved) = index_resolved.to_usize() {
             if resolved >= array.len() {
-                return Err(LeoError::from(CompilerError::array_index_out_of_bounds(resolved, span));)
+                return Err(LeoError::from(CompilerError::array_index_out_of_bounds(resolved, span)));
             }
             Ok(array[resolved].to_owned())
         } else {
             if array.is_empty() {
-                return Err(LeoError::from(CompilerError::array_index_out_of_bounds(0, span));)
+                return Err(LeoError::from(CompilerError::array_index_out_of_bounds(0, span)));
             }
             {
                 let array_len: u32 = array
@@ -109,13 +115,19 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let const_index = ConstInt::U32(index_bounded).cast_to(&index_resolved.get_type());
                 let index_comparison = index_resolved
                     .evaluate_equal(eq_namespace, &Integer::new(&const_index))
-                    .map_err(|_| LeoError::from(CompilerError::cannot_evaluate("==".to_string(), span)))?;
+                    .map_err(|_| LeoError::from(CompilerError::cannot_evaluate_expression("==".to_string(), span)))?;
 
                 let unique_namespace =
                     cs.ns(|| format!("select array access {} {}:{}", i, span.line_start, span.col_start));
                 let value =
                     ConstrainedValue::conditionally_select(unique_namespace, &index_comparison, &item, &current_value)
-                        .map_err(|e| LeoError::from(CompilerError::cannot_enforce("conditional select".to_string(), e, span)))?;
+                        .map_err(|e| {
+                            LeoError::from(CompilerError::cannot_enforce_expression(
+                                "conditional select".to_string(),
+                                eyre!(e),
+                                span,
+                            ))
+                        })?;
                 current_value = value;
             }
             Ok(current_value)
@@ -184,7 +196,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let mut unique_namespace = cs.ns(|| namespace_string);
                 calc_len
                     .enforce_equal(&mut unique_namespace, &Integer::new(&ConstInt::U32(length as u32)))
-                    .map_err(|e| LeoError::from(CompilerError::cannot_enforce("array length check".to_string(), e, span)))?;
+                    .map_err(|e| {
+                        LeoError::from(CompilerError::cannot_enforce_expression(
+                            "array length check".to_string(),
+                            eyre!(e),
+                            span,
+                        ))
+                    })?;
             }
             {
                 let bounds_check = evaluate_le::<F, G, _>(
@@ -204,7 +222,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let mut unique_namespace = cs.ns(|| namespace_string);
                 bounds_check
                     .enforce_equal(&mut unique_namespace, &Boolean::Constant(true))
-                    .map_err(|e| LeoError::from(CompilerError::cannot_enforce("array bounds check".to_string(), e, span)))?;
+                    .map_err(|e| {
+                        LeoError::from(CompilerError::cannot_enforce_expression(
+                            "array bounds check".to_string(),
+                            eyre!(e),
+                            span,
+                        ))
+                    })?;
             }
             let mut windows = array.windows(length);
             let mut result = ConstrainedValue::Array(vec![]);
@@ -233,7 +257,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let unique_namespace =
                     unique_namespace.ns(|| format!("array index {} {}:{}", i, span.line_start, span.col_start));
                 result = ConstrainedValue::conditionally_select(unique_namespace, &equality, &array_value, &result)
-                    .map_err(|e| LeoError::from(CompilerError::cannot_enforce("conditional select".to_string(), e, span)))?;
+                    .map_err(|e| {
+                        LeoError::from(CompilerError::cannot_enforce_expression(
+                            "conditional select".to_string(),
+                            eyre!(e),
+                            span,
+                        ))
+                    })?;
             }
             result
         })

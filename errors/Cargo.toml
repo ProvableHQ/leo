@@ -17,6 +17,10 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
+[dependencies.leo-input]
+path = "../input"
+version = "1.5.3"
+
 [dependencies.derivative]
 version = "2.2.0"
 

@@ -31,7 +31,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         span: &Span,
     ) -> Result<(), LeoError> {
         if values.len() != variable_names.len() {
-            return Err(LeoError::from(CompilerError::invalid_number_of_definitions(
+            return Err(LeoError::from(CompilerError::statement_invalid_number_of_definitions(
                 values.len(),
                 variable_names.len(),
                 span,
@@ -64,7 +64,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             let values = match expression {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
-                value => return Err(LeoError::from(CompilerError::multiple_definition(value.to_string(), &span))),
+                value => {
+                    return Err(LeoError::from(CompilerError::statement_multiple_definition(
+                        value.to_string(),
+                        &span,
+                    )));
+                }
             };
 
             self.enforce_multiple_definition(&statement.variables[..], values, &span)

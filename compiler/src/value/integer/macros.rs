@@ -3,7 +3,7 @@
 
 // The Leo library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License.to_string(), or
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 
 // The Leo library is distributed in the hope that it will be useful,
@@ -55,11 +55,31 @@ macro_rules! match_unsigned_integer {
 macro_rules! match_signed_integer {
     ($integer: ident, $span: ident => $expression: expr) => {
         match $integer {
-            Integer::I8($integer) => Some(Integer::I8($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?)),
-            Integer::I16($integer) => Some(Integer::I16($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?)),
-            Integer::I32($integer) => Some(Integer::I32($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?)),
-            Integer::I64($integer) => Some(Integer::I64($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?)),
-            Integer::I128($integer) => Some(Integer::I128($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?)),
+            Integer::I8($integer) => {
+                Some(Integer::I8($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_signed(eyre!(e), $span))
+                })?))
+            }
+            Integer::I16($integer) => {
+                Some(Integer::I16($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_signed(eyre!(e), $span))
+                })?))
+            }
+            Integer::I32($integer) => {
+                Some(Integer::I32($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_signed(eyre!(e), $span))
+                })?))
+            }
+            Integer::I64($integer) => {
+                Some(Integer::I64($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_signed(eyre!(e), $span))
+                })?))
+            }
+            Integer::I128($integer) => {
+                Some(Integer::I128($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_signed(eyre!(e), $span))
+                })?))
+            }
 
             _ => None,
         }
@@ -91,35 +111,55 @@ macro_rules! match_integers_span {
     (($a: ident, $b: ident), $span: ident => $expression:expr) => {
         match ($a, $b) {
             (Integer::U8($a), Integer::U8($b)) => {
-                Some(Integer::U8($expression.map_err(|e| LeoError::from(CompilerError::unsigned(e.to_string(), $span)))?))
+                Some(Integer::U8($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
             }
             (Integer::U16($a), Integer::U16($b)) => {
-                Some(Integer::U16($expression.map_err(|e| LeoError::from(CompilerError::unsigned(e.to_string(), $span)))?))
+                Some(Integer::U16($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
             }
             (Integer::U32($a), Integer::U32($b)) => {
-                Some(Integer::U32($expression.map_err(|e| LeoError::from(CompilerError::unsigned(e.to_string(), $span)))?))
+                Some(Integer::U32($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
             }
             (Integer::U64($a), Integer::U64($b)) => {
-                Some(Integer::U64($expression.map_err(|e| LeoError::from(CompilerError::unsigned(e.to_string(), $span)))?))
+                Some(Integer::U64($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
             }
-            (Integer::U128($a), Integer::U128($b)) => Some(Integer::U128(
-                $expression.map_err(|e| LeoError::from(CompilerError::unsigned(e.to_string(), $span)))?,
-            )),
+            (Integer::U128($a), Integer::U128($b)) => {
+                Some(Integer::U128($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
+            }
 
             (Integer::I8($a), Integer::I8($b)) => {
-                Some(Integer::I8($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?))
+                Some(Integer::I8($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
             }
             (Integer::I16($a), Integer::I16($b)) => {
-                Some(Integer::I16($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?))
+                Some(Integer::I16($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
             }
             (Integer::I32($a), Integer::I32($b)) => {
-                Some(Integer::I32($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?))
+                Some(Integer::I32($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
             }
             (Integer::I64($a), Integer::I64($b)) => {
-                Some(Integer::I64($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?))
+                Some(Integer::I64($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
             }
             (Integer::I128($a), Integer::I128($b)) => {
-                Some(Integer::I128($expression.map_err(|e| LeoError::from(CompilerError::signed(e.to_string(), $span)))?))
+                Some(Integer::I128($expression.map_err(|e| {
+                    LeoError::from(CompilerError::integer_value_unsigned(eyre!(e), $span))
+                })?))
             }
             (_, _) => None,
         }
@@ -131,7 +171,7 @@ macro_rules! allocate_type {
         let option = $option
             .map(|s| {
                 s.parse::<$rust_ty>()
-                    .map_err(|_| LeoError::from(CompilerError::invalid_integer(s, $span)))
+                    .map_err(|_| LeoError::from(CompilerError::integer_value_invalid_integer(s, $span)))
             })
             .transpose()?;
 
@@ -147,7 +187,12 @@ macro_rules! allocate_type {
             }),
             || option.ok_or(SynthesisError::AssignmentMissing),
         )
-        .map_err(|_| LeoError::from(CompilerError::missing_integer(format!("{}: {}", $name.to_string(), stringify!($rust_ty)), $span)))?;
+        .map_err(|_| {
+            LeoError::from(CompilerError::integer_value_missing_integer(
+                format!("{}: {}", $name.to_string(), stringify!($rust_ty)),
+                $span,
+            ))
+        })?;
 
         $leo_ty(result)
     }};

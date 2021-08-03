@@ -20,7 +20,6 @@ use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{CircuitAccessExpression, Node};
 use leo_errors::{CompilerError, LeoError};
 
-
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
@@ -40,11 +39,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     if let Some(member) = members.into_iter().find(|x| x.0.name == expr.member.name) {
                         Ok(member.1)
                     } else {
-                        Err(LeoError::from(CompilerError::undefined_member_access(
+                        Err(CompilerError::undefined_circuit_member_access(
                             expr.circuit.get().name.borrow().to_string(),
                             expr.member.to_string(),
                             &expr.member.span,
-                        )))
+                        )
+                        .into())
                     }
                 }
                 value => Err(LeoError::from(CompilerError::undefined_circuit(
@@ -53,10 +53,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 ))),
             }
         } else {
-            Err(LeoError::from(CompilerError::invalid_static_access(
-                expr.member.to_string(),
-                &expr.member.span,
-            )))
+            Err(CompilerError::invalid_circuit_static_member_access(expr.member.to_string(), &expr.member.span).into())
         }
     }
 }

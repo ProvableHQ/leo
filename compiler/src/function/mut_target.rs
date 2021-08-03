@@ -18,7 +18,7 @@
 
 use std::cell::Cell;
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{
     ArrayAccessExpression,
     ArrayRangeAccessExpression,
@@ -31,6 +31,7 @@ use leo_asg::{
     TupleAccessExpression,
     Variable,
 };
+use leo_errors::LeoError;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;

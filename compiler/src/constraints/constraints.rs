@@ -23,6 +23,7 @@ use leo_errors::{CompilerError, LeoError};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
+use backtrace::Backtrace;
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::{ConstraintSystem, TestConstraintSystem};
 use std::path::Path;
@@ -48,7 +49,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
             let result = resolved_program.enforce_main_function(cs, &function, input)?;
             Ok(result)
         }
-        _ => Err(LeoError::from(CompilerError::NoMainFunction)),
+        _ => Err(CompilerError::no_main_function(Backtrace::new()).into()),
     }
 }
 
@@ -102,10 +103,15 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
                     .or_else(|| input.pairs.get(&file_name_kebab))
                 {
                     Some(pair) => pair.to_owned(),
-                    None => return Err(LeoError::from(CompilerError::InvalidTestContext(file_name.to_string()))),
+                    None => {
+                        return Err(LeoError::from(CompilerError::invalid_test_context(
+                            file_name.to_string(),
+                            Backtrace::new(),
+                        )));
+                    }
                 }
             }
-            None => default.ok_or(LeoError::from(CompilerError::NoTestInput))?,
+            None => default.ok_or(LeoError::from(CompilerError::no_test_input(Backtrace::new())))?,
         };
 
         // parse input files to abstract syntax trees

@@ -27,6 +27,9 @@ pub fn evaluate_not<'a, F: PrimeField, G: GroupType<F>>(
 ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
     match value {
         ConstrainedValue::Boolean(boolean) => Ok(ConstrainedValue::Boolean(boolean.not())),
-        value => Err(LeoError::from(CompilerError::cannot_evaluate(format!("!{}", value), span)),)
+        value => Err(LeoError::from(CompilerError::cannot_evaluate_expression(
+            format!("!{}", value),
+            span,
+        ))),
     }
 }

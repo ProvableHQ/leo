@@ -24,11 +24,7 @@ use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn format<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        args: &ConsoleArgs<'a>,
-    ) -> Result<String, LeoError> {
+    pub fn format<CS: ConstraintSystem<F>>(&mut self, cs: &mut CS, args: &ConsoleArgs<'a>) -> Result<String, LeoError> {
         let mut out = Vec::new();
         let mut in_container = false;
         let mut substring = String::new();
@@ -54,7 +50,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         in_container = false;
                         let parameter = match args.parameters.get(arg_index) {
                             Some(index) => index,
-                            None => return Err(LeoError::from(CompilerError::from(CompilerError::length(arg_index + 1, args.parameters.len(), &args.span)))),
+                            None => {
+                                return Err(LeoError::from(CompilerError::from(
+                                    CompilerError::console_container_parameter_length_mismatch(
+                                        arg_index + 1,
+                                        args.parameters.len(),
+                                        &args.span,
+                                    ),
+                                )));
+                            }
                         };
                         out.push(self.enforce_expression(cs, parameter.get())?.to_string());
                         arg_index += 1;
@@ -65,12 +69,16 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                                 substring.push('}');
                                 escape_right_bracket = true;
                             } else {
-                                return Err(LeoError::from(CompilerError::from(CompilerError::expected_escaped_right_brace(&args.span))));
+                                return Err(LeoError::from(CompilerError::from(
+                                    CompilerError::console_fmt_expected_escaped_right_brace(&args.span),
+                                )));
                             }
                         }
                     }
                     _ if in_container => {
-                        return Err(LeoError::from(CompilerError::from(CompilerError::expected_left_or_right_brace(&args.span))));
+                        return Err(LeoError::from(CompilerError::from(
+                            CompilerError::console_fmt_expected_left_or_right_brace(&args.span),
+                        )));
                     }
                     _ => substring.push(*scalar),
                 },
@@ -84,7 +92,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         // Check that containers and parameters match
         if arg_index != args.parameters.len() {
-            return Err(LeoError::from(CompilerError::from(CompilerError::length(arg_index, args.parameters.len(), &args.span))));
+            return Err(LeoError::from(CompilerError::from(
+                CompilerError::console_container_parameter_length_mismatch(
+                    arg_index,
+                    args.parameters.len(),
+                    &args.span,
+                ),
+            )));
         }
 
         Ok(out.join(""))

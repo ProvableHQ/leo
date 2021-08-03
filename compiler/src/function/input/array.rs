@@ -70,7 +70,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(LeoError::from(CompilerError::invalid_array(input_value.unwrap().to_string(), span)));
+                return Err(LeoError::from(CompilerError::invalid_function_input_array(
+                    input_value.unwrap().to_string(),
+                    span,
+                )));
             }
         }
 

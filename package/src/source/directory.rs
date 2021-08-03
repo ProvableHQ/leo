@@ -14,13 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::SourceDirectoryError;
+use leo_errors::{LeoError, PackageError};
 
 use std::{
     borrow::Cow,
     fs,
     path::{Path, PathBuf},
 };
+
+use backtrace::Backtrace;
+use eyre::eyre;
 
 pub static SOURCE_DIRECTORY_NAME: &str = "src/";
 
@@ -30,46 +33,61 @@ pub struct SourceDirectory;
 
 impl SourceDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &Path) -> Result<(), SourceDirectoryError> {
+    pub fn create(path: &Path) -> Result<(), LeoError> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(SOURCE_DIRECTORY_NAME) {
             path.to_mut().push(SOURCE_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path).map_err(SourceDirectoryError::Creating)
+        fs::create_dir_all(&path)
+            .map_err(|e| PackageError::failed_to_create_source_directory(eyre!(e), Backtrace::new()).into())
     }
 
     /// Returns a list of files in the source directory.
-    pub fn files(path: &Path) -> Result<Vec<PathBuf>, SourceDirectoryError> {
+    pub fn files(path: &Path) -> Result<Vec<PathBuf>, LeoError> {
         let mut path = Cow::from(path);
         path.to_mut().push(SOURCE_DIRECTORY_NAME);
-        let directory = fs::read_dir(&path).map_err(SourceDirectoryError::Reading)?;
+
+        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+        let directory = match fs::read_dir(&path) {
+            Ok(read_dir) => read_dir,
+            Err(e) => return Err(PackageError::failed_to_read_inputs_directory(eyre!(e), Backtrace::new()).into()),
+        };
 
         let mut file_paths = Vec::new();
         for file_entry in directory.into_iter() {
-            let file_entry = file_entry.map_err(SourceDirectoryError::GettingFileEntry)?;
+            let file_entry =
+                file_entry.map_err(|e| PackageError::failed_to_get_source_file_entry(eyre!(e), Backtrace::new()))?;
             let file_path = file_entry.path();
 
             // Verify that the entry is structured as a valid file
-            let file_type = file_entry
-                .file_type()
-                .map_err(|error| SourceDirectoryError::GettingFileType(file_path.as_os_str().to_owned(), error))?;
+            let file_type = file_entry.file_type().map_err(|e| {
+                PackageError::failed_to_get_source_file_type(
+                    file_path.as_os_str().to_owned(),
+                    eyre!(e),
+                    Backtrace::new(),
+                )
+            })?;
             if !file_type.is_file() {
-                return Err(SourceDirectoryError::InvalidFileType(
+                return Err(PackageError::invalid_source_file_type(
                     file_path.as_os_str().to_owned(),
                     file_type,
-                ));
+                    Backtrace::new(),
+                )
+                .into());
             }
 
             // Verify that the file has the default file extension
-            let file_extension = file_path
-                .extension()
-                .ok_or_else(|| SourceDirectoryError::GettingFileExtension(file_path.as_os_str().to_owned()))?;
+            let file_extension = file_path.extension().ok_or_else(|| {
+                PackageError::failed_to_get_source_file_extension(file_path.as_os_str().to_owned(), Backtrace::new())
+            })?;
             if file_extension != SOURCE_FILE_EXTENSION.trim_start_matches('.') {
-                return Err(SourceDirectoryError::InvalidFileExtension(
+                return Err(PackageError::invalid_source_file_extension(
                     file_path.as_os_str().to_owned(),
                     file_extension.to_owned(),
-                ));
+                    Backtrace::new(),
+                )
+                .into());
             }
 
             file_paths.push(file_path);

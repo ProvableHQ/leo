@@ -20,7 +20,6 @@ use crate::{number_string_typing, value::ConstrainedValue, FieldType, GroupType}
 use leo_ast::InputValue;
 use leo_errors::{CompilerError, LeoError, Span};
 
-
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::alloc::AllocGadget;
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
@@ -41,15 +40,28 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
                 .map(|value| value.negate(cs, span))
-                .map_err(|_| LeoError::from(CompilerError::missing_field(format!("{}: field", name), span)))?,
+                .map_err(|_| {
+                    LeoError::from(CompilerError::field_value_missing_field(
+                        format!("{}: field", name),
+                        span,
+                    ))
+                })?,
                 (number, _) => FieldType::alloc(
                     cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
-                .map_err(|_| LeoError::from(CompilerError::missing_field(format!("{}: field", name), span))),
+                .map_err(|_| {
+                    LeoError::from(CompilerError::field_value_missing_field(
+                        format!("{}: field", name),
+                        span,
+                    ))
+                }),
             }
         }
-        None => Err(LeoError::from(CompilerError::missing_field(format!("{}: field", name), span))),
+        None => Err(LeoError::from(CompilerError::field_value_missing_field(
+            format!("{}: field", name),
+            span,
+        ))),
     }
 }
 
@@ -65,7 +77,10 @@ pub(crate) fn field_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
             if let InputValue::Field(string) = input {
                 Some(string)
             } else {
-                return Err(LeoError::from(CompilerError::invalid_field(input.to_string(), span)));
+                return Err(LeoError::from(CompilerError::field_value_invalid_field(
+                    input.to_string(),
+                    span,
+                )));
             }
         }
         None => None,

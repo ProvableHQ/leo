@@ -18,6 +18,8 @@
 
 use leo_errors::{CompilerError, LeoError};
 
+use backtrace::Backtrace;
+use eyre::eyre;
 
 use std::{
     borrow::Cow,
@@ -47,9 +49,12 @@ impl OutputFile {
     pub fn write(&self, path: &Path, bytes: &[u8]) -> Result<(), LeoError> {
         // create output file
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path)?;
+        let mut file = File::create(&path)
+            .map_err(|e| LeoError::from(CompilerError::output_file_io_error(eyre!(e), Backtrace::new())))?;
 
-        Ok(file.write_all(bytes)?)
+        Ok(file
+            .write_all(bytes)
+            .map_err(|e| LeoError::from(CompilerError::output_file_io_error(eyre!(e), Backtrace::new())))?)
     }
 
     /// Removes the output file at the given path if it exists. Returns `true` on success,
@@ -60,7 +65,12 @@ impl OutputFile {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| LeoError::from(CompilerError::FileRemovalError(path.into_owned())))?;
+        fs::remove_file(&path).map_err(|_| {
+            LeoError::from(CompilerError::output_file_cannot_remove(
+                path.into_owned(),
+                Backtrace::new(),
+            ))
+        })?;
         Ok(true)
     }
 

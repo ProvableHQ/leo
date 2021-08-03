@@ -16,8 +16,11 @@
 
 //! The proof file.
 
-use crate::{errors::ProofFileError, outputs::OUTPUTS_DIRECTORY_NAME};
+use crate::outputs::OUTPUTS_DIRECTORY_NAME;
+use leo_errors::{LeoError, PackageError};
 
+use backtrace::Backtrace;
+use eyre::eyre;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -49,19 +52,27 @@ impl ProofFile {
     }
 
     /// Reads the proof from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<String, ProofFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<String, LeoError> {
         let path = self.setup_file_path(path);
 
-        let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.into_owned()))?;
-        Ok(proof)
+        fs::read_to_string(&path)
+            .map_err(|_| PackageError::failed_to_read_proof_file(path.into_owned(), Backtrace::new()).into())
     }
 
     /// Writes the given proof to a file.
-    pub fn write_to(&self, path: &Path, proof: &[u8]) -> Result<(), ProofFileError> {
+    pub fn write_to(&self, path: &Path, proof: &[u8]) -> Result<(), LeoError> {
         let path = self.setup_file_path(path);
 
-        let mut file = File::create(&path)?;
-        file.write_all(proof)?;
+        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+        let mut file = match File::create(&path) {
+            Ok(file) => file,
+            Err(e) => return Err(PackageError::io_error_proof_file(eyre!(e), Backtrace::new()).into()),
+        };
+
+        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+        if let Err(e) = file.write_all(proof) {
+            return Err(PackageError::io_error_proof_file(eyre!(e), Backtrace::new()).into());
+        };
 
         tracing::info!("Saving proof... ({:?})", path);
 
@@ -70,14 +81,19 @@ impl ProofFile {
 
     /// Removes the proof at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool, ProofFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool, LeoError> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ProofFileError::FileRemovalError(path.into_owned()))?;
-        Ok(true)
+        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+        match fs::remove_file(&path) {
+            Ok(_) => Ok(true),
+            Err(_) => {
+                return Err(PackageError::failed_to_remove_proof_file(path.into_owned(), Backtrace::new()).into());
+            }
+        }
     }
 
     fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {

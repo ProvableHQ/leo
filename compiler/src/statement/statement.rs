@@ -82,7 +82,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         }
                     }
                     _ => {
-                        return Err(LeoError::from(CompilerError::unassigned(&statement.span.clone().unwrap_or_default())));
+                        return Err(LeoError::from(CompilerError::statement_unassigned(
+                            &statement.span.clone().unwrap_or_default(),
+                        )));
                     }
                 }
             }

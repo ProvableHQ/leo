@@ -21,7 +21,6 @@ use leo_asg::Program as AsgProgram;
 use leo_ast::{Ast, Program as AstProgram, ReconstructingReducer};
 use leo_errors::LeoError;
 
-
 macro_rules! phase {
     ($phase_name:ident, $function:item) => {
         pub struct $phase_name {

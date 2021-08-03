@@ -147,11 +147,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         self.ast_reducer.reduce_type(ast, new, span)
     }
 
-    pub fn reduce_expression(
-        &mut self,
-        ast: &AstExpression,
-        asg: &AsgExpression,
-    ) -> Result<AstExpression, LeoError> {
+    pub fn reduce_expression(&mut self, ast: &AstExpression, asg: &AsgExpression) -> Result<AstExpression, LeoError> {
         let new = match (ast, asg) {
             (AstExpression::Value(value), AsgExpression::Constant(const_)) => self.reduce_value(&value, &const_)?,
             (AstExpression::Binary(ast), AsgExpression::Binary(asg)) => {
@@ -613,7 +609,11 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 match &ast.function {
                     AstConsoleFunction::Error(_) => AstConsoleFunction::Error(args),
                     AstConsoleFunction::Log(_) => AstConsoleFunction::Log(args),
-                    _ => return Err(LeoError::from(AstError::impossible_console_assert_call(&ast_console_args.span))),
+                    _ => {
+                        return Err(LeoError::from(AstError::impossible_console_assert_call(
+                            &ast_console_args.span,
+                        )));
+                    }
                 }
             }
             _ => ast.function.clone(),

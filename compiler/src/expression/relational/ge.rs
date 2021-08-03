@@ -42,7 +42,8 @@ pub fn evaluate_ge<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         }
     };
 
-    let boolean = constraint_result.map_err(|_| LeoError::from(CompilerError::cannot_evaluate(">=".to_string(), span)))?;
+    let boolean = constraint_result
+        .map_err(|_| LeoError::from(CompilerError::cannot_evaluate_expression(">=".to_string(), span)))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

@@ -45,6 +45,8 @@ pub use self::state::*;
 #[macro_use]
 extern crate thiserror;
 
+use leo_input::InputParserError;
+
 use eyre::ErrReport;
 
 #[derive(Debug, Error)]
@@ -57,9 +59,15 @@ pub enum LeoError {
 
     #[error(transparent)]
     CompilerError(#[from] CompilerError),
-    
+
     #[error(transparent)]
     ImportError(#[from] ImportError),
+
+    #[error(transparent)]
+    InputError(#[from] InputParserError),
+
+    #[error(transparent)]
+    PackageError(#[from] PackageError),
 
     #[error(transparent)]
     ParserError(#[from] ParserError),

@@ -14,9 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::ImportsDirectoryError;
+use leo_errors::{LeoError, PackageError};
 
 use std::{borrow::Cow, fs, path::Path};
+
+use backtrace::Backtrace;
+use eyre::eyre;
 
 pub static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
@@ -24,17 +27,18 @@ pub struct ImportsDirectory;
 
 impl ImportsDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &Path) -> Result<(), ImportsDirectoryError> {
+    pub fn create(path: &Path) -> Result<(), LeoError> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
             path.to_mut().push(IMPORTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path).map_err(ImportsDirectoryError::Creating)
+        fs::create_dir_all(&path)
+            .map_err(|e| PackageError::failed_to_create_imports_directory(eyre!(e), Backtrace::new()).into())
     }
 
     /// Removes an imported package in the imports directory at the provided path.
-    pub fn remove_import(path: &Path, package_name: &str) -> Result<(), ImportsDirectoryError> {
+    pub fn remove_import(path: &Path, package_name: &str) -> Result<(), LeoError> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
             path.to_mut().push(IMPORTS_DIRECTORY_NAME);
@@ -43,10 +47,11 @@ impl ImportsDirectory {
         path.to_mut().push(package_name);
 
         if !path.exists() || !path.is_dir() {
-            return Err(ImportsDirectoryError::ImportDoesNotExist(package_name.into()));
+            return Err(PackageError::import_does_not_exist(package_name.into(), Backtrace::new()).into());
         }
 
-        fs::remove_dir_all(&path).map_err(ImportsDirectoryError::Removing)?;
+        fs::remove_dir_all(&path)
+            .map_err(|e| PackageError::failed_to_remove_imports_directory(eyre!(e), Backtrace::new()))?;
 
         Ok(())
     }

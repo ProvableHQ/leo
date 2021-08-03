@@ -18,8 +18,7 @@
 
 use crate::{Address, Char, FieldType, GroupType, Integer};
 use leo_asg::{Circuit, Identifier, Type};
-use leo_errors::{CompilerError, LeoError, Span};
-
+use leo_errors::{LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{

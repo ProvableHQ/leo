@@ -1227,7 +1227,9 @@ dependencies = [
 name = "leo-compiler"
 version = "1.5.3"
 dependencies = [
+ "backtrace",
  "bincode",
+ "eyre",
  "hex",
  "indexmap",
  "leo-asg",
@@ -1269,6 +1271,7 @@ dependencies = [
  "backtrace",
  "derivative",
  "eyre",
+ "leo-input",
  "pest",
  "serde",
  "tendril",
@@ -1351,9 +1354,11 @@ version = "1.5.3"
 name = "leo-package"
 version = "1.5.3"
 dependencies = [
+ "backtrace",
+ "eyre",
  "lazy_static",
+ "leo-errors",
  "serde",
- "thiserror",
  "toml",
  "tracing",
  "walkdir",

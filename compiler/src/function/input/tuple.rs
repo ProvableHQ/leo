@@ -39,7 +39,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         match input_value {
             Some(InputValue::Tuple(values)) => {
                 if values.len() != types.len() {
-                    return Err(LeoError::from(CompilerError::tuple_size_mismatch(types.len(), values.len(), span)));
+                    return Err(LeoError::from(CompilerError::input_tuple_size_mismatch(
+                        types.len(),
+                        values.len(),
+                        span,
+                    )));
                 }
 
                 // Allocate each value in the tuple.
@@ -58,7 +62,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(LeoError::from(CompilerError::invalid_tuple(input_value.unwrap().to_string(), span)));
+                return Err(LeoError::from(CompilerError::invalid_function_input_tuple(
+                    input_value.unwrap().to_string(),
+                    span,
+                )));
             }
         }
 

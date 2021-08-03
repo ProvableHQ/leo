@@ -16,9 +16,10 @@
 
 //! Enforces constraints on a function in a compiled Leo program.
 
-use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::{Expression, Function, FunctionQualifier};
+use leo_errors::{CompilerError, LeoError};
 use std::cell::Cell;
 
 use snarkvm_fields::PrimeField;
@@ -47,10 +48,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
 
         if function.arguments.len() != arguments.len() {
-            return Err(LeoError::from(CompilerError::input_not_found()
+            return Err(CompilerError::function_input_not_found(
+                function.name.borrow().name.to_string(),
                 "arguments length invalid".to_string(),
                 &function.span.clone().unwrap_or_default(),
-            ));
+            )
+            .into());
         }
 
         // Store input values as new variables in resolved program
@@ -90,6 +93,5 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         // Conditionally select a result based on returned indicators
         Self::conditionally_select_result(cs, &output, results, &function.span.clone().unwrap_or_default())
-            .map_err(LeoError::from(CompilerError::StatementError))
     }
 }

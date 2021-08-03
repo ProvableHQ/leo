@@ -18,8 +18,7 @@
 
 use crate::{arithmetic::*, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{AssignOperation, AssignStatement};
-use leo_errors::{CompilerError, LeoError};
-
+use leo_errors::{CompilerError, LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{boolean::Boolean, traits::select::CondSelectGadget};
@@ -60,7 +59,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             _ => unimplemented!("unimplemented assign operator"),
         };
         let selected_value = ConstrainedValue::conditionally_select(cs.ns(|| scope), condition, &new_value, target)
-            .map_err(|_| LeoError::from(CompilerError::select_fail(new_value.to_string(), target.to_string(), span)))?;
+            .map_err(|_| {
+                LeoError::from(CompilerError::statement_select_fail(
+                    new_value.to_string(),
+                    target.to_string(),
+                    span,
+                ))
+            })?;
 
         *target = selected_value;
         Ok(())

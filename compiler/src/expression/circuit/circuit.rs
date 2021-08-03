@@ -49,7 +49,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     let variable_value = self.enforce_expression(cs, inner.get())?;
                     resolved_members.push(ConstrainedCircuitMember(name.clone(), variable_value));
                 }
-                _ => return Err(LeoError::from(CompilerError::expected_circuit_member(name.to_string(), span))),
+                _ => {
+                    return Err(LeoError::from(CompilerError::expected_circuit_member(
+                        name.to_string(),
+                        span,
+                    )));
+                }
             }
         }
 

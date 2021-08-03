@@ -27,7 +27,7 @@ use crate::{
     GroupType,
 };
 use leo_asg::{expression::*, ConstValue, Expression, Node};
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{LeoError, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -117,15 +117,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     BinaryOperation::Mul => enforce_mul(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Div => enforce_div(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Pow => enforce_pow(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Or => {
-                        enforce_or(cs, resolved_left, resolved_right, span).map_err(LeoError::from(CompilerError::BooleanError))
-                    }
-                    BinaryOperation::And => {
-                        enforce_and(cs, resolved_left, resolved_right, span).map_err(LeoError::from(CompilerError::BooleanError))
-                    }
+                    BinaryOperation::Or => enforce_or(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::And => enforce_and(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Eq => evaluate_eq(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, span)?, span)
-                        .map_err(LeoError::from(CompilerError::BooleanError)),
+                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, span)?, span),
                     BinaryOperation::Ge => evaluate_ge(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Gt => evaluate_gt(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Le => evaluate_le(cs, resolved_left, resolved_right, span),

@@ -19,7 +19,7 @@
 use crate::number_string_typing;
 use leo_errors::{CompilerError, LeoError, Span};
 
-
+use eyre::eyre;
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     bits::{ToBitsBEGadget, ToBytesGadget},
@@ -51,60 +51,76 @@ impl<F: PrimeField> FieldType<F> {
         let number_info = number_string_typing(&string);
 
         let value = match number_info {
-            (number, neg) if neg => {
-                -F::from_str(&number).map_err(|_| LeoError::from(CompilerError::invalid_field(string.clone(), span)))?
-            }
-            (number, _) => F::from_str(&number).map_err(|_| LeoError::from(CompilerError::invalid_field(string.clone(), span)))?,
+            (number, neg) if neg => -F::from_str(&number)
+                .map_err(|_| LeoError::from(CompilerError::field_value_invalid_field(string.clone(), span)))?,
+            (number, _) => F::from_str(&number)
+                .map_err(|_| LeoError::from(CompilerError::field_value_invalid_field(string.clone(), span)))?,
         };
 
-        let value = FpGadget::alloc_constant(cs, || Ok(value)).map_err(|_| LeoError::from(CompilerError::invalid_field(string, span)))?;
+        let value = FpGadget::alloc_constant(cs, || Ok(value))
+            .map_err(|_| LeoError::from(CompilerError::field_value_invalid_field(string, span)))?;
 
         Ok(FieldType(value))
     }
 
     /// Returns a new `FieldType` by calling the `FpGadget` `negate` function.
     pub fn negate<CS: ConstraintSystem<F>>(&self, cs: CS, span: &Span) -> Result<Self, LeoError> {
-        let result = self.0.negate(cs).map_err(|e| LeoError::from(CompilerError::negate_operation(e, span)))?;
+        let result = self
+            .0
+            .negate(cs)
+            .map_err(|e| LeoError::from(CompilerError::field_value_negate_operation(eyre!(e), span)))?;
 
         Ok(FieldType(result))
     }
 
     /// Returns a new `FieldType` by calling the `FpGadget` `add` function.
     pub fn add<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, LeoError> {
-        let value = self
-            .0
-            .add(cs, &other.0)
-            .map_err(|e| LeoError::from(CompilerError::binary_operation("+".to_string(), e, span)))?;
+        let value = self.0.add(cs, &other.0).map_err(|e| {
+            LeoError::from(CompilerError::field_value_binary_operation(
+                "+".to_string(),
+                eyre!(e),
+                span,
+            ))
+        })?;
 
         Ok(FieldType(value))
     }
 
     /// Returns a new `FieldType` by calling the `FpGadget` `sub` function.
     pub fn sub<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, LeoError> {
-        let value = self
-            .0
-            .sub(cs, &other.0)
-            .map_err(|e| LeoError::from(CompilerError::binary_operation("-".to_string(), e, span)))?;
+        let value = self.0.sub(cs, &other.0).map_err(|e| {
+            LeoError::from(CompilerError::field_value_binary_operation(
+                "-".to_string(),
+                eyre!(e),
+                span,
+            ))
+        })?;
 
         Ok(FieldType(value))
     }
 
     /// Returns a new `FieldType` by calling the `FpGadget` `mul` function.
     pub fn mul<CS: ConstraintSystem<F>>(&self, cs: CS, other: &Self, span: &Span) -> Result<Self, LeoError> {
-        let value = self
-            .0
-            .mul(cs, &other.0)
-            .map_err(|e| LeoError::from(CompilerError::binary_operation("*".to_string(), e, span)))?;
+        let value = self.0.mul(cs, &other.0).map_err(|e| {
+            LeoError::from(CompilerError::field_value_binary_operation(
+                "*".to_string(),
+                eyre!(e),
+                span,
+            ))
+        })?;
 
         Ok(FieldType(value))
     }
 
     /// Returns a new `FieldType` by calling the `FpGadget` `inverse` function.
     pub fn inverse<CS: ConstraintSystem<F>>(&self, cs: CS, span: &Span) -> Result<Self, LeoError> {
-        let value = self
-            .0
-            .inverse(cs)
-            .map_err(|e| LeoError::from(CompilerError::binary_operation("inv".to_string(), e, span)))?;
+        let value = self.0.inverse(cs).map_err(|e| {
+            LeoError::from(CompilerError::field_value_binary_operation(
+                "inv".to_string(),
+                eyre!(e),
+                span,
+            ))
+        })?;
 
         Ok(FieldType(value))
     }

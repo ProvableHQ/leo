@@ -20,7 +20,6 @@ use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Expression;
 use leo_errors::LeoError;
 
-
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 

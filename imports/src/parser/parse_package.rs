@@ -111,23 +111,16 @@ impl<'a> ImportParser<'a> {
 
             // Check if the package name was found in both the source and imports directory.
             match (matched_source_entry, matched_import_entry) {
-                (Some(_), Some(_)) => Err(LeoError::from(ImportError::conflicting_imports(
-                    package_name,
-                    &span,
-                ))),
+                (Some(_), Some(_)) => Err(LeoError::from(ImportError::conflicting_imports(package_name, &span))),
                 (Some(source_entry), None) => self.parse_package_access(context, &source_entry, &segments[1..], span),
                 (None, Some(import_entry)) => self.parse_package_access(context, &import_entry, &segments[1..], span),
-                (None, None) => Err(LeoError::from(ImportError::unknown_package(
-                    package_name,
-                    &span,
-                ))),
+                (None, None) => Err(LeoError::from(ImportError::unknown_package(package_name, &span))),
             }
         } else {
             // Enforce local package access with no found imports directory
             match matched_source_entry {
                 Some(source_entry) => self.parse_package_access(context, &source_entry, &segments[1..], span),
-                None => Err(LeoError::from(ImportError::unknown_package(package_name, &span,
-                ))),
+                None => Err(LeoError::from(ImportError::unknown_package(package_name, &span))),
             }
         }
     }

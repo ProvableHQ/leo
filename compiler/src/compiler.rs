@@ -27,7 +27,7 @@ use crate::{
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, Program as AsgProgram};
 use leo_ast::{Input, MainInput, Program as AstProgram};
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{CompilerError, LeoError, SnarkVMError};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
@@ -37,6 +37,8 @@ use snarkvm_dpc::testnet1::{instantiated::Components, parameters::SystemParamete
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
+use backtrace::Backtrace;
+use eyre::eyre;
 use sha2::{Digest, Sha256};
 use std::{
     fs,
@@ -152,7 +154,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
-    ) -> Result<Self, LeoError {
+    ) -> Result<Self, LeoError> {
         let mut compiler = Self::new(
             package_name,
             main_file_path,
@@ -180,7 +182,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         input_path: &Path,
         state_string: &str,
         state_path: &Path,
-    ) -> Result<(), LeoError {
+    ) -> Result<(), LeoError> {
         let input_syntax_tree = LeoInputParser::parse_file(&input_string).map_err(|mut e| {
             e.set_path(
                 input_path.to_str().unwrap_or_default(),
@@ -223,10 +225,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     /// Parses and stores all programs imported by the main program file.
     ///
-    pub fn parse_program(&mut self) -> Result<(), LeoError {
+    pub fn parse_program(&mut self) -> Result<(), LeoError> {
         // Load the program file.
-        let content = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| LeoError::from(CompilerError::FileReadError(self.main_file_path.clone(), e)))?;
+        let content = fs::read_to_string(&self.main_file_path).map_err(|e| {
+            LeoError::from(CompilerError::file_read_error(
+                self.main_file_path.clone(),
+                eyre!(e),
+                Backtrace::new(),
+            ))
+        })?;
 
         self.parse_program_from_string(&content)
     }
@@ -235,7 +242,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     /// Equivalent to parse_and_check_program but uses the given program_string instead of a main
     /// file path.
     ///
-    pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), LeoError {
+    pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<(), LeoError> {
         // Use the parser to construct the abstract syntax tree (ast).
 
         let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
@@ -278,7 +285,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         // Store the ASG.
         self.asg = Some(asg.into_repr());
 
-        self.do_asg_passes().map_err(LeoError::from(CompilerError::AsgPassError))?;
+        self.do_asg_passes()?;
 
         Ok(())
     }
@@ -286,7 +293,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     /// Run compiler optimization passes on the program in asg format.
     ///
-    fn do_asg_passes(&mut self) -> Result<(), FormattedError> {
+    fn do_asg_passes(&mut self) -> Result<(), LeoError> {
         assert!(self.asg.is_some());
 
         // Do constant folding.
@@ -307,24 +314,29 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     /// Synthesizes the circuit with program input to verify correctness.
     ///
-    pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<Output, LeoError {
+    pub fn compile_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<Output, LeoError> {
         generate_constraints::<F, G, CS>(cs, &self.asg.as_ref().unwrap(), &self.program_input)
     }
 
     ///
     /// Synthesizes the circuit for test functions with program input.
     ///
-    pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), LeoError {
+    pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), LeoError> {
         generate_test_constraints::<F, G>(&self.asg.as_ref().unwrap(), input_pairs, &self.output_directory)
     }
 
     ///
     /// Returns a SHA256 checksum of the program file.
     ///
-    pub fn checksum(&self) -> Result<String, LeoError {
+    pub fn checksum(&self) -> Result<String, LeoError> {
         // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| LeoError::from(CompilerError::FileReadError(self.main_file_path.clone(), e)))?;
+        let unparsed_file = fs::read_to_string(&self.main_file_path).map_err(|e| {
+            LeoError::from(CompilerError::file_read_error(
+                self.main_file_path.clone(),
+                eyre!(e),
+                Backtrace::new(),
+            ))
+        })?;
 
         // Hash the file contents
         let mut hasher = Sha256::new();
@@ -342,8 +354,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     pub fn verify_local_data_commitment(
         &self,
         system_parameters: &SystemParameters<Components>,
-    ) -> Result<bool, LeoError {
-        let result = verify_local_data_commitment(system_parameters, &self.program_input)?;
+    ) -> Result<bool, LeoError> {
+        // TODO CONVERT STATE ERROR TO LEO ERROR
+        let result = verify_local_data_commitment(system_parameters, &self.program_input)
+            .map_err(|e| LeoError::from(SnarkVMError::from(eyre!(e))))?;
 
         Ok(result)
     }
@@ -362,11 +376,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'
     ///
     /// Synthesizes the circuit with program input.
     ///
-    fn generate_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<(), LeoError> {
+    fn generate_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<(), SynthesisError> {
         let output_directory = self.output_directory.clone();
         let package_name = self.program_name.clone();
+        // TODO WHAT TO DO HERE
         let result = self.compile_constraints(cs).map_err(|e| {
-            tracing::error!("{}", e);
+            tracing::error!("Error: {}", e);
             SynthesisError::Unsatisfiable
         })?;
 

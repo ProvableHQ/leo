@@ -160,7 +160,10 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
                     }
                 }
             } else {
-                return Err(LeoError::from(CompilerError::invalid_char(input.to_string(), span)));
+                return Err(LeoError::from(CompilerError::char_value_invalid_char(
+                    input.to_string(),
+                    span,
+                )));
             }
         }
         None => (CharType::Scalar(0 as char), None),
