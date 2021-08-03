@@ -421,10 +421,7 @@ keyword = %s"address"
         / %s"u64"
         / %s"u128"
 
-; The following rules define (ASCII)
-; digits and (uppercase and lowercase) letters.
-
-digit = %x30-39   ; 0-9
+; The following rules define (ASCII) letters.
 
 uppercase-letter = %x41-5A   ; A-Z
 
@@ -432,8 +429,10 @@ lowercase-letter = %x61-7A   ; a-z
 
 letter = uppercase-letter / lowercase-letter
 
-; The following rules defines (ASCII) octal and hexadecimal digits.
+; The following rules defines (ASCII) decimal, octal, and hexadecimal digits.
 ; Note that the latter are case-insensitive.
+
+digit = %x30-39   ; 0-9
 
 octal-digit = %x30-37   ; 0-7
 
