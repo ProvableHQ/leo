@@ -27,11 +27,7 @@ use serde_yaml::Value;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
 use crate::{
-    compiler::Compiler,
-    errors::CompilerError,
-    targets::edwards_bls12::EdwardsGroupType,
-    AstSnapshotOptions,
-    Output,
+    compiler::Compiler, errors::CompilerError, targets::edwards_bls12::EdwardsGroupType, AstSnapshotOptions, Output,
 };
 
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;

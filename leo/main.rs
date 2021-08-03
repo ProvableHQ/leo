@@ -23,19 +23,7 @@ pub mod updater;
 
 use commands::{
     package::{Add, Clone, Login, Logout, Publish, Remove},
-    Build,
-    Clean,
-    Command,
-    Deploy,
-    Init,
-    Lint,
-    New,
-    Prove,
-    Run,
-    Setup,
-    Test,
-    Update,
-    Watch,
+    Build, Clean, Command, Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
 
 use anyhow::Result;
@@ -189,10 +177,13 @@ fn main() {
 fn run_with_args(opt: Opt) -> Result<()> {
     if !opt.quiet {
         // Init logger with optional debug flag.
-        logger::init_logger("leo", match opt.debug {
-            false => 1,
-            true => 2,
-        })?;
+        logger::init_logger(
+            "leo",
+            match opt.debug {
+                false => 1,
+                true => 2,
+            },
+        )?;
     }
 
     // Get custom root folder and create context for it.

@@ -20,10 +20,7 @@ use leo_asg::{Function, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
-    algorithms::prf::Blake2sGadget,
-    bits::ToBytesGadget,
-    integers::uint::UInt8,
-    traits::algorithms::PRFGadget,
+    algorithms::prf::Blake2sGadget, bits::ToBytesGadget, integers::uint::UInt8, traits::algorithms::PRFGadget,
 };
 use snarkvm_r1cs::ConstraintSystem;
 

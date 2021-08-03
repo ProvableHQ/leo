@@ -384,10 +384,13 @@ impl ParserContext {
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
 
-        Ok((name.clone(), Circuit {
-            circuit_name: name,
-            members,
-        }))
+        Ok((
+            name.clone(),
+            Circuit {
+                circuit_name: name,
+                members,
+            },
+        ))
     }
 
     ///
@@ -464,14 +467,17 @@ impl ParserContext {
             None
         };
         let block = self.parse_block()?;
-        Ok((name.clone(), Function {
-            annotations,
-            identifier: name,
-            input: inputs,
-            output,
-            span: start + block.span.clone(),
-            block,
-        }))
+        Ok((
+            name.clone(),
+            Function {
+                annotations,
+                identifier: name,
+                input: inputs,
+                output,
+                span: start + block.span.clone(),
+                block,
+            },
+        ))
     }
 
     ///

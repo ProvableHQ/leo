@@ -24,8 +24,7 @@ use crate::{
     relational::*,
     resolve_core_circuit,
     value::{Address, Char, CharType, ConstrainedCircuitMember, ConstrainedValue, Integer},
-    FieldType,
-    GroupType,
+    FieldType, GroupType,
 };
 use leo_asg::{expression::*, ConstValue, Expression, Node, Span};
 

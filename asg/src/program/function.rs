@@ -15,18 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
-    BlockStatement,
-    Circuit,
-    FromAst,
-    Identifier,
-    MonoidalDirector,
-    ReturnPathReducer,
-    Scope,
-    Span,
-    Statement,
-    Type,
-    Variable,
+    AsgConvertError, BlockStatement, Circuit, FromAst, Identifier, MonoidalDirector, ReturnPathReducer, Scope, Span,
+    Statement, Type, Variable,
 };
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;

@@ -15,14 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::errors::{
-    AddressError,
-    BooleanError,
-    CharError,
-    FieldError,
-    FunctionError,
-    GroupError,
-    IntegerError,
-    ValueError,
+    AddressError, BooleanError, CharError, FieldError, FunctionError, GroupError, IntegerError, ValueError,
 };
 use leo_ast::{FormattedError, Identifier, LeoError, Span};
 use snarkvm_r1cs::SynthesisError;
