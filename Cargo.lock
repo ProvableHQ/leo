@@ -2456,9 +2456,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-curves"
-version = "0.7.6"
+version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a67bf9f77ce8db3e88fd58241ec7d0a0ad80097c42d0bd4e53b123106605249"
+checksum = "7cb586a9383563b62120e788f8d9200cfcd5a5b610c2723403a72e6b4cc7ee71"
 dependencies = [
  "derivative",
  "rand 0.8.4",
