@@ -23,19 +23,7 @@ pub mod updater;
 
 use commands::{
     package::{Clone, Fetch, Login, Logout, Publish},
-    Build,
-    Clean,
-    Command,
-    Deploy,
-    Init,
-    Lint,
-    New,
-    Prove,
-    Run,
-    Setup,
-    Test,
-    Update,
-    Watch,
+    Build, Clean, Command, Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
 
 use anyhow::Result;
@@ -193,10 +181,13 @@ fn main() {
 fn run_with_args(opt: Opt) -> Result<()> {
     if !opt.quiet {
         // Init logger with optional debug flag.
-        logger::init_logger("leo", match opt.debug {
-            false => 1,
-            true => 2,
-        })?;
+        logger::init_logger(
+            "leo",
+            match opt.debug {
+                false => 1,
+                true => 2,
+            },
+        )?;
     }
 
     // Get custom root folder and create context for it.
@@ -437,14 +428,13 @@ mod cli_tests {
             .unwrap();
 
         assert!(run_cmd("leo fetch", install_path).is_ok());
-        assert!(
-            file.write_all(
+        assert!(file
+            .write_all(
                 br#"
             sudoku = {author = "justice-league", package = "u8u32", version = "0.1.0"}
         "#
             )
-            .is_ok()
-        );
+            .is_ok());
 
         assert!(run_cmd("leo fetch", install_path).is_ok());
         assert!(run_cmd("leo build", install_path).is_ok());

@@ -15,19 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
-    CharValue,
-    ConstInt,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    GroupValue,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Type,
+    AsgConvertError, CharValue, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, GroupValue, Node,
+    PartialType, Scope, Span, Type,
 };
 
 use std::cell::Cell;
@@ -115,7 +104,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     value: ConstValue::Boolean(
                         value
                             .parse::<bool>()
-                            .map_err(|_| AsgConvertError::invalid_boolean(&value, span))?,
+                            .map_err(|_| AsgConvertError::invalid_boolean(value, span))?,
                     ),
                 }
             }
@@ -151,7 +140,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 Constant {
                     parent: Cell::new(None),
                     span: Some(span.clone()),
-                    value: ConstValue::Field(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
+                    value: ConstValue::Field(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
                 }
             }
             Group(value) => {
@@ -188,7 +177,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 Some(PartialType::Type(Type::Field)) => Constant {
                     parent: Cell::new(None),
                     span: Some(span.clone()),
-                    value: ConstValue::Field(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
+                    value: ConstValue::Field(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
                 },
                 Some(PartialType::Type(Type::Group)) => Constant {
                     parent: Cell::new(None),

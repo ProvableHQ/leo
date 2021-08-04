@@ -18,18 +18,18 @@ license = "GPL-3.0"
 edition = "2018"
 
 [dependencies.snarkvm-curves]
-version = "0.7.5"
+version = "0.7.7"
 default-features = false
 
 [dependencies.snarkvm-fields]
-version = "0.7.5"
+version = "0.7.7"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.7.5"
+version = "0.7.6"
 
 [dependencies.snarkvm-r1cs]
-version = "0.7.5"
+version = "0.7.6"
 default-features = false
 
 [dependencies.num-bigint]

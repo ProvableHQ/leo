@@ -16,9 +16,7 @@
 
 use std::{
     fs::{
-        create_dir_all,
-        File,
-        {self},
+        create_dir_all, File, {self},
     },
     io,
     io::prelude::*,
@@ -144,10 +142,10 @@ pub fn write_token_and_username(token: &str, username: &str) -> Result<(), io::E
     }
 
     let mut credentials = File::create(&LEO_CREDENTIALS_PATH.to_path_buf())?;
-    credentials.write_all(&token.as_bytes())?;
+    credentials.write_all(token.as_bytes())?;
 
     let mut username_file = File::create(&LEO_USERNAME_PATH.to_path_buf())?;
-    username_file.write_all(&username.as_bytes())?;
+    username_file.write_all(username.as_bytes())?;
 
     Ok(())
 }

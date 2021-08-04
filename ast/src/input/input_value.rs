@@ -20,15 +20,8 @@ use leo_input::{
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
     types::{ArrayType, CharType, DataType, IntegerType, TupleType, Type},
     values::{
-        Address,
-        AddressValue,
-        BooleanValue,
-        CharValue as InputCharValue,
-        FieldValue,
-        GroupValue as InputGroupValue,
-        IntegerValue,
-        NumberValue,
-        Value,
+        Address, AddressValue, BooleanValue, CharValue as InputCharValue, FieldValue, GroupValue as InputGroupValue,
+        IntegerValue, NumberValue, Value,
     },
 };
 use pest::Span;

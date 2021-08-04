@@ -191,7 +191,7 @@ impl InputParserError {
             expected, actual
         );
 
-        Self::new_from_span(message, &span)
+        Self::new_from_span(message, span)
     }
 
     pub fn section(header: Header) -> Self {

@@ -15,18 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
-    BlockStatement,
-    Circuit,
-    FromAst,
-    Identifier,
-    MonoidalDirector,
-    ReturnPathReducer,
-    Scope,
-    Span,
-    Statement,
-    Type,
-    Variable,
+    AsgConvertError, BlockStatement, Circuit, FromAst, Identifier, MonoidalDirector, ReturnPathReducer, Scope, Span,
+    Statement, Type, Variable,
 };
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
@@ -101,7 +91,7 @@ impl<'a> Function<'a> {
                         let variable = scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                             id: scope.context.get_id(),
                             name: identifier.clone(),
-                            type_: scope.resolve_ast_type(&type_)?,
+                            type_: scope.resolve_ast_type(type_)?,
                             mutable: *mutable,
                             const_: *const_,
                             declaration: crate::VariableDeclaration::Parameter,

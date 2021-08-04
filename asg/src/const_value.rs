@@ -315,16 +315,16 @@ impl ConstInt {
 
     pub fn parse(int_type: &IntegerType, value: &str, span: &Span) -> Result<ConstInt, AsgConvertError> {
         Ok(match int_type {
-            IntegerType::I8 => ConstInt::I8(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::I16 => ConstInt::I16(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::I32 => ConstInt::I32(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::I64 => ConstInt::I64(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::I128 => ConstInt::I128(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U8 => ConstInt::U8(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U16 => ConstInt::U16(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U32 => ConstInt::U32(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U64 => ConstInt::U64(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
-            IntegerType::U128 => ConstInt::U128(value.parse().map_err(|_| AsgConvertError::invalid_int(&value, span))?),
+            IntegerType::I8 => ConstInt::I8(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
+            IntegerType::I16 => ConstInt::I16(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
+            IntegerType::I32 => ConstInt::I32(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
+            IntegerType::I64 => ConstInt::I64(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
+            IntegerType::I128 => ConstInt::I128(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
+            IntegerType::U8 => ConstInt::U8(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
+            IntegerType::U16 => ConstInt::U16(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
+            IntegerType::U32 => ConstInt::U32(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
+            IntegerType::U64 => ConstInt::U64(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
+            IntegerType::U128 => ConstInt::U128(value.parse().map_err(|_| AsgConvertError::invalid_int(value, span))?),
         })
     }
 }

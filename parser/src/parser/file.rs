@@ -227,7 +227,7 @@ impl ParserContext {
                     base.name = format_tendril!("{}{}", base.name, next.name);
                     base.span = base.span + next.span;
                 }
-                x if KEYWORD_TOKENS.contains(&x) => {
+                x if KEYWORD_TOKENS.contains(x) => {
                     let next = self.expect_loose_identifier()?;
                     base.name = format_tendril!("{}{}", base.name, next.name);
                     base.span = base.span + next.span;
@@ -384,10 +384,13 @@ impl ParserContext {
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
 
-        Ok((name.clone(), Circuit {
-            circuit_name: name,
-            members,
-        }))
+        Ok((
+            name.clone(),
+            Circuit {
+                circuit_name: name,
+                members,
+            },
+        ))
     }
 
     ///
@@ -464,14 +467,17 @@ impl ParserContext {
             None
         };
         let block = self.parse_block()?;
-        Ok((name.clone(), Function {
-            annotations,
-            identifier: name,
-            input: inputs,
-            output,
-            span: start + block.span.clone(),
-            block,
-        }))
+        Ok((
+            name.clone(),
+            Function {
+                annotations,
+                identifier: name,
+                input: inputs,
+                output,
+                span: start + block.span.clone(),
+                block,
+            },
+        ))
     }
 
     ///

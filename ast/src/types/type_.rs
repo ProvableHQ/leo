@@ -16,10 +16,7 @@
 
 use crate::{ArrayDimensions, Identifier, IntegerType};
 use leo_input::types::{
-    ArrayType as InputArrayType,
-    DataType as InputDataType,
-    TupleType as InputTupleType,
-    Type as InputType,
+    ArrayType as InputArrayType, DataType as InputDataType, TupleType as InputTupleType, Type as InputType,
 };
 
 use serde::{Deserialize, Serialize};
@@ -70,8 +67,8 @@ impl Type {
             (Type::Char, Type::Char) => true,
             (Type::Field, Type::Field) => true,
             (Type::Group, Type::Group) => true,
-            (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(&right),
-            (Type::Circuit(left), Type::Circuit(right)) => left.eq(&right),
+            (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
+            (Type::Circuit(left), Type::Circuit(right)) => left.eq(right),
             (Type::SelfType, Type::SelfType) => true,
             (Type::Array(left_type, left_dim), Type::Array(right_type, right_dim)) => {
                 // Convert array dimensions to owned.

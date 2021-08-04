@@ -281,7 +281,7 @@ impl ParserContext {
             "log" => ConsoleFunction::Log(self.parse_console_args()?),
             x => {
                 return Err(SyntaxError::unexpected_ident(
-                    &x,
+                    x,
                     &["assert", "error", "log"],
                     &function.span,
                 ));

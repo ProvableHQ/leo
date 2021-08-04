@@ -17,12 +17,8 @@
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
 use crate::{
-    errors::StatementError,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-    IndicatorAndConstrainedValue,
-    StatementResult,
+    errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType,
+    IndicatorAndConstrainedValue, StatementResult,
 };
 use leo_asg::ConditionalStatement;
 
@@ -91,7 +87,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         );
         let branch_2_indicator = Boolean::and(
             &mut cs.ns(|| format!("branch 2 {}:{}", &span.line_start, &span.col_start)),
-            &outer_indicator,
+            outer_indicator,
             &inner_indicator,
         )
         .map_err(|_| StatementError::indicator_calculation(branch_2_name, &span))?;

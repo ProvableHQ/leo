@@ -44,7 +44,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
 
     match main {
         Some(function) => {
-            let result = resolved_program.enforce_main_function(cs, &function, input)?;
+            let result = resolved_program.enforce_main_function(cs, function, input)?;
             Ok(result)
         }
         _ => Err(CompilerError::NoMainFunction),

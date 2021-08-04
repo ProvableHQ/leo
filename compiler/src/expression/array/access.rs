@@ -94,7 +94,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     .len()
                     .try_into()
                     .map_err(|_| ExpressionError::array_length_out_of_bounds(span))?;
-                self.array_bounds_check(cs, &&index_resolved, array_len, span)?;
+                self.array_bounds_check(cs, &index_resolved, array_len, span)?;
             }
 
             let mut current_value = array.pop().unwrap();

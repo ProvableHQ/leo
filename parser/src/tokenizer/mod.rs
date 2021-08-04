@@ -82,17 +82,20 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                 if token_len == 0 && index == input.len() {
                     break;
                 } else if token_len == 0 {
-                    return Err(TokenError::unexpected_token(&input[index..index + 1], &Span {
-                        line_start: line_no,
-                        line_stop: line_no,
-                        col_start: index - line_start + 1,
-                        col_stop: index - line_start + 2,
-                        path,
-                        content: input.subtendril(
-                            line_start as u32,
-                            input[line_start..].find('\n').unwrap_or_else(|| input.len()) as u32,
-                        ),
-                    }));
+                    return Err(TokenError::unexpected_token(
+                        &input[index..index + 1],
+                        &Span {
+                            line_start: line_no,
+                            line_stop: line_no,
+                            col_start: index - line_start + 1,
+                            col_stop: index - line_start + 2,
+                            path,
+                            content: input.subtendril(
+                                line_start as u32,
+                                input[line_start..].find('\n').unwrap_or_else(|| input.len()) as u32,
+                            ),
+                        },
+                    ));
                 }
                 if input.as_bytes()[index] == b'\n' {
                     line_no += 1;
