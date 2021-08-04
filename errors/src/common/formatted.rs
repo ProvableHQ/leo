@@ -142,7 +142,6 @@ impl fmt::Display for FormattedError {
         let leo_backtrace = std::env::var("LEO_BACKTRACE").unwrap_or_default().trim().to_owned();
         match leo_backtrace.as_ref() {
             "1" => {
-                dbg!("1");
                 let mut printer = BacktracePrinter::default();
                 printer = printer.verbosity(Verbosity::Medium);
                 printer = printer.lib_verbosity(Verbosity::Medium);
@@ -152,7 +151,6 @@ impl fmt::Display for FormattedError {
                 write!(f, "{}", trace)?;
             }
             "full" => {
-                dbg!("full");
                 let mut printer = BacktracePrinter::default();
                 printer = printer.verbosity(Verbosity::Full);
                 printer = printer.lib_verbosity(Verbosity::Full);

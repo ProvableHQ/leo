@@ -107,7 +107,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
                     }
                 }
             }
-            None => default.ok_or_else(|| CompilerError::no_test_input())?,
+            None => default.ok_or_else(CompilerError::no_test_input)?,
         };
 
         // parse input files to abstract syntax trees

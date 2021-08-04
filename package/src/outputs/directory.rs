@@ -30,7 +30,7 @@ impl OutputsDirectory {
             path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e))?;
+        fs::create_dir_all(&path).map_err(PackageError::failed_to_create_inputs_directory)?;
         Ok(())
     }
 
@@ -42,7 +42,7 @@ impl OutputsDirectory {
         }
 
         if path.exists() {
-            fs::remove_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e))?;
+            fs::remove_dir_all(&path).map_err(PackageError::failed_to_create_inputs_directory)?;
         }
 
         Ok(())

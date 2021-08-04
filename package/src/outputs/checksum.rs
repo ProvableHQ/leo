@@ -61,10 +61,10 @@ impl ChecksumFile {
     /// Writes the given checksum to a file.
     pub fn write_to(&self, path: &Path, checksum: String) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_checksum_file(e))?;
+        let mut file = File::create(&path).map_err(PackageError::io_error_checksum_file)?;
 
         file.write_all(checksum.as_bytes())
-            .map_err(|e| PackageError::io_error_checksum_file(e))?;
+            .map_err(PackageError::io_error_checksum_file)?;
         Ok(())
     }
 

@@ -83,7 +83,7 @@ impl ZipFile {
         // Create zip file
         let path = self.setup_file_path(src_dir);
 
-        let file = File::create(&path).map_err(|e| PackageError::failed_to_create_zip_file(e))?;
+        let file = File::create(&path).map_err(PackageError::failed_to_create_zip_file)?;
         let mut zip = ZipWriter::new(file);
         let options = FileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
@@ -108,13 +108,13 @@ impl ZipFile {
                 tracing::info!("Adding file {:?} as {:?}", path, name);
                 #[allow(deprecated)]
                 zip.start_file_from_path(name, options)
-                    .map_err(|e| PackageError::io_error_zip_file(e))?;
+                    .map_err(PackageError::io_error_zip_file)?;
 
-                let mut f = File::open(path).map_err(|e| PackageError::failed_to_open_zip_file(e))?;
+                let mut f = File::open(path).map_err(PackageError::failed_to_open_zip_file)?;
                 f.read_to_end(&mut buffer)
-                    .map_err(|e| PackageError::failed_to_read_zip_file(e))?;
+                    .map_err(PackageError::failed_to_read_zip_file)?;
                 zip.write_all(&*buffer)
-                    .map_err(|e| PackageError::failed_to_write_zip_file(e))?;
+                    .map_err(PackageError::failed_to_write_zip_file)?;
 
                 buffer.clear();
             } else if !name.as_os_str().is_empty() {
@@ -123,11 +123,11 @@ impl ZipFile {
                 tracing::info!("Adding directory {:?} as {:?}", path, name);
                 #[allow(deprecated)]
                 zip.add_directory_from_path(name, options)
-                    .map_err(|e| PackageError::io_error_zip_file(e))?;
+                    .map_err(PackageError::io_error_zip_file)?;
             }
         }
 
-        zip.finish().map_err(|e| PackageError::io_error_zip_file(e))?;
+        zip.finish().map_err(PackageError::io_error_zip_file)?;
 
         tracing::info!("Package zip file created successfully {:?}", path);
 

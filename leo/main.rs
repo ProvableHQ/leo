@@ -39,7 +39,6 @@ use commands::{
 };
 use leo_errors::Result;
 
-use color_backtrace;
 use colored::Colorize;
 use std::{path::PathBuf, process::exit};
 use structopt::{clap::AppSettings, StructOpt};

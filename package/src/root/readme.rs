@@ -54,10 +54,10 @@ impl README {
             path.to_mut().push(README_FILENAME);
         }
 
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_readme_file(e))?;
+        let mut file = File::create(&path).map_err(PackageError::io_error_readme_file)?;
 
         file.write_all(self.template().as_bytes())
-            .map_err(|e| PackageError::io_error_readme_file(e))?;
+            .map_err(PackageError::io_error_readme_file)?;
         Ok(())
     }
 

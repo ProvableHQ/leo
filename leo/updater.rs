@@ -34,9 +34,9 @@ impl Updater {
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
             .build()
-            .map_err(|e| CliError::self_update_error(e))?
+            .map_err(CliError::self_update_error)?
             .fetch()
-            .map_err(|e| CliError::self_update_error(e))?;
+            .map_err(CliError::self_update_error)?;
 
         let mut output = "\nList of available versions\n".to_string();
         for release in releases {
@@ -60,9 +60,9 @@ impl Updater {
             .no_confirm(true)
             .show_output(show_output)
             .build()
-            .map_err(|e| CliError::self_update_error(e))?
+            .map_err(CliError::self_update_error)?
             .update()
-            .map_err(|e| CliError::self_update_error(e))?;
+            .map_err(CliError::self_update_error)?;
 
         Ok(status)
     }
@@ -75,14 +75,12 @@ impl Updater {
             .bin_name(Self::LEO_BIN_NAME)
             .current_version(env!("CARGO_PKG_VERSION"))
             .build()
-            .map_err(|e| CliError::self_update_error(e))?;
+            .map_err(CliError::self_update_error)?;
 
         let current_version = updater.current_version();
-        let latest_release = updater
-            .get_latest_release()
-            .map_err(|e| CliError::self_update_error(e))?;
+        let latest_release = updater.get_latest_release().map_err(CliError::self_update_error)?;
 
-        if bump_is_greater(&current_version, &latest_release.version).map_err(|e| CliError::self_update_error(e))? {
+        if bump_is_greater(&current_version, &latest_release.version).map_err(CliError::self_update_error)? {
             Ok(latest_release.version)
         } else {
             Err(CliError::old_release_version(current_version, latest_release.version).into())

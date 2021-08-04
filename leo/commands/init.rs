@@ -50,7 +50,7 @@ impl Command for Init {
         // Check that the given package name is valid.
         let package_name = path
             .file_stem()
-            .ok_or_else(|| CliError::invalid_project_name())?
+            .ok_or_else(CliError::invalid_project_name)?
             .to_string_lossy()
             .to_string();
         if !LeoPackage::is_package_name_valid(&package_name) {

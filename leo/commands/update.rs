@@ -61,7 +61,7 @@ impl Command for Update {
     fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
         // If --list is passed, list all available versions and return.
         if self.list {
-            return Ok(Updater::show_available_releases().map_err(|e| CliError::could_not_fetch_versions(e))?);
+            return Ok(Updater::show_available_releases().map_err(CliError::could_not_fetch_versions)?);
         }
 
         // Handles enabling and disabling automatic updates in the config file.

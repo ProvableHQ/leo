@@ -30,7 +30,7 @@ impl ImportsDirectory {
             path.to_mut().push(IMPORTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_imports_directory(e))?;
+        fs::create_dir_all(&path).map_err(PackageError::failed_to_create_imports_directory)?;
         Ok(())
     }
 
@@ -47,7 +47,7 @@ impl ImportsDirectory {
             return Err(PackageError::import_does_not_exist(package_name).into());
         }
 
-        fs::remove_dir_all(&path).map_err(|e| PackageError::failed_to_remove_imports_directory(e))?;
+        fs::remove_dir_all(&path).map_err(PackageError::failed_to_remove_imports_directory)?;
 
         Ok(())
     }

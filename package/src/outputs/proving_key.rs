@@ -64,10 +64,10 @@ impl ProvingKeyFile {
     /// Writes the given proving key to a file.
     pub fn write_to<'a>(&self, path: &'a Path, proving_key: &[u8]) -> Result<Cow<'a, Path>> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_proving_key_file(e))?;
+        let mut file = File::create(&path).map_err(PackageError::io_error_proving_key_file)?;
 
         file.write_all(proving_key)
-            .map_err(|e| PackageError::io_error_proving_key_file(e))?;
+            .map_err(PackageError::io_error_proving_key_file)?;
         Ok(path)
     }
 

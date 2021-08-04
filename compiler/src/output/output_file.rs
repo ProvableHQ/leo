@@ -46,11 +46,9 @@ impl OutputFile {
     pub fn write(&self, path: &Path, bytes: &[u8]) -> Result<()> {
         // create output file
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| CompilerError::output_file_io_error(e))?;
+        let mut file = File::create(&path).map_err(CompilerError::output_file_io_error)?;
 
-        Ok(file
-            .write_all(bytes)
-            .map_err(|e| CompilerError::output_file_io_error(e))?)
+        Ok(file.write_all(bytes).map_err(CompilerError::output_file_io_error)?)
     }
 
     /// Removes the output file at the given path if it exists. Returns `true` on success,

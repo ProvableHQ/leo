@@ -92,7 +92,7 @@ impl Command for Add {
 
         let (author, package_name) = self
             .try_read_arguments()
-            .map_err(|e| CliError::cli_bytes_conversion_error(e))?;
+            .map_err(CliError::cli_bytes_conversion_error)?;
 
         // Attempt to fetch the package.
         let reader = {
@@ -105,7 +105,7 @@ impl Command for Add {
                 .api
                 .run_route(fetch)?
                 .bytes()
-                .map_err(|e| CliError::cli_bytes_conversion_error(e))?;
+                .map_err(CliError::cli_bytes_conversion_error)?;
             std::io::Cursor::new(bytes)
         };
 
@@ -115,13 +115,13 @@ impl Command for Add {
             ImportsDirectory::create(&path)?;
             path.push(IMPORTS_DIRECTORY_NAME);
             path.push(package_name);
-            create_dir_all(&path).map_err(|e| CliError::cli_io_error(e))?;
+            create_dir_all(&path).map_err(CliError::cli_io_error)?;
         };
 
         // Proceed to unzip and parse the fetched bytes.
-        let mut zip_archive = zip::ZipArchive::new(reader).map_err(|e| CliError::cli_zip_error(e))?;
+        let mut zip_archive = zip::ZipArchive::new(reader).map_err(CliError::cli_zip_error)?;
         for i in 0..zip_archive.len() {
-            let file = zip_archive.by_index(i).map_err(|e| CliError::cli_zip_error(e))?;
+            let file = zip_archive.by_index(i).map_err(CliError::cli_zip_error)?;
 
             let file_name = file.name();
 
@@ -129,16 +129,16 @@ impl Command for Add {
             file_path.push(file_name);
 
             if file_name.ends_with('/') {
-                create_dir_all(file_path).map_err(|e| CliError::cli_io_error(e))?;
+                create_dir_all(file_path).map_err(CliError::cli_io_error)?;
             } else {
                 if let Some(parent_directory) = path.parent() {
-                    create_dir_all(parent_directory).map_err(|e| CliError::cli_io_error(e))?;
+                    create_dir_all(parent_directory).map_err(CliError::cli_io_error)?;
                 }
 
-                let mut created = File::create(file_path).map_err(|e| CliError::cli_io_error(e))?;
+                let mut created = File::create(file_path).map_err(CliError::cli_io_error)?;
                 created
                     .write_all(&file.bytes().map(|e| e.unwrap()).collect::<Vec<u8>>())
-                    .map_err(|e| CliError::cli_bytes_conversion_error(e))?;
+                    .map_err(CliError::cli_bytes_conversion_error)?;
             }
         }
 

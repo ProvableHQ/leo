@@ -249,10 +249,10 @@ impl Route for Publish {
         let status = res.status();
 
         if status == StatusCode::OK {
-            let body: PublishResponse = res.json().map_err(|e| CliError::reqwest_json_error(e))?;
+            let body: PublishResponse = res.json().map_err(CliError::reqwest_json_error)?;
             Ok(body.package_id)
         } else {
-            let res: HashMap<String, String> = res.json().map_err(|e| CliError::reqwest_json_error(e))?;
+            let res: HashMap<String, String> = res.json().map_err(CliError::reqwest_json_error)?;
             Err(match status {
                 StatusCode::BAD_REQUEST => CliError::bad_request(res.get("message").unwrap()).into(),
                 StatusCode::UNAUTHORIZED => CliError::not_logged_in().into(),
@@ -288,7 +288,7 @@ impl Route for Profile {
         // this may be extended for more precise error handling
         let status = res.status();
         if status == StatusCode::OK {
-            let body: ProfileResponse = res.json().map_err(|e| CliError::reqwest_json_error(e))?;
+            let body: ProfileResponse = res.json().map_err(CliError::reqwest_json_error)?;
             return Ok(Some(body.username));
         }
 

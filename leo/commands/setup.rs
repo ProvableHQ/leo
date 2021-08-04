@@ -89,7 +89,7 @@ impl Command for Setup {
             let mut proving_key_bytes = vec![];
             proving_key
                 .write_le(&mut proving_key_bytes)
-                .map_err(|e| CliError::cli_io_error(e))?;
+                .map_err(CliError::cli_io_error)?;
             let _ = proving_key_file.write_to(&path, &proving_key_bytes)?;
             tracing::info!("Complete");
 
@@ -100,7 +100,7 @@ impl Command for Setup {
             proving_key
                 .vk
                 .write_le(&mut verification_key)
-                .map_err(|e| CliError::cli_io_error(e))?;
+                .map_err(CliError::cli_io_error)?;
             let _ = verification_key_file.write_to(&path, &verification_key)?;
             tracing::info!("Complete");
 
@@ -116,16 +116,16 @@ impl Command for Setup {
             }
             let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
             let proving_key = ProvingKey::<Bls12_377>::read(proving_key_bytes.as_slice(), !self.skip_key_check)
-                .map_err(|e| CliError::cli_io_error(e))?;
+                .map_err(CliError::cli_io_error)?;
             tracing::info!("Complete");
 
             // Read the verification key file from the output directory
             tracing::info!("Loading verification key...");
             let verifying_key_bytes = VerificationKeyFile::new(&package_name)
                 .read_from(&path)
-                .map_err(|e| CliError::cli_io_error(e))?;
-            let verifying_key = VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice())
-                .map_err(|e| CliError::cli_io_error(e))?;
+                .map_err(CliError::cli_io_error)?;
+            let verifying_key =
+                VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice()).map_err(CliError::cli_io_error)?;
 
             // Derive the prepared verifying key file from the verifying key
             let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);

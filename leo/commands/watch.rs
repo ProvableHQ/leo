@@ -56,7 +56,7 @@ impl Command for Watch {
 
         watcher
             .watch(LEO_SOURCE_DIR, RecursiveMode::Recursive)
-            .map_err(|e| CliError::unable_to_watch(e))?;
+            .map_err(CliError::unable_to_watch)?;
 
         tracing::info!("Watching Leo source code");
 

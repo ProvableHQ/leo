@@ -61,7 +61,7 @@ impl Command for New {
         }
 
         // Create the package directory
-        fs::create_dir_all(&path).map_err(|err| CliError::package_could_not_create_directory(err))?;
+        fs::create_dir_all(&path).map_err(CliError::package_could_not_create_directory)?;
 
         LeoPackage::initialize(&package_name, &path, username)?;
 

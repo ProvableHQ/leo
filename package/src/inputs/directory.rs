@@ -35,7 +35,7 @@ impl InputsDirectory {
             path.to_mut().push(INPUTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e))?;
+        fs::create_dir_all(&path).map_err(PackageError::failed_to_create_inputs_directory)?;
         Ok(())
     }
 
@@ -44,7 +44,7 @@ impl InputsDirectory {
         let mut path = path.to_owned();
         path.push(INPUTS_DIRECTORY_NAME);
 
-        let directory = fs::read_dir(&path).map_err(|e| PackageError::failed_to_read_inputs_directory(e))?;
+        let directory = fs::read_dir(&path).map_err(PackageError::failed_to_read_inputs_directory)?;
         let mut file_paths = Vec::new();
         parse_file_paths(directory, &mut file_paths)?;
 
@@ -54,7 +54,7 @@ impl InputsDirectory {
 
 fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<()> {
     for file_entry in directory.into_iter() {
-        let file_entry = file_entry.map_err(|e| PackageError::failed_to_get_input_file_entry(e))?;
+        let file_entry = file_entry.map_err(PackageError::failed_to_get_input_file_entry)?;
         let file_path = file_entry.path();
 
         // Verify that the entry is structured as a valid file or directory
@@ -62,7 +62,7 @@ fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result
             .file_type()
             .map_err(|e| PackageError::failed_to_get_input_file_type(file_path.as_os_str().to_owned(), e))?;
         if file_type.is_dir() {
-            let directory = fs::read_dir(&file_path).map_err(|e| PackageError::failed_to_read_inputs_directory(e))?;
+            let directory = fs::read_dir(&file_path).map_err(PackageError::failed_to_read_inputs_directory)?;
 
             parse_file_paths(directory, file_paths)?;
             continue;

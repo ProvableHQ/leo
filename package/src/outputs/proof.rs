@@ -61,10 +61,9 @@ impl ProofFile {
     /// Writes the given proof to a file.
     pub fn write_to(&self, path: &Path, proof: &[u8]) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_proof_file(e))?;
+        let mut file = File::create(&path).map_err(PackageError::io_error_proof_file)?;
 
-        file.write_all(proof)
-            .map_err(|e| PackageError::io_error_proof_file(e))?;
+        file.write_all(proof).map_err(PackageError::io_error_proof_file)?;
         tracing::info!("Saving proof... ({:?})", path);
 
         Ok(())

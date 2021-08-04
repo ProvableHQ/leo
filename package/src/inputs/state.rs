@@ -65,11 +65,11 @@ impl StateFile {
     /// Writes the standard input format to a file.
     pub fn write_to(self, path: &Path) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_state_file(e))?;
+        let mut file = File::create(&path).map_err(PackageError::io_error_state_file)?;
 
         Ok(file
             .write_all(self.template().as_bytes())
-            .map_err(|e| PackageError::io_error_state_file(e))?)
+            .map_err(PackageError::io_error_state_file)?)
     }
 
     fn template(&self) -> String {

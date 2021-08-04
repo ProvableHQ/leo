@@ -16,8 +16,55 @@
 
 use crate::create_errors;
 
+use std::{
+    error::Error as ErrorArg,
+    fmt::{Debug, Display},
+};
+
 create_errors!(
     StateError,
     exit_code_mask: 6000i32,
     error_code_prefix: "STA",
+
+    @backtraced
+    parse_bool_error {
+        args: (error: impl ErrorArg),
+        msg: format!("failed to parse state file bool: {}", error),
+        help: None,
+    }
+
+    @backtraced
+    parse_int_error {
+        args: (error: impl ErrorArg),
+        msg: format!("failed to parse state file int: {}", error),
+        help: None,
+    }
+
+    @backtraced
+    expected_bytes {
+        args: (found: impl Display),
+        msg: format!("expected parameter array of u8 bytes, found `{}`", found),
+        help: None,
+    }
+
+    @backtraced
+    expected_int {
+        args: (found: impl Display),
+        msg: format!("expected integer parameter, found `{}`", found),
+        help: None,
+    }
+
+    @backtraced
+    mising_parameter {
+        args: (parameter: impl Display),
+        msg: format!("input parameter `{}` not found in state file", parameter),
+        help: None,
+    }
+
+    @backtraced
+    state_io_error {
+        args: (error: impl ErrorArg),
+        msg: format!("io error found {}", error),
+        help: None,
+    }
 );

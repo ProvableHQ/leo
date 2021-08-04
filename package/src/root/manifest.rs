@@ -90,7 +90,7 @@ impl Manifest {
             File::create(&path).map_err(|e| PackageError::failed_to_create_manifest_file(MANIFEST_FILENAME, e))?;
 
         file.write_all(self.template().as_bytes())
-            .map_err(|e| PackageError::io_error_manifest_file(e))?;
+            .map_err(PackageError::io_error_manifest_file)?;
         Ok(())
     }
 

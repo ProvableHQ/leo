@@ -61,10 +61,10 @@ impl CircuitFile {
     /// Writes the given serialized circuit to a file.
     pub fn write_to(&self, path: &Path, circuit: String) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_circuit_file(e))?;
+        let mut file = File::create(&path).map_err(PackageError::io_error_circuit_file)?;
 
         file.write_all(circuit.as_bytes())
-            .map_err(|e| PackageError::io_error_circuit_file(e))?;
+            .map_err(PackageError::io_error_circuit_file)?;
         Ok(())
     }
 

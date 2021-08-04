@@ -37,7 +37,7 @@ impl Context {
     pub fn dir(&self) -> Result<PathBuf> {
         match &self.path {
             Some(path) => Ok(path.clone()),
-            None => Ok(current_dir().map_err(|e| CliError::cli_io_error(e))?),
+            None => Ok(current_dir().map_err(CliError::cli_io_error)?),
         }
     }
 

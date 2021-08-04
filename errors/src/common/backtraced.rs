@@ -17,7 +17,7 @@
 use std::fmt;
 
 use backtrace::Backtrace;
-use color_backtrace::BacktracePrinter;
+use color_backtrace::{BacktracePrinter, Verbosity};
 use derivative::Derivative;
 
 pub const INDENT: &str = "    ";
@@ -103,20 +103,18 @@ impl fmt::Display for BacktracedError {
             "1" => {
                 dbg!("1");
                 let mut printer = BacktracePrinter::default();
-                printer = printer.verbosity(Verbosity::Medium);
                 printer = printer.lib_verbosity(Verbosity::Medium);
                 let trace = printer
-                    .format_trace_to_string(&self.backtrace.backtrace)
+                    .format_trace_to_string(&self.backtrace)
                     .map_err(|_| fmt::Error)?;
                 write!(f, "{}", trace)?;
             }
             "full" => {
                 dbg!("full");
                 let mut printer = BacktracePrinter::default();
-                printer = printer.verbosity(Verbosity::Full);
                 printer = printer.lib_verbosity(Verbosity::Full);
                 let trace = printer
-                    .format_trace_to_string(&self.backtrace.backtrace)
+                    .format_trace_to_string(&self.backtrace)
                     .map_err(|_| fmt::Error)?;
                 write!(f, "{}", trace)?;
             }

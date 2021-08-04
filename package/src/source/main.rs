@@ -60,10 +60,10 @@ impl MainFile {
             path.to_mut().push(MAIN_FILENAME);
         }
 
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_main_file(e))?;
+        let mut file = File::create(&path).map_err(PackageError::io_error_main_file)?;
         Ok(file
             .write_all(self.template().as_bytes())
-            .map_err(|e| PackageError::io_error_main_file(e))?)
+            .map_err(PackageError::io_error_main_file)?)
     }
 
     fn template(&self) -> String {

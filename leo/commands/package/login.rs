@@ -72,7 +72,7 @@ impl Command for Login {
                 };
 
                 let res = api.run_route(login)?;
-                let mut res: HashMap<String, String> = res.json().map_err(|e| CliError::reqwest_json_error(e))?;
+                let mut res: HashMap<String, String> = res.json().map_err(CliError::reqwest_json_error)?;
 
                 let tok_opt = res.remove("token");
                 if tok_opt.is_none() {

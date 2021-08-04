@@ -72,9 +72,7 @@ impl Command for Prove {
 
         // Write the proof file to the output directory
         let mut proof = vec![];
-        program_proof
-            .write_le(&mut proof)
-            .map_err(|e| CliError::cli_io_error(e))?;
+        program_proof.write_le(&mut proof).map_err(CliError::cli_io_error)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
 
         Ok((program_proof, prepared_verifying_key))
