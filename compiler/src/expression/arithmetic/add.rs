@@ -38,9 +38,9 @@ pub fn enforce_add<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
             Ok(ConstrainedValue::Group(point_1.add(cs, &point_2, span)?))
         }
-        (val_1, val_2) => Err(LeoError::from(CompilerError::incompatible_types(
+        (val_1, val_2) => Err(CompilerError::incompatible_types(
             format!("{} + {}", val_1, val_2),
             span,
-        ))),
+        ))?,
     }
 }

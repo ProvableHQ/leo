@@ -15,11 +15,47 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::create_errors;
+use std::{error::Error as ErrorArg, fmt::Debug};
 
 create_errors!(
     AstError,
     exit_code_mask: 1000u32,
     error_code_prefix: "T",
+
+    @backtraced
+    failed_to_convert_ast_to_json_string {
+        args: (error: impl ErrorArg),
+        msg: format!("failed to convert ast to a json string {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_create_ast_json_file {
+        args: (path: impl Debug, error: impl ErrorArg),
+        msg: format!("failed to creat ast json file `{:?}` {}", path, error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_write_ast_to_json_file {
+        args: (path: impl Debug, error: impl ErrorArg),
+        msg: format!("failed to write ast to a json file `{:?}` {}", path, error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_read_json_string_to_ast {
+        args: (error: impl ErrorArg),
+        msg: format!("failed to convert json stirng to an ast {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_read_json_file {
+        args: (path: impl Debug, error: impl ErrorArg),
+        msg: format!("failed to convert json file `{:?}` to an ast {}", path, error),
+        help: None,
+    }
 
     @formatted
     big_self_outside_of_circuit {

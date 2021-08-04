@@ -20,7 +20,6 @@ use crate::inputs::INPUTS_DIRECTORY_NAME;
 use leo_errors::{LeoError, PackageError};
 
 use backtrace::Backtrace;
-use eyre::eyre;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -59,27 +58,19 @@ impl StateFile {
     pub fn read_from<'a>(&self, path: &'a Path) -> Result<(String, Cow<'a, Path>), LeoError> {
         let path = self.setup_file_path(path);
 
-        match fs::read_to_string(&path) {
-            Ok(input) => Ok((input, path)),
-            Err(_) => Err(PackageError::failed_to_read_state_file(path.into_owned(), Backtrace::new()).into()),
-        }
+        let input = fs::read_to_string(&path)
+            .map_err(|_| PackageError::failed_to_read_state_file(path.clone().into_owned(), Backtrace::new()))?;
+        Ok((input, path))
     }
 
     /// Writes the standard input format to a file.
     pub fn write_to(self, path: &Path) -> Result<(), LeoError> {
         let path = self.setup_file_path(path);
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_state_file(e, Backtrace::new()))?;
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let mut file = match File::create(&path) {
-            Ok(file) => file,
-            Err(e) => return Err(PackageError::io_error_state_file(eyre!(e), Backtrace::new()).into()),
-        };
-
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        match file.write_all(self.template().as_bytes()) {
-            Ok(_) => Ok(()),
-            Err(e) => Err(PackageError::io_error_state_file(eyre!(e), Backtrace::new()).into()),
-        }
+        Ok(file
+            .write_all(self.template().as_bytes())
+            .map_err(|e| PackageError::io_error_state_file(e, Backtrace::new()))?)
     }
 
     fn template(&self) -> String {

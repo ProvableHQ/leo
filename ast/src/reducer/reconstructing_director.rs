@@ -398,7 +398,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                 match &console_function_call.function {
                     ConsoleFunction::Error(_) => ConsoleFunction::Error(formatted),
                     ConsoleFunction::Log(_) => ConsoleFunction::Log(formatted),
-                    _ => return Err(LeoError::from(AstError::impossible_console_assert_call(&args.span))),
+                    _ => return Err(AstError::impossible_console_assert_call(&args.span))?,
                 }
             }
         };

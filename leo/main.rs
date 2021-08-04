@@ -38,6 +38,7 @@ use commands::{
     Watch,
 };
 
+// TODO remove anyhow::Result for a LeoResult
 use anyhow::Result;
 use colored::Colorize;
 use std::{path::PathBuf, process::exit};

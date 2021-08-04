@@ -22,6 +22,7 @@ macro_rules! create_errors {
 
         use backtrace::Backtrace;
 
+
         #[derive(Debug, Error)]
         pub enum $error_type {
             #[error(transparent)]
@@ -35,6 +36,19 @@ macro_rules! create_errors {
 
         impl ErrorCode for $error_type {
             #[inline(always)]
+            fn exit_code(&self) -> u32 {
+                match self {
+                    Self::FormattedError(formatted) => {
+                        formatted.exit_code()
+                    },
+                    Self::BacktracedError(backtraced) => {
+                        backtraced.exit_code()
+                    }
+                }
+
+            }
+
+            #[inline(always)]
             fn exit_code_mask() -> u32 {
                 $exit_code_mask
             }
@@ -44,20 +58,20 @@ macro_rules! create_errors {
                 $error_code_prefix.to_string()
             }
 
-	    fn new_from_backtrace<S>(message: S, help: Option<S>, exit_code: u32, backtrace: Backtrace) -> Self
-	    where
-		S: ToString {
-		BacktracedError::new_from_backtrace(
-		    message,
+            fn new_from_backtrace<S>(message: S, help: Option<String>, exit_code: u32, backtrace: Backtrace) -> Self
+            where
+            S: ToString {
+                BacktracedError::new_from_backtrace(
+                        message,
                         help,
                         exit_code + Self::exit_code_mask(),
                         Self::code_identifier(),
-                    Self::error_type(),
-		    backtrace,
-		).into()
-	    }
+                        Self::error_type(),
+                        backtrace,
+                ).into()
+            }
 
-            fn new_from_span<S>(message: S, help: Option<S>, exit_code: u32, span: &Span) -> Self
+            fn new_from_span<S>(message: S, help: Option<String>, exit_code: u32, span: &Span) -> Self
             where S: ToString {
                 FormattedError::new_from_span(
                         message,

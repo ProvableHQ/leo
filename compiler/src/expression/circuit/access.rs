@@ -40,20 +40,22 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         Ok(member.1)
                     } else {
                         Err(CompilerError::undefined_circuit_member_access(
-                            expr.circuit.get().name.borrow().to_string(),
-                            expr.member.to_string(),
+                            expr.circuit.get().name.borrow(),
+                            &expr.member.name,
                             &expr.member.span,
-                        )
-                        .into())
+                        ))?
                     }
                 }
-                value => Err(LeoError::from(CompilerError::undefined_circuit(
-                    value.to_string(),
+                value => Err(CompilerError::undefined_circuit(
+                    value,
                     &target.span().cloned().unwrap_or_default(),
-                ))),
+                ))?,
             }
         } else {
-            Err(CompilerError::invalid_circuit_static_member_access(expr.member.to_string(), &expr.member.span).into())
+            Err(CompilerError::invalid_circuit_static_member_access(
+                &expr.member.name,
+                &expr.member.span,
+            ))?
         }
     }
 }

@@ -27,7 +27,7 @@ use crate::{
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, Program as AsgProgram};
 use leo_ast::{Input, MainInput, Program as AstProgram};
-use leo_errors::{CompilerError, LeoError, SnarkVMError};
+use leo_errors::{CompilerError, LeoError};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
@@ -38,7 +38,6 @@ use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
 use backtrace::Backtrace;
-use eyre::eyre;
 use sha2::{Digest, Sha256};
 use std::{
     fs,
@@ -227,13 +226,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     pub fn parse_program(&mut self) -> Result<(), LeoError> {
         // Load the program file.
-        let content = fs::read_to_string(&self.main_file_path).map_err(|e| {
-            LeoError::from(CompilerError::file_read_error(
-                self.main_file_path.clone(),
-                eyre!(e),
-                Backtrace::new(),
-            ))
-        })?;
+        let content = fs::read_to_string(&self.main_file_path)
+            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e, Backtrace::new()))?;
 
         self.parse_program_from_string(&content)
     }
@@ -330,13 +324,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     ///
     pub fn checksum(&self) -> Result<String, LeoError> {
         // Read in the main file as string
-        let unparsed_file = fs::read_to_string(&self.main_file_path).map_err(|e| {
-            LeoError::from(CompilerError::file_read_error(
-                self.main_file_path.clone(),
-                eyre!(e),
-                Backtrace::new(),
-            ))
-        })?;
+        let unparsed_file = fs::read_to_string(&self.main_file_path)
+            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e, Backtrace::new()))?;
 
         // Hash the file contents
         let mut hasher = Sha256::new();
@@ -356,8 +345,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         system_parameters: &SystemParameters<Components>,
     ) -> Result<bool, LeoError> {
         // TODO CONVERT STATE ERROR TO LEO ERROR
-        let result = verify_local_data_commitment(system_parameters, &self.program_input)
-            .map_err(|e| LeoError::from(SnarkVMError::from(eyre!(e))))?;
+        let result = verify_local_data_commitment(system_parameters, &self.program_input).unwrap();
+        // .map_err(|e| SnarkVMError::new(e))?;
 
         Ok(result)
     }

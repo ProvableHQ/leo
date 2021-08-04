@@ -20,7 +20,6 @@
 use leo_errors::{LeoError, PackageError};
 
 use backtrace::Backtrace;
-use eyre::eyre;
 use serde::Deserialize;
 use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
@@ -56,17 +55,11 @@ impl README {
             path.to_mut().push(README_FILENAME);
         }
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let mut file = match File::create(&path) {
-            Ok(file) => file,
-            Err(e) => return Err(PackageError::io_error_readme_file(eyre!(e), Backtrace::new()).into()),
-        };
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_readme_file(e, Backtrace::new()))?;
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        match file.write_all(self.template().as_bytes()) {
-            Ok(v) => Ok(v),
-            Err(e) => Err(PackageError::io_error_readme_file(eyre!(e), Backtrace::new()).into()),
-        }
+        file.write_all(self.template().as_bytes())
+            .map_err(|e| PackageError::io_error_readme_file(e, Backtrace::new()))?;
+        Ok(())
     }
 
     fn template(&self) -> String {

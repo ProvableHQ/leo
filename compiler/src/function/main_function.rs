@@ -66,10 +66,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 ) {
                     // If variable is in both [main] and [constants] sections - error.
                     (_, Some(_), Some(_)) => {
-                        return Err(LeoError::from(CompilerError::double_input_declaration(
-                            name.to_string(),
-                            &input_variable.name.span,
-                        )));
+                        return Err(CompilerError::double_input_declaration(name, &input_variable.name.span))?;
                     }
                     // If input option is found in [main] section and input is not const.
                     (false, Some(input_option), _) => self.allocate_main_function_input(
@@ -89,25 +86,25 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     )?,
                     // Function argument is const, input is not.
                     (true, Some(_), None) => {
-                        return Err(LeoError::from(CompilerError::expected_const_input_variable(
-                            name.to_string(),
+                        return Err(CompilerError::expected_const_input_variable(
+                            name,
                             &input_variable.name.span,
-                        )));
+                        ))?;
                     }
                     // Input is const, function argument is not.
                     (false, None, Some(_)) => {
-                        return Err(LeoError::from(CompilerError::expected_non_const_input_variable(
-                            name.to_string(),
+                        return Err(CompilerError::expected_non_const_input_variable(
+                            name,
                             &input_variable.name.span,
-                        )));
+                        ))?;
                     }
                     // When not found - Error out.
                     (_, _, _) => {
-                        return Err(LeoError::from(CompilerError::function_input_not_found(
+                        return Err(CompilerError::function_input_not_found(
                             function.name.borrow().name.to_string(),
-                            name.to_string(),
+                            name,
                             &input_variable.name.span,
-                        )));
+                        ))?;
                     }
                 };
 

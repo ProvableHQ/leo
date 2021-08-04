@@ -30,16 +30,11 @@ pub(crate) fn allocate_bool<F: PrimeField, CS: ConstraintSystem<F>>(
     option: Option<bool>,
     span: &Span,
 ) -> Result<Boolean, LeoError> {
-    Boolean::alloc(
+    Ok(Boolean::alloc(
         cs.ns(|| format!("`{}: bool` {}:{}", name, span.line_start, span.col_start)),
         || option.ok_or(SynthesisError::AssignmentMissing),
     )
-    .map_err(|_| {
-        LeoError::from(CompilerError::boolean_value_missing_boolean(
-            format!("{}: bool", name),
-            span,
-        ))
-    })
+    .map_err(|_| CompilerError::boolean_value_missing_boolean(format!("{}: bool", name), span))?)
 }
 
 pub(crate) fn bool_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -54,10 +49,7 @@ pub(crate) fn bool_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
             if let InputValue::Boolean(bool) = input {
                 Some(bool)
             } else {
-                return Err(LeoError::from(CompilerError::boolean_value_invalid_boolean(
-                    name.to_owned(),
-                    span,
-                )));
+                return Err(CompilerError::boolean_value_invalid_boolean(name, span))?;
             }
         }
         None => None,

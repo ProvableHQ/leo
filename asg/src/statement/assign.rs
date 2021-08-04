@@ -66,25 +66,28 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         statement: &leo_ast::AssignStatement,
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self, LeoError> {
-        let (name, span) = (&statement.assignee.identifier.name, &statement.assignee.identifier.span);
+        let (name, span) = (
+            &statement.assignee.identifier.name.clone(),
+            &statement.assignee.identifier.span,
+        );
 
         let variable = if name.as_ref() == "input" {
             if let Some(input) = scope.resolve_input() {
                 input.container
             } else {
-                return Err(LeoError::from(AsgError::illegal_input_variable_reference(
+                return Err(AsgError::illegal_input_variable_reference(
                     "attempted to reference input when none is in scope",
                     &statement.span,
-                )));
+                ))?;
             }
         } else {
             scope
                 .resolve_variable(name)
-                .ok_or_else(|| LeoError::from(AsgError::unresolved_reference(name, span)))?
+                .ok_or_else(|| AsgError::unresolved_reference(name, span))?
         };
 
         if !variable.borrow().mutable {
-            return Err(LeoError::from(AsgError::immutable_assignment(name, &statement.span)));
+            return Err(AsgError::immutable_assignment(name, &statement.span))?;
         }
         let mut target_type: Option<PartialType> = Some(variable.borrow().type_.clone().into());
 
@@ -119,37 +122,29 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             ) {
                                 let left = match left {
                                     ConstValue::Int(x) => x.to_usize().ok_or_else(|| {
-                                        LeoError::from(AsgError::invalid_assign_index(
-                                            name,
-                                            &x.to_string(),
-                                            &statement.span,
-                                        ))
+                                        AsgError::invalid_assign_index(name, x.to_string(), &statement.span)
                                     })?,
                                     _ => unimplemented!(),
                                 };
                                 let right = match right {
                                     ConstValue::Int(x) => x.to_usize().ok_or_else(|| {
-                                        LeoError::from(AsgError::invalid_assign_index(
-                                            name,
-                                            &x.to_string(),
-                                            &statement.span,
-                                        ))
+                                        AsgError::invalid_assign_index(name, x.to_string(), &statement.span)
                                     })?,
                                     _ => unimplemented!(),
                                 };
                                 if right >= left {
                                     target_type = Some(PartialType::Array(item.clone(), Some((right - left) as usize)))
                                 } else {
-                                    return Err(LeoError::from(AsgError::invalid_backwards_assignment(
+                                    return Err(AsgError::invalid_backwards_assignment(
                                         name,
                                         left,
                                         right,
                                         &statement.span,
-                                    )));
+                                    ))?;
                                 }
                             }
                         }
-                        _ => return Err(LeoError::from(AsgError::index_into_non_array(name, &statement.span))),
+                        _ => return Err(AsgError::index_into_non_array(name, &statement.span))?,
                     }
 
                     AssignAccess::ArrayRange(Cell::new(left), Cell::new(right))
@@ -157,7 +152,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                 AstAssigneeAccess::ArrayIndex(index) => {
                     target_type = match target_type.clone() {
                         Some(PartialType::Array(item, _)) => item.map(|x| *x),
-                        _ => return Err(LeoError::from(AsgError::index_into_non_array(name, &statement.span))),
+                        _ => return Err(AsgError::index_into_non_array(name, &statement.span))?,
                     };
                     AssignAccess::ArrayIndex(Cell::new(<&Expression<'a>>::from_ast(
                         scope,
@@ -169,12 +164,13 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                     let index = index
                         .value
                         .parse::<usize>()
-                        .map_err(|_| LeoError::from(AsgError::parse_index_error(span)))?;
+                        .map_err(|_| AsgError::parse_index_error(span))?;
                     target_type = match target_type {
-                        Some(PartialType::Tuple(types)) => types.get(index).cloned().ok_or_else(|| {
-                            LeoError::from(AsgError::tuple_index_out_of_bounds(index, &statement.span))
-                        })?,
-                        _ => return Err(LeoError::from(AsgError::index_into_non_tuple(name, &statement.span))),
+                        Some(PartialType::Tuple(types)) => types
+                            .get(index)
+                            .cloned()
+                            .ok_or_else(|| AsgError::tuple_index_out_of_bounds(index, &statement.span))?,
+                        _ => return Err(AsgError::index_into_non_tuple(name, &statement.span))?,
                     };
                     AssignAccess::Tuple(index)
                 }
@@ -185,29 +181,26 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
 
                             let members = circuit.members.borrow();
                             let member = members.get(name.name.as_ref()).ok_or_else(|| {
-                                LeoError::from(AsgError::unresolved_circuit_member(
+                                AsgError::unresolved_circuit_member(
                                     &circuit.name.borrow().name,
                                     &name.name,
                                     &statement.span,
-                                ))
+                                )
                             })?;
 
                             let x = match &member {
                                 CircuitMember::Variable(type_) => type_.clone(),
                                 CircuitMember::Function(_) => {
-                                    return Err(LeoError::from(AsgError::illegal_function_assign(
-                                        &name.name,
-                                        &statement.span,
-                                    )));
+                                    return Err(AsgError::illegal_function_assign(&name.name, &statement.span))?;
                                 }
                             };
                             Some(x.partial())
                         }
                         _ => {
-                            return Err(LeoError::from(AsgError::index_into_non_tuple(
+                            return Err(AsgError::index_into_non_tuple(
                                 &statement.assignee.identifier.name,
                                 &statement.span,
-                            )));
+                            ))?;
                         }
                     };
                     AssignAccess::Member(name.clone())

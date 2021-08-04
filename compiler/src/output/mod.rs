@@ -106,7 +106,7 @@ impl Output {
 
         // Return an error if we do not have enough return registers
         if register_values.len() < return_values.len() {
-            return Err(LeoError::from(CompilerError::output_not_enough_registers(span)));
+            return Err(CompilerError::output_not_enough_registers(span))?;
         }
 
         let mut registers = BTreeMap::new();
@@ -119,11 +119,11 @@ impl Output {
             let return_value_type = value.to_type(span)?;
 
             if !register_type.is_assignable_from(&return_value_type) {
-                return Err(LeoError::from(CompilerError::output_mismatched_types(
-                    register_type.to_string(),
-                    return_value_type.to_string(),
+                return Err(CompilerError::output_mismatched_types(
+                    register_type,
+                    return_value_type,
                     span,
-                )));
+                ))?;
             }
 
             let value = match value {

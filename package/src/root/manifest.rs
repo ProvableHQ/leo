@@ -18,7 +18,6 @@ use crate::package::Package;
 use leo_errors::{LeoError, PackageError};
 
 use backtrace::Backtrace;
-use eyre::eyre;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -88,27 +87,12 @@ impl Manifest {
             path.to_mut().push(MANIFEST_FILENAME);
         }
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let mut file = match File::create(&path) {
-            Ok(file) => file,
-            Err(e) => {
-                return Err(PackageError::failed_to_create_manifest_file(
-                    MANIFEST_FILENAME,
-                    eyre!(e),
-                    Backtrace::new(),
-                )
-                .into());
-            }
-        };
+        let mut file = File::create(&path)
+            .map_err(|e| PackageError::failed_to_create_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        match file.write_all(self.template().as_bytes()) {
-            Ok(v) => Ok(v),
-            Err(e) => Err(LeoError::from(PackageError::io_error_manifest_file(
-                eyre!(e),
-                Backtrace::new(),
-            ))),
-        }
+        file.write_all(self.template().as_bytes())
+            .map_err(|e| PackageError::io_error_manifest_file(e, Backtrace::new()))?;
+        Ok(())
     }
 
     fn template(&self) -> String {
@@ -142,39 +126,18 @@ impl TryFrom<&Path> for Manifest {
             path.to_mut().push(MANIFEST_FILENAME);
         }
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let mut file = match File::open(path.clone()) {
-            Ok(file) => file,
-            Err(e) => {
-                return Err(PackageError::failed_to_open_manifest_file(
-                    MANIFEST_FILENAME,
-                    eyre!(e),
-                    Backtrace::new(),
-                ));
-            }
-        };
+        let mut file = File::open(path.clone())
+            .map_err(|e| PackageError::failed_to_open_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let size = match file.metadata() {
-            Ok(metadata) => metadata.len() as usize,
-            Err(e) => {
-                return Err(PackageError::failed_to_get_manifest_metadata_file(
-                    MANIFEST_FILENAME,
-                    eyre!(e),
-                    Backtrace::new(),
-                ));
-            }
-        };
+        let size = file
+            .metadata()
+            .map_err(|e| PackageError::failed_to_get_manifest_metadata_file(MANIFEST_FILENAME, e, Backtrace::new()))?
+            .len() as usize;
 
         let mut buffer = String::with_capacity(size);
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        if let Err(e) = file.read_to_string(&mut buffer) {
-            return Err(PackageError::failed_to_read_manifest_file(
-                MANIFEST_FILENAME,
-                eyre!(e),
-                Backtrace::new(),
-            ));
-        }
+
+        file.read_to_string(&mut buffer)
+            .map_err(|e| PackageError::failed_to_read_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
 
         // Determine if the old remote format is being used, and update to new convention
 
@@ -260,29 +223,15 @@ author = "{author}"
 
         // Rewrite the toml file if it has been updated
         if buffer != refactored_toml {
-            let mut file = match File::create(&path) {
-                Ok(file) => file,
-                Err(e) => {
-                    return Err(PackageError::failed_to_create_manifest_file(
-                        MANIFEST_FILENAME,
-                        eyre!(e),
-                        Backtrace::new(),
-                    ));
-                }
-            };
+            let mut file = File::create(&path)
+                .map_err(|e| PackageError::failed_to_create_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
 
-            // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-            if let Err(e) = file.write_all(refactored_toml.as_bytes()) {
-                return Err(PackageError::failed_to_write_manifest_file(
-                    MANIFEST_FILENAME,
-                    eyre!(e),
-                    Backtrace::new(),
-                ));
-            }
+            file.write_all(refactored_toml.as_bytes())
+                .map_err(|e| PackageError::failed_to_write_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
         }
 
         // Read the toml file
         toml::from_str(&final_toml)
-            .map_err(|e| PackageError::failed_to_parse_manifest_file(MANIFEST_FILENAME, eyre!(e), Backtrace::new()))
+            .map_err(|e| PackageError::failed_to_parse_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))
     }
 }

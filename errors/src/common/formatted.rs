@@ -42,9 +42,9 @@ pub struct FormattedError {
 impl FormattedError {
     pub fn new_from_span<S>(
         message: S,
-        help: Option<S>,
+        help: Option<String>,
         exit_code: u32,
-        code_identifier: String,
+        code_identifier: u32,
         error_type: String,
         span: &Span,
     ) -> Self
@@ -67,6 +67,10 @@ impl FormattedError {
                 span.backtrace.clone(),
             ),
         }
+    }
+
+    pub fn exit_code(&self) -> u32 {
+        0
     }
 }
 
@@ -91,11 +95,11 @@ impl fmt::Display for FormattedError {
             underline
         };
 
-        let underlined = underline(self.col_start, self.col_start);
+        let underlined = underline(self.col_start, self.col_stop);
 
         let error_message = format!(
-            "[E{error_type}{code_identifier}{exit_code:0>4}]: {message}\n\
-             --> {path}:{line_start}:{start}\n\
+            "[E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}\n \
+            --> {path}:{line_start}:{start}\n\
 	  {indent     } ",
             indent = INDENT,
             error_type = self.backtrace.error_type,
@@ -131,7 +135,11 @@ impl fmt::Display for FormattedError {
             write!(f, "{indent     } = {help}", indent = INDENT, help = help)?;
         }
 
-        write!(f, "stack backtrace:\n{:?}", self.backtrace.backtrace)
+        if std::env::var("LEO_BACKTRACE").unwrap_or_default().trim() == "1" {
+            write!(f, "stack backtrace:\n{:?}", self.backtrace.backtrace)?;
+        }
+
+        Ok(())
     }
 }
 

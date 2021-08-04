@@ -16,7 +16,10 @@
 
 use crate::create_errors;
 
-use eyre::ErrReport;
+use std::{
+    error::Error as ErrorArg,
+    fmt::{Debug, Display},
+};
 
 create_errors!(
     CompilerError,
@@ -25,14 +28,14 @@ create_errors!(
 
     @backtraced
     invalid_test_context {
-        args: (name: String),
+        args: (name: impl Display),
         msg: format!("Cannot find input files with context name `{}`", name),
         help: None,
     }
 
     @backtraced
     file_read_error {
-        args: (path: std::path::PathBuf, error: ErrReport),
+        args: (path: impl Debug, error: impl ErrorArg),
         msg: format!("Cannot read from the provided file path '{:?}': {}", path, error),
         help: None,
     }
@@ -67,7 +70,7 @@ create_errors!(
 
     @formatted
     console_container_parameter_length_mismatch {
-        args: (containers: usize, parameters: usize),
+        args: (containers: impl Display, parameters: impl Display),
         msg: format!(
             "Formatter given {} containers and found {} parameters",
             containers, parameters
@@ -99,7 +102,7 @@ create_errors!(
 
     @formatted
     cannot_enforce_expression {
-        args: (operation: String, error: ErrReport),
+        args: (operation: impl Display, error: impl ErrorArg),
         msg: format!(
             "the gadget operation `{}` failed due to synthesis error `{:?}`",
             operation, error,
@@ -109,7 +112,7 @@ create_errors!(
 
     @formatted
     cannot_evaluate_expression {
-        args: (operation: String),
+        args: (operation: impl Display),
         msg: format!("Mismatched types found for operation `{}`", operation),
         help: None,
     }
@@ -130,35 +133,35 @@ create_errors!(
 
     @formatted
     conditional_boolean_expression_fails_to_resolve_to_bool {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("if, else conditional must resolve to a boolean, found `{}`", actual),
         help: None,
     }
 
     @formatted
     expected_circuit_member {
-        args: (expected: String),
+        args: (expected: impl Display),
         msg: format!("expected circuit member `{}`, not found", expected),
         help: None,
     }
 
     @formatted
     incompatible_types {
-        args: (operation: String),
+        args: (operation: impl Display),
         msg: format!("no implementation for `{}`", operation),
         help: None,
     }
 
     @formatted
     tuple_index_out_of_bounds {
-        args: (index: usize),
+        args: (index: impl Display),
         msg: format!("cannot access index {} of tuple out of bounds", index),
         help: None,
     }
 
     @formatted
     array_index_out_of_bounds {
-        args: (index: usize),
+        args: (index: impl Display),
         msg: format!("cannot access index {} of array out of bounds", index),
         help: None,
     }
@@ -172,35 +175,35 @@ create_errors!(
 
     @formatted
     invalid_index_expression {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("index must resolve to an integer, found `{}`", actual),
         help: None,
     }
 
     @formatted
     unexpected_array_length {
-        args: (expected: usize, actual: usize),
+        args: (expected: impl Display, actual: impl Display),
         msg: format!("expected array length {}, found one with length {}", expected, actual),
         help: None,
     }
 
     @formatted
     invalid_circuit_static_member_access {
-        args: (member: String),
+        args: (member: impl Display),
         msg: format!("invalid circuit static member `{}` must be accessed using `::` syntax", member),
         help: None,
     }
 
     @formatted
     undefined_array {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("array `{}` must be declared before it is used in an expression", actual),
         help: None,
     }
 
     @formatted
     undefined_circuit {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg:  format!(
             "circuit `{}` must be declared before it is used in an expression",
             actual
@@ -210,21 +213,21 @@ create_errors!(
 
     @formatted
     undefined_identifier {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("Cannot find value `{}` in this scope", name),
         help: None,
     }
 
     @formatted
     undefined_circuit_member_access {
-        args: (circuit: String, member: String),
+        args: (circuit: impl Display, member: impl Display),
         msg: format!("Circuit `{}` has no member `{}`", circuit, member),
         help: None,
     }
 
     @formatted
     input_variable_type_mismatch {
-        args: (expected: String, actual: String, variable: String),
+        args: (expected: impl Display, actual: impl Display, variable: impl Display),
         msg: format!(
             "Expected input variable `{}` to be type `{}`, found type `{}`",
             variable, expected, actual
@@ -234,7 +237,7 @@ create_errors!(
 
     @formatted
     expected_const_input_variable {
-        args: (variable: String),
+        args: (variable: impl Display),
         msg:  format!(
             "Expected input variable `{}` to be constant. Move input variable `{}` to [constants] section of input file",
             variable, variable
@@ -244,7 +247,7 @@ create_errors!(
 
     @formatted
     expected_non_const_input_variable {
-        args: (variable: String),
+        args: (variable: impl Display),
         msg: format!(
             "Expected input variable `{}` to be non-constant. Move input variable `{}` to [main] section of input file",
             variable, variable
@@ -254,14 +257,14 @@ create_errors!(
 
     @formatted
     invalid_function_input_array {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("Expected function input array, found `{}`", actual),
         help: None,
     }
 
     @formatted
     invalid_input_array_dimensions {
-        args: (expected: usize, actual: usize),
+        args: (expected: impl Display, actual: impl Display),
         msg: format!(
             "Input array dimensions mismatch expected {}, found array dimensions {}",
             expected, actual
@@ -271,7 +274,7 @@ create_errors!(
 
     @formatted
     input_tuple_size_mismatch {
-        args: (expected: usize, actual: usize),
+        args: (expected: impl Display, actual: impl Display),
         msg: format!(
             "Input tuple size mismatch expected {}, found tuple with length {}",
             expected, actual
@@ -281,21 +284,21 @@ create_errors!(
 
     @formatted
     invalid_function_input_tuple {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("Expected function input tuple, found `{}`", actual),
         help: None,
     }
 
     @formatted
     function_input_not_found {
-        args: (function: String, expected: String),
+        args: (function: impl Display, expected: impl Display),
         msg: format!("function `{}` input {} not found", function, expected),
         help: None,
     }
 
     @formatted
     double_input_declaration {
-        args: (input_name: String),
+        args: (input_name: impl Display),
         msg: format!("Input variable {} declared twice", input_name),
         help: None,
     }
@@ -309,7 +312,7 @@ create_errors!(
 
     @formatted
     output_mismatched_types {
-        args: (left: String, right: String),
+        args: (left: impl Display, right: impl Display),
         msg: format!(
             "Mismatched types. Expected register output type `{}`, found type `{}`.",
             left, right
@@ -319,28 +322,28 @@ create_errors!(
 
     @backtraced
     output_file_error {
-        args: (error: ErrReport),
+        args: (error: impl ErrorArg),
         msg: error,
         help: None,
     }
 
     @backtraced
     output_file_io_error {
-        args: (error: ErrReport),
+        args: (error: impl ErrorArg),
         msg: error,
         help: None,
     }
 
     @backtraced
     output_file_cannot_read {
-        args: (path: std::path::PathBuf),
+        args: (path: impl Debug),
         msg: format!("Cannot read the provided ouput file - {:?}", path),
         help: None,
     }
 
     @backtraced
     output_file_cannot_remove {
-        args: (path: std::path::PathBuf),
+        args: (path: impl Debug),
         msg: format!("Cannot remove the provided ouput file - {:?}", path),
         help: None,
     }
@@ -375,7 +378,7 @@ create_errors!(
 
     @formatted
     statement_array_assign_index_bounds {
-        args: (index: usize, length: usize),
+        args: (index: impl Display, length: impl Display),
         msg: format!(
             "Array assign index `{}` out of range for array of length `{}`",
             index, length
@@ -385,7 +388,7 @@ create_errors!(
 
     @formatted
     statement_array_assign_range_order {
-        args: (start: usize, stop: usize, length: usize),
+        args: (start: impl Display, stop: impl Display, length: impl Display),
         msg: format!(
             "Array assign range `{}`..`{}` out of range for array of length `{}`",
             start, stop, length
@@ -395,14 +398,14 @@ create_errors!(
 
     @formatted
     statement_conditional_boolean_fails_to_resolve_to_boolean {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("If, else conditional must resolve to a boolean, found `{}`", actual),
         help: None,
     }
 
     @formatted
     statement_indicator_calculation {
-        args: (name: String),
+        args: (name: impl Display),
         msg: format!(
             "Constraint system failed to evaluate branch selection indicator `{}`",
             name
@@ -412,7 +415,7 @@ create_errors!(
 
     @formatted
     statement_invalid_number_of_definitions {
-        args: (expected: usize, actual: usize),
+        args: (expected: impl Display, actual: impl Display),
         msg: format!(
             "Multiple definition statement expected {} return values, found {} values",
             expected, actual
@@ -422,7 +425,7 @@ create_errors!(
 
     @formatted
     statement_multiple_definition {
-        args: (value: String),
+        args: (value: impl Display),
         msg: format!("cannot assign multiple variables to a single value: {}", value),
         help: None,
     }
@@ -436,7 +439,7 @@ create_errors!(
 
     @formatted
     statement_no_returns {
-        args: (expected: String),
+        args: (expected: impl Display),
         msg: format!(
             "function expected `{}` return type but no valid branches returned a result",
             expected
@@ -446,7 +449,7 @@ create_errors!(
 
     @formatted
     statement_select_fail {
-        args: (first: String, second: String),
+        args: (first: impl Display, second: impl Display),
         msg: format!(
             "Conditional select gadget failed to select between `{}` or `{}`",
             first, second
@@ -463,7 +466,7 @@ create_errors!(
 
     @formatted
     statement_tuple_assign_index_bounds {
-        args: (index: usize, length: usize),
+        args: (index: impl Display, length: impl Display),
         msg: format!(
             "Tuple assign index `{}` out of range for tuple of length `{}`",
             index, length
@@ -480,14 +483,14 @@ create_errors!(
 
     @formatted
     statement_undefined_variable {
-        args: (name: String),
+        args: (name: impl Display),
         msg: format!("Attempted to assign to unknown variable `{}`", name),
         help: None,
     }
 
     @formatted
     statement_undefined_circuit_variable {
-        args: (name: String),
+        args: (name: impl Display),
         msg: format!("Attempted to assign to unknown circuit member variable `{}`", name),
         help: None,
     }
@@ -501,14 +504,14 @@ create_errors!(
 
     @formatted
     address_value_account_error {
-        args: (error: ErrReport),
+        args: (error: impl ErrorArg),
         msg: format!("account creation failed due to `{}`", error),
         help: None,
     }
 
     @formatted
     address_value_invalid_address {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("expected address input type, found `{}`", actual),
         help: None,
     }
@@ -522,7 +525,7 @@ create_errors!(
 
     @formatted
     boolean_value_cannot_enforce {
-        args: (operation: String, error: ErrReport),
+        args: (operation: impl Display, error: impl ErrorArg),
         msg: format!(
             "the boolean operation `{}` failed due to the synthesis error `{}`",
             operation, error,
@@ -532,42 +535,42 @@ create_errors!(
 
     @formatted
     boolean_value_cannot_evaluate {
-        args: (operation: String),
+        args: (operation: impl Display),
         msg: format!("no implementation found for `{}`", operation),
         help: None,
     }
 
     @formatted
     boolean_value_invalid_boolean {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("expected boolean input type, found `{}`", actual),
         help: None,
     }
 
     @formatted
     boolean_value_missing_boolean {
-        args: (expected: String),
+        args: (expected: impl Display),
         msg: format!("expected boolean input `{}` not found", expected),
         help: None,
     }
 
     @formatted
     char_value_invalid_char {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("expected char element input type, found `{}`", actual),
         help: None,
     }
 
     @formatted
     field_value_negate_operation {
-        args: (error: ErrReport),
+        args: (error: impl ErrorArg),
         msg: format!("field negation failed due to synthesis error `{}`", error),
         help: None,
     }
 
     @formatted
     field_value_binary_operation {
-        args: (operation: String, error: ErrReport),
+        args: (operation: impl Display, error: impl ErrorArg),
         msg: format!(
             "the field binary operation `{}` failed due to synthesis error `{}`",
             operation, error,
@@ -577,35 +580,35 @@ create_errors!(
 
     @formatted
     field_value_invalid_field {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("expected field element input type, found `{}`", actual),
         help: None,
     }
 
     @formatted
     field_value_missing_field {
-        args: (expected: String),
+        args: (expected: impl Display),
         msg: format!("expected field input `{}` not found", expected),
         help: None,
     }
 
     @formatted
     field_value_no_inverse {
-        args: (field: String),
+        args: (field: impl Display),
         msg: format!("no multiplicative inverse found for field `{}`", field),
         help: None,
     }
 
     @formatted
     group_value_negate_operation {
-        args: (error: ErrReport),
+        args: (error: impl ErrorArg),
         msg: format!("group negation failed due to the synthesis error `{}`", error),
         help: None,
     }
 
     @formatted
     group_value_binary_operation {
-        args: (operation: String, error: ErrReport),
+        args: (operation: impl Display, error: impl ErrorArg),
         msg: format!(
             "the group binary operation `{}` failed due to the synthesis error `{}`",
             operation, error,
@@ -615,42 +618,42 @@ create_errors!(
 
     @formatted
     group_value_invalid_group {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("expected group affine point input type, found `{}`", actual),
         help: None,
     }
 
     @formatted
     group_value_missing_group {
-        args: (expected: String),
+        args: (expected: impl Display),
         msg: format!("expected group input `{}` not found", expected),
         help: None,
     }
 
     @formatted
     group_value_synthesis_error {
-        args: (error: ErrReport),
+        args: (error: impl ErrorArg),
         msg: format!("compilation failed due to group synthesis error `{}`", error),
         help: None,
     }
 
     @formatted
     group_value_x_invalid {
-        args: (x: String),
+        args: (x: impl Display),
         msg: format!("invalid x coordinate `{}`", x),
         help: None,
     }
 
     @formatted
     group_value_y_invalid {
-        args: (y: String),
+        args: (y: impl Display),
         msg: format!("invalid y coordinate `{}`", y),
         help: None,
     }
 
     @formatted
     group_value_not_on_curve {
-        args: (element: String),
+        args: (element: impl Display),
         msg: format!("group element `{}` is not on the supported curve", element),
         help: None,
     }
@@ -671,21 +674,21 @@ create_errors!(
 
     @formatted
     group_value_n_group {
-        args: (number: String),
+        args: (number: impl Display),
         msg: format!("cannot multiply group generator by \"{}\"", number),
         help: None,
     }
 
     @formatted
     integer_value_signed {
-        args: (error: ErrReport),
+        args: (error: impl ErrorArg),
         msg: format!("integer operation failed due to the signed integer error `{}`", error),
         help: None,
     }
 
     @formatted
     integer_value_unsigned {
-        args: (error: ErrReport),
+        args: (error: impl ErrorArg),
         msg: format!(
             "integer operation failed due to the unsigned integer error `{}`",
             error
@@ -695,7 +698,7 @@ create_errors!(
 
     @formatted
     integer_value_synthesis {
-        args: (error: ErrReport),
+        args: (error: impl ErrorArg),
         msg: format!("integer operation failed due to the synthesis error `{}`", error),
         help: None,
     }
@@ -709,7 +712,7 @@ create_errors!(
 
     @formatted
     integer_value_binary_operation {
-        args: (operation: String),
+        args: (operation: impl Display),
         msg: format!(
             "the integer binary operation `{}` can only be enforced on integers of the same type",
             operation
@@ -719,28 +722,28 @@ create_errors!(
 
     @formatted
     integer_value_integer_type_mismatch {
-        args: (expected: String, received: String),
+        args: (expected: impl Display, received: impl Display),
         msg: format!("expected data type `{}`, found `{}`", expected, received),
         help: None,
     }
 
     @formatted
     integer_value_invalid_integer {
-        args: (actual: String),
+        args: (actual: impl Display),
         msg: format!("failed to parse `{}` as expected integer type", actual),
         help: None,
     }
 
     @formatted
     integer_value_missing_integer {
-        args: (expected: String),
+        args: (expected: impl Display),
         msg: format!("expected integer input `{}` not found", expected),
         help: None,
     }
 
     @formatted
     integer_value_cannot_evaluate {
-        args: (operation: String),
+        args: (operation: impl Display),
         msg: format!("no implementation found for `{}`", operation),
         help: None,
     }

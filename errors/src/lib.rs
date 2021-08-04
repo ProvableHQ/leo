@@ -47,8 +47,6 @@ extern crate thiserror;
 
 use leo_input::InputParserError;
 
-use eyre::ErrReport;
-
 #[derive(Debug, Error)]
 pub enum LeoError {
     #[error(transparent)]
@@ -73,10 +71,28 @@ pub enum LeoError {
     ParserError(#[from] ParserError),
 
     #[error(transparent)]
-    RustError(#[from] ErrReport),
+    SnarkVMError(#[from] SnarkVMError),
 
     #[error(transparent)]
-    SnarkVMError(#[from] SnarkVMError),
+    StateError(#[from] StateError),
+}
+
+impl LeoError {
+    pub fn exit_code(&self) -> u32 {
+        use LeoError::*;
+
+        match self {
+            AsgError(error) => error.exit_code(),
+            AstError(error) => error.exit_code(),
+            CompilerError(error) => error.exit_code(),
+            ImportError(error) => error.exit_code(),
+            InputError(_error) => 0, // TODO migrate me.
+            PackageError(error) => error.exit_code(),
+            ParserError(error) => error.exit_code(),
+            SnarkVMError(_error) => 0, // TODO update once snarkvm implments a global top level error similar to LeoError.
+            StateError(error) => error.exit_code(),
+        }
+    }
 }
 
 // #[test]

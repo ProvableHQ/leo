@@ -45,14 +45,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let result_option = match assert_expression {
             ConstrainedValue::Boolean(boolean) => boolean.get_value(),
             _ => {
-                return Err(LeoError::from(CompilerError::console_assertion_must_be_boolean(span)));
+                return Err(CompilerError::console_assertion_must_be_boolean(span))?;
             }
         };
-        let result_bool =
-            result_option.ok_or_else(|| LeoError::from(CompilerError::console_assertion_depends_on_input(span)))?;
+        let result_bool = result_option.ok_or_else(|| CompilerError::console_assertion_depends_on_input(span))?;
 
         if !result_bool {
-            return Err(LeoError::from(CompilerError::console_assertion_failed(span)));
+            return Err(CompilerError::console_assertion_failed(span))?;
         }
 
         Ok(())

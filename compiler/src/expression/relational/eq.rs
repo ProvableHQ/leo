@@ -75,14 +75,14 @@ pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             return Ok(current);
         }
         (val_1, val_2) => {
-            return Err(CompilerError::incompatible_types(format!("{} == {}", val_1, val_2,), span).into());
+            return Err(CompilerError::incompatible_types(
+                format!("{} == {}", val_1, val_2,),
+                span,
+            ))?;
         }
     };
 
-    let boolean = match constraint_result {
-        Ok(boolean) => boolean,
-        _ => return Err(CompilerError::cannot_evaluate_expression("==".to_string(), span).into()),
-    };
+    let boolean = constraint_result.map_err(|_| CompilerError::cannot_evaluate_expression("==", span))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

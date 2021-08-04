@@ -25,8 +25,5 @@ pub fn evaluate_bit_not<'a, F: PrimeField, G: GroupType<F>>(
     value: ConstrainedValue<'a, F, G>,
     span: &Span,
 ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
-    Err(LeoError::from(CompilerError::cannot_evaluate_expression(
-        format!("!{}", value),
-        span,
-    )))
+    Err(CompilerError::cannot_evaluate_expression(format!("!{}", value), span))?
 }

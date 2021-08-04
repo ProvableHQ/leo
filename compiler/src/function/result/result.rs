@@ -55,7 +55,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             if get_indicator_value(&indicator) {
                 // Error if we already have a return value.
                 if return_value.is_some() {
-                    return Err(CompilerError::statement_multiple_returns(span).into());
+                    return Err(CompilerError::statement_multiple_returns(span))?;
                 } else {
                     // Set the function return value.
                     return_value = Some(result);
@@ -79,13 +79,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         &result,
                         value,
                     )
-                    .map_err(|_| {
-                        LeoError::from(CompilerError::statement_select_fail(
-                            result.to_string(),
-                            value.to_string(),
-                            span,
-                        ))
-                    })?,
+                    .map_err(|_| CompilerError::statement_select_fail(result, value, span))?,
                 );
             } else {
                 return_value = Some(result); // we ignore indicator for default -- questionable
@@ -95,8 +89,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if expected_return.is_unit() {
             Ok(ConstrainedValue::Tuple(vec![]))
         } else {
-            return_value
-                .ok_or_else(|| LeoError::from(CompilerError::statement_no_returns(expected_return.to_string(), span)))
+            Ok(return_value.ok_or_else(|| CompilerError::statement_no_returns(expected_return.to_string(), span))?)
         }
     }
 }

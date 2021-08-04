@@ -24,7 +24,6 @@ use std::{
 };
 
 use backtrace::Backtrace;
-use eyre::eyre;
 
 pub static INPUTS_DIRECTORY_NAME: &str = "inputs/";
 
@@ -38,8 +37,8 @@ impl InputsDirectory {
             path.to_mut().push(INPUTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path)
-            .map_err(|e| PackageError::failed_to_create_inputs_directory(eyre!(e), Backtrace::new()).into())
+        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e, Backtrace::new()))?;
+        Ok(())
     }
 
     /// Returns a list of files in the input directory.
@@ -47,12 +46,8 @@ impl InputsDirectory {
         let mut path = path.to_owned();
         path.push(INPUTS_DIRECTORY_NAME);
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let directory = match fs::read_dir(&path) {
-            Ok(read_dir) => read_dir,
-            Err(e) => return Err(PackageError::failed_to_read_inputs_directory(eyre!(e), Backtrace::new()).into()),
-        };
-
+        let directory =
+            fs::read_dir(&path).map_err(|e| PackageError::failed_to_read_inputs_directory(e, Backtrace::new()))?;
         let mut file_paths = Vec::new();
         parse_file_paths(directory, &mut file_paths)?;
 
@@ -62,23 +57,16 @@ impl InputsDirectory {
 
 fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<(), LeoError> {
     for file_entry in directory.into_iter() {
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let file_entry = match file_entry {
-            Ok(dir_entry) => dir_entry,
-            Err(e) => return Err(PackageError::failed_to_get_input_file_entry(eyre!(e), Backtrace::new()).into()),
-        };
+        let file_entry = file_entry.map_err(|e| PackageError::failed_to_get_input_file_entry(e, Backtrace::new()))?;
         let file_path = file_entry.path();
 
         // Verify that the entry is structured as a valid file or directory
         let file_type = file_entry.file_type().map_err(|e| {
-            PackageError::failed_to_get_input_file_type(file_path.as_os_str().to_owned(), eyre!(e), Backtrace::new())
+            PackageError::failed_to_get_input_file_type(file_path.as_os_str().to_owned(), e, Backtrace::new())
         })?;
         if file_type.is_dir() {
-            // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-            let directory = match fs::read_dir(&file_path) {
-                Ok(read_dir) => read_dir,
-                Err(e) => return Err(PackageError::failed_to_read_inputs_directory(eyre!(e), Backtrace::new()).into()),
-            };
+            let directory = fs::read_dir(&file_path)
+                .map_err(|e| PackageError::failed_to_read_inputs_directory(e, Backtrace::new()))?;
 
             parse_file_paths(directory, file_paths)?;
             continue;
@@ -87,8 +75,7 @@ fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result
                 file_path.as_os_str().to_owned(),
                 file_type,
                 Backtrace::new(),
-            )
-            .into());
+            ))?;
         }
 
         file_paths.push(file_path);

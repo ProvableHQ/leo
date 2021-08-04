@@ -70,7 +70,7 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                     }
                     Token::AddressLit(address) => {
                         if !check_address(address) {
-                            return Err(LeoError::from(ParserError::invalid_address_lit(address, &span)));
+                            return Err(ParserError::invalid_address_lit(address, &span))?;
                         }
                     }
                     _ => (),
@@ -82,8 +82,8 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                 if token_len == 0 && index == input.len() {
                     break;
                 } else if token_len == 0 {
-                    return Err(LeoError::from(ParserError::unexpected_token(
-                        input[index..index + 1].to_string(),
+                    return Err(ParserError::unexpected_token(
+                        &input[index..index + 1],
                         "HELP TODO".to_string(),
                         &Span::new(
                             line_no,
@@ -96,7 +96,7 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                                 input[line_start..].find('\n').unwrap_or_else(|| input.len()) as u32,
                             ),
                         ),
-                    )));
+                    ))?;
                 }
                 if input.as_bytes()[index] == b'\n' {
                     line_no += 1;

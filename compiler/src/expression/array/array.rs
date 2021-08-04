@@ -33,7 +33,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         array: &[(Cell<&'a Expression<'a>>, bool)],
         span: &Span,
     ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
-        let expected_dimension = None;
+        let expected_dimension: Option<usize> = None;
 
         let mut result = vec![];
         for (element, is_spread) in array.iter() {
@@ -52,11 +52,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if let Some(dimension) = expected_dimension {
             // Return an error if the expected dimension != the actual dimension.
             if dimension != result.len() {
-                return Err(LeoError::from(CompilerError::unexpected_array_length(
-                    dimension,
-                    result.len(),
-                    span,
-                )));
+                return Err(CompilerError::unexpected_array_length(dimension, result.len(), span))?;
             }
         }
 

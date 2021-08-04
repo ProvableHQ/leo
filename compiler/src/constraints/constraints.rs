@@ -49,7 +49,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
             let result = resolved_program.enforce_main_function(cs, function, input)?;
             Ok(result)
         }
-        _ => Err(CompilerError::no_main_function(Backtrace::new()).into()),
+        _ => Err(CompilerError::no_main_function(Backtrace::new()))?,
     }
 }
 
@@ -104,14 +104,11 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
                 {
                     Some(pair) => pair.to_owned(),
                     None => {
-                        return Err(LeoError::from(CompilerError::invalid_test_context(
-                            file_name.to_string(),
-                            Backtrace::new(),
-                        )));
+                        return Err(CompilerError::invalid_test_context(file_name, Backtrace::new()))?;
                     }
                 }
             }
-            None => default.ok_or_else(|| LeoError::from(CompilerError::no_test_input(Backtrace::new())))?,
+            None => default.ok_or_else(|| CompilerError::no_test_input(Backtrace::new()))?,
         };
 
         // parse input files to abstract syntax trees

@@ -123,11 +123,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
             BinaryOperationClass::Boolean => match expected_type {
                 Some(PartialType::Type(Type::Boolean)) | None => None,
                 Some(x) => {
-                    return Err(LeoError::from(AsgError::unexpected_type(
-                        &x.to_string(),
-                        Some(&*Type::Boolean.to_string()),
-                        &value.span,
-                    )));
+                    return Err(AsgError::unexpected_type(x, Type::Boolean, &value.span))?;
                 }
             },
             BinaryOperationClass::Numeric => match expected_type {
@@ -135,11 +131,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
                 Some(x @ PartialType::Type(Type::Field)) => Some(x),
                 Some(x @ PartialType::Type(Type::Group)) => Some(x),
                 Some(x) => {
-                    return Err(LeoError::from(AsgError::unexpected_type(
-                        &x.to_string(),
-                        Some("integer, field, or group"),
-                        &value.span,
-                    )));
+                    return Err(AsgError::unexpected_type(x, "integer, field, or group", &value.span))?;
                 }
                 None => None,
             },
@@ -188,33 +180,25 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
                 }
                 Some(Type::Field) if value.op == BinaryOperation::Mul || value.op == BinaryOperation::Div => (),
                 type_ => {
-                    return Err(LeoError::from(AsgError::unexpected_type(
+                    return Err(AsgError::unexpected_type(
                         "integer",
-                        type_.map(|x| x.to_string()).as_deref(),
+                        type_.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
                         &value.span,
-                    )));
+                    ))?;
                 }
             },
             BinaryOperationClass::Boolean => match &value.op {
                 BinaryOperation::And | BinaryOperation::Or => match left_type {
                     Some(Type::Boolean) | None => (),
                     Some(x) => {
-                        return Err(LeoError::from(AsgError::unexpected_type(
-                            &x.to_string(),
-                            Some(&*Type::Boolean.to_string()),
-                            &value.span,
-                        )));
+                        return Err(AsgError::unexpected_type(x, Type::Boolean, &value.span))?;
                     }
                 },
                 BinaryOperation::Eq | BinaryOperation::Ne => (), // all types allowed
                 _ => match left_type {
                     Some(Type::Integer(_)) | None => (),
                     Some(x) => {
-                        return Err(LeoError::from(AsgError::unexpected_type(
-                            &x.to_string(),
-                            Some("integer"),
-                            &value.span,
-                        )));
+                        return Err(AsgError::unexpected_type(x, "integer", &value.span))?;
                     }
                 },
             },
@@ -225,19 +209,11 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
         match (left_type, right_type) {
             (Some(left_type), Some(right_type)) => {
                 if !left_type.is_assignable_from(&right_type) {
-                    return Err(LeoError::from(AsgError::unexpected_type(
-                        &left_type.to_string(),
-                        Some(&*right_type.to_string()),
-                        &value.span,
-                    )));
+                    return Err(AsgError::unexpected_type(left_type, right_type, &value.span))?;
                 }
             }
             (None, None) => {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    "any type",
-                    Some("unknown type"),
-                    &value.span,
-                )));
+                return Err(AsgError::unexpected_type("any type", "unknown type", &value.span))?;
             }
             (_, _) => (),
         }

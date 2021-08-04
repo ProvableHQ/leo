@@ -116,22 +116,22 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         span: &Span,
     ) -> Result<(), LeoError> {
         if stop_index < start_index {
-            Err(LeoError::from(CompilerError::statement_array_assign_range_order(
+            Err(CompilerError::statement_array_assign_range_order(
                 start_index,
                 stop_index,
                 len,
                 span,
-            )))
+            ))?
         } else if start_index > len {
-            Err(LeoError::from(CompilerError::statement_array_assign_index_bounds(
+            Err(CompilerError::statement_array_assign_index_bounds(
                 start_index,
                 len,
                 span,
-            )))
+            ))?
         } else if stop_index > len {
-            Err(LeoError::from(CompilerError::statement_array_assign_index_bounds(
+            Err(CompilerError::statement_array_assign_index_bounds(
                 stop_index, len, span,
-            )))
+            ))?
         } else {
             Ok(())
         }

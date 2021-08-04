@@ -20,7 +20,6 @@ use crate::source::directory::SOURCE_DIRECTORY_NAME;
 use leo_errors::{LeoError, PackageError};
 
 use backtrace::Backtrace;
-use eyre::eyre;
 use serde::Deserialize;
 use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
@@ -62,10 +61,10 @@ impl MainFile {
             path.to_mut().push(MAIN_FILENAME);
         }
 
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_main_file(eyre!(e), Backtrace::new()))?;
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_main_file(e, Backtrace::new()))?;
         Ok(file
             .write_all(self.template().as_bytes())
-            .map_err(|e| PackageError::io_error_main_file(eyre!(e), Backtrace::new()))?)
+            .map_err(|e| PackageError::io_error_main_file(e, Backtrace::new()))?)
     }
 
     fn template(&self) -> String {

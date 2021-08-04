@@ -26,17 +26,16 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce a variable expression by getting the resolved value
     pub fn evaluate_ref(&mut self, variable_ref: &VariableRef) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
         // Evaluate the identifier name in the current function scope
-        let span = variable_ref.span.as_ref();
+        let span = variable_ref.span.clone();
         let variable = variable_ref.variable.borrow();
 
         let result_value = if let Some(value) = self.get(variable.id) {
             value.clone()
         } else {
-            // TODO fix unwrap here.
-            return Err(LeoError::from(CompilerError::undefined_identifier(
+            return Err(CompilerError::undefined_identifier(
                 &variable.name.clone().name,
-                span.unwrap(),
-            )));
+                &span.unwrap_or_default(),
+            ))?;
             // todo: probably can be a panic here instead
         };
 

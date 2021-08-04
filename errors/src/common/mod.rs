@@ -32,3 +32,8 @@ pub use self::tendril_json::*;
 
 pub mod traits;
 pub use self::traits::*;
+
+// Can make the args cleaner once https://github.com/rust-lang/rust/issues/41517 or https://github.com/rust-lang/rust/issues/63063 hits stable.
+// pub(crate) type DisplayArg = impl std::fmt::Display;
+// pub(crate) type DebugArg = impl std::fmt::Debug;
+// pub(crate) type ErrorArg = impl std::error::Error;

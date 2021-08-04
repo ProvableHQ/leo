@@ -16,6 +16,11 @@
 
 use crate::create_errors;
 
+use std::{
+    error::Error as ErrorArg,
+    fmt::{Debug, Display},
+};
+
 create_errors!(
     ImportError,
     exit_code_mask: 3000u32,
@@ -24,14 +29,14 @@ create_errors!(
     // An imported package has the same name as an imported core_package.
     @formatted
     conflicting_imports {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("conflicting imports found for `{}`.", name),
         help: None,
     }
 
     @formatted
     recursive_imports {
-        args: (package: &str),
+        args: (package: impl Display),
         msg: format!("recursive imports for `{}`.", package),
         help: None,
     }
@@ -47,7 +52,7 @@ create_errors!(
     // Failed to find the directory of the current file.
     @formatted
     current_directory_error {
-        args: (error: std::io::Error),
+        args: (error: impl ErrorArg),
         msg: format!("Compilation failed trying to find current directory - {:?}.", error),
         help: None,
     }
@@ -55,10 +60,10 @@ create_errors!(
     // Failed to open or get the name of a directory.
     @formatted
     directory_error {
-        args: (error: std::io::Error, path: &std::path::Path),
+        args: (error: impl ErrorArg, path:impl Debug),
         msg: format!(
-            "Compilation failed due to directory error @ '{}' - {:?}.",
-            path.to_str().unwrap_or_default(),
+            "Compilation failed due to directory error @ '{:?}' - {:?}.",
+            path,
             error
         ),
         help: None,
@@ -67,15 +72,15 @@ create_errors!(
     // Failed to find a main file for the current package.
     @formatted
     expected_main_file {
-        args: (entry: String),
-        msg: format!("Expected main file at `{}`.", entry),
+        args: (entry: impl Debug),
+        msg: format!("Expected main file at `{:?}`.", entry),
         help: None,
     }
 
     // Failed to import a package name.
     @formatted
     unknown_package {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!(
             "Cannot find imported package `{}` in source files or import directory.",
             name
@@ -85,7 +90,7 @@ create_errors!(
 
     @formatted
     io_error {
-        args: (path: &str, error: std::io::Error),
+        args: (path: impl Display, error: impl ErrorArg),
         msg: format!("cannot read imported file '{}': {:?}", path, error),
         help: None,
     }

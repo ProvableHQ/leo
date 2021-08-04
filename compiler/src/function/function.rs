@@ -49,11 +49,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         if function.arguments.len() != arguments.len() {
             return Err(CompilerError::function_input_not_found(
-                function.name.borrow().name.to_string(),
-                "arguments length invalid".to_string(),
+                &function.name.borrow().name.to_string(),
+                "arguments length invalid",
                 &function.span.clone().unwrap_or_default(),
-            )
-            .into());
+            ))?;
         }
 
         // Store input values as new variables in resolved program

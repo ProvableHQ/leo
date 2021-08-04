@@ -50,6 +50,10 @@ version = "1.5.3"
 path = "./compiler"
 version = "1.5.3"
 
+[dependencies.leo-errors]
+path = "./errors"
+version = "1.5.3"
+
 [dependencies.leo-imports]
 path = "./imports"
 version = "1.5.3"

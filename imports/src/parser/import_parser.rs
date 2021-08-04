@@ -50,7 +50,7 @@ impl<'a> ImportResolver<'a> for ImportParser<'a> {
     ) -> Result<Option<Program<'a>>, LeoError> {
         let full_path = package_segments.join(".");
         if self.partial_imports.contains(&full_path) {
-            return Err(LeoError::from(ImportError::recursive_imports(&full_path, span)));
+            return Err(ImportError::recursive_imports(full_path, span).into());
         }
         if let Some(program) = self.imports.get(&full_path) {
             return Ok(Some(program.clone()));

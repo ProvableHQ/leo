@@ -20,7 +20,6 @@ use crate::outputs::OUTPUTS_DIRECTORY_NAME;
 use leo_errors::{LeoError, PackageError};
 
 use backtrace::Backtrace;
-use eyre::eyre;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -55,25 +54,19 @@ impl ChecksumFile {
     pub fn read_from(&self, path: &Path) -> Result<String, LeoError> {
         let path = self.setup_file_path(path);
 
-        fs::read_to_string(&path)
-            .map_err(|_| PackageError::failed_to_read_checksum_file(path.into_owned(), Backtrace::new()).into())
+        let string = fs::read_to_string(&path)
+            .map_err(|_| PackageError::failed_to_read_checksum_file(path.into_owned(), Backtrace::new()))?;
+        Ok(string)
     }
 
     /// Writes the given checksum to a file.
     pub fn write_to(&self, path: &Path, checksum: String) -> Result<(), LeoError> {
         let path = self.setup_file_path(path);
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_checksum_file(e, Backtrace::new()))?;
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let mut file = match File::create(&path) {
-            Ok(file) => file,
-            Err(e) => return Err(PackageError::io_error_checksum_file(eyre!(e), Backtrace::new()).into()),
-        };
-
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        match file.write_all(checksum.as_bytes()) {
-            Ok(v) => Ok(v),
-            Err(e) => Err(PackageError::io_error_checksum_file(eyre!(e), Backtrace::new()).into()),
-        }
+        file.write_all(checksum.as_bytes())
+            .map_err(|e| PackageError::io_error_checksum_file(e, Backtrace::new()))?;
+        Ok(())
     }
 
     /// Removes the checksum at the given path if it exists. Returns `true` on success,
@@ -84,11 +77,9 @@ impl ChecksumFile {
             return Ok(false);
         }
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        match fs::remove_file(&path) {
-            Ok(_) => Ok(true),
-            Err(_) => Err(PackageError::failed_to_remove_checksum_file(path.into_owned(), Backtrace::new()).into()),
-        }
+        fs::remove_file(&path)
+            .map_err(|_| PackageError::failed_to_remove_checksum_file(path.into_owned(), Backtrace::new()))?;
+        Ok(true)
     }
 
     fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {

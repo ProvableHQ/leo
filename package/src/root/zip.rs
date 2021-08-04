@@ -33,7 +33,6 @@ use crate::{
 use leo_errors::{LeoError, PackageError};
 
 use backtrace::Backtrace;
-use eyre::eyre;
 
 use serde::Deserialize;
 use std::{
@@ -86,11 +85,7 @@ impl ZipFile {
         // Create zip file
         let path = self.setup_file_path(src_dir);
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let file = match File::create(&path) {
-            Ok(file) => file,
-            Err(e) => return Err(PackageError::failed_to_create_zip_file(eyre!(e), Backtrace::new()).into()),
-        };
+        let file = File::create(&path).map_err(|e| PackageError::failed_to_create_zip_file(e, Backtrace::new()))?;
         let mut zip = ZipWriter::new(file);
         let options = FileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
@@ -114,26 +109,14 @@ impl ZipFile {
             if path.is_file() {
                 tracing::info!("Adding file {:?} as {:?}", path, name);
                 #[allow(deprecated)]
-                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-                if let Err(e) = zip.start_file_from_path(name, options) {
-                    return Err(PackageError::io_error_zip_file(eyre!(e), Backtrace::new()).into());
-                }
+                zip.start_file_from_path(name, options)
+                    .map_err(|e| PackageError::io_error_zip_file(e, Backtrace::new()))?;
 
-                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-                let mut f = match File::open(path) {
-                    Ok(file) => file,
-                    Err(e) => return Err(PackageError::failed_to_open_zip_file(eyre!(e), Backtrace::new()).into()),
-                };
-
-                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-                if let Err(e) = f.read_to_end(&mut buffer) {
-                    return Err(PackageError::failed_to_read_zip_file(eyre!(e), Backtrace::new()).into());
-                }
-
-                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-                if let Err(e) = zip.write_all(&*buffer) {
-                    return Err(PackageError::failed_to_write_zip_file(eyre!(e), Backtrace::new()).into());
-                }
+                let mut f = File::open(path).map_err(|e| PackageError::failed_to_open_zip_file(e, Backtrace::new()))?;
+                f.read_to_end(&mut buffer)
+                    .map_err(|e| PackageError::failed_to_read_zip_file(e, Backtrace::new()))?;
+                zip.write_all(&*buffer)
+                    .map_err(|e| PackageError::failed_to_write_zip_file(e, Backtrace::new()))?;
 
                 buffer.clear();
             } else if !name.as_os_str().is_empty() {
@@ -141,16 +124,13 @@ impl ZipFile {
                 // and mapname conversion failed error on unzip
                 tracing::info!("Adding directory {:?} as {:?}", path, name);
                 #[allow(deprecated)]
-                // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-                if let Err(e) = zip.add_directory_from_path(name, options) {
-                    return Err(PackageError::io_error_zip_file(eyre!(e), Backtrace::new()).into());
-                }
+                zip.add_directory_from_path(name, options)
+                    .map_err(|e| PackageError::io_error_zip_file(e, Backtrace::new()))?;
             }
         }
 
-        if let Err(e) = zip.finish() {
-            return Err(PackageError::io_error_zip_file(eyre!(e), Backtrace::new()).into());
-        }
+        zip.finish()
+            .map_err(|e| PackageError::io_error_zip_file(e, Backtrace::new()))?;
 
         tracing::info!("Package zip file created successfully {:?}", path);
 
@@ -165,11 +145,7 @@ impl ZipFile {
             return Ok(false);
         }
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        if fs::remove_file(&path).is_err() {
-            return Err(PackageError::failed_to_remove_zip_file(path.into_owned(), Backtrace::new()).into());
-        }
-
+        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_zip_file(path, Backtrace::new()))?;
         Ok(true)
     }
 

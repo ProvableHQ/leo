@@ -18,7 +18,6 @@ use crate::{number_string_typing, GroupType};
 use leo_asg::{GroupCoordinate, GroupValue};
 use leo_errors::{CompilerError, LeoError, Span};
 
-use eyre::eyre;
 use snarkvm_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
     templates::twisted_edwards_extended::Affine,
@@ -61,9 +60,10 @@ impl GroupType<Fq> for EdwardsGroupType {
     }
 
     fn to_allocated<CS: ConstraintSystem<Fq>>(&self, mut cs: CS, span: &Span) -> Result<Self, LeoError> {
-        self.allocated(cs.ns(|| format!("allocate affine point {}:{}", span.line_start, span.col_start)))
+        Ok(self
+            .allocated(cs.ns(|| format!("allocate affine point {}:{}", span.line_start, span.col_start)))
             .map(|ebg| EdwardsGroupType::Allocated(Box::new(ebg)))
-            .map_err(|e| LeoError::from(CompilerError::group_value_synthesis_error(eyre!(e), span)))
+            .map_err(|e| CompilerError::group_value_synthesis_error(e, span))?)
     }
 
     fn negate<CS: ConstraintSystem<Fq>>(&self, cs: CS, span: &Span) -> Result<Self, LeoError> {
@@ -71,7 +71,7 @@ impl GroupType<Fq> for EdwardsGroupType {
             EdwardsGroupType::Constant(group) => Ok(EdwardsGroupType::Constant(group.neg())),
             EdwardsGroupType::Allocated(group) => {
                 let result = <EdwardsBls12Gadget as GroupGadget<Affine<EdwardsParameters>, Fq>>::negate(group, cs)
-                    .map_err(|e| LeoError::from(CompilerError::group_value_negate_operation(eyre!(e), span)))?;
+                    .map_err(|e| CompilerError::group_value_negate_operation(e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
@@ -90,13 +90,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| {
-                    LeoError::from(CompilerError::group_value_binary_operation(
-                        "+".to_string(),
-                        eyre!(e),
-                        span,
-                    ))
-                })?;
+                .map_err(|e| CompilerError::group_value_binary_operation("+", e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
@@ -104,13 +98,9 @@ impl GroupType<Fq> for EdwardsGroupType {
             (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
             | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
                 Ok(EdwardsGroupType::Allocated(Box::new(
-                    allocated_value.add_constant(cs, constant_value).map_err(|e| {
-                        LeoError::from(CompilerError::group_value_binary_operation(
-                            "+".to_string(),
-                            eyre!(e),
-                            span,
-                        ))
-                    })?,
+                    allocated_value
+                        .add_constant(cs, constant_value)
+                        .map_err(|e| CompilerError::group_value_binary_operation("+", e, span))?,
                 )))
             }
         }
@@ -128,13 +118,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| {
-                    LeoError::from(CompilerError::group_value_binary_operation(
-                        "-".to_string(),
-                        eyre!(e),
-                        span,
-                    ))
-                })?;
+                .map_err(|e| CompilerError::group_value_binary_operation("-", e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
@@ -142,13 +126,9 @@ impl GroupType<Fq> for EdwardsGroupType {
             (EdwardsGroupType::Constant(constant_value), EdwardsGroupType::Allocated(allocated_value))
             | (EdwardsGroupType::Allocated(allocated_value), EdwardsGroupType::Constant(constant_value)) => {
                 Ok(EdwardsGroupType::Allocated(Box::new(
-                    allocated_value.sub_constant(cs, constant_value).map_err(|e| {
-                        LeoError::from(CompilerError::group_value_binary_operation(
-                            "-".to_string(),
-                            eyre!(e),
-                            span,
-                        ))
-                    })?,
+                    allocated_value
+                        .sub_constant(cs, constant_value)
+                        .map_err(|e| CompilerError::group_value_binary_operation("-", e, span))?,
                 )))
             }
         }
@@ -171,10 +151,12 @@ impl EdwardsGroupType {
         } else {
             let one = edwards_affine_one();
             let number_value = match number_info {
-                (number, neg) if neg => -Fp256::from_str(&number)
-                    .map_err(|_| LeoError::from(CompilerError::group_value_n_group(number, span)))?,
-                (number, _) => Fp256::from_str(&number)
-                    .map_err(|_| LeoError::from(CompilerError::group_value_n_group(number, span)))?,
+                (number, neg) if neg => {
+                    -Fp256::from_str(&number).map_err(|_| CompilerError::group_value_n_group(number, span))?
+                }
+                (number, _) => {
+                    Fp256::from_str(&number).map_err(|_| CompilerError::group_value_n_group(number, span))?
+                }
             };
 
             let result: EdwardsAffine = one.mul(number_value);
@@ -225,10 +207,10 @@ impl EdwardsGroupType {
                 Self::edwards_affine_from_y_str(number_string_typing(&y_string), span, None, span)
             }
             // Invalid
-            (x, y) => Err(LeoError::from(CompilerError::group_value_invalid_group(
+            (x, y) => Err(CompilerError::group_value_invalid_group(
                 format!("({}, {})", x, y),
                 span,
-            ))),
+            ))?,
         }
     }
 
@@ -239,17 +221,16 @@ impl EdwardsGroupType {
         element_span: &Span,
     ) -> Result<EdwardsAffine, LeoError> {
         let x = match x_info {
-            (x_str, neg) if neg => -Fq::from_str(&x_str)
-                .map_err(|_| LeoError::from(CompilerError::group_value_x_invalid(x_str, x_span)))?,
-            (x_str, _) => {
-                Fq::from_str(&x_str).map_err(|_| LeoError::from(CompilerError::group_value_x_invalid(x_str, x_span)))?
+            (x_str, neg) if neg => {
+                -Fq::from_str(&x_str).map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span))?
             }
+            (x_str, _) => Fq::from_str(&x_str).map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span))?,
         };
 
         match greatest {
             // Sign provided
-            Some(greatest) => EdwardsAffine::from_x_coordinate(x, greatest)
-                .ok_or_else(|| LeoError::from(CompilerError::group_value_x_recover(element_span))),
+            Some(greatest) => Ok(EdwardsAffine::from_x_coordinate(x, greatest)
+                .ok_or_else(|| CompilerError::group_value_x_recover(element_span))?),
             // Sign inferred
             None => {
                 // Attempt to recover with a sign_low bit.
@@ -263,7 +244,7 @@ impl EdwardsGroupType {
                 }
 
                 // Otherwise return error.
-                Err(LeoError::from(CompilerError::group_value_x_recover(element_span)))
+                Err(CompilerError::group_value_x_recover(element_span))?
             }
         }
     }
@@ -275,17 +256,16 @@ impl EdwardsGroupType {
         element_span: &Span,
     ) -> Result<EdwardsAffine, LeoError> {
         let y = match y_info {
-            (y_str, neg) if neg => -Fq::from_str(&y_str)
-                .map_err(|_| LeoError::from(CompilerError::group_value_y_invalid(y_str, y_span)))?,
-            (y_str, _) => {
-                Fq::from_str(&y_str).map_err(|_| LeoError::from(CompilerError::group_value_y_invalid(y_str, y_span)))?
+            (y_str, neg) if neg => {
+                -Fq::from_str(&y_str).map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span))?
             }
+            (y_str, _) => Fq::from_str(&y_str).map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span))?,
         };
 
         match greatest {
             // Sign provided
-            Some(greatest) => EdwardsAffine::from_y_coordinate(y, greatest)
-                .ok_or_else(|| LeoError::from(CompilerError::group_value_y_recover(element_span))),
+            Some(greatest) => Ok(EdwardsAffine::from_y_coordinate(y, greatest)
+                .ok_or_else(|| CompilerError::group_value_y_recover(element_span))?),
             // Sign inferred
             None => {
                 // Attempt to recover with a sign_low bit.
@@ -299,7 +279,7 @@ impl EdwardsGroupType {
                 }
 
                 // Otherwise return error.
-                Err(LeoError::from(CompilerError::group_value_y_recover(element_span)))
+                Err(CompilerError::group_value_y_recover(element_span))?
             }
         }
     }
@@ -312,17 +292,17 @@ impl EdwardsGroupType {
         element_span: &Span,
     ) -> Result<EdwardsAffine, LeoError> {
         let x = match x_info {
-            (x_str, neg) if neg => -Fq::from_str(&x_str)
-                .map_err(|_| LeoError::from(CompilerError::group_value_x_invalid(x_str.to_string(), x_span)))?,
-            (x_str, _) => Fq::from_str(&x_str)
-                .map_err(|_| LeoError::from(CompilerError::group_value_x_invalid(x_str.to_string(), x_span)))?,
+            (x_str, neg) if neg => {
+                -Fq::from_str(&x_str).map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span))?
+            }
+            (x_str, _) => Fq::from_str(&x_str).map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span))?,
         };
 
         let y = match y_info {
-            (y_str, neg) if neg => -Fq::from_str(&y_str)
-                .map_err(|_| LeoError::from(CompilerError::group_value_y_invalid(y_str.to_string(), y_span)))?,
-            (y_str, _) => Fq::from_str(&y_str)
-                .map_err(|_| LeoError::from(CompilerError::group_value_y_invalid(y_str.to_string(), y_span)))?,
+            (y_str, neg) if neg => {
+                -Fq::from_str(&y_str).map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span))?
+            }
+            (y_str, _) => Fq::from_str(&y_str).map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span))?,
         };
 
         let element = EdwardsAffine::new(x, y);
@@ -330,10 +310,7 @@ impl EdwardsGroupType {
         if element.is_on_curve() {
             Ok(element)
         } else {
-            Err(LeoError::from(CompilerError::group_value_not_on_curve(
-                element.to_string(),
-                element_span,
-            )))
+            Err(CompilerError::group_value_not_on_curve(element, element_span))?
         }
     }
 

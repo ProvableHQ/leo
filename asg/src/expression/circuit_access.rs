@@ -107,11 +107,11 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
         let circuit = match target.get_type() {
             Some(Type::Circuit(circuit)) => circuit,
             x => {
-                return Err(LeoError::from(AsgError::unexpected_type(
+                return Err(AsgError::unexpected_type(
                     "circuit",
-                    x.map(|x| x.to_string()).as_deref(),
+                    x.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
                     &value.span,
-                )));
+                ))?;
             }
         };
 
@@ -122,11 +122,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
                     if let CircuitMember::Variable(type_) = &member {
                         let type_: Type = type_.clone();
                         if !expected_type.matches(&type_) {
-                            return Err(LeoError::from(AsgError::unexpected_type(
-                                &expected_type.to_string(),
-                                Some(&type_.to_string()),
-                                &value.span,
-                            )));
+                            return Err(AsgError::unexpected_type(expected_type, type_, &value.span))?;
                         }
                     } // used by call expression
                 }
@@ -146,18 +142,18 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
                     CircuitMember::Variable(expected_type.clone()),
                 );
             } else {
-                return Err(LeoError::from(AsgError::input_ref_needs_type(
+                return Err(AsgError::input_ref_needs_type(
                     &circuit.name.borrow().name,
                     &value.name.name,
                     &value.span,
-                )));
+                ))?;
             }
         } else {
-            return Err(LeoError::from(AsgError::unresolved_circuit_member(
+            return Err(AsgError::unresolved_circuit_member(
                 &circuit.name.borrow().name,
                 &value.name.name,
                 &value.span,
-            )));
+            ))?;
         }
 
         Ok(CircuitAccessExpression {
@@ -179,32 +175,24 @@ impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for Circuit
         let circuit = match &*value.circuit {
             leo_ast::Expression::Identifier(name) => scope
                 .resolve_circuit(&name.name)
-                .ok_or_else(|| LeoError::from(AsgError::unresolved_circuit(&name.name, &name.span)))?,
+                .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
             _ => {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    "circuit",
-                    Some("unknown"),
-                    &value.span,
-                )));
+                return Err(AsgError::unexpected_type("circuit", "unknown", &value.span))?;
             }
         };
 
         if let Some(expected_type) = expected_type {
-            return Err(LeoError::from(AsgError::unexpected_type(
-                &expected_type.to_string(),
-                Some("none"),
-                &value.span,
-            )));
+            return Err(AsgError::unexpected_type(expected_type, "none", &value.span))?;
         }
 
         if let Some(CircuitMember::Function(_)) = circuit.members.borrow().get(value.name.name.as_ref()) {
             // okay
         } else {
-            return Err(LeoError::from(AsgError::unresolved_circuit_member(
+            return Err(AsgError::unresolved_circuit_member(
                 &circuit.name.borrow().name,
                 &value.name.name,
                 &value.span,
-            )));
+            ))?;
         }
 
         Ok(CircuitAccessExpression {

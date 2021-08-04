@@ -74,11 +74,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    &type_.to_string(),
-                    Some("array"),
-                    &value.span,
-                )));
+                return Err(AsgError::unexpected_type(type_, "array", &value.span))?;
             }
         };
         let dimensions = value
@@ -86,22 +82,22 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             .0
             .iter()
             .map(|x| {
-                x.value
+                Ok(x.value
                     .parse::<usize>()
-                    .map_err(|_| LeoError::from(AsgError::parse_dimension_error(&value.span)))
+                    .map_err(|_| AsgError::parse_dimension_error(&value.span))?)
             })
             .collect::<Result<Vec<_>, LeoError>>()?;
 
         let len = *dimensions
             .get(0)
-            .ok_or_else(|| LeoError::from(AsgError::parse_dimension_error(&value.span)))?;
+            .ok_or_else(|| AsgError::parse_dimension_error(&value.span))?;
         if let Some(expected_len) = expected_len {
             if expected_len != len {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    &*format!("array of length {}", expected_len),
-                    Some(&*format!("array of length {}", len)),
+                return Err(AsgError::unexpected_type(
+                    format!("array of length {}", expected_len),
+                    format!("array of length {}", len),
                     &value.span,
-                )));
+                ))?;
             }
         }
 
@@ -110,11 +106,11 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                 Some(PartialType::Array(item, len)) => {
                     if let Some(len) = len {
                         if len != dimension {
-                            return Err(LeoError::from(AsgError::unexpected_type(
-                                &*format!("array of length {}", dimension),
-                                Some(&*format!("array of length {}", len)),
+                            return Err(AsgError::unexpected_type(
+                                format!("array of length {}", dimension),
+                                format!("array of length {}", len),
                                 &value.span,
-                            )));
+                            ))?;
                         }
                     }
 
@@ -122,11 +118,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                 }
                 None => None,
                 Some(type_) => {
-                    return Err(LeoError::from(AsgError::unexpected_type(
-                        "array",
-                        Some(&type_.to_string()),
-                        &value.span,
-                    )));
+                    return Err(AsgError::unexpected_type("array", type_, &value.span))?;
                 }
             }
         }

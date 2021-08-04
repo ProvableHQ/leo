@@ -35,7 +35,7 @@ pub struct BacktracedError {
     pub message: String,
     pub help: Option<String>,
     pub exit_code: u32,
-    pub code_identifier: String,
+    pub code_identifier: u32,
     pub error_type: String,
     #[derivative(PartialEq = "ignore")]
     #[derivative(Hash = "ignore")]
@@ -45,9 +45,9 @@ pub struct BacktracedError {
 impl BacktracedError {
     pub fn new_from_backtrace<S>(
         message: S,
-        help: Option<S>,
+        help: Option<String>,
         exit_code: u32,
-        code_identifier: String,
+        code_identifier: u32,
         error_type: String,
         backtrace: Backtrace,
     ) -> Self
@@ -63,12 +63,16 @@ impl BacktracedError {
             backtrace,
         }
     }
+
+    pub fn exit_code(&self) -> u32 {
+        0
+    }
 }
 
 impl fmt::Display for BacktracedError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let error_message = format!(
-            "{indent     }[E{error_type}{code_identifier}{exit_code}]: {message}\
+            "[E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}\
 	  {indent     } ",
             indent = INDENT,
             error_type = self.error_type,
@@ -83,7 +87,11 @@ impl fmt::Display for BacktracedError {
             write!(f, "{indent     } = {help}", indent = INDENT, help = help)?;
         }
 
-        write!(f, "stack backtrace:\n{:?}", self.backtrace)
+        if std::env::var("LEO_BACKTRACE").unwrap_or_default().trim() == "1" {
+            write!(f, "stack backtrace:\n{:?}", self.backtrace)?;
+        }
+
+        Ok(())
     }
 }
 

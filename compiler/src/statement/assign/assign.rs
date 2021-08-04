@@ -59,13 +59,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             _ => unimplemented!("unimplemented assign operator"),
         };
         let selected_value = ConstrainedValue::conditionally_select(cs.ns(|| scope), condition, &new_value, target)
-            .map_err(|_| {
-                LeoError::from(CompilerError::statement_select_fail(
-                    new_value.to_string(),
-                    target.to_string(),
-                    span,
-                ))
-            })?;
+            .map_err(|_| CompilerError::statement_select_fail(new_value, target.clone(), span))?;
 
         *target = selected_value;
         Ok(())

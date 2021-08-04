@@ -71,10 +71,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                 .collect::<Vec<String>>()
                 .join(" ,");
 
-            return Err(LeoError::from(AsgError::invalid_const_assign(
-                &var_names,
-                &statement.span,
-            )));
+            return Err(AsgError::invalid_const_assign(var_names, &statement.span))?;
         }
 
         let type_ = type_.or_else(|| value.get_type());
@@ -83,10 +80,10 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
 
         let mut variables = vec![];
         if statement.variable_names.is_empty() {
-            return Err(LeoError::from(AsgError::illegal_ast_structure(
+            return Err(AsgError::illegal_ast_structure(
                 "cannot have 0 variable names in destructuring tuple",
                 &statement.span,
-            )));
+            ))?;
         }
         if statement.variable_names.len() == 1 {
             // any return type is fine
@@ -98,11 +95,11 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                     output_types.extend(sub_types.clone().into_iter().map(Some).collect::<Vec<_>>());
                 }
                 type_ => {
-                    return Err(LeoError::from(AsgError::unexpected_type(
-                        &*format!("{}-ary tuple", statement.variable_names.len()),
-                        type_.map(|x| x.to_string()).as_deref(),
+                    return Err(AsgError::unexpected_type(
+                        format!("{}-ary tuple", statement.variable_names.len()),
+                        type_.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
                         &statement.span,
-                    )));
+                    ))?;
                 }
             }
         }
@@ -111,9 +108,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             variables.push(&*scope.context.alloc_variable(RefCell::new(InnerVariable {
                 id: scope.context.get_id(),
                 name: variable.identifier.clone(),
-                type_: type_.ok_or_else(|| {
-                    LeoError::from(AsgError::unresolved_type(&variable.identifier.name, &statement.span))
-                })?,
+                type_: type_.ok_or_else(|| AsgError::unresolved_type(&variable.identifier.name, &statement.span))?,
                 mutable: variable.mutable,
                 const_: false,
                 declaration: crate::VariableDeclaration::Definition,
@@ -126,10 +121,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             let mut variables = scope.variables.borrow_mut();
             let var_name = variable.borrow().name.name.to_string();
             if variables.contains_key(&var_name) {
-                return Err(LeoError::from(AsgError::duplicate_variable_definition(
-                    &var_name,
-                    &statement.span,
-                )));
+                return Err(AsgError::duplicate_variable_definition(var_name, &statement.span))?;
             }
 
             variables.insert(var_name, *variable);

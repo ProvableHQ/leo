@@ -35,13 +35,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         // Get the tuple values.
         let tuple = match self.enforce_expression(cs, tuple)? {
             ConstrainedValue::Tuple(tuple) => tuple,
-            value => return Err(LeoError::from(CompilerError::undefined_array(value.to_string(), span))),
+            value => return Err(CompilerError::undefined_array(value, span))?,
         };
 
         // Check for out of bounds access.
         if index > tuple.len() - 1 {
             // probably safe to be a panic here
-            return Err(LeoError::from(CompilerError::tuple_index_out_of_bounds(index, span)));
+            return Err(CompilerError::tuple_index_out_of_bounds(index, span))?;
         }
 
         Ok(tuple[index].to_owned())

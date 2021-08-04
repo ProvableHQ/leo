@@ -64,7 +64,7 @@ impl ParserContext {
     /// Returns an unexpected end of function [`SyntaxError`].
     ///
     pub fn eof(&self) -> LeoError {
-        LeoError::from(ParserError::unexpected_eof(&self.end_span))
+        ParserError::unexpected_eof(&self.end_span).into()
     }
 
     ///
@@ -300,11 +300,7 @@ impl ParserContext {
             if &token == inner {
                 Ok(self.tokens.pop().unwrap().span)
             } else {
-                Err(LeoError::from(ParserError::unexpected(
-                    inner.to_string(),
-                    token.to_string(),
-                    span,
-                )))
+                Err(ParserError::unexpected(inner, token, span))?
             }
         } else {
             Err(self.eof())
@@ -319,11 +315,11 @@ impl ParserContext {
             if token.iter().any(|x| x == inner) {
                 Ok(self.tokens.pop().unwrap())
             } else {
-                Err(LeoError::from(ParserError::unexpected(
-                    inner.to_string(),
+                Err(ParserError::unexpected(
+                    inner,
                     token.iter().map(|x| format!("'{}'", x)).collect::<Vec<_>>().join(", "),
                     span,
-                )))
+                ))?
             }
         } else {
             Err(self.eof())
@@ -364,11 +360,7 @@ impl ParserContext {
                     unimplemented!()
                 }
             } else {
-                Err(LeoError::from(ParserError::unexpected_str(
-                    inner.to_string(),
-                    "ident",
-                    span,
-                )))
+                Err(ParserError::unexpected_str(inner, "ident", span))?
             }
         } else {
             Err(self.eof())

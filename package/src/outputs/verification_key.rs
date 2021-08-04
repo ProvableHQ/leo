@@ -20,7 +20,6 @@ use crate::outputs::OUTPUTS_DIRECTORY_NAME;
 use leo_errors::{LeoError, PackageError};
 
 use backtrace::Backtrace;
-use eyre::eyre;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -59,25 +58,20 @@ impl VerificationKeyFile {
     pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, LeoError> {
         let path = self.setup_file_path(path);
 
-        fs::read(&path)
-            .map_err(|_| PackageError::failed_to_read_verification_key_file(path.into_owned(), Backtrace::new()).into())
+        let bytes = fs::read(&path)
+            .map_err(|_| PackageError::failed_to_read_verification_key_file(path.into_owned(), Backtrace::new()))?;
+        Ok(bytes)
     }
 
     /// Writes the given verification key to a file.
     pub fn write_to<'a>(&self, path: &'a Path, verification_key: &[u8]) -> Result<Cow<'a, Path>, LeoError> {
         let path = self.setup_file_path(path);
+        let mut file =
+            File::create(&path).map_err(|e| PackageError::io_error_verification_key_file(e, Backtrace::new()))?;
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let mut file = match File::create(&path) {
-            Ok(file) => file,
-            Err(e) => return Err(PackageError::io_error_verification_key_file(eyre!(e), Backtrace::new()).into()),
-        };
-
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        match file.write_all(verification_key) {
-            Ok(_) => Ok(path),
-            Err(e) => Err(PackageError::io_error_verification_key_file(eyre!(e), Backtrace::new()).into()),
-        }
+        file.write_all(verification_key)
+            .map_err(|e| PackageError::io_error_verification_key_file(e, Backtrace::new()))?;
+        Ok(path)
     }
 
     /// Removes the verification key at the given path if it exists. Returns `true` on success,
@@ -88,13 +82,9 @@ impl VerificationKeyFile {
             return Ok(false);
         }
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        match fs::remove_file(&path) {
-            Ok(_) => Ok(true),
-            Err(_) => {
-                Err(PackageError::failed_to_remove_verification_key_file(path.into_owned(), Backtrace::new()).into())
-            }
-        }
+        fs::remove_file(&path)
+            .map_err(|_| PackageError::failed_to_remove_verification_key_file(path, Backtrace::new()))?;
+        Ok(true)
     }
 
     fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {

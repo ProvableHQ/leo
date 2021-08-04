@@ -19,7 +19,6 @@
 use crate::{value::ConstrainedValue, GroupType};
 use leo_errors::{CompilerError, LeoError, Span};
 
-use eyre::eyre;
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
@@ -38,16 +37,10 @@ pub fn enforce_and<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             &left_bool,
             &right_bool,
         )
-        .map_err(|e| {
-            LeoError::from(CompilerError::cannot_enforce_expression(
-                "&&".to_string(),
-                eyre!(e),
-                span,
-            ))
-        })?;
+        .map_err(|e| CompilerError::cannot_enforce_expression("&&", e, span))?;
 
         return Ok(ConstrainedValue::Boolean(result));
     }
 
-    Err(LeoError::from(CompilerError::cannot_evaluate_expression(name, span)))
+    Err(CompilerError::cannot_evaluate_expression(name, span))?
 }

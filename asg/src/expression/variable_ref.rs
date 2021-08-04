@@ -140,10 +140,10 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
             if let Some(input) = scope.resolve_input() {
                 input.container
             } else {
-                return Err(LeoError::from(AsgError::illegal_input_variable_reference(
+                return Err(AsgError::illegal_input_variable_reference(
                     "attempted to reference input when none is in scope",
                     &value.span,
-                )));
+                ))?;
             }
         } else {
             match scope.resolve_variable(&value.name) {
@@ -156,7 +156,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
                             value: ConstValue::Address(value.name.clone()),
                         })));
                     }
-                    return Err(LeoError::from(AsgError::unresolved_reference(&value.name, &value.span)));
+                    return Err(AsgError::unresolved_reference(&value.name, &value.span))?;
                 }
             }
         };
@@ -171,13 +171,9 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
         if let Some(expected_type) = expected_type {
             let type_ = expression
                 .get_type()
-                .ok_or_else(|| LeoError::from(AsgError::unresolved_reference(&value.name, &value.span)))?;
+                .ok_or_else(|| AsgError::unresolved_reference(&value.name, &value.span))?;
             if !expected_type.matches(&type_) {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    &expected_type.to_string(),
-                    Some(&*type_.to_string()),
-                    &value.span,
-                )));
+                return Err(AsgError::unexpected_type(expected_type, type_, &value.span))?;
             }
         }
 

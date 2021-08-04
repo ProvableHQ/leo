@@ -164,10 +164,7 @@ impl<'a> Program<'a> {
             )? {
                 Some(x) => x,
                 None => {
-                    return Err(LeoError::from(AsgError::unresolved_import(
-                        &*pretty_package,
-                        &Span::default(),
-                    )));
+                    return Err(AsgError::unresolved_import(pretty_package, &Span::default()))?;
                 }
             };
 
@@ -199,10 +196,10 @@ impl<'a> Program<'a> {
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         imported_global_consts.insert(name.clone(), *global_const);
                     } else {
-                        return Err(LeoError::from(AsgError::unresolved_import(
-                            &*format!("{}.{}", pretty_package, name),
+                        return Err(AsgError::unresolved_import(
+                            format!("{}.{}", pretty_package, name),
                             &span,
-                        )));
+                        ))?;
                     }
                 }
                 ImportSymbol::Alias(name, alias) => {
@@ -213,10 +210,10 @@ impl<'a> Program<'a> {
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         imported_global_consts.insert(alias.clone(), *global_const);
                     } else {
-                        return Err(LeoError::from(AsgError::unresolved_import(
-                            &*format!("{}.{}", pretty_package, name),
+                        return Err(AsgError::unresolved_import(
+                            format!("{}.{}", pretty_package, name),
                             &span,
-                        )));
+                        ))?;
                     }
                 }
             }
@@ -307,10 +304,7 @@ impl<'a> Program<'a> {
             let name = name.name.to_string();
 
             if functions.contains_key(&name) {
-                return Err(LeoError::from(AsgError::duplicate_function_definition(
-                    &name,
-                    &function.span,
-                )));
+                return Err(AsgError::duplicate_function_definition(name, &function.span))?;
             }
 
             functions.insert(name, asg_function);

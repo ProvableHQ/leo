@@ -32,9 +32,9 @@ pub fn enforce_pow<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
             Ok(ConstrainedValue::Integer(num_1.pow(cs, num_2, span)?))
         }
-        (val_1, val_2) => Err(LeoError::from(CompilerError::incompatible_types(
+        (val_1, val_2) => Err(CompilerError::incompatible_types(
             format!("{} ** {}", val_1, val_2,),
             span,
-        ))),
+        ))?,
     }
 }

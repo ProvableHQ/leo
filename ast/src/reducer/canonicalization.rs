@@ -20,7 +20,7 @@ use leo_errors::{AstError, LeoError, Span};
 /// Replace Self when it is in a enclosing circuit type.
 /// Error when Self is outside an enclosing circuit type.
 /// Tuple array types and expressions expand to nested arrays.
-/// Tuple array types and expressions error if a size of 0 is given.anyhow
+/// Tuple array types and expressions error if a size of 0 is given.
 /// Compound operators become simple assignments.
 /// Functions missing output type return a empty tuple.
 pub struct Canonicalizer {
@@ -469,7 +469,7 @@ impl ReconstructingReducer for Canonicalizer {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
-                    return Err(LeoError::from(AstError::invalid_array_dimension_size(span)));
+                    return Err(AstError::invalid_array_dimension_size(span))?;
                 }
 
                 let mut next = Type::Array(type_, ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
@@ -486,14 +486,14 @@ impl ReconstructingReducer for Canonicalizer {
 
                 Ok(array)
             }
-            Type::SelfType if !self.in_circuit => Err(LeoError::from(AstError::big_self_outside_of_circuit(span))),
+            Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span))?,
             _ => Ok(new.clone()),
         }
     }
 
     fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, LeoError> {
         if string.is_empty() {
-            return Err(LeoError::from(AstError::empty_string(span)));
+            return Err(AstError::empty_string(span))?;
         }
 
         let mut elements = Vec::new();
@@ -552,7 +552,7 @@ impl ReconstructingReducer for Canonicalizer {
         element: Expression,
     ) -> Result<ArrayInitExpression, LeoError> {
         if array_init.dimensions.is_zero() {
-            return Err(LeoError::from(AstError::invalid_array_dimension_size(&array_init.span)));
+            return Err(AstError::invalid_array_dimension_size(&array_init.span))?;
         }
 
         let element = Box::new(element);

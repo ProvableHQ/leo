@@ -17,7 +17,6 @@
 use leo_errors::{LeoError, PackageError};
 
 use backtrace::Backtrace;
-use eyre::eyre;
 use std::{borrow::Cow, fs, path::Path};
 
 pub static OUTPUTS_DIRECTORY_NAME: &str = "outputs/";
@@ -32,8 +31,8 @@ impl OutputsDirectory {
             path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path)
-            .map_err(|e| PackageError::failed_to_create_inputs_directory(eyre!(e), Backtrace::new()).into())
+        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e, Backtrace::new()))?;
+        Ok(())
     }
 
     /// Removes the directory at the provided path.
@@ -44,9 +43,8 @@ impl OutputsDirectory {
         }
 
         if path.exists() {
-            if let Err(e) = fs::remove_dir_all(&path) {
-                return Err(PackageError::failed_to_create_inputs_directory(eyre!(e), Backtrace::new()).into());
-            }
+            fs::remove_dir_all(&path)
+                .map_err(|e| PackageError::failed_to_create_inputs_directory(e, Backtrace::new()))?;
         }
 
         Ok(())

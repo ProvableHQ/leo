@@ -16,6 +16,8 @@
 
 use crate::create_errors;
 
+use std::fmt::{Debug, Display};
+
 create_errors!(
     AsgError,
     exit_code_mask: 0u32,
@@ -23,21 +25,21 @@ create_errors!(
 
     @formatted
     unresolved_circuit {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("failed to resolve circuit: '{}'", name),
         help: None,
     }
 
     @formatted
     unresolved_import {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("failed to resolve import: '{}'", name),
         help: None,
     }
 
     @formatted
     unresolved_circuit_member {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!(
             "illegal reference to non-existant member '{}' of circuit '{}'",
             name, circuit_name
@@ -47,7 +49,7 @@ create_errors!(
 
     @formatted
     missing_circuit_member {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!(
             "missing circuit member '{}' for initialization of circuit '{}'",
             name, circuit_name
@@ -57,7 +59,7 @@ create_errors!(
 
     @formatted
     overridden_circuit_member {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!(
             "cannot declare circuit member '{}' more than once for initialization of circuit '{}'",
             name, circuit_name
@@ -67,7 +69,7 @@ create_errors!(
 
     @formatted
     redefined_circuit_member {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!(
             "cannot declare circuit member '{}' multiple times in circuit '{}'",
             name, circuit_name
@@ -77,7 +79,7 @@ create_errors!(
 
     @formatted
     extra_circuit_member {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!(
             "extra circuit member '{}' for initialization of circuit '{}' is not allowed",
             name, circuit_name
@@ -87,21 +89,21 @@ create_errors!(
 
     @formatted
     illegal_function_assign {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("attempt to assign to function '{}'", name),
         help: None,
     }
 
     @formatted
     circuit_variable_call {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!("cannot call variable member '{}' of circuit '{}'", name, circuit_name),
         help: None,
     }
 
     @formatted
     circuit_static_call_invalid {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!(
             "cannot call static function '{}' of circuit '{}' from target",
             name, circuit_name
@@ -111,7 +113,7 @@ create_errors!(
 
     @formatted
     circuit_member_mut_call_invalid {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!(
             "cannot call mutable member function '{}' of circuit '{}' from immutable context",
             name, circuit_name
@@ -121,7 +123,7 @@ create_errors!(
 
     @formatted
     circuit_member_call_invalid {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!(
             "cannot call member function '{}' of circuit '{}' from static context",
             name, circuit_name
@@ -131,7 +133,7 @@ create_errors!(
 
     @formatted
     circuit_function_ref {
-        args: (circuit_name: &str, name: &str),
+        args: (circuit_name: impl Display, name: impl Display),
         msg: format!(
             "cannot reference function member '{}' of circuit '{}' as value",
             name, circuit_name
@@ -141,21 +143,21 @@ create_errors!(
 
     @formatted
     index_into_non_array {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("failed to index into non-array '{}'", name),
         help: None,
     }
 
     @formatted
     invalid_assign_index {
-        args: (name: &str, num: &str),
+        args: (name: impl Display, num: impl Display),
         msg: format!("failed to index array with invalid integer '{}'[{}]", name, num),
         help: None,
     }
 
     @formatted
     invalid_backwards_assignment {
-        args: (name: &str, left: usize, right: usize),
+        args: (name: impl Display, left: impl Display, right: impl Display),
         msg: format!(
             "failed to index array range for assignment with left > right '{}'[{}..{}]",
             name, left, right
@@ -165,7 +167,7 @@ create_errors!(
 
     @formatted
     invalid_const_assign {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!(
             "failed to create const variable(s) '{}' with non constant values.",
             name
@@ -175,42 +177,42 @@ create_errors!(
 
     @formatted
     duplicate_function_definition {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("a function named \"{}\" already exists in this scope", name),
         help: None,
     }
 
     @formatted
     duplicate_variable_definition {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("a variable named \"{}\" already exists in this scope", name),
         help: None,
     }
 
     @formatted
     index_into_non_tuple {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("failed to index into non-tuple '{}'", name),
         help: None,
     }
 
     @formatted
     tuple_index_out_of_bounds {
-        args: (index: usize),
+        args: (index: impl Display),
         msg: format!("tuple index out of bounds: '{}'", index),
         help: None,
     }
 
     @formatted
     array_index_out_of_bounds {
-        args: (index: usize),
+        args: (index: impl Display),
         msg: format!("array index out of bounds: '{}'", index),
         help: None,
     }
 
     @formatted
     ternary_different_types {
-        args: (left: &str, right: &str),
+        args: (left: impl Display, right: impl Display),
         msg: format!("ternary sides had different types: left {}, right {}", left, right),
         help: None,
     }
@@ -224,32 +226,32 @@ create_errors!(
 
     @formatted
     unexpected_call_argument_count {
-        args: (expected: usize, got: usize),
+        args: (expected: impl Display, got: impl Display),
         msg: format!("function call expected {} arguments, got {}", expected, got),
         help: None,
     }
 
     @formatted
     unresolved_function {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("failed to resolve function: '{}'", name),
         help: None,
     }
 
     @formatted
     unresolved_type {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("failed to resolve type for variable definition '{}'", name),
         help: None,
     }
 
     @formatted
     unexpected_type {
-        args: (expected: &str, received: Option<&str>),
+        args: (expected: impl Display, received: impl Display),
         msg: format!(
             "unexpected type, expected: '{}', received: '{}'",
             expected,
-            received.unwrap_or("unknown")
+            received,
         ),
         help: None,
     }
@@ -263,28 +265,28 @@ create_errors!(
 
     @formatted
     unresolved_reference {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("failed to resolve variable reference '{}'", name),
         help: None,
     }
 
     @formatted
     invalid_boolean {
-        args: (value: &str),
+        args: (value: impl Display),
         msg: format!("failed to parse boolean value '{}'", value),
         help: None,
     }
 
     @formatted
     invalid_char {
-        args: (value: &str),
+        args: (value: impl Display),
         msg: format!("failed to parse char value '{}'", value),
         help: None,
     }
 
     @formatted
     invalid_int {
-        args: (value: &str),
+        args: (value: impl Display),
         msg: format!("failed to parse int value '{}'", value),
         help: None,
     }
@@ -298,28 +300,28 @@ create_errors!(
 
     @formatted
     immutable_assignment {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("illegal assignment to immutable variable '{}'", name),
         help: None,
     }
 
     @formatted
     function_missing_return {
-        args: (name: &str),
+        args: (name: impl Display),
         msg: format!("function '{}' missing return for all paths", name),
         help: None,
     }
 
     @formatted
     function_return_validation {
-        args: (name: &str, description: &str),
+        args: (name: impl Display, description: impl Display),
         msg: format!("function '{}' failed to validate return path: '{}'", name, description),
         help: None,
     }
 
     @formatted
     input_ref_needs_type {
-        args: (category: &str, name: &str),
+        args: (category: impl Display, name: impl Display),
         msg: format!("could not infer type for input in '{}': '{}'", category, name),
         help: None,
     }
@@ -368,14 +370,14 @@ create_errors!(
 
     @formatted
     illegal_ast_structure {
-        args: (details: &str),
+        args: (details: impl Display),
         msg: format!("illegal ast structure: {}", details),
         help: None,
     }
 
     @formatted
     illegal_input_variable_reference {
-        args: (details: &str),
+        args: (details: impl Display),
         msg: format!("illegal ast structure: {}", details),
         help: None,
     }

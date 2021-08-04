@@ -19,22 +19,24 @@ use crate::Span;
 use backtrace::Backtrace;
 
 pub trait ErrorCode: Sized {
+    fn exit_code(&self) -> u32;
+
     fn exit_code_mask() -> u32;
 
     fn error_type() -> String;
 
-    fn new_from_backtrace<S>(message: S, help: Option<S>, exit_code: u32, backtrace: Backtrace) -> Self
+    fn new_from_backtrace<S>(message: S, help: Option<String>, exit_code: u32, backtrace: Backtrace) -> Self
     where
         S: ToString;
 
-    fn new_from_span<S>(message: S, help: Option<S>, exit_code: u32, span: &Span) -> Self
+    fn new_from_span<S>(message: S, help: Option<String>, exit_code: u32, span: &Span) -> Self
     where
         S: ToString;
 }
 
 pub trait LeoErrorCode: ErrorCode {
     #[inline(always)]
-    fn code_identifier() -> String {
-        "037".to_string()
+    fn code_identifier() -> u32 {
+        037
     }
 }

@@ -40,13 +40,8 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
                 .map(|value| value.negate(cs, span))
-                .map_err(|_| {
-                    LeoError::from(CompilerError::field_value_missing_field(
-                        format!("{}: field", name),
-                        span,
-                    ))
-                })?,
-                (number, _) => FieldType::alloc(
+                .map_err(|_| CompilerError::field_value_missing_field(format!("{}: field", name), span))?,
+                (number, _) => Ok(FieldType::alloc(
                     cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
@@ -55,13 +50,13 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
                         format!("{}: field", name),
                         span,
                     ))
-                }),
+                })?),
             }
         }
-        None => Err(LeoError::from(CompilerError::field_value_missing_field(
+        None => Err(CompilerError::field_value_missing_field(
             format!("{}: field", name),
             span,
-        ))),
+        ))?,
     }
 }
 
@@ -77,10 +72,7 @@ pub(crate) fn field_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
             if let InputValue::Field(string) = input {
                 Some(string)
             } else {
-                return Err(LeoError::from(CompilerError::field_value_invalid_field(
-                    input.to_string(),
-                    span,
-                )));
+                return Err(CompilerError::field_value_invalid_field(input, span))?;
             }
         }
         None => None,

@@ -31,9 +31,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         name: &Identifier,
     ) -> Result<(), LeoError> {
         if context.input.len() != 1 {
-            return Err(LeoError::from(CompilerError::statement_array_assign_interior_index(
-                &context.span,
-            )));
+            return Err(CompilerError::statement_array_assign_interior_index(&context.span))?;
         }
         match context.input.remove(0) {
             ConstrainedValue::CircuitExpression(_variable, members) => {
@@ -47,18 +45,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     }
                     None => {
                         // Throw an error if the circuit variable does not exist in the circuit
-                        Err(LeoError::from(CompilerError::statement_undefined_circuit_variable(
-                            name.to_string(),
-                            &context.span,
-                        )))
+                        Err(CompilerError::statement_undefined_circuit_variable(name, &context.span))?
                     }
                 }
             }
             // Throw an error if the circuit definition does not exist in the file
-            x => Err(LeoError::from(CompilerError::undefined_circuit(
-                x.to_string(),
-                &context.span,
-            ))),
+            x => Err(CompilerError::undefined_circuit(x, &context.span))?,
         }
     }
 }

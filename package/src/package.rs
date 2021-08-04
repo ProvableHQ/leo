@@ -39,7 +39,7 @@ impl Package {
     pub fn new(package_name: &str) -> Result<Self, LeoError> {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
-            return Err(PackageError::invalid_package_name(package_name.to_string(), Backtrace::new()).into());
+            return Err(PackageError::invalid_package_name(package_name, Backtrace::new()))?;
         }
 
         Ok(Self {
@@ -189,11 +189,10 @@ impl Package {
         {
             if !Self::can_initialize(package_name, path) {
                 return Err(PackageError::failed_to_initialize_package(
-                    package_name.to_owned(),
-                    path.as_os_str().to_owned(),
+                    package_name,
+                    path.as_os_str(),
                     Backtrace::new(),
-                )
-                .into());
+                ))?;
             }
         }
         // Next, initialize this directory as a Leo package.
@@ -232,11 +231,10 @@ impl Package {
         {
             if !Self::is_initialized(package_name, path) {
                 return Err(PackageError::failed_to_initialize_package(
-                    package_name.to_owned(),
-                    path.as_os_str().to_owned(),
+                    package_name,
+                    path.as_os_str(),
                     Backtrace::new(),
-                )
-                .into());
+                ))?;
             }
         }
 
@@ -245,7 +243,7 @@ impl Package {
 
     /// Removes the package at the given path
     pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), LeoError> {
-        ImportsDirectory::remove_import(path, package_name)
+        Ok(ImportsDirectory::remove_import(path, package_name)?)
     }
 }
 

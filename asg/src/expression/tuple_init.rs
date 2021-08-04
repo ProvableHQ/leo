@@ -86,11 +86,11 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
             Some(PartialType::Tuple(sub_types)) => Some(sub_types),
             None => None,
             x => {
-                return Err(LeoError::from(AsgError::unexpected_type(
+                return Err(AsgError::unexpected_type(
                     "tuple",
-                    x.map(|x| x.to_string()).as_deref(),
+                    x.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
                     &value.span,
-                )));
+                ))?;
             }
         };
 
@@ -98,11 +98,11 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
             // Expected type can be equal or less than actual size of a tuple.
             // Size of expected tuple can be based on accessed index.
             if tuple_types.len() > value.elements.len() {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    &*format!("tuple of length {}", tuple_types.len()),
-                    Some(&*format!("tuple of length {}", value.elements.len())),
+                return Err(AsgError::unexpected_type(
+                    format!("tuple of length {}", tuple_types.len()),
+                    format!("tuple of length {}", value.elements.len()),
                     &value.span,
-                )));
+                ))?;
             }
         }
 

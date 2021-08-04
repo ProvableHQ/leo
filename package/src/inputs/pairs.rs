@@ -61,18 +61,16 @@ impl TryFrom<&Path> for InputPairs {
                     Some(file_name) => file_name,
                     None => {
                         return Err(PackageError::failed_to_get_input_file_name(
-                            file.as_os_str().to_owned(),
+                            file.as_os_str(),
                             Backtrace::new(),
-                        )
-                        .into());
+                        ))?;
                     }
                 },
                 None => {
                     return Err(PackageError::failed_to_get_input_file_name(
-                        file.as_os_str().to_owned(),
+                        file.as_os_str(),
                         Backtrace::new(),
-                    )
-                    .into());
+                    ))?;
                 }
             };
 

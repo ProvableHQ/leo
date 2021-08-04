@@ -30,26 +30,22 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         index: usize,
     ) -> Result<(), LeoError> {
         if context.input.len() != 1 {
-            return Err(LeoError::from(CompilerError::statement_array_assign_interior_index(
-                &context.span,
-            )));
+            return Err(CompilerError::statement_array_assign_interior_index(&context.span))?;
         }
         match context.input.remove(0) {
             ConstrainedValue::Tuple(old) => {
                 if index > old.len() {
-                    Err(LeoError::from(CompilerError::statement_tuple_assign_index_bounds(
+                    Err(CompilerError::statement_tuple_assign_index_bounds(
                         index,
                         old.len(),
                         &context.span,
-                    )))
+                    ))?
                 } else {
                     context.input = vec![&mut old[index]];
                     self.resolve_target_access(cs, context)
                 }
             }
-            _ => Err(LeoError::from(CompilerError::statement_tuple_assign_index(
-                &context.span,
-            ))),
+            _ => Err(CompilerError::statement_tuple_assign_index(&context.span))?,
         }
     }
 }

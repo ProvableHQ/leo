@@ -43,11 +43,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             };
             let declared_type = self.asg.scope.resolve_ast_type(&parameter.type_, &parameter.span)?;
             if !expected_type.is_assignable_from(&declared_type) {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    &expected_type.to_string(),
-                    Some(&declared_type.to_string()),
-                    &identifier.span,
-                )));
+                return Err(AsgError::unexpected_type(expected_type, declared_type, &identifier.span).into());
             }
             let member_name = parameter.variable.clone();
             let member_value = self.allocate_main_function_input(

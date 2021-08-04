@@ -80,7 +80,7 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
             .index
             .value
             .parse::<usize>()
-            .map_err(|_| LeoError::from(AsgError::parse_index_error(&value.span)))?;
+            .map_err(|_| AsgError::parse_index_error(&value.span))?;
 
         let mut expected_tuple = vec![None; index + 1];
         expected_tuple[index] = expected_type;
@@ -89,11 +89,11 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
         let tuple_type = tuple.get_type();
         if let Some(Type::Tuple(_items)) = tuple_type {
         } else {
-            return Err(LeoError::from(AsgError::unexpected_type(
+            return Err(AsgError::unexpected_type(
                 "a tuple",
-                tuple_type.map(|x| x.to_string()).as_deref(),
+                tuple_type.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
                 &value.span,
-            )));
+            ))?;
         }
 
         Ok(TupleAccessExpression {

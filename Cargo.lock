@@ -1210,9 +1210,8 @@ dependencies = [
 name = "leo-ast"
 version = "1.5.3"
 dependencies = [
- "anyhow",
+ "backtrace",
  "criterion",
- "eyre",
  "indexmap",
  "leo-errors",
  "leo-input",
@@ -1220,7 +1219,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tendril",
- "thiserror",
 ]
 
 [[package]]
@@ -1229,7 +1227,6 @@ version = "1.5.3"
 dependencies = [
  "backtrace",
  "bincode",
- "eyre",
  "hex",
  "indexmap",
  "leo-asg",
@@ -1318,6 +1315,7 @@ dependencies = [
  "lazy_static",
  "leo-ast",
  "leo-compiler",
+ "leo-errors",
  "leo-imports",
  "leo-input",
  "leo-package",
@@ -1355,7 +1353,6 @@ name = "leo-package"
 version = "1.5.3"
 dependencies = [
  "backtrace",
- "eyre",
  "lazy_static",
  "leo-errors",
  "serde",
@@ -1379,7 +1376,6 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "tendril",
- "thiserror",
  "tracing",
 ]
 

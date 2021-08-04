@@ -16,6 +16,8 @@
 
 use crate::create_errors;
 
+use std::fmt::Display;
+
 create_errors!(
     ParserError,
     exit_code_mask: 5000u32,
@@ -23,14 +25,14 @@ create_errors!(
 
     @formatted
     unexpected_token {
-        args: (message: String, help: String),
+        args: (message: impl Display, help: String),
         msg: message,
         help: Some(help),
     }
 
     @formatted
     invalid_address_lit {
-        args: (token: &str),
+        args: (token: impl Display),
         msg: format!("invalid address literal: '{}'", token),
         help: None,
     }
@@ -51,14 +53,14 @@ create_errors!(
 
     @formatted
     unexpected_whitespace {
-        args: (left: &str, right: &str),
+        args: (left: impl Display, right: impl Display),
         msg: format!("Unexpected white space between terms {} and {}", left, right),
         help: None,
     }
 
     @formatted
     unexpected {
-        args: (got: String, expected: String),
+        args: (got: impl Display, expected: impl Display),
         msg: format!("expected {} -- got '{}'", expected, got),
         help: None,
     }
@@ -72,7 +74,7 @@ create_errors!(
 
     @formatted
     unexpected_ident {
-        args: (got: &str, expected: &[&str]),
+        args: (got: impl Display, expected: &[impl Display]),
         msg: format!(
             "unexpected identifier: expected {} -- got '{}'",
             expected
@@ -87,14 +89,14 @@ create_errors!(
 
     @formatted
     unexpected_statement {
-        args: (got: String, expected: &str),
+        args: (got: impl Display, expected: impl Display),
         msg: format!("unexpected statement: expected '{}', got '{}'", expected, got),
         help: None,
     }
 
     @formatted
     unexpected_str {
-        args: (got: String, expected: &str),
+        args: (got: impl Display, expected: impl Display),
         msg: format!("unexpected string: expected '{}', got '{}'", expected, got),
         help: None,
     }

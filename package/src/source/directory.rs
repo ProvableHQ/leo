@@ -23,7 +23,6 @@ use std::{
 };
 
 use backtrace::Backtrace;
-use eyre::eyre;
 
 pub static SOURCE_DIRECTORY_NAME: &str = "src/";
 
@@ -39,8 +38,8 @@ impl SourceDirectory {
             path.to_mut().push(SOURCE_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path)
-            .map_err(|e| PackageError::failed_to_create_source_directory(eyre!(e), Backtrace::new()).into())
+        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_source_directory(e, Backtrace::new()))?;
+        Ok(())
     }
 
     /// Returns a list of files in the source directory.
@@ -48,33 +47,25 @@ impl SourceDirectory {
         let mut path = Cow::from(path);
         path.to_mut().push(SOURCE_DIRECTORY_NAME);
 
-        // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
-        let directory = match fs::read_dir(&path) {
-            Ok(read_dir) => read_dir,
-            Err(e) => return Err(PackageError::failed_to_read_inputs_directory(eyre!(e), Backtrace::new()).into()),
-        };
+        let directory =
+            fs::read_dir(&path).map_err(|e| PackageError::failed_to_read_inputs_directory(e, Backtrace::new()))?;
 
         let mut file_paths = Vec::new();
         for file_entry in directory.into_iter() {
             let file_entry =
-                file_entry.map_err(|e| PackageError::failed_to_get_source_file_entry(eyre!(e), Backtrace::new()))?;
+                file_entry.map_err(|e| PackageError::failed_to_get_source_file_entry(e, Backtrace::new()))?;
             let file_path = file_entry.path();
 
             // Verify that the entry is structured as a valid file
             let file_type = file_entry.file_type().map_err(|e| {
-                PackageError::failed_to_get_source_file_type(
-                    file_path.as_os_str().to_owned(),
-                    eyre!(e),
-                    Backtrace::new(),
-                )
+                PackageError::failed_to_get_source_file_type(file_path.as_os_str().to_owned(), e, Backtrace::new())
             })?;
             if !file_type.is_file() {
                 return Err(PackageError::invalid_source_file_type(
                     file_path.as_os_str().to_owned(),
                     file_type,
                     Backtrace::new(),
-                )
-                .into());
+                ))?;
             }
 
             // Verify that the file has the default file extension
@@ -86,8 +77,7 @@ impl SourceDirectory {
                     file_path.as_os_str().to_owned(),
                     file_extension.to_owned(),
                     Backtrace::new(),
-                )
-                .into());
+                ))?;
             }
 
             file_paths.push(file_path);

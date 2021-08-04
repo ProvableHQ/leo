@@ -31,11 +31,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         span: &Span,
     ) -> Result<(), LeoError> {
         if values.len() != variable_names.len() {
-            return Err(LeoError::from(CompilerError::statement_invalid_number_of_definitions(
+            return Err(CompilerError::statement_invalid_number_of_definitions(
                 values.len(),
                 variable_names.len(),
                 span,
-            )));
+            ))?;
         }
 
         for (variable, value) in variable_names.iter().zip(values.into_iter()) {
@@ -65,10 +65,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
                 value => {
-                    return Err(LeoError::from(CompilerError::statement_multiple_definition(
-                        value.to_string(),
-                        &span,
-                    )));
+                    return Err(CompilerError::statement_multiple_definition(value, &span))?;
                 }
             };
 

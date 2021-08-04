@@ -35,15 +35,14 @@ pub fn evaluate_gt<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             num_1.greater_than(unique_namespace, &num_2)
         }
         (val_1, val_2) => {
-            return Err(LeoError::from(CompilerError::incompatible_types(
+            return Err(CompilerError::incompatible_types(
                 format!("{} > {}", val_1, val_2),
                 span,
-            )));
+            ))?;
         }
     };
 
-    let boolean = constraint_result
-        .map_err(|_| LeoError::from(CompilerError::cannot_evaluate_expression(">".to_string(), span)))?;
+    let boolean = constraint_result.map_err(|_| CompilerError::cannot_evaluate_expression(">", span))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

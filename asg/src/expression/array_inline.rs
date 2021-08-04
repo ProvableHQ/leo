@@ -109,11 +109,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    &type_.to_string(),
-                    Some("array"),
-                    &value.span,
-                )));
+                return Err(AsgError::unexpected_type(type_, "array", &value.span))?;
             }
         };
 
@@ -170,15 +166,15 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                                 len += spread_len;
                             }
                             type_ => {
-                                return Err(LeoError::from(AsgError::unexpected_type(
+                                return Err(AsgError::unexpected_type(
                                     expected_item
                                         .as_ref()
                                         .map(|x| x.to_string())
                                         .as_deref()
                                         .unwrap_or("unknown"),
-                                    type_.map(|x| x.to_string()).as_deref(),
+                                    type_.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
                                     &value.span,
-                                )));
+                                ))?;
                             }
                         }
                         Ok((Cell::new(expr), true))
@@ -188,11 +184,11 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
         };
         if let Some(expected_len) = expected_len {
             if len != expected_len {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    &*format!("array of length {}", expected_len),
-                    Some(&*format!("array of length {}", len)),
+                return Err(AsgError::unexpected_type(
+                    format!("array of length {}", expected_len),
+                    format!("array of length {}", len),
                     &value.span,
-                )));
+                ))?;
             }
         }
         Ok(output)

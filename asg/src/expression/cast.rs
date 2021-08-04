@@ -80,11 +80,7 @@ impl<'a> FromAst<'a, leo_ast::CastExpression> for CastExpression<'a> {
         let target_type = scope.resolve_ast_type(&value.target_type, &value.span)?;
         if let Some(expected_type) = &expected_type {
             if !expected_type.matches(&target_type) {
-                return Err(LeoError::from(AsgError::unexpected_type(
-                    &expected_type.to_string(),
-                    Some(&target_type.to_string()),
-                    &value.span,
-                )));
+                return Err(AsgError::unexpected_type(expected_type, target_type, &value.span))?;
             }
         }
 

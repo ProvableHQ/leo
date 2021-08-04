@@ -41,11 +41,7 @@ pub(crate) fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &s
         let mut error_span = left_span + right_span;
         error_span.col_start = left_span.col_stop - 1;
         error_span.col_stop = right_span.col_start - 1;
-        return Err(LeoError::from(ParserError::unexpected_whitespace(
-            left,
-            right,
-            &error_span,
-        )));
+        return Err(ParserError::unexpected_whitespace(left, right, &error_span))?;
     }
 
     Ok(())

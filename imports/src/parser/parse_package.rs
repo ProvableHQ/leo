@@ -83,9 +83,9 @@ impl<'a> ImportParser<'a> {
 
         // Get a vector of all packages in the source directory.
         let entries = fs::read_dir(path)
-            .map_err(|error| LeoError::from(ImportError::directory_error(error, &error_path, span)))?
+            .map_err(|error| ImportError::directory_error(error, &error_path, span))?
             .collect::<Result<Vec<_>, std::io::Error>>()
-            .map_err(|error| LeoError::from(ImportError::directory_error(error, &error_path, span)))?;
+            .map_err(|error| ImportError::directory_error(error, &error_path, span))?;
 
         // Check if the imported package name is in the source directory.
         let matched_source_entry = entries.into_iter().find(|entry| {
@@ -100,9 +100,9 @@ impl<'a> ImportParser<'a> {
         if imports_directory.exists() {
             // Get a vector of all packages in the imports directory.
             let entries = fs::read_dir(imports_directory)
-                .map_err(|error| LeoError::from(ImportError::directory_error(error, &error_path, span)))?
+                .map_err(|error| ImportError::directory_error(error, &error_path, span))?
                 .collect::<Result<Vec<_>, std::io::Error>>()
-                .map_err(|error| LeoError::from(ImportError::directory_error(error, &error_path, span)))?;
+                .map_err(|error| ImportError::directory_error(error, error_path, span))?;
 
             // Check if the imported package name is in the imports directory.
             let matched_import_entry = entries
@@ -111,16 +111,16 @@ impl<'a> ImportParser<'a> {
 
             // Check if the package name was found in both the source and imports directory.
             match (matched_source_entry, matched_import_entry) {
-                (Some(_), Some(_)) => Err(LeoError::from(ImportError::conflicting_imports(package_name, span))),
+                (Some(_), Some(_)) => Err(ImportError::conflicting_imports(package_name, span).into()),
                 (Some(source_entry), None) => self.parse_package_access(context, &source_entry, &segments[1..], span),
                 (None, Some(import_entry)) => self.parse_package_access(context, &import_entry, &segments[1..], span),
-                (None, None) => Err(LeoError::from(ImportError::unknown_package(package_name, span))),
+                (None, None) => Err(ImportError::unknown_package(package_name, span).into()),
             }
         } else {
             // Enforce local package access with no found imports directory
             match matched_source_entry {
                 Some(source_entry) => self.parse_package_access(context, &source_entry, &segments[1..], span),
-                None => Err(LeoError::from(ImportError::unknown_package(package_name, span))),
+                None => Err(ImportError::unknown_package(package_name, span).into()),
             }
         }
     }

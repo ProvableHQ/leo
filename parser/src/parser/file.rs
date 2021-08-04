@@ -16,7 +16,7 @@
 
 use tendril::format_tendril;
 
-use leo_errors::{LeoError, ParserError};
+use leo_errors::ParserError;
 
 use crate::KEYWORD_TOKENS;
 
@@ -48,7 +48,7 @@ impl ParserContext {
                     functions.insert(id, function);
                 }
                 Token::Ident(ident) if ident.as_ref() == "test" => {
-                    return Err(LeoError::from(ParserError::test_function(&token.span)));
+                    return Err(ParserError::test_function(&token.span))?;
                     // self.expect(Token::Test)?;
                     // let (id, function) = self.parse_function_declaration()?;
                     // tests.insert(id, TestFunction {
@@ -61,8 +61,8 @@ impl ParserContext {
                     global_consts.insert(name, global_const);
                 }
                 _ => {
-                    return Err(LeoError::from(ParserError::unexpected(
-                        token.token.to_string(),
+                    return Err(ParserError::unexpected(
+                        &token.token,
                         [
                             Token::Import,
                             Token::Circuit,
@@ -75,7 +75,7 @@ impl ParserContext {
                         .collect::<Vec<_>>()
                         .join(", "),
                         &token.span,
-                    )));
+                    ))?;
                 }
             }
         }
@@ -96,7 +96,7 @@ impl ParserContext {
         let start = self.expect(Token::At)?;
         let name = self.expect_ident()?;
         if name.name.as_ref() == "context" {
-            return Err(LeoError::from(ParserError::context_annotation(&name.span)));
+            return Err(ParserError::context_annotation(&name.span).into());
         }
 
         assert_no_whitespace(&start, &name.span, &name.name, "@")?;
@@ -108,15 +108,15 @@ impl ParserContext {
             loop {
                 if let Some(end) = self.eat(Token::RightParen) {
                     if comma {
-                        return Err(LeoError::from(ParserError::unexpected(
-                            Token::RightParen.to_string(),
+                        return Err(ParserError::unexpected(
+                            Token::RightParen,
                             [Token::Ident("identifier".into()), Token::Int("number".into())]
                                 .iter()
                                 .map(|x| format!("'{}'", x))
                                 .collect::<Vec<_>>()
                                 .join(", "),
                             &end.span,
-                        )));
+                        ))?;
                     }
                     end_span = end.span;
                     break;
@@ -128,11 +128,7 @@ impl ParserContext {
                     args.push(int.value);
                 } else {
                     let token = self.peek()?;
-                    return Err(LeoError::from(ParserError::unexpected_str(
-                        token.token.to_string(),
-                        "ident or int",
-                        &token.span,
-                    )));
+                    return Err(ParserError::unexpected_str(&token.token, "ident or int", &token.span))?;
                 }
                 if self.eat(Token::Comma).is_none() && !comma {
                     end_span = self.expect(Token::RightParen)?;
@@ -169,7 +165,7 @@ impl ParserContext {
         }
 
         if out.is_empty() {
-            return Err(LeoError::from(ParserError::invalid_import_list(span)));
+            return Err(ParserError::invalid_import_list(span))?;
         }
 
         Ok(out)
@@ -248,11 +244,7 @@ impl ParserContext {
 
         // Return an error if the package name contains a keyword.
         if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.to_string() == base.name.as_ref()) {
-            return Err(LeoError::from(ParserError::unexpected_str(
-                token.to_string(),
-                "package name",
-                &base.span,
-            )));
+            return Err(ParserError::unexpected_str(token, "package name", &base.span))?;
         }
 
         // Return an error if the package name contains invalid characters.
@@ -261,7 +253,7 @@ impl ParserContext {
             .chars()
             .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit() || x == '-' || x == '_')
         {
-            return Err(LeoError::from(ParserError::invalid_package_name(&base.span)));
+            return Err(ParserError::invalid_package_name(&base.span))?;
         }
 
         // Return the package name.
@@ -323,14 +315,14 @@ impl ParserContext {
                 let peeked = &self.peek()?;
                 if peeked.token == Token::Semicolon {
                     if commas {
-                        return Err(LeoError::from(ParserError::mixed_commas_and_semicolons(&peeked.span)));
+                        return Err(ParserError::mixed_commas_and_semicolons(&peeked.span))?;
                     }
 
                     semi_colons = true;
                     self.expect(Token::Semicolon)?;
                 } else {
                     if semi_colons {
-                        return Err(LeoError::from(ParserError::mixed_commas_and_semicolons(&peeked.span)));
+                        return Err(ParserError::mixed_commas_and_semicolons(&peeked.span))?;
                     }
 
                     commas = true;
@@ -374,21 +366,20 @@ impl ParserContext {
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
     ///
     pub fn parse_member_function_declaration(&mut self) -> SyntaxResult<CircuitMember> {
-        let peeked = &self.peek()?;
-        let peeked_token = &peeked.token;
-        if peeked_token == &Token::Function || peeked_token == &Token::At {
+        let peeked = self.peek()?.clone();
+        if &peeked.token == &Token::Function || &peeked.token == &Token::At {
             let function = self.parse_function_declaration()?;
             Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
-            Err(LeoError::from(ParserError::unexpected(
-                peeked_token.to_string(),
+            Err(ParserError::unexpected(
+                &peeked.token,
                 [Token::Function, Token::At]
                     .iter()
                     .map(|x| format!("'{}'", x))
                     .collect::<Vec<_>>()
                     .join(", "),
                 &peeked.span,
-            )))
+            ))?
         }
     }
 
@@ -441,9 +432,7 @@ impl ParserContext {
         }
 
         if let Some(mutable) = &mutable {
-            return Err(LeoError::from(ParserError::mut_function_input(
-                &(&mutable.span + &name.span),
-            )));
+            return Err(ParserError::mut_function_input(&(&mutable.span + &name.span)))?;
         }
 
         self.expect(Token::Colon)?;

@@ -20,7 +20,6 @@ use leo_asg::{ConstInt, IntegerType};
 use leo_ast::InputValue;
 use leo_errors::{CompilerError, LeoError, Span};
 
-use eyre::eyre;
 use snarkvm_fields::{Field, PrimeField};
 use snarkvm_gadgets::{
     boolean::Boolean,
@@ -162,18 +161,15 @@ impl Integer {
                 if let InputValue::Integer(type_, number) = input {
                     let asg_type = IntegerType::from(type_);
                     if std::mem::discriminant(&asg_type) != std::mem::discriminant(integer_type) {
-                        return Err(LeoError::from(CompilerError::integer_value_integer_type_mismatch(
-                            integer_type.to_string(),
-                            asg_type.to_string(),
+                        return Err(CompilerError::integer_value_integer_type_mismatch(
+                            integer_type,
+                            asg_type,
                             span,
-                        )));
+                        ))?;
                     }
                     Some(number)
                 } else {
-                    return Err(LeoError::from(CompilerError::integer_value_invalid_integer(
-                        input.to_string(),
-                        span,
-                    )));
+                    return Err(CompilerError::integer_value_invalid_integer(input, span))?;
                 }
             }
             None => None,
@@ -189,7 +185,7 @@ impl Integer {
 
         let result = match_signed_integer!(a, span => a.neg(cs.ns(|| unique_namespace)));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_negate_operation(span)))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_negate_operation(span))?)
     }
 
     pub fn add<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -205,7 +201,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.add(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("+".to_string(), span)))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("+", span))?)
     }
 
     pub fn sub<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -221,7 +217,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.sub(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("-".to_string(), span)))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("-", span))?)
     }
 
     pub fn mul<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -237,7 +233,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.mul(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("*".to_string(), span)))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("*", span))?)
     }
 
     pub fn div<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -253,7 +249,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.div(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("÷".to_string(), span)))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("÷", span))?)
     }
 
     pub fn pow<F: PrimeField, CS: ConstraintSystem<F>>(
@@ -269,7 +265,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.pow(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| LeoError::from(CompilerError::integer_value_binary_operation("**".to_string(), span)))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("**", span))?)
     }
 }
 
