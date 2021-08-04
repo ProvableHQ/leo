@@ -43,7 +43,7 @@ mod return_;
 pub use return_::*;
 
 use crate::{FromAst, Node, PartialType, Scope};
-use leo_errors::{LeoError, Span};
+use leo_errors::{Result, Span};
 
 #[derive(Clone)]
 pub enum Statement<'a> {
@@ -80,7 +80,7 @@ impl<'a> FromAst<'a, leo_ast::Statement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::Statement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<&'a Statement<'a>, LeoError> {
+    ) -> Result<&'a Statement<'a>> {
         use leo_ast::Statement::*;
         Ok(match value {
             Return(statement) => scope

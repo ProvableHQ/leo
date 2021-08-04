@@ -16,7 +16,7 @@
 
 use tendril::format_tendril;
 
-use leo_errors::ParserError;
+use leo_errors::{ParserError, Result};
 
 use crate::KEYWORD_TOKENS;
 
@@ -26,7 +26,7 @@ impl ParserContext {
     ///
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     ///
-    pub fn parse_program(&mut self) -> SyntaxResult<Program> {
+    pub fn parse_program(&mut self) -> Result<Program> {
         let mut imports = Vec::new();
         let mut circuits = IndexMap::new();
         let mut functions = IndexMap::new();
@@ -93,7 +93,7 @@ impl ParserContext {
     ///
     /// Returns an [`Annotation`] AST node if the next tokens represent a supported annotation.
     ///
-    pub fn parse_annotation(&mut self) -> SyntaxResult<Annotation> {
+    pub fn parse_annotation(&mut self) -> Result<Annotation> {
         let start = self.expect(Token::At)?;
         let name = self.expect_ident()?;
         if name.name.as_ref() == "context" {
@@ -154,7 +154,7 @@ impl ParserContext {
     /// Returns a vector of [`PackageAccess`] AST nodes if the next tokens represent package access
     /// expressions within an import statement.
     ///
-    pub fn parse_package_accesses(&mut self, span: &Span) -> SyntaxResult<Vec<PackageAccess>> {
+    pub fn parse_package_accesses(&mut self, span: &Span) -> Result<Vec<PackageAccess>> {
         let mut out = Vec::new();
         self.expect(Token::LeftParen)?;
         while self.eat(Token::RightParen).is_none() {
@@ -177,7 +177,7 @@ impl ParserContext {
     /// Returns a [`PackageAccess`] AST node if the next tokens represent a package access expression
     /// within an import statement.
     ///
-    pub fn parse_package_access(&mut self) -> SyntaxResult<PackageAccess> {
+    pub fn parse_package_access(&mut self) -> Result<PackageAccess> {
         if let Some(SpannedToken { span, .. }) = self.eat(Token::Mul) {
             Ok(PackageAccess::Star { span })
         } else {
@@ -211,7 +211,7 @@ impl ParserContext {
     ///
     /// Returns an [`Identifier`] AST node if the next tokens represent a valid package name.
     ///
-    pub fn parse_package_name(&mut self) -> SyntaxResult<Identifier> {
+    pub fn parse_package_name(&mut self) -> Result<Identifier> {
         // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
         let mut base = self.expect_loose_identifier()?;
 
@@ -266,7 +266,7 @@ impl ParserContext {
     /// Returns a [`PackageOrPackages`] AST node if the next tokens represent a valid package import
     /// with accesses.
     ///
-    pub fn parse_package_path(&mut self) -> SyntaxResult<PackageOrPackages> {
+    pub fn parse_package_path(&mut self) -> Result<PackageOrPackages> {
         let package_name = self.parse_package_name()?;
         self.expect(Token::Dot)?;
         if self.peek()?.token == Token::LeftParen {
@@ -289,7 +289,7 @@ impl ParserContext {
     ///
     /// Returns a [`ImportStatement`] AST node if the next tokens represent an import statement.
     ///
-    pub fn parse_import(&mut self) -> SyntaxResult<ImportStatement> {
+    pub fn parse_import(&mut self) -> Result<ImportStatement> {
         self.expect(Token::Import)?;
         let package_or_packages = self.parse_package_path()?;
         self.expect(Token::Semicolon)?;
@@ -303,7 +303,7 @@ impl ParserContext {
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function.
     ///
-    pub fn parse_circuit_declaration(&mut self) -> SyntaxResult<Vec<CircuitMember>> {
+    pub fn parse_circuit_declaration(&mut self) -> Result<Vec<CircuitMember>> {
         let mut members = Vec::new();
         let peeked = &self.peek()?.token;
         let mut last_variable = peeked == &Token::Function || peeked == &Token::At;
@@ -346,7 +346,7 @@ impl ParserContext {
     ///
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
     ///
-    pub fn parse_member_variable_declaration(&mut self) -> SyntaxResult<(CircuitMember, bool)> {
+    pub fn parse_member_variable_declaration(&mut self) -> Result<(CircuitMember, bool)> {
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
@@ -367,7 +367,7 @@ impl ParserContext {
     ///
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
     ///
-    pub fn parse_member_function_declaration(&mut self) -> SyntaxResult<CircuitMember> {
+    pub fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
         let peeked = self.peek()?.clone();
         if peeked.token == Token::Function || peeked.token == Token::At {
             let function = self.parse_function_declaration()?;
@@ -390,7 +390,7 @@ impl ParserContext {
     /// Returns an [`(Identifier, Circuit)`] tuple of AST nodes if the next tokens represent a
     /// circuit name and definition statement.
     ///
-    pub fn parse_circuit(&mut self) -> SyntaxResult<(Identifier, Circuit)> {
+    pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         self.expect(Token::Circuit)?;
         let name = self.expect_ident()?;
         self.expect(Token::LeftCurly)?;
@@ -405,7 +405,7 @@ impl ParserContext {
     ///
     /// Returns a [`FunctionInput`] AST node if the next tokens represent a function parameter.
     ///
-    pub fn parse_function_parameters(&mut self) -> SyntaxResult<FunctionInput> {
+    pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
         let mut name = if let Some(token) = self.eat(Token::LittleSelf) {
@@ -453,7 +453,7 @@ impl ParserContext {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     ///
-    pub fn parse_function_declaration(&mut self) -> SyntaxResult<(Identifier, Function)> {
+    pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
         let mut annotations = Vec::new();
         while self.peek_token().as_ref() == &Token::At {
             annotations.push(self.parse_annotation()?);
@@ -490,7 +490,7 @@ impl ParserContext {
     /// Returns an [`(String, DefinitionStatement)`] AST node if the next tokens represent a global
     /// const definition statement and assignment.
     ///
-    pub fn parse_global_const_declaration(&mut self) -> SyntaxResult<(String, DefinitionStatement)> {
+    pub fn parse_global_const_declaration(&mut self) -> Result<(String, DefinitionStatement)> {
         let statement = self.parse_definition_statement()?;
         let variable_names = statement
             .variable_names

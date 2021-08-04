@@ -16,7 +16,7 @@
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 pub use leo_ast::UnaryOperation;
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -90,7 +90,7 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::UnaryExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<UnaryExpression<'a>, LeoError> {
+    ) -> Result<UnaryExpression<'a>> {
         let expected_type = match value.op {
             UnaryOperation::Not => match expected_type.map(|x| x.full()).flatten() {
                 Some(Type::Boolean) | None => Some(Type::Boolean),

@@ -28,7 +28,7 @@ use crate::{
     Type,
 };
 
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -78,7 +78,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
         _scope: &'a Scope<'a>,
         value: &leo_ast::ValueExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<Constant<'a>, LeoError> {
+    ) -> Result<Constant<'a>> {
         use leo_ast::ValueExpression::*;
         Ok(match value {
             Address(value, span) => {

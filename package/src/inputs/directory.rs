@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use std::{
     borrow::Cow,
@@ -31,7 +31,7 @@ pub struct InputsDirectory;
 
 impl InputsDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &Path) -> Result<(), LeoError> {
+    pub fn create(path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(INPUTS_DIRECTORY_NAME) {
             path.to_mut().push(INPUTS_DIRECTORY_NAME);
@@ -42,7 +42,7 @@ impl InputsDirectory {
     }
 
     /// Returns a list of files in the input directory.
-    pub fn files(path: &Path) -> Result<Vec<PathBuf>, LeoError> {
+    pub fn files(path: &Path) -> Result<Vec<PathBuf>> {
         let mut path = path.to_owned();
         path.push(INPUTS_DIRECTORY_NAME);
 
@@ -55,7 +55,7 @@ impl InputsDirectory {
     }
 }
 
-fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<(), LeoError> {
+fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<()> {
     for file_entry in directory.into_iter() {
         let file_entry = file_entry.map_err(|e| PackageError::failed_to_get_input_file_entry(e, Backtrace::new()))?;
         let file_path = file_entry.path();

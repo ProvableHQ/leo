@@ -28,7 +28,7 @@ use crate::{
     Type,
 };
 
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 use std::cell::Cell;
 
 #[derive(Clone)]
@@ -102,7 +102,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
         scope: &'a Scope<'a>,
         value: &leo_ast::CircuitMemberAccessExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<CircuitAccessExpression<'a>, LeoError> {
+    ) -> Result<CircuitAccessExpression<'a>> {
         let target = <&'a Expression<'a>>::from_ast(scope, &*value.circuit, None)?;
         let circuit = match target.get_type() {
             Some(Type::Circuit(circuit)) => circuit,
@@ -171,7 +171,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for Circuit
         scope: &Scope<'a>,
         value: &leo_ast::CircuitStaticFunctionAccessExpression,
         expected_type: Option<PartialType>,
-    ) -> Result<CircuitAccessExpression<'a>, LeoError> {
+    ) -> Result<CircuitAccessExpression<'a>> {
         let circuit = match &*value.circuit {
             leo_ast::Expression::Identifier(name) => scope
                 .resolve_circuit(&name.name)

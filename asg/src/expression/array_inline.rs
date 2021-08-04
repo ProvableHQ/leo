@@ -16,7 +16,7 @@
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::SpreadOrExpression;
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -104,7 +104,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayInlineExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayInlineExpression<'a>, LeoError> {
+    ) -> Result<ArrayInlineExpression<'a>> {
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
@@ -181,7 +181,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                         Ok((Cell::new(expr), true))
                     }
                 })
-                .collect::<Result<Vec<_>, LeoError>>()?,
+                .collect::<Result<Vec<_>>>()?,
         };
         if let Some(expected_len) = expected_len {
             if len != expected_len {

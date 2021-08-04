@@ -16,7 +16,7 @@
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 pub use leo_ast::UnaryOperation;
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -76,7 +76,7 @@ impl<'a> FromAst<'a, leo_ast::CastExpression> for CastExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::CastExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<CastExpression<'a>, LeoError> {
+    ) -> Result<CastExpression<'a>> {
         let target_type = scope.resolve_ast_type(&value.target_type, &value.span)?;
         if let Some(expected_type) = &expected_type {
             if !expected_type.matches(&target_type) {

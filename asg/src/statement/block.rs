@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{FromAst, Node, PartialType, Scope, Statement};
-use leo_errors::{LeoError, Span};
+use leo_errors::{Result, Span};
 
 use std::cell::Cell;
 
@@ -38,7 +38,7 @@ impl<'a> FromAst<'a, leo_ast::Block> for BlockStatement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::Block,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, LeoError> {
+    ) -> Result<Self> {
         let new_scope = scope.make_subscope();
 
         let mut output = vec![];

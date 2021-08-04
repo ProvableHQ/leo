@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::package::Package;
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use backtrace::Backtrace;
 use serde::Deserialize;
@@ -42,7 +42,7 @@ pub struct Manifest {
 }
 
 impl Manifest {
-    pub fn new(package_name: &str, author: Option<String>) -> Result<Self, LeoError> {
+    pub fn new(package_name: &str, author: Option<String>) -> Result<Self> {
         Ok(Self {
             project: Package::new(package_name)?,
             remote: author.map(|author| Remote { author }),
@@ -81,7 +81,7 @@ impl Manifest {
         self.remote.clone()
     }
 
-    pub fn write_to(self, path: &Path) -> Result<(), LeoError> {
+    pub fn write_to(self, path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() {
             path.to_mut().push(MANIFEST_FILENAME);

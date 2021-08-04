@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Type, Variable};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -54,7 +54,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::DefinitionStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, LeoError> {
+    ) -> Result<Self> {
         let type_ = statement
             .type_
             .as_ref()

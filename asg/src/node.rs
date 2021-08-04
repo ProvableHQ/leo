@@ -16,7 +16,7 @@
 
 use crate::{AsgContextInner, Circuit, Expression, Function, PartialType, Scope, Statement, Variable};
 
-use leo_errors::{LeoError, Span};
+use leo_errors::{Result, Span};
 
 /// A node in the abstract semantic graph.
 pub trait Node {
@@ -26,7 +26,7 @@ pub trait Node {
 pub(super) trait FromAst<'a, T: leo_ast::Node + 'static>: Sized {
     // expected_type contract: if present, output expression must be of type expected_type.
     // type of an element may NEVER be None unless it is functionally a non-expression. (static call targets, function ref call targets are not expressions)
-    fn from_ast(scope: &'a Scope<'a>, value: &T, expected_type: Option<PartialType<'a>>) -> Result<Self, LeoError>;
+    fn from_ast(scope: &'a Scope<'a>, value: &T, expected_type: Option<PartialType<'a>>) -> Result<Self>;
 }
 
 pub enum ArenaNode<'a> {

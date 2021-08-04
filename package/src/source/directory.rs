@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use std::{
     borrow::Cow,
@@ -32,7 +32,7 @@ pub struct SourceDirectory;
 
 impl SourceDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &Path) -> Result<(), LeoError> {
+    pub fn create(path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(SOURCE_DIRECTORY_NAME) {
             path.to_mut().push(SOURCE_DIRECTORY_NAME);
@@ -43,7 +43,7 @@ impl SourceDirectory {
     }
 
     /// Returns a list of files in the source directory.
-    pub fn files(path: &Path) -> Result<Vec<PathBuf>, LeoError> {
+    pub fn files(path: &Path) -> Result<Vec<PathBuf>> {
         let mut path = Cow::from(path);
         path.to_mut().push(SOURCE_DIRECTORY_NAME);
 

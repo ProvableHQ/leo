@@ -32,7 +32,7 @@ use crate::{
 };
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -65,7 +65,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::AssignStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, LeoError> {
+    ) -> Result<Self> {
         let (name, span) = (
             &statement.assignee.identifier.name.clone(),
             &statement.assignee.identifier.span,
@@ -99,13 +99,13 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                     let index_type = Some(PartialType::Integer(None, Some(IntegerType::U32)));
                     let left = left
                         .as_ref()
-                        .map(|left: &leo_ast::Expression| -> Result<&'a Expression<'a>, LeoError> {
+                        .map(|left: &leo_ast::Expression| -> Result<&'a Expression<'a>> {
                             <&Expression<'a>>::from_ast(scope, left, index_type.clone())
                         })
                         .transpose()?;
                     let right = right
                         .as_ref()
-                        .map(|right: &leo_ast::Expression| -> Result<&'a Expression<'a>, LeoError> {
+                        .map(|right: &leo_ast::Expression| -> Result<&'a Expression<'a>> {
                             <&Expression<'a>>::from_ast(scope, right, index_type)
                         })
                         .transpose()?;

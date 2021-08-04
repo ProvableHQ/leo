@@ -87,11 +87,7 @@ impl Updater {
         {
             Ok(latest_release.version)
         } else {
-            Err(CliError::old_release_version(
-                current_version,
-                latest_release.version,
-                new_backtrace(),
-            ))?
+            Err(CliError::old_release_version(current_version, latest_release.version, new_backtrace()).into())
         }
     }
 

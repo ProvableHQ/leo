@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -79,7 +79,7 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::TernaryExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<TernaryExpression<'a>, LeoError> {
+    ) -> Result<TernaryExpression<'a>> {
         let if_true = Cell::new(<&Expression<'a>>::from_ast(
             scope,
             &*value.if_true,

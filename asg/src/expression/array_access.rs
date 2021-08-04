@@ -16,7 +16,7 @@
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::IntegerType;
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -84,7 +84,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayAccessExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayAccessExpression<'a>, LeoError> {
+    ) -> Result<ArrayAccessExpression<'a>> {
         let array = <&Expression<'a>>::from_ast(
             scope,
             &*value.array,

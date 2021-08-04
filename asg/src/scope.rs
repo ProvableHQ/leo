@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgContext, Circuit, DefinitionStatement, Function, Input, Type, Variable};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -174,7 +174,7 @@ impl<'a> Scope<'a> {
     ///
     /// Returns the type returned by the current scope.
     ///
-    pub fn resolve_ast_type(&self, type_: &leo_ast::Type, span: &Span) -> Result<Type<'a>, LeoError> {
+    pub fn resolve_ast_type(&self, type_: &leo_ast::Type, span: &Span) -> Result<Type<'a>> {
         use leo_ast::Type::*;
         Ok(match type_ {
             Address => Type::Address,
@@ -198,7 +198,7 @@ impl<'a> Scope<'a> {
                 sub_types
                     .iter()
                     .map(|x| self.resolve_ast_type(x, span))
-                    .collect::<Result<Vec<_>, LeoError>>()?,
+                    .collect::<Result<Vec<_>>>()?,
             ),
             Circuit(name) if name.name.as_ref() == "Self" => Type::Circuit(
                 self.resolve_circuit_self()

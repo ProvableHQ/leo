@@ -16,7 +16,7 @@
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 pub use leo_ast::{BinaryOperation, BinaryOperationClass};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -117,7 +117,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::BinaryExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<BinaryExpression<'a>, LeoError> {
+    ) -> Result<BinaryExpression<'a>> {
         let class = value.op.class();
         let expected_type = match class {
             BinaryOperationClass::Boolean => match expected_type {

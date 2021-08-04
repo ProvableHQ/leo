@@ -44,7 +44,7 @@ impl Command for Init {
 
         // Check that the current package directory path exists.
         if !path.exists() {
-            return Err(CliError::package_directory_does_not_exist(new_backtrace()))?;
+            return Err(CliError::package_directory_does_not_exist(new_backtrace()).into());
         }
 
         // Check that the given package name is valid.
@@ -54,7 +54,7 @@ impl Command for Init {
             .to_string_lossy()
             .to_string();
         if !LeoPackage::is_package_name_valid(&package_name) {
-            return Err(CliError::invalid_package_name(&package_name, new_backtrace()))?;
+            return Err(CliError::invalid_package_name(&package_name, new_backtrace()).into());
         }
 
         let username = read_username().ok();

@@ -28,7 +28,7 @@ use crate::{
     Type,
 };
 pub use leo_ast::{BinaryOperation, Node as AstNode};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -88,7 +88,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::CallExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<CallExpression<'a>, LeoError> {
+    ) -> Result<CallExpression<'a>> {
         let (target, function) = match &*value.function {
             leo_ast::Expression::Identifier(name) => (
                 None,
@@ -199,7 +199,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 }
                 Ok(Cell::new(converted))
             })
-            .collect::<Result<Vec<_>, LeoError>>()?;
+            .collect::<Result<Vec<_>>>()?;
 
         if function.is_test() {
             return Err(AsgError::call_test_function(&value.span).into());

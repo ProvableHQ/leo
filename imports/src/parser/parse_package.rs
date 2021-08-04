@@ -16,7 +16,7 @@
 
 use crate::ImportParser;
 use leo_asg::{AsgContext, Program};
-use leo_errors::{ImportError, LeoError, Span};
+use leo_errors::{ImportError, Result, Span};
 
 use std::{fs, fs::DirEntry, path::PathBuf};
 
@@ -31,7 +31,7 @@ impl<'a> ImportParser<'a> {
         package: &DirEntry,
         remaining_segments: &[&str],
         span: &Span,
-    ) -> Result<Program<'a>, LeoError> {
+    ) -> Result<Program<'a>> {
         if !remaining_segments.is_empty() {
             return self.parse_package(context, package.path(), remaining_segments, span);
         }
@@ -52,7 +52,7 @@ impl<'a> ImportParser<'a> {
         mut path: PathBuf,
         segments: &[&str],
         span: &Span,
-    ) -> Result<Program<'a>, LeoError> {
+    ) -> Result<Program<'a>> {
         let error_path = path.clone();
         let package_name = segments[0];
 

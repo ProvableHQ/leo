@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -69,7 +69,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayInitExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayInitExpression<'a>, LeoError> {
+    ) -> Result<ArrayInitExpression<'a>> {
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
@@ -86,7 +86,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                     .parse::<usize>()
                     .map_err(|_| AsgError::parse_dimension_error(&value.span))?)
             })
-            .collect::<Result<Vec<_>, LeoError>>()?;
+            .collect::<Result<Vec<_>>>()?;
 
         let len = *dimensions
             .get(0)

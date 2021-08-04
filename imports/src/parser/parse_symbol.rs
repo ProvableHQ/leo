@@ -16,7 +16,7 @@
 
 use crate::ImportParser;
 use leo_ast::Program;
-use leo_errors::{ImportError, LeoError, Span};
+use leo_errors::{ImportError, Result, Span};
 
 use std::fs::DirEntry;
 
@@ -28,7 +28,7 @@ impl<'a> ImportParser<'a> {
     ///
     /// Builds an abstract syntax tree from the given file and then builds the Leo syntax tree.
     ///
-    pub(crate) fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program, LeoError> {
+    pub(crate) fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program> {
         // Get the package file type.
         let file_type = package
             .file_type()

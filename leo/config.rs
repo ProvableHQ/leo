@@ -189,10 +189,10 @@ pub fn read_username() -> Result<String> {
 
 pub fn remove_token_and_username() -> Result<()> {
     if let Err(err) = fs::remove_file(&LEO_CREDENTIALS_PATH.to_path_buf()) {
-        Err(CliError::remove_token_and_username(err, new_backtrace()))?
+        return Err(CliError::remove_token_and_username(err, new_backtrace()).into());
     }
     if let Err(err) = fs::remove_file(&LEO_USERNAME_PATH.to_path_buf()) {
-        Err(CliError::remove_token_and_username(err, new_backtrace()))?
+        return Err(CliError::remove_token_and_username(err, new_backtrace()).into());
     }
     Ok(())
 }

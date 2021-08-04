@@ -80,10 +80,7 @@ impl Command for Test {
 
         // when no main file and no files marked - error
         } else {
-            return Err(CliError::program_file_does_not_exist(
-                package_path.to_string_lossy(),
-                new_backtrace(),
-            ))?;
+            return Err(CliError::program_file_does_not_exist(package_path.to_string_lossy(), new_backtrace()).into());
         }
 
         // Construct the path to the output directory;

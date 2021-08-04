@@ -66,7 +66,7 @@ mod cast;
 pub use cast::*;
 
 use crate::{ConstValue, FromAst, Node, PartialType, Scope, Type};
-use leo_errors::{LeoError, Span};
+use leo_errors::{Result, Span};
 
 #[derive(Clone)]
 pub enum Expression<'a> {
@@ -285,7 +285,7 @@ impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::Expression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, LeoError> {
+    ) -> Result<Self> {
         use leo_ast::Expression::*;
         let expression = match value {
             Identifier(identifier) => Self::from_ast(scope, identifier, expected_type)?,

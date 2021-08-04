@@ -16,7 +16,7 @@
 
 //! The `.gitignore` file.
 
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use backtrace::Backtrace;
 use serde::Deserialize;
@@ -40,7 +40,7 @@ impl Gitignore {
         path.exists()
     }
 
-    pub fn write_to(self, path: &Path) -> Result<(), LeoError> {
+    pub fn write_to(self, path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() {
             path.to_mut().push(GITIGNORE_FILENAME);

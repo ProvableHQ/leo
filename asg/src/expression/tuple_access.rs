@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -75,7 +75,7 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::TupleAccessExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<TupleAccessExpression<'a>, LeoError> {
+    ) -> Result<TupleAccessExpression<'a>> {
         let index = value
             .index
             .value

@@ -21,7 +21,7 @@ use crate::{
     source::{MainFile, SourceDirectory},
 };
 
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use backtrace::Backtrace;
 use serde::Deserialize;
@@ -36,7 +36,7 @@ pub struct Package {
 }
 
 impl Package {
-    pub fn new(package_name: &str) -> Result<Self, LeoError> {
+    pub fn new(package_name: &str) -> Result<Self> {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
             return Err(PackageError::invalid_package_name(package_name, Backtrace::new()).into());
@@ -184,7 +184,7 @@ impl Package {
     }
 
     /// Creates a package at the given path
-    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<(), LeoError> {
+    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<()> {
         // First, verify that this directory is not already initialized as a Leo package.
         {
             if !Self::can_initialize(package_name, path) {
@@ -244,7 +244,7 @@ impl Package {
     }
 
     /// Removes the package at the given path
-    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), LeoError> {
+    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<()> {
         ImportsDirectory::remove_import(path, package_name)
     }
 }

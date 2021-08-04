@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use std::{borrow::Cow, fs, path::Path};
 
@@ -26,7 +26,7 @@ pub struct ImportsDirectory;
 
 impl ImportsDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &Path) -> Result<(), LeoError> {
+    pub fn create(path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
             path.to_mut().push(IMPORTS_DIRECTORY_NAME);
@@ -37,7 +37,7 @@ impl ImportsDirectory {
     }
 
     /// Removes an imported package in the imports directory at the provided path.
-    pub fn remove_import(path: &Path, package_name: &str) -> Result<(), LeoError> {
+    pub fn remove_import(path: &Path, package_name: &str) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(IMPORTS_DIRECTORY_NAME) {
             path.to_mut().push(IMPORTS_DIRECTORY_NAME);

@@ -78,7 +78,7 @@ impl Command for Login {
 
                 let tok_opt = res.remove("token");
                 if tok_opt.is_none() {
-                    return Err(CliError::unable_to_get_token(new_backtrace()))?;
+                    return Err(CliError::unable_to_get_token(new_backtrace()).into());
                 };
 
                 (tok_opt.unwrap(), email_username)
@@ -92,7 +92,7 @@ impl Command for Login {
 
                 match api.run_route(ProfileRoute {})? {
                     Some(username) => (token, username),
-                    None => return Err(CliError::supplied_token_is_incorrect(new_backtrace()))?,
+                    None => return Err(CliError::supplied_token_is_incorrect(new_backtrace()).into()),
                 }
             }
 
@@ -109,10 +109,10 @@ impl Command for Login {
                             (token, username)
                         } else {
                             remove_token_and_username()?;
-                            return Err(CliError::stored_credentials_expired(new_backtrace()))?;
+                            return Err(CliError::stored_credentials_expired(new_backtrace()).into());
                         }
                     }
-                    None => return Err(CliError::no_credentials_provided(new_backtrace()))?,
+                    None => return Err(CliError::no_credentials_provided(new_backtrace()).into()),
                 }
             }
         };

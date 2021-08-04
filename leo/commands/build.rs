@@ -145,7 +145,7 @@ impl Command for Build {
 
         // Compile the main.leo file along with constraints
         if !MainFile::exists_at(&package_path) {
-            return Err(CliError::package_main_file_not_found(new_backtrace()))?;
+            return Err(CliError::package_main_file_not_found(new_backtrace()).into());
         }
 
         // Create the output directory

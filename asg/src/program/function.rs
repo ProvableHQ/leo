@@ -29,7 +29,7 @@ use crate::{
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
 use leo_ast::FunctionInput;
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -67,7 +67,7 @@ impl<'a> PartialEq for Function<'a> {
 impl<'a> Eq for Function<'a> {}
 
 impl<'a> Function<'a> {
-    pub(crate) fn init(scope: &'a Scope<'a>, value: &leo_ast::Function) -> Result<&'a Function<'a>, LeoError> {
+    pub(crate) fn init(scope: &'a Scope<'a>, value: &leo_ast::Function) -> Result<&'a Function<'a>> {
         let output: Type<'a> = value
             .output
             .as_ref()
@@ -126,7 +126,7 @@ impl<'a> Function<'a> {
         Ok(function)
     }
 
-    pub(super) fn fill_from_ast(self: &'a Function<'a>, value: &leo_ast::Function) -> Result<(), LeoError> {
+    pub(super) fn fill_from_ast(self: &'a Function<'a>, value: &leo_ast::Function) -> Result<()> {
         if self.qualifier != FunctionQualifier::Static {
             let circuit = self.circuit.get();
             let self_variable = self.scope.context.alloc_variable(RefCell::new(crate::InnerVariable {

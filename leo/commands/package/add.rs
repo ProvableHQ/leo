@@ -64,12 +64,12 @@ impl Add {
             if v.len() == 2 {
                 Ok((v[0].to_string(), v[1].to_string()))
             } else {
-                Err(CliError::incorrect_command_argument(new_backtrace()))?
+                Err(CliError::incorrect_command_argument(new_backtrace()).into())
             }
         } else if let (Some(author), Some(package)) = (&self.author, &self.package) {
             Ok((author.clone(), package.clone()))
         } else {
-            Err(CliError::incorrect_command_argument(new_backtrace()))?
+            Err(CliError::incorrect_command_argument(new_backtrace()).into())
         }
     }
 }

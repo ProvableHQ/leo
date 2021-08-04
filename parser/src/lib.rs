@@ -29,11 +29,12 @@ pub mod parser;
 pub use parser::*;
 
 use leo_ast::Ast;
+use leo_errors::Result;
 
 #[cfg(test)]
 mod test;
 
 /// Creates a new AST from a given file path and source code text.
-pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(path: T, source: Y) -> SyntaxResult<Ast> {
+pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(path: T, source: Y) -> Result<Ast> {
     Ok(Ast::new(parser::parse(path.as_ref(), source.as_ref())?))
 }

@@ -17,7 +17,7 @@
 //! The proving key file.
 
 use crate::outputs::OUTPUTS_DIRECTORY_NAME;
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use backtrace::Backtrace;
 use serde::Deserialize;
@@ -55,7 +55,7 @@ impl ProvingKeyFile {
     }
 
     /// Reads the proving key from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, LeoError> {
+    pub fn read_from(&self, path: &Path) -> Result<Vec<u8>> {
         let path = self.setup_file_path(path);
 
         let bytes =
@@ -64,7 +64,7 @@ impl ProvingKeyFile {
     }
 
     /// Writes the given proving key to a file.
-    pub fn write_to<'a>(&self, path: &'a Path, proving_key: &[u8]) -> Result<Cow<'a, Path>, LeoError> {
+    pub fn write_to<'a>(&self, path: &'a Path, proving_key: &[u8]) -> Result<Cow<'a, Path>> {
         let path = self.setup_file_path(path);
         let mut file = File::create(&path).map_err(|e| PackageError::io_error_proving_key_file(e, Backtrace::new()))?;
 
@@ -75,7 +75,7 @@ impl ProvingKeyFile {
 
     /// Removes the proving key at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool, LeoError> {
+    pub fn remove(&self, path: &Path) -> Result<bool> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);

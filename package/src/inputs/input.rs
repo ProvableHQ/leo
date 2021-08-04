@@ -18,7 +18,7 @@
 
 use crate::inputs::INPUTS_DIRECTORY_NAME;
 
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use backtrace::Backtrace;
 use serde::Deserialize;
@@ -56,7 +56,7 @@ impl InputFile {
     }
 
     /// Reads the program input variables from the given file path if it exists.
-    pub fn read_from<'a>(&self, path: &'a Path) -> Result<(String, Cow<'a, Path>), LeoError> {
+    pub fn read_from<'a>(&self, path: &'a Path) -> Result<(String, Cow<'a, Path>)> {
         let path = self.setup_file_path(path);
 
         let input = fs::read_to_string(&path)
@@ -65,7 +65,7 @@ impl InputFile {
     }
 
     /// Writes the standard input format to a file.
-    pub fn write_to(self, path: &Path) -> Result<(), LeoError> {
+    pub fn write_to(self, path: &Path) -> Result<()> {
         let path = self.setup_file_path(path);
         let mut file = File::create(&path).map_err(|e| PackageError::io_error_input_file(e, Backtrace::new()))?;
 

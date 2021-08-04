@@ -23,13 +23,13 @@ pub mod source;
 
 use std::path::Path;
 
-use leo_errors::LeoError;
+use leo_errors::Result;
 
 pub struct LeoPackage;
 
 impl LeoPackage {
     /// Initializes a Leo package at the given path.
-    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<(), LeoError> {
+    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<()> {
         package::Package::initialize(package_name, path, author)
     }
 
@@ -39,7 +39,7 @@ impl LeoPackage {
     }
 
     /// Removes an imported Leo package
-    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), LeoError> {
+    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<()> {
         package::Package::remove_imported_package(package_name, path)
     }
 }

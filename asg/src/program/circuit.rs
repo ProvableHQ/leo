@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Function, Identifier, Node, Scope, Type};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use std::cell::RefCell;
@@ -54,7 +54,7 @@ impl<'a> Node for Circuit<'a> {
 }
 
 impl<'a> Circuit<'a> {
-    pub(super) fn init(scope: &'a Scope<'a>, value: &leo_ast::Circuit) -> Result<&'a Circuit<'a>, LeoError> {
+    pub(super) fn init(scope: &'a Scope<'a>, value: &leo_ast::Circuit) -> Result<&'a Circuit<'a>> {
         let new_scope = scope.make_subscope();
 
         let circuit = scope.context.alloc_circuit(Circuit {
@@ -85,7 +85,7 @@ impl<'a> Circuit<'a> {
         Ok(circuit)
     }
 
-    pub(super) fn init_member(scope: &'a Scope<'a>, value: &leo_ast::Circuit) -> Result<&'a Circuit<'a>, LeoError> {
+    pub(super) fn init_member(scope: &'a Scope<'a>, value: &leo_ast::Circuit) -> Result<&'a Circuit<'a>> {
         let new_scope = scope.make_subscope();
         let circuits = scope.circuits.borrow();
 
@@ -118,7 +118,7 @@ impl<'a> Circuit<'a> {
         Ok(circuit)
     }
 
-    pub(super) fn fill_from_ast(self: &'a Circuit<'a>, value: &leo_ast::Circuit) -> Result<(), LeoError> {
+    pub(super) fn fill_from_ast(self: &'a Circuit<'a>, value: &leo_ast::Circuit) -> Result<()> {
         for member in value.members.iter() {
             match member {
                 leo_ast::CircuitMember::CircuitVariable(..) => {}

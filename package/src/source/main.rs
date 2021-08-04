@@ -17,7 +17,7 @@
 //! The `main.leo` file.
 
 use crate::source::directory::SOURCE_DIRECTORY_NAME;
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use backtrace::Backtrace;
 use serde::Deserialize;
@@ -52,7 +52,7 @@ impl MainFile {
         path.exists()
     }
 
-    pub fn write_to(self, path: &Path) -> Result<(), LeoError> {
+    pub fn write_to(self, path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() {
             if !path.ends_with(SOURCE_DIRECTORY_NAME) {

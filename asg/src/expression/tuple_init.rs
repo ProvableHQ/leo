@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -81,7 +81,7 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::TupleInitExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<TupleInitExpression<'a>, LeoError> {
+    ) -> Result<TupleInitExpression<'a>> {
         let tuple_types = match expected_type {
             Some(PartialType::Tuple(sub_types)) => Some(sub_types),
             None => None,
@@ -120,7 +120,7 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
                 )
                 .map(Cell::new)
             })
-            .collect::<Result<Vec<_>, LeoError>>()?;
+            .collect::<Result<Vec<_>>>()?;
 
         Ok(TupleInitExpression {
             parent: Cell::new(None),

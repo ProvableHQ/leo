@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{PackageError, Result};
 
 use backtrace::Backtrace;
 use std::{borrow::Cow, fs, path::Path};
@@ -25,7 +25,7 @@ pub struct OutputsDirectory;
 
 impl OutputsDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &Path) -> Result<(), LeoError> {
+    pub fn create(path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
             path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
@@ -36,7 +36,7 @@ impl OutputsDirectory {
     }
 
     /// Removes the directory at the provided path.
-    pub fn remove(path: &Path) -> Result<(), LeoError> {
+    pub fn remove(path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
             path.to_mut().push(OUTPUTS_DIRECTORY_NAME);

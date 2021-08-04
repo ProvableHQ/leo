@@ -28,7 +28,7 @@ use crate::{
     Type,
 };
 
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};
 use std::cell::Cell;
@@ -93,7 +93,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::CircuitInitExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<CircuitInitExpression<'a>, LeoError> {
+    ) -> Result<CircuitInitExpression<'a>> {
         let circuit = scope
             .resolve_circuit(&value.name.name)
             .ok_or_else(|| AsgError::unresolved_circuit(&value.name.name, &value.name.span))?;

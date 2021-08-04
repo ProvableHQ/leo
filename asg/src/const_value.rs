@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Circuit, Identifier, IntegerType, Type};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use num_bigint::BigInt;
@@ -314,7 +314,7 @@ impl ConstInt {
         Type::Integer(self.get_int_type())
     }
 
-    pub fn parse(int_type: &IntegerType, value: &str, span: &Span) -> Result<ConstInt, LeoError> {
+    pub fn parse(int_type: &IntegerType, value: &str, span: &Span) -> Result<ConstInt> {
         Ok(match int_type {
             IntegerType::I8 => ConstInt::I8(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
             IntegerType::I16 => ConstInt::I16(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),

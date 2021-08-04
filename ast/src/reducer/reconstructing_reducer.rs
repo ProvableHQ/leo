@@ -16,7 +16,7 @@
 
 use crate::*;
 use indexmap::IndexMap;
-use leo_errors::{LeoError, Span};
+use leo_errors::{Result, Span};
 
 // Needed to fix clippy bug.
 #[allow(clippy::redundant_closure)]
@@ -24,23 +24,23 @@ pub trait ReconstructingReducer {
     fn in_circuit(&self) -> bool;
     fn swap_in_circuit(&mut self);
 
-    fn reduce_type(&mut self, _type_: &Type, new: Type, _span: &Span) -> Result<Type, LeoError> {
+    fn reduce_type(&mut self, _type_: &Type, new: Type, _span: &Span) -> Result<Type> {
         Ok(new)
     }
 
     // Expressions
-    fn reduce_expression(&mut self, _expression: &Expression, new: Expression) -> Result<Expression, LeoError> {
+    fn reduce_expression(&mut self, _expression: &Expression, new: Expression) -> Result<Expression> {
         Ok(new)
     }
 
-    fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier, LeoError> {
+    fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier> {
         Ok(Identifier {
             name: identifier.name.clone(),
             span: identifier.span.clone(),
         })
     }
 
-    fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> Result<GroupTuple, LeoError> {
+    fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> Result<GroupTuple> {
         Ok(GroupTuple {
             x: group_tuple.x.clone(),
             y: group_tuple.y.clone(),
@@ -48,18 +48,18 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_group_value(&mut self, _group_value: &GroupValue, new: GroupValue) -> Result<GroupValue, LeoError> {
+    fn reduce_group_value(&mut self, _group_value: &GroupValue, new: GroupValue) -> Result<GroupValue> {
         Ok(new)
     }
 
-    fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, LeoError> {
+    fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression> {
         Ok(Expression::Value(ValueExpression::String(
             string.to_vec(),
             span.clone(),
         )))
     }
 
-    fn reduce_value(&mut self, _value: &ValueExpression, new: Expression) -> Result<Expression, LeoError> {
+    fn reduce_value(&mut self, _value: &ValueExpression, new: Expression) -> Result<Expression> {
         Ok(new)
     }
 
@@ -69,7 +69,7 @@ pub trait ReconstructingReducer {
         left: Expression,
         right: Expression,
         op: BinaryOperation,
-    ) -> Result<BinaryExpression, LeoError> {
+    ) -> Result<BinaryExpression> {
         Ok(BinaryExpression {
             left: Box::new(left),
             right: Box::new(right),
@@ -83,7 +83,7 @@ pub trait ReconstructingReducer {
         unary: &UnaryExpression,
         inner: Expression,
         op: UnaryOperation,
-    ) -> Result<UnaryExpression, LeoError> {
+    ) -> Result<UnaryExpression> {
         Ok(UnaryExpression {
             inner: Box::new(inner),
             op,
@@ -97,7 +97,7 @@ pub trait ReconstructingReducer {
         condition: Expression,
         if_true: Expression,
         if_false: Expression,
-    ) -> Result<TernaryExpression, LeoError> {
+    ) -> Result<TernaryExpression> {
         Ok(TernaryExpression {
             condition: Box::new(condition),
             if_true: Box::new(if_true),
@@ -106,12 +106,7 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_cast(
-        &mut self,
-        cast: &CastExpression,
-        inner: Expression,
-        target_type: Type,
-    ) -> Result<CastExpression, LeoError> {
+    fn reduce_cast(&mut self, cast: &CastExpression, inner: Expression, target_type: Type) -> Result<CastExpression> {
         Ok(CastExpression {
             inner: Box::new(inner),
             target_type,
@@ -123,7 +118,7 @@ pub trait ReconstructingReducer {
         &mut self,
         array_inline: &ArrayInlineExpression,
         elements: Vec<SpreadOrExpression>,
-    ) -> Result<ArrayInlineExpression, LeoError> {
+    ) -> Result<ArrayInlineExpression> {
         Ok(ArrayInlineExpression {
             elements,
             span: array_inline.span.clone(),
@@ -134,7 +129,7 @@ pub trait ReconstructingReducer {
         &mut self,
         array_init: &ArrayInitExpression,
         element: Expression,
-    ) -> Result<ArrayInitExpression, LeoError> {
+    ) -> Result<ArrayInitExpression> {
         Ok(ArrayInitExpression {
             element: Box::new(element),
             dimensions: array_init.dimensions.clone(),
@@ -147,7 +142,7 @@ pub trait ReconstructingReducer {
         array_access: &ArrayAccessExpression,
         array: Expression,
         index: Expression,
-    ) -> Result<ArrayAccessExpression, LeoError> {
+    ) -> Result<ArrayAccessExpression> {
         Ok(ArrayAccessExpression {
             array: Box::new(array),
             index: Box::new(index),
@@ -161,7 +156,7 @@ pub trait ReconstructingReducer {
         array: Expression,
         left: Option<Expression>,
         right: Option<Expression>,
-    ) -> Result<ArrayRangeAccessExpression, LeoError> {
+    ) -> Result<ArrayRangeAccessExpression> {
         Ok(ArrayRangeAccessExpression {
             array: Box::new(array),
             left: left.map(|expr| Box::new(expr)),
@@ -174,7 +169,7 @@ pub trait ReconstructingReducer {
         &mut self,
         tuple_init: &TupleInitExpression,
         elements: Vec<Expression>,
-    ) -> Result<TupleInitExpression, LeoError> {
+    ) -> Result<TupleInitExpression> {
         Ok(TupleInitExpression {
             elements,
             span: tuple_init.span.clone(),
@@ -185,7 +180,7 @@ pub trait ReconstructingReducer {
         &mut self,
         tuple_access: &TupleAccessExpression,
         tuple: Expression,
-    ) -> Result<TupleAccessExpression, LeoError> {
+    ) -> Result<TupleAccessExpression> {
         Ok(TupleAccessExpression {
             tuple: Box::new(tuple),
             index: tuple_access.index.clone(),
@@ -198,7 +193,7 @@ pub trait ReconstructingReducer {
         _variable: &CircuitImpliedVariableDefinition,
         identifier: Identifier,
         expression: Option<Expression>,
-    ) -> Result<CircuitImpliedVariableDefinition, LeoError> {
+    ) -> Result<CircuitImpliedVariableDefinition> {
         Ok(CircuitImpliedVariableDefinition { identifier, expression })
     }
 
@@ -207,7 +202,7 @@ pub trait ReconstructingReducer {
         circuit_init: &CircuitInitExpression,
         name: Identifier,
         members: Vec<CircuitImpliedVariableDefinition>,
-    ) -> Result<CircuitInitExpression, LeoError> {
+    ) -> Result<CircuitInitExpression> {
         Ok(CircuitInitExpression {
             name,
             members,
@@ -220,7 +215,7 @@ pub trait ReconstructingReducer {
         circuit_member_access: &CircuitMemberAccessExpression,
         circuit: Expression,
         name: Identifier,
-    ) -> Result<CircuitMemberAccessExpression, LeoError> {
+    ) -> Result<CircuitMemberAccessExpression> {
         Ok(CircuitMemberAccessExpression {
             circuit: Box::new(circuit),
             name,
@@ -233,7 +228,7 @@ pub trait ReconstructingReducer {
         circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
         circuit: Expression,
         name: Identifier,
-    ) -> Result<CircuitStaticFunctionAccessExpression, LeoError> {
+    ) -> Result<CircuitStaticFunctionAccessExpression> {
         Ok(CircuitStaticFunctionAccessExpression {
             circuit: Box::new(circuit),
             name,
@@ -246,7 +241,7 @@ pub trait ReconstructingReducer {
         call: &CallExpression,
         function: Expression,
         arguments: Vec<Expression>,
-    ) -> Result<CallExpression, LeoError> {
+    ) -> Result<CallExpression> {
         Ok(CallExpression {
             function: Box::new(function),
             arguments,
@@ -255,26 +250,18 @@ pub trait ReconstructingReducer {
     }
 
     // Statements
-    fn reduce_statement(&mut self, _statement: &Statement, new: Statement) -> Result<Statement, LeoError> {
+    fn reduce_statement(&mut self, _statement: &Statement, new: Statement) -> Result<Statement> {
         Ok(new)
     }
 
-    fn reduce_return(
-        &mut self,
-        return_statement: &ReturnStatement,
-        expression: Expression,
-    ) -> Result<ReturnStatement, LeoError> {
+    fn reduce_return(&mut self, return_statement: &ReturnStatement, expression: Expression) -> Result<ReturnStatement> {
         Ok(ReturnStatement {
             expression,
             span: return_statement.span.clone(),
         })
     }
 
-    fn reduce_variable_name(
-        &mut self,
-        variable_name: &VariableName,
-        identifier: Identifier,
-    ) -> Result<VariableName, LeoError> {
+    fn reduce_variable_name(&mut self, variable_name: &VariableName, identifier: Identifier) -> Result<VariableName> {
         Ok(VariableName {
             mutable: variable_name.mutable,
             identifier,
@@ -288,7 +275,7 @@ pub trait ReconstructingReducer {
         variable_names: Vec<VariableName>,
         type_: Option<Type>,
         value: Expression,
-    ) -> Result<DefinitionStatement, LeoError> {
+    ) -> Result<DefinitionStatement> {
         Ok(DefinitionStatement {
             declaration_type: definition.declaration_type.clone(),
             variable_names,
@@ -298,11 +285,7 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_assignee_access(
-        &mut self,
-        _access: &AssigneeAccess,
-        new: AssigneeAccess,
-    ) -> Result<AssigneeAccess, LeoError> {
+    fn reduce_assignee_access(&mut self, _access: &AssigneeAccess, new: AssigneeAccess) -> Result<AssigneeAccess> {
         Ok(new)
     }
 
@@ -311,7 +294,7 @@ pub trait ReconstructingReducer {
         assignee: &Assignee,
         identifier: Identifier,
         accesses: Vec<AssigneeAccess>,
-    ) -> Result<Assignee, LeoError> {
+    ) -> Result<Assignee> {
         Ok(Assignee {
             identifier,
             accesses,
@@ -324,7 +307,7 @@ pub trait ReconstructingReducer {
         assign: &AssignStatement,
         assignee: Assignee,
         value: Expression,
-    ) -> Result<AssignStatement, LeoError> {
+    ) -> Result<AssignStatement> {
         Ok(AssignStatement {
             operation: assign.operation,
             assignee,
@@ -339,7 +322,7 @@ pub trait ReconstructingReducer {
         condition: Expression,
         block: Block,
         statement: Option<Statement>,
-    ) -> Result<ConditionalStatement, LeoError> {
+    ) -> Result<ConditionalStatement> {
         Ok(ConditionalStatement {
             condition,
             block,
@@ -355,7 +338,7 @@ pub trait ReconstructingReducer {
         start: Expression,
         stop: Expression,
         block: Block,
-    ) -> Result<IterationStatement, LeoError> {
+    ) -> Result<IterationStatement> {
         Ok(IterationStatement {
             variable,
             start,
@@ -366,11 +349,7 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_console(
-        &mut self,
-        console: &ConsoleStatement,
-        function: ConsoleFunction,
-    ) -> Result<ConsoleStatement, LeoError> {
+    fn reduce_console(&mut self, console: &ConsoleStatement, function: ConsoleFunction) -> Result<ConsoleStatement> {
         Ok(ConsoleStatement {
             function,
             span: console.span.clone(),
@@ -381,14 +360,14 @@ pub trait ReconstructingReducer {
         &mut self,
         expression_statement: &ExpressionStatement,
         expression: Expression,
-    ) -> Result<ExpressionStatement, LeoError> {
+    ) -> Result<ExpressionStatement> {
         Ok(ExpressionStatement {
             expression,
             span: expression_statement.span.clone(),
         })
     }
 
-    fn reduce_block(&mut self, block: &Block, statements: Vec<Statement>) -> Result<Block, LeoError> {
+    fn reduce_block(&mut self, block: &Block, statements: Vec<Statement>) -> Result<Block> {
         Ok(Block {
             statements,
             span: block.span.clone(),
@@ -404,7 +383,7 @@ pub trait ReconstructingReducer {
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
         global_consts: IndexMap<String, DefinitionStatement>,
-    ) -> Result<Program, LeoError> {
+    ) -> Result<Program> {
         Ok(Program {
             name: program.name.clone(),
             expected_input,
@@ -420,7 +399,7 @@ pub trait ReconstructingReducer {
         variable: &FunctionInputVariable,
         identifier: Identifier,
         type_: Type,
-    ) -> Result<FunctionInputVariable, LeoError> {
+    ) -> Result<FunctionInputVariable> {
         Ok(FunctionInputVariable {
             identifier,
             const_: variable.const_,
@@ -430,7 +409,7 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_function_input(&mut self, _input: &FunctionInput, new: FunctionInput) -> Result<FunctionInput, LeoError> {
+    fn reduce_function_input(&mut self, _input: &FunctionInput, new: FunctionInput) -> Result<FunctionInput> {
         Ok(new)
     }
 
@@ -438,7 +417,7 @@ pub trait ReconstructingReducer {
         &mut self,
         _package_or_packages: &PackageOrPackages,
         new: PackageOrPackages,
-    ) -> Result<PackageOrPackages, LeoError> {
+    ) -> Result<PackageOrPackages> {
         Ok(new)
     }
 
@@ -446,18 +425,14 @@ pub trait ReconstructingReducer {
         &mut self,
         import: &ImportStatement,
         package_or_packages: PackageOrPackages,
-    ) -> Result<ImportStatement, LeoError> {
+    ) -> Result<ImportStatement> {
         Ok(ImportStatement {
             package_or_packages,
             span: import.span.clone(),
         })
     }
 
-    fn reduce_circuit_member(
-        &mut self,
-        _circuit_member: &CircuitMember,
-        new: CircuitMember,
-    ) -> Result<CircuitMember, LeoError> {
+    fn reduce_circuit_member(&mut self, _circuit_member: &CircuitMember, new: CircuitMember) -> Result<CircuitMember> {
         Ok(new)
     }
 
@@ -466,11 +441,11 @@ pub trait ReconstructingReducer {
         _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
-    ) -> Result<Circuit, LeoError> {
+    ) -> Result<Circuit> {
         Ok(Circuit { circuit_name, members })
     }
 
-    fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation, LeoError> {
+    fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation> {
         Ok(Annotation {
             span: annotation.span.clone(),
             name,
@@ -487,7 +462,7 @@ pub trait ReconstructingReducer {
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
-    ) -> Result<Function, LeoError> {
+    ) -> Result<Function> {
         Ok(Function {
             identifier,
             annotations,

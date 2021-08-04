@@ -16,7 +16,7 @@
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::IntegerType;
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -103,7 +103,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayRangeAccessExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayRangeAccessExpression<'a>, LeoError> {
+    ) -> Result<ArrayRangeAccessExpression<'a>> {
         let (expected_array, expected_len) = match expected_type.clone() {
             Some(PartialType::Array(element, len)) => (Some(PartialType::Array(element, None)), len),
             None => (None, None),

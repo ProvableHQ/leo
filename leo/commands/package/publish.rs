@@ -49,7 +49,7 @@ impl Command for Publish {
 
         let package_name = manifest.get_package_name();
         if KEYWORD_TOKENS.iter().any(|keyword| keyword.to_string() == package_name) {
-            return Err(CliError::package_cannot_be_named_after_a_keyword(new_backtrace()))?;
+            return Err(CliError::package_cannot_be_named_after_a_keyword(new_backtrace()).into());
         }
 
         let package_version = manifest.get_package_version();
@@ -59,9 +59,9 @@ impl Command for Publish {
             manifest.get_package_license(),
             manifest.get_package_remote(),
         ) {
-            (None, _, _) => return Err(CliError::no_package_description(new_backtrace()))?,
-            (_, None, _) => return Err(CliError::missing_package_license(new_backtrace()))?,
-            (_, _, None) => return Err(CliError::missing_package_remote(new_backtrace()))?,
+            (None, _, _) => return Err(CliError::no_package_description(new_backtrace()).into()),
+            (_, None, _) => return Err(CliError::missing_package_license(new_backtrace()).into()),
+            (_, _, None) => return Err(CliError::missing_package_remote(new_backtrace()).into()),
             (_, _, _) => (),
         };
 
@@ -70,7 +70,7 @@ impl Command for Publish {
 
         // Prevent most common error before accessing API.
         if username == AUTHOR_PLACEHOLDER {
-            return Err(CliError::package_author_is_not_set(new_backtrace()))?;
+            return Err(CliError::package_author_is_not_set(new_backtrace()).into());
         }
 
         // Create the output directory.

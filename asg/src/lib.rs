@@ -72,7 +72,7 @@ pub mod context;
 pub use context::*;
 
 pub use leo_ast::{Ast, Identifier};
-use leo_errors::LeoError;
+use leo_errors::Result;
 
 /// The abstract semantic graph (ASG) for a Leo program.
 ///
@@ -92,7 +92,7 @@ impl<'a> Asg<'a> {
         context: AsgContext<'a>,
         ast: Y,
         resolver: &mut T,
-    ) -> Result<Self, LeoError> {
+    ) -> Result<Self> {
         Ok(Self {
             context,
             asg: Program::new(context, ast.as_ref(), resolver)?,
@@ -125,7 +125,7 @@ pub fn load_asg<'a, T: ImportResolver<'a>>(
     context: AsgContext<'a>,
     content: &str,
     resolver: &mut T,
-) -> Result<Program<'a>, LeoError> {
+) -> Result<Program<'a>> {
     // Parses the Leo file and constructs a grammar ast.
     let ast = leo_parser::parse_ast("input.leo", content)?;
 

@@ -19,7 +19,7 @@
 
 use crate::*;
 use indexmap::IndexMap;
-use leo_errors::{AstError, LeoError, Span};
+use leo_errors::{AstError, Result, Span};
 
 pub struct ReconstructingDirector<R: ReconstructingReducer> {
     reducer: R,
@@ -30,7 +30,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         Self { reducer }
     }
 
-    pub fn reduce_type(&mut self, type_: &Type, span: &Span) -> Result<Type, LeoError> {
+    pub fn reduce_type(&mut self, type_: &Type, span: &Span) -> Result<Type> {
         let new = match type_ {
             Type::Array(type_, dimensions) => Type::Array(Box::new(self.reduce_type(type_, span)?), dimensions.clone()),
             Type::Tuple(types) => {
@@ -49,7 +49,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     // Expressions
-    pub fn reduce_expression(&mut self, expression: &Expression) -> Result<Expression, LeoError> {
+    pub fn reduce_expression(&mut self, expression: &Expression) -> Result<Expression> {
         let new = match expression {
             Expression::Identifier(identifier) => Expression::Identifier(self.reduce_identifier(identifier)?),
             Expression::Value(value) => self.reduce_value(value)?,
@@ -82,15 +82,15 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_expression(expression, new)
     }
 
-    pub fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier, LeoError> {
+    pub fn reduce_identifier(&mut self, identifier: &Identifier) -> Result<Identifier> {
         self.reducer.reduce_identifier(identifier)
     }
 
-    pub fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> Result<GroupTuple, LeoError> {
+    pub fn reduce_group_tuple(&mut self, group_tuple: &GroupTuple) -> Result<GroupTuple> {
         self.reducer.reduce_group_tuple(group_tuple)
     }
 
-    pub fn reduce_group_value(&mut self, group_value: &GroupValue) -> Result<GroupValue, LeoError> {
+    pub fn reduce_group_value(&mut self, group_value: &GroupValue) -> Result<GroupValue> {
         let new = match group_value {
             GroupValue::Tuple(group_tuple) => GroupValue::Tuple(Box::new(self.reduce_group_tuple(group_tuple)?)),
             _ => group_value.clone(),
@@ -99,11 +99,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_group_value(group_value, new)
     }
 
-    pub fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, LeoError> {
+    pub fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression> {
         self.reducer.reduce_string(string, span)
     }
 
-    pub fn reduce_value(&mut self, value: &ValueExpression) -> Result<Expression, LeoError> {
+    pub fn reduce_value(&mut self, value: &ValueExpression) -> Result<Expression> {
         let new = match value {
             ValueExpression::Group(group_value) => {
                 Expression::Value(ValueExpression::Group(Box::new(self.reduce_group_value(group_value)?)))
@@ -115,20 +115,20 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_value(value, new)
     }
 
-    pub fn reduce_binary(&mut self, binary: &BinaryExpression) -> Result<BinaryExpression, LeoError> {
+    pub fn reduce_binary(&mut self, binary: &BinaryExpression) -> Result<BinaryExpression> {
         let left = self.reduce_expression(&binary.left)?;
         let right = self.reduce_expression(&binary.right)?;
 
         self.reducer.reduce_binary(binary, left, right, binary.op.clone())
     }
 
-    pub fn reduce_unary(&mut self, unary: &UnaryExpression) -> Result<UnaryExpression, LeoError> {
+    pub fn reduce_unary(&mut self, unary: &UnaryExpression) -> Result<UnaryExpression> {
         let inner = self.reduce_expression(&unary.inner)?;
 
         self.reducer.reduce_unary(unary, inner, unary.op.clone())
     }
 
-    pub fn reduce_ternary(&mut self, ternary: &TernaryExpression) -> Result<TernaryExpression, LeoError> {
+    pub fn reduce_ternary(&mut self, ternary: &TernaryExpression) -> Result<TernaryExpression> {
         let condition = self.reduce_expression(&ternary.condition)?;
         let if_true = self.reduce_expression(&ternary.if_true)?;
         let if_false = self.reduce_expression(&ternary.if_false)?;
@@ -136,17 +136,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_ternary(ternary, condition, if_true, if_false)
     }
 
-    pub fn reduce_cast(&mut self, cast: &CastExpression) -> Result<CastExpression, LeoError> {
+    pub fn reduce_cast(&mut self, cast: &CastExpression) -> Result<CastExpression> {
         let inner = self.reduce_expression(&cast.inner)?;
         let target_type = self.reduce_type(&cast.target_type, &cast.span)?;
 
         self.reducer.reduce_cast(cast, inner, target_type)
     }
 
-    pub fn reduce_array_inline(
-        &mut self,
-        array_inline: &ArrayInlineExpression,
-    ) -> Result<ArrayInlineExpression, LeoError> {
+    pub fn reduce_array_inline(&mut self, array_inline: &ArrayInlineExpression) -> Result<ArrayInlineExpression> {
         let mut elements = vec![];
         for element in array_inline.elements.iter() {
             let reduced_element = match element {
@@ -164,16 +161,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_array_inline(array_inline, elements)
     }
 
-    pub fn reduce_array_init(&mut self, array_init: &ArrayInitExpression) -> Result<ArrayInitExpression, LeoError> {
+    pub fn reduce_array_init(&mut self, array_init: &ArrayInitExpression) -> Result<ArrayInitExpression> {
         let element = self.reduce_expression(&array_init.element)?;
 
         self.reducer.reduce_array_init(array_init, element)
     }
 
-    pub fn reduce_array_access(
-        &mut self,
-        array_access: &ArrayAccessExpression,
-    ) -> Result<ArrayAccessExpression, LeoError> {
+    pub fn reduce_array_access(&mut self, array_access: &ArrayAccessExpression) -> Result<ArrayAccessExpression> {
         let array = self.reduce_expression(&array_access.array)?;
         let index = self.reduce_expression(&array_access.index)?;
 
@@ -183,7 +177,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_array_range_access(
         &mut self,
         array_range_access: &ArrayRangeAccessExpression,
-    ) -> Result<ArrayRangeAccessExpression, LeoError> {
+    ) -> Result<ArrayRangeAccessExpression> {
         let array = self.reduce_expression(&array_range_access.array)?;
         let left = array_range_access
             .left
@@ -200,7 +194,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .reduce_array_range_access(array_range_access, array, left, right)
     }
 
-    pub fn reduce_tuple_init(&mut self, tuple_init: &TupleInitExpression) -> Result<TupleInitExpression, LeoError> {
+    pub fn reduce_tuple_init(&mut self, tuple_init: &TupleInitExpression) -> Result<TupleInitExpression> {
         let mut elements = vec![];
         for element in tuple_init.elements.iter() {
             elements.push(self.reduce_expression(element)?);
@@ -209,10 +203,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_tuple_init(tuple_init, elements)
     }
 
-    pub fn reduce_tuple_access(
-        &mut self,
-        tuple_access: &TupleAccessExpression,
-    ) -> Result<TupleAccessExpression, LeoError> {
+    pub fn reduce_tuple_access(&mut self, tuple_access: &TupleAccessExpression) -> Result<TupleAccessExpression> {
         let tuple = self.reduce_expression(&tuple_access.tuple)?;
 
         self.reducer.reduce_tuple_access(tuple_access, tuple)
@@ -221,7 +212,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_circuit_implied_variable_definition(
         &mut self,
         variable: &CircuitImpliedVariableDefinition,
-    ) -> Result<CircuitImpliedVariableDefinition, LeoError> {
+    ) -> Result<CircuitImpliedVariableDefinition> {
         let identifier = self.reduce_identifier(&variable.identifier)?;
         let expression = variable
             .expression
@@ -233,10 +224,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .reduce_circuit_implied_variable_definition(variable, identifier, expression)
     }
 
-    pub fn reduce_circuit_init(
-        &mut self,
-        circuit_init: &CircuitInitExpression,
-    ) -> Result<CircuitInitExpression, LeoError> {
+    pub fn reduce_circuit_init(&mut self, circuit_init: &CircuitInitExpression) -> Result<CircuitInitExpression> {
         let name = self.reduce_identifier(&circuit_init.name)?;
 
         let mut members = vec![];
@@ -250,7 +238,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_circuit_member_access(
         &mut self,
         circuit_member_access: &CircuitMemberAccessExpression,
-    ) -> Result<CircuitMemberAccessExpression, LeoError> {
+    ) -> Result<CircuitMemberAccessExpression> {
         let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         let name = self.reduce_identifier(&circuit_member_access.name)?;
 
@@ -261,7 +249,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_circuit_static_fn_access(
         &mut self,
         circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
-    ) -> Result<CircuitStaticFunctionAccessExpression, LeoError> {
+    ) -> Result<CircuitStaticFunctionAccessExpression> {
         let circuit = self.reduce_expression(&circuit_static_fn_access.circuit)?;
         let name = self.reduce_identifier(&circuit_static_fn_access.name)?;
 
@@ -269,7 +257,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .reduce_circuit_static_fn_access(circuit_static_fn_access, circuit, name)
     }
 
-    pub fn reduce_call(&mut self, call: &CallExpression) -> Result<CallExpression, LeoError> {
+    pub fn reduce_call(&mut self, call: &CallExpression) -> Result<CallExpression> {
         let function = self.reduce_expression(&call.function)?;
 
         let mut arguments = vec![];
@@ -281,7 +269,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     // Statements
-    pub fn reduce_statement(&mut self, statement: &Statement) -> Result<Statement, LeoError> {
+    pub fn reduce_statement(&mut self, statement: &Statement) -> Result<Statement> {
         let new = match statement {
             Statement::Return(return_statement) => Statement::Return(self.reduce_return(return_statement)?),
             Statement::Definition(definition) => Statement::Definition(self.reduce_definition(definition)?),
@@ -296,19 +284,19 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_statement(statement, new)
     }
 
-    pub fn reduce_return(&mut self, return_statement: &ReturnStatement) -> Result<ReturnStatement, LeoError> {
+    pub fn reduce_return(&mut self, return_statement: &ReturnStatement) -> Result<ReturnStatement> {
         let expression = self.reduce_expression(&return_statement.expression)?;
 
         self.reducer.reduce_return(return_statement, expression)
     }
 
-    pub fn reduce_variable_name(&mut self, variable_name: &VariableName) -> Result<VariableName, LeoError> {
+    pub fn reduce_variable_name(&mut self, variable_name: &VariableName) -> Result<VariableName> {
         let identifier = self.reduce_identifier(&variable_name.identifier)?;
 
         self.reducer.reduce_variable_name(variable_name, identifier)
     }
 
-    pub fn reduce_definition(&mut self, definition: &DefinitionStatement) -> Result<DefinitionStatement, LeoError> {
+    pub fn reduce_definition(&mut self, definition: &DefinitionStatement) -> Result<DefinitionStatement> {
         let mut variable_names = vec![];
         for variable_name in definition.variable_names.iter() {
             variable_names.push(self.reduce_variable_name(variable_name)?);
@@ -325,7 +313,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_definition(definition, variable_names, type_, value)
     }
 
-    pub fn reduce_assignee_access(&mut self, access: &AssigneeAccess) -> Result<AssigneeAccess, LeoError> {
+    pub fn reduce_assignee_access(&mut self, access: &AssigneeAccess) -> Result<AssigneeAccess> {
         let new = match access {
             AssigneeAccess::ArrayRange(left, right) => {
                 let left = left.as_ref().map(|left| self.reduce_expression(left)).transpose()?;
@@ -341,7 +329,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_assignee_access(access, new)
     }
 
-    pub fn reduce_assignee(&mut self, assignee: &Assignee) -> Result<Assignee, LeoError> {
+    pub fn reduce_assignee(&mut self, assignee: &Assignee) -> Result<Assignee> {
         let identifier = self.reduce_identifier(&assignee.identifier)?;
 
         let mut accesses = vec![];
@@ -352,14 +340,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_assignee(assignee, identifier, accesses)
     }
 
-    pub fn reduce_assign(&mut self, assign: &AssignStatement) -> Result<AssignStatement, LeoError> {
+    pub fn reduce_assign(&mut self, assign: &AssignStatement) -> Result<AssignStatement> {
         let assignee = self.reduce_assignee(&assign.assignee)?;
         let value = self.reduce_expression(&assign.value)?;
 
         self.reducer.reduce_assign(assign, assignee, value)
     }
 
-    pub fn reduce_conditional(&mut self, conditional: &ConditionalStatement) -> Result<ConditionalStatement, LeoError> {
+    pub fn reduce_conditional(&mut self, conditional: &ConditionalStatement) -> Result<ConditionalStatement> {
         let condition = self.reduce_expression(&conditional.condition)?;
         let block = self.reduce_block(&conditional.block)?;
         let next = conditional
@@ -371,7 +359,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_conditional(conditional, condition, block, next)
     }
 
-    pub fn reduce_iteration(&mut self, iteration: &IterationStatement) -> Result<IterationStatement, LeoError> {
+    pub fn reduce_iteration(&mut self, iteration: &IterationStatement) -> Result<IterationStatement> {
         let variable = self.reduce_identifier(&iteration.variable)?;
         let start = self.reduce_expression(&iteration.start)?;
         let stop = self.reduce_expression(&iteration.stop)?;
@@ -380,7 +368,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_iteration(iteration, variable, start, stop, block)
     }
 
-    pub fn reduce_console(&mut self, console_function_call: &ConsoleStatement) -> Result<ConsoleStatement, LeoError> {
+    pub fn reduce_console(&mut self, console_function_call: &ConsoleStatement) -> Result<ConsoleStatement> {
         let function = match &console_function_call.function {
             ConsoleFunction::Assert(expression) => ConsoleFunction::Assert(self.reduce_expression(expression)?),
             ConsoleFunction::Error(args) | ConsoleFunction::Log(args) => {
@@ -406,15 +394,12 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_console(console_function_call, function)
     }
 
-    pub fn reduce_expression_statement(
-        &mut self,
-        expression: &ExpressionStatement,
-    ) -> Result<ExpressionStatement, LeoError> {
+    pub fn reduce_expression_statement(&mut self, expression: &ExpressionStatement) -> Result<ExpressionStatement> {
         let inner_expression = self.reduce_expression(&expression.expression)?;
         self.reducer.reduce_expression_statement(expression, inner_expression)
     }
 
-    pub fn reduce_block(&mut self, block: &Block) -> Result<Block, LeoError> {
+    pub fn reduce_block(&mut self, block: &Block) -> Result<Block> {
         let mut statements = vec![];
         for statement in block.statements.iter() {
             statements.push(self.reduce_statement(statement)?);
@@ -424,7 +409,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     }
 
     // Program
-    pub fn reduce_program(&mut self, program: &Program) -> Result<Program, LeoError> {
+    pub fn reduce_program(&mut self, program: &Program) -> Result<Program> {
         let mut inputs = vec![];
         for input in program.expected_input.iter() {
             inputs.push(self.reduce_function_input(input)?);
@@ -459,14 +444,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_function_input_variable(
         &mut self,
         variable: &FunctionInputVariable,
-    ) -> Result<FunctionInputVariable, LeoError> {
+    ) -> Result<FunctionInputVariable> {
         let identifier = self.reduce_identifier(&variable.identifier)?;
         let type_ = self.reduce_type(&variable.type_, &variable.span)?;
 
         self.reducer.reduce_function_input_variable(variable, identifier, type_)
     }
 
-    pub fn reduce_function_input(&mut self, input: &FunctionInput) -> Result<FunctionInput, LeoError> {
+    pub fn reduce_function_input(&mut self, input: &FunctionInput) -> Result<FunctionInput> {
         let new = match input {
             FunctionInput::Variable(function_input_variable) => {
                 FunctionInput::Variable(Box::new(self.reduce_function_input_variable(function_input_variable)?))
@@ -477,10 +462,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_function_input(input, new)
     }
 
-    pub fn reduce_package_or_packages(
-        &mut self,
-        package_or_packages: &PackageOrPackages,
-    ) -> Result<PackageOrPackages, LeoError> {
+    pub fn reduce_package_or_packages(&mut self, package_or_packages: &PackageOrPackages) -> Result<PackageOrPackages> {
         let new = match package_or_packages {
             PackageOrPackages::Package(package) => PackageOrPackages::Package(Package {
                 name: self.reduce_identifier(&package.name)?,
@@ -497,13 +479,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_package_or_packages(package_or_packages, new)
     }
 
-    pub fn reduce_import(&mut self, import: &ImportStatement) -> Result<ImportStatement, LeoError> {
+    pub fn reduce_import(&mut self, import: &ImportStatement) -> Result<ImportStatement> {
         let package_or_packages = self.reduce_package_or_packages(&import.package_or_packages)?;
 
         self.reducer.reduce_import(import, package_or_packages)
     }
 
-    pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> Result<CircuitMember, LeoError> {
+    pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> Result<CircuitMember> {
         let new = match circuit_member {
             CircuitMember::CircuitVariable(identifier, type_) => CircuitMember::CircuitVariable(
                 self.reduce_identifier(identifier)?,
@@ -517,7 +499,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_circuit_member(circuit_member, new)
     }
 
-    pub fn reduce_circuit(&mut self, circuit: &Circuit) -> Result<Circuit, LeoError> {
+    pub fn reduce_circuit(&mut self, circuit: &Circuit) -> Result<Circuit> {
         let circuit_name = self.reduce_identifier(&circuit.circuit_name)?;
 
         let mut members = vec![];
@@ -528,13 +510,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_circuit(circuit, circuit_name, members)
     }
 
-    fn reduce_annotation(&mut self, annotation: &Annotation) -> Result<Annotation, LeoError> {
+    fn reduce_annotation(&mut self, annotation: &Annotation) -> Result<Annotation> {
         let name = self.reduce_identifier(&annotation.name)?;
 
         self.reducer.reduce_annotation(annotation, name)
     }
 
-    pub fn reduce_function(&mut self, function: &Function) -> Result<Function, LeoError> {
+    pub fn reduce_function(&mut self, function: &Function) -> Result<Function> {
         let identifier = self.reduce_identifier(&function.identifier)?;
 
         let mut annotations = vec![];

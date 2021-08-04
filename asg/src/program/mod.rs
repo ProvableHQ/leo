@@ -26,7 +26,7 @@ pub use function::*;
 
 use crate::{node::FromAst, ArenaNode, AsgContext, DefinitionStatement, ImportResolver, Input, Scope, Statement};
 use leo_ast::{Identifier, PackageAccess, PackageOrPackages};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -137,7 +137,7 @@ impl<'a> Program<'a> {
         context: AsgContext<'a>,
         program: &leo_ast::Program,
         import_resolver: &mut T,
-    ) -> Result<Program<'a>, LeoError> {
+    ) -> Result<Program<'a>> {
         // Recursively extract imported symbols.
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
         for import in program.imports.iter() {

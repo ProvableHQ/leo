@@ -17,7 +17,7 @@
 use leo_ast::IntegerType;
 
 use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -43,7 +43,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::IterationStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, LeoError> {
+    ) -> Result<Self> {
         let expected_index_type = Some(PartialType::Integer(Some(IntegerType::U32), None));
         let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone())?;
         let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type)?;

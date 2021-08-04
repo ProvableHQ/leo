@@ -29,7 +29,7 @@ use crate::{
     Variable,
 };
 
-use leo_errors::{AsgError, LeoError, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -135,7 +135,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::Identifier,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<&'a Expression<'a>, LeoError> {
+    ) -> Result<&'a Expression<'a>> {
         let variable = if value.name.as_ref() == "input" {
             if let Some(input) = scope.resolve_input() {
                 input.container
