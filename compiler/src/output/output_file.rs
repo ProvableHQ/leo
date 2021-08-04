@@ -16,7 +16,7 @@
 
 //! The `program.out` file.
 
-use leo_errors::{new_backtrace, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 
 use std::{
     borrow::Cow,
@@ -46,11 +46,11 @@ impl OutputFile {
     pub fn write(&self, path: &Path, bytes: &[u8]) -> Result<()> {
         // create output file
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| CompilerError::output_file_io_error(e, new_backtrace()))?;
+        let mut file = File::create(&path).map_err(|e| CompilerError::output_file_io_error(e))?;
 
         Ok(file
             .write_all(bytes)
-            .map_err(|e| CompilerError::output_file_io_error(e, new_backtrace()))?)
+            .map_err(|e| CompilerError::output_file_io_error(e))?)
     }
 
     /// Removes the output file at the given path if it exists. Returns `true` on success,
@@ -61,7 +61,7 @@ impl OutputFile {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| CompilerError::output_file_cannot_remove(path, new_backtrace()))?;
+        fs::remove_file(&path).map_err(|_| CompilerError::output_file_cannot_remove(path))?;
         Ok(true)
     }
 

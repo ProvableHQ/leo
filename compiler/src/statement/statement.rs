@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Node, Statement};
-use leo_errors::{new_backtrace, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -82,11 +82,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         }
                     }
                     _ => {
-                        return Err(CompilerError::statement_unassigned(
-                            &statement.span.clone().unwrap_or_default(),
-                            new_backtrace(),
-                        )
-                        .into());
+                        return Err(
+                            CompilerError::statement_unassigned(&statement.span.clone().unwrap_or_default()).into(),
+                        );
                     }
                 }
             }

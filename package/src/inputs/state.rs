@@ -17,7 +17,7 @@
 //! The `program.state` file.
 
 use crate::inputs::INPUTS_DIRECTORY_NAME;
-use leo_errors::{new_backtrace, PackageError, Result};
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::{
@@ -58,18 +58,18 @@ impl StateFile {
         let path = self.setup_file_path(path);
 
         let input = fs::read_to_string(&path)
-            .map_err(|_| PackageError::failed_to_read_state_file(path.clone().into_owned(), new_backtrace()))?;
+            .map_err(|_| PackageError::failed_to_read_state_file(path.clone().into_owned()))?;
         Ok((input, path))
     }
 
     /// Writes the standard input format to a file.
     pub fn write_to(self, path: &Path) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_state_file(e, new_backtrace()))?;
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_state_file(e))?;
 
         Ok(file
             .write_all(self.template().as_bytes())
-            .map_err(|e| PackageError::io_error_state_file(e, new_backtrace()))?)
+            .map_err(|e| PackageError::io_error_state_file(e))?)
     }
 
     fn template(&self) -> String {

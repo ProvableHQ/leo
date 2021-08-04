@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{api::Fetch, commands::Command, context::Context};
-use leo_errors::{new_backtrace, CliError, Result};
+use leo_errors::{CliError, Result};
 
 use std::{
     borrow::Cow,
@@ -68,12 +68,12 @@ impl Clone {
             if v.len() == 2 {
                 Ok((v[0].to_string(), v[1].to_string()))
             } else {
-                Err(CliError::incorrect_command_argument(new_backtrace()).into())
+                Err(CliError::incorrect_command_argument().into())
             }
         } else if let (Some(author), Some(package)) = (&self.author, &self.package) {
             Ok((author.clone(), package.clone()))
         } else {
-            Err(CliError::incorrect_command_argument(new_backtrace()).into())
+            Err(CliError::incorrect_command_argument().into())
         }
     }
 
@@ -87,7 +87,7 @@ impl Clone {
             path.to_mut().push(directory_name);
         }
 
-        Ok(fs::create_dir_all(&path).map_err(|e| CliError::cli_io_error(e, new_backtrace()))?)
+        Ok(fs::create_dir_all(&path).map_err(|e| CliError::cli_io_error(e))?)
     }
 }
 
@@ -117,7 +117,7 @@ impl Command for Clone {
                 .api
                 .run_route(fetch)?
                 .bytes()
-                .map_err(|e| CliError::cli_bytes_conversion_error(e, new_backtrace()))?;
+                .map_err(|e| CliError::cli_bytes_conversion_error(e))?;
             std::io::Cursor::new(bytes)
         };
 
@@ -127,12 +127,10 @@ impl Command for Clone {
         Self::create_directory(&path, &package_name)?;
 
         // Proceed to unzip and parse the fetched bytes.
-        let mut zip_archive = zip::ZipArchive::new(reader).map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+        let mut zip_archive = zip::ZipArchive::new(reader).map_err(|e| CliError::cli_io_error(e))?;
 
         for i in 0..zip_archive.len() {
-            let file = zip_archive
-                .by_index(i)
-                .map_err(|e| CliError::cli_zip_error(e, new_backtrace()))?;
+            let file = zip_archive.by_index(i).map_err(|e| CliError::cli_zip_error(e))?;
 
             let file_name = file.name();
 
@@ -140,16 +138,16 @@ impl Command for Clone {
             file_path.push(file_name);
 
             if file_name.ends_with('/') {
-                fs::create_dir_all(file_path).map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                fs::create_dir_all(file_path).map_err(|e| CliError::cli_io_error(e))?;
             } else {
                 if let Some(parent_directory) = path.parent() {
-                    fs::create_dir_all(parent_directory).map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                    fs::create_dir_all(parent_directory).map_err(|e| CliError::cli_io_error(e))?;
                 }
 
-                let mut created = File::create(file_path).map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                let mut created = File::create(file_path).map_err(|e| CliError::cli_io_error(e))?;
                 created
                     .write_all(&file.bytes().map(|e| e.unwrap()).collect::<Vec<u8>>())
-                    .map_err(|e| CliError::cli_bytes_conversion_error(e, new_backtrace()))?;
+                    .map_err(|e| CliError::cli_bytes_conversion_error(e))?;
             }
         }
 

@@ -18,7 +18,7 @@
 
 use crate::{value::ConstrainedValue, GroupType};
 use leo_ast::InputValue;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{boolean::Boolean, traits::alloc::AllocGadget};
@@ -34,7 +34,7 @@ pub(crate) fn allocate_bool<F: PrimeField, CS: ConstraintSystem<F>>(
         cs.ns(|| format!("`{}: bool` {}:{}", name, span.line_start, span.col_start)),
         || option.ok_or(SynthesisError::AssignmentMissing),
     )
-    .map_err(|_| CompilerError::boolean_value_missing_boolean(format!("{}: bool", name), span, new_backtrace()))?)
+    .map_err(|_| CompilerError::boolean_value_missing_boolean(format!("{}: bool", name), span))?)
 }
 
 pub(crate) fn bool_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -49,7 +49,7 @@ pub(crate) fn bool_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
             if let InputValue::Boolean(bool) = input {
                 Some(bool)
             } else {
-                return Err(CompilerError::boolean_value_invalid_boolean(name, span, new_backtrace()).into());
+                return Err(CompilerError::boolean_value_invalid_boolean(name, span).into());
             }
         }
         None => None,

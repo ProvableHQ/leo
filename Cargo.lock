@@ -341,6 +341,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "color-backtrace"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd6c04463c99389fff045d2b90ce84f5131332712c7ffbede020f5e9ad1ed685"
+dependencies = [
+ "atty",
+ "backtrace",
+ "termcolor",
+]
+
+[[package]]
 name = "colored"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1263,6 +1274,7 @@ name = "leo-errors"
 version = "1.5.3"
 dependencies = [
  "backtrace",
+ "color-backtrace",
  "derivative",
  "eyre",
  "leo-input",
@@ -1304,6 +1316,7 @@ dependencies = [
  "ansi_term 0.12.1",
  "assert_cmd",
  "clap",
+ "color-backtrace",
  "colored",
  "console",
  "dirs",
@@ -2800,6 +2813,15 @@ dependencies = [
  "futf",
  "mac",
  "utf-8",
+]
+
+[[package]]
+name = "termcolor"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2dfed899f0eb03f32ee8c6a0aabdb8a7949659e3466561fc0adf54e26d88c5f4"
+dependencies = [
+ "winapi-util",
 ]
 
 [[package]]

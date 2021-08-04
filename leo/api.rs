@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{new_backtrace, CliError, LeoError, Result};
+use leo_errors::{CliError, LeoError, Result};
 
 use reqwest::{
     blocking::{multipart::Form, Client, Response},
@@ -63,7 +63,7 @@ pub trait Route {
     /// Transform specific status codes into correct errors for this route.
     /// For example 404 on package fetch should mean that 'Package is not found'
     fn status_to_err(&self, _status: StatusCode) -> LeoError {
-        CliError::unidentified_api(new_backtrace()).into()
+        CliError::unidentified_api().into()
     }
 }
 
@@ -131,9 +131,7 @@ impl Api {
         };
 
         // only one error is possible here
-        let res = res
-            .send()
-            .map_err(|_| CliError::unable_to_connect_aleo_pm(new_backtrace()))?;
+        let res = res.send().map_err(|_| CliError::unable_to_connect_aleo_pm())?;
 
         // where magic begins
         route.process(res)
@@ -173,12 +171,12 @@ impl Route for Fetch {
 
     fn status_to_err(&self, status: StatusCode) -> LeoError {
         match status {
-            StatusCode::BAD_REQUEST => CliError::package_not_found(new_backtrace()).into(),
+            StatusCode::BAD_REQUEST => CliError::package_not_found().into(),
             // TODO: we should return 404 on not found author/package
             // and return BAD_REQUEST if data format is incorrect or some of the arguments
             // were not passed
-            StatusCode::NOT_FOUND => CliError::package_not_found(new_backtrace()).into(),
-            _ => CliError::unkown_api_error(status, new_backtrace()).into(),
+            StatusCode::NOT_FOUND => CliError::package_not_found().into(),
+            _ => CliError::unkown_api_error(status).into(),
         }
     }
 }
@@ -209,10 +207,10 @@ impl Route for Login {
 
     fn status_to_err(&self, status: StatusCode) -> LeoError {
         match status {
-            StatusCode::BAD_REQUEST => CliError::account_not_found(new_backtrace()).into(),
+            StatusCode::BAD_REQUEST => CliError::account_not_found().into(),
             // TODO: NOT_FOUND here should be replaced, this error code has no relation to what this route is doing
-            StatusCode::NOT_FOUND => CliError::incorrect_password(new_backtrace()).into(),
-            _ => CliError::unkown_api_error(status, new_backtrace()).into(),
+            StatusCode::NOT_FOUND => CliError::incorrect_password().into(),
+            _ => CliError::unkown_api_error(status).into(),
         }
     }
 }
@@ -251,20 +249,16 @@ impl Route for Publish {
         let status = res.status();
 
         if status == StatusCode::OK {
-            let body: PublishResponse = res
-                .json()
-                .map_err(|e| CliError::reqwest_json_error(e, new_backtrace()))?;
+            let body: PublishResponse = res.json().map_err(|e| CliError::reqwest_json_error(e))?;
             Ok(body.package_id)
         } else {
-            let res: HashMap<String, String> = res
-                .json()
-                .map_err(|e| CliError::reqwest_json_error(e, new_backtrace()))?;
+            let res: HashMap<String, String> = res.json().map_err(|e| CliError::reqwest_json_error(e))?;
             Err(match status {
-                StatusCode::BAD_REQUEST => CliError::bad_request(res.get("message").unwrap(), new_backtrace()).into(),
-                StatusCode::UNAUTHORIZED => CliError::not_logged_in(new_backtrace()).into(),
-                StatusCode::FAILED_DEPENDENCY => CliError::already_published(new_backtrace()).into(),
-                StatusCode::INTERNAL_SERVER_ERROR => CliError::internal_server_error(new_backtrace()).into(),
-                _ => CliError::unkown_api_error(status, new_backtrace()).into(),
+                StatusCode::BAD_REQUEST => CliError::bad_request(res.get("message").unwrap()).into(),
+                StatusCode::UNAUTHORIZED => CliError::not_logged_in().into(),
+                StatusCode::FAILED_DEPENDENCY => CliError::already_published().into(),
+                StatusCode::INTERNAL_SERVER_ERROR => CliError::internal_server_error().into(),
+                _ => CliError::unkown_api_error(status).into(),
             })
         }
     }
@@ -294,9 +288,7 @@ impl Route for Profile {
         // this may be extended for more precise error handling
         let status = res.status();
         if status == StatusCode::OK {
-            let body: ProfileResponse = res
-                .json()
-                .map_err(|e| CliError::reqwest_json_error(e, new_backtrace()))?;
+            let body: ProfileResponse = res.json().map_err(|e| CliError::reqwest_json_error(e))?;
             return Ok(Some(body.username));
         }
 

@@ -17,7 +17,7 @@
 
 //! The `README.md` file.
 
-use leo_errors::{new_backtrace, PackageError, Result};
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::{borrow::Cow, fs::File, io::Write, path::Path};
@@ -54,10 +54,10 @@ impl README {
             path.to_mut().push(README_FILENAME);
         }
 
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_readme_file(e, new_backtrace()))?;
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_readme_file(e))?;
 
         file.write_all(self.template().as_bytes())
-            .map_err(|e| PackageError::io_error_readme_file(e, new_backtrace()))?;
+            .map_err(|e| PackageError::io_error_readme_file(e))?;
         Ok(())
     }
 

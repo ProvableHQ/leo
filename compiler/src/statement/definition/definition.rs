@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_asg::{DefinitionStatement, Variable};
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -35,7 +35,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 values.len(),
                 variable_names.len(),
                 span,
-                new_backtrace(),
             )
             .into());
         }
@@ -67,7 +66,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
                 value => {
-                    return Err(CompilerError::statement_multiple_definition(value, &span, new_backtrace()).into());
+                    return Err(CompilerError::statement_multiple_definition(value, &span).into());
                 }
             };
 

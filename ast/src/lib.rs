@@ -62,7 +62,7 @@ pub use self::types::*;
 mod node;
 pub use node::*;
 
-use leo_errors::{new_backtrace, AstError, Result};
+use leo_errors::{AstError, Result};
 
 /// The abstract syntax tree (AST) for a Leo program.
 ///
@@ -98,31 +98,27 @@ impl Ast {
 
     /// Serializes the ast into a JSON string.
     pub fn to_json_string(&self) -> Result<String> {
-        Ok(serde_json::to_string_pretty(&self.ast)
-            .map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e, new_backtrace()))?)
+        Ok(serde_json::to_string_pretty(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
     }
 
     /// Serializes the ast into a JSON file.
     pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
         path.push(file_name);
-        let file = std::fs::File::create(&path)
-            .map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e, new_backtrace()))?;
+        let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
         let writer = std::io::BufWriter::new(file);
         Ok(serde_json::to_writer_pretty(writer, &self.ast)
-            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e, new_backtrace()))?)
+            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
     }
 
     /// Deserializes the JSON string into a ast.
     pub fn from_json_string(json: &str) -> Result<Self> {
-        let ast: Program =
-            serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_ast(&e, new_backtrace()))?;
+        let ast: Program = serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_ast(&e))?;
         Ok(Self { ast })
     }
 
     /// Deserializes the JSON string into a ast from a file.
     pub fn from_json_file(path: std::path::PathBuf) -> Result<Self> {
-        let data = std::fs::read_to_string(&path)
-            .map_err(|e| AstError::failed_to_read_json_file(&path, &e, new_backtrace()))?;
+        let data = std::fs::read_to_string(&path).map_err(|e| AstError::failed_to_read_json_file(&path, &e))?;
         Self::from_json_string(&data)
     }
 }

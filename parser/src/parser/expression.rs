@@ -16,7 +16,7 @@
 
 use tendril::format_tendril;
 
-use leo_errors::{new_backtrace, ParserError, Result};
+use leo_errors::{ParserError, Result};
 
 use super::*;
 
@@ -461,13 +461,7 @@ impl ParserContext {
                         });
                     } else {
                         let next = self.peek()?;
-                        return Err(ParserError::unexpected_str(
-                            &next.token,
-                            "int or ident",
-                            &next.span,
-                            new_backtrace(),
-                        )
-                        .into());
+                        return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
                     }
                 }
                 Token::LeftParen => {
@@ -614,7 +608,7 @@ impl ParserContext {
             let first = match first {
                 SpreadOrExpression::Spread(first) => {
                     let span = span + first.span();
-                    return Err(ParserError::spread_in_array_init(&span, new_backtrace()).into());
+                    return Err(ParserError::spread_in_array_init(&span).into());
                 }
                 SpreadOrExpression::Expression(x) => x,
             };
@@ -731,7 +725,7 @@ impl ParserContext {
                 Expression::Identifier(ident)
             }
             token => {
-                return Err(ParserError::unexpected_str(token, "expression", &span, new_backtrace()).into());
+                return Err(ParserError::unexpected_str(token, "expression", &span).into());
             }
         })
     }

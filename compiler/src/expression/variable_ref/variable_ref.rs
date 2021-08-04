@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::VariableRef;
-use leo_errors::{new_backtrace, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 
 use snarkvm_fields::PrimeField;
 
@@ -32,12 +32,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let result_value = if let Some(value) = self.get(variable.id) {
             value.clone()
         } else {
-            return Err(CompilerError::undefined_identifier(
-                &variable.name.clone().name,
-                &span.unwrap_or_default(),
-                new_backtrace(),
-            )
-            .into());
+            return Err(
+                CompilerError::undefined_identifier(&variable.name.clone().name, &span.unwrap_or_default()).into(),
+            );
             // todo: probably can be a panic here instead
         };
 

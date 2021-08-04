@@ -20,7 +20,7 @@ use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::Type;
 use leo_ast::InputValue;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -39,13 +39,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         match input_value {
             Some(InputValue::Tuple(values)) => {
                 if values.len() != types.len() {
-                    return Err(CompilerError::input_tuple_size_mismatch(
-                        types.len(),
-                        values.len(),
-                        span,
-                        new_backtrace(),
-                    )
-                    .into());
+                    return Err(CompilerError::input_tuple_size_mismatch(types.len(), values.len(), span).into());
                 }
 
                 // Allocate each value in the tuple.
@@ -64,9 +58,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(
-                    CompilerError::invalid_function_input_tuple(input_value.unwrap(), span, new_backtrace()).into(),
-                );
+                return Err(CompilerError::invalid_function_input_tuple(input_value.unwrap(), span).into());
             }
         }
 

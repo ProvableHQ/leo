@@ -17,7 +17,7 @@
 use leo_ast::IntegerType;
 
 use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
-use leo_errors::{new_backtrace, AsgError, Result, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -50,14 +50,10 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
 
         // Return an error if start or stop is not constant.
         if !start.is_consty() {
-            return Err(
-                AsgError::unexpected_nonconst(&start.span().cloned().unwrap_or_default(), new_backtrace()).into(),
-            );
+            return Err(AsgError::unexpected_nonconst(&start.span().cloned().unwrap_or_default()).into());
         }
         if !stop.is_consty() {
-            return Err(
-                AsgError::unexpected_nonconst(&stop.span().cloned().unwrap_or_default(), new_backtrace()).into(),
-            );
+            return Err(AsgError::unexpected_nonconst(&stop.span().cloned().unwrap_or_default()).into());
         }
 
         let variable = scope.context.alloc_variable(RefCell::new(InnerVariable {
@@ -65,7 +61,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
             name: statement.variable.clone(),
             type_: start
                 .get_type()
-                .ok_or_else(|| AsgError::unresolved_type(&statement.variable.name, &statement.span, new_backtrace()))?,
+                .ok_or_else(|| AsgError::unresolved_type(&statement.variable.name, &statement.span))?,
             mutable: false,
             const_: true,
             declaration: crate::VariableDeclaration::IterationDefinition,

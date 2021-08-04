@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{new_backtrace, PackageError, Result};
+use leo_errors::{PackageError, Result};
 
 use std::{borrow::Cow, fs, path::Path};
 
@@ -30,7 +30,7 @@ impl OutputsDirectory {
             path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e, new_backtrace()))?;
+        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e))?;
         Ok(())
     }
 
@@ -42,8 +42,7 @@ impl OutputsDirectory {
         }
 
         if path.exists() {
-            fs::remove_dir_all(&path)
-                .map_err(|e| PackageError::failed_to_create_inputs_directory(e, new_backtrace()))?;
+            fs::remove_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e))?;
         }
 
         Ok(())

@@ -23,7 +23,7 @@ use std::{
 
 create_errors!(
     PackageError,
-    exit_code_mask: 4000u32,
+    exit_code_mask: 4000i32,
     error_code_prefix: "PAK",
 
     @backtraced

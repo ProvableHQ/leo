@@ -50,8 +50,6 @@ extern crate thiserror;
 
 use leo_input::InputParserError;
 
-use backtrace::Backtrace;
-
 #[derive(Debug, Error)]
 pub enum LeoError {
     #[error(transparent)]
@@ -86,7 +84,7 @@ pub enum LeoError {
 }
 
 impl LeoError {
-    pub fn exit_code(&self) -> u32 {
+    pub fn exit_code(&self) -> i32 {
         use LeoError::*;
 
         match self {
@@ -105,11 +103,6 @@ impl LeoError {
 }
 
 pub type Result<T, E = LeoError> = core::result::Result<T, E>;
-
-#[inline(always)]
-pub fn new_backtrace() -> Backtrace {
-    Backtrace::new()
-}
 
 // #[test]
 // fn test_error() {

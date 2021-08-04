@@ -17,6 +17,7 @@
 use std::fmt;
 
 use backtrace::Backtrace;
+use color_backtrace::BacktracePrinter;
 use derivative::Derivative;
 
 pub const INDENT: &str = "    ";
@@ -34,8 +35,8 @@ pub const INDENT: &str = "    ";
 pub struct BacktracedError {
     pub message: String,
     pub help: Option<String>,
-    pub exit_code: u32,
-    pub code_identifier: u32,
+    pub exit_code: i32,
+    pub code_identifier: i8,
     pub error_type: String,
     #[derivative(PartialEq = "ignore")]
     #[derivative(Hash = "ignore")]
@@ -46,8 +47,8 @@ impl BacktracedError {
     pub fn new_from_backtrace<S>(
         message: S,
         help: Option<String>,
-        exit_code: u32,
-        code_identifier: u32,
+        exit_code: i32,
+        code_identifier: i8,
         error_type: String,
         backtrace: Backtrace,
     ) -> Self
@@ -64,8 +65,18 @@ impl BacktracedError {
         }
     }
 
-    pub fn exit_code(&self) -> u32 {
-        0
+    pub fn exit_code(&self) -> i32 {
+        let mut code: i32;
+        if self.code_identifier > 99 {
+            code = self.code_identifier as i32 * 111_000;
+        } else if self.code_identifier as i32 > 9 {
+            code = self.code_identifier as i32 * 11_000;
+        } else {
+            code = self.code_identifier as i32 * 1_000;
+        }
+        code += self.exit_code;
+
+        code
     }
 }
 
@@ -87,8 +98,29 @@ impl fmt::Display for BacktracedError {
             write!(f, "{indent     } = {help}", indent = INDENT, help = help)?;
         }
 
-        if std::env::var("LEO_BACKTRACE").unwrap_or_default().trim() == "1" {
-            write!(f, "stack backtrace:\n{:?}", self.backtrace)?;
+        let leo_backtrace = std::env::var("LEO_BACKTRACE").unwrap_or_default().trim().to_owned();
+        match leo_backtrace.as_ref() {
+            "1" => {
+                dbg!("1");
+                let mut printer = BacktracePrinter::default();
+                printer = printer.verbosity(Verbosity::Medium);
+                printer = printer.lib_verbosity(Verbosity::Medium);
+                let trace = printer
+                    .format_trace_to_string(&self.backtrace.backtrace)
+                    .map_err(|_| fmt::Error)?;
+                write!(f, "{}", trace)?;
+            }
+            "full" => {
+                dbg!("full");
+                let mut printer = BacktracePrinter::default();
+                printer = printer.verbosity(Verbosity::Full);
+                printer = printer.lib_verbosity(Verbosity::Full);
+                let trace = printer
+                    .format_trace_to_string(&self.backtrace.backtrace)
+                    .map_err(|_| fmt::Error)?;
+                write!(f, "{}", trace)?;
+            }
+            _ => {}
         }
 
         Ok(())

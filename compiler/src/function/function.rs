@@ -19,7 +19,7 @@
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::{Expression, Function, FunctionQualifier};
-use leo_errors::{new_backtrace, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 use std::cell::Cell;
 
 use snarkvm_fields::PrimeField;
@@ -52,7 +52,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 &function.name.borrow().name.to_string(),
                 "arguments length invalid",
                 &function.span.clone().unwrap_or_default(),
-                new_backtrace(),
             )
             .into());
         }

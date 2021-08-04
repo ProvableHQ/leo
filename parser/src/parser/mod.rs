@@ -32,14 +32,14 @@ use std::unimplemented;
 use crate::{tokenizer::*, Token};
 use indexmap::IndexMap;
 use leo_ast::*;
-use leo_errors::{new_backtrace, ParserError, Result, Span};
+use leo_errors::{ParserError, Result, Span};
 
 pub(crate) fn assert_no_whitespace(left_span: &Span, right_span: &Span, left: &str, right: &str) -> Result<()> {
     if left_span.col_stop != right_span.col_start {
         let mut error_span = left_span + right_span;
         error_span.col_start = left_span.col_stop - 1;
         error_span.col_stop = right_span.col_start - 1;
-        return Err(ParserError::unexpected_whitespace(left, right, &error_span, new_backtrace()).into());
+        return Err(ParserError::unexpected_whitespace(left, right, &error_span).into());
     }
 
     Ok(())

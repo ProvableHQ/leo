@@ -17,7 +17,7 @@
 use super::build::{Build, BuildOptions};
 use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
-use leo_errors::{new_backtrace, CliError, Result};
+use leo_errors::{CliError, Result};
 use leo_package::outputs::{ProvingKeyFile, VerificationKeyFile};
 
 use snarkvm_algorithms::{
@@ -80,7 +80,7 @@ impl Command for Setup {
             let rng = &mut thread_rng();
             let (proving_key, prepared_verifying_key) =
                 Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng)
-                    .map_err(|_| CliError::unable_to_setup(new_backtrace()))?;
+                    .map_err(|_| CliError::unable_to_setup())?;
 
             // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
             // Write the proving key file to the output directory
@@ -89,7 +89,7 @@ impl Command for Setup {
             let mut proving_key_bytes = vec![];
             proving_key
                 .write_le(&mut proving_key_bytes)
-                .map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                .map_err(|e| CliError::cli_io_error(e))?;
             let _ = proving_key_file.write_to(&path, &proving_key_bytes)?;
             tracing::info!("Complete");
 
@@ -100,7 +100,7 @@ impl Command for Setup {
             proving_key
                 .vk
                 .write_le(&mut verification_key)
-                .map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                .map_err(|e| CliError::cli_io_error(e))?;
             let _ = verification_key_file.write_to(&path, &verification_key)?;
             tracing::info!("Complete");
 
@@ -116,16 +116,16 @@ impl Command for Setup {
             }
             let proving_key_bytes = ProvingKeyFile::new(&package_name).read_from(&path)?;
             let proving_key = ProvingKey::<Bls12_377>::read(proving_key_bytes.as_slice(), !self.skip_key_check)
-                .map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                .map_err(|e| CliError::cli_io_error(e))?;
             tracing::info!("Complete");
 
             // Read the verification key file from the output directory
             tracing::info!("Loading verification key...");
             let verifying_key_bytes = VerificationKeyFile::new(&package_name)
                 .read_from(&path)
-                .map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                .map_err(|e| CliError::cli_io_error(e))?;
             let verifying_key = VerifyingKey::<Bls12_377>::read(verifying_key_bytes.as_slice())
-                .map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                .map_err(|e| CliError::cli_io_error(e))?;
 
             // Derive the prepared verifying key file from the verifying key
             let prepared_verifying_key = PreparedVerifyingKey::<Bls12_377>::from(verifying_key);

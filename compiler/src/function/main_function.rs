@@ -20,7 +20,7 @@ use crate::{program::ConstrainedProgram, GroupType, Output};
 
 use leo_asg::{Expression, Function, FunctionQualifier};
 use leo_ast::Input;
-use leo_errors::{new_backtrace, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 use std::cell::Cell;
 
 use snarkvm_fields::PrimeField;
@@ -66,12 +66,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 ) {
                     // If variable is in both [main] and [constants] sections - error.
                     (_, Some(_), Some(_)) => {
-                        return Err(CompilerError::double_input_declaration(
-                            name,
-                            &input_variable.name.span,
-                            new_backtrace(),
-                        )
-                        .into());
+                        return Err(CompilerError::double_input_declaration(name, &input_variable.name.span).into());
                     }
                     // If input option is found in [main] section and input is not const.
                     (false, Some(input_option), _) => self.allocate_main_function_input(
@@ -91,21 +86,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     )?,
                     // Function argument is const, input is not.
                     (true, Some(_), None) => {
-                        return Err(CompilerError::expected_const_input_variable(
-                            name,
-                            &input_variable.name.span,
-                            new_backtrace(),
-                        )
-                        .into());
+                        return Err(
+                            CompilerError::expected_const_input_variable(name, &input_variable.name.span).into(),
+                        );
                     }
                     // Input is const, function argument is not.
                     (false, None, Some(_)) => {
-                        return Err(CompilerError::expected_non_const_input_variable(
-                            name,
-                            &input_variable.name.span,
-                            new_backtrace(),
-                        )
-                        .into());
+                        return Err(
+                            CompilerError::expected_non_const_input_variable(name, &input_variable.name.span).into(),
+                        );
                     }
                     // When not found - Error out.
                     (_, _, _) => {
@@ -113,7 +102,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                             function.name.borrow().name.to_string(),
                             name,
                             &input_variable.name.span,
-                            new_backtrace(),
                         )
                         .into());
                     }

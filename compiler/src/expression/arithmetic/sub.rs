@@ -17,7 +17,7 @@
 //! Enforces an arithmetic `-` operator in a resolved Leo program.
 
 use crate::{value::ConstrainedValue, GroupType};
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -39,9 +39,7 @@ pub fn enforce_sub<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             Ok(ConstrainedValue::Group(point_1.sub(cs, &point_2, span)?))
         }
         (val_1, val_2) => {
-            return Err(
-                CompilerError::incompatible_types(format!("{} - {}", val_1, val_2), span, new_backtrace()).into(),
-            );
+            return Err(CompilerError::incompatible_types(format!("{} - {}", val_1, val_2), span).into());
         }
     }
 }

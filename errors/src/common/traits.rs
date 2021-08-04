@@ -14,29 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Span;
-
-use backtrace::Backtrace;
-
 pub trait ErrorCode: Sized {
-    fn exit_code(&self) -> u32;
+    fn exit_code(&self) -> i32;
 
-    fn exit_code_mask() -> u32;
+    fn exit_code_mask() -> i32;
 
     fn error_type() -> String;
-
-    fn new_from_backtrace<S>(message: S, help: Option<String>, exit_code: u32, backtrace: Backtrace) -> Self
-    where
-        S: ToString;
-
-    fn new_from_span<S>(message: S, help: Option<String>, exit_code: u32, span: &Span, backtrace: Backtrace) -> Self
-    where
-        S: ToString;
 }
 
 pub trait LeoErrorCode: ErrorCode {
     #[inline(always)]
-    fn code_identifier() -> u32 {
+    fn code_identifier() -> i8 {
         37
     }
 }

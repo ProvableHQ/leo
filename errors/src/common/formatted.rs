@@ -19,6 +19,7 @@ use crate::{BacktracedError, Span};
 use std::{fmt, sync::Arc};
 
 use backtrace::Backtrace;
+use color_backtrace::{BacktracePrinter, Verbosity};
 
 pub const INDENT: &str = "    ";
 
@@ -45,8 +46,8 @@ impl FormattedError {
     pub fn new_from_span<S>(
         message: S,
         help: Option<String>,
-        exit_code: u32,
-        code_identifier: u32,
+        exit_code: i32,
+        code_identifier: i8,
         error_type: String,
         span: &Span,
         backtrace: Backtrace,
@@ -72,8 +73,8 @@ impl FormattedError {
         }
     }
 
-    pub fn exit_code(&self) -> u32 {
-        0
+    pub fn exit_code(&self) -> i32 {
+        self.backtrace.exit_code()
     }
 }
 
@@ -138,8 +139,29 @@ impl fmt::Display for FormattedError {
             write!(f, "{indent     } = {help}", indent = INDENT, help = help)?;
         }
 
-        if std::env::var("LEO_BACKTRACE").unwrap_or_default().trim() == "1" {
-            write!(f, "stack backtrace:\n{:?}", self.backtrace.backtrace)?;
+        let leo_backtrace = std::env::var("LEO_BACKTRACE").unwrap_or_default().trim().to_owned();
+        match leo_backtrace.as_ref() {
+            "1" => {
+                dbg!("1");
+                let mut printer = BacktracePrinter::default();
+                printer = printer.verbosity(Verbosity::Medium);
+                printer = printer.lib_verbosity(Verbosity::Medium);
+                let trace = printer
+                    .format_trace_to_string(&self.backtrace.backtrace)
+                    .map_err(|_| fmt::Error)?;
+                write!(f, "{}", trace)?;
+            }
+            "full" => {
+                dbg!("full");
+                let mut printer = BacktracePrinter::default();
+                printer = printer.verbosity(Verbosity::Full);
+                printer = printer.lib_verbosity(Verbosity::Full);
+                let trace = printer
+                    .format_trace_to_string(&self.backtrace.backtrace)
+                    .map_err(|_| fmt::Error)?;
+                write!(f, "{}", trace)?;
+            }
+            _ => {}
         }
 
         Ok(())

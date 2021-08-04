@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{api::Fetch, commands::Command, context::Context};
-use leo_errors::{new_backtrace, CliError, Result};
+use leo_errors::{CliError, Result};
 use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
 
 use std::{
@@ -64,12 +64,12 @@ impl Add {
             if v.len() == 2 {
                 Ok((v[0].to_string(), v[1].to_string()))
             } else {
-                Err(CliError::incorrect_command_argument(new_backtrace()).into())
+                Err(CliError::incorrect_command_argument().into())
             }
         } else if let (Some(author), Some(package)) = (&self.author, &self.package) {
             Ok((author.clone(), package.clone()))
         } else {
-            Err(CliError::incorrect_command_argument(new_backtrace()).into())
+            Err(CliError::incorrect_command_argument().into())
         }
     }
 }
@@ -88,13 +88,11 @@ impl Command for Add {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Check that a manifest exists for the current package.
-        context
-            .manifest()
-            .map_err(|_| CliError::mainifest_file_not_found(new_backtrace()))?;
+        context.manifest().map_err(|_| CliError::mainifest_file_not_found())?;
 
         let (author, package_name) = self
             .try_read_arguments()
-            .map_err(|e| CliError::cli_bytes_conversion_error(e, new_backtrace()))?;
+            .map_err(|e| CliError::cli_bytes_conversion_error(e))?;
 
         // Attempt to fetch the package.
         let reader = {
@@ -107,7 +105,7 @@ impl Command for Add {
                 .api
                 .run_route(fetch)?
                 .bytes()
-                .map_err(|e| CliError::cli_bytes_conversion_error(e, new_backtrace()))?;
+                .map_err(|e| CliError::cli_bytes_conversion_error(e))?;
             std::io::Cursor::new(bytes)
         };
 
@@ -117,15 +115,13 @@ impl Command for Add {
             ImportsDirectory::create(&path)?;
             path.push(IMPORTS_DIRECTORY_NAME);
             path.push(package_name);
-            create_dir_all(&path).map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+            create_dir_all(&path).map_err(|e| CliError::cli_io_error(e))?;
         };
 
         // Proceed to unzip and parse the fetched bytes.
-        let mut zip_archive = zip::ZipArchive::new(reader).map_err(|e| CliError::cli_zip_error(e, new_backtrace()))?;
+        let mut zip_archive = zip::ZipArchive::new(reader).map_err(|e| CliError::cli_zip_error(e))?;
         for i in 0..zip_archive.len() {
-            let file = zip_archive
-                .by_index(i)
-                .map_err(|e| CliError::cli_zip_error(e, new_backtrace()))?;
+            let file = zip_archive.by_index(i).map_err(|e| CliError::cli_zip_error(e))?;
 
             let file_name = file.name();
 
@@ -133,16 +129,16 @@ impl Command for Add {
             file_path.push(file_name);
 
             if file_name.ends_with('/') {
-                create_dir_all(file_path).map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                create_dir_all(file_path).map_err(|e| CliError::cli_io_error(e))?;
             } else {
                 if let Some(parent_directory) = path.parent() {
-                    create_dir_all(parent_directory).map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                    create_dir_all(parent_directory).map_err(|e| CliError::cli_io_error(e))?;
                 }
 
-                let mut created = File::create(file_path).map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+                let mut created = File::create(file_path).map_err(|e| CliError::cli_io_error(e))?;
                 created
                     .write_all(&file.bytes().map(|e| e.unwrap()).collect::<Vec<u8>>())
-                    .map_err(|e| CliError::cli_bytes_conversion_error(e, new_backtrace()))?;
+                    .map_err(|e| CliError::cli_bytes_conversion_error(e))?;
             }
         }
 

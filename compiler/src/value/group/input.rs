@@ -19,7 +19,7 @@
 use crate::{ConstrainedValue, GroupType};
 use leo_asg::GroupValue;
 use leo_ast::InputValue;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
@@ -34,7 +34,7 @@ pub(crate) fn allocate_group<F: PrimeField, G: GroupType<F>, CS: ConstraintSyste
         cs.ns(|| format!("`{}: group` {}:{}", name, span.line_start, span.col_start)),
         || option.ok_or(SynthesisError::AssignmentMissing),
     )
-    .map_err(|_| CompilerError::group_value_missing_group(format!("{}: group", name), span, new_backtrace()))?)
+    .map_err(|_| CompilerError::group_value_missing_group(format!("{}: group", name), span))?)
 }
 
 pub(crate) fn group_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -49,7 +49,7 @@ pub(crate) fn group_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
             if let InputValue::Group(string) = input {
                 Some(string)
             } else {
-                return Err(CompilerError::group_value_missing_group(input, span, new_backtrace()).into());
+                return Err(CompilerError::group_value_missing_group(input, span).into());
             }
         }
         None => None,

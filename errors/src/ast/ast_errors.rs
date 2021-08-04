@@ -19,7 +19,7 @@ use std::{error::Error as ErrorArg, fmt::Debug};
 
 create_errors!(
     AstError,
-    exit_code_mask: 1000u32,
+    exit_code_mask: 1000i32,
     error_code_prefix: "AST",
 
     @backtraced

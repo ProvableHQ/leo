@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, GroupType};
 use leo_asg::{CharValue, ConsoleArgs};
-use leo_errors::{new_backtrace, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -55,7 +55,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                                     arg_index + 1,
                                     args.parameters.len(),
                                     &args.span,
-                                    new_backtrace(),
                                 )
                                 .into());
                             }
@@ -69,20 +68,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                                 substring.push('}');
                                 escape_right_bracket = true;
                             } else {
-                                return Err(CompilerError::console_fmt_expected_escaped_right_brace(
-                                    &args.span,
-                                    new_backtrace(),
-                                )
-                                .into());
+                                return Err(CompilerError::console_fmt_expected_escaped_right_brace(&args.span).into());
                             }
                         }
                     }
                     _ if in_container => {
-                        return Err(CompilerError::console_fmt_expected_left_or_right_brace(
-                            &args.span,
-                            new_backtrace(),
-                        )
-                        .into());
+                        return Err(CompilerError::console_fmt_expected_left_or_right_brace(&args.span).into());
                     }
                     _ => substring.push(*scalar),
                 },
@@ -100,7 +91,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 arg_index,
                 args.parameters.len(),
                 &args.span,
-                new_backtrace(),
             )
             .into());
         }

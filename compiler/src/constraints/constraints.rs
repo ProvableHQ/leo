@@ -19,7 +19,7 @@
 use crate::{ConstrainedProgram, GroupType, Output, OutputFile};
 use leo_asg::Program;
 use leo_ast::Input;
-use leo_errors::{new_backtrace, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
@@ -48,7 +48,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
             let result = resolved_program.enforce_main_function(cs, function, input)?;
             Ok(result)
         }
-        _ => Err(CompilerError::no_main_function(new_backtrace()).into()),
+        _ => Err(CompilerError::no_main_function().into()),
     }
 }
 
@@ -103,11 +103,11 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
                 {
                     Some(pair) => pair.to_owned(),
                     None => {
-                        return Err(CompilerError::invalid_test_context(file_name, new_backtrace()).into());
+                        return Err(CompilerError::invalid_test_context(file_name).into());
                     }
                 }
             }
-            None => default.ok_or_else(|| CompilerError::no_test_input(new_backtrace()))?,
+            None => default.ok_or_else(|| CompilerError::no_test_input())?,
         };
 
         // parse input files to abstract syntax trees

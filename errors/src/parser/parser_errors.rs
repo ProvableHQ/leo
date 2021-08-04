@@ -20,7 +20,7 @@ use std::fmt::Display;
 
 create_errors!(
     ParserError,
-    exit_code_mask: 5000u32,
+    exit_code_mask: 5000i32,
     error_code_prefix: "PAR",
 
     @formatted

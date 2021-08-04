@@ -16,7 +16,7 @@
 
 use crate::{number_string_typing, GroupType};
 use leo_asg::{GroupCoordinate, GroupValue};
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_curves::{
     edwards_bls12::{EdwardsAffine, EdwardsParameters, Fq},
@@ -63,7 +63,7 @@ impl GroupType<Fq> for EdwardsGroupType {
         Ok(self
             .allocated(cs.ns(|| format!("allocate affine point {}:{}", span.line_start, span.col_start)))
             .map(|ebg| EdwardsGroupType::Allocated(Box::new(ebg)))
-            .map_err(|e| CompilerError::group_value_synthesis_error(e, span, new_backtrace()))?)
+            .map_err(|e| CompilerError::group_value_synthesis_error(e, span))?)
     }
 
     fn negate<CS: ConstraintSystem<Fq>>(&self, cs: CS, span: &Span) -> Result<Self> {
@@ -71,7 +71,7 @@ impl GroupType<Fq> for EdwardsGroupType {
             EdwardsGroupType::Constant(group) => Ok(EdwardsGroupType::Constant(group.neg())),
             EdwardsGroupType::Allocated(group) => {
                 let result = <EdwardsBls12Gadget as GroupGadget<Affine<EdwardsParameters>, Fq>>::negate(group, cs)
-                    .map_err(|e| CompilerError::group_value_negate_operation(e, span, new_backtrace()))?;
+                    .map_err(|e| CompilerError::group_value_negate_operation(e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
@@ -90,7 +90,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| CompilerError::group_value_binary_operation("+", e, span, new_backtrace()))?;
+                .map_err(|e| CompilerError::group_value_binary_operation("+", e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
@@ -100,7 +100,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                 Ok(EdwardsGroupType::Allocated(Box::new(
                     allocated_value
                         .add_constant(cs, constant_value)
-                        .map_err(|e| CompilerError::group_value_binary_operation("+", e, span, new_backtrace()))?,
+                        .map_err(|e| CompilerError::group_value_binary_operation("+", e, span))?,
                 )))
             }
         }
@@ -118,7 +118,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                     cs,
                     other_value,
                 )
-                .map_err(|e| CompilerError::group_value_binary_operation("-", e, span, new_backtrace()))?;
+                .map_err(|e| CompilerError::group_value_binary_operation("-", e, span))?;
 
                 Ok(EdwardsGroupType::Allocated(Box::new(result)))
             }
@@ -128,7 +128,7 @@ impl GroupType<Fq> for EdwardsGroupType {
                 Ok(EdwardsGroupType::Allocated(Box::new(
                     allocated_value
                         .sub_constant(cs, constant_value)
-                        .map_err(|e| CompilerError::group_value_binary_operation("-", e, span, new_backtrace()))?,
+                        .map_err(|e| CompilerError::group_value_binary_operation("-", e, span))?,
                 )))
             }
         }
@@ -151,10 +151,12 @@ impl EdwardsGroupType {
         } else {
             let one = edwards_affine_one();
             let number_value = match number_info {
-                (number, neg) if neg => -Fp256::from_str(&number)
-                    .map_err(|_| CompilerError::group_value_n_group(number, span, new_backtrace()))?,
-                (number, _) => Fp256::from_str(&number)
-                    .map_err(|_| CompilerError::group_value_n_group(number, span, new_backtrace()))?,
+                (number, neg) if neg => {
+                    -Fp256::from_str(&number).map_err(|_| CompilerError::group_value_n_group(number, span))?
+                }
+                (number, _) => {
+                    Fp256::from_str(&number).map_err(|_| CompilerError::group_value_n_group(number, span))?
+                }
             };
 
             let result: EdwardsAffine = one.mul(number_value);
@@ -202,9 +204,7 @@ impl EdwardsGroupType {
             }
             // Invalid
             (x, y) => {
-                return Err(
-                    CompilerError::group_value_invalid_group(format!("({}, {})", x, y), span, new_backtrace()).into(),
-                );
+                return Err(CompilerError::group_value_invalid_group(format!("({}, {})", x, y), span).into());
             }
         }
     }
@@ -216,16 +216,16 @@ impl EdwardsGroupType {
         element_span: &Span,
     ) -> Result<EdwardsAffine> {
         let x = match x_info {
-            (x_str, neg) if neg => -Fq::from_str(&x_str)
-                .map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span, new_backtrace()))?,
-            (x_str, _) => Fq::from_str(&x_str)
-                .map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span, new_backtrace()))?,
+            (x_str, neg) if neg => {
+                -Fq::from_str(&x_str).map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span))?
+            }
+            (x_str, _) => Fq::from_str(&x_str).map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span))?,
         };
 
         match greatest {
             // Sign provided
             Some(greatest) => Ok(EdwardsAffine::from_x_coordinate(x, greatest)
-                .ok_or_else(|| CompilerError::group_value_x_recover(element_span, new_backtrace()))?),
+                .ok_or_else(|| CompilerError::group_value_x_recover(element_span))?),
             // Sign inferred
             None => {
                 // Attempt to recover with a sign_low bit.
@@ -239,7 +239,7 @@ impl EdwardsGroupType {
                 }
 
                 // Otherwise return error.
-                Err(CompilerError::group_value_x_recover(element_span, new_backtrace()).into())
+                Err(CompilerError::group_value_x_recover(element_span).into())
             }
         }
     }
@@ -251,16 +251,16 @@ impl EdwardsGroupType {
         element_span: &Span,
     ) -> Result<EdwardsAffine> {
         let y = match y_info {
-            (y_str, neg) if neg => -Fq::from_str(&y_str)
-                .map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span, new_backtrace()))?,
-            (y_str, _) => Fq::from_str(&y_str)
-                .map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span, new_backtrace()))?,
+            (y_str, neg) if neg => {
+                -Fq::from_str(&y_str).map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span))?
+            }
+            (y_str, _) => Fq::from_str(&y_str).map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span))?,
         };
 
         match greatest {
             // Sign provided
             Some(greatest) => Ok(EdwardsAffine::from_y_coordinate(y, greatest)
-                .ok_or_else(|| CompilerError::group_value_y_recover(element_span, new_backtrace()))?),
+                .ok_or_else(|| CompilerError::group_value_y_recover(element_span))?),
             // Sign inferred
             None => {
                 // Attempt to recover with a sign_low bit.
@@ -274,7 +274,7 @@ impl EdwardsGroupType {
                 }
 
                 // Otherwise return error.
-                Err(CompilerError::group_value_y_recover(element_span, new_backtrace()).into())
+                Err(CompilerError::group_value_y_recover(element_span).into())
             }
         }
     }
@@ -287,17 +287,17 @@ impl EdwardsGroupType {
         element_span: &Span,
     ) -> Result<EdwardsAffine> {
         let x = match x_info {
-            (x_str, neg) if neg => -Fq::from_str(&x_str)
-                .map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span, new_backtrace()))?,
-            (x_str, _) => Fq::from_str(&x_str)
-                .map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span, new_backtrace()))?,
+            (x_str, neg) if neg => {
+                -Fq::from_str(&x_str).map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span))?
+            }
+            (x_str, _) => Fq::from_str(&x_str).map_err(|_| CompilerError::group_value_x_invalid(x_str, x_span))?,
         };
 
         let y = match y_info {
-            (y_str, neg) if neg => -Fq::from_str(&y_str)
-                .map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span, new_backtrace()))?,
-            (y_str, _) => Fq::from_str(&y_str)
-                .map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span, new_backtrace()))?,
+            (y_str, neg) if neg => {
+                -Fq::from_str(&y_str).map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span))?
+            }
+            (y_str, _) => Fq::from_str(&y_str).map_err(|_| CompilerError::group_value_y_invalid(y_str, y_span))?,
         };
 
         let element = EdwardsAffine::new(x, y);
@@ -305,7 +305,7 @@ impl EdwardsGroupType {
         if element.is_on_curve() {
             Ok(element)
         } else {
-            Err(CompilerError::group_value_not_on_curve(element, element_span, new_backtrace()).into())
+            Err(CompilerError::group_value_not_on_curve(element, element_span).into())
         }
     }
 

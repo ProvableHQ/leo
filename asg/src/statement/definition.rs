@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Type, Variable};
-use leo_errors::{new_backtrace, AsgError, Result, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -71,7 +71,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                 .collect::<Vec<String>>()
                 .join(" ,");
 
-            return Err(AsgError::invalid_const_assign(var_names, &statement.span, new_backtrace()).into());
+            return Err(AsgError::invalid_const_assign(var_names, &statement.span).into());
         }
 
         let type_ = type_.or_else(|| value.get_type());
@@ -83,7 +83,6 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             return Err(AsgError::illegal_ast_structure(
                 "cannot have 0 variable names in destructuring tuple",
                 &statement.span,
-                new_backtrace(),
             )
             .into());
         }
@@ -101,7 +100,6 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                         format!("{}-ary tuple", statement.variable_names.len()),
                         type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                         &statement.span,
-                        new_backtrace(),
                     )
                     .into());
                 }
@@ -112,9 +110,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             variables.push(&*scope.context.alloc_variable(RefCell::new(InnerVariable {
                 id: scope.context.get_id(),
                 name: variable.identifier.clone(),
-                type_: type_.ok_or_else(|| {
-                    AsgError::unresolved_type(&variable.identifier.name, &statement.span, new_backtrace())
-                })?,
+                type_: type_.ok_or_else(|| AsgError::unresolved_type(&variable.identifier.name, &statement.span))?,
                 mutable: variable.mutable,
                 const_: false,
                 declaration: crate::VariableDeclaration::Definition,
@@ -127,7 +123,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             let mut variables = scope.variables.borrow_mut();
             let var_name = variable.borrow().name.name.to_string();
             if variables.contains_key(&var_name) {
-                return Err(AsgError::duplicate_variable_definition(var_name, &statement.span, new_backtrace()).into());
+                return Err(AsgError::duplicate_variable_definition(var_name, &statement.span).into());
             }
 
             variables.insert(var_name, *variable);

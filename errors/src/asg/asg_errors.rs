@@ -20,7 +20,7 @@ use std::fmt::{Debug, Display};
 
 create_errors!(
     AsgError,
-    exit_code_mask: 0u32,
+    exit_code_mask: 0i32,
     error_code_prefix: "ASG",
 
     @formatted

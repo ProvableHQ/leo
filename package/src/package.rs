@@ -21,7 +21,7 @@ use crate::{
     source::{MainFile, SourceDirectory},
 };
 
-use leo_errors::{new_backtrace, PackageError, Result};
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::path::Path;
@@ -38,7 +38,7 @@ impl Package {
     pub fn new(package_name: &str) -> Result<Self> {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
-            return Err(PackageError::invalid_package_name(package_name, new_backtrace()).into());
+            return Err(PackageError::invalid_package_name(package_name).into());
         }
 
         Ok(Self {
@@ -187,12 +187,7 @@ impl Package {
         // First, verify that this directory is not already initialized as a Leo package.
         {
             if !Self::can_initialize(package_name, path) {
-                return Err(PackageError::failed_to_initialize_package(
-                    package_name,
-                    path.as_os_str(),
-                    new_backtrace(),
-                )
-                .into());
+                return Err(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
             }
         }
         // Next, initialize this directory as a Leo package.
@@ -230,12 +225,7 @@ impl Package {
         // Next, verify that a valid Leo package has been initialized in this directory
         {
             if !Self::is_initialized(package_name, path) {
-                return Err(PackageError::failed_to_initialize_package(
-                    package_name,
-                    path.as_os_str(),
-                    new_backtrace(),
-                )
-                .into());
+                return Err(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
             }
         }
 

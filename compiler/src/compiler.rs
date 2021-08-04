@@ -27,7 +27,7 @@ use crate::{
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, Program as AsgProgram};
 use leo_ast::{Input, MainInput, Program as AstProgram};
-use leo_errors::{new_backtrace, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
@@ -226,7 +226,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     pub fn parse_program(&mut self) -> Result<()> {
         // Load the program file.
         let content = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e, new_backtrace()))?;
+            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
 
         self.parse_program_from_string(&content)
     }
@@ -324,7 +324,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     pub fn checksum(&self) -> Result<String> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
-            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e, new_backtrace()))?;
+            .map_err(|e| CompilerError::file_read_error(self.main_file_path.clone(), e))?;
 
         // Hash the file contents
         let mut hasher = Sha256::new();

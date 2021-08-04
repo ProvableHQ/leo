@@ -17,7 +17,7 @@
 //! A data type that represents a field value
 
 use crate::number_string_typing;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
@@ -50,14 +50,16 @@ impl<F: PrimeField> FieldType<F> {
         let number_info = number_string_typing(&string);
 
         let value = match number_info {
-            (number, neg) if neg => -F::from_str(&number)
-                .map_err(|_| CompilerError::field_value_invalid_field(string.clone(), span, new_backtrace()))?,
-            (number, _) => F::from_str(&number)
-                .map_err(|_| CompilerError::field_value_invalid_field(string.clone(), span, new_backtrace()))?,
+            (number, neg) if neg => {
+                -F::from_str(&number).map_err(|_| CompilerError::field_value_invalid_field(string.clone(), span))?
+            }
+            (number, _) => {
+                F::from_str(&number).map_err(|_| CompilerError::field_value_invalid_field(string.clone(), span))?
+            }
         };
 
         let value = FpGadget::alloc_constant(cs, || Ok(value))
-            .map_err(|_| CompilerError::field_value_invalid_field(string, span, new_backtrace()))?;
+            .map_err(|_| CompilerError::field_value_invalid_field(string, span))?;
 
         Ok(FieldType(value))
     }
@@ -67,7 +69,7 @@ impl<F: PrimeField> FieldType<F> {
         let result = self
             .0
             .negate(cs)
-            .map_err(|e| CompilerError::field_value_negate_operation(e, span, new_backtrace()))?;
+            .map_err(|e| CompilerError::field_value_negate_operation(e, span))?;
 
         Ok(FieldType(result))
     }
@@ -77,7 +79,7 @@ impl<F: PrimeField> FieldType<F> {
         let value = self
             .0
             .add(cs, &other.0)
-            .map_err(|e| CompilerError::field_value_binary_operation("+", e, span, new_backtrace()))?;
+            .map_err(|e| CompilerError::field_value_binary_operation("+", e, span))?;
 
         Ok(FieldType(value))
     }
@@ -87,7 +89,7 @@ impl<F: PrimeField> FieldType<F> {
         let value = self
             .0
             .sub(cs, &other.0)
-            .map_err(|e| CompilerError::field_value_binary_operation("-", e, span, new_backtrace()))?;
+            .map_err(|e| CompilerError::field_value_binary_operation("-", e, span))?;
 
         Ok(FieldType(value))
     }
@@ -97,7 +99,7 @@ impl<F: PrimeField> FieldType<F> {
         let value = self
             .0
             .mul(cs, &other.0)
-            .map_err(|e| CompilerError::field_value_binary_operation("*", e, span, new_backtrace()))?;
+            .map_err(|e| CompilerError::field_value_binary_operation("*", e, span))?;
 
         Ok(FieldType(value))
     }
@@ -107,7 +109,7 @@ impl<F: PrimeField> FieldType<F> {
         let value = self
             .0
             .inverse(cs)
-            .map_err(|e| CompilerError::field_value_binary_operation("inv", e, span, new_backtrace()))?;
+            .map_err(|e| CompilerError::field_value_binary_operation("inv", e, span))?;
 
         Ok(FieldType(value))
     }

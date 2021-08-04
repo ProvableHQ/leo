@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
-use leo_errors::{new_backtrace, AsgError, Result, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -90,7 +90,6 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
                     "tuple",
                     x.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                     &value.span,
-                    new_backtrace(),
                 )
                 .into());
             }
@@ -104,7 +103,6 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
                     format!("tuple of length {}", tuple_types.len()),
                     format!("tuple of length {}", value.elements.len()),
                     &value.span,
-                    new_backtrace(),
                 )
                 .into());
             }

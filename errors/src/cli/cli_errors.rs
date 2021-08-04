@@ -22,7 +22,7 @@ use std::{
 
 create_errors!(
     CliError,
-    exit_code_mask: 7000u32,
+    exit_code_mask: 7000i32,
     error_code_prefix: "CLI",
 
     @backtraced
@@ -321,20 +321,20 @@ create_errors!(
 );
 
 impl CliError {
-    pub fn remove_token_and_username(error: std::io::Error, backtrace: Backtrace) -> Self {
+    pub fn remove_token_and_username(error: std::io::Error) -> Self {
         use std::io::ErrorKind;
         match error.kind() {
             ErrorKind::NotFound => {
                 // tracing::info!("you are not logged in");
-                Self::not_logged_in(backtrace)
+                Self::not_logged_in()
             }
             ErrorKind::PermissionDenied => {
                 // tracing::error!("permission denied - check file permission in .leo folder");
-                Self::logout_permision_denied(backtrace)
+                Self::logout_permision_denied()
             }
             _ => {
                 // tracing::error!("something went wrong, can't access the file");
-                Self::cannot_access_logout_file(backtrace)
+                Self::cannot_access_logout_file()
             }
         }
     }

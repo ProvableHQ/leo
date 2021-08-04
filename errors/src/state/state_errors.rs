@@ -18,6 +18,6 @@ use crate::create_errors;
 
 create_errors!(
     StateError,
-    exit_code_mask: 6000u32,
-    error_code_prefix: "S",
+    exit_code_mask: 6000i32,
+    error_code_prefix: "STA",
 );

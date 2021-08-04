@@ -16,7 +16,7 @@
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::SpreadOrExpression;
-use leo_errors::{new_backtrace, AsgError, Result, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -109,7 +109,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
-                return Err(AsgError::unexpected_type(type_, "array", &value.span, new_backtrace()).into());
+                return Err(AsgError::unexpected_type(type_, "array", &value.span).into());
             }
         };
 
@@ -174,7 +174,6 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                                         .unwrap_or("unknown"),
                                     type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                                     &value.span,
-                                    new_backtrace(),
                                 )
                                 .into());
                             }
@@ -190,7 +189,6 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                     format!("array of length {}", expected_len),
                     format!("array of length {}", len),
                     &value.span,
-                    new_backtrace(),
                 )
                 .into());
             }

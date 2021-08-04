@@ -30,7 +30,7 @@ use crate::{
     root::{MANIFEST_FILENAME, README_FILENAME},
     source::{SOURCE_DIRECTORY_NAME, SOURCE_FILE_EXTENSION},
 };
-use leo_errors::{new_backtrace, PackageError, Result};
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::{
@@ -83,7 +83,7 @@ impl ZipFile {
         // Create zip file
         let path = self.setup_file_path(src_dir);
 
-        let file = File::create(&path).map_err(|e| PackageError::failed_to_create_zip_file(e, new_backtrace()))?;
+        let file = File::create(&path).map_err(|e| PackageError::failed_to_create_zip_file(e))?;
         let mut zip = ZipWriter::new(file);
         let options = FileOptions::default()
             .compression_method(zip::CompressionMethod::Stored)
@@ -108,13 +108,13 @@ impl ZipFile {
                 tracing::info!("Adding file {:?} as {:?}", path, name);
                 #[allow(deprecated)]
                 zip.start_file_from_path(name, options)
-                    .map_err(|e| PackageError::io_error_zip_file(e, new_backtrace()))?;
+                    .map_err(|e| PackageError::io_error_zip_file(e))?;
 
-                let mut f = File::open(path).map_err(|e| PackageError::failed_to_open_zip_file(e, new_backtrace()))?;
+                let mut f = File::open(path).map_err(|e| PackageError::failed_to_open_zip_file(e))?;
                 f.read_to_end(&mut buffer)
-                    .map_err(|e| PackageError::failed_to_read_zip_file(e, new_backtrace()))?;
+                    .map_err(|e| PackageError::failed_to_read_zip_file(e))?;
                 zip.write_all(&*buffer)
-                    .map_err(|e| PackageError::failed_to_write_zip_file(e, new_backtrace()))?;
+                    .map_err(|e| PackageError::failed_to_write_zip_file(e))?;
 
                 buffer.clear();
             } else if !name.as_os_str().is_empty() {
@@ -123,12 +123,11 @@ impl ZipFile {
                 tracing::info!("Adding directory {:?} as {:?}", path, name);
                 #[allow(deprecated)]
                 zip.add_directory_from_path(name, options)
-                    .map_err(|e| PackageError::io_error_zip_file(e, new_backtrace()))?;
+                    .map_err(|e| PackageError::io_error_zip_file(e))?;
             }
         }
 
-        zip.finish()
-            .map_err(|e| PackageError::io_error_zip_file(e, new_backtrace()))?;
+        zip.finish().map_err(|e| PackageError::io_error_zip_file(e))?;
 
         tracing::info!("Package zip file created successfully {:?}", path);
 
@@ -143,7 +142,7 @@ impl ZipFile {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_zip_file(path, new_backtrace()))?;
+        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_zip_file(path))?;
         Ok(true)
     }
 

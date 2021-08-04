@@ -17,7 +17,7 @@
 //! Enforces a relational `==` operator in a resolved Leo program.
 
 use crate::{enforce_and, value::ConstrainedValue, GroupType};
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{boolean::Boolean, traits::eq::EvaluateEqGadget};
@@ -75,14 +75,11 @@ pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             return Ok(current);
         }
         (val_1, val_2) => {
-            return Err(
-                CompilerError::incompatible_types(format!("{} == {}", val_1, val_2,), span, new_backtrace()).into(),
-            );
+            return Err(CompilerError::incompatible_types(format!("{} == {}", val_1, val_2,), span).into());
         }
     };
 
-    let boolean =
-        constraint_result.map_err(|_| CompilerError::cannot_evaluate_expression("==", span, new_backtrace()))?;
+    let boolean = constraint_result.map_err(|_| CompilerError::cannot_evaluate_expression("==", span))?;
 
     Ok(ConstrainedValue::Boolean(boolean))
 }

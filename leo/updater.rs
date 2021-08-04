@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::config::Config;
-use leo_errors::{new_backtrace, CliError, Result};
+use leo_errors::{CliError, Result};
 
 use colored::Colorize;
 use self_update::{backends::github, version::bump_is_greater, Status};
@@ -34,9 +34,9 @@ impl Updater {
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
             .build()
-            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?
+            .map_err(|e| CliError::self_update_error(e))?
             .fetch()
-            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?;
+            .map_err(|e| CliError::self_update_error(e))?;
 
         let mut output = "\nList of available versions\n".to_string();
         for release in releases {
@@ -60,9 +60,9 @@ impl Updater {
             .no_confirm(true)
             .show_output(show_output)
             .build()
-            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?
+            .map_err(|e| CliError::self_update_error(e))?
             .update()
-            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?;
+            .map_err(|e| CliError::self_update_error(e))?;
 
         Ok(status)
     }
@@ -75,19 +75,17 @@ impl Updater {
             .bin_name(Self::LEO_BIN_NAME)
             .current_version(env!("CARGO_PKG_VERSION"))
             .build()
-            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?;
+            .map_err(|e| CliError::self_update_error(e))?;
 
         let current_version = updater.current_version();
         let latest_release = updater
             .get_latest_release()
-            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?;
+            .map_err(|e| CliError::self_update_error(e))?;
 
-        if bump_is_greater(&current_version, &latest_release.version)
-            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?
-        {
+        if bump_is_greater(&current_version, &latest_release.version).map_err(|e| CliError::self_update_error(e))? {
             Ok(latest_release.version)
         } else {
-            Err(CliError::old_release_version(current_version, latest_release.version, new_backtrace()).into())
+            Err(CliError::old_release_version(current_version, latest_release.version).into())
         }
     }
 

@@ -18,7 +18,7 @@ use std::{borrow::Cow, unimplemented};
 
 use crate::{assert_no_whitespace, tokenizer::*, Token, KEYWORD_TOKENS};
 use leo_ast::*;
-use leo_errors::{new_backtrace, LeoError, ParserError, Result, Span};
+use leo_errors::{LeoError, ParserError, Result, Span};
 use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.
@@ -64,7 +64,7 @@ impl ParserContext {
     /// Returns an unexpected end of function [`SyntaxError`].
     ///
     pub fn eof(&self) -> LeoError {
-        ParserError::unexpected_eof(&self.end_span, new_backtrace()).into()
+        ParserError::unexpected_eof(&self.end_span).into()
     }
 
     ///
@@ -300,7 +300,7 @@ impl ParserContext {
             if &token == inner {
                 Ok(self.tokens.pop().unwrap().span)
             } else {
-                Err(ParserError::unexpected(inner, token, span, new_backtrace()).into())
+                Err(ParserError::unexpected(inner, token, span).into())
             }
         } else {
             Err(self.eof())
@@ -319,7 +319,6 @@ impl ParserContext {
                     inner,
                     token.iter().map(|x| format!("'{}'", x)).collect::<Vec<_>>().join(", "),
                     span,
-                    new_backtrace(),
                 )
                 .into());
             }
@@ -362,7 +361,7 @@ impl ParserContext {
                     unimplemented!()
                 }
             } else {
-                Err(ParserError::unexpected_str(inner, "ident", span, new_backtrace()).into())
+                Err(ParserError::unexpected_str(inner, "ident", span).into())
             }
         } else {
             Err(self.eof())

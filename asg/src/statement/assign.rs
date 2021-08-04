@@ -32,7 +32,7 @@ use crate::{
 };
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
-use leo_errors::{new_backtrace, AsgError, Result, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -78,18 +78,17 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                 return Err(AsgError::illegal_input_variable_reference(
                     "attempted to reference input when none is in scope",
                     &statement.span,
-                    new_backtrace(),
                 )
                 .into());
             }
         } else {
             scope
                 .resolve_variable(name)
-                .ok_or_else(|| AsgError::unresolved_reference(name, span, new_backtrace()))?
+                .ok_or_else(|| AsgError::unresolved_reference(name, span))?
         };
 
         if !variable.borrow().mutable {
-            return Err(AsgError::immutable_assignment(name, &statement.span, new_backtrace()).into());
+            return Err(AsgError::immutable_assignment(name, &statement.span).into());
         }
         let mut target_type: Option<PartialType> = Some(variable.borrow().type_.clone().into());
 
@@ -124,23 +123,13 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             ) {
                                 let left = match left {
                                     ConstValue::Int(x) => x.to_usize().ok_or_else(|| {
-                                        AsgError::invalid_assign_index(
-                                            name,
-                                            x.to_string(),
-                                            &statement.span,
-                                            new_backtrace(),
-                                        )
+                                        AsgError::invalid_assign_index(name, x.to_string(), &statement.span)
                                     })?,
                                     _ => unimplemented!(),
                                 };
                                 let right = match right {
                                     ConstValue::Int(x) => x.to_usize().ok_or_else(|| {
-                                        AsgError::invalid_assign_index(
-                                            name,
-                                            x.to_string(),
-                                            &statement.span,
-                                            new_backtrace(),
-                                        )
+                                        AsgError::invalid_assign_index(name, x.to_string(), &statement.span)
                                     })?,
                                     _ => unimplemented!(),
                                 };
@@ -152,13 +141,12 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                                         left,
                                         right,
                                         &statement.span,
-                                        new_backtrace(),
                                     )
                                     .into());
                                 }
                             }
                         }
-                        _ => return Err(AsgError::index_into_non_array(name, &statement.span, new_backtrace()).into()),
+                        _ => return Err(AsgError::index_into_non_array(name, &statement.span).into()),
                     }
 
                     AssignAccess::ArrayRange(Cell::new(left), Cell::new(right))
@@ -166,7 +154,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                 AstAssigneeAccess::ArrayIndex(index) => {
                     target_type = match target_type.clone() {
                         Some(PartialType::Array(item, _)) => item.map(|x| *x),
-                        _ => return Err(AsgError::index_into_non_array(name, &statement.span, new_backtrace()).into()),
+                        _ => return Err(AsgError::index_into_non_array(name, &statement.span).into()),
                     };
                     AssignAccess::ArrayIndex(Cell::new(<&Expression<'a>>::from_ast(
                         scope,
@@ -178,12 +166,13 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                     let index = index
                         .value
                         .parse::<usize>()
-                        .map_err(|_| AsgError::parse_index_error(span, new_backtrace()))?;
+                        .map_err(|_| AsgError::parse_index_error(span))?;
                     target_type = match target_type {
-                        Some(PartialType::Tuple(types)) => types.get(index).cloned().ok_or_else(|| {
-                            AsgError::tuple_index_out_of_bounds(index, &statement.span, new_backtrace())
-                        })?,
-                        _ => return Err(AsgError::index_into_non_tuple(name, &statement.span, new_backtrace()).into()),
+                        Some(PartialType::Tuple(types)) => types
+                            .get(index)
+                            .cloned()
+                            .ok_or_else(|| AsgError::tuple_index_out_of_bounds(index, &statement.span))?,
+                        _ => return Err(AsgError::index_into_non_tuple(name, &statement.span).into()),
                     };
                     AssignAccess::Tuple(index)
                 }
@@ -198,19 +187,13 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                                     &circuit.name.borrow().name,
                                     &name.name,
                                     &statement.span,
-                                    new_backtrace(),
                                 )
                             })?;
 
                             let x = match &member {
                                 CircuitMember::Variable(type_) => type_.clone(),
                                 CircuitMember::Function(_) => {
-                                    return Err(AsgError::illegal_function_assign(
-                                        &name.name,
-                                        &statement.span,
-                                        new_backtrace(),
-                                    )
-                                    .into());
+                                    return Err(AsgError::illegal_function_assign(&name.name, &statement.span).into());
                                 }
                             };
                             Some(x.partial())
@@ -219,7 +202,6 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             return Err(AsgError::index_into_non_tuple(
                                 &statement.assignee.identifier.name,
                                 &statement.span,
-                                new_backtrace(),
                             )
                             .into());
                         }

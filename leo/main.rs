@@ -39,6 +39,7 @@ use commands::{
 };
 use leo_errors::Result;
 
+use color_backtrace;
 use colored::Colorize;
 use std::{path::PathBuf, process::exit};
 use structopt::{clap::AppSettings, StructOpt};
@@ -182,6 +183,7 @@ enum CommandOpts {
 }
 
 fn main() {
+    color_backtrace::install();
     handle_error(run_with_args(Opt::from_args()))
 }
 
@@ -244,7 +246,7 @@ fn handle_error<T>(res: Result<T>) -> T {
                     .collect::<Vec<_>>()
                     .join("\n")
             );
-            exit(1);
+            exit(err.exit_code());
         }
     }
 }

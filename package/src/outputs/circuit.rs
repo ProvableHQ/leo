@@ -17,7 +17,7 @@
 //! The serialized circuit output file.
 
 use crate::outputs::OUTPUTS_DIRECTORY_NAME;
-use leo_errors::{new_backtrace, PackageError, Result};
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::{
@@ -53,18 +53,18 @@ impl CircuitFile {
     pub fn read_from(&self, path: &Path) -> Result<String> {
         let path = self.setup_file_path(path);
 
-        let string = fs::read_to_string(&path)
-            .map_err(|_| PackageError::failed_to_read_circuit_file(path.into_owned(), new_backtrace()))?;
+        let string =
+            fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_circuit_file(path.into_owned()))?;
         Ok(string)
     }
 
     /// Writes the given serialized circuit to a file.
     pub fn write_to(&self, path: &Path, circuit: String) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_circuit_file(e, new_backtrace()))?;
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_circuit_file(e))?;
 
         file.write_all(circuit.as_bytes())
-            .map_err(|e| PackageError::io_error_circuit_file(e, new_backtrace()))?;
+            .map_err(|e| PackageError::io_error_circuit_file(e))?;
         Ok(())
     }
 
@@ -76,7 +76,7 @@ impl CircuitFile {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_circuit_file(path, new_backtrace()))?;
+        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_circuit_file(path))?;
         Ok(true)
     }
 

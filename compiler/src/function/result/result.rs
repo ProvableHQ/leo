@@ -19,7 +19,7 @@
 use crate::{get_indicator_value, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::Type;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{boolean::Boolean, traits::select::CondSelectGadget};
@@ -55,7 +55,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             if get_indicator_value(&indicator) {
                 // Error if we already have a return value.
                 if return_value.is_some() {
-                    return Err(CompilerError::statement_multiple_returns(span, new_backtrace()).into());
+                    return Err(CompilerError::statement_multiple_returns(span).into());
                 } else {
                     // Set the function return value.
                     return_value = Some(result);
@@ -79,7 +79,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         &result,
                         value,
                     )
-                    .map_err(|_| CompilerError::statement_select_fail(result, value, span, new_backtrace()))?,
+                    .map_err(|_| CompilerError::statement_select_fail(result, value, span))?,
                 );
             } else {
                 return_value = Some(result); // we ignore indicator for default -- questionable
@@ -89,9 +89,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if expected_return.is_unit() {
             Ok(ConstrainedValue::Tuple(vec![]))
         } else {
-            Ok(return_value.ok_or_else(|| {
-                CompilerError::statement_no_returns(expected_return.to_string(), span, new_backtrace())
-            })?)
+            Ok(return_value.ok_or_else(|| CompilerError::statement_no_returns(expected_return.to_string(), span))?)
         }
     }
 }

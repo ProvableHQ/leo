@@ -21,7 +21,7 @@ use crate::{
 };
 
 use leo_ast::InputValue;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
@@ -155,7 +155,7 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
                     }
                 }
             } else {
-                return Err(CompilerError::char_value_invalid_char(input, span, new_backtrace()).into());
+                return Err(CompilerError::char_value_invalid_char(input, span).into());
             }
         }
         None => (CharType::Scalar(0 as char), None),

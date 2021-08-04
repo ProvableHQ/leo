@@ -22,7 +22,7 @@ use crate::{
     GroupType,
 };
 use leo_asg::{CircuitInitExpression, CircuitMember};
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -50,7 +50,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     resolved_members.push(ConstrainedCircuitMember(name.clone(), variable_value));
                 }
                 _ => {
-                    return Err(CompilerError::expected_circuit_member(name, span, new_backtrace()).into());
+                    return Err(CompilerError::expected_circuit_member(name, span).into());
                 }
             }
         }

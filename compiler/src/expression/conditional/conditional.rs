@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Expression;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::select::CondSelectGadget;
@@ -38,12 +38,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let conditional_value = match self.enforce_expression(cs, conditional)? {
             ConstrainedValue::Boolean(resolved) => resolved,
             value => {
-                return Err(CompilerError::conditional_boolean_expression_fails_to_resolve_to_bool(
-                    value,
-                    span,
-                    new_backtrace(),
-                )
-                .into());
+                return Err(CompilerError::conditional_boolean_expression_fails_to_resolve_to_bool(value, span).into());
             }
         };
 
@@ -60,7 +55,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         Ok(
             ConstrainedValue::conditionally_select(unique_namespace, &conditional_value, &first_value, &second_value)
-                .map_err(|e| CompilerError::cannot_enforce_expression("conditional select", e, span, new_backtrace()))?,
+                .map_err(|e| CompilerError::cannot_enforce_expression("conditional select", e, span))?,
         )
     }
 }

@@ -21,7 +21,7 @@ use leo_compiler::{
     AstSnapshotOptions,
     CompilerOptions,
 };
-use leo_errors::{new_backtrace, CliError, Result};
+use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -145,7 +145,7 @@ impl Command for Build {
 
         // Compile the main.leo file along with constraints
         if !MainFile::exists_at(&package_path) {
-            return Err(CliError::package_main_file_not_found(new_backtrace()).into());
+            return Err(CliError::package_main_file_not_found().into());
         }
 
         // Create the output directory

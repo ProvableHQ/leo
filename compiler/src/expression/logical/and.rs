@@ -17,7 +17,7 @@
 //! Enforces a logical `&&` operator in a resolved Leo program.
 
 use crate::{value::ConstrainedValue, GroupType};
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -37,10 +37,10 @@ pub fn enforce_and<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             &left_bool,
             &right_bool,
         )
-        .map_err(|e| CompilerError::cannot_enforce_expression("&&", e, span, new_backtrace()))?;
+        .map_err(|e| CompilerError::cannot_enforce_expression("&&", e, span))?;
 
         return Ok(ConstrainedValue::Boolean(result));
     }
 
-    Err(CompilerError::cannot_evaluate_expression(name, span, new_backtrace()).into())
+    Err(CompilerError::cannot_evaluate_expression(name, span).into())
 }

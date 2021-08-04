@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Expression;
-use leo_errors::{new_backtrace, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -38,7 +38,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             .transpose()?
             .map(|x| {
                 x.to_usize()
-                    .ok_or_else(|| CompilerError::statement_array_assign_index_const(&context.span, new_backtrace()))
+                    .ok_or_else(|| CompilerError::statement_array_assign_index_const(&context.span))
             })
             .transpose()?;
         let stop_index = stop
@@ -46,7 +46,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             .transpose()?
             .map(|x| {
                 x.to_usize()
-                    .ok_or_else(|| CompilerError::statement_array_assign_index_const(&context.span, new_backtrace()))
+                    .ok_or_else(|| CompilerError::statement_array_assign_index_const(&context.span))
             })
             .transpose()?;
         let start_index = start_index.unwrap_or(0);
@@ -75,7 +75,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     }
                     Ok(())
                 }
-                _ => Err(CompilerError::statement_array_assign_index(&context.span, new_backtrace()).into()),
+                _ => Err(CompilerError::statement_array_assign_index(&context.span).into()),
             }
         } else {
             // range of a range

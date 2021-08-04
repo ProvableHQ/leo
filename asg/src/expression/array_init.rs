@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
-use leo_errors::{new_backtrace, AsgError, Result, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -74,7 +74,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
-                return Err(AsgError::unexpected_type(type_, "array", &value.span, new_backtrace()).into());
+                return Err(AsgError::unexpected_type(type_, "array", &value.span).into());
             }
         };
         let dimensions = value
@@ -84,20 +84,19 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             .map(|x| {
                 Ok(x.value
                     .parse::<usize>()
-                    .map_err(|_| AsgError::parse_dimension_error(&value.span, new_backtrace()))?)
+                    .map_err(|_| AsgError::parse_dimension_error(&value.span))?)
             })
             .collect::<Result<Vec<_>>>()?;
 
         let len = *dimensions
             .get(0)
-            .ok_or_else(|| AsgError::parse_dimension_error(&value.span, new_backtrace()))?;
+            .ok_or_else(|| AsgError::parse_dimension_error(&value.span))?;
         if let Some(expected_len) = expected_len {
             if expected_len != len {
                 return Err(AsgError::unexpected_type(
                     format!("array of length {}", expected_len),
                     format!("array of length {}", len),
                     &value.span,
-                    new_backtrace(),
                 )
                 .into());
             }
@@ -112,7 +111,6 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                                 format!("array of length {}", dimension),
                                 format!("array of length {}", len),
                                 &value.span,
-                                new_backtrace(),
                             )
                             .into());
                         }
@@ -122,7 +120,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                 }
                 None => None,
                 Some(type_) => {
-                    return Err(AsgError::unexpected_type("array", type_, &value.span, new_backtrace()).into());
+                    return Err(AsgError::unexpected_type("array", type_, &value.span).into());
                 }
             }
         }

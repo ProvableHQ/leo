@@ -16,7 +16,7 @@
 
 use super::build::{Build, BuildOptions};
 use crate::{commands::Command, context::Context};
-use leo_errors::{new_backtrace, CliError, Result};
+use leo_errors::{CliError, Result};
 
 use std::{sync::mpsc::channel, time::Duration};
 
@@ -56,7 +56,7 @@ impl Command for Watch {
 
         watcher
             .watch(LEO_SOURCE_DIR, RecursiveMode::Recursive)
-            .map_err(|e| CliError::unable_to_watch(e, new_backtrace()))?;
+            .map_err(|e| CliError::unable_to_watch(e))?;
 
         tracing::info!("Watching Leo source code");
 

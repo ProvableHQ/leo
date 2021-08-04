@@ -23,7 +23,7 @@ use std::{
 
 create_errors!(
     ImportError,
-    exit_code_mask: 3000u32,
+    exit_code_mask: 3000i32,
     error_code_prefix: "IMP",
 
     // An imported package has the same name as an imported core_package.

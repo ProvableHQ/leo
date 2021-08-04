@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{new_backtrace, CliError, Result};
+use leo_errors::{CliError, Result};
 
 use std::{fmt, sync::Once};
 
@@ -214,7 +214,7 @@ where
 pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
     // This line enables Windows 10 ANSI coloring API.
     #[cfg(target_family = "windows")]
-    ansi_term::enable_ansi_support().map_err(|_| CliError::failed_to_enable_ansi_support(new_backtrace()))?;
+    ansi_term::enable_ansi_support().map_err(|_| CliError::failed_to_enable_ansi_support())?;
 
     use tracing_subscriber::fmt::writer::MakeWriterExt;
 

@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Expression;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -35,13 +35,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         // Get the tuple values.
         let tuple = match self.enforce_expression(cs, tuple)? {
             ConstrainedValue::Tuple(tuple) => tuple,
-            value => return Err(CompilerError::undefined_array(value, span, new_backtrace()).into()),
+            value => return Err(CompilerError::undefined_array(value, span).into()),
         };
 
         // Check for out of bounds access.
         if index > tuple.len() - 1 {
             // probably safe to be a panic here
-            return Err(CompilerError::tuple_index_out_of_bounds(index, span, new_backtrace()).into());
+            return Err(CompilerError::tuple_index_out_of_bounds(index, span).into());
         }
 
         Ok(tuple[index].to_owned())

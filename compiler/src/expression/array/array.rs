@@ -20,7 +20,7 @@ use std::cell::Cell;
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Expression;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -52,9 +52,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if let Some(dimension) = expected_dimension {
             // Return an error if the expected dimension != the actual dimension.
             if dimension != result.len() {
-                return Err(
-                    CompilerError::unexpected_array_length(dimension, result.len(), span, new_backtrace()).into(),
-                );
+                return Err(CompilerError::unexpected_array_length(dimension, result.len(), span).into());
             }
         }
 

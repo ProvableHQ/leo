@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{AsgContext, Circuit, DefinitionStatement, Function, Input, Type, Variable};
-use leo_errors::{new_backtrace, AsgError, Result, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -189,7 +189,7 @@ impl<'a> Scope<'a> {
                     let dimension = dimension
                         .value
                         .parse::<usize>()
-                        .map_err(|_| AsgError::parse_index_error(span, new_backtrace()))?;
+                        .map_err(|_| AsgError::parse_index_error(span))?;
                     item = Box::new(Type::Array(item, dimension));
                 }
                 *item
@@ -202,15 +202,15 @@ impl<'a> Scope<'a> {
             ),
             Circuit(name) if name.name.as_ref() == "Self" => Type::Circuit(
                 self.resolve_circuit_self()
-                    .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span, new_backtrace()))?,
+                    .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
             ),
             SelfType => Type::Circuit(
                 self.resolve_circuit_self()
-                    .ok_or_else(|| AsgError::reference_self_outside_circuit(span, new_backtrace()))?,
+                    .ok_or_else(|| AsgError::reference_self_outside_circuit(span))?,
             ),
             Circuit(name) => Type::Circuit(
                 self.resolve_circuit(&name.name)
-                    .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span, new_backtrace()))?,
+                    .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
             ),
         })
     }

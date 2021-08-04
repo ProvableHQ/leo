@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, config::*, context::Context};
-use leo_errors::{new_backtrace, CliError, Result};
+use leo_errors::{CliError, Result};
 use leo_package::LeoPackage;
 
 use std::fs;
@@ -46,7 +46,7 @@ impl Command for New {
         // Check that the given package name is valid.
         let package_name = self.name;
         if !LeoPackage::is_package_name_valid(&package_name) {
-            return Err(CliError::invalid_project_name(new_backtrace()).into());
+            return Err(CliError::invalid_project_name().into());
         }
 
         let username = read_username().ok();
@@ -57,11 +57,11 @@ impl Command for New {
 
         // Verify the package directory path does not exist yet.
         if path.exists() {
-            return Err(CliError::package_directory_already_exists(&path, new_backtrace()).into());
+            return Err(CliError::package_directory_already_exists(&path).into());
         }
 
         // Create the package directory
-        fs::create_dir_all(&path).map_err(|err| CliError::package_could_not_create_directory(err, new_backtrace()))?;
+        fs::create_dir_all(&path).map_err(|err| CliError::package_could_not_create_directory(err))?;
 
         LeoPackage::initialize(&package_name, &path, username)?;
 

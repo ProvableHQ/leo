@@ -23,7 +23,7 @@ use std::{
 
 create_errors!(
     CompilerError,
-    exit_code_mask: 2000u32,
+    exit_code_mask: 2000i32,
     error_code_prefix: "CMP",
 
     @backtraced

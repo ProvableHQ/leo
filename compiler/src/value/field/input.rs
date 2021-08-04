@@ -18,7 +18,7 @@
 
 use crate::{number_string_typing, value::ConstrainedValue, FieldType, GroupType};
 use leo_ast::InputValue;
-use leo_errors::{new_backtrace, CompilerError, Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::alloc::AllocGadget;
@@ -40,22 +40,16 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
                 .map(|value| value.negate(cs, span))
-                .map_err(|_| {
-                    CompilerError::field_value_missing_field(format!("{}: field", name), span, new_backtrace())
-                })?,
+                .map_err(|_| CompilerError::field_value_missing_field(format!("{}: field", name), span))?,
                 (number, _) => Ok(FieldType::alloc(
                     cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
-                .map_err(|_| {
-                    CompilerError::field_value_missing_field(format!("{}: field", name), span, new_backtrace())
-                })?),
+                .map_err(|_| CompilerError::field_value_missing_field(format!("{}: field", name), span))?),
             }
         }
         None => {
-            return Err(
-                CompilerError::field_value_missing_field(format!("{}: field", name), span, new_backtrace()).into(),
-            );
+            return Err(CompilerError::field_value_missing_field(format!("{}: field", name), span).into());
         }
     }
 }
@@ -72,7 +66,7 @@ pub(crate) fn field_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
             if let InputValue::Field(string) = input {
                 Some(string)
             } else {
-                return Err(CompilerError::field_value_invalid_field(input, span, new_backtrace()).into());
+                return Err(CompilerError::field_value_invalid_field(input, span).into());
             }
         }
         None => None,

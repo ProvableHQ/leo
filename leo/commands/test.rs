@@ -20,7 +20,7 @@ use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
 };
-use leo_errors::{new_backtrace, CliError, Result};
+use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
     outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -80,7 +80,7 @@ impl Command for Test {
 
         // when no main file and no files marked - error
         } else {
-            return Err(CliError::program_file_does_not_exist(package_path.to_string_lossy(), new_backtrace()).into());
+            return Err(CliError::program_file_does_not_exist(package_path.to_string_lossy()).into());
         }
 
         // Construct the path to the output directory;

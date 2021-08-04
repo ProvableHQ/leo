@@ -16,7 +16,7 @@
 
 use super::{build::BuildOptions, setup::Setup};
 use crate::{commands::Command, context::Context};
-use leo_errors::{new_backtrace, CliError, Result, SnarkVMError};
+use leo_errors::{CliError, Result, SnarkVMError};
 use leo_package::outputs::ProofFile;
 use snarkvm_algorithms::{
     snark::groth16::{Groth16, PreparedVerifyingKey, Proof},
@@ -74,7 +74,7 @@ impl Command for Prove {
         let mut proof = vec![];
         program_proof
             .write_le(&mut proof)
-            .map_err(|e| CliError::cli_io_error(e, new_backtrace()))?;
+            .map_err(|e| CliError::cli_io_error(e))?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
 
         Ok((program_proof, prepared_verifying_key))
