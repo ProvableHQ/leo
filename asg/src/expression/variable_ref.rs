@@ -143,7 +143,8 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
                 return Err(AsgError::illegal_input_variable_reference(
                     "attempted to reference input when none is in scope",
                     &value.span,
-                ))?;
+                )
+                .into());
             }
         } else {
             match scope.resolve_variable(&value.name) {
@@ -156,7 +157,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
                             value: ConstValue::Address(value.name.clone()),
                         })));
                     }
-                    return Err(AsgError::unresolved_reference(&value.name, &value.span))?;
+                    return Err(AsgError::unresolved_reference(&value.name, &value.span).into());
                 }
             }
         };
@@ -173,7 +174,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
                 .get_type()
                 .ok_or_else(|| AsgError::unresolved_reference(&value.name, &value.span))?;
             if !expected_type.matches(&type_) {
-                return Err(AsgError::unexpected_type(expected_type, type_, &value.span))?;
+                return Err(AsgError::unexpected_type(expected_type, type_, &value.span).into());
             }
         }
 

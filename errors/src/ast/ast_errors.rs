@@ -20,7 +20,7 @@ use std::{error::Error as ErrorArg, fmt::Debug};
 create_errors!(
     AstError,
     exit_code_mask: 1000u32,
-    error_code_prefix: "T",
+    error_code_prefix: "AST",
 
     @backtraced
     failed_to_convert_ast_to_json_string {

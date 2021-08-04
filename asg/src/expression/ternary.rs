@@ -91,7 +91,7 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
         let right = if_false.get().get_type().unwrap().into();
 
         if left != right {
-            return Err(AsgError::ternary_different_types(left, right, &value.span))?;
+            return Err(AsgError::ternary_different_types(left, right, &value.span).into());
         }
 
         Ok(TernaryExpression {

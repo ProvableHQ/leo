@@ -60,7 +60,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 return Err(CompilerError::conditional_boolean_expression_fails_to_resolve_to_bool(
                     value.to_string(),
                     &span,
-                ))?;
+                )
+                .into());
             }
         };
 

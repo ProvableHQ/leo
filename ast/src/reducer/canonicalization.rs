@@ -469,7 +469,7 @@ impl ReconstructingReducer for Canonicalizer {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
-                    return Err(AstError::invalid_array_dimension_size(span))?;
+                    return Err(AstError::invalid_array_dimension_size(span).into());
                 }
 
                 let mut next = Type::Array(type_, ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
@@ -486,14 +486,14 @@ impl ReconstructingReducer for Canonicalizer {
 
                 Ok(array)
             }
-            Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span))?,
+            Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
             _ => Ok(new.clone()),
         }
     }
 
     fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, LeoError> {
         if string.is_empty() {
-            return Err(AstError::empty_string(span))?;
+            return Err(AstError::empty_string(span).into());
         }
 
         let mut elements = Vec::new();
@@ -552,7 +552,7 @@ impl ReconstructingReducer for Canonicalizer {
         element: Expression,
     ) -> Result<ArrayInitExpression, LeoError> {
         if array_init.dimensions.is_zero() {
-            return Err(AstError::invalid_array_dimension_size(&array_init.span))?;
+            return Err(AstError::invalid_array_dimension_size(&array_init.span).into());
         }
 
         let element = Box::new(element);

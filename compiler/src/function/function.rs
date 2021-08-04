@@ -52,7 +52,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 &function.name.borrow().name.to_string(),
                 "arguments length invalid",
                 &function.span.clone().unwrap_or_default(),
-            ))?;
+            )
+            .into());
         }
 
         // Store input values as new variables in resolved program

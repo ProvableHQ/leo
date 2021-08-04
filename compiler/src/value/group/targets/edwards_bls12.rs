@@ -207,10 +207,7 @@ impl EdwardsGroupType {
                 Self::edwards_affine_from_y_str(number_string_typing(&y_string), span, None, span)
             }
             // Invalid
-            (x, y) => Err(CompilerError::group_value_invalid_group(
-                format!("({}, {})", x, y),
-                span,
-            ))?,
+            (x, y) => return Err(CompilerError::group_value_invalid_group(format!("({}, {})", x, y), span).into()),
         }
     }
 
@@ -244,7 +241,7 @@ impl EdwardsGroupType {
                 }
 
                 // Otherwise return error.
-                Err(CompilerError::group_value_x_recover(element_span))?
+                Err(CompilerError::group_value_x_recover(element_span).into())
             }
         }
     }
@@ -279,7 +276,7 @@ impl EdwardsGroupType {
                 }
 
                 // Otherwise return error.
-                Err(CompilerError::group_value_y_recover(element_span))?
+                Err(CompilerError::group_value_y_recover(element_span).into())
             }
         }
     }
@@ -310,7 +307,7 @@ impl EdwardsGroupType {
         if element.is_on_curve() {
             Ok(element)
         } else {
-            Err(CompilerError::group_value_not_on_curve(element, element_span))?
+            Err(CompilerError::group_value_not_on_curve(element, element_span).into())
         }
     }
 

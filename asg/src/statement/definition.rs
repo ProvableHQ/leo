@@ -71,7 +71,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                 .collect::<Vec<String>>()
                 .join(" ,");
 
-            return Err(AsgError::invalid_const_assign(var_names, &statement.span))?;
+            return Err(AsgError::invalid_const_assign(var_names, &statement.span).into());
         }
 
         let type_ = type_.or_else(|| value.get_type());
@@ -83,7 +83,8 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             return Err(AsgError::illegal_ast_structure(
                 "cannot have 0 variable names in destructuring tuple",
                 &statement.span,
-            ))?;
+            )
+            .into());
         }
         if statement.variable_names.len() == 1 {
             // any return type is fine
@@ -97,9 +98,10 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                 type_ => {
                     return Err(AsgError::unexpected_type(
                         format!("{}-ary tuple", statement.variable_names.len()),
-                        type_.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
+                        type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                         &statement.span,
-                    ))?;
+                    )
+                    .into());
                 }
             }
         }
@@ -121,7 +123,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             let mut variables = scope.variables.borrow_mut();
             let var_name = variable.borrow().name.name.to_string();
             if variables.contains_key(&var_name) {
-                return Err(AsgError::duplicate_variable_definition(var_name, &statement.span))?;
+                return Err(AsgError::duplicate_variable_definition(var_name, &statement.span).into());
             }
 
             variables.insert(var_name, *variable);

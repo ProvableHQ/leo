@@ -49,7 +49,7 @@ pub(crate) fn bool_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
             if let InputValue::Boolean(bool) = input {
                 Some(bool)
             } else {
-                return Err(CompilerError::boolean_value_invalid_boolean(name, span))?;
+                return Err(CompilerError::boolean_value_invalid_boolean(name, span).into());
             }
         }
         None => None,

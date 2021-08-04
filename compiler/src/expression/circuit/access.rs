@@ -39,23 +39,22 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     if let Some(member) = members.into_iter().find(|x| x.0.name == expr.member.name) {
                         Ok(member.1)
                     } else {
-                        Err(CompilerError::undefined_circuit_member_access(
+                        return Err(CompilerError::undefined_circuit_member_access(
                             expr.circuit.get().name.borrow(),
                             &expr.member.name,
                             &expr.member.span,
-                        ))?
+                        )
+                        .into());
                     }
                 }
-                value => Err(CompilerError::undefined_circuit(
-                    value,
-                    &target.span().cloned().unwrap_or_default(),
-                ))?,
+                value => {
+                    return Err(
+                        CompilerError::undefined_circuit(value, &target.span().cloned().unwrap_or_default()).into(),
+                    );
+                }
             }
         } else {
-            Err(CompilerError::invalid_circuit_static_member_access(
-                &expr.member.name,
-                &expr.member.span,
-            ))?
+            Err(CompilerError::invalid_circuit_static_member_access(&expr.member.name, &expr.member.span).into())
         }
     }
 }

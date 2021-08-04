@@ -20,6 +20,9 @@ pub use self::asg::*;
 pub mod ast;
 pub use self::ast::*;
 
+pub mod cli;
+pub use self::cli::*;
+
 #[macro_use]
 pub mod common;
 pub use self::common::*;
@@ -47,6 +50,8 @@ extern crate thiserror;
 
 use leo_input::InputParserError;
 
+use backtrace::Backtrace;
+
 #[derive(Debug, Error)]
 pub enum LeoError {
     #[error(transparent)]
@@ -54,6 +59,9 @@ pub enum LeoError {
 
     #[error(transparent)]
     AstError(#[from] AstError),
+
+    #[error(transparent)]
+    CliError(#[from] CliError),
 
     #[error(transparent)]
     CompilerError(#[from] CompilerError),
@@ -84,6 +92,7 @@ impl LeoError {
         match self {
             AsgError(error) => error.exit_code(),
             AstError(error) => error.exit_code(),
+            CliError(error) => error.exit_code(),
             CompilerError(error) => error.exit_code(),
             ImportError(error) => error.exit_code(),
             InputError(_error) => 0, // TODO migrate me.
@@ -93,6 +102,13 @@ impl LeoError {
             StateError(error) => error.exit_code(),
         }
     }
+}
+
+pub type Result<T, E = LeoError> = core::result::Result<T, E>;
+
+#[inline(always)]
+pub fn new_backtrace() -> Backtrace {
+    Backtrace::new()
 }
 
 // #[test]

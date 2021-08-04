@@ -37,9 +37,8 @@ use commands::{
     Update,
     Watch,
 };
+use leo_errors::Result;
 
-// TODO remove anyhow::Result for a LeoResult
-use anyhow::Result;
 use colored::Colorize;
 use std::{path::PathBuf, process::exit};
 use structopt::{clap::AppSettings, StructOpt};
@@ -253,8 +252,8 @@ fn handle_error<T>(res: Result<T>) -> T {
 #[cfg(test)]
 mod cli_tests {
     use crate::{run_with_args, Opt};
+    use leo_errors::Result;
 
-    use anyhow::Result;
     use std::path::PathBuf;
     use structopt::StructOpt;
     use test_dir::{DirBuilder, FileType, TestDir};
@@ -262,7 +261,7 @@ mod cli_tests {
     // Runs Command from cmd-like argument "leo run --arg1 --arg2".
     fn run_cmd(args: &str, path: &Option<PathBuf>) -> Result<()> {
         let args = args.split(' ').collect::<Vec<&str>>();
-        let mut opts = Opt::from_iter_safe(args)?;
+        let mut opts = Opt::from_iter_safe(args).unwrap();
 
         if path.is_some() {
             opts.path = path.clone();

@@ -49,7 +49,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
             let result = resolved_program.enforce_main_function(cs, function, input)?;
             Ok(result)
         }
-        _ => Err(CompilerError::no_main_function(Backtrace::new()))?,
+        _ => Err(CompilerError::no_main_function(Backtrace::new()).into()),
     }
 }
 
@@ -104,7 +104,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
                 {
                     Some(pair) => pair.to_owned(),
                     None => {
-                        return Err(CompilerError::invalid_test_context(file_name, Backtrace::new()))?;
+                        return Err(CompilerError::invalid_test_context(file_name, Backtrace::new()).into());
                     }
                 }
             }

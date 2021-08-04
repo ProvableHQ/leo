@@ -14,10 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use eyre::ErrReport;
+use eyre::{eyre, ErrReport};
 
 #[derive(Debug, Error)]
 pub enum SnarkVMError {
     #[error(transparent)]
     SnarkVMError(#[from] ErrReport),
+}
+
+impl Default for SnarkVMError {
+    fn default() -> Self {
+        Self::SnarkVMError(eyre!("snarkvm error"))
+    }
 }

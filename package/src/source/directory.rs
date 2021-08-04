@@ -65,7 +65,8 @@ impl SourceDirectory {
                     file_path.as_os_str().to_owned(),
                     file_type,
                     Backtrace::new(),
-                ))?;
+                )
+                .into());
             }
 
             // Verify that the file has the default file extension
@@ -77,7 +78,8 @@ impl SourceDirectory {
                     file_path.as_os_str().to_owned(),
                     file_extension.to_owned(),
                     Backtrace::new(),
-                ))?;
+                )
+                .into());
             }
 
             file_paths.push(file_path);

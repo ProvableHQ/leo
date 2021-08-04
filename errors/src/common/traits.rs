@@ -37,6 +37,6 @@ pub trait ErrorCode: Sized {
 pub trait LeoErrorCode: ErrorCode {
     #[inline(always)]
     fn code_identifier() -> u32 {
-        037
+        37
     }
 }

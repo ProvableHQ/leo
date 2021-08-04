@@ -64,7 +64,7 @@ impl ParserContext {
                 accesses.push(AssigneeAccess::ArrayIndex(*expr.index));
             }
             Expression::Identifier(id) => identifier = id,
-            _ => return Err(ParserError::invalid_assignment_target(expr.span()))?,
+            _ => return Err(ParserError::invalid_assignment_target(expr.span()).into()),
         }
         Ok(identifier)
     }
@@ -191,7 +191,7 @@ impl ParserContext {
             match s {
                 Statement::Block(_) | Statement::Conditional(_) => Some(Box::new(s)),
                 s => {
-                    return Err(ParserError::unexpected_statement(&s, "Block or Conditional", s.span()))?;
+                    return Err(ParserError::unexpected_statement(&s, "Block or Conditional", s.span()).into());
                 }
             }
         } else {
@@ -245,7 +245,7 @@ impl ParserContext {
                 chars
             }
             SpannedToken { token, span } => {
-                return Err(ParserError::unexpected_str(token, "formatted string", &span))?;
+                return Err(ParserError::unexpected_str(token, "formatted string", &span).into());
             }
         };
 
@@ -280,11 +280,7 @@ impl ParserContext {
             "error" => ConsoleFunction::Error(self.parse_console_args()?),
             "log" => ConsoleFunction::Log(self.parse_console_args()?),
             x => {
-                return Err(ParserError::unexpected_ident(
-                    x,
-                    &["assert", "error", "log"],
-                    &function.span,
-                ))?;
+                return Err(ParserError::unexpected_ident(x, &["assert", "error", "log"], &function.span).into());
             }
         };
         self.expect(Token::RightParen)?;
@@ -303,7 +299,7 @@ impl ParserContext {
     pub fn parse_variable_name(&mut self, span: &SpannedToken) -> SyntaxResult<VariableName> {
         let mutable = self.eat(Token::Mut);
         if let Some(mutable) = &mutable {
-            return Err(ParserError::let_mut_statement(&(&mutable.span + &span.span)))?;
+            return Err(ParserError::let_mut_statement(&(&mutable.span + &span.span)).into());
         }
 
         let name = self.expect_ident()?;

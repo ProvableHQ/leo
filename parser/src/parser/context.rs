@@ -300,7 +300,7 @@ impl ParserContext {
             if &token == inner {
                 Ok(self.tokens.pop().unwrap().span)
             } else {
-                Err(ParserError::unexpected(inner, token, span))?
+                Err(ParserError::unexpected(inner, token, span).into())
             }
         } else {
             Err(self.eof())
@@ -315,11 +315,12 @@ impl ParserContext {
             if token.iter().any(|x| x == inner) {
                 Ok(self.tokens.pop().unwrap())
             } else {
-                Err(ParserError::unexpected(
+                return Err(ParserError::unexpected(
                     inner,
                     token.iter().map(|x| format!("'{}'", x)).collect::<Vec<_>>().join(", "),
                     span,
-                ))?
+                )
+                .into());
             }
         } else {
             Err(self.eof())
@@ -360,7 +361,7 @@ impl ParserContext {
                     unimplemented!()
                 }
             } else {
-                Err(ParserError::unexpected_str(inner, "ident", span))?
+                Err(ParserError::unexpected_str(inner, "ident", span).into())
             }
         } else {
             Err(self.eof())

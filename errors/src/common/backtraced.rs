@@ -56,7 +56,7 @@ impl BacktracedError {
     {
         Self {
             message: message.to_string(),
-            help: help.map(|help| help.to_string()),
+            help,
             exit_code,
             code_identifier,
             error_type,

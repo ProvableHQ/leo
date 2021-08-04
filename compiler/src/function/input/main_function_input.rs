@@ -108,21 +108,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let parsed_type = parsed.get_int_type();
                 let input_type = input_type.into();
                 if std::mem::discriminant(&parsed_type) != std::mem::discriminant(&input_type) {
-                    return Err(CompilerError::integer_value_integer_type_mismatch(
-                        input_type,
-                        parsed_type,
-                        span,
-                    ))?;
+                    return Err(
+                        CompilerError::integer_value_integer_type_mismatch(input_type, parsed_type, span).into(),
+                    );
                 }
                 Ok(ConstrainedValue::Integer(Integer::new(&parsed)))
             }
             (Type::Array(type_, arr_len), InputValue::Array(values)) => {
                 if *arr_len != values.len() {
-                    return Err(CompilerError::invalid_input_array_dimensions(
-                        *arr_len,
-                        values.len(),
-                        span,
-                    ))?;
+                    return Err(CompilerError::invalid_input_array_dimensions(*arr_len, values.len(), span).into());
                 }
 
                 Ok(ConstrainedValue::Array(
@@ -134,11 +128,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             }
             (Type::Tuple(types), InputValue::Tuple(values)) => {
                 if values.len() != types.len() {
-                    return Err(CompilerError::input_tuple_size_mismatch(
-                        types.len(),
-                        values.len(),
-                        span,
-                    ))?;
+                    return Err(CompilerError::input_tuple_size_mismatch(types.len(), values.len(), span).into());
                 }
 
                 Ok(ConstrainedValue::Tuple(
@@ -154,7 +144,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             (Type::Circuit(_), _) => unimplemented!("main function input not implemented for type {}", type_), // Should not happen.
 
             // Return an error if the input type and input value do not match.
-            (_, input) => Err(CompilerError::input_variable_type_mismatch(type_, input, name, span))?,
+            (_, input) => Err(CompilerError::input_variable_type_mismatch(type_, input, name, span).into()),
         }
     }
 }

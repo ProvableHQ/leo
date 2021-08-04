@@ -88,9 +88,10 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
             x => {
                 return Err(AsgError::unexpected_type(
                     "tuple",
-                    x.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
+                    x.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                     &value.span,
-                ))?;
+                )
+                .into());
             }
         };
 
@@ -102,7 +103,8 @@ impl<'a> FromAst<'a, leo_ast::TupleInitExpression> for TupleInitExpression<'a> {
                     format!("tuple of length {}", tuple_types.len()),
                     format!("tuple of length {}", value.elements.len()),
                     &value.span,
-                ))?;
+                )
+                .into());
             }
         }
 

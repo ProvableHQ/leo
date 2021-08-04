@@ -32,7 +32,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<Integer, LeoError> {
         match self.enforce_expression(cs, index)? {
             ConstrainedValue::Integer(number) => Ok(number),
-            value => Err(CompilerError::invalid_index_expression(value, span))?,
+            value => Err(CompilerError::invalid_index_expression(value, span).into()),
         }
     }
 }

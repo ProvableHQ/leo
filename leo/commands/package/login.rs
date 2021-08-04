@@ -20,8 +20,8 @@ use crate::{
     config::*,
     context::Context,
 };
+use leo_errors::{new_backtrace, CliError, Result};
 
-use anyhow::{anyhow, Result};
 use std::collections::HashMap;
 use structopt::StructOpt;
 use tracing::Span;
@@ -72,11 +72,13 @@ impl Command for Login {
                 };
 
                 let res = api.run_route(login)?;
-                let mut res: HashMap<String, String> = res.json()?;
+                let mut res: HashMap<String, String> = res
+                    .json()
+                    .map_err(|e| CliError::reqwest_json_error(e, new_backtrace()))?;
 
                 let tok_opt = res.remove("token");
                 if tok_opt.is_none() {
-                    return Err(anyhow!("Unable to get token"));
+                    return Err(CliError::unable_to_get_token(new_backtrace()))?;
                 };
 
                 (tok_opt.unwrap(), email_username)
@@ -90,7 +92,7 @@ impl Command for Login {
 
                 match api.run_route(ProfileRoute {})? {
                     Some(username) => (token, username),
-                    None => return Err(anyhow!("Supplied token is incorrect")),
+                    None => return Err(CliError::supplied_token_is_incorrect(new_backtrace()))?,
                 }
             }
 
@@ -107,12 +109,10 @@ impl Command for Login {
                             (token, username)
                         } else {
                             remove_token_and_username()?;
-                            return Err(anyhow!(
-                                "Stored credentials are incorrect or expired, please login again"
-                            ));
+                            return Err(CliError::stored_credentials_expired(new_backtrace()))?;
                         }
                     }
-                    None => return Err(anyhow!("No credentials provided")),
+                    None => return Err(CliError::no_credentials_provided(new_backtrace()))?,
                 }
             }
         };

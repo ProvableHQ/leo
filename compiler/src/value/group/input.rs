@@ -49,7 +49,7 @@ pub(crate) fn group_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
             if let InputValue::Group(string) = input {
                 Some(string)
             } else {
-                return Err(CompilerError::group_value_missing_group(input, span))?;
+                return Err(CompilerError::group_value_missing_group(input, span).into());
             }
         }
         None => None,

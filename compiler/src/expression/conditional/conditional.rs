@@ -38,9 +38,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let conditional_value = match self.enforce_expression(cs, conditional)? {
             ConstrainedValue::Boolean(resolved) => resolved,
             value => {
-                return Err(CompilerError::conditional_boolean_expression_fails_to_resolve_to_bool(
-                    value, span,
-                ))?;
+                return Err(CompilerError::conditional_boolean_expression_fails_to_resolve_to_bool(value, span).into());
             }
         };
 

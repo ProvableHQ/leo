@@ -43,11 +43,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 ConstrainedValue::Array(input) => {
                     if let Some(index) = index_resolved.to_usize() {
                         if index >= input.len() {
-                            Err(CompilerError::statement_array_assign_index_bounds(
-                                index,
-                                input.len(),
-                                &context.span,
-                            ))?
+                            Err(
+                                CompilerError::statement_array_assign_index_bounds(index, input.len(), &context.span)
+                                    .into(),
+                            )
                         } else {
                             let target = input.get_mut(index).unwrap();
                             if context.remaining_accesses.is_empty() {
@@ -119,17 +118,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         Ok(())
                     }
                 }
-                _ => Err(CompilerError::statement_array_assign_interior_index(&context.span))?,
+                _ => Err(CompilerError::statement_array_assign_interior_index(&context.span).into()),
             }
         } else if context.from_range && input_len != 0 {
             context.from_range = false;
             if let Some(index) = index_resolved.to_usize() {
                 if index >= input_len {
-                    return Err(CompilerError::statement_array_assign_index_bounds(
-                        index,
-                        input_len,
-                        &context.span,
-                    ))?;
+                    return Err(
+                        CompilerError::statement_array_assign_index_bounds(index, input_len, &context.span).into(),
+                    );
                 }
                 let target = context.input.remove(index);
 
@@ -199,7 +196,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 Ok(())
             }
         } else {
-            Err(CompilerError::statement_array_assign_interior_index(&context.span))?
+            Err(CompilerError::statement_array_assign_interior_index(&context.span).into())
         }
     }
 }

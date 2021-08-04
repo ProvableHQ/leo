@@ -41,11 +41,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         match input_value {
             Some(InputValue::Array(arr)) => {
                 if array_len != arr.len() {
-                    return Err(CompilerError::invalid_input_array_dimensions(
-                        arr.len(),
-                        array_len,
-                        span,
-                    ))?;
+                    return Err(CompilerError::invalid_input_array_dimensions(arr.len(), array_len, span).into());
                 }
 
                 // Allocate each value in the current row
@@ -70,7 +66,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(CompilerError::invalid_function_input_array(input_value.unwrap(), span))?;
+                return Err(CompilerError::invalid_function_input_array(input_value.unwrap(), span).into());
             }
         }
 

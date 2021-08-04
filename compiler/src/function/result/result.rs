@@ -55,7 +55,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             if get_indicator_value(&indicator) {
                 // Error if we already have a return value.
                 if return_value.is_some() {
-                    return Err(CompilerError::statement_multiple_returns(span))?;
+                    return Err(CompilerError::statement_multiple_returns(span).into());
                 } else {
                     // Set the function return value.
                     return_value = Some(result);

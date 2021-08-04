@@ -71,11 +71,9 @@ impl<'a> Circuit<'a> {
         for member in value.members.iter() {
             if let leo_ast::CircuitMember::CircuitVariable(name, type_) = member {
                 if members.contains_key(name.name.as_ref()) {
-                    return Err(AsgError::redefined_circuit_member(
-                        &value.circuit_name.name,
-                        &name.name,
-                        &name.span,
-                    ))?;
+                    return Err(
+                        AsgError::redefined_circuit_member(&value.circuit_name.name, &name.name, &name.span).into(),
+                    );
                 }
                 members.insert(
                     name.name.to_string(),
@@ -102,12 +100,13 @@ impl<'a> Circuit<'a> {
                         &value.circuit_name.name,
                         &function.identifier.name,
                         &function.identifier.span,
-                    ))?;
+                    )
+                    .into());
                 }
                 let asg_function = Function::init(new_scope, function)?;
                 asg_function.circuit.replace(Some(circuit));
                 if asg_function.is_test() {
-                    return Err(AsgError::circuit_test_function(&function.identifier.span))?;
+                    return Err(AsgError::circuit_test_function(&function.identifier.span).into());
                 }
                 members.insert(
                     function.identifier.name.to_string(),

@@ -24,7 +24,7 @@ use std::{
 create_errors!(
     PackageError,
     exit_code_mask: 4000u32,
-    error_code_prefix: "PA",
+    error_code_prefix: "PAK",
 
     @backtraced
     failed_to_create_imports_directory {

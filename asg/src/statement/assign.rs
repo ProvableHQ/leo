@@ -78,7 +78,8 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                 return Err(AsgError::illegal_input_variable_reference(
                     "attempted to reference input when none is in scope",
                     &statement.span,
-                ))?;
+                )
+                .into());
             }
         } else {
             scope
@@ -87,7 +88,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         };
 
         if !variable.borrow().mutable {
-            return Err(AsgError::immutable_assignment(name, &statement.span))?;
+            return Err(AsgError::immutable_assignment(name, &statement.span).into());
         }
         let mut target_type: Option<PartialType> = Some(variable.borrow().type_.clone().into());
 
@@ -140,11 +141,12 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                                         left,
                                         right,
                                         &statement.span,
-                                    ))?;
+                                    )
+                                    .into());
                                 }
                             }
                         }
-                        _ => return Err(AsgError::index_into_non_array(name, &statement.span))?,
+                        _ => return Err(AsgError::index_into_non_array(name, &statement.span).into()),
                     }
 
                     AssignAccess::ArrayRange(Cell::new(left), Cell::new(right))
@@ -152,7 +154,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                 AstAssigneeAccess::ArrayIndex(index) => {
                     target_type = match target_type.clone() {
                         Some(PartialType::Array(item, _)) => item.map(|x| *x),
-                        _ => return Err(AsgError::index_into_non_array(name, &statement.span))?,
+                        _ => return Err(AsgError::index_into_non_array(name, &statement.span).into()),
                     };
                     AssignAccess::ArrayIndex(Cell::new(<&Expression<'a>>::from_ast(
                         scope,
@@ -170,7 +172,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             .get(index)
                             .cloned()
                             .ok_or_else(|| AsgError::tuple_index_out_of_bounds(index, &statement.span))?,
-                        _ => return Err(AsgError::index_into_non_tuple(name, &statement.span))?,
+                        _ => return Err(AsgError::index_into_non_tuple(name, &statement.span).into()),
                     };
                     AssignAccess::Tuple(index)
                 }
@@ -191,7 +193,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             let x = match &member {
                                 CircuitMember::Variable(type_) => type_.clone(),
                                 CircuitMember::Function(_) => {
-                                    return Err(AsgError::illegal_function_assign(&name.name, &statement.span))?;
+                                    return Err(AsgError::illegal_function_assign(&name.name, &statement.span).into());
                                 }
                             };
                             Some(x.partial())
@@ -200,7 +202,8 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             return Err(AsgError::index_into_non_tuple(
                                 &statement.assignee.identifier.name,
                                 &statement.span,
-                            ))?;
+                            )
+                            .into());
                         }
                     };
                     AssignAccess::Member(name.clone())

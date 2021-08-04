@@ -42,5 +42,5 @@ pub fn enforce_and<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         return Ok(ConstrainedValue::Boolean(result));
     }
 
-    Err(CompilerError::cannot_evaluate_expression(name, span))?
+    Err(CompilerError::cannot_evaluate_expression(name, span).into())
 }

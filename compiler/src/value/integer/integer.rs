@@ -161,15 +161,13 @@ impl Integer {
                 if let InputValue::Integer(type_, number) = input {
                     let asg_type = IntegerType::from(type_);
                     if std::mem::discriminant(&asg_type) != std::mem::discriminant(integer_type) {
-                        return Err(CompilerError::integer_value_integer_type_mismatch(
-                            integer_type,
-                            asg_type,
-                            span,
-                        ))?;
+                        return Err(
+                            CompilerError::integer_value_integer_type_mismatch(integer_type, asg_type, span).into(),
+                        );
                     }
                     Some(number)
                 } else {
-                    return Err(CompilerError::integer_value_invalid_integer(input, span))?;
+                    return Err(CompilerError::integer_value_invalid_integer(input, span).into());
                 }
             }
             None => None,

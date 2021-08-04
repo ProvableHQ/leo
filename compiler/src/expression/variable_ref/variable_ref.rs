@@ -32,10 +32,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let result_value = if let Some(value) = self.get(variable.id) {
             value.clone()
         } else {
-            return Err(CompilerError::undefined_identifier(
-                &variable.name.clone().name,
-                &span.unwrap_or_default(),
-            ))?;
+            return Err(
+                CompilerError::undefined_identifier(&variable.name.clone().name, &span.unwrap_or_default()).into(),
+            );
             // todo: probably can be a panic here instead
         };
 

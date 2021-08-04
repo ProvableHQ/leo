@@ -75,7 +75,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     }
                     Ok(())
                 }
-                _ => Err(CompilerError::statement_array_assign_index(&context.span))?,
+                _ => Err(CompilerError::statement_array_assign_index(&context.span).into()),
             }
         } else {
             // range of a range

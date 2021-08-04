@@ -160,7 +160,7 @@ pub(crate) fn char_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constraint
                     }
                 }
             } else {
-                return Err(CompilerError::char_value_invalid_char(input, span))?;
+                return Err(CompilerError::char_value_invalid_char(input, span).into());
             }
         }
         None => (CharType::Scalar(0 as char), None),

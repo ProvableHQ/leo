@@ -35,10 +35,7 @@ pub fn evaluate_le<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             num_1.less_than_or_equal(unique_namespace, &num_2)
         }
         (val_1, val_2) => {
-            return Err(CompilerError::incompatible_types(
-                format!("{} <= {}", val_1, val_2),
-                span,
-            ))?;
+            return Err(CompilerError::incompatible_types(format!("{} <= {}", val_1, val_2), span).into());
         }
     };
 

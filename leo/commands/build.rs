@@ -21,6 +21,7 @@ use leo_compiler::{
     AstSnapshotOptions,
     CompilerOptions,
 };
+use leo_errors::{new_backtrace, CliError, Result};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -28,7 +29,6 @@ use leo_package::{
 };
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
-use anyhow::{anyhow, Result};
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
@@ -145,7 +145,7 @@ impl Command for Build {
 
         // Compile the main.leo file along with constraints
         if !MainFile::exists_at(&package_path) {
-            return Err(anyhow!("File main.leo not found in src/ directory"));
+            return Err(CliError::package_main_file_not_found(new_backtrace()))?;
         }
 
         // Create the output directory

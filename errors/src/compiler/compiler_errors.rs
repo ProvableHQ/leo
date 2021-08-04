@@ -24,7 +24,7 @@ use std::{
 create_errors!(
     CompilerError,
     exit_code_mask: 2000u32,
-    error_code_prefix: "C",
+    error_code_prefix: "CMP",
 
     @backtraced
     invalid_test_context {

@@ -75,10 +75,7 @@ pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             return Ok(current);
         }
         (val_1, val_2) => {
-            return Err(CompilerError::incompatible_types(
-                format!("{} == {}", val_1, val_2,),
-                span,
-            ))?;
+            return Err(CompilerError::incompatible_types(format!("{} == {}", val_1, val_2,), span).into());
         }
     };
 

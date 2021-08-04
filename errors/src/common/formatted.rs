@@ -60,7 +60,7 @@ impl FormattedError {
             content: span.content.to_string(),
             backtrace: BacktracedError::new_from_backtrace(
                 message.to_string(),
-                help.map(|help| help.to_string()),
+                help,
                 exit_code,
                 code_identifier,
                 error_type,

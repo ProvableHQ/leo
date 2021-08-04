@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, config::Config, context::Context, updater::Updater};
+use leo_errors::{new_backtrace, CliError, Result};
 
-use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -61,7 +61,8 @@ impl Command for Update {
     fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
         // If --list is passed, list all available versions and return.
         if self.list {
-            return Updater::show_available_releases().map_err(|e| anyhow!("Could not fetch versions: {}", e));
+            return Ok(Updater::show_available_releases()
+                .map_err(|e| CliError::could_not_fetch_versions(e, new_backtrace()))?);
         }
 
         // Handles enabling and disabling automatic updates in the config file.

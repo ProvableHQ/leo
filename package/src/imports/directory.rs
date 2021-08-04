@@ -46,7 +46,7 @@ impl ImportsDirectory {
         path.to_mut().push(package_name);
 
         if !path.exists() || !path.is_dir() {
-            return Err(PackageError::import_does_not_exist(package_name, Backtrace::new()))?;
+            return Err(PackageError::import_does_not_exist(package_name, Backtrace::new()).into());
         }
 
         fs::remove_dir_all(&path).map_err(|e| PackageError::failed_to_remove_imports_directory(e, Backtrace::new()))?;

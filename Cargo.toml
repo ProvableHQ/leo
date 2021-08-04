@@ -96,9 +96,6 @@ default-features = false
 [dependencies.snarkvm-utilities]
 version = "0.7.4"
 
-[dependencies.anyhow]
-version = "1.0"
-
 [dependencies.structopt]
 version = "0.3"
 

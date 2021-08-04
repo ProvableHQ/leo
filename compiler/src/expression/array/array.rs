@@ -52,7 +52,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if let Some(dimension) = expected_dimension {
             // Return an error if the expected dimension != the actual dimension.
             if dimension != result.len() {
-                return Err(CompilerError::unexpected_array_length(dimension, result.len(), span))?;
+                return Err(CompilerError::unexpected_array_length(dimension, result.len(), span).into());
             }
         }
 

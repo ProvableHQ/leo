@@ -95,9 +95,10 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             type_ => {
                 return Err(AsgError::unexpected_type(
                     "array",
-                    type_.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
+                    type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                     &value.span,
-                ))?;
+                )
+                .into());
             }
         };
 
@@ -113,10 +114,9 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             .flatten()
         {
             if index >= array_len {
-                return Err(AsgError::array_index_out_of_bounds(
-                    index,
-                    &array.span().cloned().unwrap_or_default(),
-                ))?;
+                return Err(
+                    AsgError::array_index_out_of_bounds(index, &array.span().cloned().unwrap_or_default()).into(),
+                );
             }
         }
 

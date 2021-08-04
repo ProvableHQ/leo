@@ -72,7 +72,7 @@ impl Address {
                 if let InputValue::Address(string) = input {
                     Some(string)
                 } else {
-                    return Err(CompilerError::address_value_invalid_address(name, span))?;
+                    return Err(CompilerError::address_value_invalid_address(name, span).into());
                 }
             }
             None => None,

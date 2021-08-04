@@ -53,10 +53,7 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
                 })?),
             }
         }
-        None => Err(CompilerError::field_value_missing_field(
-            format!("{}: field", name),
-            span,
-        ))?,
+        None => return Err(CompilerError::field_value_missing_field(format!("{}: field", name), span).into()),
     }
 }
 
@@ -72,7 +69,7 @@ pub(crate) fn field_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
             if let InputValue::Field(string) = input {
                 Some(string)
             } else {
-                return Err(CompilerError::field_value_invalid_field(input, span))?;
+                return Err(CompilerError::field_value_invalid_field(input, span).into());
             }
         }
         None => None,

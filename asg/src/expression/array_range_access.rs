@@ -108,7 +108,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
             Some(PartialType::Array(element, len)) => (Some(PartialType::Array(element, None)), len),
             None => (None, None),
             Some(x) => {
-                return Err(AsgError::unexpected_type(x, "array", &value.span))?;
+                return Err(AsgError::unexpected_type(x, "array", &value.span).into());
             }
         };
         let array = <&Expression<'a>>::from_ast(scope, &*value.array, expected_array)?;
@@ -118,9 +118,10 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
             type_ => {
                 return Err(AsgError::unexpected_type(
                     "array",
-                    type_.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
+                    type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                     &value.span,
-                ))?;
+                )
+                .into());
             }
         };
 
@@ -154,7 +155,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
                         } else {
                             value.span.clone()
                         };
-                        return Err(AsgError::array_index_out_of_bounds(inner_value, &error_span))?;
+                        return Err(AsgError::array_index_out_of_bounds(inner_value, &error_span).into());
                     } else if let Some(left) = const_left {
                         if left > inner_value {
                             let error_span = if let Some(right) = right {
@@ -162,7 +163,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
                             } else {
                                 value.span.clone()
                             };
-                            return Err(AsgError::array_index_out_of_bounds(inner_value, &error_span))?;
+                            return Err(AsgError::array_index_out_of_bounds(inner_value, &error_span).into());
                         }
                     }
                 }
@@ -182,11 +183,9 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
             if let Some(length) = length {
                 if length != expected_len {
                     let concrete_type = Type::Array(parent_element, length);
-                    return Err(AsgError::unexpected_type(
-                        expected_type.as_ref().unwrap(),
-                        concrete_type,
-                        &value.span,
-                    ))?;
+                    return Err(
+                        AsgError::unexpected_type(expected_type.as_ref().unwrap(), concrete_type, &value.span).into(),
+                    );
                 }
             }
             if let Some(left_value) = const_left {
@@ -196,13 +195,13 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
                     } else {
                         value.span.clone()
                     };
-                    return Err(AsgError::array_index_out_of_bounds(left_value, &error_span))?;
+                    return Err(AsgError::array_index_out_of_bounds(left_value, &error_span).into());
                 }
             }
             length = Some(expected_len);
         }
         if length.is_none() {
-            return Err(AsgError::unknown_array_size(&value.span))?;
+            return Err(AsgError::unknown_array_size(&value.span).into());
         }
 
         Ok(ArrayRangeAccessExpression {

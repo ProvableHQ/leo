@@ -50,12 +50,10 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
 
         // Return an error if start or stop is not constant.
         if !start.is_consty() {
-            return Err(AsgError::unexpected_nonconst(
-                &start.span().cloned().unwrap_or_default(),
-            ))?;
+            return Err(AsgError::unexpected_nonconst(&start.span().cloned().unwrap_or_default()).into());
         }
         if !stop.is_consty() {
-            return Err(AsgError::unexpected_nonconst(&stop.span().cloned().unwrap_or_default()))?;
+            return Err(AsgError::unexpected_nonconst(&stop.span().cloned().unwrap_or_default()).into());
         }
 
         let variable = scope.context.alloc_variable(RefCell::new(InnerVariable {

@@ -91,9 +91,12 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
         } else {
             return Err(AsgError::unexpected_type(
                 "a tuple",
-                tuple_type.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
+                tuple_type
+                    .map(|x| x.to_string())
+                    .unwrap_or_else(|| "unknown".to_string()),
                 &value.span,
-            ))?;
+            )
+            .into());
         }
 
         Ok(TupleAccessExpression {

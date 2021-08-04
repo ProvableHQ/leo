@@ -75,7 +75,8 @@ fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result
                 file_path.as_os_str().to_owned(),
                 file_type,
                 Backtrace::new(),
-            ))?;
+            )
+            .into());
         }
 
         file_paths.push(file_path);

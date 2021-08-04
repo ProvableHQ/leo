@@ -1305,7 +1305,6 @@ name = "leo-lang"
 version = "1.5.3"
 dependencies = [
  "ansi_term 0.12.1",
- "anyhow",
  "assert_cmd",
  "clap",
  "colored",

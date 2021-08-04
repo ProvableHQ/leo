@@ -76,18 +76,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
         let mut array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
-            value => return Err(CompilerError::undefined_array(value.to_string(), span))?,
+            value => return Err(CompilerError::undefined_array(value.to_string(), span).into()),
         };
 
         let index_resolved = self.enforce_index(cs, index, span)?;
         if let Some(resolved) = index_resolved.to_usize() {
             if resolved >= array.len() {
-                return Err(CompilerError::array_index_out_of_bounds(resolved, span))?;
+                return Err(CompilerError::array_index_out_of_bounds(resolved, span).into());
             }
             Ok(array[resolved].to_owned())
         } else {
             if array.is_empty() {
-                return Err(CompilerError::array_index_out_of_bounds(0, span))?;
+                return Err(CompilerError::array_index_out_of_bounds(0, span).into());
             }
 
             {
@@ -134,7 +134,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
         let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
-            value => return Err(CompilerError::undefined_array(value, span))?,
+            value => return Err(CompilerError::undefined_array(value, span).into()),
         };
 
         let from_resolved = match left {
@@ -159,10 +159,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
         Ok(if let Some((left, right)) = const_dimensions {
             if right - left != length {
-                return Err(CompilerError::array_invalid_slice_length(span))?;
+                return Err(CompilerError::array_invalid_slice_length(span).into());
             }
             if right > array.len() {
-                return Err(CompilerError::array_index_out_of_bounds(right, span))?;
+                return Err(CompilerError::array_index_out_of_bounds(right, span).into());
             }
             ConstrainedValue::Array(array[left..right].to_owned())
         } else {

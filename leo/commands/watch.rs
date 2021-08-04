@@ -16,10 +16,10 @@
 
 use super::build::{Build, BuildOptions};
 use crate::{commands::Command, context::Context};
+use leo_errors::{new_backtrace, CliError, Result};
 
 use std::{sync::mpsc::channel, time::Duration};
 
-use anyhow::{anyhow, Result};
 use notify::{watcher, DebouncedEvent, RecursiveMode, Watcher};
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -54,12 +54,9 @@ impl Command for Watch {
         let (tx, rx) = channel();
         let mut watcher = watcher(tx, Duration::from_secs(self.interval)).unwrap();
 
-        watcher.watch(LEO_SOURCE_DIR, RecursiveMode::Recursive).map_err(|e| {
-            anyhow!(
-                "Unable to watch, check that directory contains Leo.toml file. Error: {}",
-                e
-            )
-        })?;
+        watcher
+            .watch(LEO_SOURCE_DIR, RecursiveMode::Recursive)
+            .map_err(|e| CliError::unable_to_watch(e, new_backtrace()))?;
 
         tracing::info!("Watching Leo source code");
 

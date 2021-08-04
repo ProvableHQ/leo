@@ -109,7 +109,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
-                return Err(AsgError::unexpected_type(type_, "array", &value.span))?;
+                return Err(AsgError::unexpected_type(type_, "array", &value.span).into());
             }
         };
 
@@ -172,9 +172,10 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                                         .map(|x| x.to_string())
                                         .as_deref()
                                         .unwrap_or("unknown"),
-                                    type_.map(|x| x.to_string()).unwrap_or("unknown".to_string()),
+                                    type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                                     &value.span,
-                                ))?;
+                                )
+                                .into());
                             }
                         }
                         Ok((Cell::new(expr), true))
@@ -188,7 +189,8 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
                     format!("array of length {}", expected_len),
                     format!("array of length {}", len),
                     &value.span,
-                ))?;
+                )
+                .into());
             }
         }
         Ok(output)

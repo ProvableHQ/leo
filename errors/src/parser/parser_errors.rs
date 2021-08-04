@@ -21,7 +21,7 @@ use std::fmt::Display;
 create_errors!(
     ParserError,
     exit_code_mask: 5000u32,
-    error_code_prefix: "P",
+    error_code_prefix: "PAR",
 
     @formatted
     unexpected_token {

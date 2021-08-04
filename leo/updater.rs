@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::config::Config;
+use leo_errors::{new_backtrace, CliError, Result};
 
-use anyhow::{anyhow, Result};
 use colored::Colorize;
 use self_update::{backends::github, version::bump_is_greater, Status};
 
@@ -33,8 +33,10 @@ impl Updater {
         let releases = github::ReleaseList::configure()
             .repo_owner(Self::LEO_REPO_OWNER)
             .repo_name(Self::LEO_REPO_NAME)
-            .build()?
-            .fetch()?;
+            .build()
+            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?
+            .fetch()
+            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?;
 
         let mut output = "\nList of available versions\n".to_string();
         for release in releases {
@@ -57,8 +59,10 @@ impl Updater {
             .show_download_progress(show_output)
             .no_confirm(true)
             .show_output(show_output)
-            .build()?
-            .update()?;
+            .build()
+            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?
+            .update()
+            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?;
 
         Ok(status)
     }
@@ -70,19 +74,24 @@ impl Updater {
             .repo_name(Self::LEO_REPO_NAME)
             .bin_name(Self::LEO_BIN_NAME)
             .current_version(env!("CARGO_PKG_VERSION"))
-            .build()?;
+            .build()
+            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?;
 
         let current_version = updater.current_version();
-        let latest_release = updater.get_latest_release()?;
+        let latest_release = updater
+            .get_latest_release()
+            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?;
 
-        if bump_is_greater(&current_version, &latest_release.version)? {
+        if bump_is_greater(&current_version, &latest_release.version)
+            .map_err(|e| CliError::self_update_error(e, new_backtrace()))?
+        {
             Ok(latest_release.version)
         } else {
-            Err(anyhow!(
-                "Old release version {} {}",
+            Err(CliError::old_release_version(
                 current_version,
-                latest_release.version
-            ))
+                latest_release.version,
+                new_backtrace(),
+            ))?
         }
     }
 

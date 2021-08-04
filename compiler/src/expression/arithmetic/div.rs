@@ -35,9 +35,8 @@ pub fn enforce_div<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
         (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
             Ok(ConstrainedValue::Field(field_1.div(cs, &field_2, span)?))
         }
-        (val_1, val_2) => Err(CompilerError::incompatible_types(
-            format!("{} / {}", val_1, val_2,),
-            span,
-        ))?,
+        (val_1, val_2) => {
+            return Err(CompilerError::incompatible_types(format!("{} / {}", val_1, val_2,), span).into());
+        }
     }
 }

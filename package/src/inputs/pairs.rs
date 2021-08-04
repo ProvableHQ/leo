@@ -60,17 +60,13 @@ impl TryFrom<&Path> for InputPairs {
                 Some(stem) => match stem.to_str() {
                     Some(file_name) => file_name,
                     None => {
-                        return Err(PackageError::failed_to_get_input_file_name(
-                            file.as_os_str(),
-                            Backtrace::new(),
-                        ))?;
+                        return Err(
+                            PackageError::failed_to_get_input_file_name(file.as_os_str(), Backtrace::new()).into(),
+                        );
                     }
                 },
                 None => {
-                    return Err(PackageError::failed_to_get_input_file_name(
-                        file.as_os_str(),
-                        Backtrace::new(),
-                    ))?;
+                    return Err(PackageError::failed_to_get_input_file_name(file.as_os_str(), Backtrace::new()).into());
                 }
             };
 

@@ -55,7 +55,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                                     arg_index + 1,
                                     args.parameters.len(),
                                     &args.span,
-                                ))?;
+                                )
+                                .into());
                             }
                         };
                         out.push(self.enforce_expression(cs, parameter.get())?.to_string());
@@ -67,12 +68,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                                 substring.push('}');
                                 escape_right_bracket = true;
                             } else {
-                                return Err(CompilerError::console_fmt_expected_escaped_right_brace(&args.span))?;
+                                return Err(CompilerError::console_fmt_expected_escaped_right_brace(&args.span).into());
                             }
                         }
                     }
                     _ if in_container => {
-                        return Err(CompilerError::console_fmt_expected_left_or_right_brace(&args.span))?;
+                        return Err(CompilerError::console_fmt_expected_left_or_right_brace(&args.span).into());
                     }
                     _ => substring.push(*scalar),
                 },
@@ -90,7 +91,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 arg_index,
                 args.parameters.len(),
                 &args.span,
-            ))?;
+            )
+            .into());
         }
 
         Ok(out.join(""))

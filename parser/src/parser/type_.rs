@@ -69,7 +69,7 @@ impl ParserContext {
                     dimensions.push(int);
                 } else {
                     let token = self.peek()?;
-                    return Err(ParserError::unexpected_str(&token.token, "int", &token.span))?;
+                    return Err(ParserError::unexpected_str(&token.token, "int", &token.span).into());
                 }
                 if self.eat(Token::Comma).is_none() {
                     break;

@@ -74,7 +74,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
-                return Err(AsgError::unexpected_type(type_, "array", &value.span))?;
+                return Err(AsgError::unexpected_type(type_, "array", &value.span).into());
             }
         };
         let dimensions = value
@@ -97,7 +97,8 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                     format!("array of length {}", expected_len),
                     format!("array of length {}", len),
                     &value.span,
-                ))?;
+                )
+                .into());
             }
         }
 
@@ -110,7 +111,8 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                                 format!("array of length {}", dimension),
                                 format!("array of length {}", len),
                                 &value.span,
-                            ))?;
+                            )
+                            .into());
                         }
                     }
 
@@ -118,7 +120,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
                 }
                 None => None,
                 Some(type_) => {
-                    return Err(AsgError::unexpected_type("array", type_, &value.span))?;
+                    return Err(AsgError::unexpected_type("array", type_, &value.span).into());
                 }
             }
         }

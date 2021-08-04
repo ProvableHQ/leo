@@ -35,7 +35,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 values.len(),
                 variable_names.len(),
                 span,
-            ))?;
+            )
+            .into());
         }
 
         for (variable, value) in variable_names.iter().zip(values.into_iter()) {
@@ -65,7 +66,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
                 value => {
-                    return Err(CompilerError::statement_multiple_definition(value, &span))?;
+                    return Err(CompilerError::statement_multiple_definition(value, &span).into());
                 }
             };
 
