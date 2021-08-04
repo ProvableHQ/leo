@@ -16,7 +16,7 @@
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Identifier;
-use leo_errors::{CompilerError, LeoError};
+use leo_errors::{new_backtrace, CompilerError, Result};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -29,9 +29,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         mut context: ResolverContext<'a, 'b, F, G>,
         name: &Identifier,
-    ) -> Result<(), LeoError> {
+    ) -> Result<()> {
         if context.input.len() != 1 {
-            return Err(CompilerError::statement_array_assign_interior_index(&context.span).into());
+            return Err(CompilerError::statement_array_assign_interior_index(&context.span, new_backtrace()).into());
         }
         match context.input.remove(0) {
             ConstrainedValue::CircuitExpression(_variable, members) => {
@@ -45,12 +45,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     }
                     None => {
                         // Throw an error if the circuit variable does not exist in the circuit
-                        Err(CompilerError::statement_undefined_circuit_variable(name, &context.span).into())
+                        Err(
+                            CompilerError::statement_undefined_circuit_variable(name, &context.span, new_backtrace())
+                                .into(),
+                        )
                     }
                 }
             }
             // Throw an error if the circuit definition does not exist in the file
-            x => Err(CompilerError::undefined_circuit(x, &context.span).into()),
+            x => Err(CompilerError::undefined_circuit(x, &context.span, new_backtrace()).into()),
         }
     }
 }

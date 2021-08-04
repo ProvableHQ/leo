@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{AssignAccess, AssignOperation, AssignStatement};
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{new_backtrace, CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -45,7 +45,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         context: &ResolverContext<'a, 'b, F, G>,
         target: &mut ConstrainedValue<'a, F, G>,
-    ) -> Result<(), LeoError> {
+    ) -> Result<()> {
         Self::enforce_assign_operation(
             cs,
             context.indicator,
@@ -61,7 +61,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         mut context: ResolverContext<'a, 'b, F, G>,
-    ) -> Result<(), LeoError> {
+    ) -> Result<()> {
         if context.remaining_accesses.is_empty() {
             if context.input.len() != 1 {
                 panic!("invalid non-array-context multi-value assignment");
@@ -90,7 +90,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         assignee: &AssignStatement<'a>,
         target_value: ConstrainedValue<'a, F, G>,
         indicator: &Boolean,
-    ) -> Result<(), LeoError> {
+    ) -> Result<()> {
         let span = assignee.span.clone().unwrap_or_default();
         let variable = assignee.target_variable.get().borrow();
 
@@ -109,18 +109,16 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         Ok(())
     }
 
-    pub(crate) fn check_range_index(
-        start_index: usize,
-        stop_index: usize,
-        len: usize,
-        span: &Span,
-    ) -> Result<(), LeoError> {
+    pub(crate) fn check_range_index(start_index: usize, stop_index: usize, len: usize, span: &Span) -> Result<()> {
         if stop_index < start_index {
-            Err(CompilerError::statement_array_assign_range_order(start_index, stop_index, len, span).into())
+            Err(
+                CompilerError::statement_array_assign_range_order(start_index, stop_index, len, span, new_backtrace())
+                    .into(),
+            )
         } else if start_index > len {
-            Err(CompilerError::statement_array_assign_index_bounds(start_index, len, span).into())
+            Err(CompilerError::statement_array_assign_index_bounds(start_index, len, span, new_backtrace()).into())
         } else if stop_index > len {
-            Err(CompilerError::statement_array_assign_index_bounds(stop_index, len, span).into())
+            Err(CompilerError::statement_array_assign_index_bounds(stop_index, len, span, new_backtrace()).into())
         } else {
             Ok(())
         }

@@ -17,7 +17,7 @@
 use crate::{ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
 use leo_asg::Program;
 use leo_ast::{Parameter, Registers};
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{new_backtrace, CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 
@@ -38,7 +38,7 @@ impl OutputBytes {
         value: ConstrainedValue<'a, F, G>,
 
         span: &Span,
-    ) -> Result<Self, LeoError> {
+    ) -> Result<Self> {
         let return_values = match value {
             ConstrainedValue::Tuple(values) => values,
             value => vec![value],
@@ -55,7 +55,7 @@ impl OutputBytes {
 
         // Return an error if we do not have enough return registers
         if register_values.len() < return_values.len() {
-            return Err(CompilerError::output_not_enough_registers(span).into());
+            return Err(CompilerError::output_not_enough_registers(span, new_backtrace()).into());
         }
 
         // Manually construct result string
@@ -73,7 +73,13 @@ impl OutputBytes {
             let return_value_type = value.to_type(span)?;
 
             if !register_type.is_assignable_from(&return_value_type) {
-                return Err(CompilerError::output_mismatched_types(register_type, return_value_type, span).into());
+                return Err(CompilerError::output_mismatched_types(
+                    register_type,
+                    return_value_type,
+                    span,
+                    new_backtrace(),
+                )
+                .into());
             }
 
             let value = value.to_string();

@@ -29,7 +29,7 @@ use crate::{
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
 use leo_ast::FunctionInput;
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -107,7 +107,7 @@ impl<'a> Function<'a> {
             }
         }
         if qualifier != FunctionQualifier::Static && scope.circuit_self.get().is_none() {
-            return Err(AsgError::invalid_self_in_global(&value.span).into());
+            return Err(AsgError::invalid_self_in_global(&value.span, new_backtrace()).into());
         }
         let function = scope.context.alloc_function(Function {
             id: scope.context.get_id(),
@@ -151,12 +151,16 @@ impl<'a> Function<'a> {
         let main_block = BlockStatement::from_ast(self.scope, &value.block, None)?;
         let mut director = MonoidalDirector::new(ReturnPathReducer::new());
         if !director.reduce_block(&main_block).0 && !self.output.is_unit() {
-            return Err(AsgError::function_missing_return(&self.name.borrow().name, &value.span).into());
+            return Err(
+                AsgError::function_missing_return(&self.name.borrow().name, &value.span, new_backtrace()).into(),
+            );
         }
 
         #[allow(clippy::never_loop)] // TODO @Protryon: How should we return multiple errors?
         for (span, error) in director.reducer().errors {
-            return Err(AsgError::function_return_validation(&self.name.borrow().name, error, &span).into());
+            return Err(
+                AsgError::function_return_validation(&self.name.borrow().name, error, &span, new_backtrace()).into(),
+            );
         }
 
         self.body

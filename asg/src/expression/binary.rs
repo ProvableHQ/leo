@@ -16,7 +16,7 @@
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 pub use leo_ast::{BinaryOperation, BinaryOperationClass};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -123,7 +123,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
             BinaryOperationClass::Boolean => match expected_type {
                 Some(PartialType::Type(Type::Boolean)) | None => None,
                 Some(x) => {
-                    return Err(AsgError::unexpected_type(x, Type::Boolean, &value.span).into());
+                    return Err(AsgError::unexpected_type(x, Type::Boolean, &value.span, new_backtrace()).into());
                 }
             },
             BinaryOperationClass::Numeric => match expected_type {
@@ -131,7 +131,9 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
                 Some(x @ PartialType::Type(Type::Field)) => Some(x),
                 Some(x @ PartialType::Type(Type::Group)) => Some(x),
                 Some(x) => {
-                    return Err(AsgError::unexpected_type(x, "integer, field, or group", &value.span).into());
+                    return Err(
+                        AsgError::unexpected_type(x, "integer, field, or group", &value.span, new_backtrace()).into(),
+                    );
                 }
                 None => None,
             },
@@ -184,6 +186,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
                         "integer",
                         type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                         &value.span,
+                        new_backtrace(),
                     )
                     .into());
                 }
@@ -192,14 +195,14 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
                 BinaryOperation::And | BinaryOperation::Or => match left_type {
                     Some(Type::Boolean) | None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, Type::Boolean, &value.span).into());
+                        return Err(AsgError::unexpected_type(x, Type::Boolean, &value.span, new_backtrace()).into());
                     }
                 },
                 BinaryOperation::Eq | BinaryOperation::Ne => (), // all types allowed
                 _ => match left_type {
                     Some(Type::Integer(_)) | None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, "integer", &value.span).into());
+                        return Err(AsgError::unexpected_type(x, "integer", &value.span, new_backtrace()).into());
                     }
                 },
             },
@@ -210,11 +213,11 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
         match (left_type, right_type) {
             (Some(left_type), Some(right_type)) => {
                 if !left_type.is_assignable_from(&right_type) {
-                    return Err(AsgError::unexpected_type(left_type, right_type, &value.span).into());
+                    return Err(AsgError::unexpected_type(left_type, right_type, &value.span, new_backtrace()).into());
                 }
             }
             (None, None) => {
-                return Err(AsgError::unexpected_type("any type", "unknown type", &value.span).into());
+                return Err(AsgError::unexpected_type("any type", "unknown type", &value.span, new_backtrace()).into());
             }
             (_, _) => (),
         }

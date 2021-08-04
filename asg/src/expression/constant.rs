@@ -28,7 +28,7 @@ use crate::{
     Type,
 };
 
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -85,7 +85,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Address) | None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, Type::Address, span).into());
+                        return Err(AsgError::unexpected_type(x, Type::Address, span, new_backtrace()).into());
                     }
                 }
                 Constant {
@@ -98,7 +98,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Boolean) | None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, Type::Boolean, span).into());
+                        return Err(AsgError::unexpected_type(x, Type::Boolean, span, new_backtrace()).into());
                     }
                 }
                 Constant {
@@ -107,7 +107,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     value: ConstValue::Boolean(
                         value
                             .parse::<bool>()
-                            .map_err(|_| AsgError::invalid_boolean(value, span))?,
+                            .map_err(|_| AsgError::invalid_boolean(value, span, new_backtrace()))?,
                     ),
                 }
             }
@@ -115,7 +115,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Char) | None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, Type::Char, value.span()).into());
+                        return Err(AsgError::unexpected_type(x, Type::Char, value.span(), new_backtrace()).into());
                     }
                 }
 
@@ -129,20 +129,24 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Field) | None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, Type::Field, span).into());
+                        return Err(AsgError::unexpected_type(x, Type::Field, span, new_backtrace()).into());
                     }
                 }
                 Constant {
                     parent: Cell::new(None),
                     span: Some(span.clone()),
-                    value: ConstValue::Field(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
+                    value: ConstValue::Field(
+                        value
+                            .parse()
+                            .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+                    ),
                 }
             }
             Group(value) => {
                 match expected_type.map(PartialType::full).flatten() {
                     Some(Type::Group) | None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, Type::Group, value.span()).into());
+                        return Err(AsgError::unexpected_type(x, Type::Group, value.span(), new_backtrace()).into());
                     }
                 }
                 Constant {
@@ -159,7 +163,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 }
             }
             Implicit(value, span) => match expected_type {
-                None => return Err(AsgError::unresolved_type("unknown", span).into()),
+                None => return Err(AsgError::unresolved_type("unknown", span, new_backtrace()).into()),
                 Some(PartialType::Integer(Some(sub_type), _)) | Some(PartialType::Integer(None, Some(sub_type))) => {
                     Constant {
                         parent: Cell::new(None),
@@ -170,7 +174,11 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 Some(PartialType::Type(Type::Field)) => Constant {
                     parent: Cell::new(None),
                     span: Some(span.clone()),
-                    value: ConstValue::Field(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
+                    value: ConstValue::Field(
+                        value
+                            .parse()
+                            .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+                    ),
                 },
                 Some(PartialType::Type(Type::Group)) => Constant {
                     parent: Cell::new(None),
@@ -183,7 +191,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     value: ConstValue::Address(value.clone()),
                 },
                 Some(x) => {
-                    return Err(AsgError::unexpected_type(x, "unknown", span).into());
+                    return Err(AsgError::unexpected_type(x, "unknown", span, new_backtrace()).into());
                 }
             },
             Integer(int_type, value, span) => {
@@ -192,7 +200,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     Some(PartialType::Integer(None, Some(_))) => (),
                     None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, int_type, span).into());
+                        return Err(AsgError::unexpected_type(x, int_type, span, new_backtrace()).into());
                     }
                 }
                 Constant {

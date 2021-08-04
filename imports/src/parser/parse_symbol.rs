@@ -16,7 +16,7 @@
 
 use crate::ImportParser;
 use leo_ast::Program;
-use leo_errors::{ImportError, Result, Span};
+use leo_errors::{new_backtrace, ImportError, Result, Span};
 
 use std::fs::DirEntry;
 
@@ -32,26 +32,26 @@ impl<'a> ImportParser<'a> {
         // Get the package file type.
         let file_type = package
             .file_type()
-            .map_err(|error| ImportError::directory_error(error, package.path(), span))?;
+            .map_err(|error| ImportError::directory_error(error, package.path(), span, new_backtrace()))?;
         let file_name = package
             .file_name()
             .into_string()
-            .map_err(|_| ImportError::convert_os_string(span))?;
+            .map_err(|_| ImportError::convert_os_string(span, new_backtrace()))?;
 
         let mut file_path = package.path();
         if file_type.is_dir() {
             file_path.push(MAIN_FILE);
 
             if !file_path.exists() {
-                return Err(ImportError::expected_main_file(file_path.as_path(), span).into());
+                return Err(ImportError::expected_main_file(file_path.as_path(), span, new_backtrace()).into());
             }
         }
 
         let file_path_str = file_path.to_str().unwrap_or_default();
 
         // Build the package abstract syntax tree.
-        let program_string =
-            &std::fs::read_to_string(&file_path).map_err(|x| ImportError::io_error(file_path_str, x, span))?;
+        let program_string = &std::fs::read_to_string(&file_path)
+            .map_err(|x| ImportError::io_error(file_path_str, x, span, new_backtrace()))?;
         let mut program = leo_parser::parse(file_path_str, program_string)?;
         program.name = file_name;
         let mut ast = leo_ast::Ast::new(program);

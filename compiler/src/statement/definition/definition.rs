@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_asg::{DefinitionStatement, Variable};
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{new_backtrace, CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -29,12 +29,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         variable_names: &[&'a Variable<'a>],
         values: Vec<ConstrainedValue<'a, F, G>>,
         span: &Span,
-    ) -> Result<(), LeoError> {
+    ) -> Result<()> {
         if values.len() != variable_names.len() {
             return Err(CompilerError::statement_invalid_number_of_definitions(
                 values.len(),
                 variable_names.len(),
                 span,
+                new_backtrace(),
             )
             .into());
         }
@@ -51,7 +52,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         statement: &DefinitionStatement<'a>,
-    ) -> Result<(), LeoError> {
+    ) -> Result<()> {
         let num_variables = statement.variables.len();
         let expression = self.enforce_expression(cs, statement.value.get())?;
 
@@ -66,7 +67,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 // ConstrainedValue::Return(values) => values,
                 ConstrainedValue::Tuple(values) => values,
                 value => {
-                    return Err(CompilerError::statement_multiple_definition(value, &span).into());
+                    return Err(CompilerError::statement_multiple_definition(value, &span, new_backtrace()).into());
                 }
             };
 

@@ -25,9 +25,6 @@ version = "1.5.3"
 path = "../errors"
 version = "1.5.3"
 
-[dependencies.backtrace]
-version = "0.3.61"
-
 [dependencies.indexmap]
 version = "1.7.0"
 features = [ "serde-1" ]

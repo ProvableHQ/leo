@@ -17,7 +17,7 @@
 use crate::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_asg::{Circuit, CircuitMember};
 use leo_ast::{Identifier, InputValue, Parameter};
-use leo_errors::{AsgError, LeoError};
+use leo_errors::{new_backtrace, AsgError, Result};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -31,7 +31,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         identifier: Identifier,
         expected_type: &'a Circuit<'a>,
         section: IndexMap<Parameter, Option<InputValue>>,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let mut members = Vec::with_capacity(section.len());
 
         // Allocate each section definition as a circuit member value
@@ -43,7 +43,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             };
             let declared_type = self.asg.scope.resolve_ast_type(&parameter.type_, &parameter.span)?;
             if !expected_type.is_assignable_from(&declared_type) {
-                return Err(AsgError::unexpected_type(expected_type, declared_type, &identifier.span).into());
+                return Err(
+                    AsgError::unexpected_type(expected_type, declared_type, &identifier.span, new_backtrace()).into(),
+                );
             }
             let member_name = parameter.variable.clone();
             let member_value = self.allocate_main_function_input(

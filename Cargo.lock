@@ -1210,7 +1210,6 @@ dependencies = [
 name = "leo-ast"
 version = "1.5.3"
 dependencies = [
- "backtrace",
  "criterion",
  "indexmap",
  "leo-errors",
@@ -1225,7 +1224,6 @@ dependencies = [
 name = "leo-compiler"
 version = "1.5.3"
 dependencies = [
- "backtrace",
  "bincode",
  "hex",
  "indexmap",
@@ -1257,7 +1255,6 @@ dependencies = [
  "snarkvm-utilities",
  "tempfile",
  "tendril",
- "thiserror",
  "tracing",
 ]
 
@@ -1351,7 +1348,6 @@ version = "1.5.3"
 name = "leo-package"
 version = "1.5.3"
 dependencies = [
- "backtrace",
  "lazy_static",
  "leo-errors",
  "serde",

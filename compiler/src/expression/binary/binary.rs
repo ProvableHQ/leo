@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Expression;
-use leo_errors::LeoError;
+use leo_errors::Result;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -32,7 +32,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         left: &'a Expression<'a>,
         right: &'a Expression<'a>,
-    ) -> Result<ConstrainedValuePair<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValuePair<'a, F, G>> {
         let resolved_left = {
             let mut left_namespace = cs.ns(|| "left".to_string());
             self.enforce_expression(&mut left_namespace, left)?

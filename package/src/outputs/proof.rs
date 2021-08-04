@@ -17,9 +17,8 @@
 //! The proof file.
 
 use crate::outputs::OUTPUTS_DIRECTORY_NAME;
-use leo_errors::{PackageError, Result};
+use leo_errors::{new_backtrace, PackageError, Result};
 
-use backtrace::Backtrace;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -55,17 +54,17 @@ impl ProofFile {
         let path = self.setup_file_path(path);
 
         let string = fs::read_to_string(&path)
-            .map_err(|_| PackageError::failed_to_read_proof_file(path.into_owned(), Backtrace::new()))?;
+            .map_err(|_| PackageError::failed_to_read_proof_file(path.into_owned(), new_backtrace()))?;
         Ok(string)
     }
 
     /// Writes the given proof to a file.
     pub fn write_to(&self, path: &Path, proof: &[u8]) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_proof_file(e, Backtrace::new()))?;
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_proof_file(e, new_backtrace()))?;
 
         file.write_all(proof)
-            .map_err(|e| PackageError::io_error_proof_file(e, Backtrace::new()))?;
+            .map_err(|e| PackageError::io_error_proof_file(e, new_backtrace()))?;
         tracing::info!("Saving proof... ({:?})", path);
 
         Ok(())
@@ -79,7 +78,7 @@ impl ProofFile {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_proof_file(path, Backtrace::new()))?;
+        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_proof_file(path, new_backtrace()))?;
         Ok(true)
     }
 

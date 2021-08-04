@@ -28,7 +28,7 @@ use crate::{
     Type,
 };
 pub use leo_ast::{BinaryOperation, Node as AstNode};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -94,7 +94,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 None,
                 scope
                     .resolve_function(&name.name)
-                    .ok_or_else(|| AsgError::unresolved_function(&name.name, &name.span))?,
+                    .ok_or_else(|| AsgError::unresolved_function(&name.name, &name.span, new_backtrace()))?,
             ),
             leo_ast::Expression::CircuitMemberAccess(leo_ast::CircuitMemberAccessExpression {
                 circuit: ast_circuit,
@@ -109,28 +109,41 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                             "circuit",
                             type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                             span,
+                            new_backtrace(),
                         )
                         .into());
                     }
                 };
                 let circuit_name = circuit.name.borrow().name.clone();
                 let member = circuit.members.borrow();
-                let member = member
-                    .get(name.name.as_ref())
-                    .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
+                let member = member.get(name.name.as_ref()).ok_or_else(|| {
+                    AsgError::unresolved_circuit_member(&circuit_name, &name.name, span, new_backtrace())
+                })?;
                 match member {
                     CircuitMember::Function(body) => {
                         if body.qualifier == FunctionQualifier::Static {
-                            return Err(AsgError::circuit_static_call_invalid(&circuit_name, &name.name, span).into());
+                            return Err(AsgError::circuit_static_call_invalid(
+                                &circuit_name,
+                                &name.name,
+                                span,
+                                new_backtrace(),
+                            )
+                            .into());
                         } else if body.qualifier == FunctionQualifier::MutSelfRef && !target.is_mut_ref() {
-                            return Err(
-                                AsgError::circuit_member_mut_call_invalid(circuit_name, &name.name, span).into(),
-                            );
+                            return Err(AsgError::circuit_member_mut_call_invalid(
+                                circuit_name,
+                                &name.name,
+                                span,
+                                new_backtrace(),
+                            )
+                            .into());
                         }
                         (Some(target), *body)
                     }
                     CircuitMember::Variable(_) => {
-                        return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
+                        return Err(
+                            AsgError::circuit_variable_call(circuit_name, &name.name, span, new_backtrace()).into(),
+                        );
                     }
                 }
             }
@@ -140,27 +153,35 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 span,
             }) => {
                 let circuit = if let leo_ast::Expression::Identifier(circuit_name) = &**ast_circuit {
-                    scope
-                        .resolve_circuit(&circuit_name.name)
-                        .ok_or_else(|| AsgError::unresolved_circuit(&circuit_name.name, &circuit_name.span))?
+                    scope.resolve_circuit(&circuit_name.name).ok_or_else(|| {
+                        AsgError::unresolved_circuit(&circuit_name.name, &circuit_name.span, new_backtrace())
+                    })?
                 } else {
-                    return Err(AsgError::unexpected_type("circuit", "unknown", span).into());
+                    return Err(AsgError::unexpected_type("circuit", "unknown", span, new_backtrace()).into());
                 };
                 let circuit_name = circuit.name.borrow().name.clone();
 
                 let member = circuit.members.borrow();
-                let member = member
-                    .get(name.name.as_ref())
-                    .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
+                let member = member.get(name.name.as_ref()).ok_or_else(|| {
+                    AsgError::unresolved_circuit_member(&circuit_name, &name.name, span, new_backtrace())
+                })?;
                 match member {
                     CircuitMember::Function(body) => {
                         if body.qualifier != FunctionQualifier::Static {
-                            return Err(AsgError::circuit_member_call_invalid(circuit_name, &name.name, span).into());
+                            return Err(AsgError::circuit_member_call_invalid(
+                                circuit_name,
+                                &name.name,
+                                span,
+                                new_backtrace(),
+                            )
+                            .into());
                         }
                         (None, *body)
                     }
                     CircuitMember::Variable(_) => {
-                        return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
+                        return Err(
+                            AsgError::circuit_variable_call(circuit_name, &name.name, span, new_backtrace()).into(),
+                        );
                     }
                 }
             }
@@ -168,6 +189,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 return Err(AsgError::illegal_ast_structure(
                     "non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess as call target",
                     &value.span,
+                    new_backtrace(),
                 )
                 .into());
             }
@@ -175,7 +197,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
         if let Some(expected) = expected_type {
             let output: Type = function.output.clone();
             if !expected.matches(&output) {
-                return Err(AsgError::unexpected_type(expected, output, &value.span).into());
+                return Err(AsgError::unexpected_type(expected, output, &value.span, new_backtrace()).into());
             }
         }
         if value.arguments.len() != function.arguments.len() {
@@ -183,6 +205,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 function.arguments.len(),
                 value.arguments.len(),
                 &value.span,
+                new_backtrace(),
             )
             .into());
         }
@@ -195,14 +218,14 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 let argument = argument.get().borrow();
                 let converted = <&Expression<'a>>::from_ast(scope, expr, Some(argument.type_.clone().partial()))?;
                 if argument.const_ && !converted.is_consty() {
-                    return Err(AsgError::unexpected_nonconst(expr.span()).into());
+                    return Err(AsgError::unexpected_nonconst(expr.span(), new_backtrace()).into());
                 }
                 Ok(Cell::new(converted))
             })
             .collect::<Result<Vec<_>>>()?;
 
         if function.is_test() {
-            return Err(AsgError::call_test_function(&value.span).into());
+            return Err(AsgError::call_test_function(&value.span, new_backtrace()).into());
         }
         Ok(CallExpression {
             parent: Cell::new(None),

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_asg::{AsgContext, ImportResolver, Program};
-use leo_errors::{ImportError, LeoError, Result, Span};
+use leo_errors::{new_backtrace, ImportError, LeoError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};
 use std::path::PathBuf;
@@ -50,7 +50,7 @@ impl<'a> ImportResolver<'a> for ImportParser<'a> {
     ) -> Result<Option<Program<'a>>> {
         let full_path = package_segments.join(".");
         if self.partial_imports.contains(&full_path) {
-            return Err(ImportError::recursive_imports(full_path, span).into());
+            return Err(ImportError::recursive_imports(full_path, span, new_backtrace()).into());
         }
         if let Some(program) = self.imports.get(&full_path) {
             return Ok(Some(program.clone()));

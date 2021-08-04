@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -91,7 +91,7 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
         let right = if_false.get().get_type().unwrap().into();
 
         if left != right {
-            return Err(AsgError::ternary_different_types(left, right, &value.span).into());
+            return Err(AsgError::ternary_different_types(left, right, &value.span, new_backtrace()).into());
         }
 
         Ok(TernaryExpression {

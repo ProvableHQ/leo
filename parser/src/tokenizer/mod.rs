@@ -28,7 +28,7 @@ pub(crate) use self::token::*;
 pub(crate) mod lexer;
 pub(crate) use self::lexer::*;
 
-use leo_errors::{LeoError, ParserError, Span};
+use leo_errors::{new_backtrace, LeoError, ParserError, Span};
 
 use tendril::StrTendril;
 
@@ -70,7 +70,7 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                     }
                     Token::AddressLit(address) => {
                         if !check_address(address) {
-                            return Err(ParserError::invalid_address_lit(address, &span).into());
+                            return Err(ParserError::invalid_address_lit(address, &span, new_backtrace()).into());
                         }
                     }
                     _ => (),
@@ -96,6 +96,7 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                                 input[line_start..].find('\n').unwrap_or_else(|| input.len()) as u32,
                             ),
                         ),
+                        new_backtrace(),
                     )
                     .into());
                 }

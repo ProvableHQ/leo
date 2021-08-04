@@ -16,9 +16,8 @@
 
 //! The `.gitignore` file.
 
-use leo_errors::{PackageError, Result};
+use leo_errors::{new_backtrace, PackageError, Result};
 
-use backtrace::Backtrace;
 use serde::Deserialize;
 use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
@@ -46,9 +45,9 @@ impl Gitignore {
             path.to_mut().push(GITIGNORE_FILENAME);
         }
 
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_gitignore_file(e, Backtrace::new()))?;
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_gitignore_file(e, new_backtrace()))?;
         file.write_all(self.template().as_bytes())
-            .map_err(|e| PackageError::io_error_gitignore_file(e, Backtrace::new()))?;
+            .map_err(|e| PackageError::io_error_gitignore_file(e, new_backtrace()))?;
         Ok(())
     }
 

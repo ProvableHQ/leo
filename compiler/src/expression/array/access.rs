@@ -26,7 +26,7 @@ use crate::{
     GroupType,
 };
 use leo_asg::{ConstInt, Expression};
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{new_backtrace, CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
@@ -45,7 +45,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         index_resolved: &Integer,
         array_len: u32,
         span: &Span,
-    ) -> Result<(), LeoError> {
+    ) -> Result<()> {
         let bounds_check = evaluate_lt::<F, G, CS>(
             cs,
             ConstrainedValue::Integer(index_resolved.clone()),
@@ -62,7 +62,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let mut unique_namespace = cs.ns(|| namespace_string);
         bounds_check
             .enforce_equal(&mut unique_namespace, &Boolean::Constant(true))
-            .map_err(|e| CompilerError::cannot_enforce_expression("array bounds check", e, span))?;
+            .map_err(|e| CompilerError::cannot_enforce_expression("array bounds check", e, span, new_backtrace()))?;
         Ok(())
     }
 
@@ -73,28 +73,28 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         array: &'a Expression<'a>,
         index: &'a Expression<'a>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let mut array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
-            value => return Err(CompilerError::undefined_array(value.to_string(), span).into()),
+            value => return Err(CompilerError::undefined_array(value.to_string(), span, new_backtrace()).into()),
         };
 
         let index_resolved = self.enforce_index(cs, index, span)?;
         if let Some(resolved) = index_resolved.to_usize() {
             if resolved >= array.len() {
-                return Err(CompilerError::array_index_out_of_bounds(resolved, span).into());
+                return Err(CompilerError::array_index_out_of_bounds(resolved, span, new_backtrace()).into());
             }
             Ok(array[resolved].to_owned())
         } else {
             if array.is_empty() {
-                return Err(CompilerError::array_index_out_of_bounds(0, span).into());
+                return Err(CompilerError::array_index_out_of_bounds(0, span, new_backtrace()).into());
             }
 
             {
                 let array_len: u32 = array
                     .len()
                     .try_into()
-                    .map_err(|_| CompilerError::array_length_out_of_bounds(span))?;
+                    .map_err(|_| CompilerError::array_length_out_of_bounds(span, new_backtrace()))?;
                 self.array_bounds_check(cs, &index_resolved, array_len, span)?;
             }
 
@@ -105,17 +105,19 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
                 let index_bounded = i
                     .try_into()
-                    .map_err(|_| CompilerError::array_index_out_of_legal_bounds(span))?;
+                    .map_err(|_| CompilerError::array_index_out_of_legal_bounds(span, new_backtrace()))?;
                 let const_index = ConstInt::U32(index_bounded).cast_to(&index_resolved.get_type());
                 let index_comparison = index_resolved
                     .evaluate_equal(eq_namespace, &Integer::new(&const_index))
-                    .map_err(|_| CompilerError::cannot_evaluate_expression("==", span))?;
+                    .map_err(|_| CompilerError::cannot_evaluate_expression("==", span, new_backtrace()))?;
 
                 let unique_namespace =
                     cs.ns(|| format!("select array access {} {}:{}", i, span.line_start, span.col_start));
                 let value =
                     ConstrainedValue::conditionally_select(unique_namespace, &index_comparison, &item, &current_value)
-                        .map_err(|e| CompilerError::cannot_enforce_expression("conditional select", e, span))?;
+                        .map_err(|e| {
+                            CompilerError::cannot_enforce_expression("conditional select", e, span, new_backtrace())
+                        })?;
                 current_value = value;
             }
             Ok(current_value)
@@ -131,10 +133,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         right: Option<&'a Expression<'a>>,
         length: usize,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let array = match self.enforce_expression(cs, array)? {
             ConstrainedValue::Array(array) => array,
-            value => return Err(CompilerError::undefined_array(value, span).into()),
+            value => return Err(CompilerError::undefined_array(value, span, new_backtrace()).into()),
         };
 
         let from_resolved = match left {
@@ -147,7 +149,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let index_bounded: u32 = array
                     .len()
                     .try_into()
-                    .map_err(|_| CompilerError::array_length_out_of_bounds(span))?;
+                    .map_err(|_| CompilerError::array_length_out_of_bounds(span, new_backtrace()))?;
                 Integer::new(&ConstInt::U32(index_bounded))
             } // Array slice ends at array length
         };
@@ -159,10 +161,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
         Ok(if let Some((left, right)) = const_dimensions {
             if right - left != length {
-                return Err(CompilerError::array_invalid_slice_length(span).into());
+                return Err(CompilerError::array_invalid_slice_length(span, new_backtrace()).into());
             }
             if right > array.len() {
-                return Err(CompilerError::array_index_out_of_bounds(right, span).into());
+                return Err(CompilerError::array_index_out_of_bounds(right, span, new_backtrace()).into());
             }
             ConstrainedValue::Array(array[left..right].to_owned())
         } else {
@@ -184,7 +186,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let mut unique_namespace = cs.ns(|| namespace_string);
                 calc_len
                     .enforce_equal(&mut unique_namespace, &Integer::new(&ConstInt::U32(length as u32)))
-                    .map_err(|e| CompilerError::cannot_enforce_expression("array length check", e, span))?;
+                    .map_err(|e| {
+                        CompilerError::cannot_enforce_expression("array length check", e, span, new_backtrace())
+                    })?;
             }
             {
                 let bounds_check = evaluate_le::<F, G, _>(
@@ -204,7 +208,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let mut unique_namespace = cs.ns(|| namespace_string);
                 bounds_check
                     .enforce_equal(&mut unique_namespace, &Boolean::Constant(true))
-                    .map_err(|e| CompilerError::cannot_enforce_expression("array bounds check", e, span))?;
+                    .map_err(|e| {
+                        CompilerError::cannot_enforce_expression("array bounds check", e, span, new_backtrace())
+                    })?;
             }
             let mut windows = array.windows(length);
             let mut result = ConstrainedValue::Array(vec![]);
@@ -233,7 +239,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let unique_namespace =
                     unique_namespace.ns(|| format!("array index {} {}:{}", i, span.line_start, span.col_start));
                 result = ConstrainedValue::conditionally_select(unique_namespace, &equality, &array_value, &result)
-                    .map_err(|e| CompilerError::cannot_enforce_expression("conditional select", e, span))?;
+                    .map_err(|e| {
+                        CompilerError::cannot_enforce_expression("conditional select", e, span, new_backtrace())
+                    })?;
             }
             result
         })

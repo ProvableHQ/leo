@@ -29,7 +29,7 @@ use crate::{
     Variable,
 };
 
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -143,6 +143,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
                 return Err(AsgError::illegal_input_variable_reference(
                     "attempted to reference input when none is in scope",
                     &value.span,
+                    new_backtrace(),
                 )
                 .into());
             }
@@ -157,7 +158,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
                             value: ConstValue::Address(value.name.clone()),
                         })));
                     }
-                    return Err(AsgError::unresolved_reference(&value.name, &value.span).into());
+                    return Err(AsgError::unresolved_reference(&value.name, &value.span, new_backtrace()).into());
                 }
             }
         };
@@ -172,9 +173,9 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
         if let Some(expected_type) = expected_type {
             let type_ = expression
                 .get_type()
-                .ok_or_else(|| AsgError::unresolved_reference(&value.name, &value.span))?;
+                .ok_or_else(|| AsgError::unresolved_reference(&value.name, &value.span, new_backtrace()))?;
             if !expected_type.matches(&type_) {
-                return Err(AsgError::unexpected_type(expected_type, type_, &value.span).into());
+                return Err(AsgError::unexpected_type(expected_type, type_, &value.span, new_backtrace()).into());
             }
         }
 

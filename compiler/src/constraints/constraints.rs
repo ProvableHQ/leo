@@ -19,11 +19,10 @@
 use crate::{ConstrainedProgram, GroupType, Output, OutputFile};
 use leo_asg::Program;
 use leo_ast::Input;
-use leo_errors::{CompilerError, LeoError};
+use leo_errors::{new_backtrace, CompilerError, Result};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 
-use backtrace::Backtrace;
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::{ConstraintSystem, TestConstraintSystem};
 use std::path::Path;
@@ -32,7 +31,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
     cs: &mut CS,
     program: &Program<'a>,
     input: &Input,
-) -> Result<Output, LeoError> {
+) -> Result<Output> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
 
     for (_, global_const) in program.global_consts.iter() {
@@ -49,7 +48,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
             let result = resolved_program.enforce_main_function(cs, function, input)?;
             Ok(result)
         }
-        _ => Err(CompilerError::no_main_function(Backtrace::new()).into()),
+        _ => Err(CompilerError::no_main_function(new_backtrace()).into()),
     }
 }
 
@@ -57,7 +56,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
     program: &Program<'a>,
     input: InputPairs,
     output_directory: &Path,
-) -> Result<(u32, u32), LeoError> {
+) -> Result<(u32, u32)> {
     let mut resolved_program = ConstrainedProgram::<F, G>::new(program.clone());
     let program_name = program.name.clone();
 
@@ -104,11 +103,11 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
                 {
                     Some(pair) => pair.to_owned(),
                     None => {
-                        return Err(CompilerError::invalid_test_context(file_name, Backtrace::new()).into());
+                        return Err(CompilerError::invalid_test_context(file_name, new_backtrace()).into());
                     }
                 }
             }
-            None => default.ok_or_else(|| CompilerError::no_test_input(Backtrace::new()))?,
+            None => default.ok_or_else(|| CompilerError::no_test_input(new_backtrace()))?,
         };
 
         // parse input files to abstract syntax trees

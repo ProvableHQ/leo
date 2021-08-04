@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{PackageError, Result};
+use leo_errors::{new_backtrace, PackageError, Result};
 
 use std::{
     borrow::Cow,
@@ -22,8 +22,6 @@ use std::{
     fs::ReadDir,
     path::{Path, PathBuf},
 };
-
-use backtrace::Backtrace;
 
 pub static INPUTS_DIRECTORY_NAME: &str = "inputs/";
 
@@ -37,7 +35,7 @@ impl InputsDirectory {
             path.to_mut().push(INPUTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e, Backtrace::new()))?;
+        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_inputs_directory(e, new_backtrace()))?;
         Ok(())
     }
 
@@ -47,7 +45,7 @@ impl InputsDirectory {
         path.push(INPUTS_DIRECTORY_NAME);
 
         let directory =
-            fs::read_dir(&path).map_err(|e| PackageError::failed_to_read_inputs_directory(e, Backtrace::new()))?;
+            fs::read_dir(&path).map_err(|e| PackageError::failed_to_read_inputs_directory(e, new_backtrace()))?;
         let mut file_paths = Vec::new();
         parse_file_paths(directory, &mut file_paths)?;
 
@@ -57,16 +55,16 @@ impl InputsDirectory {
 
 fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<()> {
     for file_entry in directory.into_iter() {
-        let file_entry = file_entry.map_err(|e| PackageError::failed_to_get_input_file_entry(e, Backtrace::new()))?;
+        let file_entry = file_entry.map_err(|e| PackageError::failed_to_get_input_file_entry(e, new_backtrace()))?;
         let file_path = file_entry.path();
 
         // Verify that the entry is structured as a valid file or directory
         let file_type = file_entry.file_type().map_err(|e| {
-            PackageError::failed_to_get_input_file_type(file_path.as_os_str().to_owned(), e, Backtrace::new())
+            PackageError::failed_to_get_input_file_type(file_path.as_os_str().to_owned(), e, new_backtrace())
         })?;
         if file_type.is_dir() {
             let directory = fs::read_dir(&file_path)
-                .map_err(|e| PackageError::failed_to_read_inputs_directory(e, Backtrace::new()))?;
+                .map_err(|e| PackageError::failed_to_read_inputs_directory(e, new_backtrace()))?;
 
             parse_file_paths(directory, file_paths)?;
             continue;
@@ -74,7 +72,7 @@ fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result
             return Err(PackageError::invalid_input_file_type(
                 file_path.as_os_str().to_owned(),
                 file_type,
-                Backtrace::new(),
+                new_backtrace(),
             )
             .into());
         }

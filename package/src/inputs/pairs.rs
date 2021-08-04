@@ -15,11 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::inputs::{InputFile, InputsDirectory, StateFile, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION};
-use leo_errors::{LeoError, PackageError};
+use leo_errors::{new_backtrace, LeoError, PackageError};
 
 use std::{collections::HashMap, convert::TryFrom, path::Path};
-
-use backtrace::Backtrace;
 
 #[derive(Default)]
 pub struct InputPairs {
@@ -61,12 +59,12 @@ impl TryFrom<&Path> for InputPairs {
                     Some(file_name) => file_name,
                     None => {
                         return Err(
-                            PackageError::failed_to_get_input_file_name(file.as_os_str(), Backtrace::new()).into(),
+                            PackageError::failed_to_get_input_file_name(file.as_os_str(), new_backtrace()).into(),
                         );
                     }
                 },
                 None => {
-                    return Err(PackageError::failed_to_get_input_file_name(file.as_os_str(), Backtrace::new()).into());
+                    return Err(PackageError::failed_to_get_input_file_name(file.as_os_str(), new_backtrace()).into());
                 }
             };
 

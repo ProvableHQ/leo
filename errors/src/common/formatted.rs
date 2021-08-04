@@ -18,6 +18,8 @@ use crate::{BacktracedError, Span};
 
 use std::{fmt, sync::Arc};
 
+use backtrace::Backtrace;
+
 pub const INDENT: &str = "    ";
 
 /// Formatted compiler error type
@@ -47,6 +49,7 @@ impl FormattedError {
         code_identifier: u32,
         error_type: String,
         span: &Span,
+        backtrace: Backtrace,
     ) -> Self
     where
         S: ToString,
@@ -64,7 +67,7 @@ impl FormattedError {
                 exit_code,
                 code_identifier,
                 error_type,
-                span.backtrace.clone(),
+                backtrace,
             ),
         }
     }

@@ -19,7 +19,7 @@ use std::cell::Cell;
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreCircuit, GroupType};
 
 use leo_asg::{Expression, Function};
-use leo_errors::{LeoError, Span};
+use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -35,7 +35,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
 
         // Get the value of each core function argument

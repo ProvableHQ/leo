@@ -28,7 +28,7 @@ use crate::{
     Type,
 };
 
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};
 use std::cell::Cell;
@@ -96,12 +96,18 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
     ) -> Result<CircuitInitExpression<'a>> {
         let circuit = scope
             .resolve_circuit(&value.name.name)
-            .ok_or_else(|| AsgError::unresolved_circuit(&value.name.name, &value.name.span))?;
+            .ok_or_else(|| AsgError::unresolved_circuit(&value.name.name, &value.name.span, new_backtrace()))?;
         match expected_type {
             Some(PartialType::Type(Type::Circuit(expected_circuit))) if expected_circuit == circuit => (),
             None => (),
             Some(x) => {
-                return Err(AsgError::unexpected_type(x, circuit.name.borrow().name.to_string(), &value.span).into());
+                return Err(AsgError::unexpected_type(
+                    x,
+                    circuit.name.borrow().name.to_string(),
+                    &value.span,
+                    new_backtrace(),
+                )
+                .into());
             }
         }
         let members: IndexMap<&str, (&Identifier, Option<&leo_ast::Expression>)> = value
@@ -117,9 +123,13 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
             let circuit_members = circuit.members.borrow();
             for (name, member) in circuit_members.iter() {
                 if defined_variables.contains(name) {
-                    return Err(
-                        AsgError::overridden_circuit_member(&circuit.name.borrow().name, name, &value.span).into(),
-                    );
+                    return Err(AsgError::overridden_circuit_member(
+                        &circuit.name.borrow().name,
+                        name,
+                        &value.span,
+                        new_backtrace(),
+                    )
+                    .into());
                 }
                 defined_variables.insert(name.clone());
                 let type_: Type = if let CircuitMember::Variable(type_) = &member {
@@ -139,17 +149,25 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
                     };
                     values.push(((*identifier).clone(), Cell::new(received)));
                 } else {
-                    return Err(
-                        AsgError::missing_circuit_member(&circuit.name.borrow().name, name, &value.span).into(),
-                    );
+                    return Err(AsgError::missing_circuit_member(
+                        &circuit.name.borrow().name,
+                        name,
+                        &value.span,
+                        new_backtrace(),
+                    )
+                    .into());
                 }
             }
 
             for (name, (identifier, _expression)) in members.iter() {
                 if circuit_members.get(*name).is_none() {
-                    return Err(
-                        AsgError::extra_circuit_member(&circuit.name.borrow().name, name, &identifier.span).into(),
-                    );
+                    return Err(AsgError::extra_circuit_member(
+                        &circuit.name.borrow().name,
+                        name,
+                        &identifier.span,
+                        new_backtrace(),
+                    )
+                    .into());
                 }
             }
         }

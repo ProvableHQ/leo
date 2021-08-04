@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -80,7 +80,7 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
             .index
             .value
             .parse::<usize>()
-            .map_err(|_| AsgError::parse_index_error(&value.span))?;
+            .map_err(|_| AsgError::parse_index_error(&value.span, new_backtrace()))?;
 
         let mut expected_tuple = vec![None; index + 1];
         expected_tuple[index] = expected_type;
@@ -95,6 +95,7 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
                     .map(|x| x.to_string())
                     .unwrap_or_else(|| "unknown".to_string()),
                 &value.span,
+                new_backtrace(),
             )
             .into());
         }

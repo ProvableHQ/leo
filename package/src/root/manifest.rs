@@ -15,9 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::package::Package;
-use leo_errors::{PackageError, Result};
+use leo_errors::{new_backtrace, PackageError, Result};
 
-use backtrace::Backtrace;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -88,10 +87,10 @@ impl Manifest {
         }
 
         let mut file = File::create(&path)
-            .map_err(|e| PackageError::failed_to_create_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
+            .map_err(|e| PackageError::failed_to_create_manifest_file(MANIFEST_FILENAME, e, new_backtrace()))?;
 
         file.write_all(self.template().as_bytes())
-            .map_err(|e| PackageError::io_error_manifest_file(e, Backtrace::new()))?;
+            .map_err(|e| PackageError::io_error_manifest_file(e, new_backtrace()))?;
         Ok(())
     }
 
@@ -127,17 +126,17 @@ impl TryFrom<&Path> for Manifest {
         }
 
         let mut file = File::open(path.clone())
-            .map_err(|e| PackageError::failed_to_open_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
+            .map_err(|e| PackageError::failed_to_open_manifest_file(MANIFEST_FILENAME, e, new_backtrace()))?;
 
         let size = file
             .metadata()
-            .map_err(|e| PackageError::failed_to_get_manifest_metadata_file(MANIFEST_FILENAME, e, Backtrace::new()))?
+            .map_err(|e| PackageError::failed_to_get_manifest_metadata_file(MANIFEST_FILENAME, e, new_backtrace()))?
             .len() as usize;
 
         let mut buffer = String::with_capacity(size);
 
         file.read_to_string(&mut buffer)
-            .map_err(|e| PackageError::failed_to_read_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
+            .map_err(|e| PackageError::failed_to_read_manifest_file(MANIFEST_FILENAME, e, new_backtrace()))?;
 
         // Determine if the old remote format is being used, and update to new convention
 
@@ -224,14 +223,14 @@ author = "{author}"
         // Rewrite the toml file if it has been updated
         if buffer != refactored_toml {
             let mut file = File::create(&path)
-                .map_err(|e| PackageError::failed_to_create_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
+                .map_err(|e| PackageError::failed_to_create_manifest_file(MANIFEST_FILENAME, e, new_backtrace()))?;
 
             file.write_all(refactored_toml.as_bytes())
-                .map_err(|e| PackageError::failed_to_write_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))?;
+                .map_err(|e| PackageError::failed_to_write_manifest_file(MANIFEST_FILENAME, e, new_backtrace()))?;
         }
 
         // Read the toml file
         toml::from_str(&final_toml)
-            .map_err(|e| PackageError::failed_to_parse_manifest_file(MANIFEST_FILENAME, e, Backtrace::new()))
+            .map_err(|e| PackageError::failed_to_parse_manifest_file(MANIFEST_FILENAME, e, new_backtrace()))
     }
 }

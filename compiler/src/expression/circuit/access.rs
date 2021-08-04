@@ -18,7 +18,7 @@
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{CircuitAccessExpression, Node};
-use leo_errors::{CompilerError, LeoError};
+use leo_errors::{new_backtrace, CompilerError, Result};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -29,7 +29,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         expr: &CircuitAccessExpression<'a>,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         if let Some(target) = expr.target.get() {
             //todo: we can prob pass values by ref here to avoid copying the entire circuit on access
             let target_value = self.enforce_expression(cs, target)?;
@@ -43,18 +43,27 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                             expr.circuit.get().name.borrow(),
                             &expr.member.name,
                             &expr.member.span,
+                            new_backtrace(),
                         )
                         .into());
                     }
                 }
                 value => {
-                    return Err(
-                        CompilerError::undefined_circuit(value, &target.span().cloned().unwrap_or_default()).into(),
-                    );
+                    return Err(CompilerError::undefined_circuit(
+                        value,
+                        &target.span().cloned().unwrap_or_default(),
+                        new_backtrace(),
+                    )
+                    .into());
                 }
             }
         } else {
-            Err(CompilerError::invalid_circuit_static_member_access(&expr.member.name, &expr.member.span).into())
+            Err(CompilerError::invalid_circuit_static_member_access(
+                &expr.member.name,
+                &expr.member.span,
+                new_backtrace(),
+            )
+            .into())
         }
     }
 }

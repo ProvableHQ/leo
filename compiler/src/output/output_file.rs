@@ -16,9 +16,7 @@
 
 //! The `program.out` file.
 
-use leo_errors::{CompilerError, LeoError};
-
-use backtrace::Backtrace;
+use leo_errors::{new_backtrace, CompilerError, Result};
 
 use std::{
     borrow::Cow,
@@ -45,25 +43,25 @@ impl OutputFile {
     }
 
     /// Writes output to a file.
-    pub fn write(&self, path: &Path, bytes: &[u8]) -> Result<(), LeoError> {
+    pub fn write(&self, path: &Path, bytes: &[u8]) -> Result<()> {
         // create output file
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| CompilerError::output_file_io_error(e, Backtrace::new()))?;
+        let mut file = File::create(&path).map_err(|e| CompilerError::output_file_io_error(e, new_backtrace()))?;
 
         Ok(file
             .write_all(bytes)
-            .map_err(|e| CompilerError::output_file_io_error(e, Backtrace::new()))?)
+            .map_err(|e| CompilerError::output_file_io_error(e, new_backtrace()))?)
     }
 
     /// Removes the output file at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool, LeoError> {
+    pub fn remove(&self, path: &Path) -> Result<bool> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| CompilerError::output_file_cannot_remove(path, Backtrace::new()))?;
+        fs::remove_file(&path).map_err(|_| CompilerError::output_file_cannot_remove(path, new_backtrace()))?;
         Ok(true)
     }
 

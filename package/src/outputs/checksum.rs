@@ -17,9 +17,8 @@
 //! The build checksum file.
 
 use crate::outputs::OUTPUTS_DIRECTORY_NAME;
-use leo_errors::{PackageError, Result};
+use leo_errors::{new_backtrace, PackageError, Result};
 
-use backtrace::Backtrace;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -55,17 +54,17 @@ impl ChecksumFile {
         let path = self.setup_file_path(path);
 
         let string = fs::read_to_string(&path)
-            .map_err(|_| PackageError::failed_to_read_checksum_file(path.into_owned(), Backtrace::new()))?;
+            .map_err(|_| PackageError::failed_to_read_checksum_file(path.into_owned(), new_backtrace()))?;
         Ok(string)
     }
 
     /// Writes the given checksum to a file.
     pub fn write_to(&self, path: &Path, checksum: String) -> Result<()> {
         let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(|e| PackageError::io_error_checksum_file(e, Backtrace::new()))?;
+        let mut file = File::create(&path).map_err(|e| PackageError::io_error_checksum_file(e, new_backtrace()))?;
 
         file.write_all(checksum.as_bytes())
-            .map_err(|e| PackageError::io_error_checksum_file(e, Backtrace::new()))?;
+            .map_err(|e| PackageError::io_error_checksum_file(e, new_backtrace()))?;
         Ok(())
     }
 
@@ -78,7 +77,7 @@ impl ChecksumFile {
         }
 
         fs::remove_file(&path)
-            .map_err(|_| PackageError::failed_to_remove_checksum_file(path.into_owned(), Backtrace::new()))?;
+            .map_err(|_| PackageError::failed_to_remove_checksum_file(path.into_owned(), new_backtrace()))?;
         Ok(true)
     }
 

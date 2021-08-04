@@ -16,7 +16,7 @@
 
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::IntegerType;
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -97,6 +97,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
                     "array",
                     type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                     &value.span,
+                    new_backtrace(),
                 )
                 .into());
             }
@@ -114,9 +115,12 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             .flatten()
         {
             if index >= array_len {
-                return Err(
-                    AsgError::array_index_out_of_bounds(index, &array.span().cloned().unwrap_or_default()).into(),
-                );
+                return Err(AsgError::array_index_out_of_bounds(
+                    index,
+                    &array.span().cloned().unwrap_or_default(),
+                    new_backtrace(),
+                )
+                .into());
             }
         }
 

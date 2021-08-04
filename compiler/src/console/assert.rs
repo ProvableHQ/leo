@@ -18,7 +18,7 @@
 
 use crate::{get_indicator_value, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Expression;
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{new_backtrace, CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -31,7 +31,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         indicator: &Boolean,
         expression: &'a Expression<'a>,
         span: &Span,
-    ) -> Result<(), LeoError> {
+    ) -> Result<()> {
         // Evaluate assert expression
         let assert_expression = self.enforce_expression(cs, expression)?;
 
@@ -45,13 +45,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let result_option = match assert_expression {
             ConstrainedValue::Boolean(boolean) => boolean.get_value(),
             _ => {
-                return Err(CompilerError::console_assertion_must_be_boolean(span).into());
+                return Err(CompilerError::console_assertion_must_be_boolean(span, new_backtrace()).into());
             }
         };
-        let result_bool = result_option.ok_or_else(|| CompilerError::console_assertion_depends_on_input(span))?;
+        let result_bool =
+            result_option.ok_or_else(|| CompilerError::console_assertion_depends_on_input(span, new_backtrace()))?;
 
         if !result_bool {
-            return Err(CompilerError::console_assertion_failed(span).into());
+            return Err(CompilerError::console_assertion_failed(span, new_backtrace()).into());
         }
 
         Ok(())

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use leo_errors::{ParserError, Result};
+use leo_errors::{new_backtrace, ParserError, Result};
 
 const TYPE_TOKENS: &[Token] = &[
     Token::I8,
@@ -69,7 +69,7 @@ impl ParserContext {
                     dimensions.push(int);
                 } else {
                     let token = self.peek()?;
-                    return Err(ParserError::unexpected_str(&token.token, "int", &token.span).into());
+                    return Err(ParserError::unexpected_str(&token.token, "int", &token.span, new_backtrace()).into());
                 }
                 if self.eat(Token::Comma).is_none() {
                     break;

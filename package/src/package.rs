@@ -21,9 +21,8 @@ use crate::{
     source::{MainFile, SourceDirectory},
 };
 
-use leo_errors::{PackageError, Result};
+use leo_errors::{new_backtrace, PackageError, Result};
 
-use backtrace::Backtrace;
 use serde::Deserialize;
 use std::path::Path;
 
@@ -39,7 +38,7 @@ impl Package {
     pub fn new(package_name: &str) -> Result<Self> {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
-            return Err(PackageError::invalid_package_name(package_name, Backtrace::new()).into());
+            return Err(PackageError::invalid_package_name(package_name, new_backtrace()).into());
         }
 
         Ok(Self {
@@ -191,7 +190,7 @@ impl Package {
                 return Err(PackageError::failed_to_initialize_package(
                     package_name,
                     path.as_os_str(),
-                    Backtrace::new(),
+                    new_backtrace(),
                 )
                 .into());
             }
@@ -234,7 +233,7 @@ impl Package {
                 return Err(PackageError::failed_to_initialize_package(
                     package_name,
                     path.as_os_str(),
-                    Backtrace::new(),
+                    new_backtrace(),
                 )
                 .into());
             }

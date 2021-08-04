@@ -17,7 +17,7 @@
 use crate::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_asg::{Circuit, CircuitMember, Type};
 use leo_ast::{Identifier, Input};
-use leo_errors::{LeoError, Span};
+use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -35,7 +35,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         span: &Span,
         expected_type: &'a Circuit<'a>,
         input: &Input,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         // Create an identifier for each input variable
 
         let registers_name = Identifier {

@@ -16,14 +16,11 @@
 
 use std::{fmt, sync::Arc, usize};
 
-use backtrace::Backtrace;
-use derivative::Derivative;
 use pest::Span as PestSpan;
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
 
-#[derive(Derivative, Deserialize, Serialize)]
-#[derivative(Clone, Debug, Default, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Span {
     pub line_start: usize,
     pub line_stop: usize,
@@ -32,10 +29,6 @@ pub struct Span {
     pub path: Arc<String>,
     #[serde(with = "crate::tendril_json")]
     pub content: StrTendril,
-    #[derivative(PartialEq = "ignore")]
-    #[derivative(Hash = "ignore")]
-    #[serde(skip)]
-    pub backtrace: Backtrace,
 }
 
 impl Span {
@@ -54,7 +47,6 @@ impl Span {
             col_stop,
             path,
             content,
-            backtrace: Backtrace::new(),
         }
     }
 }
@@ -110,7 +102,6 @@ impl std::ops::Add for Span {
                 col_stop: self.col_stop.max(other.col_stop),
                 path: self.path,
                 content: self.content,
-                backtrace: self.backtrace,
             }
         } else {
             let mut new_content = vec![];
@@ -134,7 +125,6 @@ impl std::ops::Add for Span {
                     col_stop: other.col_stop,
                     path: self.path,
                     content: new_content,
-                    backtrace: self.backtrace,
                 }
             } else {
                 Span {
@@ -144,7 +134,6 @@ impl std::ops::Add for Span {
                     col_stop: self.col_stop,
                     path: self.path,
                     content: new_content,
-                    backtrace: self.backtrace,
                 }
             }
         }

@@ -26,7 +26,7 @@ use crate::{
     StatementResult,
 };
 use leo_asg::IterationStatement;
-use leo_errors::CompilerError;
+use leo_errors::{new_backtrace, CompilerError};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{boolean::Boolean, integers::uint::UInt32};
@@ -47,11 +47,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let from = self
             .enforce_index(cs, statement.start.get(), &span)?
             .to_usize()
-            .ok_or_else(|| CompilerError::statement_loop_index_const(&span))?;
+            .ok_or_else(|| CompilerError::statement_loop_index_const(&span, new_backtrace()))?;
         let to = self
             .enforce_index(cs, statement.stop.get(), &span)?
             .to_usize()
-            .ok_or_else(|| CompilerError::statement_loop_index_const(&span))?;
+            .ok_or_else(|| CompilerError::statement_loop_index_const(&span, new_backtrace()))?;
 
         let iter: Box<dyn Iterator<Item = usize>> = match (from < to, statement.inclusive) {
             (true, true) => Box::new(from..=to),

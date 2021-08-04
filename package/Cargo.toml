@@ -21,9 +21,6 @@ edition = "2018"
 path = "../errors"
 version = "1.5.3"
 
-[dependencies.backtrace]
-version = "0.3.61"
-
 [dependencies.serde]
 version = "1.0"
 features = [ "derive" ]

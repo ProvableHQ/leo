@@ -17,7 +17,7 @@
 //! Enforces a logical `||` operator in a resolved Leo program.
 
 use crate::{value::ConstrainedValue, GroupType};
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{new_backtrace, CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -28,7 +28,7 @@ pub fn enforce_or<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     left: ConstrainedValue<'a, F, G>,
     right: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+) -> Result<ConstrainedValue<'a, F, G>> {
     let name = format!("{} || {}", left, right);
 
     if let (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) = (left, right) {
@@ -37,10 +37,10 @@ pub fn enforce_or<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
             &left_bool,
             &right_bool,
         )
-        .map_err(|e| CompilerError::cannot_enforce_expression("||", e, span))?;
+        .map_err(|e| CompilerError::cannot_enforce_expression("||", e, span, new_backtrace()))?;
 
         return Ok(ConstrainedValue::Boolean(result));
     }
 
-    Err(CompilerError::cannot_evaluate_expression(name, span).into())
+    Err(CompilerError::cannot_evaluate_expression(name, span, new_backtrace()).into())
 }

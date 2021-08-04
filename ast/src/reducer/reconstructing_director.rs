@@ -19,7 +19,7 @@
 
 use crate::*;
 use indexmap::IndexMap;
-use leo_errors::{AstError, Result, Span};
+use leo_errors::{new_backtrace, AstError, Result, Span};
 
 pub struct ReconstructingDirector<R: ReconstructingReducer> {
     reducer: R,
@@ -386,7 +386,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                 match &console_function_call.function {
                     ConsoleFunction::Error(_) => ConsoleFunction::Error(formatted),
                     ConsoleFunction::Log(_) => ConsoleFunction::Log(formatted),
-                    _ => return Err(AstError::impossible_console_assert_call(&args.span).into()),
+                    _ => return Err(AstError::impossible_console_assert_call(&args.span, new_backtrace()).into()),
                 }
             }
         };

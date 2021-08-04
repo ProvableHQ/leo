@@ -16,7 +16,7 @@
 
 use tendril::format_tendril;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::{new_backtrace, ParserError, Result};
 
 use crate::KEYWORD_TOKENS;
 
@@ -48,7 +48,7 @@ impl ParserContext {
                     functions.insert(id, function);
                 }
                 Token::Ident(ident) if ident.as_ref() == "test" => {
-                    return Err(ParserError::test_function(&token.span).into());
+                    return Err(ParserError::test_function(&token.span, new_backtrace()).into());
                     // self.expect(Token::Test)?;
                     // let (id, function) = self.parse_function_declaration()?;
                     // tests.insert(id, TestFunction {
@@ -75,6 +75,7 @@ impl ParserContext {
                         .collect::<Vec<_>>()
                         .join(", "),
                         &token.span,
+                        new_backtrace(),
                     )
                     .into());
                 }
@@ -97,7 +98,7 @@ impl ParserContext {
         let start = self.expect(Token::At)?;
         let name = self.expect_ident()?;
         if name.name.as_ref() == "context" {
-            return Err(ParserError::context_annotation(&name.span).into());
+            return Err(ParserError::context_annotation(&name.span, new_backtrace()).into());
         }
 
         assert_no_whitespace(&start, &name.span, &name.name, "@")?;
@@ -117,6 +118,7 @@ impl ParserContext {
                                 .collect::<Vec<_>>()
                                 .join(", "),
                             &end.span,
+                            new_backtrace(),
                         )
                         .into());
                     }
@@ -130,7 +132,13 @@ impl ParserContext {
                     args.push(int.value);
                 } else {
                     let token = self.peek()?;
-                    return Err(ParserError::unexpected_str(&token.token, "ident or int", &token.span).into());
+                    return Err(ParserError::unexpected_str(
+                        &token.token,
+                        "ident or int",
+                        &token.span,
+                        new_backtrace(),
+                    )
+                    .into());
                 }
                 if self.eat(Token::Comma).is_none() && !comma {
                     end_span = self.expect(Token::RightParen)?;
@@ -167,7 +175,7 @@ impl ParserContext {
         }
 
         if out.is_empty() {
-            return Err(ParserError::invalid_import_list(span).into());
+            return Err(ParserError::invalid_import_list(span, new_backtrace()).into());
         }
 
         Ok(out)
@@ -246,7 +254,7 @@ impl ParserContext {
 
         // Return an error if the package name contains a keyword.
         if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.to_string() == base.name.as_ref()) {
-            return Err(ParserError::unexpected_str(token, "package name", &base.span).into());
+            return Err(ParserError::unexpected_str(token, "package name", &base.span, new_backtrace()).into());
         }
 
         // Return an error if the package name contains invalid characters.
@@ -255,7 +263,7 @@ impl ParserContext {
             .chars()
             .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit() || x == '-' || x == '_')
         {
-            return Err(ParserError::invalid_package_name(&base.span).into());
+            return Err(ParserError::invalid_package_name(&base.span, new_backtrace()).into());
         }
 
         // Return the package name.
@@ -317,14 +325,14 @@ impl ParserContext {
                 let peeked = &self.peek()?;
                 if peeked.token == Token::Semicolon {
                     if commas {
-                        return Err(ParserError::mixed_commas_and_semicolons(&peeked.span).into());
+                        return Err(ParserError::mixed_commas_and_semicolons(&peeked.span, new_backtrace()).into());
                     }
 
                     semi_colons = true;
                     self.expect(Token::Semicolon)?;
                 } else {
                     if semi_colons {
-                        return Err(ParserError::mixed_commas_and_semicolons(&peeked.span).into());
+                        return Err(ParserError::mixed_commas_and_semicolons(&peeked.span, new_backtrace()).into());
                     }
 
                     commas = true;
@@ -381,6 +389,7 @@ impl ParserContext {
                     .collect::<Vec<_>>()
                     .join(", "),
                 &peeked.span,
+                new_backtrace(),
             )
             .into());
         }
@@ -435,7 +444,7 @@ impl ParserContext {
         }
 
         if let Some(mutable) = &mutable {
-            return Err(ParserError::mut_function_input(&(&mutable.span + &name.span)).into());
+            return Err(ParserError::mut_function_input(&(&mutable.span + &name.span), new_backtrace()).into());
         }
 
         self.expect(Token::Colon)?;

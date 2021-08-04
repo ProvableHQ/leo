@@ -71,7 +71,7 @@ macro_rules! create_errors {
                 ).into()
             }
 
-            fn new_from_span<S>(message: S, help: Option<String>, exit_code: u32, span: &Span) -> Self
+            fn new_from_span<S>(message: S, help: Option<String>, exit_code: u32, span: &Span, backtrace: Backtrace) -> Self
             where S: ToString {
                 FormattedError::new_from_span(
                         message,
@@ -80,6 +80,7 @@ macro_rules! create_errors {
                         Self::code_identifier(),
                         Self::error_type(),
                         span,
+                        backtrace,
                 ).into()
             }
         }
@@ -89,9 +90,9 @@ macro_rules! create_errors {
         }
     };
     (@step $code:expr, (formatted, $error_name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($formatted_or_backtraced_tail:ident, $names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
-        pub fn $error_name($($arg_names: $arg_types,)* span: &Span) -> Self {
+        pub fn $error_name($($arg_names: $arg_types,)* span: &Span, backtrace: Backtrace) -> Self {
 
-            Self::new_from_span($message, $help, $code, span)
+            Self::new_from_span($message, $help, $code, span, backtrace)
         }
 
         create_errors!(@step $code + 1u32, $(($formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);

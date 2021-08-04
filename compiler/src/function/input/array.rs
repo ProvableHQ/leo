@@ -20,7 +20,7 @@ use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::Type;
 use leo_ast::InputValue;
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{new_backtrace, CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -34,14 +34,20 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         array_len: usize,
         input_value: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         // Build the array value using the expected types.
         let mut array_value = vec![];
 
         match input_value {
             Some(InputValue::Array(arr)) => {
                 if array_len != arr.len() {
-                    return Err(CompilerError::invalid_input_array_dimensions(arr.len(), array_len, span).into());
+                    return Err(CompilerError::invalid_input_array_dimensions(
+                        arr.len(),
+                        array_len,
+                        span,
+                        new_backtrace(),
+                    )
+                    .into());
                 }
 
                 // Allocate each value in the current row
@@ -66,7 +72,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(CompilerError::invalid_function_input_array(input_value.unwrap(), span).into());
+                return Err(
+                    CompilerError::invalid_function_input_array(input_value.unwrap(), span, new_backtrace()).into(),
+                );
             }
         }
 

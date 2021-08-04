@@ -19,7 +19,7 @@
 use crate::{CombineAstAsgDirector, CombinerOptions};
 use leo_asg::Program as AsgProgram;
 use leo_ast::{Ast, Program as AstProgram, ReconstructingReducer};
-use leo_errors::LeoError;
+use leo_errors::Result;
 
 macro_rules! phase {
     ($phase_name:ident, $function:item) => {
@@ -50,7 +50,7 @@ macro_rules! phase {
         }
 
         impl $phase_name {
-            pub fn phase_ast(&self, ast: &AstProgram, asg: &AsgProgram) -> Result<Ast, LeoError> {
+            pub fn phase_ast(&self, ast: &AstProgram, asg: &AsgProgram) -> Result<Ast> {
                 Ok(Ast::new(CombineAstAsgDirector::new(Self::default(), Options{})
                     .reduce_program(ast, asg)?))
             }

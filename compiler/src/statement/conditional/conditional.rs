@@ -24,7 +24,7 @@ use crate::{
     StatementResult,
 };
 use leo_asg::ConditionalStatement;
-use leo_errors::CompilerError;
+use leo_errors::{new_backtrace, CompilerError};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -60,6 +60,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 return Err(CompilerError::conditional_boolean_expression_fails_to_resolve_to_bool(
                     value.to_string(),
                     &span,
+                    new_backtrace(),
                 )
                 .into());
             }
@@ -77,7 +78,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             outer_indicator,
             &inner_indicator,
         )
-        .map_err(|_| CompilerError::statement_indicator_calculation(branch_1_name, &span))?;
+        .map_err(|_| CompilerError::statement_indicator_calculation(branch_1_name, &span, new_backtrace()))?;
 
         let mut results = vec![];
 
@@ -98,7 +99,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             outer_indicator,
             &inner_indicator,
         )
-        .map_err(|_| CompilerError::statement_indicator_calculation(branch_2_name, &span))?;
+        .map_err(|_| CompilerError::statement_indicator_calculation(branch_2_name, &span, new_backtrace()))?;
 
         // Evaluate branch 2
         let mut branch_2_result = match statement.next.get() {

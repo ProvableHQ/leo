@@ -27,7 +27,7 @@ use crate::{
     GroupType,
 };
 use leo_asg::{expression::*, ConstValue, Expression, Node};
-use leo_errors::{LeoError, Span};
+use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -39,7 +39,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         value: &'a ConstValue<'a>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         Ok(match value {
             ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.to_string(), span)?),
             ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
@@ -93,7 +93,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         expression: &'a Expression<'a>,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let span = &expression.span().cloned().unwrap_or_default();
         match expression {
             // Cast

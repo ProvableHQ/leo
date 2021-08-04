@@ -14,15 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::{PackageError, Result};
+use leo_errors::{new_backtrace, PackageError, Result};
 
 use std::{
     borrow::Cow,
     fs,
     path::{Path, PathBuf},
 };
-
-use backtrace::Backtrace;
 
 pub static SOURCE_DIRECTORY_NAME: &str = "src/";
 
@@ -38,7 +36,7 @@ impl SourceDirectory {
             path.to_mut().push(SOURCE_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_source_directory(e, Backtrace::new()))?;
+        fs::create_dir_all(&path).map_err(|e| PackageError::failed_to_create_source_directory(e, new_backtrace()))?;
         Ok(())
     }
 
@@ -48,36 +46,36 @@ impl SourceDirectory {
         path.to_mut().push(SOURCE_DIRECTORY_NAME);
 
         let directory =
-            fs::read_dir(&path).map_err(|e| PackageError::failed_to_read_inputs_directory(e, Backtrace::new()))?;
+            fs::read_dir(&path).map_err(|e| PackageError::failed_to_read_inputs_directory(e, new_backtrace()))?;
 
         let mut file_paths = Vec::new();
         for file_entry in directory.into_iter() {
             let file_entry =
-                file_entry.map_err(|e| PackageError::failed_to_get_source_file_entry(e, Backtrace::new()))?;
+                file_entry.map_err(|e| PackageError::failed_to_get_source_file_entry(e, new_backtrace()))?;
             let file_path = file_entry.path();
 
             // Verify that the entry is structured as a valid file
             let file_type = file_entry.file_type().map_err(|e| {
-                PackageError::failed_to_get_source_file_type(file_path.as_os_str().to_owned(), e, Backtrace::new())
+                PackageError::failed_to_get_source_file_type(file_path.as_os_str().to_owned(), e, new_backtrace())
             })?;
             if !file_type.is_file() {
                 return Err(PackageError::invalid_source_file_type(
                     file_path.as_os_str().to_owned(),
                     file_type,
-                    Backtrace::new(),
+                    new_backtrace(),
                 )
                 .into());
             }
 
             // Verify that the file has the default file extension
             let file_extension = file_path.extension().ok_or_else(|| {
-                PackageError::failed_to_get_source_file_extension(file_path.as_os_str().to_owned(), Backtrace::new())
+                PackageError::failed_to_get_source_file_extension(file_path.as_os_str().to_owned(), new_backtrace())
             })?;
             if file_extension != SOURCE_FILE_EXTENSION.trim_start_matches('.') {
                 return Err(PackageError::invalid_source_file_extension(
                     file_path.as_os_str().to_owned(),
                     file_extension.to_owned(),
-                    Backtrace::new(),
+                    new_backtrace(),
                 )
                 .into());
             }

@@ -18,7 +18,7 @@ use std::path::{Path, PathBuf};
 
 use leo_asg::*;
 use leo_ast::{Ast, Program};
-use leo_errors::LeoError;
+use leo_errors::Result;
 
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
@@ -66,7 +66,7 @@ fn hash(input: String) -> String {
 pub(crate) fn parse_program(
     program_string: &str,
     theorem_options: Option<AstSnapshotOptions>,
-) -> Result<EdwardsTestCompiler, LeoError> {
+) -> Result<EdwardsTestCompiler> {
     let mut compiler = new_compiler("compiler-test".into(), theorem_options);
 
     compiler.parse_program_from_string(program_string)?;

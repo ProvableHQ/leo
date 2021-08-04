@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
-use leo_errors::{AstError, Result, Span};
+use leo_errors::{new_backtrace, AstError, Result, Span};
 
 /// Replace Self when it is in a enclosing circuit type.
 /// Error when Self is outside an enclosing circuit type.
@@ -469,7 +469,7 @@ impl ReconstructingReducer for Canonicalizer {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
-                    return Err(AstError::invalid_array_dimension_size(span).into());
+                    return Err(AstError::invalid_array_dimension_size(span, new_backtrace()).into());
                 }
 
                 let mut next = Type::Array(type_, ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
@@ -486,14 +486,16 @@ impl ReconstructingReducer for Canonicalizer {
 
                 Ok(array)
             }
-            Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
+            Type::SelfType if !self.in_circuit => {
+                Err(AstError::big_self_outside_of_circuit(span, new_backtrace()).into())
+            }
             _ => Ok(new.clone()),
         }
     }
 
     fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression> {
         if string.is_empty() {
-            return Err(AstError::empty_string(span).into());
+            return Err(AstError::empty_string(span, new_backtrace()).into());
         }
 
         let mut elements = Vec::new();
@@ -552,7 +554,7 @@ impl ReconstructingReducer for Canonicalizer {
         element: Expression,
     ) -> Result<ArrayInitExpression> {
         if array_init.dimensions.is_zero() {
-            return Err(AstError::invalid_array_dimension_size(&array_init.span).into());
+            return Err(AstError::invalid_array_dimension_size(&array_init.span, new_backtrace()).into());
         }
 
         let element = Box::new(element);

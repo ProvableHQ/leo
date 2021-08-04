@@ -17,9 +17,8 @@
 //! The verification key file.
 
 use crate::outputs::OUTPUTS_DIRECTORY_NAME;
-use leo_errors::{PackageError, Result};
+use leo_errors::{new_backtrace, PackageError, Result};
 
-use backtrace::Backtrace;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
@@ -59,7 +58,7 @@ impl VerificationKeyFile {
         let path = self.setup_file_path(path);
 
         let bytes = fs::read(&path)
-            .map_err(|_| PackageError::failed_to_read_verification_key_file(path.into_owned(), Backtrace::new()))?;
+            .map_err(|_| PackageError::failed_to_read_verification_key_file(path.into_owned(), new_backtrace()))?;
         Ok(bytes)
     }
 
@@ -67,10 +66,10 @@ impl VerificationKeyFile {
     pub fn write_to<'a>(&self, path: &'a Path, verification_key: &[u8]) -> Result<Cow<'a, Path>> {
         let path = self.setup_file_path(path);
         let mut file =
-            File::create(&path).map_err(|e| PackageError::io_error_verification_key_file(e, Backtrace::new()))?;
+            File::create(&path).map_err(|e| PackageError::io_error_verification_key_file(e, new_backtrace()))?;
 
         file.write_all(verification_key)
-            .map_err(|e| PackageError::io_error_verification_key_file(e, Backtrace::new()))?;
+            .map_err(|e| PackageError::io_error_verification_key_file(e, new_backtrace()))?;
         Ok(path)
     }
 
@@ -83,7 +82,7 @@ impl VerificationKeyFile {
         }
 
         fs::remove_file(&path)
-            .map_err(|_| PackageError::failed_to_remove_verification_key_file(path, Backtrace::new()))?;
+            .map_err(|_| PackageError::failed_to_remove_verification_key_file(path, new_backtrace()))?;
         Ok(true)
     }
 

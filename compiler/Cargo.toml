@@ -84,9 +84,6 @@ default-features = false
 [dependencies.snarkvm-utilities]
 version = "0.7.4"
 
-[dependencies.backtrace]
-version = "0.3.61"
-
 [dependencies.bincode]
 version = "1.3"
 
@@ -108,9 +105,6 @@ version = "1.0"
 
 [dependencies.sha2]
 version = "0.9"
-
-[dependencies.thiserror]
-version = "1.0"
 
 [dependencies.tracing]
 version = "0.1"

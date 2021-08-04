@@ -19,7 +19,7 @@
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::{Expression, Function, FunctionQualifier};
-use leo_errors::{CompilerError, LeoError};
+use leo_errors::{new_backtrace, CompilerError, Result};
 use std::cell::Cell;
 
 use snarkvm_fields::PrimeField;
@@ -33,7 +33,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         function: &'a Function<'a>,
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
 
         let self_var = if let Some(target) = &target_value {
@@ -52,6 +52,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 &function.name.borrow().name.to_string(),
                 "arguments length invalid",
                 &function.span.clone().unwrap_or_default(),
+                new_backtrace(),
             )
             .into());
         }

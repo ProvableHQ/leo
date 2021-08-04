@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Circuit, Identifier, IntegerType, Type};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use num_bigint::BigInt;
@@ -316,16 +316,56 @@ impl ConstInt {
 
     pub fn parse(int_type: &IntegerType, value: &str, span: &Span) -> Result<ConstInt> {
         Ok(match int_type {
-            IntegerType::I8 => ConstInt::I8(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
-            IntegerType::I16 => ConstInt::I16(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
-            IntegerType::I32 => ConstInt::I32(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
-            IntegerType::I64 => ConstInt::I64(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
-            IntegerType::I128 => ConstInt::I128(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
-            IntegerType::U8 => ConstInt::U8(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
-            IntegerType::U16 => ConstInt::U16(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
-            IntegerType::U32 => ConstInt::U32(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
-            IntegerType::U64 => ConstInt::U64(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
-            IntegerType::U128 => ConstInt::U128(value.parse().map_err(|_| AsgError::invalid_int(value, span))?),
+            IntegerType::I8 => ConstInt::I8(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
+            IntegerType::I16 => ConstInt::I16(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
+            IntegerType::I32 => ConstInt::I32(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
+            IntegerType::I64 => ConstInt::I64(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
+            IntegerType::I128 => ConstInt::I128(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
+            IntegerType::U8 => ConstInt::U8(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
+            IntegerType::U16 => ConstInt::U16(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
+            IntegerType::U32 => ConstInt::U32(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
+            IntegerType::U64 => ConstInt::U64(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
+            IntegerType::U128 => ConstInt::U128(
+                value
+                    .parse()
+                    .map_err(|_| AsgError::invalid_int(value, span, new_backtrace()))?,
+            ),
         })
     }
 }

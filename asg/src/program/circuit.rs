@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Function, Identifier, Node, Scope, Type};
-use leo_errors::{AsgError, Result, Span};
+use leo_errors::{new_backtrace, AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use std::cell::RefCell;
@@ -71,9 +71,13 @@ impl<'a> Circuit<'a> {
         for member in value.members.iter() {
             if let leo_ast::CircuitMember::CircuitVariable(name, type_) = member {
                 if members.contains_key(name.name.as_ref()) {
-                    return Err(
-                        AsgError::redefined_circuit_member(&value.circuit_name.name, &name.name, &name.span).into(),
-                    );
+                    return Err(AsgError::redefined_circuit_member(
+                        &value.circuit_name.name,
+                        &name.name,
+                        &name.span,
+                        new_backtrace(),
+                    )
+                    .into());
                 }
                 members.insert(
                     name.name.to_string(),
@@ -100,13 +104,14 @@ impl<'a> Circuit<'a> {
                         &value.circuit_name.name,
                         &function.identifier.name,
                         &function.identifier.span,
+                        new_backtrace(),
                     )
                     .into());
                 }
                 let asg_function = Function::init(new_scope, function)?;
                 asg_function.circuit.replace(Some(circuit));
                 if asg_function.is_test() {
-                    return Err(AsgError::circuit_test_function(&function.identifier.span).into());
+                    return Err(AsgError::circuit_test_function(&function.identifier.span, new_backtrace()).into());
                 }
                 members.insert(
                     function.identifier.name.to_string(),

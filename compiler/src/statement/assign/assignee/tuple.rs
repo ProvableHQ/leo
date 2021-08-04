@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_errors::{CompilerError, LeoError};
+use leo_errors::{new_backtrace, CompilerError, Result};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -28,20 +28,26 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         mut context: ResolverContext<'a, 'b, F, G>,
         index: usize,
-    ) -> Result<(), LeoError> {
+    ) -> Result<()> {
         if context.input.len() != 1 {
-            return Err(CompilerError::statement_array_assign_interior_index(&context.span).into());
+            return Err(CompilerError::statement_array_assign_interior_index(&context.span, new_backtrace()).into());
         }
         match context.input.remove(0) {
             ConstrainedValue::Tuple(old) => {
                 if index > old.len() {
-                    Err(CompilerError::statement_tuple_assign_index_bounds(index, old.len(), &context.span).into())
+                    Err(CompilerError::statement_tuple_assign_index_bounds(
+                        index,
+                        old.len(),
+                        &context.span,
+                        new_backtrace(),
+                    )
+                    .into())
                 } else {
                     context.input = vec![&mut old[index]];
                     self.resolve_target_access(cs, context)
                 }
             }
-            _ => Err(CompilerError::statement_tuple_assign_index(&context.span).into()),
+            _ => Err(CompilerError::statement_tuple_assign_index(&context.span, new_backtrace()).into()),
         }
     }
 }

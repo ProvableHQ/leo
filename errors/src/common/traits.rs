@@ -29,7 +29,7 @@ pub trait ErrorCode: Sized {
     where
         S: ToString;
 
-    fn new_from_span<S>(message: S, help: Option<String>, exit_code: u32, span: &Span) -> Self
+    fn new_from_span<S>(message: S, help: Option<String>, exit_code: u32, span: &Span, backtrace: Backtrace) -> Self
     where
         S: ToString;
 }

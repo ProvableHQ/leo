@@ -17,7 +17,7 @@
 use super::CoreCircuit;
 use crate::{ConstrainedValue, GroupType, Integer};
 use leo_asg::Function;
-use leo_errors::{CompilerError, LeoError, Span};
+use leo_errors::{new_backtrace, CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
@@ -55,20 +55,22 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuit<'a, F, G> for Blake2s {
         span: &Span,
         target: Option<ConstrainedValue<'a, F, G>>,
         mut arguments: Vec<ConstrainedValue<'a, F, G>>,
-    ) -> Result<ConstrainedValue<'a, F, G>, LeoError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         assert_eq!(arguments.len(), 2); // asg enforced
         assert!(function.name.borrow().name.as_ref() == "hash"); // asg enforced
         assert!(target.is_none()); // asg enforced
         let input = unwrap_argument(arguments.remove(1));
         let seed = unwrap_argument(arguments.remove(0));
 
-        let digest = Blake2sGadget::check_evaluation_gadget(cs.ns(|| "blake2s hash"), &seed[..], &input[..])
-            .map_err(|e| CompilerError::cannot_enforce_expression("Blake2s check evaluation gadget", e, span))?;
+        let digest =
+            Blake2sGadget::check_evaluation_gadget(cs.ns(|| "blake2s hash"), &seed[..], &input[..]).map_err(|e| {
+                CompilerError::cannot_enforce_expression("Blake2s check evaluation gadget", e, span, new_backtrace())
+            })?;
 
         Ok(ConstrainedValue::Array(
             digest
                 .to_bytes(cs)
-                .map_err(|e| CompilerError::cannot_enforce_expression("Vec<UInt8> ToBytes", e, span))?
+                .map_err(|e| CompilerError::cannot_enforce_expression("Vec<UInt8> ToBytes", e, span, new_backtrace()))?
                 .into_iter()
                 .map(Integer::U8)
                 .map(ConstrainedValue::Integer)
