@@ -30,18 +30,18 @@ path = "../input"
 version = "1.5.3"
 
 [dependencies.snarkvm-algorithms]
-version = "0.7.4"
+version = "0.7.6"
 
 [dependencies.snarkvm-curves]
-version = "0.7.5"
+version = "0.7.7"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.7.5"
+version = "0.7.7"
 features = [ "testnet1" ]
 
 [dependencies.snarkvm-utilities]
-version = "0.7.4"
+version = "0.7.6"
 
 [dependencies.indexmap]
 version = "1.7.0"
@@ -52,9 +52,6 @@ version = "0.8"
 
 [dependencies.rand_xorshift]
 version = "0.3"
-
-[dependencies.thiserror]
-version = "1.0"
 
 [dev-dependencies.rand_core]
 version = "0.6.3"

@@ -20,8 +20,7 @@ use leo_errors::{CliError, Result};
 use std::{
     borrow::Cow,
     fs::{
-        File,
-        {self},
+        File, {self},
     },
     io::{Read, Write},
     path::Path,

@@ -15,17 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    Circuit,
-    CircuitMember,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Identifier,
-    Node,
-    PartialType,
-    Scope,
-    Type,
+    Circuit, CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType, Scope, Type,
 };
 
 use leo_errors::{AsgError, Result, Span};

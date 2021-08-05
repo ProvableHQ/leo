@@ -15,17 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CircuitMember,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Function,
-    FunctionQualifier,
-    Node,
-    PartialType,
-    Scope,
-    Type,
+    CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Function, FunctionQualifier, Node, PartialType,
+    Scope, Type,
 };
 pub use leo_ast::{BinaryOperation, Node as AstNode};
 use leo_errors::{AsgError, Result, Span};

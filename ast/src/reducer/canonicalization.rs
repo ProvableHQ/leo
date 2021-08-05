@@ -441,14 +441,14 @@ impl Canonicalizer {
                     output = Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone()));
                 }
 
-                return CircuitMember::CircuitFunction(Box::new(Function {
+                return CircuitMember::CircuitFunction(Function {
                     annotations: function.annotations.clone(),
                     identifier: function.identifier.clone(),
                     input,
                     output,
                     block,
                     span: function.span.clone(),
-                }));
+                });
             }
         }
 

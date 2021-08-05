@@ -24,7 +24,7 @@ use std::fmt;
 pub enum PackageAccess {
     Star { span: Span },
     SubPackage(Box<Package>),
-    Symbol(Box<ImportSymbol>),
+    Symbol(ImportSymbol),
     Multiple(Packages),
 }
 

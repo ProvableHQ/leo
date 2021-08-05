@@ -17,11 +17,7 @@
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
 use crate::{
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
-    IndicatorAndConstrainedValue,
-    StatementResult,
+    program::ConstrainedProgram, value::ConstrainedValue, GroupType, IndicatorAndConstrainedValue, StatementResult,
 };
 use leo_asg::ConditionalStatement;
 use leo_errors::CompilerError;

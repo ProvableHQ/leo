@@ -21,15 +21,8 @@ use leo_input::{
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
     types::{ArrayType, CharType, DataType, IntegerType, TupleType, Type},
     values::{
-        Address,
-        AddressValue,
-        BooleanValue,
-        CharValue as InputCharValue,
-        FieldValue,
-        GroupValue as InputGroupValue,
-        IntegerValue,
-        NumberValue,
-        Value,
+        Address, AddressValue, BooleanValue, CharValue as InputCharValue, FieldValue, GroupValue as InputGroupValue,
+        IntegerValue, NumberValue, Value,
     },
 };
 use pest::Span;
@@ -42,7 +35,7 @@ pub enum InputValue {
     Boolean(bool),
     Char(CharValue),
     Field(String),
-    Group(Box<GroupValue>),
+    Group(GroupValue),
     Integer(IntegerType, String),
     Array(Vec<InputValue>),
     Tuple(Vec<InputValue>),
@@ -80,7 +73,7 @@ impl InputValue {
     }
 
     fn from_group(group: InputGroupValue) -> Self {
-        InputValue::Group(Box::new(GroupValue::from(group)))
+        InputValue::Group(GroupValue::from(group))
     }
 
     fn from_field(field: FieldValue) -> Self {

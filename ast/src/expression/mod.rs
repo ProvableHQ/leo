@@ -15,13 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    ArrayDimensions,
-    CircuitImpliedVariableDefinition,
-    GroupValue,
-    Identifier,
-    IntegerType,
-    Node,
-    PositiveNumber,
+    ArrayDimensions, CircuitImpliedVariableDefinition, GroupValue, Identifier, IntegerType, Node, PositiveNumber,
     SpreadOrExpression,
 };
 

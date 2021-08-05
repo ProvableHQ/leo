@@ -18,8 +18,7 @@ use leo_errors::{CliError, LeoError, Result};
 
 use reqwest::{
     blocking::{multipart::Form, Client, Response},
-    Method,
-    StatusCode,
+    Method, StatusCode,
 };
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf};

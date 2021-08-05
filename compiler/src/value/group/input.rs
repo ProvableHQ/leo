@@ -58,9 +58,9 @@ pub(crate) fn group_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
     let group = allocate_group(
         cs,
         name,
-        option.map(|x| match *x {
+        option.map(|x| match x {
             leo_ast::GroupValue::Single(s, _) => GroupValue::Single(s),
-            leo_ast::GroupValue::Tuple(tuple) => GroupValue::Tuple((&tuple.x).into(), (&tuple.y).into()),
+            leo_ast::GroupValue::Tuple(leo_ast::GroupTuple { x, y, .. }) => GroupValue::Tuple((&x).into(), (&y).into()),
         }),
         span,
     )?;

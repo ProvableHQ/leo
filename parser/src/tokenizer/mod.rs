@@ -195,7 +195,7 @@ mod tests {
         *=
         +
         +=
-
+        ,
         -
         -=
         ->
@@ -231,6 +231,7 @@ mod tests {
         for SpannedToken { token, .. } in tokens.iter() {
             output += &format!("{} ", token.to_string());
         }
+
         // & &= | |= ^ ^= ~ << <<= >> >>= >>> >>>= % %= ||= &&=
         assert_eq!(
             output,

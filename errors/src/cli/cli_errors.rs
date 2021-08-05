@@ -26,6 +26,13 @@ create_errors!(
     error_code_prefix: "CLI",
 
     @backtraced
+    opt_args_error {
+        args: (error: impl ErrorArg),
+        msg: format!("opt arg error {}", error),
+        help: None,
+    }
+
+    @backtraced
     unidentified_api {
         args: (),
         msg: "Unidentified API error",

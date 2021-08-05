@@ -79,22 +79,22 @@ path = "./synthesizer"
 version = "1.5.3"
 
 [dependencies.snarkvm-algorithms]
-version = "0.7.4"
+version = "0.7.6"
 
 [dependencies.snarkvm-curves]
-version = "0.7.5"
+version = "0.7.7"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.7.5"
+version = "0.7.7"
 default-features = false
 
 [dependencies.snarkvm-r1cs]
-version = "0.7.5"
+version = "0.7.7"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.7.4"
+version = "0.7.6"
 
 [dependencies.structopt]
 version = "0.3"
@@ -144,9 +144,6 @@ features = [ "derive" ]
 [dependencies.serde_json]
 version = "1.0"
 
-[dependencies.thiserror]
-version = "1.0"
-
 [dependencies.toml]
 version = "0.5"
 
@@ -167,7 +164,7 @@ version = "0.12.1"
 version = "0.11.2"
 
 [dev-dependencies.assert_cmd]
-version = "1.0.7"
+version = "1.0.8"
 
 [dev-dependencies.test_dir]
 version = "0.1.0"

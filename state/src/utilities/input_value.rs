@@ -53,9 +53,7 @@ pub fn input_to_bytes(input: InputValue) -> Result<Vec<u8>> {
 
     for input in input_array {
         let integer_string = input_to_integer_string(input)?;
-        let byte = integer_string
-            .parse::<u8>()
-            .map_err(StateError::parse_int_error)?;
+        let byte = integer_string.parse::<u8>().map_err(StateError::parse_int_error)?;
 
         result_vec.push(byte);
     }

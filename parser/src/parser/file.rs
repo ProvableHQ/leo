@@ -193,17 +193,17 @@ impl ParserContext {
                 })
             } else if self.eat(Token::As).is_some() {
                 let alias = self.expect_ident()?;
-                Ok(PackageAccess::Symbol(Box::new(ImportSymbol {
+                Ok(PackageAccess::Symbol(ImportSymbol {
                     span: &name.span + &alias.span,
                     symbol: name,
                     alias: Some(alias),
-                })))
+                }))
             } else {
-                Ok(PackageAccess::Symbol(Box::new(ImportSymbol {
+                Ok(PackageAccess::Symbol(ImportSymbol {
                     span: name.span.clone(),
                     symbol: name,
                     alias: None,
-                })))
+                }))
             }
         }
     }
@@ -371,7 +371,7 @@ impl ParserContext {
         let peeked = self.peek()?.clone();
         if peeked.token == Token::Function || peeked.token == Token::At {
             let function = self.parse_function_declaration()?;
-            Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
+            Ok(CircuitMember::CircuitFunction(function.1))
         } else {
             return Err(ParserError::unexpected(
                 &peeked.token,
@@ -396,10 +396,13 @@ impl ParserContext {
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
 
-        Ok((name.clone(), Circuit {
-            circuit_name: name,
-            members,
-        }))
+        Ok((
+            name.clone(),
+            Circuit {
+                circuit_name: name,
+                members,
+            },
+        ))
     }
 
     ///
@@ -421,9 +424,7 @@ impl ParserContext {
                 // Handle `mut self`.
                 name.span = &mutable.span + &name.span;
                 name.name = "mut self".to_string().into();
-                return Ok(FunctionInput::MutSelfKeyword(Box::new(MutSelfKeyword {
-                    identifier: name,
-                })));
+                return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
             } else if let Some(const_) = &const_ {
                 // Handle `const self`.
                 name.span = &const_.span + &name.span;
@@ -440,13 +441,13 @@ impl ParserContext {
 
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
-        Ok(FunctionInput::Variable(Box::new(FunctionInputVariable {
+        Ok(FunctionInput::Variable(FunctionInputVariable {
             const_: const_.is_some(),
             mutable: const_.is_none(),
             type_,
             span: name.span.clone(),
             identifier: name,
-        })))
+        }))
     }
 
     ///
@@ -476,14 +477,17 @@ impl ParserContext {
             None
         };
         let block = self.parse_block()?;
-        Ok((name.clone(), Function {
-            annotations,
-            identifier: name,
-            input: inputs,
-            output,
-            span: start + block.span.clone(),
-            block,
-        }))
+        Ok((
+            name.clone(),
+            Function {
+                annotations,
+                identifier: name,
+                input: inputs,
+                output,
+                span: start + block.span.clone(),
+                block,
+            },
+        ))
     }
 
     ///

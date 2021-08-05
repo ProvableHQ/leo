@@ -18,8 +18,7 @@ use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
     group::targets::edwards_bls12::EdwardsGroupType,
-    AstSnapshotOptions,
-    CompilerOptions,
+    AstSnapshotOptions, CompilerOptions,
 };
 use leo_errors::{CliError, Result};
 use leo_package::{

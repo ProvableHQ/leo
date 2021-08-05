@@ -32,12 +32,15 @@ impl<'a> DefinitionStatement<'a> {
         self.variables
             .iter()
             .map(|variable| {
-                (variable.borrow().name.name.to_string(), DefinitionStatement {
-                    parent: self.parent.clone(),
-                    span: self.span.clone(),
-                    variables: vec![variable],
-                    value: self.value.clone(),
-                })
+                (
+                    variable.borrow().name.name.to_string(),
+                    DefinitionStatement {
+                        parent: self.parent.clone(),
+                        span: self.span.clone(),
+                        variables: vec![variable],
+                        value: self.value.clone(),
+                    },
+                )
             })
             .collect()
     }

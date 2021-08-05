@@ -20,14 +20,7 @@ use std::path::PathBuf;
 use crate::{
     commands::{
         package::{Login, Logout},
-        Build,
-        Command,
-        Prove,
-        Run,
-        Setup,
-        Test,
-        Update,
-        UpdateAutomatic,
+        Build, Command, Prove, Run, Setup, Test, Update, UpdateAutomatic,
     },
     context::{create_context, Context},
 };
@@ -150,7 +143,8 @@ pub fn test_pedersen_hash() -> Result<()> {
 
 #[test]
 pub fn test_logout() -> Result<()> {
-    (Logout {}).apply(context()?, ())?;
+    let logout = (Logout {}).apply(context()?, ());
+    assert!(logout.is_err());
     Ok(())
 }
 

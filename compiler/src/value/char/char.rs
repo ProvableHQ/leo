@@ -16,8 +16,7 @@
 
 use crate::{
     value::{field::input::allocate_field, ConstrainedValue},
-    FieldType,
-    GroupType,
+    FieldType, GroupType,
 };
 
 use leo_ast::InputValue;

@@ -558,11 +558,11 @@ impl ParserContext {
     pub fn parse_tuple_expression(&mut self, span: &Span) -> Result<Expression> {
         if let Some((left, right, span)) = self.eat_group_partial().transpose()? {
             return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
-                Box::new(GroupTuple {
+                GroupTuple {
                     span,
                     x: left,
                     y: right,
-                }),
+                },
             )))));
         }
         let mut args = Vec::new();

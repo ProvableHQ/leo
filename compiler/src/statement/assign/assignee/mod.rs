@@ -96,15 +96,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         let mut target = self.get(variable.id).unwrap().clone();
         let accesses: Vec<_> = assignee.target_accesses.iter().rev().collect();
-        self.resolve_target_access(cs, ResolverContext {
-            input: vec![&mut target],
-            span,
-            target_value,
-            remaining_accesses: &accesses[..],
-            indicator,
-            operation: assignee.operation,
-            from_range: false,
-        })?;
+        self.resolve_target_access(
+            cs,
+            ResolverContext {
+                input: vec![&mut target],
+                span,
+                target_value,
+                remaining_accesses: &accesses[..],
+                indicator,
+                operation: assignee.operation,
+                from_range: false,
+            },
+        )?;
         *self.get_mut(variable.id).unwrap() = target;
         Ok(())
     }

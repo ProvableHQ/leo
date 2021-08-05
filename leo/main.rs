@@ -23,19 +23,7 @@ pub mod updater;
 
 use commands::{
     package::{Add, Clone, Login, Logout, Publish, Remove},
-    Build,
-    Clean,
-    Command,
-    Deploy,
-    Init,
-    Lint,
-    New,
-    Prove,
-    Run,
-    Setup,
-    Test,
-    Update,
-    Watch,
+    Build, Clean, Command, Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
 use leo_errors::Result;
 
@@ -182,7 +170,6 @@ enum CommandOpts {
 }
 
 fn main() {
-    color_backtrace::install();
     handle_error(run_with_args(Opt::from_args()))
 }
 
@@ -190,10 +177,13 @@ fn main() {
 fn run_with_args(opt: Opt) -> Result<()> {
     if !opt.quiet {
         // Init logger with optional debug flag.
-        logger::init_logger("leo", match opt.debug {
-            false => 1,
-            true => 2,
-        })?;
+        logger::init_logger(
+            "leo",
+            match opt.debug {
+                false => 1,
+                true => 2,
+            },
+        )?;
     }
 
     // Get custom root folder and create context for it.
@@ -253,7 +243,7 @@ fn handle_error<T>(res: Result<T>) -> T {
 #[cfg(test)]
 mod cli_tests {
     use crate::{run_with_args, Opt};
-    use leo_errors::Result;
+    use leo_errors::{CliError, Result};
 
     use std::path::PathBuf;
     use structopt::StructOpt;
@@ -262,7 +252,7 @@ mod cli_tests {
     // Runs Command from cmd-like argument "leo run --arg1 --arg2".
     fn run_cmd(args: &str, path: &Option<PathBuf>) -> Result<()> {
         let args = args.split(' ').collect::<Vec<&str>>();
-        let mut opts = Opt::from_iter_safe(args).unwrap();
+        let mut opts = Opt::from_iter_safe(args).map_err(CliError::opt_args_error)?;
 
         if path.is_some() {
             opts.path = path.clone();
@@ -287,9 +277,6 @@ mod cli_tests {
 
         assert!(run_cmd("leo build", &path).is_ok());
         assert!(run_cmd("leo -q build", &path).is_ok());
-
-        assert!(run_cmd("leo --path ../../examples/no-directory-there build", &None).is_err());
-        assert!(run_cmd("leo -v build", &None).is_err());
     }
 
     #[test]

@@ -56,8 +56,7 @@ pub fn verify_local_data_commitment(dpc: &SystemParameters<Components>, ast_inpu
     // Select local data commitment input bytes.
     let is_death = leaf_index < (Components::NUM_INPUT_RECORDS as u32);
     let input_bytes = if is_death {
-        to_bytes_le![record_serial_number, record_commitment, memo, network_id]
-            .map_err(StateError::state_io_error)?
+        to_bytes_le![record_serial_number, record_commitment, memo, network_id].map_err(StateError::state_io_error)?
     } else {
         to_bytes_le![record_commitment, memo, network_id].map_err(StateError::state_io_error)?
     };

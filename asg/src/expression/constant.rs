@@ -15,17 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CharValue,
-    ConstInt,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    GroupValue,
-    Node,
-    PartialType,
-    Scope,
-    Type,
+    CharValue, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, GroupValue, Node, PartialType, Scope, Type,
 };
 
 use leo_errors::{AsgError, Result, Span};
@@ -150,9 +140,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     span: Some(value.span().clone()),
                     value: ConstValue::Group(match &**value {
                         leo_ast::GroupValue::Single(value, _) => GroupValue::Single(value.clone()),
-                        leo_ast::GroupValue::Tuple(tuple) => {
-                            let x = &tuple.x;
-                            let y = &tuple.y;
+                        leo_ast::GroupValue::Tuple(leo_ast::GroupTuple { x, y, .. }) => {
                             GroupValue::Tuple(x.into(), y.into())
                         }
                     }),
@@ -234,11 +222,11 @@ impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
                 GroupValue::Single(single) => {
                     leo_ast::GroupValue::Single(single.clone(), self.span.clone().unwrap_or_default())
                 }
-                GroupValue::Tuple(left, right) => leo_ast::GroupValue::Tuple(Box::new(leo_ast::GroupTuple {
+                GroupValue::Tuple(left, right) => leo_ast::GroupValue::Tuple(leo_ast::GroupTuple {
                     x: left.into(),
                     y: right.into(),
                     span: self.span.clone().unwrap_or_default(),
-                })),
+                }),
             })),
             ConstValue::Int(int) => leo_ast::ValueExpression::Integer(
                 int.get_int_type(),

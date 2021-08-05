@@ -15,18 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    ConstValue,
-    Constant,
-    DefinitionStatement,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Node,
-    PartialType,
-    Scope,
-    Statement,
-    Type,
-    Variable,
+    ConstValue, Constant, DefinitionStatement, Expression, ExpressionNode, FromAst, Node, PartialType, Scope,
+    Statement, Type, Variable,
 };
 
 use leo_errors::{AsgError, Result, Span};

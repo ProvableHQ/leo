@@ -18,9 +18,7 @@ use leo_errors::{CliError, Result};
 
 use std::{
     fs::{
-        create_dir_all,
-        File,
-        {self},
+        create_dir_all, File, {self},
     },
     io::prelude::*,
     path::{Path, PathBuf},

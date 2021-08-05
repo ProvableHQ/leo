@@ -21,8 +21,7 @@ use leo_errors::{CompilerError, Result};
 use std::{
     borrow::Cow,
     fs::{
-        File,
-        {self},
+        File, {self},
     },
     io::Write,
     path::Path,

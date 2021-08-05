@@ -92,7 +92,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_group_value(&mut self, group_value: &GroupValue) -> Result<GroupValue> {
         let new = match group_value {
-            GroupValue::Tuple(group_tuple) => GroupValue::Tuple(Box::new(self.reduce_group_tuple(group_tuple)?)),
+            GroupValue::Tuple(group_tuple) => GroupValue::Tuple(self.reduce_group_tuple(group_tuple)?),
             _ => group_value.clone(),
         };
 
@@ -454,7 +454,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_function_input(&mut self, input: &FunctionInput) -> Result<FunctionInput> {
         let new = match input {
             FunctionInput::Variable(function_input_variable) => {
-                FunctionInput::Variable(Box::new(self.reduce_function_input_variable(function_input_variable)?))
+                FunctionInput::Variable(self.reduce_function_input_variable(function_input_variable)?)
             }
             _ => input.clone(),
         };
@@ -491,9 +491,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                 self.reduce_identifier(identifier)?,
                 self.reduce_type(type_, &identifier.span)?,
             ),
-            CircuitMember::CircuitFunction(function) => {
-                CircuitMember::CircuitFunction(Box::new(self.reduce_function(function)?))
-            }
+            CircuitMember::CircuitFunction(function) => CircuitMember::CircuitFunction(self.reduce_function(function)?),
         };
 
         self.reducer.reduce_circuit_member(circuit_member, new)

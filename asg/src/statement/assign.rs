@@ -15,20 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CircuitMember,
-    ConstInt,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Identifier,
-    IntegerType,
-    Node,
-    PartialType,
-    Scope,
-    Statement,
-    Type,
-    Variable,
+    CircuitMember, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, Identifier, IntegerType, Node,
+    PartialType, Scope, Statement, Type, Variable,
 };
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;

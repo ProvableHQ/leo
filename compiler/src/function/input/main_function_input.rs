@@ -20,16 +20,10 @@ use crate::{
     address::Address,
     program::ConstrainedProgram,
     value::{
-        boolean::input::bool_from_input,
-        char::char_from_input,
-        field::input::field_from_input,
-        group::input::group_from_input,
-        ConstrainedValue,
+        boolean::input::bool_from_input, char::char_from_input, field::input::field_from_input,
+        group::input::group_from_input, ConstrainedValue,
     },
-    CharType,
-    FieldType,
-    GroupType,
-    Integer,
+    CharType, FieldType, GroupType, Integer,
 };
 use leo_asg::{ConstInt, Type};
 use leo_ast::{Char, InputValue};
@@ -100,9 +94,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             (Type::Field, InputValue::Field(value)) => {
                 Ok(ConstrainedValue::Field(FieldType::constant(cs, value, span)?))
             }
-            (Type::Group, InputValue::Group(value)) => {
-                Ok(ConstrainedValue::Group(G::constant(&(*value).into(), span)?))
-            }
+            (Type::Group, InputValue::Group(value)) => Ok(ConstrainedValue::Group(G::constant(&value.into(), span)?)),
             (Type::Integer(integer_type), InputValue::Integer(input_type, value)) => {
                 let parsed = ConstInt::parse(integer_type, &value, span)?;
                 let parsed_type = parsed.get_int_type();

@@ -226,7 +226,11 @@ impl<F: PrimeField> ConditionalEqGadget<F> for Address {
 }
 
 fn cond_select_helper(first: &Address, second: &Address, cond: bool) -> Address {
-    if cond { first.clone() } else { second.clone() }
+    if cond {
+        first.clone()
+    } else {
+        second.clone()
+    }
 }
 
 impl<F: PrimeField> CondSelectGadget<F> for Address {

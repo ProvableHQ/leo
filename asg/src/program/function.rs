@@ -15,16 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    BlockStatement,
-    Circuit,
-    FromAst,
-    Identifier,
-    MonoidalDirector,
-    ReturnPathReducer,
-    Scope,
-    Statement,
-    Type,
-    Variable,
+    BlockStatement, Circuit, FromAst, Identifier, MonoidalDirector, ReturnPathReducer, Scope, Statement, Type, Variable,
 };
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
@@ -177,13 +168,13 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
             .iter()
             .map(|(_, variable)| {
                 let variable = variable.get().borrow();
-                leo_ast::FunctionInput::Variable(Box::new(leo_ast::FunctionInputVariable {
+                leo_ast::FunctionInput::Variable(leo_ast::FunctionInputVariable {
                     identifier: variable.name.clone(),
                     mutable: variable.mutable,
                     const_: variable.const_,
                     type_: (&variable.type_).into(),
                     span: Span::default(),
-                }))
+                })
             })
             .collect();
         let (body, span) = match self.body.get() {
