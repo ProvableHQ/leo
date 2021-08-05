@@ -1,0 +1,21 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 1
+      num_constraints: 1
+      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
+      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
+      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+    output:
+      - input_file: input/dummy.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+    initial_ast: ad1dd786c43b4d3de69b6e162bed3f01a0a53f0643e6fd2d95f12c98dfa16855
+    canonicalized_ast: ad1dd786c43b4d3de69b6e162bed3f01a0a53f0643e6fd2d95f12c98dfa16855
+    type_inferenced_ast: 1c983cf518cfafbe158ee3e42aed5cb190863b09aedfc4dd34e0268160ee79e2
