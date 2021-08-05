@@ -89,7 +89,7 @@ version = "0.7.7"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.7.6"
+version = "0.7.8"
 
 [dependencies.anyhow]
 version = "1.0"
