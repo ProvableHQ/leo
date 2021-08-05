@@ -185,7 +185,6 @@ impl ParserContext {
                 name.name = format_tendril!("{}-{}", name.name, next.name);
             }
 
-            // let name = self.parse_package_name()?;
             if self.peek_token().as_ref() == &Token::Dot {
                 self.backtrack(SpannedToken {
                     token: Token::Ident(name.name),
