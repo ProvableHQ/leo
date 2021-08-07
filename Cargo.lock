@@ -2485,9 +2485,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-dpc"
-version = "0.7.7"
+version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acfc9ca513d8772a2b4f2e2596751bb427fc2a4c1942b4db79f54f15a41aa448"
+checksum = "1588a3d2f38307bd64838cf1761d8cef485461e5224831c9b9df11a1fa9864e7"
 dependencies = [
  "anyhow",
  "base58",
@@ -2553,9 +2553,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-marlin"
-version = "0.7.7"
+version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9f426c842d30a47192a18aedcd84f5a892c0e491eca1e953899ab3363b7a9d14"
+checksum = "206d633d6299dfb4f52640a3188567462dbf1f207de70cbb829707c07858c7e6"
 dependencies = [
  "blake2",
  "derivative",
@@ -2577,9 +2577,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-parameters"
-version = "0.7.7"
+version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7da1fcd3d64f7480bbcfe2dfa86600d4d993a4d6fce006b99ea1b5edbd940df7"
+checksum = "9f5c4d4233a623c46c483296aa24bf4d95a5f3344c669ce4f2956467fe6ea904"
 dependencies = [
  "curl",
  "hex",
@@ -2590,9 +2590,9 @@ dependencies = [
 
 [[package]]
 name = "snarkvm-polycommit"
-version = "0.7.7"
+version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "513d200b3ec60bc9e5dd40293ac604781c1e0dbb383a3092146e06e37e440aab"
+checksum = "5b5ca8d560cb6f49d9de9b4a955778cc14563b0a381c56db48ea6171788f30d4"
 dependencies = [
  "derivative",
  "digest 0.9.0",
