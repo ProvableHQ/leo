@@ -32,7 +32,8 @@ fn load_asg_imports<'a, T: ImportResolver<'a>>(
     program_string: &str,
     imports: &mut T,
 ) -> Result<Program<'a>, LeoError> {
-    let ast = parse_ast(&TESTING_FILEPATH, program_string)?;
+    let mut ast = parse_ast(&TESTING_FILEPATH, program_string)?;
+    ast.canonicalize()?;
     Program::new(context, &ast.as_repr(), imports)
 }
 
