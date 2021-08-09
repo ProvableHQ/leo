@@ -97,9 +97,6 @@ impl<'a> Function<'a> {
                 }
             }
         }
-        if qualifier != FunctionQualifier::Static && scope.circuit_self.get().is_none() {
-            return Err(AsgError::invalid_self_in_global(&value.span).into());
-        }
         let function = scope.context.alloc_function(Function {
             id: scope.context.get_id(),
             name: RefCell::new(value.identifier.clone()),

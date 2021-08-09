@@ -19,10 +19,13 @@ use crate::create_errors;
 use std::fmt::{Debug, Display};
 
 create_errors!(
+    /// AsgError enum that represents all the errors for the ASG.
     AsgError,
     exit_code_mask: 0i32,
     error_code_prefix: "ASG",
 
+    /// For when a circuit of the specified type is unresolved.
+    /// Note that the type for a circuit is represented by a name.
     @formatted
     unresolved_circuit {
         args: (name: impl Display),
@@ -30,6 +33,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a import of the specified name is unresolved.
     @formatted
     unresolved_import {
         args: (name: impl Display),
@@ -37,6 +41,7 @@ create_errors!(
         help: None,
     }
 
+     /// For when a circuit member of the specified name is unresolved.
     @formatted
     unresolved_circuit_member {
         args: (circuit_name: impl Display, name: impl Display),
@@ -47,6 +52,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user is initializing a circuit, and it's missing circuit member.
     @formatted
     missing_circuit_member {
         args: (circuit_name: impl Display, name: impl Display),
@@ -57,6 +63,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user is initializing a circuit, and they declare a cirucit member twice.
     @formatted
     overridden_circuit_member {
         args: (circuit_name: impl Display, name: impl Display),
@@ -67,6 +74,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user is defining a circuit, and they define a circuit member multiple times.
     @formatted
     redefined_circuit_member {
         args: (circuit_name: impl Display, name: impl Display),
@@ -77,6 +85,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user is initializing a circuit, and they add an extra circuit member.
     @formatted
     extra_circuit_member {
         args: (circuit_name: impl Display, name: impl Display),
@@ -87,6 +96,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user attempts to assign to a function.
     @formatted
     illegal_function_assign {
         args: (name: impl Display),
@@ -94,6 +104,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to call a circuit variable as a function.
     @formatted
     circuit_variable_call {
         args: (circuit_name: impl Display, name: impl Display),
@@ -101,6 +112,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to call an invalid circuit static function.
     @formatted
     circuit_static_call_invalid {
         args: (circuit_name: impl Display, name: impl Display),
@@ -111,6 +123,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to call a mutable circuit member function from immutable context.
     @formatted
     circuit_member_mut_call_invalid {
         args: (circuit_name: impl Display, name: impl Display),
@@ -121,6 +134,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to call a circuit member function from static context.
     @formatted
     circuit_member_call_invalid {
         args: (circuit_name: impl Display, name: impl Display),
@@ -131,16 +145,7 @@ create_errors!(
         help: None,
     }
 
-    @formatted
-    circuit_function_ref {
-        args: (circuit_name: impl Display, name: impl Display),
-        msg: format!(
-            "cannot reference function member '{}' of circuit '{}' as value",
-            name, circuit_name
-        ),
-        help: None,
-    }
-
+    /// For when a user tries to index into a non-array type.
     @formatted
     index_into_non_array {
         args: (name: impl Display),
@@ -148,6 +153,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries index with an invalid integer.
     @formatted
     invalid_assign_index {
         args: (name: impl Display, num: impl Display),
@@ -155,6 +161,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to index an array range, with a left value greater than right value.
     @formatted
     invalid_backwards_assignment {
         args: (name: impl Display, left: impl Display, right: impl Display),
@@ -165,6 +172,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to create a constant varaible from non constant values.
     @formatted
     invalid_const_assign {
         args: (name: impl Display),
@@ -175,6 +183,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user defines function with the same name twice.
     @formatted
     duplicate_function_definition {
         args: (name: impl Display),
@@ -182,6 +191,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user defines variable with the same name twice.
     @formatted
     duplicate_variable_definition {
         args: (name: impl Display),
@@ -189,6 +199,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to index into a non-tuple type.
     @formatted
     index_into_non_tuple {
         args: (name: impl Display),
@@ -196,6 +207,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries access a tuple index out of bounds.
     @formatted
     tuple_index_out_of_bounds {
         args: (index: impl Display),
@@ -203,6 +215,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries access a array index out of bounds.
     @formatted
     array_index_out_of_bounds {
         args: (index: impl Display),
@@ -210,6 +223,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries have either side of a ternary return different variable types.
     @formatted
     ternary_different_types {
         args: (left: impl Display, right: impl Display),
@@ -217,6 +231,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when an array size cannot be inferred.
     @formatted
     unknown_array_size {
         args: (),
@@ -224,6 +239,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user passes more arguements to a function than expected.
     @formatted
     unexpected_call_argument_count {
         args: (expected: impl Display, got: impl Display),
@@ -231,6 +247,7 @@ create_errors!(
         help: None,
     }
 
+    /// For whan a function is unresolved.
     @formatted
     unresolved_function {
         args: (name: impl Display),
@@ -238,6 +255,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a type cannot be resolved.
     @formatted
     unresolved_type {
         args: (name: impl Display),
@@ -245,6 +263,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user passes a type, but another was expected.
     @formatted
     unexpected_type {
         args: (expected: impl Display, received: impl Display),
@@ -256,6 +275,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a constant value was expected, but a non-constant one was received.
     @formatted
     unexpected_nonconst {
         args: (),
@@ -263,6 +283,7 @@ create_errors!(
         help: None,
     }
 
+    /// For whan a variable is unresolved.
     @formatted
     unresolved_reference {
         args: (name: impl Display),
@@ -270,6 +291,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a boolean value cannot be parsed.
     @formatted
     invalid_boolean {
         args: (value: impl Display),
@@ -277,6 +299,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a char value cannot be parsed.
     @formatted
     invalid_char {
         args: (value: impl Display),
@@ -284,6 +307,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when an int value cannot be parsed.
     @formatted
     invalid_int {
         args: (value: impl Display),
@@ -291,6 +315,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to negate an unsigned integer.
     @formatted
     unsigned_negation {
         args: (),
@@ -298,6 +323,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to assign to an immutable variable.
     @formatted
     immutable_assignment {
         args: (name: impl Display),
@@ -305,6 +331,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a function is missing a return statement.
     @formatted
     function_missing_return {
         args: (name: impl Display),
@@ -312,6 +339,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a function fails to resolve the correct return.
     @formatted
     function_return_validation {
         args: (name: impl Display, description: impl Display),
@@ -319,6 +347,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the type for an input variable could not be infered.
     @formatted
     input_ref_needs_type {
         args: (category: impl Display, name: impl Display),
@@ -326,13 +355,7 @@ create_errors!(
         help: None,
     }
 
-    @formatted
-    invalid_self_in_global {
-        args: (),
-        msg: "cannot have `mut self` or `self` arguments in global functions",
-        help: None,
-    }
-
+    /// For when a user tries to call a test function.
     @formatted
     call_test_function {
         args: (),
@@ -340,6 +363,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to define a circuit function as a test function.
     @formatted
     circuit_test_function {
         args: (),
@@ -347,6 +371,7 @@ create_errors!(
         help: None,
     }
 
+    /// Failed to parse index.
     @formatted
     parse_index_error {
         args: (),
@@ -354,6 +379,7 @@ create_errors!(
         help: None,
     }
 
+    /// Failed to parse array dimensions.
     @formatted
     parse_dimension_error {
         args: (),
@@ -361,13 +387,7 @@ create_errors!(
         help: None,
     }
 
-    @formatted
-    reference_self_outside_circuit {
-        args: (),
-        msg: "referenced self outside of circuit function",
-        help: None,
-    }
-
+    /// For when there is an illegal ast structure.
     @formatted
     illegal_ast_structure {
         args: (details: impl Display),
@@ -375,10 +395,20 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to reference an input varaible but none is in scope.
     @formatted
     illegal_input_variable_reference {
-        args: (details: impl Display),
-        msg: format!("illegal ast structure: {}", details),
+        args: (),
+        msg:  "attempted to reference input when none is in scope",
+        help: None,
+    }
+
+    /// For the ASG receives an big Self, which should never happen
+    /// as they should be resolved in an earlier compiler phase.
+    @formatted
+    unexpected_big_self {
+        args: (),
+        msg:  "received a Self statement, which should never happen",
         help: None,
     }
 );

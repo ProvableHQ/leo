@@ -17,13 +17,14 @@
 #[macro_export]
 macro_rules! create_errors {
     (@step $_code:expr,) => {};
-    ($error_type:ident, exit_code_mask: $exit_code_mask:expr, error_code_prefix: $error_code_prefix:expr, $(@$formatted_or_backtraced_list:ident $names:ident { args: ($($arg_names:ident: $arg_types:ty$(,)?)*), msg: $messages:expr, help: $helps:expr, })*) => {
+    ($(#[$error_type_docs:meta])* $error_type:ident, exit_code_mask: $exit_code_mask:expr, error_code_prefix: $error_code_prefix:expr, $($(#[$docs:meta])* @$formatted_or_backtraced_list:ident $names:ident { args: ($($arg_names:ident: $arg_types:ty$(,)?)*), msg: $messages:expr, help: $helps:expr, })*) => {
         #[allow(unused_imports)]
         use crate::{BacktracedError, ErrorCode, FormattedError, LeoErrorCode, Span};
 
         use backtrace::Backtrace;
 
         #[derive(Debug, Error)]
+        $(#[$error_type_docs])*
         pub enum $error_type {
             #[error(transparent)]
             FormattedError(#[from] FormattedError),
@@ -60,10 +61,11 @@ macro_rules! create_errors {
         }
 
         impl $error_type {
-            create_errors!(@step 0i32, $(($formatted_or_backtraced_list, $names($($arg_names: $arg_types,)*), $messages, $helps),)*);
+            create_errors!(@step 0i32, $(($(#[$docs])* $formatted_or_backtraced_list, $names($($arg_names: $arg_types,)*), $messages, $helps),)*);
         }
     };
-    (@step $code:expr, (formatted, $error_name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($formatted_or_backtraced_tail:ident, $names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
+    (@step $code:expr, ($(#[$error_func_docs:meta])* formatted, $error_name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($(#[$docs:meta])* $formatted_or_backtraced_tail:ident, $names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
+        $(#[$error_func_docs])*
         pub fn $error_name($($arg_names: $arg_types,)* span: &Span) -> Self {
             Self::FormattedError(
                 FormattedError::new_from_span(
@@ -78,9 +80,10 @@ macro_rules! create_errors {
             )
         }
 
-        create_errors!(@step $code + 1i32, $(($formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
+        create_errors!(@step $code + 1i32, $(($(#[$docs])* $formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
     };
-    (@step $code:expr, (backtraced, $error_name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($formatted_or_backtraced_tail:ident, $names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
+    (@step $code:expr, ($(#[$error_func_docs:meta])* backtraced, $error_name:ident($($arg_names:ident: $arg_types:ty,)*), $message:expr, $help:expr), $(($(#[$docs:meta])* $formatted_or_backtraced_tail:ident, $names:ident($($tail_arg_names:ident: $tail_arg_types:ty,)*), $messages:expr, $helps:expr),)*) => {
+        $(#[$error_func_docs])*
         pub fn $error_name($($arg_names: $arg_types,)*) -> Self {
             Self::BacktracedError(
                 BacktracedError::new_from_backtrace(
@@ -94,7 +97,7 @@ macro_rules! create_errors {
             )
         }
 
-        create_errors!(@step $code + 1i32, $(($formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
+        create_errors!(@step $code + 1i32, $(($(#[$docs])* $formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
     };
 
 }

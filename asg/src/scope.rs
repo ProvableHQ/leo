@@ -128,26 +128,8 @@ impl<'a> Scope<'a> {
     pub fn resolve_circuit(&self, name: &str) -> Option<&'a Circuit<'a>> {
         if let Some(resolved) = self.circuits.borrow().get(name) {
             Some(*resolved)
-        } else if name == "Self" && self.circuit_self.get().is_some() {
-            self.circuit_self.get()
         } else if let Some(resolved) = self.parent_scope.get() {
             resolved.resolve_circuit(name)
-        } else {
-            None
-        }
-    }
-
-    ///
-    /// Returns a reference to the current circuit.
-    ///
-    /// If the current scope did not have a circuit self present, then the parent scope is checked.
-    /// If there is no parent scope, then `None` is returned.
-    ///
-    pub fn resolve_circuit_self(&self) -> Option<&'a Circuit<'a>> {
-        if let Some(resolved) = self.circuit_self.get() {
-            Some(resolved)
-        } else if let Some(resolved) = self.parent_scope.get() {
-            resolved.resolve_circuit_self()
         } else {
             None
         }
@@ -200,14 +182,7 @@ impl<'a> Scope<'a> {
                     .map(|x| self.resolve_ast_type(x, span))
                     .collect::<Result<Vec<_>>>()?,
             ),
-            Circuit(name) if name.name.as_ref() == "Self" => Type::Circuit(
-                self.resolve_circuit_self()
-                    .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
-            ),
-            SelfType => Type::Circuit(
-                self.resolve_circuit_self()
-                    .ok_or_else(|| AsgError::reference_self_outside_circuit(span))?,
-            ),
+            SelfType => return Err(AsgError::unexpected_big_self(span).into()),
             Circuit(name) => Type::Circuit(
                 self.resolve_circuit(&name.name)
                     .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,

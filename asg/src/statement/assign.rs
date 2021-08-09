@@ -63,11 +63,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
             if let Some(input) = scope.resolve_input() {
                 input.container
             } else {
-                return Err(AsgError::illegal_input_variable_reference(
-                    "attempted to reference input when none is in scope",
-                    &statement.span,
-                )
-                .into());
+                return Err(AsgError::illegal_input_variable_reference(&statement.span).into());
             }
         } else {
             scope

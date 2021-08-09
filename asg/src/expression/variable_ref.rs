@@ -130,11 +130,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
             if let Some(input) = scope.resolve_input() {
                 input.container
             } else {
-                return Err(AsgError::illegal_input_variable_reference(
-                    "attempted to reference input when none is in scope",
-                    &value.span,
-                )
-                .into());
+                return Err(AsgError::illegal_input_variable_reference(&value.span).into());
             }
         } else {
             match scope.resolve_variable(&value.name) {
