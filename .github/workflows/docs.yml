@@ -1,0 +1,47 @@
+name: Master Crates Docs
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-crates-docs:
+    name: Build Crates Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust Stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      
+      - name: Build Cargo Docs
+        run: |
+          cargo doc
+          mv -r ./target/doc/leo /tmp/
+
+      - name: Save Docs
+        uses: actions/upload-artifact@master
+        with:
+          name: leo-docs
+          path: /tmp/target/doc/leo
+
+  deploy-crates-docs:
+    name: Deploy Crates Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load Docs
+        uses: actions/download-artifact@master
+        with:
+          name: leo-docs
+          path: /tmp/target/doc/leo
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/doc/leo
