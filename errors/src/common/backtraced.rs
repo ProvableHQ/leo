@@ -20,30 +20,34 @@ use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
 use derivative::Derivative;
 
-pub const INDENT: &str = "    ";
+/// The indent for an error message.
+pub(crate) const INDENT: &str = "    ";
 
-/// Formatted compiler error type
+/// Backtraced compiler error type
 ///     undefined value `x`
 ///     --> file.leo: 2:8
-///      |
-///    2 | let a = x;
-///      |         ^
-///      |
 ///      = help: Initialize a variable `x` first.
 #[derive(Derivative)]
 #[derivative(Clone, Debug, Default, Hash, PartialEq)]
 pub struct BacktracedError {
+    /// The error message.
     pub message: String,
+    /// The error help message if it exists.
     pub help: Option<String>,
+    /// The error exit code.
     pub exit_code: i32,
+    /// The error leading digits identifier.
     pub code_identifier: i8,
+    /// The characters representing the type of error.
     pub error_type: String,
     #[derivative(PartialEq = "ignore")]
     #[derivative(Hash = "ignore")]
+    /// The backtrace representing where the error occured in Leo.
     pub backtrace: Backtrace,
 }
 
 impl BacktracedError {
+    /// Creates a backtraced error from a backtrace.
     pub fn new_from_backtrace<S>(
         message: S,
         help: Option<String>,
@@ -65,6 +69,7 @@ impl BacktracedError {
         }
     }
 
+    /// Gets the backtraced error error code.
     pub fn exit_code(&self) -> i32 {
         let mut code: i32;
         if self.code_identifier > 99 {

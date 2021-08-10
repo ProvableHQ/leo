@@ -14,14 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{BacktracedError, Span};
+use crate::{BacktracedError, Span, INDENT};
 
-use std::{fmt, sync::Arc};
+use std::fmt;
 
 use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
-
-pub const INDENT: &str = "    ";
 
 /// Formatted compiler error type
 ///     undefined value `x`
@@ -31,18 +29,17 @@ pub const INDENT: &str = "    ";
 ///      |         ^
 ///      |
 ///      = help: Initialize a variable `x` first.
+/// Makes use of the same fields as a BacktracedError.
 #[derive(Clone, Debug, Default, Hash, PartialEq)]
 pub struct FormattedError {
-    pub line_start: usize,
-    pub line_stop: usize,
-    pub col_start: usize,
-    pub col_stop: usize,
-    pub path: Arc<String>,
-    pub content: String,
+    /// The formatted error span information.
+    pub span: Span,
+    /// The backtrace to track where the Leo error originated.
     pub backtrace: BacktracedError,
 }
 
 impl FormattedError {
+    /// Creates a backtraced error from a span and a backtrace.
     pub fn new_from_span<S>(
         message: S,
         help: Option<String>,
@@ -56,12 +53,7 @@ impl FormattedError {
         S: ToString,
     {
         Self {
-            line_start: span.line_start,
-            line_stop: span.line_stop,
-            col_start: span.col_start,
-            col_stop: span.col_stop,
-            path: span.path.clone(),
-            content: span.content.to_string(),
+            span: span.clone(),
             backtrace: BacktracedError::new_from_backtrace(
                 message.to_string(),
                 help,
@@ -73,6 +65,7 @@ impl FormattedError {
         }
     }
 
+    /// Calls the backtraces error code.
     pub fn exit_code(&self) -> i32 {
         self.backtrace.exit_code()
     }
@@ -99,7 +92,7 @@ impl fmt::Display for FormattedError {
             underline
         };
 
-        let underlined = underline(self.col_start, self.col_stop);
+        let underlined = underline(self.span.col_start, self.span.col_stop);
 
         let error_message = format!(
             "[E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}\n \
@@ -110,19 +103,19 @@ impl fmt::Display for FormattedError {
             code_identifier = self.backtrace.code_identifier,
             exit_code = self.backtrace.exit_code,
             message = self.backtrace.message,
-            path = &*self.path,
-            line_start = self.line_start,
-            start = self.col_start,
+            path = &*self.span.path,
+            line_start = self.span.line_start,
+            start = self.span.col_start,
         );
 
         write!(f, "{}", error_message)?;
 
-        for (line_no, line) in self.content.lines().enumerate() {
+        for (line_no, line) in self.span.content.lines().enumerate() {
             writeln!(
                 f,
                 "|\n{line_no:width$} | {text}",
                 width = INDENT.len(),
-                line_no = self.line_start + line_no,
+                line_no = self.span.line_start + line_no,
                 text = line,
             )?;
         }

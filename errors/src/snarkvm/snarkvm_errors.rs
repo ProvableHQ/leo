@@ -16,8 +16,13 @@
 
 use eyre::{eyre, ErrReport};
 
+/// SnarkVMError enum that represents all the errors from SnarkVM.
+/// Currently implements default for some SnarkVM locations.
+/// Ideally SnarkVM would implement a similar error code system to LeoError
+/// then we could just bubble the error up with additional information.
 #[derive(Debug, Error)]
 pub enum SnarkVMError {
+    /// Implments from a eyre ErrReport which is a fork of anyhow.
     #[error(transparent)]
     SnarkVMError(#[from] ErrReport),
 }

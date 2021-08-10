@@ -19,7 +19,7 @@ use crate::create_errors;
 use std::fmt::{Debug, Display};
 
 create_errors!(
-    /// AsgError enum that represents all the errors for the ASG.
+    /// AsgError enum that represents all the errors for the `leo-asg` crate.
     AsgError,
     exit_code_mask: 0i32,
     error_code_prefix: "ASG",

@@ -28,7 +28,7 @@ pub fn find_input(name: String, parameters: &IndexMap<Parameter, Option<InputVal
 
     match matched_parameter {
         Some((_, Some(value))) => Ok(value.clone()),
-        _ => Err(StateError::mising_parameter(name).into()),
+        _ => Err(StateError::missing_parameter(name).into()),
     }
 }
 

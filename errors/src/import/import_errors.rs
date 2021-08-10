@@ -22,11 +22,12 @@ use std::{
 };
 
 create_errors!(
+    /// ImportError enum that represents all the errors for the `leo-import` crate.
     ImportError,
     exit_code_mask: 3000i32,
     error_code_prefix: "IMP",
 
-    // An imported package has the same name as an imported core_package.
+    /// For when an imported package has the same name as an imported core_package.
     @formatted
     conflicting_imports {
         args: (name: impl Display),
@@ -34,6 +35,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when imports are recursive.
     @formatted
     recursive_imports {
         args: (package: impl Display),
@@ -41,7 +43,7 @@ create_errors!(
         help: None,
     }
 
-    // Failed to convert a file path into an os string.
+    /// For when the crate failed to convert a file path into an os string.
     @formatted
     convert_os_string {
         args: (),
@@ -49,7 +51,7 @@ create_errors!(
         help: None,
     }
 
-    // Failed to find the directory of the current file.
+    /// For when the crate failed to find the directory of the current file.
     @formatted
     current_directory_error {
         args: (error: impl ErrorArg),
@@ -57,7 +59,7 @@ create_errors!(
         help: None,
     }
 
-    // Failed to open or get the name of a directory.
+    /// For when the crate failed to open or get the name of a directory.
     @formatted
     directory_error {
         args: (error: impl ErrorArg, path:impl Debug),
@@ -69,7 +71,7 @@ create_errors!(
         help: None,
     }
 
-    // Failed to find a main file for the current package.
+    /// For when the crate failed to find a main file for the current package.
     @formatted
     expected_main_file {
         args: (entry: impl Debug),
@@ -77,7 +79,7 @@ create_errors!(
         help: None,
     }
 
-    // Failed to import a package name.
+    /// For when the crate failed to import a package name.
     @formatted
     unknown_package {
         args: (name: impl Display),
@@ -88,6 +90,7 @@ create_errors!(
         help: None,
     }
 
+    /// / For when the crate failed due to an IO error.
     @formatted
     io_error {
         args: (path: impl Display, error: impl ErrorArg),

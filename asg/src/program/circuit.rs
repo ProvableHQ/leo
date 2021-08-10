@@ -65,7 +65,6 @@ impl<'a> Circuit<'a> {
             span: Some(value.circuit_name.span.clone()),
             scope: new_scope,
         });
-        new_scope.circuit_self.replace(Some(circuit));
 
         let mut members = circuit.members.borrow_mut();
         for member in value.members.iter() {
@@ -90,7 +89,6 @@ impl<'a> Circuit<'a> {
         let circuits = scope.circuits.borrow();
 
         let circuit = circuits.get(value.circuit_name.name.as_ref()).unwrap();
-        new_scope.circuit_self.replace(Some(circuit));
 
         let mut members = circuit.members.borrow_mut();
         for member in value.members.iter() {

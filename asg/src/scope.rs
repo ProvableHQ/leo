@@ -34,9 +34,6 @@ pub struct Scope<'a> {
     /// The function definition that this scope occurs in.
     pub function: Cell<Option<&'a Function<'a>>>,
 
-    /// The circuit definition that this scope occurs in.
-    pub circuit_self: Cell<Option<&'a Circuit<'a>>>,
-
     /// Maps variable name => variable.
     pub variables: RefCell<IndexMap<String, &'a Variable<'a>>>,
 
@@ -143,7 +140,6 @@ impl<'a> Scope<'a> {
             context: self.context,
             id: self.context.get_id(),
             parent_scope: Cell::new(Some(self)),
-            circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
             circuits: RefCell::new(IndexMap::new()),

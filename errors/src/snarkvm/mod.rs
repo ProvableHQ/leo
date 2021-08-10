@@ -14,5 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+/// This module contains the SnarkVM error definitions.
 pub mod snarkvm_errors;
 pub use self::snarkvm_errors::*;

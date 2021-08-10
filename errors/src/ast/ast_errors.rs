@@ -18,10 +18,12 @@ use crate::create_errors;
 use std::{error::Error as ErrorArg, fmt::Debug};
 
 create_errors!(
+    /// AstError enum that represents all the errors for the `leo-ast` crate.
     AstError,
     exit_code_mask: 1000i32,
     error_code_prefix: "AST",
 
+    /// For when the AST fails to be represented as a JSON string.
     @backtraced
     failed_to_convert_ast_to_json_string {
         args: (error: impl ErrorArg),
@@ -29,6 +31,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the AST fails to create the AST JSON file.
     @backtraced
     failed_to_create_ast_json_file {
         args: (path: impl Debug, error: impl ErrorArg),
@@ -36,6 +39,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the AST fails to write the AST JSON file.
     @backtraced
     failed_to_write_ast_to_json_file {
         args: (path: impl Debug, error: impl ErrorArg),
@@ -43,13 +47,15 @@ create_errors!(
         help: None,
     }
 
+    /// For when the a JSON string fails to be represented as an AST.
     @backtraced
     failed_to_read_json_string_to_ast {
         args: (error: impl ErrorArg),
-        msg: format!("failed to convert json stirng to an ast {}", error),
+        msg: format!("failed to convert json string to an ast {}", error),
         help: None,
     }
 
+    /// For when the a JSON files fails to be represented as an AST.
     @backtraced
     failed_to_read_json_file {
         args: (path: impl Debug, error: impl ErrorArg),
@@ -57,6 +63,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to use the `Self` keyword outside of a cricuit.
     @formatted
     big_self_outside_of_circuit {
         args: (),
@@ -64,6 +71,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to define a array dimension of 0.
     @formatted
     invalid_array_dimension_size {
         args: (),
@@ -71,13 +79,15 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to give certain statements a block rather than another statement.
     @formatted
-    asg_statement_not_block {
+    ast_statement_not_block {
         args: (),
         msg: "AstStatement should be be a block",
         help: None,
     }
 
+    /// For when a user tries to construct an empty string, which is a zero size array.
     @formatted
     empty_string {
         args: (),
@@ -85,6 +95,7 @@ create_errors!(
         help: None,
     }
 
+    /// This error should never be reached, but represents trying to expand a console assert.
     @formatted
     impossible_console_assert_call {
         args: (),

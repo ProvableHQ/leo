@@ -17,10 +17,12 @@
 use serde::{Deserialize, Deserializer, Serializer};
 use tendril::StrTendril;
 
+/// Serialization for the StrTendril type.
 pub fn serialize<S: Serializer>(tendril: &StrTendril, serializer: S) -> Result<S::Ok, S::Error> {
     serializer.serialize_str(&tendril[..])
 }
 
+/// Deserialization for the StrTendril type.
 pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<StrTendril, D::Error> {
     Ok(String::deserialize(deserializer)?.into())
 }

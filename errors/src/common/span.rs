@@ -20,18 +20,33 @@ use pest::Span as PestSpan;
 use serde::{Deserialize, Serialize};
 use tendril::StrTendril;
 
+/// The span type which tracks where formatted errors originate from in a Leo file.
+/// This is used in many spots throughout the rest of the Leo crates.
 #[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
 pub struct Span {
+    /// The line number where the error started.
     pub line_start: usize,
+    /// The line number where the error stopped.
     pub line_stop: usize,
+    /// The column number where the error started.
     pub col_start: usize,
+    /// The column number where the error stopped.
     pub col_stop: usize,
+    /// The path to the Leo file containing the error.
     pub path: Arc<String>,
     #[serde(with = "crate::tendril_json")]
+    /// The content of the file between the above boundries.
     pub content: StrTendril,
 }
 
 impl Span {
+    /// Generate a new span from where:
+    /// - the Leo line starts.
+    /// - the Leo line stops.
+    /// - the Leo column starts.
+    /// - the Leo column stops.
+    /// - the path to the Leo file.
+    /// - the content of those specified bounds.
     pub fn new(
         line_start: usize,
         line_stop: usize,
@@ -51,6 +66,7 @@ impl Span {
     }
 }
 
+/// Conversion from a pest span where the leo-input library uses these.
 impl fmt::Display for Span {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.line_start == self.line_stop {

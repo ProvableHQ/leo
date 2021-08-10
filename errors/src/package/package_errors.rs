@@ -22,10 +22,12 @@ use std::{
 };
 
 create_errors!(
+    /// PackageError enum that represents all the errors for the `leo-package` crate.
     PackageError,
     exit_code_mask: 4000i32,
     error_code_prefix: "PAK",
 
+    /// For when creating the imports directory failed.
     @backtraced
     failed_to_create_imports_directory {
         args: (error: impl ErrorArg),
@@ -33,13 +35,15 @@ create_errors!(
         help: None,
     }
 
+    /// For when the specified import does not exist.
     @backtraced
     import_does_not_exist {
         args: (package: impl Display),
         msg: format!("package {} does not exist as an import", package),
         help: None,
-     }
+    }
 
+    /// For when removing the imports directory failed.
     @backtraced
     failed_to_remove_imports_directory {
         args: (error: impl ErrorArg),
@@ -47,6 +51,7 @@ create_errors!(
         help: None,
      }
 
+     /// For when creating the inputs directory failed.
     @backtraced
     failed_to_create_inputs_directory {
         args: (error: impl ErrorArg),
@@ -54,6 +59,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting a input file entry failed.
     @backtraced
     failed_to_get_input_file_entry {
         args: (error: impl ErrorArg),
@@ -61,6 +67,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting the input file name failed.
     @backtraced
     failed_to_get_input_file_name {
         args: (file: impl Debug),
@@ -68,6 +75,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting the input file type failed.
     @backtraced
     failed_to_get_input_file_type {
         args: (file: impl Debug, error: impl ErrorArg),
@@ -75,6 +83,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting the input file has an invalid file type.
     @backtraced
     invalid_input_file_type {
         args: (file: impl Debug, type_: std::fs::FileType),
@@ -82,6 +91,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when reading the input directory failed.
     @backtraced
     failed_to_read_inputs_directory {
         args: (error: impl ErrorArg),
@@ -89,6 +99,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when reading the input file failed.
     @backtraced
     failed_to_read_input_file {
         args: (path: impl Debug),
@@ -96,6 +107,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the input file has an IO error.
     @backtraced
     io_error_input_file {
         args: (error: impl ErrorArg),
@@ -103,6 +115,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when reading the state file failed.
     @backtraced
     failed_to_read_state_file {
         args: (path: impl Debug),
@@ -110,6 +123,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the state file has an IO error.
     @backtraced
     io_error_state_file {
         args: (error: impl ErrorArg),
@@ -117,6 +131,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when reading the checksum file failed.
     @backtraced
     failed_to_read_checksum_file {
         args: (path: impl Debug),
@@ -124,6 +139,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when removing the checksum file failed.
     @backtraced
     failed_to_remove_checksum_file {
         args: (path: impl Debug),
@@ -131,6 +147,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the checksum file has an IO error.
     @backtraced
     io_error_checksum_file {
         args: (error: impl ErrorArg),
@@ -138,6 +155,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when reading the circuit file failed.
     @backtraced
     failed_to_read_circuit_file {
         args: (path: impl Debug),
@@ -145,6 +163,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when removing the circuit file failed.
     @backtraced
     failed_to_remove_circuit_file {
         args: (path: impl Debug),
@@ -152,6 +171,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the circuit file has an IO error.
     @backtraced
     io_error_circuit_file {
         args: (error: impl ErrorArg),
@@ -159,6 +179,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when creating the outputs directory failed.
     @backtraced
     failed_to_create_outputs_directory {
         args: (error: impl ErrorArg),
@@ -173,6 +194,7 @@ create_errors!(
         help: None,
      }
 
+     /// For when reading the proof file failed.
     @backtraced
     failed_to_read_proof_file {
         args: (path: impl Debug),
@@ -180,6 +202,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when removing the proof file failed.
     @backtraced
     failed_to_remove_proof_file {
         args: (path: impl Debug),
@@ -187,6 +210,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the proof file has an IO error.
     @backtraced
     io_error_proof_file {
         args: (error: impl ErrorArg),
@@ -194,6 +218,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when reading the prooving key failed.
     @backtraced
     failed_to_read_proving_key_file {
         args: (path: impl Debug),
@@ -201,6 +226,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when removing the prooving key file failed.
     @backtraced
     failed_to_remove_proving_key_file {
         args: (path: impl Debug),
@@ -208,13 +234,15 @@ create_errors!(
         help: None,
     }
 
+    /// For when the proving key file has an IO error.
     @backtraced
     io_error_proving_key_file {
         args: (error: impl ErrorArg),
-        msg: format!("IO error prooving key file from the provided file path - {}", error),
+        msg: format!("IO error proving key file from the provided file path - {}", error),
         help: None,
     }
 
+    /// For when reading the verification key file failed.
     @backtraced
     failed_to_read_verification_key_file {
         args: (path: impl Debug),
@@ -222,6 +250,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when removing the verification key file failed.
     @backtraced
     failed_to_remove_verification_key_file {
         args: (path: impl Debug),
@@ -229,6 +258,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the verification key file has an IO error.
     @backtraced
     io_error_verification_key_file {
         args: (error: impl ErrorArg),
@@ -236,6 +266,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the gitignore file has an IO error.
     @backtraced
     io_error_gitignore_file {
         args: (error: impl ErrorArg),
@@ -243,6 +274,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when creating the manifest file failed.
     @backtraced
     failed_to_create_manifest_file {
         args: (filename: impl Display, error: impl ErrorArg),
@@ -250,6 +282,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting the manifest file metadata failed.
     @backtraced
     failed_to_get_manifest_metadata_file {
         args: (filename: impl Display, error: impl ErrorArg),
@@ -257,6 +290,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when opening the manifest file failed.
     @backtraced
     failed_to_open_manifest_file {
         args: (filename: impl Display, error: impl ErrorArg),
@@ -264,6 +298,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when parsing the manifest file failed.
     @backtraced
     failed_to_parse_manifest_file {
         args: (filename: impl Display, error: impl ErrorArg),
@@ -271,6 +306,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when reading the manifest file failed.
     @backtraced
     failed_to_read_manifest_file {
         args: (filename: impl Display, error: impl ErrorArg),
@@ -278,6 +314,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when writing the manifest file failed.
     @backtraced
     failed_to_write_manifest_file {
         args: (filename: impl Display, error: impl ErrorArg),
@@ -285,6 +322,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the manifest file has an IO error.
     @backtraced
     io_error_manifest_file {
         args: (error: impl ErrorArg),
@@ -292,6 +330,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the readme file has an IO error.
     @backtraced
     io_error_readme_file {
         args: (error: impl ErrorArg),
@@ -299,6 +338,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when creating the zip file failed.
     @backtraced
     failed_to_create_zip_file {
         args: (error: impl ErrorArg),
@@ -306,6 +346,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when opening the zip file failed.
     @backtraced
     failed_to_open_zip_file {
         args: (error: impl ErrorArg),
@@ -313,6 +354,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when reading the zip file failed.
     @backtraced
     failed_to_read_zip_file {
         args: (error: impl ErrorArg),
@@ -320,6 +362,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when writing the zip file failed.
     @backtraced
     failed_to_write_zip_file {
         args: (error: impl ErrorArg),
@@ -327,6 +370,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when removing the zip file failed.
     @backtraced
     failed_to_remove_zip_file {
         args: (path: impl Debug),
@@ -334,6 +378,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when zipping fails.
     @backtraced
     failed_to_zip {
         args: (error: impl ErrorArg),
@@ -341,6 +386,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the zip file has an IO error.
     @backtraced
     io_error_zip_file {
         args: (error: impl ErrorArg),
@@ -348,6 +394,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the library file has an IO error.
     @backtraced
     io_error_library_file {
         args: (error: impl ErrorArg),
@@ -355,6 +402,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the main file has an IO error.
     @backtraced
     io_error_main_file {
         args: (error: impl ErrorArg),
@@ -362,6 +410,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when creating the source directory failed.
     @backtraced
     failed_to_create_source_directory {
         args: (error: impl ErrorArg),
@@ -369,6 +418,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting a source file entry failed.
     @backtraced
     failed_to_get_source_file_entry {
         args: (error: impl ErrorArg),
@@ -376,6 +426,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting the source file extension failed.
     @backtraced
     failed_to_get_source_file_extension {
         args: (extension: impl Debug),
@@ -383,6 +434,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting the source file type failed.
     @backtraced
     failed_to_get_source_file_type {
         args: (file: impl Debug, error: impl ErrorArg),
@@ -390,6 +442,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting the source file has an invalid extension.
     @backtraced
     invalid_source_file_extension {
         args: (file: impl Debug, extension: impl Debug),
@@ -397,6 +450,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when getting the source file has an invalid file type.
     @backtraced
     invalid_source_file_type {
         args: (file: impl Debug, type_: std::fs::FileType),
@@ -404,6 +458,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when reading the source directory failed.
     @backtraced
     failed_to_read_source_directory {
         args: (error: impl ErrorArg),
@@ -411,6 +466,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the package failed to initalize.
     @backtraced
     failed_to_initialize_package {
         args: (package: impl Display, path: impl Debug),
@@ -418,6 +474,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the package has an invalid name.
     @backtraced
     invalid_package_name {
         args: (package: impl Display),

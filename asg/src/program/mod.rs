@@ -217,7 +217,6 @@ impl<'a> Program<'a> {
             context,
             id: context.get_id(),
             parent_scope: Cell::new(None),
-            circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(imported_functions),
             global_consts: RefCell::new(imported_global_consts),
@@ -234,7 +233,6 @@ impl<'a> Program<'a> {
             input: Cell::new(Some(Input::new(import_scope))), // we use import_scope to avoid recursive scope ref here
             id: context.get_id(),
             parent_scope: Cell::new(Some(import_scope)),
-            circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
             global_consts: RefCell::new(IndexMap::new()),

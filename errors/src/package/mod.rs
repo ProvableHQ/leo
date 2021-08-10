@@ -14,5 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+/// This module contains the Package error definitions.
 pub mod package_errors;
 pub use self::package_errors::*;

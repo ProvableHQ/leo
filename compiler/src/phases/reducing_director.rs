@@ -496,7 +496,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         if let AsgStatement::Block(asg_block) = asg.result.get() {
             block = self.reduce_block(&ast.block, asg_block)?;
         } else {
-            return Err(AstError::asg_statement_not_block(asg.span.as_ref().unwrap()).into());
+            return Err(AstError::ast_statement_not_block(asg.span.as_ref().unwrap()).into());
         }
         let next = match (ast.next.as_ref(), asg.next.get()) {
             (Some(ast_next), Some(asg_next)) => Some(self.reduce_statement(ast_next, asg_next)?),
@@ -602,7 +602,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         if let AsgStatement::Block(asg_block) = asg.body.get() {
             block = self.reduce_block(&ast.block, asg_block)?;
         } else {
-            return Err(AstError::asg_statement_not_block(asg.span.as_ref().unwrap()).into());
+            return Err(AstError::ast_statement_not_block(asg.span.as_ref().unwrap()).into());
         }
 
         self.ast_reducer

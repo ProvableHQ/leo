@@ -14,5 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+/// This module contains the AST error definitions.
 pub mod ast_errors;
 pub use self::ast_errors::*;

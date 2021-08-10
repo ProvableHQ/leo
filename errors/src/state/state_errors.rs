@@ -22,10 +22,12 @@ use std::{
 };
 
 create_errors!(
+    /// StateError enum that represents all the errors for the `leo-state` crate.
     StateError,
     exit_code_mask: 6000i32,
     error_code_prefix: "STA",
 
+    /// For when it cannot parse the state boolean value.
     @backtraced
     parse_bool_error {
         args: (error: impl ErrorArg),
@@ -33,6 +35,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when it cannot parse the state int value.
     @backtraced
     parse_int_error {
         args: (error: impl ErrorArg),
@@ -40,6 +43,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when it expected an array of u8 bytes but found something else.
     @backtraced
     expected_bytes {
         args: (found: impl Display),
@@ -47,6 +51,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when an int was expected but received something else.
     @backtraced
     expected_int {
         args: (found: impl Display),
@@ -54,13 +59,15 @@ create_errors!(
         help: None,
     }
 
+    /// For when it cannot parse the state int value.
     @backtraced
-    mising_parameter {
+    missing_parameter {
         args: (parameter: impl Display),
         msg: format!("input parameter `{}` not found in state file", parameter),
         help: None,
     }
 
+    /// For when the crate encounters an IO error.
     @backtraced
     state_io_error {
         args: (error: impl ErrorArg),

@@ -19,10 +19,12 @@ use crate::create_errors;
 use std::fmt::Display;
 
 create_errors!(
+    /// ParserError enum that represents all the errors for the `leo-parser` crate.
     ParserError,
     exit_code_mask: 5000i32,
     error_code_prefix: "PAR",
 
+    /// For when the parser encountered an unexpected token.
     @formatted
     unexpected_token {
         args: (message: impl Display, help: String),
@@ -30,6 +32,7 @@ create_errors!(
         help: Some(help),
     }
 
+    /// For when the parser encoutnered an invalid address literal.
     @formatted
     invalid_address_lit {
         args: (token: impl Display),
@@ -37,6 +40,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an empty import list.
     @formatted
     invalid_import_list {
         args: (),
@@ -44,6 +48,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an unexpected End of File.
     @formatted
     unexpected_eof {
         args: (),
@@ -51,6 +56,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an unexpected whitespace.
     @formatted
     unexpected_whitespace {
         args: (left: impl Display, right: impl Display),
@@ -58,6 +64,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an unexpected list of tokens.
     @formatted
     unexpected {
         args: (got: impl Display, expected: impl Display),
@@ -65,6 +72,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered a mix of commas and semi-colons in circuit member variables.
     @formatted
     mixed_commas_and_semicolons {
         args: (),
@@ -72,6 +80,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an unexpected identifier.
     @formatted
     unexpected_ident {
         args: (got: impl Display, expected: &[impl Display]),
@@ -87,6 +96,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an unexpected statement.
     @formatted
     unexpected_statement {
         args: (got: impl Display, expected: impl Display),
@@ -94,6 +104,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an unexpected string.
     @formatted
     unexpected_str {
         args: (got: impl Display, expected: impl Display),
@@ -101,6 +112,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an unexpected spread in an array init expression.
     @formatted
     spread_in_array_init {
         args: (),
@@ -108,6 +120,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an invalid assignment target.
     @formatted
     invalid_assignment_target {
         args: (),
@@ -115,6 +128,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an invalid package name.
     @formatted
     invalid_package_name {
         args: (),
@@ -122,6 +136,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered an illegal `const self` argument.
     @formatted
     illegal_self_const {
         args: (),
@@ -129,6 +144,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered a deprecated `mut` argument in a function.
     @formatted
     mut_function_input {
         args: (),
@@ -136,6 +152,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered a deprecated `mut` argument in a let statement.
     @formatted
     let_mut_statement {
         args: (),
@@ -143,6 +160,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered a deprecated `test function`.
     @formatted
     test_function {
         args: (),
@@ -150,6 +168,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when the parser encoutnered a deprecated `@context(...)` annotation.
     @formatted
     context_annotation {
         args: (),

@@ -76,7 +76,7 @@ impl Command for Login {
 
                 let tok_opt = res.remove("token");
                 if tok_opt.is_none() {
-                    return Err(CliError::unable_to_get_token().into());
+                    return Err(CliError::unable_to_get_user_token().into());
                 };
 
                 (tok_opt.unwrap(), email_username)

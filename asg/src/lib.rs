@@ -24,6 +24,7 @@
 
 #![allow(clippy::from_over_into)]
 #![allow(clippy::result_unit_err)]
+#![doc = include_str!("../README.md")]
 
 pub mod checks;
 pub use checks::*;

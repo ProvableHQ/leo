@@ -14,26 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+/// This module contains a backtraced error and its methods.
 pub mod backtraced;
 pub use self::backtraced::*;
 
+/// This module contains a formatted error and its methods.
 pub mod formatted;
 pub use self::formatted::*;
 
+/// This module contains the macros for making errors easily.
 #[macro_use]
 pub mod macros;
 pub use self::macros::*;
 
+/// This module contains the common span object for Leo crates.
 pub mod span;
 pub use self::span::*;
 
+/// This module contains information on how to serialize and
+/// deserialze StrTendril type.
 pub mod tendril_json;
 pub use self::tendril_json::*;
 
+/// This module contains traits for making errors easily.
 pub mod traits;
 pub use self::traits::*;
 
-// Can make the args cleaner once https://github.com/rust-lang/rust/issues/41517 or https://github.com/rust-lang/rust/issues/63063 hits stable.
+// Right now for cleanliness of calling error functions we say each argument implments one of the follow types rather than giving a specific type.
+// This allows us to just pass many types rather doing conversions cleaning up the code.
+// The args can be made cleaneronce https://github.com/rust-lang/rust/issues/41517 or https://github.com/rust-lang/rust/issues/63063 hits stable.
+// Either of why would allows to generate a type alias for these trait implmenting types.
 // pub(crate) type DisplayArg = impl std::fmt::Display;
 // pub(crate) type DebugArg = impl std::fmt::Debug;
 // pub(crate) type ErrorArg = impl std::error::Error;

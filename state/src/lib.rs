@@ -16,6 +16,7 @@
 
 #![allow(clippy::module_inception)]
 #![allow(clippy::upper_case_acronyms)]
+#![doc = include_str!("../README.md")]
 
 pub mod local_data_commitment;
 pub use self::local_data_commitment::*;

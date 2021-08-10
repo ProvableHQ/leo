@@ -20,6 +20,7 @@
 //! method to create a new program ast.
 
 #![allow(clippy::vec_init_then_push)]
+#![doc = include_str!("../README.md")]
 
 pub(crate) mod tokenizer;
 pub use tokenizer::KEYWORD_TOKENS;
