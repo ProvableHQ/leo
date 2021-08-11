@@ -243,9 +243,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RUSTC_BOOTSTRAP: 1
-      RUSTC_WRAPPER: sccache
-      SCCACHE_CACHE_SIZE: 2G
-      SCCACHE_DIR: /home/runner/.cache/sccache
     steps:
       - name: Checkout
         uses: actions/checkout@v1
