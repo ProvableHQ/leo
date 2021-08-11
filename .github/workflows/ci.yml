@@ -249,18 +249,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-
-      - name: Install sccache Ubuntu
-        env:
-          LINK: https://github.com/mozilla/sccache/releases/download
-          SCCACHE_VERSION: v0.2.15
-        run: |
-          SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
-          mkdir -p $HOME/.local/bin
-          curl -L "$LINK/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
-          mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
-          chmod +x $HOME/.local/bin/sccache
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
         
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -269,30 +257,6 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt
-
-      - name: Cache cargo registry
-        uses: actions/cache@v2
-        continue-on-error: false
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: codecov-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            codecov-cargo-
-            
-      - name: Save sccache
-        uses: actions/cache@v2
-        continue-on-error: false
-        with:
-          path: /Users/runner/Library/Caches/Mozilla.sccache
-          key: codecov-sccache-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            codecov-sccache-
-            
-      - name: Start sccache server
-        run: |
-          sccache --start-server
 
       - name: Test
         uses: actions-rs/cargo@v1
@@ -324,9 +288,3 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Print sccache stats
-        run: sccache --show-stats
-        
-      - name: Stop sccache server
-        run: sccache --stop-server || true
