@@ -119,10 +119,10 @@ impl LeoError {
             CliError(error) => error.exit_code(),
             CompilerError(error) => error.exit_code(),
             ImportError(error) => error.exit_code(),
-            InputError(_error) => 0, // TODO migrate me, or not cause we want inputs to have 0 deps.
+            InputError(_error) => 1, // TODO migrate me, or not cause we want inputs to have 0 deps.
             PackageError(error) => error.exit_code(),
             ParserError(error) => error.exit_code(),
-            SnarkVMError(_error) => 0, // TODO update once snarkvm implments a global top level error similar to LeoError.
+            SnarkVMError(_error) => 1, // TODO update once snarkvm implments a global top level error similar to LeoError.
             StateError(error) => error.exit_code(),
         }
     }

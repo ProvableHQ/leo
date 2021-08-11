@@ -22,7 +22,7 @@ macro_rules! create_errors {
     (@step $_code:expr,) => {};
     ($(#[$error_type_docs:meta])* $error_type:ident, exit_code_mask: $exit_code_mask:expr, error_code_prefix: $error_code_prefix:expr, $($(#[$docs:meta])* @$formatted_or_backtraced_list:ident $names:ident { args: ($($arg_names:ident: $arg_types:ty$(,)?)*), msg: $messages:expr, help: $helps:expr, })*) => {
         #[allow(unused_imports)] // Allow unused for errors that only use formatted or backtraced errors.
-        use crate::{BacktracedError, ErrorCode, FormattedError, LeoErrorCode, Span};
+        use crate::{BacktracedError, FormattedError, LeoErrorCode, Span};
 
         use backtrace::Backtrace;
 
@@ -38,10 +38,7 @@ macro_rules! create_errors {
         }
 
         /// Implements the trait for LeoError Codes.
-        impl LeoErrorCode for $error_type {}
-
-        /// Implements the Error code trait for each error.
-        impl ErrorCode for $error_type {
+        impl LeoErrorCode for $error_type {
             #[inline(always)]
             fn exit_code(&self) -> i32 {
                 match self {

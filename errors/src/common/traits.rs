@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 /// ErrorCode trait that all Errors should implement.
-pub trait ErrorCode: Sized {
+pub trait LeoErrorCode: Sized {
     /// Returns the error's exit code for the program.
     fn exit_code(&self) -> i32;
 
@@ -24,12 +24,10 @@ pub trait ErrorCode: Sized {
 
     /// Returns the error's code type for the program.
     fn error_type() -> String;
-}
 
-/// The LeoErrorCode which has a code identifier of 037(Leo upsidedown and backwards).
-/// This is to make the exit codes unique to Leo itself.
-pub trait LeoErrorCode: ErrorCode {
-    /// Inlined function for efficiency.
+    /// The LeoErrorCode which has a default code identifier of 037
+    /// (Leo upsidedown and backwards). This is to make the exit codes
+    /// unique to Leo itself.
     #[inline(always)]
     fn code_identifier() -> i8 {
         37

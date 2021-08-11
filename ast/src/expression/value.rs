@@ -22,15 +22,15 @@ use crate::{Char, CharValue};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ValueExpression {
     // todo: deserialize values here
-    Address(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
-    Boolean(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Address(#[serde(with = "leo_errors::common::tendril_json")] StrTendril, Span),
+    Boolean(#[serde(with = "leo_errors::common::tendril_json")] StrTendril, Span),
     Char(CharValue),
-    Field(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Field(#[serde(with = "leo_errors::common::tendril_json")] StrTendril, Span),
     Group(Box<GroupValue>),
-    Implicit(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Implicit(#[serde(with = "leo_errors::common::tendril_json")] StrTendril, Span),
     Integer(
         IntegerType,
-        #[serde(with = "crate::common::tendril_json")] StrTendril,
+        #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
         Span,
     ),
     String(Vec<Char>, Span),

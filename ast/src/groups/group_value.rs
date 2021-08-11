@@ -26,7 +26,7 @@ use tendril::StrTendril;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupValue {
-    Single(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Single(#[serde(with = "leo_errors::common::tendril_json")] StrTendril, Span),
     Tuple(GroupTuple),
 }
 

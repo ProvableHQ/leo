@@ -178,6 +178,66 @@ jobs:
       - name: Stop sccache server
         run: sccache --stop-server || true
 
+  test-docs: 
+    name: Test Docs
+    runs-on: ubuntu-latest
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_CACHE_SIZE: 2G
+      SCCACHE_DIR: /home/runner/.cache/sccache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: master
+
+      - name: Install sccache
+        env:
+          LINK: https://github.com/mozilla/sccache/releases/download
+          SCCACHE_VERSION: v0.2.15
+        run: |
+          SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
+          mkdir -p $HOME/.local/bin
+          curl -L "$LINK/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
+          mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+          chmod +x $HOME/.local/bin/sccache
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Cache cargo registry
+        uses: actions/cache@v2
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Rust Stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+            
+      - name: Start sccache server
+        run: sccache --start-server
+      
+      - name: Build Cargo Docs
+        env:
+          RUSTDOCFLAGS: "--enable-index-page -Zunstable-options"
+          RUSTC_BOOTSTRAP: "1"
+        run: |
+          cargo doc --no-deps --document-private-items --workspace
+          rm -rf ./tests
+      
+      - name: Print sccache stats
+        run: sccache --show-stats
+        
+      - name: Stop sccache server
+        run: sccache --stop-server || true
+  
   codecov:
     name: Code Coverage
     runs-on: ubuntu-latest
