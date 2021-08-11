@@ -21,6 +21,9 @@
 #![allow(clippy::module_inception)]
 #![allow(clippy::upper_case_acronyms)]
 
+// Re-enable when circleci supports rust 1.54.0.
+// #![doc = include_str!("../README.md")]
+
 pub mod compiler;
 
 pub mod console;

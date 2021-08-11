@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![deny(clippy::all, clippy::missing_docs_in_private_items)]
-#![doc = include_str!("../README.md")]
+// Re-enable when circleci supports rust 1.54.0.
+// #![doc = include_str!("../README.md")]
+
+//! `leo-errors` crate.
 
 /// Contains the ASG error definitions.
 pub mod asg;
