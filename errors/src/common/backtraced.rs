@@ -18,6 +18,7 @@ use std::fmt;
 
 use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
+use colored::Colorize;
 use derivative::Derivative;
 
 /// The indent for an error message.
@@ -88,19 +89,33 @@ impl BacktracedError {
 impl fmt::Display for BacktracedError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let error_message = format!(
-            "[E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}\
-	  {indent     } ",
-            indent = INDENT,
+            "Error: [E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}",
             error_type = self.error_type,
             code_identifier = self.code_identifier,
             exit_code = self.exit_code,
             message = self.message,
         );
 
-        write!(f, "{}", error_message)?;
+        // To avoid the color enabling characters for comparison with test expectations.
+        if std::env::var("LEO_TESTFRAMEWORK")
+            .unwrap_or_default()
+            .trim()
+            .to_owned()
+            .is_empty()
+        {
+            write!(f, "{}", error_message.bold().red())?;
+        } else {
+            write!(f, "{}", error_message)?;
+        };
 
         if let Some(help) = &self.help {
-            write!(f, "{indent     } = {help}", indent = INDENT, help = help)?;
+            write!(
+                f,
+                "\n{indent     } |\n\
+            {indent     } = {help}",
+                indent = INDENT,
+                help = help
+            )?;
         }
 
         let leo_backtrace = std::env::var("LEO_BACKTRACE").unwrap_or_default().trim().to_owned();

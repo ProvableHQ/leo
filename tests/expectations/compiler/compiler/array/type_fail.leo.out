@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "[EPAR0375005]: expected ( -- got '-'\n --> compiler-test:4:19\n     |\n   4 |     const a: [u8; -2] = [0u32; 2];\n     |                   ^\n     |\n"
+  - "[EPAR0375005]: expected ( -- got '-'\n    --> compiler-test:4:19\n     |\n   4 |     const a: [u8; -2] = [0u32; 2];\n     |                   ^"

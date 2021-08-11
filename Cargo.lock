@@ -1274,6 +1274,7 @@ version = "1.5.3"
 dependencies = [
  "backtrace",
  "color-backtrace",
+ "colored",
  "derivative",
  "eyre",
  "leo-input",

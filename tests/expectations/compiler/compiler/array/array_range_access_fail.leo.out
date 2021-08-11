@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "[EASG0370020]: array index out of bounds: '0'\n --> compiler-test:7:24\n     |\n   7 |     const z: [u8; 2] = y[..1u32][..x];\n     |                        ^^^^^^^^^^^^^^\n     |\n"
+  - "[EASG0370020]: array index out of bounds: '0'\n    --> compiler-test:7:24\n     |\n   7 |     const z: [u8; 2] = y[..1u32][..x];\n     |                        ^^^^^^^^^^^^^^"

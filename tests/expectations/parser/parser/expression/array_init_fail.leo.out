@@ -2,5 +2,5 @@
 namespace: ParseExpression
 expectation: Fail
 outputs:
-  - "[EPAR0375010]: illegal spread in array initializer\n --> test:1:1\n     |\n   1 | [...0u8; 1]\n     | ^^^^^^^\n     |\n"
-  - "[EPAR0375010]: illegal spread in array initializer\n --> test:1:1\n     |\n   1 | [...0; 1]\n     | ^^^^^\n     |\n"
+  - "[EPAR0375010]: illegal spread in array initializer\n    --> test:1:1\n     |\n   1 | [...0u8; 1]\n     | ^^^^^^^"
+  - "[EPAR0375010]: illegal spread in array initializer\n    --> test:1:1\n     |\n   1 | [...0; 1]\n     | ^^^^^"

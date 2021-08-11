@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "[EPAR0375005]: expected 'identifier', 'number' -- got ')'\n --> test:3:12\n     |\n   3 | @test(test,)\n     |            ^\n     |\n"
+  - "[EPAR0375005]: expected 'identifier', 'number' -- got ')'\n    --> test:3:12\n     |\n   3 | @test(test,)\n     |            ^"

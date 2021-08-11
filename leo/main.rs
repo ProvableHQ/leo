@@ -27,7 +27,6 @@ use commands::{
 };
 use leo_errors::Result;
 
-use colored::Colorize;
 use std::{path::PathBuf, process::exit};
 use structopt::{clap::AppSettings, StructOpt};
 
@@ -221,20 +220,7 @@ fn handle_error<T>(res: Result<T>) -> T {
     match res {
         Ok(t) => t,
         Err(err) => {
-            eprintln!(
-                "{} {}",
-                "Error:".bold().red(),
-                err.to_string()
-                    .lines()
-                    .enumerate()
-                    .map(|(i, l)| if i == 0 {
-                        l.bold().red().to_string()
-                    } else {
-                        l.to_string()
-                    })
-                    .collect::<Vec<_>>()
-                    .join("\n")
-            );
+            eprintln!("{}", err);
             exit(err.exit_code());
         }
     }

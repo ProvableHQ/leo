@@ -20,6 +20,7 @@ use std::fmt;
 
 use backtrace::Backtrace;
 use color_backtrace::{BacktracePrinter, Verbosity};
+use colored::Colorize;
 
 /// Formatted compiler error type
 ///     undefined value `x`
@@ -95,20 +96,34 @@ impl fmt::Display for FormattedError {
         let underlined = underline(self.span.col_start, self.span.col_stop);
 
         let error_message = format!(
-            "[E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}\n \
-            --> {path}:{line_start}:{start}\n\
-	  {indent     } ",
-            indent = INDENT,
+            "[E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}",
             error_type = self.backtrace.error_type,
             code_identifier = self.backtrace.code_identifier,
             exit_code = self.backtrace.exit_code,
             message = self.backtrace.message,
+        );
+
+        // To avoid the color enabling characters for comparison with test expectations.
+        if std::env::var("LEO_TESTFRAMEWORK")
+            .unwrap_or_default()
+            .trim()
+            .to_owned()
+            .is_empty()
+        {
+            write!(f, "{}", error_message.bold().red())?;
+        } else {
+            write!(f, "{}", error_message)?;
+        };
+
+        write!(
+            f,
+            "\n{indent     }--> {path}:{line_start}:{start}\n\
+            {indent     } ",
+            indent = INDENT,
             path = &*self.span.path,
             line_start = self.span.line_start,
             start = self.span.col_start,
-        );
-
-        write!(f, "{}", error_message)?;
+        )?;
 
         for (line_no, line) in self.span.content.lines().enumerate() {
             writeln!(
@@ -122,14 +137,19 @@ impl fmt::Display for FormattedError {
 
         write!(
             f,
-            "{indent     } |{underlined}\n\
-             {indent     } |\n",
+            "{indent     } |{underlined}",
             indent = INDENT,
             underlined = underlined,
         )?;
 
         if let Some(help) = &self.backtrace.help {
-            write!(f, "{indent     } = {help}", indent = INDENT, help = help)?;
+            write!(
+                f,
+                "\n{indent     } |\n\
+            {indent     } = {help}",
+                indent = INDENT,
+                help = help
+            )?;
         }
 
         let leo_backtrace = std::env::var("LEO_BACKTRACE").unwrap_or_default().trim().to_owned();
