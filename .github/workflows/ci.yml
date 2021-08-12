@@ -93,12 +93,11 @@ jobs:
         run: |
           sccache --start-server
 
-      - name: Install cargo-all-features
-        run: |
-          cargo install cargo-all-features
-      
       - name: Test
-        run: cargo test-all-features --all
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all --features ci_skip
 
       - name: Print sccache stats
         run: sccache --show-stats

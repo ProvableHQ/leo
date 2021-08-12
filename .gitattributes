@@ -1,0 +1,4 @@
+# Force certain filse to be LF
+*.leo text eol=lf
+*.out text eol=lf  
+*.rs text eol=lf 
