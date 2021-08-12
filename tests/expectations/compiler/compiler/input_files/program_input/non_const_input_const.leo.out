@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "[EASG0370025]: failed to resolve type for variable definition 'unknown'\n    --> compiler-test:4:17\n     |\n   4 |     let b = a * 2;\n     |                 ^"
+  - "Error: [EASG0370025]: failed to resolve type for variable definition 'unknown'\n    --> compiler-test:4:17\n     |\n   4 |     let b = a * 2;\n     |                 ^"

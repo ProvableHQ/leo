@@ -226,6 +226,14 @@ impl Namespace for CompileNamespace {
                 .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
         );
 
+        if test.name == "import_weird_names_nested" {
+            println!(
+                "{:?}",
+                Ast::from_json_file("/tmp/output/initial_ast.json".into())
+                    .unwrap_or_else(|_| Ast::new(Program::new("Error reading initial theorem.".to_string())))
+            );
+        }
+
         if std::fs::read_dir("/tmp/output").is_ok() {
             std::fs::remove_dir_all(std::path::Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
         }

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "[ECMP0372032]: Input tuple size mismatch expected 3, found tuple with length 2\n    --> compiler-test:3:21\n     |\n   3 | function main(const x: (u8, bool, u8)) {\n     |                     ^"
+  - "Error: [ECMP0372032]: Input tuple size mismatch expected 3, found tuple with length 2\n    --> compiler-test:3:21\n     |\n   3 | function main(const x: (u8, bool, u8)) {\n     |                     ^"

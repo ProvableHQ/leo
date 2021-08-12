@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "[EASG0370031]: failed to parse int value '-1'\n    --> compiler-test:4:19\n     |\n   4 |     const a: u8 = -1;\n     |                   ^^"
+  - "Error: [EASG0370031]: failed to parse int value '-1'\n    --> compiler-test:4:19\n     |\n   4 |     const a: u8 = -1;\n     |                   ^^"

@@ -2,10 +2,10 @@
 namespace: Token
 expectation: Fail
 outputs:
-  - "[EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"Hello world!\n     | ^\n     |\n     = HELP TODO"
-  - "[EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\\"\n     | ^\n     |\n     = HELP TODO"
-  - "[EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\l\"\n     | ^\n     |\n     = HELP TODO"
-  - "[EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\uaaa\"\n     | ^\n     |\n     = HELP TODO"
-  - "[EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\u\"\n     | ^\n     |\n     = HELP TODO"
-  - "[EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\xFF\"\n     | ^\n     |\n     = HELP TODO"
-  - "[EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\x\"\n     | ^\n     |\n     = HELP TODO"
+  - "Error: [EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"Hello world!\n     | ^\n     |\n     = HELP TODO"
+  - "Error: [EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\\"\n     | ^\n     |\n     = HELP TODO"
+  - "Error: [EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\l\"\n     | ^\n     |\n     = HELP TODO"
+  - "Error: [EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\uaaa\"\n     | ^\n     |\n     = HELP TODO"
+  - "Error: [EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\u\"\n     | ^\n     |\n     = HELP TODO"
+  - "Error: [EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\xFF\"\n     | ^\n     |\n     = HELP TODO"
+  - "Error: [EPAR0375000]: \"\n    --> test:1:1\n     |\n   1 | \"\\x\"\n     | ^\n     |\n     = HELP TODO"
