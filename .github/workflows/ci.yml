@@ -92,14 +92,15 @@ jobs:
       - name: Start sccache server
         run: |
           sccache --start-server
+
+      - name: Install cargo-all-features
+        run: |
+          cargo install cargo-all-features
       
       - name: Test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all --features ci_skip -- --nocapture
-        env:
-          CARGO_INCREMENTAL: "0"
+        run: |
+          cd package
+          cargo test-all-features --all
 
       - name: Print sccache stats
         run: sccache --show-stats
@@ -159,11 +160,17 @@ jobs:
         run: |
           sccache --start-server
           
+      - name: Install cargo-all-features
+        run: |
+          SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
+          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
+          cargo install cargo-all-features
+          
       - name: Test
         run: |
           SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
           MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
-          cd package && cargo test --all -- --nocapture
+          cd package && cargo test-all-features --all
 
       - name: Print sccache stats
         run: sccache --show-stats
@@ -299,7 +306,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --features ci_skip -- --nocapture
+          args: --all --features ci_skip
         env:
           CARGO_INCREMENTAL: "0"
 
