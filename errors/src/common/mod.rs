@@ -29,7 +29,7 @@ pub use self::macros::*;
 
 /// This module contains the common span object for Leo crates.
 pub mod span;
-pub use self::span::*;
+pub use self::span::Span;
 
 /// This module contains information on how to serialize and
 /// deserialze StrTendril type.

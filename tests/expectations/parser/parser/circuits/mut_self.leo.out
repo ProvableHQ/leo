@@ -6,14 +6,14 @@ outputs:
     expected_input: []
     imports: []
     circuits:
-      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
-        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
         members:
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    function x(mut self) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(mut self) {\\\"}\"}"
               input:
-                - MutSelfKeyword: "{\"name\":\"mut self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":24,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    function x(mut self) {\\\"}\"}"
+                - MutSelfKeyword: "{\"name\":\"mut self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(mut self) {\\\"}\"}"
               output: ~
               block:
                 statements:
@@ -26,28 +26,28 @@ outputs:
                             line_stop: 5
                             col_start: 16
                             col_stop: 18
-                            path: test
+                            path: ""
                             content: "        return ();"
                       span:
                         line_start: 5
                         line_stop: 5
                         col_start: 9
                         col_stop: 18
-                        path: test
+                        path: ""
                         content: "        return ();"
                 span:
                   line_start: 4
                   line_stop: 6
                   col_start: 26
                   col_stop: 6
-                  path: test
+                  path: ""
                   content: "    function x(mut self) {\n...\n    }"
               span:
                 line_start: 4
                 line_stop: 6
                 col_start: 5
                 col_stop: 6
-                path: test
+                path: ""
                 content: "    function x(mut self) {\n...\n    }"
     global_consts: {}
     functions: {}

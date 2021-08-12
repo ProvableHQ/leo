@@ -17,12 +17,13 @@
 use std::{fmt, sync::Arc, usize};
 
 use pest::Span as PestSpan;
-use serde::{Deserialize, Serialize};
+use serde::ser::{Serialize, SerializeStruct, Serializer};
+use serde::Deserialize;
 use tendril::StrTendril;
 
 /// The span type which tracks where formatted errors originate from in a Leo file.
 /// This is used in many spots throughout the rest of the Leo crates.
-#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, Hash, PartialEq)]
 pub struct Span {
     /// The line number where the error started.
     pub line_start: usize,
@@ -63,6 +64,32 @@ impl Span {
             path,
             content,
         }
+    }
+}
+
+impl Serialize for Span {
+    /// Custom serialization for testing purposes.
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("Color", 3)?;
+        state.serialize_field("line_start", &self.line_start)?;
+        state.serialize_field("line_stop", &self.line_stop)?;
+        state.serialize_field("col_start", &self.col_start)?;
+        state.serialize_field("col_stop", &self.col_stop)?;
+        if std::env::var("LEO_TESTFRAMEWORK")
+            .unwrap_or_default()
+            .trim()
+            .to_owned()
+            .is_empty()
+        {
+            state.serialize_field("path", &self.path)?;
+        } else {
+            state.serialize_field("path", "")?;
+        }
+        state.serialize_field("content", &self.content[..])?;
+        state.end()
     }
 }
 
