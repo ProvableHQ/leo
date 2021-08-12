@@ -1,4 +1,4 @@
-# Force certain filse to be LF
+# Force certain files to be LF
 *.leo text eol=lf
 *.out text eol=lf  
 *.rs text eol=lf 

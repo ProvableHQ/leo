@@ -36,7 +36,7 @@ impl Updater {
             .build()
             .map_err(CliError::self_update_error)?
             .fetch()
-            .map_err(CliError::self_update_error)?;
+            .map_err(CliError::could_not_fetch_versions)?;
 
         let mut output = "\nList of available versions\n".to_string();
         for release in releases {
