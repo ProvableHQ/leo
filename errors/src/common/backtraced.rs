@@ -74,9 +74,9 @@ impl BacktracedError {
     pub fn exit_code(&self) -> i32 {
         let mut code: i32;
         if self.code_identifier > 99 {
-            code = self.code_identifier as i32 * 111_000;
+            code = self.code_identifier as i32 * 100_000;
         } else if self.code_identifier as i32 > 9 {
-            code = self.code_identifier as i32 * 11_000;
+            code = self.code_identifier as i32 * 10_000;
         } else {
             code = self.code_identifier as i32 * 1_000;
         }

@@ -24,7 +24,7 @@ use std::{
 create_errors!(
     /// CompilerError enum that represents all the errors for the `leo-compiler` crate.
     CompilerError,
-    exit_code_mask: 2000i32,
+    exit_code_mask: 7000i32,
     error_code_prefix: "CMP",
 
     /// For when the test function has invalid test context.

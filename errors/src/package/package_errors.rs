@@ -24,7 +24,7 @@ use std::{
 create_errors!(
     /// PackageError enum that represents all the errors for the `leo-package` crate.
     PackageError,
-    exit_code_mask: 4000i32,
+    exit_code_mask: 5000i32,
     error_code_prefix: "PAK",
 
     /// For when creating the imports directory failed.

@@ -20,7 +20,7 @@ use std::{error::Error as ErrorArg, fmt::Debug};
 create_errors!(
     /// AstError enum that represents all the errors for the `leo-ast` crate.
     AstError,
-    exit_code_mask: 1000i32,
+    exit_code_mask: 2000i32,
     error_code_prefix: "AST",
 
     /// For when the AST fails to be represented as a JSON string.

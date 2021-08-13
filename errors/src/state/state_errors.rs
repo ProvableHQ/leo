@@ -24,7 +24,7 @@ use std::{
 create_errors!(
     /// StateError enum that represents all the errors for the `leo-state` crate.
     StateError,
-    exit_code_mask: 6000i32,
+    exit_code_mask: 1000i32,
     error_code_prefix: "STA",
 
     /// For when it cannot parse the state boolean value.

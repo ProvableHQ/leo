@@ -221,7 +221,7 @@ fn handle_error<T>(res: Result<T>) -> T {
         Ok(t) => t,
         Err(err) => {
             eprintln!("{}", err);
-            exit(err.exit_code());
+            exit(dbg!(err.exit_code()));
         }
     }
 }

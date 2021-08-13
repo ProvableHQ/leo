@@ -161,7 +161,7 @@ impl fmt::Display for FormattedError {
                 let trace = printer
                     .format_trace_to_string(&self.backtrace.backtrace)
                     .map_err(|_| fmt::Error)?;
-                write!(f, "{}", trace)?;
+                write!(f, "\n{}", trace)?;
             }
             "full" => {
                 let mut printer = BacktracePrinter::default();
@@ -170,7 +170,7 @@ impl fmt::Display for FormattedError {
                 let trace = printer
                     .format_trace_to_string(&self.backtrace.backtrace)
                     .map_err(|_| fmt::Error)?;
-                write!(f, "{}", trace)?;
+                write!(f, "\n{}", trace)?;
             }
             _ => {}
         }

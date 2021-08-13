@@ -21,7 +21,7 @@ use std::fmt::Display;
 create_errors!(
     /// ParserError enum that represents all the errors for the `leo-parser` crate.
     ParserError,
-    exit_code_mask: 5000i32,
+    exit_code_mask: 0000i32,
     error_code_prefix: "PAR",
 
     /// For when the parser encountered an unexpected token.

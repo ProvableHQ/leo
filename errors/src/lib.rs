@@ -17,8 +17,6 @@
 #![deny(clippy::all, clippy::missing_docs_in_private_items)]
 #![doc = include_str!("../README.md")]
 
-//! `leo-errors` crate.
-
 /// Contains the ASG error definitions.
 pub mod asg;
 pub use self::asg::*;

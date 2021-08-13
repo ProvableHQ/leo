@@ -21,7 +21,7 @@ use std::fmt::{Debug, Display};
 create_errors!(
     /// AsgError enum that represents all the errors for the `leo-asg` crate.
     AsgError,
-    exit_code_mask: 0i32,
+    exit_code_mask: 3000i32,
     error_code_prefix: "ASG",
 
     /// For when a circuit of the specified type is unresolved.
@@ -408,7 +408,7 @@ create_errors!(
     @formatted
     unexpected_big_self {
         args: (),
-        msg:  "received a Self statement, which should never happen",
-        help: None,
+        msg:  "received a Self statement, which should never happen.",
+        help: Some("Something went wrong during canonicalization, or you ran the ASG uncanonicalized AST.".to_string()),
     }
 );
