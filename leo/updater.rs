@@ -60,7 +60,7 @@ impl Updater {
             .no_confirm(true)
             .show_output(show_output)
             .build()
-            .map_err(CliError::self_update_error)?
+            .map_err(CliError::self_update_build_error)?
             .update()
             .map_err(CliError::self_update_error)?;
 

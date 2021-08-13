@@ -364,6 +364,14 @@ create_errors!(
         help: None,
     }
 
+    /// For when the CLI fails to self update.
+    @backtraced
+    self_update_build_error {
+        args: (error: impl ErrorArg),
+        msg: format!("self update crate failed to build Error: {}", error),
+        help: None,
+    }
+
     /// For when the CLI has an old release version.
     @backtraced
     old_release_version {

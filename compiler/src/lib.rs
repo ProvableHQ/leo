@@ -20,7 +20,6 @@
 
 #![allow(clippy::module_inception)]
 #![allow(clippy::upper_case_acronyms)]
-
 #![doc = include_str!("../README.md")]
 
 pub mod compiler;
