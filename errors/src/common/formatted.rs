@@ -96,7 +96,7 @@ impl fmt::Display for FormattedError {
         let underlined = underline(self.span.col_start, self.span.col_stop);
 
         let error_message = format!(
-            "Error: [E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}",
+            "Error [E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}",
             error_type = self.backtrace.error_type,
             code_identifier = self.backtrace.code_identifier,
             exit_code = self.backtrace.exit_code,

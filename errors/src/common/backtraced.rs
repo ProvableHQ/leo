@@ -89,7 +89,7 @@ impl BacktracedError {
 impl fmt::Display for BacktracedError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let error_message = format!(
-            "Error: [E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}",
+            "Error [E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}",
             error_type = self.error_type,
             code_identifier = self.code_identifier,
             exit_code = self.exit_code,
