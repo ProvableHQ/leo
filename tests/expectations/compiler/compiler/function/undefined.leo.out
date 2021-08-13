@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error: [EASG0370024]: failed to resolve function: 'my_function'\n    --> compiler-test:5:5\n     |\n   5 |     my_function();\n     |     ^^^^^^^^^^^"
+  - "Error [EASG0373024]: failed to resolve function: 'my_function'\n    --> compiler-test:5:5\n     |\n   5 |     my_function();\n     |     ^^^^^^^^^^^"

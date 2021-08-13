@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error: [EPAR0375005]: expected . -- got ';'\n    --> test:3:18\n     |\n   3 | import foo as bar;\n     |                  ^"
+  - "Error [EPAR0370005]: expected . -- got ';'\n    --> test:3:18\n     |\n   3 | import foo as bar;\n     |                  ^"

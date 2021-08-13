@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error: [EPAR0375002]: Cannot import empty list\n    --> test:3:8\n     |\n   3 | import a.();\n     |        ^"
+  - "Error [EPAR0370002]: Cannot import empty list\n    --> test:3:8\n     |\n   3 | import a.();\n     |        ^"
