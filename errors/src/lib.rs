@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![deny(clippy::all, clippy::missing_docs_in_private_items)]
-// Re-enable when circleci supports rust 1.54.0.
-// #![doc = include_str!("../README.md")]
+#![doc = include_str!("../README.md")]
 
 //! `leo-errors` crate.
 

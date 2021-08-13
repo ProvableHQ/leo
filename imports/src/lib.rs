@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![allow(clippy::from_over_into)]
-// Re-enable when circleci supports rust 1.54.0.
-// #![doc = include_str!("../README.md")]
+#![doc = include_str!("../README.md")]
 
 pub mod parser;
 pub use self::parser::*;

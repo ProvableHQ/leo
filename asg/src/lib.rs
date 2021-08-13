@@ -24,8 +24,7 @@
 
 #![allow(clippy::from_over_into)]
 #![allow(clippy::result_unit_err)]
-// Re-enable when circleci supports rust 1.54.0.
-// #![doc = include_str!("../README.md")]
+#![doc = include_str!("../README.md")]
 
 pub mod checks;
 pub use checks::*;

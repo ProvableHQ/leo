@@ -20,8 +20,7 @@
 //! The [`Ast`] type is intended to be parsed and modified by different passes
 //! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].
 
-// Re-enable when circleci supports rust 1.54.0.
-// #![doc = include_str!("../README.md")]
+#![doc = include_str!("../README.md")]
 
 pub mod annotation;
 pub use self::annotation::*;
