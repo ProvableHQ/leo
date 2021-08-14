@@ -23,42 +23,42 @@ These are the different kinds of errors that are made in this crate. Note that i
 
 ### ASG
 
-The errors for the `leo-asg` crate. It's error codes will range from 0-999, and be prefixed with the characters `ASG`.
+The errors for the `leo-asg` crate. Its error codes will range from 3_000-3_999 and be prefixed with the characters `ASG`.
 
 ### AST
 
-The errors for the `leo-ast` crate. It's error codes will range from 1_000-1_999, and be prefixed with the characters `AST`.
+The errors for the `leo-ast` crate. Its error codes will range from 2_000-2_999 and be prefixed with the characters `AST`.
 
 ### CLI
 
-The errors for the `leo-lang` crate. It's error codes will range from 7_000-7_999, and be prefixed with the characters `CLI`.
+The errors for the `leo-lang` crate. Its error codes will range from 7_000-7_999 and be prefixed with the characters `CLI`.
 
 ### Compiler
 
-The errors for the `leo-compiler` crate. It's error codes will range from 2_000-2_999, and be prefixed with the characters `CMP`.
+The errors for the `leo-compiler` crate. Its error codes will range from 6_000-6_999 and be prefixed with the characters `CMP`.
 
 ### Import
 
-The errors for the `leo-imports` crate. It's error codes will range from 3_000-3_999, and be prefixed with the characters `IMP`.
+The errors for the `leo-imports` crate. Its error codes will range from 4_000-4_999 and be prefixed with the characters `IMP`.
 
 ### Input
 
-The errors for the `leo-input` crate. For right now they just have an exit code of 1, as they aren't ported.
+The errors for the `leo-input` crate. For right now, they have an exit code of 1, as they aren't ported.
 The reason they aren't ported is due to a desire for 0 deps in case this crate moves to SnarkVM.
 
 ### Package
 
-The errors for the `leo-package` crate. It's error codes will range from 4_000-4_999, and be prefixed with the characters `PAK`.
+The errors for the `leo-package` crate. Its error codes will range from 5_000-5_999 and be prefixed with the characters `PAK`.
 
 ### Parser
 
-The errors for the `leo-parser` crate. It's error codes will range from 5_000-5_999, and be prefixed with the characters `PAR`.
+The errors for the `leo-parser` crate. Its error codes will range from 0-999 and be prefixed with the characters `PAR`.
 
 ### SnarkVM
 
-The errors from SnarkVM that bubble up into Leo in some situations. For right now they just have an exit code of 1.
-When SnarkVM implments better error codes and messages we can just bubble them up.
+The errors from SnarkVM that bubble up into Leo in some situations. For right now, they have an exit code of 1.
+When SnarkVM implements better error codes and messages, we can bubble them up.
 
 ### State
 
-The errors for the `leo-state` crate. It's error codes will range from 6000-6_999, and be prefixed with the characters `STA`.
+The errors for the `leo-state` crate. Its error codes will range from 1_000-1_999 and be prefixed with the characters `STA`.

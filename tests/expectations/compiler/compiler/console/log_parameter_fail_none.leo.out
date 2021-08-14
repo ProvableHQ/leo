@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ECMP0377006]: Formatter given 0 containers and found 1 parameters\n    --> compiler-test:4:17\n     |\n   4 |     console.log(\"\", 1u32);\n     |                 ^^^^^^^^"
+  - "Error [ECMP0376006]: Formatter given 0 containers and found 1 parameters\n    --> compiler-test:4:17\n     |\n   4 |     console.log(\"\", 1u32);\n     |                 ^^^^^^^^"
