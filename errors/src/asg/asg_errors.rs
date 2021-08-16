@@ -409,6 +409,6 @@ create_errors!(
     unexpected_big_self {
         args: (),
         msg:  "received a Self statement, which should never happen.",
-        help: Some("Something went wrong during canonicalization, or you ran the ASG uncanonicalized AST.".to_string()),
+        help: Some("Something went wrong during canonicalization, or you ran the ASG on an uncanonicalized AST.".to_string()),
     }
 );

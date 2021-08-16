@@ -104,8 +104,24 @@ impl Canonicalizer {
         }
     }
 
-    fn is_self_type(&mut self, type_option: Option<&Type>) -> bool {
-        matches!(type_option, Some(Type::SelfType))
+    fn canonicalize_self_type(&self, type_option: Option<&Type>) -> Option<Type> {
+        match type_option {
+            Some(type_) => match type_ {
+                Type::SelfType => Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone())),
+                Type::Array(type_, dimensions) => Some(Type::Array(
+                    Box::new(self.canonicalize_self_type(Some(type_)).unwrap()),
+                    dimensions.clone(),
+                )),
+                Type::Tuple(types) => Some(Type::Tuple(
+                    types
+                        .iter()
+                        .map(|type_| self.canonicalize_self_type(Some(type_)).unwrap())
+                        .collect(),
+                )),
+                _ => Some(type_.clone()),
+            },
+            None => None,
+        }
     }
 
     fn canonicalize_expression(&mut self, expression: &Expression) -> Expression {
@@ -145,11 +161,7 @@ impl Canonicalizer {
 
             Expression::Cast(cast) => {
                 let inner = Box::new(self.canonicalize_expression(&cast.inner));
-                let mut target_type = cast.target_type.clone();
-
-                if matches!(target_type, Type::SelfType) {
-                    target_type = Type::Circuit(self.circuit_name.as_ref().unwrap().clone());
-                }
+                let target_type = self.canonicalize_self_type(Some(&cast.target_type)).unwrap();
 
                 return Expression::Cast(CastExpression {
                     inner,
@@ -336,11 +348,7 @@ impl Canonicalizer {
             }
             Statement::Definition(definition) => {
                 let value = self.canonicalize_expression(&definition.value);
-                let mut type_ = definition.type_.clone();
-
-                if self.is_self_type(type_.as_ref()) {
-                    type_ = Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone()));
-                }
+                let type_ = self.canonicalize_self_type(definition.type_.as_ref());
 
                 Statement::Definition(DefinitionStatement {
                     declaration_type: definition.declaration_type.clone(),
@@ -434,12 +442,8 @@ impl Canonicalizer {
             CircuitMember::CircuitVariable(_, _) => {}
             CircuitMember::CircuitFunction(function) => {
                 let input = function.input.clone();
-                let mut output = function.output.clone();
+                let output = self.canonicalize_self_type(function.output.as_ref());
                 let block = self.canonicalize_block(&function.block);
-
-                if self.is_self_type(output.as_ref()) {
-                    output = Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone()));
-                }
 
                 return CircuitMember::CircuitFunction(Function {
                     annotations: function.annotations.clone(),
