@@ -203,6 +203,14 @@ function i128_from_bytes_le(x: [u8; 16]) -> i128;
 function i128_from_bytes_be(x: [u8; 16]) -> i128;
 ```
 
+## Handling of the Native Functions
+
+Given the relatively large number and regular structure of the functions above,
+it makes sense to generate them programmatically (e.g. via Rust macros),
+rather than enumerating all of them explicitly in the implementation.
+It may also makes sense, at R1CS generation time,
+to use generated or suitably parameterized code to recognize them and turn them into the corresponding gadgets.
+
 ## Transition to Methods
 
 Once a separate proposal for adding methods to Leo scalar types is realized,
