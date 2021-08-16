@@ -263,3 +263,14 @@ such as `u64_to_u16s_le`, which would turn a `u64` into a `[u16; 4]`.
 In general, it makes sense to convert between `uN` or `iN` and `[uM; P]` when `N == M * P`.
 If Leo were extended with types `uN` and `iN` for all positive `N` as proposed elsewhere,
 there could be a family of all such conversions.
+
+## Methods Directly
+
+Given that we eventually plan to use methods on scalar types for these conversions,
+it may make sense to do that right away.
+This is predicated on having support for methods on scalar types,
+for which a separate RFC is in the works.
+
+If we decide for this approach, we will revise the above proposal to reflect that.
+The concepts and (essential) names and input/output types remain unchanged,
+but the conversions are packaged in slightly different form.
