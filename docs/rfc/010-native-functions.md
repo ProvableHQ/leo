@@ -1,4 +1,4 @@
-# Leo RFC 010: Native Functions
+# Leo RFC 010: Improved Native Functions
 
 ## Authors
 
@@ -17,7 +17,7 @@ DRAFT
 
 # Summary
 
-This RFC proposes an approach to handling natively implemented functions ('native functions', for short) in Leo,
+This RFC proposes an improved approach to handling natively implemented functions ('native functions', for short) in Leo,
 that is functions implemented not via Leo code but (in essence) via Rust code.
 Currently there is just one such function, namely BLAKE2s.
 The scope of this proposal is limited to native functions defined by the developers of Leo itself,
