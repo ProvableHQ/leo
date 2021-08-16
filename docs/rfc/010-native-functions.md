@@ -166,6 +166,10 @@ The compiler must know a mapping from native functions in the standard/core libr
 to the R1CS gadgets that implement them, so it should be just a matter of selecting the appropriate one.
 Some of this logic must be already present, in order to detect and select the BLAkE2s gadget.
 
+This approach is used in Java, where Java files may declare certain methods as `native`,
+without a body but with a declaration of input and output types.
+The actual native implementations, i.e. the native method bodies live in different files, as they are written in C.
+
 # Drawbacks
 
 This does not seem to bring any drawbacks.
