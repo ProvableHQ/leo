@@ -179,6 +179,8 @@ This should help support richer standard/core libraries for Leo.
 
 # Alternatives
 
+## Programmatic Generation
+
 Instead of storing declarations of native functions in standard/core files as proposed above,
 we could programmatically generate them as currently done for BLAKE2s.
 Macros may be used to generate families of similar function declarations.
@@ -191,5 +193,22 @@ We could think of splitting the non-native and native functions of `Point2D`:
 the former in a Leo file, and the latter programmatically added.
 Again, this looks more complicated than just declaring native funcions in Leo files.
 
-In summary, accommodating native functions in Leo standard/core file
-should be doable with mild and possibly simplifying changes to the current Leo compiler.
+## Leo Code in Rust Files
+
+It has been pointed out that it would be beneficial to have
+both the Leo code (for the non-native functions)
+and the Rust code (for the native functions)
+in the same place (i.e. file).
+This is not possible if the non-native code is in a Leo file, because Leo files cannot contain Rust code
+(and there is no plan to allow that, i.e. no inline Rust code).
+
+However, we can turn things around and leverage Rust's macro system to accommodate Leo code in Rust files.
+That is, we can have Rust files that include both the non-native Leo code,
+written as Leo code (with some surrounding macro call or something like that),
+along with the Rust code that implements the naive functions.
+
+This may turn out to be in fact the preferred design in the end,
+as it combines the advantage of writing non-native code in Leo
+with the advantage of having native and non-native code in the same place.
+In that case, we will revise this RFC to swap this design proposal with the one in the main section,
+moving the proposal for Leo files to this section as an alternative.
