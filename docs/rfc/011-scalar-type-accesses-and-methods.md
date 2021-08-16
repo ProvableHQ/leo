@@ -1,4 +1,4 @@
-# Leo RFC 009: Scalar Type Accesses And Methods
+# Leo RFC 011: Scalar Type Accesses And Methods
 
 ## Authors
 
@@ -52,11 +52,12 @@ postfix-expression = primary-expression
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
                    / named-type "::" identifier function-arguments ; this used to be a circuit-type
+                   / named-type "::" identifier ; this is new to allow static members on 
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```
 
-Now methods and static members would be first-class citizens of scalar types and their values. For example, in the following could be done:
+Now methods and static members would be first-class citizens of scalar types and their values. For example, the following could be done:
 
 ```ts
 let x = 1u8.to_bits(); // A method call on on a scalar value itself
