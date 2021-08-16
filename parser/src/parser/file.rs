@@ -173,7 +173,18 @@ impl ParserContext {
         if let Some(SpannedToken { span, .. }) = self.eat(Token::Mul) {
             Ok(PackageAccess::Star { span })
         } else {
-            let name = self.expect_ident()?;
+            let mut name = self.expect_ident()?;
+
+            // Allow dashes in the accessed members (should only be used for directories).
+            // If imported member does not exist, code will fail on ASG level.
+            if let Token::Minus = self.peek_token().as_ref() {
+                let span = self.expect(Token::Minus)?;
+                name.span = name.span + span;
+                let next = self.expect_ident()?;
+                name.span = name.span + next.span;
+                name.name = format_tendril!("{}-{}", name.name, next.name);
+            }
+
             if self.peek_token().as_ref() == &Token::Dot {
                 self.backtrack(SpannedToken {
                     token: Token::Ident(name.name),
