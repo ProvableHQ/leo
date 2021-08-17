@@ -35,14 +35,14 @@ outputs:
               col_start: 8
               col_stop: 8
               path: ""
-              content: "import test-import.( // local import\n...\n    foo,"
+              content: "import test-import.( // local import\n         ...\n    foo,"
         span:
           line_start: 3
           line_stop: 5
           col_start: 8
           col_stop: 8
           path: ""
-          content: "import test-import.( // local import\n...\n    foo,"
+          content: "import test-import.( // local import\n         ...\n    foo,"
       - package_or_packages:
           Packages:
             name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.( // imports directory import\\\"}\"}"
@@ -123,14 +123,14 @@ outputs:
               col_start: 8
               col_stop: 16
               path: ""
-              content: "import bar.( // imports directory import\n...\n    bat.bat.Bat,"
+              content: "import bar.( // imports directory import\n         ...\n         ...\n    bat.bat.Bat,"
         span:
           line_start: 8
           line_stop: 11
           col_start: 8
           col_stop: 16
           path: ""
-          content: "import bar.( // imports directory import\n...\n    bat.bat.Bat,"
+          content: "import bar.( // imports directory import\n         ...\n         ...\n    bat.bat.Bat,"
     circuits: {}
     global_consts: {}
     functions: {}

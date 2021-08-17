@@ -16,6 +16,6 @@ outputs:
             r:
               type: u8
               value: "101"
-    initial_ast: 7f4fc74c20ba6f2aefead777b0230cee03af4922a9dbf9e77b90baea3649f3f1
-    canonicalized_ast: 7f4fc74c20ba6f2aefead777b0230cee03af4922a9dbf9e77b90baea3649f3f1
-    type_inferenced_ast: 871513e8b5723b79065dd4f56aae315854e4798fb26973af95e0a34c415e9b65
+    initial_ast: cf6a76290b73851a3ed589650d1a25ffbb75e663f510dfe3274b66600678bc64
+    canonicalized_ast: cf6a76290b73851a3ed589650d1a25ffbb75e663f510dfe3274b66600678bc64
+    type_inferenced_ast: ce87463df0f9dee5d06d1d872340e8f40ca5cab1bc5a9dbb4e422165714798d4

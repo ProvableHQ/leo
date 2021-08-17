@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373016]: a function named \"main\" already exists in this scope\n    --> compiler-test:8:1\n     |\n   8 | function main() {\n|\n   9 | ...\n|\n  10 | }\n     | ^"
+  - "Error [EASG0373016]: a function named \"main\" already exists in this scope\n    --> compiler-test:8:1\n     |\n   8 | function main() {\n   9 |      ...\n  10 | }\n     | ^"

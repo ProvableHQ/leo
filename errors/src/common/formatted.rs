@@ -118,7 +118,7 @@ impl fmt::Display for FormattedError {
         write!(
             f,
             "\n{indent     }--> {path}:{line_start}:{start}\n\
-            {indent     } ",
+            {indent     } |\n",
             indent = INDENT,
             path = &*self.span.path,
             line_start = self.span.line_start,
@@ -128,7 +128,7 @@ impl fmt::Display for FormattedError {
         for (line_no, line) in self.span.content.lines().enumerate() {
             writeln!(
                 f,
-                "|\n{line_no:width$} | {text}",
+                "{line_no:width$} | {text}",
                 width = INDENT.len(),
                 line_no = self.span.line_start + line_no,
                 text = line,

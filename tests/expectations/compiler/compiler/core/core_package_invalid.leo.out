@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373001]: failed to resolve import: 'core'\n    --> :0:0\n          |"
+  - "Error [EASG0373001]: failed to resolve import: 'core'\n    --> :0:0\n     |\n     |"

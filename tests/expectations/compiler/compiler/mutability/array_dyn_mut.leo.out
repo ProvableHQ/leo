@@ -22,6 +22,6 @@ outputs:
             r0:
               type: "[u32; 3]"
               value: "\"150\""
-    initial_ast: 14716b7665f37b1f24d1fa17a63d40f5b5530177ba3d46c978760f9780a80634
-    canonicalized_ast: 7cd7637f36b946909847129cbbbf55bb918a71496175580945965fb97b51f00b
-    type_inferenced_ast: 2b74a553d28c57a943f392ffc0331ab7dd8fe7ce18a3a9778346ac8b39fc8836
+    initial_ast: 1b9dd4d93877ba82b0f45fa9512946bbf07683c6ab239d93c4a9a18530cc1eb7
+    canonicalized_ast: 7b38858ddb99fd0e62727f508609aa05e68c7daf27429db5f2e0c59f137543ec
+    type_inferenced_ast: c492d1e3ec39f64c403105c5da177e6593c97ba93e71d187b040a095b1916f47

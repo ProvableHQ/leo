@@ -152,11 +152,23 @@ impl std::ops::Add for Span {
             let other_lines = other.content.lines().collect::<Vec<_>>();
             for line in self.line_start.min(other.line_start)..self.line_stop.max(other.line_stop) + 1 {
                 if line >= self.line_start && line <= self.line_stop {
-                    new_content.push(self_lines.get(line - self.line_start).copied().unwrap_or_default());
+                    new_content.push(
+                        self_lines
+                            .get(line - self.line_start)
+                            .copied()
+                            .unwrap_or_default()
+                            .to_string(),
+                    );
                 } else if line >= other.line_start && line <= other.line_stop {
-                    new_content.push(other_lines.get(line - other.line_start).copied().unwrap_or_default());
+                    new_content.push(
+                        other_lines
+                            .get(line - other.line_start)
+                            .copied()
+                            .unwrap_or_default()
+                            .to_string(),
+                    );
                 } else if new_content.last().map(|x| *x != "...").unwrap_or(true) {
-                    new_content.push("...");
+                    new_content.push(format!("{:<1$}...", " ", other.col_start + 4));
                 }
             }
             let new_content = new_content.join("\n").into();

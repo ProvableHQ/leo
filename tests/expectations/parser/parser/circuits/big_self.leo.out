@@ -41,13 +41,13 @@ outputs:
                   col_start: 26
                   col_stop: 6
                   path: ""
-                  content: "    function x() -> Self {\n...\n    }"
+                  content: "    function x() -> Self {\n         ...\n    }"
               span:
                 line_start: 4
                 line_stop: 6
                 col_start: 5
                 col_stop: 6
                 path: ""
-                content: "    function x() -> Self {\n...\n    }"
+                content: "    function x() -> Self {\n         ...\n    }"
     global_consts: {}
     functions: {}

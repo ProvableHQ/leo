@@ -16,6 +16,6 @@ outputs:
             x:
               type: bool
               value: "true"
-    initial_ast: 8b5cb35e1fe17071cd7aa404be247a325dde350d6954aaa1c58ee0bb0dd4d333
-    canonicalized_ast: 8b5cb35e1fe17071cd7aa404be247a325dde350d6954aaa1c58ee0bb0dd4d333
-    type_inferenced_ast: 4661ca8ff2e993ddae82000b6db73db86b63af8c4557d22975abbe9a63cb14e5
+    initial_ast: 05ee62d30364f4d4ea3a6f680b049c3743d6fcb2cd7e751d798e61b38f1f0c70
+    canonicalized_ast: 05ee62d30364f4d4ea3a6f680b049c3743d6fcb2cd7e751d798e61b38f1f0c70
+    type_inferenced_ast: a1307016717f76519ff0f813ead70ed5460644e0e8414827665a1bd066159a76

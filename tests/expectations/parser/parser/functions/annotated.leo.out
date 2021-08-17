@@ -48,11 +48,11 @@ outputs:
             col_start: 14
             col_stop: 2
             path: ""
-            content: "function x() {\n...\n}"
+            content: "function x() {\n     ...\n}"
         span:
           line_start: 4
           line_stop: 6
           col_start: 1
           col_stop: 2
           path: ""
-          content: "function x() {\n...\n}"
+          content: "function x() {\n     ...\n}"

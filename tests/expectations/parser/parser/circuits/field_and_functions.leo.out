@@ -46,14 +46,14 @@ outputs:
                   col_start: 18
                   col_stop: 6
                   path: ""
-                  content: "    function x() {\n...\n    }"
+                  content: "    function x() {\n         ...\n    }"
               span:
                 line_start: 6
                 line_stop: 8
                 col_start: 5
                 col_stop: 6
                 path: ""
-                content: "    function x() {\n...\n    }"
+                content: "    function x() {\n         ...\n    }"
           - CircuitFunction:
               annotations: []
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function y() {\\\"}\"}"
@@ -85,13 +85,13 @@ outputs:
                   col_start: 18
                   col_stop: 6
                   path: ""
-                  content: "    function y() {\n...\n    }"
+                  content: "    function y() {\n         ...\n    }"
               span:
                 line_start: 9
                 line_stop: 11
                 col_start: 5
                 col_stop: 6
                 path: ""
-                content: "    function y() {\n...\n    }"
+                content: "    function y() {\n         ...\n    }"
     global_consts: {}
     functions: {}

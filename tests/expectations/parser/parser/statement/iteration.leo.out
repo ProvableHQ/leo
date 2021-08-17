@@ -90,14 +90,14 @@ outputs:
           col_start: 15
           col_stop: 2
           path: ""
-          content: "for x in 0..7 {\n...\n}"
+          content: "for x in 0..7 {\n     ...\n}"
       span:
         line_start: 1
         line_stop: 3
         col_start: 1
         col_stop: 2
         path: ""
-        content: "for x in 0..7 {\n...\n}"
+        content: "for x in 0..7 {\n     ...\n}"
   - Iteration:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"for x in 0..99u8 {\\\"}\"}"
       start:
@@ -148,14 +148,14 @@ outputs:
           col_start: 18
           col_stop: 2
           path: ""
-          content: "for x in 0..99u8 {\n...\n}"
+          content: "for x in 0..99u8 {\n     ...\n}"
       span:
         line_start: 1
         line_stop: 3
         col_start: 1
         col_stop: 2
         path: ""
-        content: "for x in 0..99u8 {\n...\n}"
+        content: "for x in 0..99u8 {\n     ...\n}"
   - Iteration:
       variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"for x in 0..Self {\\\"}\"}"
       start:
@@ -197,11 +197,11 @@ outputs:
           col_start: 18
           col_stop: 2
           path: ""
-          content: "for x in 0..Self {\n...\n}"
+          content: "for x in 0..Self {\n     ...\n}"
       span:
         line_start: 1
         line_stop: 3
         col_start: 1
         col_stop: 2
         path: ""
-        content: "for x in 0..Self {\n...\n}"
+        content: "for x in 0..Self {\n     ...\n}"
