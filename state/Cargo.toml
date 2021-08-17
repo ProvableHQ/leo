@@ -33,7 +33,7 @@ version = "0.7.9"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.7.8"
+version = "0.7.9"
 features = [ "testnet1" ]
 
 [dependencies.snarkvm-utilities]
