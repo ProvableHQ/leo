@@ -28,10 +28,11 @@ jobs:
       #   run: |
       #     cargo run -p leo-test-framework --bin tgc
 
-      - name: Download tgc
-        uses: pozetroninc/github-action-get-latest-release@master
+      - name: fetch-latest-release
+        uses: thebritican/fetch-latest-release@v1
         with:
-          repository: AleoHQ/leo-acl2-bin
+          repo_path: AleoHQ/leo-acl2-bin
+          github_token: ${{ github.token }}
       
       - name: List files
         run: |
