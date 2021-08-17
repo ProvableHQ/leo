@@ -29,7 +29,7 @@ default-features = false
 version = "0.7.8"
 
 [dependencies.snarkvm-r1cs]
-version = "0.7.8"
+version = "0.7.9"
 default-features = false
 
 [dependencies.num-bigint]
