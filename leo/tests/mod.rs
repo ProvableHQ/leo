@@ -173,6 +173,7 @@ pub fn login_incorrect_credentials_or_token() -> Result<()> {
     Ok(())
 }
 
+#[cfg(not(target_os = "macos"))]
 #[test]
 pub fn leo_update_and_update_automatic() -> Result<()> {
     let update = Update {
