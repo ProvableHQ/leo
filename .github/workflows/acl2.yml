@@ -29,6 +29,7 @@ jobs:
       #     cargo run -p leo-test-framework --bin tgc
 
       - name: fetch-latest-release
+        id: tgc
         uses: thebritican/fetch-latest-release@v2.0.0
         with:
           repo_path: AleoHQ/leo-acl2-bin
@@ -37,6 +38,7 @@ jobs:
       - name: List files
         run: |
           ls -la
+          echo "${{ steps.tgc.outputs }}"
 
       # - name: Run tgc over the asts
       #   run: |
