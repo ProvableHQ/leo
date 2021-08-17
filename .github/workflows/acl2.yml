@@ -28,17 +28,16 @@ jobs:
       #   run: |
       #     cargo run -p leo-test-framework --bin tgc
 
-      - name: fetch-latest-release
-        id: tgc
-        uses: thebritican/fetch-latest-release@v2.0.0
-        with:
-          repo_path: AleoHQ/leo-acl2-bin
-          github_token: ${{ github.token }}
-      
-      - name: List files
+      - name: Pull the tgc executable
         run: |
+          cd tmp;
+          curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/latest | \
+            sed -n 's/.*"tarball_url": "\(.*\)",.*/\1/p' | \
+            xargs -n1 wget -O - -q | \
+            tar -xz --strip-components=1
+          
           ls -la
-          echo "${{ steps.tgc.outputs }}"
+          tree .
 
       # - name: Run tgc over the asts
       #   run: |
