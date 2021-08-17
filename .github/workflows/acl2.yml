@@ -12,34 +12,42 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
+      # - name: Install Rust
+      #   uses: actions-rs/toolchain@v1
+      #   with:
+      #     profile: minimal
+      #     toolchain: stable
+      #     override: true
+
+      # - name: Prepare tgc
+      #   run: |
+      #     cd acl2 && gunzip leo-acl2.lx86cl64.gz
+      #     ls -la .
+
+      # - name: Generate asts
+      #   run: |
+      #     cargo run -p leo-test-framework --bin tgc
+
+      - name: Download tgc
+        uses: pozetroninc/github-action-get-latest-release@master
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Prepare tgc
+          repository: AleoHQ/leo-acl2-bin
+      
+      - name: List files
         run: |
-          cd acl2 && gunzip leo-acl2.lx86cl64.gz
-          ls -la .
+          ls -la
 
-      - name: Generate asts
-        run: |
-          cargo run -p leo-test-framework --bin tgc
-          ls -l tmp
-
-      - name: Run tgc over the asts
-        run: |
-          ARRAY=();
-          for dir in `ls tmp/tgc`;
-          do
-            cd tmp/tgc/$dir; # enter the directory
-            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp || ARRAY+=("$dir");
-            cd ../../..
-          done;
-          echo "Failures:";
-          for i in ${ARRAY[@]};
-          do
-          echo $i;
-          done;
+      # - name: Run tgc over the asts
+      #   run: |
+      #     ARRAY=();
+      #     for dir in `ls tmp/tgc`;
+      #     do
+      #       cd tmp/tgc/$dir; # enter the directory
+      #       ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp || ARRAY+=("$dir");
+      #       cd ../../..
+      #     done;
+      #     echo "Failures:";
+      #     for i in ${ARRAY[@]};
+      #     do
+      #     echo $i;
+      #     done;
