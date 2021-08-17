@@ -30,6 +30,7 @@ jobs:
 
       - name: Pull the tgc executable
         run: |
+          mkdir tmp;
           cd tmp;
           curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/latest | \
             sed -n 's/.*"tarball_url": "\(.*\)",.*/\1/p' | \
