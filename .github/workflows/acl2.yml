@@ -12,41 +12,42 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: Install Rust
-      #   uses: actions-rs/toolchain@v1
-      #   with:
-      #     profile: minimal
-      #     toolchain: stable
-      #     override: true
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
 
-      # - name: Prepare tgc
-      #   run: |
-      #     cd acl2 && gunzip leo-acl2.lx86cl64.gz
-      #     ls -la .
+      - name: Generate asts
+        run: |
+          cargo run -p leo-test-framework --bin tgc
 
-      # - name: Generate asts
-      #   run: |
-      #     cargo run -p leo-test-framework --bin tgc
-
+      # Pull the latest release from the leo-acl2-bin repo, and put it into the
+      # repo/acl2 directory. After it's done, unpack the tgz file locally.
       - name: Pull the tgc executable
         run: |
-          mkdir tmp;
-          cd tmp;
-          curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/latest | sed -n 's/.*"tarball_url": "\(.*\)",.*/\1/p' | xargs -n1 wget -O - -q | tar -xz --strip-components=1
-          ls -la
-          tree .
+          mkdir acl2 && cd acl2;
+          wget $(curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/releases/latest \
+              | grep "browser_download_url.*.tgz"  \
+              | cut -d : -f 2,3 \
+              | tr -d \" \
+              | xargs)
 
-      # - name: Run tgc over the asts
-      #   run: |
-      #     ARRAY=();
-      #     for dir in `ls tmp/tgc`;
-      #     do
-      #       cd tmp/tgc/$dir; # enter the directory
-      #       ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp || ARRAY+=("$dir");
-      #       cd ../../..
-      #     done;
-      #     echo "Failures:";
-      #     for i in ${ARRAY[@]};
-      #     do
-      #     echo $i;
-      #     done;
+          tar -xvzf $(ls)
+      
+      # Using the prepared ASTs and the pulled and unzipped tgc run theorem generation.
+      - name: Run tgc over the asts
+        run: |
+          ARRAY=();
+          for dir in `ls tmp/tgc`;
+          do
+            cd tmp/tgc/$dir; # enter the directory
+            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp || ARRAY+=("$dir");
+            cd ../../..
+          done;
+          echo "Failures:";
+          for i in ${ARRAY[@]};
+          do
+          echo $i;
+          done;
