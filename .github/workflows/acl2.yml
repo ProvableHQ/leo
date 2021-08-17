@@ -32,11 +32,7 @@ jobs:
         run: |
           mkdir tmp;
           cd tmp;
-          curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/latest | \
-            sed -n 's/.*"tarball_url": "\(.*\)",.*/\1/p' | \
-            xargs -n1 wget -O - -q | \
-            tar -xz --strip-components=1
-          
+          curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/latest | sed -n 's/.*"tarball_url": "\(.*\)",.*/\1/p' | xargs -n1 wget -O - -q | tar -xz --strip-components=1
           ls -la
           tree .
 
