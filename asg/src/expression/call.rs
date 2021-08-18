@@ -234,6 +234,7 @@ impl<'a> Into<leo_ast::CallExpression> for &CallExpression<'a> {
             function: Box::new(target_function),
             arguments: self.arguments.iter().map(|arg| arg.get().into()).collect(),
             span: self.span.clone().unwrap_or_default(),
+            type_: None,
         }
     }
 }

@@ -242,7 +242,12 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             arguments.push(self.reduce_expression(ast_arg, asg_arg.get())?);
         }
 
-        self.ast_reducer.reduce_call(ast, *ast.function.clone(), arguments)
+        self.ast_reducer.reduce_call(
+            ast,
+            *ast.function.clone(),
+            arguments,
+            Some((&asg.function.get().output).into()),
+        )
     }
 
     pub fn reduce_cast(

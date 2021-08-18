@@ -481,6 +481,7 @@ impl ParserContext {
                         span: expr.span() + &end_span,
                         function: Box::new(expr),
                         arguments,
+                        type_: None,
                     });
                 }
                 Token::DoubleColon => {

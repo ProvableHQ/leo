@@ -276,7 +276,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             arguments.push(self.reduce_expression(argument)?);
         }
 
-        self.reducer.reduce_call(call, function, arguments)
+        let type_ = call
+            .type_
+            .as_ref()
+            .map(|t| self.reduce_type(t, &call.span))
+            .transpose()?;
+
+        self.reducer.reduce_call(call, function, arguments, type_)
     }
 
     // Statements

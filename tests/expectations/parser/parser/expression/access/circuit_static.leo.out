@@ -66,6 +66,7 @@ outputs:
         col_stop: 7
         path: test
         content: "x::y()"
+      type_: ~
   - TupleAccess:
       tuple:
         CircuitStaticFunctionAccess:

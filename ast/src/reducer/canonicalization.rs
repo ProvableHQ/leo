@@ -274,6 +274,7 @@ impl Canonicalizer {
                     function: Box::new(self.canonicalize_expression(&call.function)),
                     arguments: call.arguments.clone(),
                     span: call.span.clone(),
+                    type_: call.type_.clone(),
                 });
             }
             Expression::Identifier(identifier) => {

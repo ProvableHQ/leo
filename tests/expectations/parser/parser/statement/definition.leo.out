@@ -145,6 +145,7 @@ outputs:
             col_stop: 12
             path: test
             content: let x = x();
+          type_: ~
       span:
         line_start: 1
         line_stop: 1
@@ -295,6 +296,7 @@ outputs:
             col_stop: 14
             path: test
             content: const x = x();
+          type_: ~
       span:
         line_start: 1
         line_stop: 1
@@ -450,6 +452,7 @@ outputs:
             col_stop: 17
             path: test
             content: "let x: u32 = x();"
+          type_: ~
       span:
         line_start: 1
         line_stop: 1
@@ -605,6 +608,7 @@ outputs:
             col_stop: 19
             path: test
             content: "const x: u32 = x();"
+          type_: ~
       span:
         line_start: 1
         line_stop: 1
@@ -800,6 +804,7 @@ outputs:
             col_stop: 17
             path: test
             content: "let (x, y) = x();"
+          type_: ~
       span:
         line_start: 1
         line_stop: 1
@@ -995,6 +1000,7 @@ outputs:
             col_stop: 19
             path: test
             content: "const (x, y) = x();"
+          type_: ~
       span:
         line_start: 1
         line_stop: 1
@@ -1195,6 +1201,7 @@ outputs:
             col_stop: 22
             path: test
             content: "let (x, y): u32 = x();"
+          type_: ~
       span:
         line_start: 1
         line_stop: 1
@@ -1395,6 +1402,7 @@ outputs:
             col_stop: 24
             path: test
             content: "const (x, y): u32 = x();"
+          type_: ~
       span:
         line_start: 1
         line_stop: 1
