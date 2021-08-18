@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::OutputBytesError, ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
+use crate::{ConstrainedValue, GroupType, REGISTERS_VARIABLE_NAME};
 use leo_asg::Program;
-use leo_ast::{Parameter, Registers, Span};
+use leo_ast::{Parameter, Registers};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 
@@ -37,7 +38,7 @@ impl OutputBytes {
         value: ConstrainedValue<'a, F, G>,
 
         span: &Span,
-    ) -> Result<Self, OutputBytesError> {
+    ) -> Result<Self> {
         let return_values = match value {
             ConstrainedValue::Tuple(values) => values,
             value => vec![value],
@@ -54,7 +55,7 @@ impl OutputBytes {
 
         // Return an error if we do not have enough return registers
         if register_values.len() < return_values.len() {
-            return Err(OutputBytesError::not_enough_registers(span));
+            return Err(CompilerError::output_not_enough_registers(span).into());
         }
 
         // Manually construct result string
@@ -68,15 +69,11 @@ impl OutputBytes {
             let name = parameter.variable.name;
 
             // Check register type == return value type.
-            let register_type = program.scope.resolve_ast_type(&parameter.type_)?;
+            let register_type = program.scope.resolve_ast_type(&parameter.type_, &parameter.span)?;
             let return_value_type = value.to_type(span)?;
 
             if !register_type.is_assignable_from(&return_value_type) {
-                return Err(OutputBytesError::mismatched_output_types(
-                    &register_type,
-                    &return_value_type,
-                    span,
-                ));
+                return Err(CompilerError::output_mismatched_types(register_type, return_value_type, span).into());
             }
 
             let value = value.to_string();

@@ -16,13 +16,13 @@
 
 use super::build::Build;
 use crate::{api::Publish as PublishRoute, commands::Command, context::Context};
+use leo_errors::{CliError, Result};
 use leo_package::{
     outputs::OutputsDirectory,
     root::{ZipFile, AUTHOR_PLACEHOLDER},
 };
 use leo_parser::KEYWORD_TOKENS;
 
-use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 
 /// Publish package to Aleo Package Manager
@@ -49,7 +49,7 @@ impl Command for Publish {
 
         let package_name = manifest.get_package_name();
         if KEYWORD_TOKENS.iter().any(|keyword| keyword.to_string() == package_name) {
-            return Err(anyhow!("Cannot name a package after a keyword"));
+            return Err(CliError::package_cannot_be_named_after_a_keyword().into());
         }
 
         let package_version = manifest.get_package_version();
@@ -59,9 +59,9 @@ impl Command for Publish {
             manifest.get_package_license(),
             manifest.get_package_remote(),
         ) {
-            (None, _, _) => return Err(anyhow!("No package description")),
-            (_, None, _) => return Err(anyhow!("Missing package license")),
-            (_, _, None) => return Err(anyhow!("Missing package remote")),
+            (None, _, _) => return Err(CliError::no_package_description().into()),
+            (_, None, _) => return Err(CliError::missing_package_license().into()),
+            (_, _, None) => return Err(CliError::missing_package_remote().into()),
             (_, _, _) => (),
         };
 
@@ -70,9 +70,7 @@ impl Command for Publish {
 
         // Prevent most common error before accessing API.
         if username == AUTHOR_PLACEHOLDER {
-            return Err(anyhow!(
-                "Package author is not set. Specify package author in [remote] section of Leo.toml"
-            ));
+            return Err(CliError::package_author_is_not_set().into());
         }
 
         // Create the output directory.

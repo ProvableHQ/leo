@@ -15,9 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 //! Conversion of integer declarations to constraints in Leo.
-use crate::{errors::IntegerError, IntegerTrait};
-use leo_asg::{ConstInt, IntegerType, Span};
+use crate::IntegerTrait;
+use leo_asg::{ConstInt, IntegerType};
 use leo_ast::InputValue;
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::{Field, PrimeField};
 use snarkvm_gadgets::{
@@ -131,7 +132,7 @@ impl Integer {
         name: &str,
         option: Option<String>,
         span: &Span,
-    ) -> Result<Self, IntegerError> {
+    ) -> Result<Self> {
         Ok(match integer_type {
             IntegerType::U8 => allocate_type!(u8, UInt8, Integer::U8, cs, name, option, span),
             IntegerType::U16 => allocate_type!(u16, UInt16, Integer::U16, cs, name, option, span),
@@ -153,22 +154,20 @@ impl Integer {
         name: &str,
         integer_value: Option<InputValue>,
         span: &Span,
-    ) -> Result<Self, IntegerError> {
+    ) -> Result<Self> {
         // Check that the input value is the correct type
         let option = match integer_value {
             Some(input) => {
                 if let InputValue::Integer(type_, number) = input {
                     let asg_type = IntegerType::from(type_);
                     if std::mem::discriminant(&asg_type) != std::mem::discriminant(integer_type) {
-                        return Err(IntegerError::integer_type_mismatch(
-                            integer_type.to_string(),
-                            asg_type.to_string(),
-                            span,
-                        ));
+                        return Err(
+                            CompilerError::integer_value_integer_type_mismatch(integer_type, asg_type, span).into(),
+                        );
                     }
                     Some(number)
                 } else {
-                    return Err(IntegerError::invalid_integer(input.to_string(), span));
+                    return Err(CompilerError::integer_value_invalid_integer(input, span).into());
                 }
             }
             None => None,
@@ -177,26 +176,17 @@ impl Integer {
         Self::allocate_type(cs, integer_type, name, option, span)
     }
 
-    pub fn negate<F: PrimeField, CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-        span: &Span,
-    ) -> Result<Self, IntegerError> {
+    pub fn negate<F: PrimeField, CS: ConstraintSystem<F>>(self, cs: &mut CS, span: &Span) -> Result<Self> {
         let unique_namespace = format!("enforce -{} {}:{}", self, span.line_start, span.col_start);
 
         let a = self;
 
         let result = match_signed_integer!(a, span => a.neg(cs.ns(|| unique_namespace)));
 
-        result.ok_or_else(|| IntegerError::negate_operation(span))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_negate_operation(span))?)
     }
 
-    pub fn add<F: PrimeField, CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-        other: Self,
-        span: &Span,
-    ) -> Result<Self, IntegerError> {
+    pub fn add<F: PrimeField, CS: ConstraintSystem<F>>(self, cs: &mut CS, other: Self, span: &Span) -> Result<Self> {
         let unique_namespace = format!("enforce {} + {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
@@ -204,15 +194,10 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.add(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("+".to_string(), span))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("+", span))?)
     }
 
-    pub fn sub<F: PrimeField, CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-        other: Self,
-        span: &Span,
-    ) -> Result<Self, IntegerError> {
+    pub fn sub<F: PrimeField, CS: ConstraintSystem<F>>(self, cs: &mut CS, other: Self, span: &Span) -> Result<Self> {
         let unique_namespace = format!("enforce {} - {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
@@ -220,15 +205,10 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.sub(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("-".to_string(), span))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("-", span))?)
     }
 
-    pub fn mul<F: PrimeField, CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-        other: Self,
-        span: &Span,
-    ) -> Result<Self, IntegerError> {
+    pub fn mul<F: PrimeField, CS: ConstraintSystem<F>>(self, cs: &mut CS, other: Self, span: &Span) -> Result<Self> {
         let unique_namespace = format!("enforce {} * {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
@@ -236,15 +216,10 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.mul(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("*".to_string(), span))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("*", span))?)
     }
 
-    pub fn div<F: PrimeField, CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-        other: Self,
-        span: &Span,
-    ) -> Result<Self, IntegerError> {
+    pub fn div<F: PrimeField, CS: ConstraintSystem<F>>(self, cs: &mut CS, other: Self, span: &Span) -> Result<Self> {
         let unique_namespace = format!("enforce {} ÷ {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
@@ -252,15 +227,10 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.div(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("÷".to_string(), span))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("÷", span))?)
     }
 
-    pub fn pow<F: PrimeField, CS: ConstraintSystem<F>>(
-        self,
-        cs: &mut CS,
-        other: Self,
-        span: &Span,
-    ) -> Result<Self, IntegerError> {
+    pub fn pow<F: PrimeField, CS: ConstraintSystem<F>>(self, cs: &mut CS, other: Self, span: &Span) -> Result<Self> {
         let unique_namespace = format!("enforce {} ** {} {}:{}", self, other, span.line_start, span.col_start);
 
         let a = self;
@@ -268,7 +238,7 @@ impl Integer {
 
         let result = match_integers_span!((a, b), span => a.pow(cs.ns(|| unique_namespace), &b));
 
-        result.ok_or_else(|| IntegerError::binary_operation("**".to_string(), span))
+        Ok(result.ok_or_else(|| CompilerError::integer_value_binary_operation("**", span))?)
     }
 }
 

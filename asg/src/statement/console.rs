@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, CharValue, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
+use crate::{CharValue, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
 use leo_ast::ConsoleFunction as AstConsoleFunction;
+use leo_errors::{Result, Span};
 
 use std::cell::Cell;
 
@@ -52,7 +53,7 @@ impl<'a> FromAst<'a, leo_ast::ConsoleArgs> for ConsoleArgs<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::ConsoleArgs,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self> {
         let mut parameters = vec![];
         for parameter in value.parameters.iter() {
             parameters.push(Cell::new(<&Expression<'a>>::from_ast(scope, parameter, None)?));
@@ -80,7 +81,7 @@ impl<'a> FromAst<'a, leo_ast::ConsoleStatement> for ConsoleStatement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::ConsoleStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self> {
         Ok(ConsoleStatement {
             parent: Cell::new(None),
             span: Some(statement.span.clone()),

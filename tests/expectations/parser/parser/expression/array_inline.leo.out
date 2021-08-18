@@ -13,7 +13,7 @@ outputs:
                   line_stop: 1
                   col_start: 2
                   col_stop: 5
-                  path: test
+                  path: ""
                   content: "[0u8, 1, 2, 3]"
         - Expression:
             Value:
@@ -23,7 +23,7 @@ outputs:
                   line_stop: 1
                   col_start: 7
                   col_stop: 8
-                  path: test
+                  path: ""
                   content: "[0u8, 1, 2, 3]"
         - Expression:
             Value:
@@ -33,7 +33,7 @@ outputs:
                   line_stop: 1
                   col_start: 10
                   col_stop: 11
-                  path: test
+                  path: ""
                   content: "[0u8, 1, 2, 3]"
         - Expression:
             Value:
@@ -43,14 +43,14 @@ outputs:
                   line_stop: 1
                   col_start: 13
                   col_stop: 14
-                  path: test
+                  path: ""
                   content: "[0u8, 1, 2, 3]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 15
-        path: test
+        path: ""
         content: "[0u8, 1, 2, 3]"
   - ArrayInline:
       elements:
@@ -62,14 +62,14 @@ outputs:
                   line_stop: 1
                   col_start: 2
                   col_stop: 3
-                  path: test
+                  path: ""
                   content: "[1]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: test
+        path: ""
         content: "[1]"
   - ArrayInline:
       elements:
@@ -82,14 +82,14 @@ outputs:
                   line_stop: 1
                   col_start: 2
                   col_stop: 5
-                  path: test
+                  path: ""
                   content: "[1u8]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 6
-        path: test
+        path: ""
         content: "[1u8]"
   - ArrayInline:
       elements:
@@ -102,14 +102,14 @@ outputs:
                   line_stop: 1
                   col_start: 2
                   col_stop: 5
-                  path: test
+                  path: ""
                   content: "[1u8,]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: test
+        path: ""
         content: "[1u8,]"
   - ArrayInline:
       elements:
@@ -121,7 +121,7 @@ outputs:
                   line_stop: 1
                   col_start: 2
                   col_stop: 3
-                  path: test
+                  path: ""
                   content: "[0, 1,]"
         - Expression:
             Value:
@@ -131,14 +131,14 @@ outputs:
                   line_stop: 1
                   col_start: 5
                   col_stop: 6
-                  path: test
+                  path: ""
                   content: "[0, 1,]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 8
-        path: test
+        path: ""
         content: "[0, 1,]"
   - ArrayInline:
       elements:
@@ -150,7 +150,7 @@ outputs:
                   line_stop: 1
                   col_start: 2
                   col_stop: 3
-                  path: test
+                  path: ""
                   content: "[0,1,]"
         - Expression:
             Value:
@@ -160,14 +160,14 @@ outputs:
                   line_stop: 1
                   col_start: 4
                   col_stop: 5
-                  path: test
+                  path: ""
                   content: "[0,1,]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: test
+        path: ""
         content: "[0,1,]"
   - ArrayInline:
       elements: []
@@ -176,7 +176,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 3
-        path: test
+        path: ""
         content: "[]"
   - ArrayInline:
       elements:
@@ -191,7 +191,7 @@ outputs:
                           line_stop: 1
                           col_start: 3
                           col_stop: 4
-                          path: test
+                          path: ""
                           content: "[[1,2,3],[1,2,3]]"
                 - Expression:
                     Value:
@@ -201,7 +201,7 @@ outputs:
                           line_stop: 1
                           col_start: 5
                           col_stop: 6
-                          path: test
+                          path: ""
                           content: "[[1,2,3],[1,2,3]]"
                 - Expression:
                     Value:
@@ -211,14 +211,14 @@ outputs:
                           line_stop: 1
                           col_start: 7
                           col_stop: 8
-                          path: test
+                          path: ""
                           content: "[[1,2,3],[1,2,3]]"
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 2
                 col_stop: 9
-                path: test
+                path: ""
                 content: "[[1,2,3],[1,2,3]]"
         - Expression:
             ArrayInline:
@@ -231,7 +231,7 @@ outputs:
                           line_stop: 1
                           col_start: 11
                           col_stop: 12
-                          path: test
+                          path: ""
                           content: "[[1,2,3],[1,2,3]]"
                 - Expression:
                     Value:
@@ -241,7 +241,7 @@ outputs:
                           line_stop: 1
                           col_start: 13
                           col_stop: 14
-                          path: test
+                          path: ""
                           content: "[[1,2,3],[1,2,3]]"
                 - Expression:
                     Value:
@@ -251,21 +251,21 @@ outputs:
                           line_stop: 1
                           col_start: 15
                           col_stop: 16
-                          path: test
+                          path: ""
                           content: "[[1,2,3],[1,2,3]]"
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 10
                 col_stop: 17
-                path: test
+                path: ""
                 content: "[[1,2,3],[1,2,3]]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 18
-        path: test
+        path: ""
         content: "[[1,2,3],[1,2,3]]"
   - ArrayInline:
       elements:
@@ -277,14 +277,14 @@ outputs:
                 line_stop: 1
                 col_start: 2
                 col_stop: 4
-                path: test
+                path: ""
                 content: "[[]]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 5
-        path: test
+        path: ""
         content: "[[]]"
   - ArrayInline:
       elements:
@@ -296,7 +296,7 @@ outputs:
                 line_stop: 1
                 col_start: 2
                 col_stop: 4
-                path: test
+                path: ""
                 content: "[[], []]"
         - Expression:
             ArrayInline:
@@ -306,12 +306,12 @@ outputs:
                 line_stop: 1
                 col_start: 6
                 col_stop: 8
-                path: test
+                path: ""
                 content: "[[], []]"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 9
-        path: test
+        path: ""
         content: "[[], []]"

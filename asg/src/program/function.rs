@@ -15,12 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError, BlockStatement, Circuit, FromAst, Identifier, MonoidalDirector, ReturnPathReducer, Scope, Span,
-    Statement, Type, Variable,
+    BlockStatement, Circuit, FromAst, Identifier, MonoidalDirector, ReturnPathReducer, Scope, Statement, Type, Variable,
 };
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
 use leo_ast::FunctionInput;
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -58,11 +58,11 @@ impl<'a> PartialEq for Function<'a> {
 impl<'a> Eq for Function<'a> {}
 
 impl<'a> Function<'a> {
-    pub(crate) fn init(scope: &'a Scope<'a>, value: &leo_ast::Function) -> Result<&'a Function<'a>, AsgConvertError> {
+    pub(crate) fn init(scope: &'a Scope<'a>, value: &leo_ast::Function) -> Result<&'a Function<'a>> {
         let output: Type<'a> = value
             .output
             .as_ref()
-            .map(|t| scope.resolve_ast_type(t))
+            .map(|t| scope.resolve_ast_type(t, &value.span))
             .transpose()?
             .unwrap_or_else(|| Type::Tuple(vec![]));
         let mut qualifier = FunctionQualifier::Static;
@@ -81,30 +81,21 @@ impl<'a> Function<'a> {
                     FunctionInput::MutSelfKeyword(_) => {
                         qualifier = FunctionQualifier::MutSelfRef;
                     }
-                    FunctionInput::Variable(leo_ast::FunctionInputVariable {
-                        type_,
-                        identifier,
-                        const_,
-                        mutable,
-                        ..
-                    }) => {
+                    FunctionInput::Variable(input_variable) => {
                         let variable = scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                             id: scope.context.get_id(),
-                            name: identifier.clone(),
-                            type_: scope.resolve_ast_type(type_)?,
-                            mutable: *mutable,
-                            const_: *const_,
+                            name: input_variable.identifier.clone(),
+                            type_: scope.resolve_ast_type(&input_variable.type_, &value.span)?,
+                            mutable: input_variable.mutable,
+                            const_: input_variable.const_,
                             declaration: crate::VariableDeclaration::Parameter,
                             references: vec![],
                             assignments: vec![],
                         }));
-                        arguments.insert(identifier.name.to_string(), Cell::new(&*variable));
+                        arguments.insert(input_variable.identifier.name.to_string(), Cell::new(&*variable));
                     }
                 }
             }
-        }
-        if qualifier != FunctionQualifier::Static && scope.circuit_self.get().is_none() {
-            return Err(AsgConvertError::invalid_self_in_global(&value.span));
         }
         let function = scope.context.alloc_function(Function {
             id: scope.context.get_id(),
@@ -123,7 +114,7 @@ impl<'a> Function<'a> {
         Ok(function)
     }
 
-    pub(super) fn fill_from_ast(self: &'a Function<'a>, value: &leo_ast::Function) -> Result<(), AsgConvertError> {
+    pub(super) fn fill_from_ast(self: &'a Function<'a>, value: &leo_ast::Function) -> Result<()> {
         if self.qualifier != FunctionQualifier::Static {
             let circuit = self.circuit.get();
             let self_variable = self.scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
@@ -148,19 +139,12 @@ impl<'a> Function<'a> {
         let main_block = BlockStatement::from_ast(self.scope, &value.block, None)?;
         let mut director = MonoidalDirector::new(ReturnPathReducer::new());
         if !director.reduce_block(&main_block).0 && !self.output.is_unit() {
-            return Err(AsgConvertError::function_missing_return(
-                &self.name.borrow().name,
-                &value.span,
-            ));
+            return Err(AsgError::function_missing_return(&self.name.borrow().name, &value.span).into());
         }
 
         #[allow(clippy::never_loop)] // TODO @Protryon: How should we return multiple errors?
         for (span, error) in director.reducer().errors {
-            return Err(AsgConvertError::function_return_validation(
-                &self.name.borrow().name,
-                &error,
-                &span,
-            ));
+            return Err(AsgError::function_return_validation(&self.name.borrow().name, error, &span).into());
         }
 
         self.body

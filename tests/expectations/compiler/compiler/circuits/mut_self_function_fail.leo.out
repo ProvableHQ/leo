@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:9:9\n     |\n   9 |         self.bar = new;\n     |         ^^^^^^^^^^^^^^\n     |\n     = attempt to assign to function 'bar'"
+  - "Error [EASG0373007]: attempt to assign to function 'bar'\n    --> compiler-test:9:9\n     |\n   9 |         self.bar = new;\n     |         ^^^^^^^^^^^^^^"

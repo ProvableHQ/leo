@@ -16,9 +16,10 @@
 
 //! Enforces constraints on a function in a compiled Leo program.
 
-use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::{Expression, Function, FunctionQualifier};
+use leo_errors::{CompilerError, Result};
 use std::cell::Cell;
 
 use snarkvm_fields::PrimeField;
@@ -32,7 +33,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         function: &'a Function<'a>,
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
-    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
 
         let self_var = if let Some(target) = &target_value {
@@ -47,10 +48,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         };
 
         if function.arguments.len() != arguments.len() {
-            return Err(FunctionError::input_not_found(
-                "arguments length invalid".to_string(),
+            return Err(CompilerError::function_input_not_found(
+                &function.name.borrow().name.to_string(),
+                "arguments length invalid",
                 &function.span.clone().unwrap_or_default(),
-            ));
+            )
+            .into());
         }
 
         // Store input values as new variables in resolved program
@@ -90,6 +93,5 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         // Conditionally select a result based on returned indicators
         Self::conditionally_select_result(cs, &output, results, &function.span.clone().unwrap_or_default())
-            .map_err(FunctionError::StatementError)
     }
 }

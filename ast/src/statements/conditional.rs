@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Node, Span, Statement};
+use crate::{Block, Expression, Node, Statement};
+use leo_errors::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

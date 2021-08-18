@@ -17,8 +17,10 @@
 pub mod blake2s;
 pub use blake2s::*;
 
-use crate::{errors::ExpressionError, ConstrainedValue, GroupType};
-use leo_asg::{Function, Span};
+use crate::{ConstrainedValue, GroupType};
+use leo_asg::Function;
+use leo_errors::{Result, Span};
+
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
@@ -30,7 +32,7 @@ pub trait CoreCircuit<'a, F: PrimeField, G: GroupType<F>>: Send + Sync {
         span: &Span,
         target: Option<ConstrainedValue<'a, F, G>>,
         arguments: Vec<ConstrainedValue<'a, F, G>>,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError>;
+    ) -> Result<ConstrainedValue<'a, F, G>>;
 }
 
 pub fn resolve_core_circuit<'a, F: PrimeField, G: GroupType<F>>(name: &str) -> impl CoreCircuit<'a, F, G> {

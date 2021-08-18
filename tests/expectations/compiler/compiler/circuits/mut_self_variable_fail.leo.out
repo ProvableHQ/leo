@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:7:9\n     |\n   7 |         self.a = new;\n     |         ^^^^^^^^^^^^\n     |\n     = illegal assignment to immutable variable 'self'"
+  - "Error [EASG0373033]: illegal assignment to immutable variable 'self'\n    --> compiler-test:7:9\n     |\n   7 |         self.a = new;\n     |         ^^^^^^^^^^^^"

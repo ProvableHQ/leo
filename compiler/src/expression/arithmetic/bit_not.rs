@@ -16,14 +16,14 @@
 
 //! Enforces a logical `!` operator in a resolved Leo program.
 
-use crate::{errors::IntegerError, value::ConstrainedValue, GroupType};
-use leo_asg::Span;
+use crate::{value::ConstrainedValue, GroupType};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 
 pub fn evaluate_bit_not<'a, F: PrimeField, G: GroupType<F>>(
     value: ConstrainedValue<'a, F, G>,
     span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, IntegerError> {
-    Err(IntegerError::cannot_evaluate(format!("!{}", value), span))
+) -> Result<ConstrainedValue<'a, F, G>> {
+    return Err(CompilerError::cannot_evaluate_expression(format!("!{}", value), span).into());
 }
