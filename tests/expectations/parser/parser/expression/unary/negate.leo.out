@@ -26,6 +26,7 @@ outputs:
             col_stop: 5
             path: test
             content: "-x.y"
+          type_: ~
       op: Negate
       span:
         line_start: 1

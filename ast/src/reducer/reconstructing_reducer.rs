@@ -219,11 +219,13 @@ pub trait ReconstructingReducer {
         circuit_member_access: &CircuitMemberAccessExpression,
         circuit: Expression,
         name: Identifier,
+        type_: Option<Type>,
     ) -> Result<CircuitMemberAccessExpression, ReducerError> {
         Ok(CircuitMemberAccessExpression {
             circuit: Box::new(circuit),
             name,
             span: circuit_member_access.span.clone(),
+            type_,
         })
     }
 

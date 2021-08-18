@@ -90,6 +90,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 circuit: ast_circuit,
                 name,
                 span,
+                ..
             }) => {
                 let target = <&Expression<'a>>::from_ast(scope, &**ast_circuit, None)?;
                 let circuit = match target.get_type() {

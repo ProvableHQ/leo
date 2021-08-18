@@ -252,9 +252,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     ) -> Result<CircuitMemberAccessExpression, ReducerError> {
         let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         let name = self.reduce_identifier(&circuit_member_access.name)?;
+        let type_ = circuit_member_access
+            .type_
+            .as_ref()
+            .map(|type_| self.reduce_type(type_, &circuit_member_access.span))
+            .transpose()?;
 
         self.reducer
-            .reduce_circuit_member_access(circuit_member_access, circuit, name)
+            .reduce_circuit_member_access(circuit_member_access, circuit, name, type_)
     }
 
     pub fn reduce_circuit_static_fn_access(
@@ -286,7 +291,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Statement::Definition(definition) => Statement::Definition(self.reduce_definition(definition)?),
             Statement::Assign(assign) => Statement::Assign(self.reduce_assign(assign)?),
             Statement::Conditional(conditional) => Statement::Conditional(self.reduce_conditional(conditional)?),
-            Statement::Iteration(iteration) => Statement::Iteration(self.reduce_iteration(iteration)?),
+            Statement::Iteration(iteration) => Statement::Iteration(Box::new(self.reduce_iteration(iteration)?)),
             Statement::Console(console) => Statement::Console(self.reduce_console(console)?),
             Statement::Expression(expression) => Statement::Expression(self.reduce_expression_statement(expression)?),
             Statement::Block(block) => Statement::Block(self.reduce_block(block)?),

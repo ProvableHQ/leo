@@ -16,6 +16,6 @@ outputs:
             r0:
               type: u32
               value: "100"
-    initial_ast: 7a6b3abb44b3770f98b45c1f961539ae538e1b5fb2b62ae7bffeaf2209739bc3
-    canonicalized_ast: 7a6b3abb44b3770f98b45c1f961539ae538e1b5fb2b62ae7bffeaf2209739bc3
-    type_inferenced_ast: 88703ec6b9780a1e7629b14afd0e3da35ff4d68f968db2926242f745d6f61b4d
+    initial_ast: c7830ab4fe672f5563a211fea5f81494ca551bdb78279124249374d30f978259
+    canonicalized_ast: c7830ab4fe672f5563a211fea5f81494ca551bdb78279124249374d30f978259
+    type_inferenced_ast: ac748f5effbf5533a45bb3b9e323abe278c0198e8293f383163e1226d6342b3e

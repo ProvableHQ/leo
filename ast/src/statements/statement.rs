@@ -27,7 +27,7 @@ pub enum Statement {
     Definition(DefinitionStatement),
     Assign(AssignStatement),
     Conditional(ConditionalStatement),
-    Iteration(IterationStatement),
+    Iteration(Box<IterationStatement>),
     Console(ConsoleStatement),
     Expression(ExpressionStatement),
     Block(Block),

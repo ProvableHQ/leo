@@ -214,6 +214,7 @@ impl<'a> Into<leo_ast::Expression> for &CircuitAccessExpression<'a> {
                 circuit: Box::new(target.into()),
                 name: self.member.clone(),
                 span: self.span.clone().unwrap_or_default(),
+                type_: None,
             })
         } else {
             leo_ast::Expression::CircuitStaticFunctionAccess(leo_ast::CircuitStaticFunctionAccessExpression {

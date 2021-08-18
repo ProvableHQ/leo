@@ -232,17 +232,31 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         ast: &AstCallExpression,
         asg: &AsgCallExpression,
     ) -> Result<AstCallExpression, ReducerError> {
-        // TODO FIGURE IT OUT
-        // let function = self.reduce_expression(&ast.function, asg.function.get())?;
-        // let target = asg.target.get().map(|exp| self.reduce_expression())
-        // Is this needed?
+        let mut function = *ast.function.clone();
+
+        if self.options.type_inference_enabled() {
+            let function_type: Option<leo_ast::Type> = asg
+                .target
+                .get()
+                .map(|target| {
+                    (target as &dyn leo_asg::ExpressionNode)
+                        .get_type()
+                        .as_ref()
+                        .map(|t| t.into())
+                })
+                .flatten();
+            if let AstExpression::CircuitMemberAccess(mut access) = function {
+                access.type_ = function_type;
+                function = AstExpression::CircuitMemberAccess(access);
+            }
+        }
 
         let mut arguments = vec![];
         for (ast_arg, asg_arg) in ast.arguments.iter().zip(asg.arguments.iter()) {
             arguments.push(self.reduce_expression(ast_arg, asg_arg.get())?);
         }
 
-        self.ast_reducer.reduce_call(ast, *ast.function.clone(), arguments)
+        self.ast_reducer.reduce_call(ast, function, arguments)
     }
 
     pub fn reduce_cast(
@@ -259,14 +273,19 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
     pub fn reduce_circuit_member_access(
         &mut self,
         ast: &CircuitMemberAccessExpression,
-        _asg: &AsgCircuitAccessExpression,
+        asg: &AsgCircuitAccessExpression,
     ) -> Result<CircuitMemberAccessExpression, ReducerError> {
         // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         // let name = self.reduce_identifier(&circuit_member_access.name)?;
         // let target = input.target.get().map(|e| self.reduce_expression(e));
+        let type_ = if self.options.type_inference_enabled() {
+            Some(leo_ast::Type::Circuit(asg.circuit.get().name.borrow().clone()))
+        } else {
+            None
+        };
 
         self.ast_reducer
-            .reduce_circuit_member_access(ast, *ast.circuit.clone(), ast.name.clone())
+            .reduce_circuit_member_access(ast, *ast.circuit.clone(), ast.name.clone(), type_)
     }
 
     pub fn reduce_circuit_static_fn_access(
@@ -445,7 +464,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 AstStatement::Expression(self.reduce_expression_statement(ast, asg)?)
             }
             (AstStatement::Iteration(ast), AsgStatement::Iteration(asg)) => {
-                AstStatement::Iteration(self.reduce_iteration(ast, asg)?)
+                AstStatement::Iteration(Box::new(self.reduce_iteration(ast, asg)?))
             }
             (AstStatement::Return(ast), AsgStatement::Return(asg)) => {
                 AstStatement::Return(self.reduce_return(ast, asg)?)

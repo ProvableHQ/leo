@@ -89,7 +89,7 @@ impl ParserContext {
         match &self.peek()?.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
-            Token::For => Ok(Statement::Iteration(self.parse_loop_statement()?)),
+            Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
             Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),

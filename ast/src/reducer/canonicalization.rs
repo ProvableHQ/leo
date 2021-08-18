@@ -75,6 +75,7 @@ impl Canonicalizer {
                         circuit: left,
                         name: identifier,
                         span: span.clone(),
+                        type_: None,
                     }));
                 }
             }
@@ -260,6 +261,7 @@ impl Canonicalizer {
                     circuit: Box::new(self.canonicalize_expression(&circuit_member_access.circuit)),
                     name: circuit_member_access.name.clone(),
                     span: circuit_member_access.span.clone(),
+                    type_: None,
                 });
             }
             Expression::CircuitStaticFunctionAccess(circuit_static_func_access) => {
@@ -383,14 +385,14 @@ impl Canonicalizer {
                 let stop = self.canonicalize_expression(&iteration.stop);
                 let block = self.canonicalize_block(&iteration.block);
 
-                Statement::Iteration(IterationStatement {
+                Statement::Iteration(Box::new(IterationStatement {
                     variable: iteration.variable.clone(),
                     start,
                     stop,
                     inclusive: iteration.inclusive,
                     block,
                     span: iteration.span.clone(),
-                })
+                }))
             }
             Statement::Console(console_function_call) => {
                 let function = match &console_function_call.function {
