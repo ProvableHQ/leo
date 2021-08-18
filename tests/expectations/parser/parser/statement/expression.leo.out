@@ -85,7 +85,6 @@ outputs:
             col_stop: 4
             path: test
             content: x();
-          type_: ~
       span:
         line_start: 1
         line_stop: 1

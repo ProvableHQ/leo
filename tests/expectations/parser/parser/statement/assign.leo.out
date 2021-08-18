@@ -140,7 +140,6 @@ outputs:
             col_stop: 8
             path: test
             content: x = x();
-          type_: ~
       span:
         line_start: 1
         line_stop: 1

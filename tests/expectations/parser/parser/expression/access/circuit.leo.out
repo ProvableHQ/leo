@@ -66,7 +66,6 @@ outputs:
         col_stop: 6
         path: test
         content: x.y()
-      type_: ~
   - TupleAccess:
       tuple:
         CircuitMemberAccess:

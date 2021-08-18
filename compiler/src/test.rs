@@ -68,7 +68,7 @@ pub(crate) fn parse_program(
     theorem_options: Option<AstSnapshotOptions>,
     cwd: Option<PathBuf>,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler(cwd.unwrap_or_else(|| "compiler-test".into()), theorem_options);
+    let mut compiler = new_compiler(cwd.unwrap_or("compiler-test".into()), theorem_options);
 
     compiler.parse_program_from_string(program_string)?;
 

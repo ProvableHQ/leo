@@ -15,14 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::Type;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CallExpression {
     pub function: Box<Expression>, // todo: make this identifier?
     pub arguments: Vec<Expression>,
     pub span: Span,
-    pub type_: Option<Type>,
 }
 
 impl fmt::Display for CallExpression {

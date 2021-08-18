@@ -168,7 +168,6 @@ outputs:
         col_stop: 7
         path: test
         content: "x[0]()"
-      type_: ~
   - ArrayAccess:
       array:
         Call:
@@ -182,7 +181,6 @@ outputs:
             col_stop: 4
             path: test
             content: "x()[0]"
-          type_: ~
       index:
         Value:
           Implicit:
@@ -216,7 +214,6 @@ outputs:
                 col_stop: 5
                 path: test
                 content: "x(y)::y(x)"
-              type_: ~
           name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x(y)::y(x)\\\"}\"}"
           span:
             line_start: 1
@@ -234,7 +231,6 @@ outputs:
         col_stop: 11
         path: test
         content: "x(y)::y(x)"
-      type_: ~
   - ArrayAccess:
       array:
         TupleAccess:

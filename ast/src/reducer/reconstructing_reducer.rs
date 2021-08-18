@@ -245,13 +245,11 @@ pub trait ReconstructingReducer {
         call: &CallExpression,
         function: Expression,
         arguments: Vec<Expression>,
-        type_: Option<Type>,
     ) -> Result<CallExpression, ReducerError> {
         Ok(CallExpression {
             function: Box::new(function),
             arguments,
             span: call.span.clone(),
-            type_,
         })
     }
 
