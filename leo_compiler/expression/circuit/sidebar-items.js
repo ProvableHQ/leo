@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["access","Enforces a circuit access expression in a compiled Leo program."],["circuit","Enforces a circuit expression in a compiled Leo program."]]});

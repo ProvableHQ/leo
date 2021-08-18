@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["CharValue",""],["ConstInt","Constant integer values in a program."],["ConstValue",""],["GroupCoordinate","Specifies how to calculate a group coordinate in a program."],["GroupValue",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Identifier","An identifier in the constrained program."]]});

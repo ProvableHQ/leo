@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["integer","Conversion of integer declarations to constraints in Leo."],["macros",""]]});

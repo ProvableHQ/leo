@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["core_circuit",""],["function","Enforce a function call expression in a compiled Leo program."]]});

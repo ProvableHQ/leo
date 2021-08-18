@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["assign","Enforces an assign statement in a compiled Leo program."],["assignee","Resolves assignees in a compiled Leo program."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"static":[["PROVING_KEY_FILE_EXTENSION",""]],"struct":[["ProvingKeyFile",""]]});

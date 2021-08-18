@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["bool_and",""],["set_append",""],["vec_append",""]],"trait":[["Monoid",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"trait":[["LeoErrorCode","ErrorCode trait that all Errors should implement."]]});

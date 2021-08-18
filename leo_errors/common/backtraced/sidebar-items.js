@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["INDENT","The indent for an error message."]],"struct":[["BacktracedError","Backtraced compiler error type undefined value `x` –> file.leo: 2:8 = help: Initialize a variable `x` first."]]});

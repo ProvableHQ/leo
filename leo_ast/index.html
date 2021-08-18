@@ -1,0 +1,289 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="The abstract syntax tree (ast) for a Leo program."><meta name="keywords" content="rust, rustlang, rust-lang, leo_ast"><title>leo_ast - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../ayu.css" disabled ><script id="default-settings"></script><script src="../storage.js"></script><script src="../crates.js"></script><noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../down-arrow.svg");}</style></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../leo_ast/index.html'><div class='logo-container rust-logo'><img src='../rust-logo.png' alt='logo'></div></a><h2 class="location">Crate leo_ast</h2><div class="block version"><p>Version 1.5.3</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all leo_ast's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#traits">Traits</a></li></ul></div><div id="sidebar-vars" data-name="leo_ast" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img src="../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img src="../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">leo_ast</a><button id="copy-path" onclick="copy_path(this)" title="copy path"><img src="../clipboard.svg" width="19" height="18" alt="Copy item import" title="Copy item import to clipboard"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/leo_ast/lib.rs.html#17-132" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>The abstract syntax tree (ast) for a Leo program.</p>
+<p>This module contains the <a href="struct.Ast.html" title="Ast"><code>Ast</code></a> type, a wrapper around the <a href="program/struct.Program.html" title="Program"><code>Program</code></a> type.
+The <a href="struct.Ast.html" title="Ast"><code>Ast</code></a> type is intended to be parsed and modified by different passes
+of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any <a href="struct.Ast.html" title="Ast"><code>Ast</code></a>.</p>
+<h1 id="leo-ast" class="section-header"><a href="#leo-ast">leo-ast</a></h1>
+<p><a href="https://crates.io/crates/leo-ast"><img src="https://img.shields.io/crates/v/leo-ast.svg?color=neon" alt="Crates.io" /></a>
+<a href="../AUTHORS"><img src="https://img.shields.io/badge/authors-Aleo-orange.svg" alt="Authors" /></a>
+<a href="./LICENSE.md"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License" /></a></p>
+<p>This directory contains the code for the AST of a Leo Program.</p>
+<h2 id="node-types" class="section-header"><a href="#node-types">Node Types</a></h2>
+<p>There are several types of nodes in the AST that then have further breakdowns.</p>
+<p>All nodes store a Span, which is useful for tracking the lines and
+columns of where the node was taken from in the Leo Program.</p>
+<h3 id="programfile" class="section-header"><a href="#programfile">Program/File</a></h3>
+<p>The top level nodes in a Leo Program.</p>
+<h4 id="imports" class="section-header"><a href="#imports">Imports</a></h4>
+<p>Represents an import statement in a Leo Program.
+A list of these are stored on the Program.
+It stores the path to an import and what is being imported.</p>
+<p><strong>NOTE</strong>: The import does not contain the source code of the imported Leo Program.</p>
+<h4 id="circuits" class="section-header"><a href="#circuits">Circuits</a></h4>
+<p>A circuit node represents a defined Circuit in a Leo Program.
+A order preserving map of these are stored on the Program.
+Contains the Circuit’s name, as well as it’s members.
+The members are a function, or a variable.
+For both of them the Circuit preserves their names.</p>
+<h4 id="decorators" class="section-header"><a href="#decorators">Decorators</a></h4>
+<p>An annotation node is a decorator that can be applied to a function.
+Stored on the function themselves despite being a top-level node.
+The node stores the name of the annotation, as well as any args passed to it.</p>
+<h4 id="functions" class="section-header"><a href="#functions">Functions</a></h4>
+<p>A function node represents a defined function in a Leo Program.
+A order preserving map of these are stored on the Program.
+A function node stores the following information:</p>
+<ul>
+<li>The annotations applied to the function.</li>
+<li>An identifier the name of the function.</li>
+<li>The inputs to the function, both their names and types.</li>
+<li>The output of the function as a type if it exists.</li>
+<li>The function body stored as a block statement.</li>
+</ul>
+<h4 id="global-consts" class="section-header"><a href="#global-consts">Global Consts</a></h4>
+<p>A global const is a bit special and has no special node for itself, but rather is a definition statement.
+A order preserving map of these are stored on the Program.</p>
+<h3 id="types" class="section-header"><a href="#types">Types</a></h3>
+<p>The different types in a Leo Program.
+Types themselves are not a node, but rather just information to be stored on a node.</p>
+<h4 id="address" class="section-header"><a href="#address">Address</a></h4>
+<p>The address type follows the <a href="https://en.bitcoin.it/wiki/BIP_0173">BIP_0173</a> format starting with <code>aleo1</code>.</p>
+<h4 id="boolean" class="section-header"><a href="#boolean">Boolean</a></h4>
+<p>The boolean type consists of two values <strong>true</strong> and <strong>false</strong>.</p>
+<h4 id="char" class="section-header"><a href="#char">Char</a></h4>
+<p>The char type resents a character from the inclusive range [0, 10FFFF].</p>
+<h4 id="field" class="section-header"><a href="#field">Field</a></h4>
+<p>The field type an unsigned number up to the modulus length of the field.</p>
+<h4 id="group" class="section-header"><a href="#group">Group</a></h4>
+<p>The group type a set of affine points on the elliptic curve passed.</p>
+<h4 id="integertype" class="section-header"><a href="#integertype">IntegerType</a></h4>
+<p>The integer type represents a range of integer types.</p>
+<h5 id="u8" class="section-header"><a href="#u8">U8</a></h5>
+<p>A integer in the inclusive range [0, 255].</p>
+<h5 id="u16" class="section-header"><a href="#u16">U16</a></h5>
+<p>A integer in the inclusive range [0, 65535].</p>
+<h5 id="u32" class="section-header"><a href="#u32">U32</a></h5>
+<p>A integer in the inclusive range [0, 4294967295].</p>
+<h5 id="u64" class="section-header"><a href="#u64">U64</a></h5>
+<p>A integer in the inclusive range [0, 18446744073709551615].</p>
+<h5 id="u128" class="section-header"><a href="#u128">U128</a></h5>
+<p>A integer in the inclusive range [0, 340282366920938463463374607431768211455].</p>
+<h5 id="i8" class="section-header"><a href="#i8">I8</a></h5>
+<p>A integer in the inclusive range [-128, 127].</p>
+<h5 id="i16" class="section-header"><a href="#i16">I16</a></h5>
+<p>A integer in the inclusive range [-32768, 32767].</p>
+<h5 id="i32" class="section-header"><a href="#i32">I32</a></h5>
+<p>A integer in the inclusive range [-2147483648, 2147483647].</p>
+<h5 id="i64" class="section-header"><a href="#i64">I64</a></h5>
+<p>A integer in the inclusive range [-9223372036854775808, 9223372036854775807].</p>
+<h5 id="i128" class="section-header"><a href="#i128">I128</a></h5>
+<p>A integer in the inclusive range [-170141183460469231731687303715884105728, 170141183460469231731687303715884105727].</p>
+<h4 id="array" class="section-header"><a href="#array">Array</a></h4>
+<p>The array type contains another type, then the number of elements of that type greater than 0.</p>
+<h4 id="tuple" class="section-header"><a href="#tuple">Tuple</a></h4>
+<p>The tuple type contains n types, where n is greater than or equal to 0.</p>
+<h4 id="circuit" class="section-header"><a href="#circuit">Circuit</a></h4>
+<p>The circuit type, every circuit represents a different type.</p>
+<h4 id="selftype" class="section-header"><a href="#selftype">SelfType</a></h4>
+<p>The self type represented by <code>Self</code> and only usable inside a circuit.</p>
+<h3 id="statements" class="section-header"><a href="#statements">Statements</a></h3>
+<p>The statement level nodes in a Leo Program.</p>
+<h4 id="assignment-statements" class="section-header"><a href="#assignment-statements">Assignment Statements</a></h4>
+<p>An assignment statement node stores the following:</p>
+<ul>
+<li>The operation.
+<ul>
+<li><strong>=</strong></li>
+<li><strong>+=</strong></li>
+<li><strong>-=</strong></li>
+<li><strong>=</strong></li>
+<li><strong>/=</strong></li>
+<li><strong>=</strong></li>
+<li><strong>&amp;&amp;=</strong></li>
+<li><strong>||=</strong></li>
+</ul>
+</li>
+<li>The assignee which is a variable that has context of any access expressions on it.</li>
+<li>The value which is an expression.</li>
+</ul>
+<h4 id="block-statements" class="section-header"><a href="#block-statements">Block Statements</a></h4>
+<p>A block statement node stores the following:</p>
+<ul>
+<li>The list of statements inside the block.</li>
+</ul>
+<h4 id="conditional-statements" class="section-header"><a href="#conditional-statements">Conditional Statements</a></h4>
+<p>A conditional statement node stores the following:</p>
+<ul>
+<li>The condition which is an expression.</li>
+<li>The block statement.</li>
+<li>The next block of the conditional if it exists.</li>
+</ul>
+<h4 id="console-statements" class="section-header"><a href="#console-statements">Console Statements</a></h4>
+<p>A console statement node stores the following:</p>
+<ul>
+<li>The console function being called which stores the type of console function it is and its arguments.</li>
+</ul>
+<h4 id="definition-statements" class="section-header"><a href="#definition-statements">Definition Statements</a></h4>
+<p>A definition statement node stores the following:</p>
+<ul>
+<li>The declaration type:
+<ul>
+<li><code>let</code> for mutable definitions.</li>
+<li><code>const</code> for cosntant definitions.</li>
+</ul>
+</li>
+<li>The names of the varaibles defined.</li>
+<li>The optional type.</li>
+<li>The values to be assigned to the varaibles.</li>
+</ul>
+<h4 id="expression-statements" class="section-header"><a href="#expression-statements">Expression Statements</a></h4>
+<p>An expression statement node stores the following:</p>
+<ul>
+<li>The expression.</li>
+</ul>
+<h4 id="iteration-statements" class="section-header"><a href="#iteration-statements">Iteration Statements</a></h4>
+<p>A iteration statement node stores the following:</p>
+<ul>
+<li>The loop iterator variable name.</li>
+<li>The expression to define the starting loop value.</li>
+<li>The expression to define the stoping loop value.</li>
+<li>The block to run for the loop.</li>
+</ul>
+<h4 id="return-statements" class="section-header"><a href="#return-statements">Return Statements</a></h4>
+<p>A return statement node stores the following:</p>
+<ul>
+<li>The expression that is being returned.</li>
+</ul>
+<h3 id="expressions" class="section-header"><a href="#expressions">Expressions</a></h3>
+<p>The expression nodes in a Leo Program.</p>
+<h4 id="arrayaccess-expressions" class="section-header"><a href="#arrayaccess-expressions">ArrayAccess Expressions</a></h4>
+<p>An array access expression node stores the following:</p>
+<ul>
+<li>The array expression.</li>
+<li>The index represented by an expression.</li>
+</ul>
+<h4 id="arrayinit-expressions" class="section-header"><a href="#arrayinit-expressions">ArrayInit Expressions</a></h4>
+<p>An array init expression node stores the following:</p>
+<ul>
+<li>The element expression to fill the array with.</li>
+<li>The dimensions of the array to build.</li>
+</ul>
+<h4 id="arrayinline-expressions" class="section-header"><a href="#arrayinline-expressions">ArrayInline Expressions</a></h4>
+<p>An array inline expression node stores the following:</p>
+<ul>
+<li>The elments of an array which is either an spread or an expression.</li>
+</ul>
+<h4 id="arrayrangeaccess-expressions" class="section-header"><a href="#arrayrangeaccess-expressions">ArrayRangeAccess Expressions</a></h4>
+<p>An array range access expression node stores the following:</p>
+<ul>
+<li>The array expression.</li>
+<li>The optional left side of the range of the array bounds to access.</li>
+<li>The optional right side of the range of the array bounds to access.</li>
+</ul>
+<h4 id="binary-expressions" class="section-header"><a href="#binary-expressions">Binary Expressions</a></h4>
+<p>A binary expression node stores the following:</p>
+<ul>
+<li>The left side of the expression.</li>
+<li>The right side of the expression.</li>
+<li>The binary operation of the expression:
+<ul>
+<li><strong>+</strong></li>
+<li><strong>-</strong></li>
+<li><strong>*</strong></li>
+<li><strong>/</strong></li>
+<li><strong>**</strong></li>
+<li><strong>||</strong></li>
+<li><strong>&amp;&amp;</strong></li>
+<li><strong>==</strong></li>
+<li><strong>!=</strong></li>
+<li><strong>&gt;=</strong></li>
+<li><strong>&gt;</strong></li>
+<li><strong>&lt;=</strong></li>
+<li><strong>&lt;</strong></li>
+</ul>
+</li>
+</ul>
+<h4 id="call-expressions" class="section-header"><a href="#call-expressions">Call Expressions</a></h4>
+<p>A call expression node stores the following:</p>
+<ul>
+<li>The function expression being called.</li>
+<li>The aruments a list of expressions.</li>
+</ul>
+<h4 id="circuitinit-expressions" class="section-header"><a href="#circuitinit-expressions">CircuitInit Expressions</a></h4>
+<p>A circuit init expression node stores the following:</p>
+<ul>
+<li>The name of the circuit expression being initialized.</li>
+<li>The aruments a list of expressions.</li>
+</ul>
+<h4 id="circuitmemberaccess-expressions" class="section-header"><a href="#circuitmemberaccess-expressions">CircuitMemberAccess Expressions</a></h4>
+<p>A circuit member access expression node stores the following:</p>
+<ul>
+<li>The circut expression being accessed.</li>
+<li>The name of the expression being accessed from the circuit.</li>
+</ul>
+<h4 id="circuitstaticfunctionaccess-expressions" class="section-header"><a href="#circuitstaticfunctionaccess-expressions">CircuitStaticFunctionAccess Expressions</a></h4>
+<p>A circuit static function access expression node stores the following:</p>
+<ul>
+<li>The circut expression being accessed.</li>
+<li>The name of the expression being statically accessed from the circuit.</li>
+</ul>
+<h4 id="identifier-expressions" class="section-header"><a href="#identifier-expressions">Identifier Expressions</a></h4>
+<p>An identifer expression node stores the following:</p>
+<ul>
+<li>An identifier stores the string name.</li>
+</ul>
+<h4 id="ternary-expressions" class="section-header"><a href="#ternary-expressions">Ternary Expressions</a></h4>
+<p>A ternary expression node stores the following:</p>
+<ul>
+<li>The condition of the ternary stored as an expression.</li>
+<li>The expression returned if the condition is true.</li>
+<li>The expression returned if the condition is false.</li>
+</ul>
+<h4 id="tupleaccess-expressions" class="section-header"><a href="#tupleaccess-expressions">TupleAccess Expressions</a></h4>
+<p>A tuple access expression node stores the following:</p>
+<ul>
+<li>The tuple expression being accessed.</li>
+<li>The index a positive number greater than or equal to 0.</li>
+</ul>
+<h4 id="tupleinit-expressions" class="section-header"><a href="#tupleinit-expressions">TupleInit Expressions</a></h4>
+<p>A tuple init expression node stores the following:</p>
+<ul>
+<li>The element expressions to fill the tuple with.</li>
+</ul>
+<h4 id="unary-expressions" class="section-header"><a href="#unary-expressions">Unary Expressions</a></h4>
+<p>An unary expression node stores the following:</p>
+<ul>
+<li>The inner expression.</li>
+<li>The unary operator:
+<ul>
+<li><strong>!</strong></li>
+<li><strong>-</strong></li>
+</ul>
+</li>
+</ul>
+<h4 id="value-expressions" class="section-header"><a href="#value-expressions">Value Expressions</a></h4>
+<p>A value expression node stores one of the following:</p>
+<ul>
+<li>Address and its value and span.</li>
+<li>Boolean and its value and span.</li>
+<li>Char and its value and span.</li>
+<li>Field and its value and span.</li>
+<li>Group and its value and span.</li>
+<li>Implicit and its value and span.</li>
+<li>Integer and its value and span.</li>
+<li>String and its value and span.</li>
+</ul>
+</div></details><h2 id="reexports" class="section-header"><a href="#reexports">Re-exports</a></h2>
+<table><tr class="import-item"><td><code>pub use self::<a class="mod" href="annotation/index.html" title="mod leo_ast::annotation">annotation</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="circuits/index.html" title="mod leo_ast::circuits">circuits</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="chars/index.html" title="mod leo_ast::chars">chars</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="common/index.html" title="mod leo_ast::common">common</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="expression/index.html" title="mod leo_ast::expression">expression</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="functions/index.html" title="mod leo_ast::functions">functions</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="groups/index.html" title="mod leo_ast::groups">groups</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="imports/index.html" title="mod leo_ast::imports">imports</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="input/index.html" title="mod leo_ast::input">input</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="program/index.html" title="mod leo_ast::program">program</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="reducer/index.html" title="mod leo_ast::reducer">reducer</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="statements/index.html" title="mod leo_ast::statements">statements</a>::*;</code></td><td class="docblock-short"></td></tr><tr class="import-item"><td><code>pub use self::<a class="mod" href="types/index.html" title="mod leo_ast::types">types</a>::*;</code></td><td class="docblock-short"></td></tr></table><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
+<table><tr class="module-item"><td><a class="mod" href="annotation/index.html" title="leo_ast::annotation mod">annotation</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="chars/index.html" title="leo_ast::chars mod">chars</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="circuits/index.html" title="leo_ast::circuits mod">circuits</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="common/index.html" title="leo_ast::common mod">common</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="expression/index.html" title="leo_ast::expression mod">expression</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="functions/index.html" title="leo_ast::functions mod">functions</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="groups/index.html" title="leo_ast::groups mod">groups</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="imports/index.html" title="leo_ast::imports mod">imports</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="input/index.html" title="leo_ast::input mod">input</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="node/index.html" title="leo_ast::node mod">node</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="program/index.html" title="leo_ast::program mod">program</a></td><td class="docblock-short"><p>A Leo program consists of import, circuit, and function definitions.
+Each defined type consists of ast statements and expressions.</p>
+</td></tr><tr class="module-item"><td><a class="mod" href="reducer/index.html" title="leo_ast::reducer mod">reducer</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="statements/index.html" title="leo_ast::statements mod">statements</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="types/index.html" title="leo_ast::types mod">types</a></td><td class="docblock-short"></td></tr></table><h2 id="macros" class="section-header"><a href="#macros">Macros</a></h2>
+<table><tr class="module-item"><td><a class="macro" href="macro.main_input_section.html" title="leo_ast::main_input_section macro">main_input_section</a></td><td class="docblock-short"><p>Constructs an input section to store data parsed from a Leo input file.
+Constructs sections that pass variables directly to the main function.</p>
+</td></tr><tr class="module-item"><td><a class="macro" href="macro.record_input_section.html" title="leo_ast::record_input_section macro">record_input_section</a></td><td class="docblock-short"><p>Constructs an input section to store data parsed from a Leo input file.
+Constructs sections that pass variables to the main function through the input keyword.</p>
+</td></tr></table><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.Ast.html" title="leo_ast::Ast struct">Ast</a></td><td class="docblock-short"><p>The abstract syntax tree (AST) for a Leo program.</p>
+</td></tr></table><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
+<table><tr class="module-item"><td><a class="trait" href="trait.Node.html" title="leo_ast::Node trait">Node</a></td><td class="docblock-short"></td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="leo_ast" data-search-index-js="../search-index.js" data-search-js="../search.js"></div><script src="../main.js"></script></body></html>

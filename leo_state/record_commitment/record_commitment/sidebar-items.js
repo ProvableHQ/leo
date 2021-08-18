@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["verify_record_commitment","Returns a serialized [`DPCRecordValues`] type if the record commitment is valid given the system parameters."]]});

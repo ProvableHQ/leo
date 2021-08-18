@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["assert_no_whitespace",""],["parse","Creates a new program from a given file path and source code text."]],"mod":[["context",""],["expression",""],["file",""],["statement",""],["type_",""]],"struct":[["ParserContext","Stores a program in tokenized format plus additional context. May be converted into a [`Program`] AST by parsing all tokens."]]});

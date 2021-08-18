@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["address_type",""],["array_dimensions",""],["array_type",""],["boolean_type",""],["char_type",""],["data_type",""],["field_type",""],["group_type",""],["integer_type",""],["signed_integer_type",""],["tuple_type",""],["type_",""],["unsigned_integer_type",""]]});

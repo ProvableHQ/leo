@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AstSnapshotOptions",""],["CompilerOptions","Toggles compiler optimizations on the program."]]});

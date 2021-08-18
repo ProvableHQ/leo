@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["get_indicator_value","Unwraps the indicator boolean gadget value or `false` if `None`. This method is used by logging methods only. We can directly get the boolean value of the indicator since we are not enforcing any constraints."]],"type":[["IndicatorAndConstrainedValue",""],["StatementResult",""]]});

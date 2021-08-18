@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["deserialize","Deserialization for the StrTendril type."],["serialize","Serialization for the StrTendril type."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["verify_local_data_commitment","Returns `true` if the path to the local data commitment leaf is a valid path in the record commitment Merkle tree."]]});

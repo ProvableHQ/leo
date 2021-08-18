@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["CharType",""]],"fn":[["char_from_input",""]],"struct":[["Char","A char"]]});

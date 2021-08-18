@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["leo_asg_passes"] = [{"text":"impl&lt;'a, 'b&gt; <a class=\"trait\" href=\"leo_asg/reducer/visitor/trait.StatementVisitor.html\" title=\"trait leo_asg::reducer::visitor::StatementVisitor\">StatementVisitor</a>&lt;'a&gt; for <a class=\"struct\" href=\"leo_asg_passes/constant_folding/struct.ConstantFolding.html\" title=\"struct leo_asg_passes::constant_folding::ConstantFolding\">ConstantFolding</a>&lt;'a, 'b&gt;","synthetic":false,"types":["leo_asg_passes::constant_folding::ConstantFolding"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

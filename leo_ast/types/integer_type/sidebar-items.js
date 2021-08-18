@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["IntegerType","Explicit integer type."]]});

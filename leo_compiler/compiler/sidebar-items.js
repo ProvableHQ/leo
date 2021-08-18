@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["THREAD_GLOBAL_CONTEXT",""]],"fn":[["new_context",""],["thread_leaked_context","Convenience function to return a leaked thread-local global context. Should only be used for transient programs (like cli)."]],"struct":[["Compiler","Stores information to compile a Leo program."]],"type":[["AsgContext",""],["Context",""]]});

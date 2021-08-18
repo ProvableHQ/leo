@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["array","Allocates an array as a main function input parameter in a compiled Leo program."],["input_keyword",""],["input_section",""],["main_function_input","Allocates a main function input parameter in a compiled Leo program."],["tuple","Allocates an array as a main function input parameter in a compiled Leo program."]]});

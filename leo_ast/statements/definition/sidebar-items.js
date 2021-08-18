@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Declare",""]],"mod":[["declare",""],["variable_name",""]],"struct":[["DefinitionStatement",""],["VariableName",""]]});

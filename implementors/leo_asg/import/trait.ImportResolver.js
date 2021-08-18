@@ -1,0 +1,4 @@
+(function() {var implementors = {};
+implementors["leo_asg"] = [];
+implementors["leo_imports"] = [{"text":"impl&lt;'a&gt; <a class=\"trait\" href=\"leo_asg/import/trait.ImportResolver.html\" title=\"trait leo_asg::import::ImportResolver\">ImportResolver</a>&lt;'a&gt; for <a class=\"struct\" href=\"leo_imports/parser/import_parser/struct.ImportParser.html\" title=\"struct leo_imports::parser::import_parser::ImportParser\">ImportParser</a>&lt;'a&gt;","synthetic":false,"types":["leo_imports::parser::import_parser::ImportParser"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

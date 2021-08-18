@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Type","Explicit type used for defining a variable or expression type"]],"fn":[["inner_array_type","Returns the type of the inner array given an array element and array dimensions."]]});

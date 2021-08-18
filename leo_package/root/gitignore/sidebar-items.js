@@ -1,0 +1,1 @@
+initSidebarItems({"static":[["GITIGNORE_FILENAME",""]],"struct":[["Gitignore",""]]});

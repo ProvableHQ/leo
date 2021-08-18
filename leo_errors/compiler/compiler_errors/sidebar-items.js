@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["CompilerError","CompilerError enum that represents all the errors for the `leo-compiler` crate."]]});

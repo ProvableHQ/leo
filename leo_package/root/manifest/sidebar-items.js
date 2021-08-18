@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["AUTHOR_PLACEHOLDER",""],["MANIFEST_FILENAME",""]],"struct":[["Manifest",""],["Remote",""]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["definition","Stores all defined names in a compiled Leo program."]]});

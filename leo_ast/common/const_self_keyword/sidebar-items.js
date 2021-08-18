@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ConstSelfKeyword","The `self` keyword can view circuit values inside of a circuit function. Circuit values cannot be modified. To modify values use the `mut self` [MutSelfKeyword]."]]});

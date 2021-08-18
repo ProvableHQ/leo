@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ParserContext","Stores a program in tokenized format plus additional context. May be converted into a [`Program`] AST by parsing all tokens."]]});

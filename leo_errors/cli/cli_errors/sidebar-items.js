@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["CliError","CliError enum that represents all the errors for the `leo-lang` crate."]]});

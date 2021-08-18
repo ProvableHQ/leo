@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["group_type","A data type that represents members in the group formed by the set of affine points on a curve."],["input","Methods to enforce constraints on input group values in a Leo program."],["targets","implemented group targets"]]});

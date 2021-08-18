@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Registers","An input section declared in an input file with `[$name]`."]]});

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["VariableDeclaration","Specifies how a program variable was declared."]],"struct":[["InnerVariable","Stores information on a program variable."]],"type":[["Variable",""]]});

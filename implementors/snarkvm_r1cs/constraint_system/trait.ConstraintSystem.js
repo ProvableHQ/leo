@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["leo_synthesizer"] = [{"text":"impl&lt;E:&nbsp;PairingEngine&gt; ConstraintSystem&lt;&lt;E as PairingEngine&gt;::Fr&gt; for <a class=\"struct\" href=\"leo_synthesizer/circuit_synthesizer/struct.CircuitSynthesizer.html\" title=\"struct leo_synthesizer::circuit_synthesizer::CircuitSynthesizer\">CircuitSynthesizer</a>&lt;E&gt;","synthetic":false,"types":["leo_synthesizer::circuit_synthesizer::CircuitSynthesizer"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

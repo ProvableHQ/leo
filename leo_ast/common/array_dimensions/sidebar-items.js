@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ArrayDimensions","A vector of positive numbers that represent array dimensions. Can be used in an array [`Type`] or an array initializer [`Expression`]."]]});

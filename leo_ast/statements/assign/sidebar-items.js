@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["AssignOperation",""],["AssigneeAccess",""]],"mod":[["assignee",""]],"struct":[["AssignStatement",""],["Assignee","Definition assignee: v, arr[0..2], Point p.x"]]});

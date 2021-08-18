@@ -1,0 +1,1 @@
+initSidebarItems({"static":[["LEAF_INDEX_PARAMETER_STRING",""],["ROOT_PARAMETER_STRING",""]],"struct":[["StateValues","The serialized values included in the state. A new [`StateValues`] type can be constructed from an [`AstState`] type."]]});

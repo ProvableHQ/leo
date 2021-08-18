@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["FunctionQualifier",""]],"struct":[["Annotation",""],["Function",""]]});
