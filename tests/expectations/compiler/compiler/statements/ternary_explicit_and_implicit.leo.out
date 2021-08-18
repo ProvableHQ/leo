@@ -1,0 +1,21 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 25
+      num_constraints: 33
+      at: 00318b0f80b01b9e2d5a8154a536deb1545f04abd493a84071ef13dce1a9d92d
+      bt: 799ee4dc07f6320b8c3dcbd5ebdf6de8a4cf5af8b1edc45dbe5621c8a34fa38d
+      ct: 7b6ec9eacd65cfa47dfe7e73eb7c8fa4be804a9fb878fddf59fe5d06e7c04489
+    output:
+      - input_file: inputs/ternary_explicit_and_implicit.in
+        output:
+          registers:
+            a:
+              type: u8
+              value: "3"
+    initial_ast: 720f64a9f5c18e2522d71e844010cc5d6d5dc390bd3fced327e792bf15488a3d
+    canonicalized_ast: 720f64a9f5c18e2522d71e844010cc5d6d5dc390bd3fced327e792bf15488a3d
+    type_inferenced_ast: 8347d144d24c35538a83ca0442204b08a35b2eee2dcb3fe92915421515ef60d1
