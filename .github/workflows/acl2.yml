@@ -1,9 +1,18 @@
 name: Leo-ACL2
 on: 
-  push:
+  pull_request:
+    push:
+      branches:
+        - master
+        - staging
+        - trying
+      paths-ignore:
+        - 'docs/**'
+        - 'documentation/**'
 env: 
   RUST_BACKTRACE: 1
 
+# This job can only be run on linux (Ubuntu)
 jobs:
   acl2:
     name: leo-acl2
@@ -25,7 +34,7 @@ jobs:
 
       # Pull the latest release from the leo-acl2-bin repo, and put it into the
       # repo/acl2 directory. After it's done, unpack the tgz file locally.
-      - name: Pull the tgc executable
+      - name: Pull tgc executable
         run: |
           mkdir acl2 && cd acl2;
           wget $(curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/releases/latest \
@@ -37,7 +46,7 @@ jobs:
           tar -xvzf $(ls)
       
       # Using the prepared ASTs and the pulled and unzipped tgc run theorem generation.
-      - name: Run tgc over the asts
+      - name: Run tgc over ASTs
         run: |
           errors=();
           for dir in `ls tmp/tgc`;
