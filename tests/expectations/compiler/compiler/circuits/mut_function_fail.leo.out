@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:12:5\n     |\n  12 |     f.bar = 1u8;\n     |     ^^^^^^^^^^^\n     |\n     = attempt to assign to function 'bar'"
+  - "Error [EASG0373007]: attempt to assign to function 'bar'\n    --> compiler-test:12:5\n     |\n  12 |     f.bar = 1u8;\n     |     ^^^^^^^^^^^"

@@ -6,12 +6,12 @@ outputs:
     expected_input: []
     imports: []
     circuits:
-      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
-        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
         members:
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    function x() {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x() {\\\"}\"}"
               input: []
               output: ~
               block:
@@ -25,32 +25,32 @@ outputs:
                             line_stop: 5
                             col_start: 16
                             col_stop: 18
-                            path: test
+                            path: ""
                             content: "        return ();"
                       span:
                         line_start: 5
                         line_stop: 5
                         col_start: 9
                         col_stop: 18
-                        path: test
+                        path: ""
                         content: "        return ();"
                 span:
                   line_start: 4
                   line_stop: 6
                   col_start: 18
                   col_stop: 6
-                  path: test
-                  content: "    function x() {\n...\n    }"
+                  path: ""
+                  content: "    function x() {\n         ...\n    }"
               span:
                 line_start: 4
                 line_stop: 6
                 col_start: 5
                 col_stop: 6
-                path: test
-                content: "    function x() {\n...\n    }"
+                path: ""
+                content: "    function x() {\n         ...\n    }"
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    function y() {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function y() {\\\"}\"}"
               input: []
               output: ~
               block:
@@ -64,28 +64,28 @@ outputs:
                             line_stop: 8
                             col_start: 16
                             col_stop: 18
-                            path: test
+                            path: ""
                             content: "        return ();"
                       span:
                         line_start: 8
                         line_stop: 8
                         col_start: 9
                         col_stop: 18
-                        path: test
+                        path: ""
                         content: "        return ();"
                 span:
                   line_start: 7
                   line_stop: 9
                   col_start: 18
                   col_stop: 6
-                  path: test
-                  content: "    function y() {\n...\n    }"
+                  path: ""
+                  content: "    function y() {\n         ...\n    }"
               span:
                 line_start: 7
                 line_stop: 9
                 col_start: 5
                 col_stop: 6
-                path: test
-                content: "    function y() {\n...\n    }"
+                path: ""
+                content: "    function y() {\n         ...\n    }"
     global_consts: {}
     functions: {}

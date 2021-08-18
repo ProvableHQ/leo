@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:4:20\n     |\n   4 |     const a: i32 = 2147483648;\n     |                    ^^^^^^^^^^\n     |\n     = failed to parse int value '2147483648'"
+  - "Error [EASG0373031]: failed to parse int value '2147483648'\n    --> compiler-test:4:20\n     |\n   4 |     const a: i32 = 2147483648;\n     |                    ^^^^^^^^^^"

@@ -16,7 +16,8 @@
 
 //! The proof file.
 
-use crate::{errors::ProofFileError, outputs::OUTPUTS_DIRECTORY_NAME};
+use crate::outputs::OUTPUTS_DIRECTORY_NAME;
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::{
@@ -48,20 +49,20 @@ impl ProofFile {
     }
 
     /// Reads the proof from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<String, ProofFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<String> {
         let path = self.setup_file_path(path);
 
-        let proof = fs::read_to_string(&path).map_err(|_| ProofFileError::FileReadError(path.into_owned()))?;
-        Ok(proof)
+        let string =
+            fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_proof_file(path.into_owned()))?;
+        Ok(string)
     }
 
     /// Writes the given proof to a file.
-    pub fn write_to(&self, path: &Path, proof: &[u8]) -> Result<(), ProofFileError> {
+    pub fn write_to(&self, path: &Path, proof: &[u8]) -> Result<()> {
         let path = self.setup_file_path(path);
+        let mut file = File::create(&path).map_err(PackageError::io_error_proof_file)?;
 
-        let mut file = File::create(&path)?;
-        file.write_all(proof)?;
-
+        file.write_all(proof).map_err(PackageError::io_error_proof_file)?;
         tracing::info!("Saving proof... ({:?})", path);
 
         Ok(())
@@ -69,13 +70,13 @@ impl ProofFile {
 
     /// Removes the proof at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool, ProofFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ProofFileError::FileRemovalError(path.into_owned()))?;
+        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_proof_file(path))?;
         Ok(true)
     }
 

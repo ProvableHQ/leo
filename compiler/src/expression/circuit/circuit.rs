@@ -17,12 +17,12 @@
 //! Enforces a circuit expression in a compiled Leo program.
 
 use crate::{
-    errors::ExpressionError,
     program::ConstrainedProgram,
     value::{ConstrainedCircuitMember, ConstrainedValue},
     GroupType,
 };
-use leo_asg::{CircuitInitExpression, CircuitMember, Span};
+use leo_asg::{CircuitInitExpression, CircuitMember};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -33,7 +33,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         expr: &CircuitInitExpression<'a>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let circuit = expr.circuit.get();
         let members = circuit.members.borrow();
 
@@ -49,7 +49,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     let variable_value = self.enforce_expression(cs, inner.get())?;
                     resolved_members.push(ConstrainedCircuitMember(name.clone(), variable_value));
                 }
-                _ => return Err(ExpressionError::expected_circuit_member(name.to_string(), span)),
+                _ => {
+                    return Err(CompilerError::expected_circuit_member(name, span).into());
+                }
             }
         }
 

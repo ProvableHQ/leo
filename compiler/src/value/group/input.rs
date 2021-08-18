@@ -16,9 +16,10 @@
 
 //! Methods to enforce constraints on input group values in a Leo program.
 
-use crate::{errors::GroupError, ConstrainedValue, GroupType};
-use leo_asg::{GroupValue, Span};
+use crate::{ConstrainedValue, GroupType};
+use leo_asg::GroupValue;
 use leo_ast::InputValue;
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
@@ -28,12 +29,12 @@ pub(crate) fn allocate_group<F: PrimeField, G: GroupType<F>, CS: ConstraintSyste
     name: &str,
     option: Option<GroupValue>,
     span: &Span,
-) -> Result<G, GroupError> {
-    G::alloc(
+) -> Result<G> {
+    Ok(G::alloc(
         cs.ns(|| format!("`{}: group` {}:{}", name, span.line_start, span.col_start)),
         || option.ok_or(SynthesisError::AssignmentMissing),
     )
-    .map_err(|_| GroupError::missing_group(format!("{}: group", name), span))
+    .map_err(|_| CompilerError::group_value_missing_group(format!("{}: group", name), span))?)
 }
 
 pub(crate) fn group_from_input<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -41,14 +42,14 @@ pub(crate) fn group_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, GroupError> {
+) -> Result<ConstrainedValue<'a, F, G>> {
     // Check that the parameter value is the correct type
     let option = match input_value {
         Some(input) => {
             if let InputValue::Group(string) = input {
                 Some(string)
             } else {
-                return Err(GroupError::invalid_group(input.to_string(), span));
+                return Err(CompilerError::group_value_missing_group(input, span).into());
             }
         }
         None => None,

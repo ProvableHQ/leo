@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::FunctionError, ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
+use crate::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
 use leo_asg::{Circuit, CircuitMember, Type};
-use leo_ast::{Identifier, Input, Span};
+use leo_ast::{Identifier, Input};
+use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -34,7 +35,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         span: &Span,
         expected_type: &'a Circuit<'a>,
         input: &Input,
-    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         // Create an identifier for each input variable
 
         let registers_name = Identifier {

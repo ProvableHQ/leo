@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::Identifier;
+use leo_errors::{CompilerError, Result};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -28,9 +29,9 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         mut context: ResolverContext<'a, 'b, F, G>,
         name: &Identifier,
-    ) -> Result<(), StatementError> {
+    ) -> Result<()> {
         if context.input.len() != 1 {
-            return Err(StatementError::array_assign_interior_index(&context.span));
+            return Err(CompilerError::statement_array_assign_interior_index(&context.span).into());
         }
         match context.input.remove(0) {
             ConstrainedValue::CircuitExpression(_variable, members) => {
@@ -44,15 +45,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     }
                     None => {
                         // Throw an error if the circuit variable does not exist in the circuit
-                        Err(StatementError::undefined_circuit_variable(
-                            name.to_string(),
-                            &context.span,
-                        ))
+                        Err(CompilerError::statement_undefined_circuit_variable(name, &context.span).into())
                     }
                 }
             }
             // Throw an error if the circuit definition does not exist in the file
-            x => Err(StatementError::undefined_circuit(x.to_string(), &context.span)),
+            x => Err(CompilerError::undefined_circuit(x, &context.span).into()),
         }
     }
 }

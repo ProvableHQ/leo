@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstSelfKeyword, FunctionInputVariable, MutSelfKeyword, Node, SelfKeyword, Span};
+use crate::{ConstSelfKeyword, FunctionInputVariable, MutSelfKeyword, Node, SelfKeyword};
+use leo_errors::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

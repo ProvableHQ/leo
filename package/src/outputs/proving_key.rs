@@ -16,7 +16,8 @@
 
 //! The proving key file.
 
-use crate::{errors::ProvingKeyFileError, outputs::OUTPUTS_DIRECTORY_NAME};
+use crate::outputs::OUTPUTS_DIRECTORY_NAME;
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::{
@@ -52,31 +53,32 @@ impl ProvingKeyFile {
     }
 
     /// Reads the proving key from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<Vec<u8>, ProvingKeyFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<Vec<u8>> {
         let path = self.setup_file_path(path);
 
-        fs::read(&path).map_err(|_| ProvingKeyFileError::FileReadError(path.into_owned()))
+        let bytes = fs::read(&path).map_err(|_| PackageError::failed_to_read_proving_key_file(path))?;
+        Ok(bytes)
     }
 
     /// Writes the given proving key to a file.
-    pub fn write_to<'a>(&self, path: &'a Path, proving_key: &[u8]) -> Result<Cow<'a, Path>, ProvingKeyFileError> {
+    pub fn write_to<'a>(&self, path: &'a Path, proving_key: &[u8]) -> Result<Cow<'a, Path>> {
         let path = self.setup_file_path(path);
+        let mut file = File::create(&path).map_err(PackageError::io_error_proving_key_file)?;
 
-        let mut file = File::create(&path)?;
-        file.write_all(proving_key)?;
-
+        file.write_all(proving_key)
+            .map_err(PackageError::io_error_proving_key_file)?;
         Ok(path)
     }
 
     /// Removes the proving key at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool, ProvingKeyFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| ProvingKeyFileError::FileRemovalError(path.into_owned()))?;
+        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_proving_key_file(path))?;
         Ok(true)
     }
 

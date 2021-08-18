@@ -42,7 +42,8 @@ pub use iteration::*;
 mod return_;
 pub use return_::*;
 
-use crate::{AsgConvertError, FromAst, Node, PartialType, Scope, Span};
+use crate::{FromAst, Node, PartialType, Scope};
+use leo_errors::{Result, Span};
 
 #[derive(Clone)]
 pub enum Statement<'a> {
@@ -79,14 +80,14 @@ impl<'a> FromAst<'a, leo_ast::Statement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::Statement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<&'a Statement<'a>, AsgConvertError> {
+    ) -> Result<&'a Statement<'a>> {
         use leo_ast::Statement::*;
         Ok(match value {
             Return(statement) => scope
                 .context
                 .alloc_statement(Statement::Return(ReturnStatement::from_ast(scope, statement, None)?)),
             Definition(statement) => Self::from_ast(scope, statement, None)?,
-            Assign(statement) => Self::from_ast(scope, statement, None)?,
+            Assign(statement) => Self::from_ast(scope, &**statement, None)?,
             Conditional(statement) => {
                 scope
                     .context
@@ -118,7 +119,7 @@ impl<'a> Into<leo_ast::Statement> for &Statement<'a> {
         match self {
             Return(statement) => leo_ast::Statement::Return(statement.into()),
             Definition(statement) => leo_ast::Statement::Definition(statement.into()),
-            Assign(statement) => leo_ast::Statement::Assign(statement.into()),
+            Assign(statement) => leo_ast::Statement::Assign(Box::new(statement.into())),
             Conditional(statement) => leo_ast::Statement::Conditional(statement.into()),
             Iteration(statement) => leo_ast::Statement::Iteration(Box::new(statement.into())),
             Console(statement) => leo_ast::Statement::Console(statement.into()),

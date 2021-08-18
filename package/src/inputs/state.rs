@@ -16,7 +16,8 @@
 
 //! The `program.state` file.
 
-use crate::{errors::StateFileError, inputs::INPUTS_DIRECTORY_NAME};
+use crate::inputs::INPUTS_DIRECTORY_NAME;
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::{
@@ -52,21 +53,22 @@ impl StateFile {
     }
 
     /// Reads the state input variables from the given file path if it exists.
-    pub fn read_from<'a>(&self, path: &'a Path) -> Result<(String, Cow<'a, Path>), StateFileError> {
+    pub fn read_from<'a>(&self, path: &'a Path) -> Result<(String, Cow<'a, Path>)> {
         let path = self.setup_file_path(path);
 
-        match fs::read_to_string(&path) {
-            Ok(input) => Ok((input, path)),
-            Err(_) => Err(StateFileError::FileReadError(path.into_owned())),
-        }
+        let input = fs::read_to_string(&path)
+            .map_err(|_| PackageError::failed_to_read_state_file(path.clone().into_owned()))?;
+        Ok((input, path))
     }
 
     /// Writes the standard input format to a file.
-    pub fn write_to(self, path: &Path) -> Result<(), StateFileError> {
+    pub fn write_to(self, path: &Path) -> Result<()> {
         let path = self.setup_file_path(path);
+        let mut file = File::create(&path).map_err(PackageError::io_error_state_file)?;
 
-        let mut file = File::create(&path)?;
-        Ok(file.write_all(self.template().as_bytes())?)
+        Ok(file
+            .write_all(self.template().as_bytes())
+            .map_err(PackageError::io_error_state_file)?)
     }
 
     fn template(&self) -> String {

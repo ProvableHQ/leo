@@ -16,8 +16,9 @@
 
 //! Enforces a return statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::ReturnStatement;
+use leo_errors::Result;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -27,7 +28,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         statement: &ReturnStatement<'a>,
-    ) -> Result<ConstrainedValue<'a, F, G>, StatementError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let result = self.enforce_expression(cs, statement.expression.get())?;
         Ok(result)
     }

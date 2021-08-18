@@ -14,49 +14,46 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::InputValueError;
 use leo_ast::{InputValue, Parameter};
+use leo_errors::{Result, StateError};
 
 use indexmap::IndexMap;
 
 /// Returns the input parameter with the given name.
 /// If a parameter with the given name does not exist, then an error is returned.
-pub fn find_input(
-    name: String,
-    parameters: &IndexMap<Parameter, Option<InputValue>>,
-) -> Result<InputValue, InputValueError> {
+pub fn find_input(name: String, parameters: &IndexMap<Parameter, Option<InputValue>>) -> Result<InputValue> {
     let matched_parameter = parameters
         .iter()
         .find(|(parameter, _value)| parameter.variable.name.as_ref() == name);
 
     match matched_parameter {
         Some((_, Some(value))) => Ok(value.clone()),
-        _ => Err(InputValueError::MissingParameter(name)),
+        _ => Err(StateError::missing_parameter(name).into()),
     }
 }
 
 /// Returns the string of the integer input value.
 /// If the input value is not an integer, then an error is returned.
-pub fn input_to_integer_string(input: InputValue) -> Result<String, InputValueError> {
+pub fn input_to_integer_string(input: InputValue) -> Result<String> {
     match input {
         InputValue::Integer(_type, string) => Ok(string),
-        value => Err(InputValueError::ExpectedInteger(value.to_string())),
+        value => Err(StateError::expected_int(value).into()),
     }
 }
 
 /// Returns the given input value as u8 bytes.
 /// If the given input value cannot be serialized into bytes then an error is returned.
-pub fn input_to_bytes(input: InputValue) -> Result<Vec<u8>, InputValueError> {
+pub fn input_to_bytes(input: InputValue) -> Result<Vec<u8>> {
     let input_array = match input {
         InputValue::Array(values) => values,
-        value => return Err(InputValueError::ExpectedBytes(value.to_string())),
+        value => return Err(StateError::expected_bytes(value).into()),
     };
 
     let mut result_vec = Vec::with_capacity(input_array.len());
 
     for input in input_array {
         let integer_string = input_to_integer_string(input)?;
-        let byte = integer_string.parse::<u8>()?;
+        let byte = integer_string.parse::<u8>().map_err(StateError::parse_int_error)?;
 
         result_vec.push(byte);
     }
@@ -66,10 +63,10 @@ pub fn input_to_bytes(input: InputValue) -> Result<Vec<u8>, InputValueError> {
 
 /// Returns the given input value as an array of u8 bytes.
 /// If the given input value cannot be serialized into an array of bytes then an error is returned.
-pub fn input_to_nested_bytes(input: InputValue) -> Result<Vec<Vec<u8>>, InputValueError> {
+pub fn input_to_nested_bytes(input: InputValue) -> Result<Vec<Vec<u8>>> {
     let inner_arrays = match input {
         InputValue::Array(arrays) => arrays,
-        value => return Err(InputValueError::ExpectedBytes(value.to_string())),
+        value => return Err(StateError::expected_bytes(value).into()),
     };
 
     let mut result_vec = Vec::with_capacity(inner_arrays.len());

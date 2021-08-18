@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
+use crate::{Expression, FromAst, Node, PartialType, Scope, Statement, Type};
+use leo_errors::{Result, Span};
 
 use std::cell::Cell;
 #[derive(Clone)]
@@ -35,7 +36,7 @@ impl<'a> FromAst<'a, leo_ast::ReturnStatement> for ReturnStatement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::ReturnStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self> {
         let return_type: Option<Type> = scope
             .resolve_current_function()
             .map(|x| x.output.clone())

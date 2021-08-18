@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use anyhow::Result;
+use leo_errors::Result;
 use std::path::PathBuf;
 
 use crate::{
@@ -143,7 +143,8 @@ pub fn test_pedersen_hash() -> Result<()> {
 
 #[test]
 pub fn test_logout() -> Result<()> {
-    (Logout {}).apply(context()?, ())?;
+    let logout = (Logout {}).apply(context()?, ());
+    assert!(logout.is_err());
     Ok(())
 }
 
@@ -172,6 +173,7 @@ pub fn login_incorrect_credentials_or_token() -> Result<()> {
     Ok(())
 }
 
+#[cfg(not(target_os = "macos"))]
 #[test]
 pub fn leo_update_and_update_automatic() -> Result<()> {
     let update = Update {

@@ -18,7 +18,6 @@
 
 use crate::{
     address::Address,
-    errors::{FunctionError, IntegerError},
     program::ConstrainedProgram,
     value::{
         boolean::input::bool_from_input, char::char_from_input, field::input::field_from_input,
@@ -27,7 +26,8 @@ use crate::{
     CharType, FieldType, GroupType, Integer,
 };
 use leo_asg::{ConstInt, Type};
-use leo_ast::{Char, InputValue, Span};
+use leo_ast::{Char, InputValue};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -41,7 +41,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         name: &str,
         input_option: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         match type_ {
             Type::Address => Ok(Address::from_input(cs, name, input_option, span)?),
             Type::Boolean => Ok(bool_from_input(cs, name, input_option, span)?),
@@ -71,8 +71,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         name: &str,
         input_option: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
-        let input = input_option.ok_or_else(|| FunctionError::input_not_found(name.to_string(), span))?;
+    ) -> Result<ConstrainedValue<'a, F, G>> {
+        let input = input_option.ok_or_else(|| CompilerError::function_input_not_found("main", name, span))?;
 
         match (type_, input) {
             (Type::Address, InputValue::Address(addr)) => Ok(ConstrainedValue::Address(Address::constant(addr, span)?)),
@@ -100,21 +100,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 let parsed_type = parsed.get_int_type();
                 let input_type = input_type.into();
                 if std::mem::discriminant(&parsed_type) != std::mem::discriminant(&input_type) {
-                    return Err(FunctionError::from(IntegerError::integer_type_mismatch(
-                        input_type.to_string(),
-                        parsed_type.to_string(),
-                        span,
-                    )));
+                    return Err(
+                        CompilerError::integer_value_integer_type_mismatch(input_type, parsed_type, span).into(),
+                    );
                 }
                 Ok(ConstrainedValue::Integer(Integer::new(&parsed)))
             }
             (Type::Array(type_, arr_len), InputValue::Array(values)) => {
                 if *arr_len != values.len() {
-                    return Err(FunctionError::invalid_input_array_dimensions(
-                        *arr_len,
-                        values.len(),
-                        span,
-                    ));
+                    return Err(CompilerError::invalid_input_array_dimensions(*arr_len, values.len(), span).into());
                 }
 
                 Ok(ConstrainedValue::Array(
@@ -126,7 +120,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             }
             (Type::Tuple(types), InputValue::Tuple(values)) => {
                 if values.len() != types.len() {
-                    return Err(FunctionError::tuple_size_mismatch(types.len(), values.len(), span));
+                    return Err(CompilerError::input_tuple_size_mismatch(types.len(), values.len(), span).into());
                 }
 
                 Ok(ConstrainedValue::Tuple(
@@ -142,12 +136,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             (Type::Circuit(_), _) => unimplemented!("main function input not implemented for type {}", type_), // Should not happen.
 
             // Return an error if the input type and input value do not match.
-            (_, input) => Err(FunctionError::input_type_mismatch(
-                type_.to_string(),
-                input.to_string(),
-                name.to_string(),
-                span,
-            )),
+            (_, input) => Err(CompilerError::input_variable_type_mismatch(type_, input, name, span).into()),
         }
     }
 }

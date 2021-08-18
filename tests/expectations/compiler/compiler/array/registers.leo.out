@@ -22,6 +22,6 @@ outputs:
             r:
               type: "[u8; 3]"
               value: "\"123\""
-    initial_ast: b3db525091621f7c96908a112c405a1e222e86bc9909e238d6716cf0ea3359c7
-    canonicalized_ast: b3db525091621f7c96908a112c405a1e222e86bc9909e238d6716cf0ea3359c7
-    type_inferenced_ast: d19ec51bcaeab5ce9c458f093cf37b62597ae327fd3c1cd12aa011d52e51ecab
+    initial_ast: 1c07965336635dce8cd66c67eddf25a51f61a3b90513f87ef123c642a9b5b18a
+    canonicalized_ast: 1c07965336635dce8cd66c67eddf25a51f61a3b90513f87ef123c642a9b5b18a
+    type_inferenced_ast: cf35fa9ca18f19ac75ca522a77e310b02ff56ac1d748cd5df5c2204bba4a4802

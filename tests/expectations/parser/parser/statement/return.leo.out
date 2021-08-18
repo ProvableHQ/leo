@@ -4,13 +4,13 @@ expectation: Pass
 outputs:
   - Return:
       expression:
-        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":12,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"return expr;\\\"}\"}"
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"return expr;\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 12
-        path: test
+        path: ""
         content: return expr;
   - Return:
       expression:
@@ -21,14 +21,14 @@ outputs:
             line_stop: 1
             col_start: 8
             col_stop: 10
-            path: test
+            path: ""
             content: return ();
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 10
-        path: test
+        path: ""
         content: return ();
   - Return:
       expression:
@@ -39,56 +39,56 @@ outputs:
             line_stop: 1
             col_start: 8
             col_stop: 10
-            path: test
+            path: ""
             content: return ();
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 10
-        path: test
+        path: ""
         content: return ();
   - Return:
       expression:
         Binary:
           left:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"return x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"return x+y;\\\"}\"}"
           right:
-            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"return x+y;\\\"}\"}"
+            Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"return x+y;\\\"}\"}"
           op: Add
           span:
             line_start: 1
             line_stop: 1
             col_start: 8
             col_stop: 11
-            path: test
+            path: ""
             content: return x+y;
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 11
-        path: test
+        path: ""
         content: return x+y;
   - Return:
       expression:
         TupleInit:
           elements:
-            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"return (x,y);\\\"}\"}"
-            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"return (x,y);\\\"}\"}"
+            - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"return (x,y);\\\"}\"}"
+            - Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":11,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"return (x,y);\\\"}\"}"
           span:
             line_start: 1
             line_stop: 1
             col_start: 8
             col_stop: 13
-            path: test
+            path: ""
             content: "return (x,y);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 13
-        path: test
+        path: ""
         content: "return (x,y);"
   - Return:
       expression:
@@ -99,12 +99,12 @@ outputs:
               line_stop: 2
               col_start: 1
               col_stop: 2
-              path: test
+              path: ""
               content: 5;
       span:
         line_start: 1
         line_stop: 2
         col_start: 1
         col_stop: 2
-        path: test
+        path: ""
         content: "return\n5;"
