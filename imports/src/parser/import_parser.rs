@@ -58,8 +58,8 @@ impl<'a> ImportResolver<'a> for ImportParser<'a> {
             return Ok(Some(program.clone()));
         }
         let path = self.program_path.clone();
-        let mut imports = self.clone(); // Self::default() was previously
         self.partial_imports.insert(full_path.clone());
+        let mut imports = self.clone(); // Self::default() was previously
         let program = imports
             .parse_package(context, path, package_segments, span)
             .map_err(|x| -> AsgConvertError { x.into() })?;
