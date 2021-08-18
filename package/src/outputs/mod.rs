@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub mod ast_snapshot;
+pub use self::ast_snapshot::*;
+
 pub mod circuit;
 pub use self::circuit::*;
 
@@ -28,9 +31,6 @@ pub use self::proof::*;
 
 pub mod proving_key;
 pub use self::proving_key::*;
-
-pub mod ast_snapshot;
-pub use self::ast_snapshot::*;
 
 pub mod verification_key;
 pub use self::verification_key::*;
