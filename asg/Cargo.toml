@@ -26,12 +26,13 @@ version = "1.0"
 [dependencies.indexmap]
 version = "1.7"
 
-[dependencies.thiserror]
-version = "1.0"
-
 [dependencies.leo-ast]
 version = "1.5.3"
 path = "../ast"
+
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
 
 [dependencies.leo-parser]
 version = "1.5.3"

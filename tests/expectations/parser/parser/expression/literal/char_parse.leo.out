@@ -11,7 +11,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 4
-          path: test
+          path: ""
           content: "'a'"
   - Value:
       Char:
@@ -22,7 +22,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 4
-          path: test
+          path: ""
           content: "'Z'"
   - Value:
       Char:
@@ -33,7 +33,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 5
-          path: test
+          path: ""
           content: "'\\\"'"
   - Value:
       Char:
@@ -44,7 +44,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 5
-          path: test
+          path: ""
           content: "'\\t'"
   - Value:
       Char:
@@ -55,7 +55,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 5
-          path: test
+          path: ""
           content: "'\\r'"
   - Value:
       Char:
@@ -66,7 +66,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 5
-          path: test
+          path: ""
           content: "'\\0'"
   - Value:
       Char:
@@ -77,7 +77,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 8
-          path: test
+          path: ""
           content: "'\\u{F}'"
   - Value:
       Char:
@@ -88,7 +88,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 6
-          path: test
+          path: ""
           content: "''"
   - Value:
       Char:
@@ -99,7 +99,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: test
+          path: ""
           content: "'\\u{E5}'"
   - Value:
       Char:
@@ -110,7 +110,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 5
-          path: test
+          path: ""
           content: "'å'"
   - Value:
       Char:
@@ -121,7 +121,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: test
+          path: ""
           content: "'\\u{4e0}'"
   - Value:
       Char:
@@ -132,7 +132,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 5
-          path: test
+          path: ""
           content: "'Ӡ'"
   - Value:
       Char:
@@ -143,7 +143,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 11
-          path: test
+          path: ""
           content: "'\\u{2764}'"
   - Value:
       Char:
@@ -154,7 +154,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 6
-          path: test
+          path: ""
           content: "'❤'"
   - Value:
       Char:
@@ -165,7 +165,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 12
-          path: test
+          path: ""
           content: "'\\u{1F622}'"
   - Value:
       Char:
@@ -176,7 +176,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'😭'"
   - Value:
       Char:
@@ -187,7 +187,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 13
-          path: test
+          path: ""
           content: "'\\u{10001F}'"
   - Value:
       Char:
@@ -198,7 +198,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x2A'"
   - Value:
       Char:
@@ -209,7 +209,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x7f'"
   - Value:
       Char:
@@ -220,7 +220,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x00'"
   - Value:
       Char:
@@ -231,7 +231,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x01'"
   - Value:
       Char:
@@ -242,7 +242,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x02'"
   - Value:
       Char:
@@ -253,7 +253,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x03'"
   - Value:
       Char:
@@ -264,7 +264,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x04'"
   - Value:
       Char:
@@ -275,7 +275,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x05'"
   - Value:
       Char:
@@ -286,7 +286,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x06'"
   - Value:
       Char:
@@ -297,7 +297,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x07'"
   - Value:
       Char:
@@ -308,7 +308,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x10'"
   - Value:
       Char:
@@ -319,7 +319,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x11'"
   - Value:
       Char:
@@ -330,7 +330,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x12'"
   - Value:
       Char:
@@ -341,7 +341,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x13'"
   - Value:
       Char:
@@ -352,7 +352,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x14'"
   - Value:
       Char:
@@ -363,7 +363,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x15'"
   - Value:
       Char:
@@ -374,7 +374,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x16'"
   - Value:
       Char:
@@ -385,7 +385,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x17'"
   - Value:
       Char:
@@ -396,7 +396,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x20'"
   - Value:
       Char:
@@ -407,7 +407,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x21'"
   - Value:
       Char:
@@ -418,7 +418,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x22'"
   - Value:
       Char:
@@ -429,7 +429,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x23'"
   - Value:
       Char:
@@ -440,7 +440,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x24'"
   - Value:
       Char:
@@ -451,7 +451,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x25'"
   - Value:
       Char:
@@ -462,7 +462,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x26'"
   - Value:
       Char:
@@ -473,7 +473,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x27'"
   - Value:
       Char:
@@ -484,7 +484,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x30'"
   - Value:
       Char:
@@ -495,7 +495,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x31'"
   - Value:
       Char:
@@ -506,7 +506,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x32'"
   - Value:
       Char:
@@ -517,7 +517,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x33'"
   - Value:
       Char:
@@ -528,7 +528,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x34'"
   - Value:
       Char:
@@ -539,7 +539,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x35'"
   - Value:
       Char:
@@ -550,7 +550,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x36'"
   - Value:
       Char:
@@ -561,5 +561,5 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "'\\x37'"

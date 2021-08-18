@@ -14,7 +14,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: test
+          path: ""
           content: "\"string\""
   - Value:
       String:
@@ -40,7 +40,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 21
-          path: test
+          path: ""
           content: "\"another { } string\""
   - Value:
       String:
@@ -57,7 +57,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 12
-          path: test
+          path: ""
           content: "\"{ ] [ ; a\""
   - Value:
       String:
@@ -66,7 +66,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: test
+          path: ""
           content: "\"\\u{FFA}\""
   - Value:
       String:
@@ -75,7 +75,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 12
-          path: test
+          path: ""
           content: "\"\\u{afafa}\""
   - Value:
       String:
@@ -84,7 +84,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 11
-          path: test
+          path: ""
           content: "\"\\u{afaf}\""
   - Value:
       String:
@@ -93,7 +93,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 10
-          path: test
+          path: ""
           content: "\"\\u{afa}\""
   - Value:
       String:
@@ -102,7 +102,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 9
-          path: test
+          path: ""
           content: "\"\\u{af}\""
   - Value:
       String:
@@ -111,7 +111,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 8
-          path: test
+          path: ""
           content: "\"\\u{a}\""
   - Value:
       String:
@@ -120,7 +120,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "\"\\x0A\""
   - Value:
       String:
@@ -129,7 +129,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 7
-          path: test
+          path: ""
           content: "\"\\x7F\""
   - Value:
       String:
@@ -156,7 +156,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 28
-          path: test
+          path: ""
           content: "\"aa \\\\ \\\"  \\n aa \\t \\r  \\0\""
   - Value:
       String:
@@ -171,7 +171,7 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: test
+          path: ""
           content: "\"test 😒€\""
   - Value:
       String:
@@ -182,5 +182,5 @@ outputs:
           line_stop: 1
           col_start: 1
           col_stop: 15
-          path: test
+          path: ""
           content: "\"😭😂😘\""

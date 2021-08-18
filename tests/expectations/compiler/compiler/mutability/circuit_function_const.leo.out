@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:15:5\n     |\n  15 |     a.foo();\n     |     ^^^^^\n     |\n     = cannot call mutable member function 'foo' of circuit 'Foo' from immutable context"
+  - "Error [EASG0373010]: cannot call mutable member function 'foo' of circuit 'Foo' from immutable context\n    --> compiler-test:15:5\n     |\n  15 |     a.foo();\n     |     ^^^^^"

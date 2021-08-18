@@ -16,8 +16,9 @@
 
 use std::{borrow::Cow, unimplemented};
 
-use crate::{assert_no_whitespace, tokenizer::*, SyntaxError, SyntaxResult, Token, KEYWORD_TOKENS};
+use crate::{assert_no_whitespace, tokenizer::*, Token, KEYWORD_TOKENS};
 use leo_ast::*;
+use leo_errors::{LeoError, ParserError, Result, Span};
 use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.
@@ -62,21 +63,21 @@ impl ParserContext {
     ///
     /// Returns an unexpected end of function [`SyntaxError`].
     ///
-    pub fn eof(&self) -> SyntaxError {
-        SyntaxError::unexpected_eof(&self.end_span)
+    pub fn eof(&self) -> LeoError {
+        ParserError::unexpected_eof(&self.end_span).into()
     }
 
     ///
     /// Returns a reference to the next next token or error if it does not exist.
     ///
-    pub fn peek_next(&self) -> SyntaxResult<&SpannedToken> {
+    pub fn peek_next(&self) -> Result<&SpannedToken> {
         self.tokens.get(self.tokens.len() - 2).ok_or_else(|| self.eof())
     }
 
     ///
     /// Returns a reference to the next token or error if it does not exist.
     ///
-    pub fn peek(&self) -> SyntaxResult<&SpannedToken> {
+    pub fn peek(&self) -> Result<&SpannedToken> {
         self.tokens.last().ok_or_else(|| self.eof())
     }
 
@@ -88,7 +89,7 @@ impl ParserContext {
             .unwrap_or_else(|| Cow::Owned(Token::Eof))
     }
 
-    // pub fn peek_oneof(&self, token: &[Token]) -> SyntaxResult<&SpannedToken> {
+    // pub fn peek_oneof(&self, token: &[Token]) -> Result<&SpannedToken> {
     //     if let Some(spanned_token) = self.inner.last() {
     //         if token.iter().any(|x| x == &spanned_token.token) {
     //             Ok(spanned_token)
@@ -189,7 +190,7 @@ impl ParserContext {
     /// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
     /// or [None] if the next token is not a [`GroupCoordinate`].
     ///
-    pub fn eat_group_partial(&mut self) -> Option<SyntaxResult<(GroupCoordinate, GroupCoordinate, Span)>> {
+    pub fn eat_group_partial(&mut self) -> Option<Result<(GroupCoordinate, GroupCoordinate, Span)>> {
         let mut i = self.tokens.len();
         if i < 1 {
             return None;
@@ -294,12 +295,12 @@ impl ParserContext {
     ///
     /// Returns the span of the next token if it is equal to the given [`Token`], or error.
     ///
-    pub fn expect(&mut self, token: Token) -> SyntaxResult<Span> {
+    pub fn expect(&mut self, token: Token) -> Result<Span> {
         if let Some(SpannedToken { token: inner, span }) = self.tokens.last() {
             if &token == inner {
                 Ok(self.tokens.pop().unwrap().span)
             } else {
-                Err(SyntaxError::unexpected(inner, &[token], span))
+                Err(ParserError::unexpected(inner, token, span).into())
             }
         } else {
             Err(self.eof())
@@ -309,12 +310,17 @@ impl ParserContext {
     ///
     /// Returns the span of the next token if it is equal to one of the given [`Token`]s, or error.
     ///
-    pub fn expect_oneof(&mut self, token: &[Token]) -> SyntaxResult<SpannedToken> {
+    pub fn expect_oneof(&mut self, token: &[Token]) -> Result<SpannedToken> {
         if let Some(SpannedToken { token: inner, span }) = self.tokens.last() {
             if token.iter().any(|x| x == inner) {
                 Ok(self.tokens.pop().unwrap())
             } else {
-                Err(SyntaxError::unexpected(inner, token, span))
+                return Err(ParserError::unexpected(
+                    inner,
+                    token.iter().map(|x| format!("'{}'", x)).collect::<Vec<_>>().join(", "),
+                    span,
+                )
+                .into());
             }
         } else {
             Err(self.eof())
@@ -325,7 +331,7 @@ impl ParserContext {
     /// Returns the [`Identifier`] of the next token if it is a keyword,
     /// [`Token::Int(_)`], or an [`Identifier`], or error.
     ///
-    pub fn expect_loose_identifier(&mut self) -> SyntaxResult<Identifier> {
+    pub fn expect_loose_identifier(&mut self) -> Result<Identifier> {
         if let Some(token) = self.eat_any(KEYWORD_TOKENS) {
             return Ok(Identifier {
                 name: token.token.to_string().into(),
@@ -341,7 +347,7 @@ impl ParserContext {
     ///
     /// Returns the [`Identifier`] of the next token if it is an [`Identifier`], or error.
     ///
-    pub fn expect_ident(&mut self) -> SyntaxResult<Identifier> {
+    pub fn expect_ident(&mut self) -> Result<Identifier> {
         if let Some(SpannedToken { token: inner, span }) = self.tokens.last() {
             if let Token::Ident(_) = inner {
                 let token = self.tokens.pop().unwrap();
@@ -355,7 +361,7 @@ impl ParserContext {
                     unimplemented!()
                 }
             } else {
-                Err(SyntaxError::unexpected_str(inner, "ident", span))
+                Err(ParserError::unexpected_str(inner, "ident", span).into())
             }
         } else {
             Err(self.eof())
@@ -365,7 +371,7 @@ impl ParserContext {
     ///
     /// Returns the next token if it exists or return end of function.
     ///
-    pub fn expect_any(&mut self) -> SyntaxResult<SpannedToken> {
+    pub fn expect_any(&mut self) -> Result<SpannedToken> {
         if let Some(x) = self.tokens.pop() {
             Ok(x)
         } else {

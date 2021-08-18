@@ -21,6 +21,10 @@ edition = "2018"
 path = "../ast"
 version = "1.5.3"
 
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
 [dependencies.leo-asg]
 path = "../asg"
 version = "1.5.3"
@@ -32,9 +36,6 @@ version = "1.5.3"
 [dependencies.indexmap]
 version = "1.7.0"
 features = [ "serde-1" ]
-
-[dependencies.thiserror]
-version = "1.0"
 
 [dependencies.tracing]
 version = "0.1"

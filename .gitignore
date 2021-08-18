@@ -9,6 +9,9 @@
 **/.crates2.json
 **/bin/
 
+# sccache from pipeline
+sccache*/
+
 # Emacs gitignore files
 *~
 \#*\#

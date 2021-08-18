@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "    --> test:3:18\n     |\n   3 | function x(const input) {\n     |                  ^^^^^\n     |\n     = expected 'ident', got 'input'"
+  - "Error [EPAR0370009]: unexpected string: expected 'ident', got 'input'\n    --> test:3:18\n     |\n   3 | function x(const input) {\n     |                  ^^^^^"

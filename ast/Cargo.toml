@@ -21,6 +21,10 @@ edition = "2018"
 path = "../input"
 version = "1.5.3"
 
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
 [dependencies.indexmap]
 version = "1.7.0"
 features = [ "serde-1" ]
@@ -33,12 +37,6 @@ version = "1.0"
 features = [ "derive", "rc" ]
 
 [dependencies.serde_json]
-version = "1.0"
-
-[dependencies.anyhow]
-version = "1.0"
-
-[dependencies.thiserror]
 version = "1.0"
 
 [dependencies.tendril]

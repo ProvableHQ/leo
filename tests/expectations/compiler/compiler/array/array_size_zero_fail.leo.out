@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:4:13\n     |\n   4 |     let a = [true; (0)];\n     |             ^^^^^^^^^^^\n     |\n     = received dimension size of 0, expected it to be 1 or larger."
+  - "Error [EAST0372006]: received dimension size of 0, expected it to be 1 or larger.\n    --> compiler-test:4:13\n     |\n   4 |     let a = [true; (0)];\n     |             ^^^^^^^^^^^"

@@ -16,17 +16,15 @@
 
 //! Evaluates a formatted string in a compiled Leo program.
 
-use crate::{errors::ConsoleError, program::ConstrainedProgram, GroupType};
+use crate::{program::ConstrainedProgram, GroupType};
 use leo_asg::{CharValue, ConsoleArgs};
+use leo_errors::{CompilerError, Result};
+
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn format<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        args: &ConsoleArgs<'a>,
-    ) -> Result<String, ConsoleError> {
+    pub fn format<CS: ConstraintSystem<F>>(&mut self, cs: &mut CS, args: &ConsoleArgs<'a>) -> Result<String> {
         let mut out = Vec::new();
         let mut in_container = false;
         let mut substring = String::new();
@@ -52,7 +50,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         in_container = false;
                         let parameter = match args.parameters.get(arg_index) {
                             Some(index) => index,
-                            None => return Err(ConsoleError::length(arg_index + 1, args.parameters.len(), &args.span)),
+                            None => {
+                                return Err(CompilerError::console_container_parameter_length_mismatch(
+                                    arg_index + 1,
+                                    args.parameters.len(),
+                                    &args.span,
+                                )
+                                .into());
+                            }
                         };
                         out.push(self.enforce_expression(cs, parameter.get())?.to_string());
                         arg_index += 1;
@@ -63,12 +68,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                                 substring.push('}');
                                 escape_right_bracket = true;
                             } else {
-                                return Err(ConsoleError::expected_escaped_right_brace(&args.span));
+                                return Err(CompilerError::console_fmt_expected_escaped_right_brace(&args.span).into());
                             }
                         }
                     }
                     _ if in_container => {
-                        return Err(ConsoleError::expected_left_or_right_brace(&args.span));
+                        return Err(CompilerError::console_fmt_expected_left_or_right_brace(&args.span).into());
                     }
                     _ => substring.push(*scalar),
                 },
@@ -82,7 +87,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         // Check that containers and parameters match
         if arg_index != args.parameters.len() {
-            return Err(ConsoleError::length(arg_index, args.parameters.len(), &args.span));
+            return Err(CompilerError::console_container_parameter_length_mismatch(
+                arg_index,
+                args.parameters.len(),
+                &args.span,
+            )
+            .into());
         }
 
         Ok(out.join(""))

@@ -17,11 +17,11 @@
 use leo_ast::Ast;
 #[cfg(not(feature = "ci_skip"))]
 use leo_ast::Program;
-use leo_parser::SyntaxError;
+use leo_errors::{LeoError, Result};
 
 use std::path::{Path, PathBuf};
 
-fn to_ast(program_filepath: &Path) -> Result<Ast, SyntaxError> {
+fn to_ast(program_filepath: &Path) -> Result<Ast> {
     let program_string = std::fs::read_to_string(program_filepath).expect("failed to open test");
 
     // Parses the Leo file and constructs a leo ast.
@@ -96,7 +96,7 @@ fn test_generic_parser_error() {
 
         to_ast(&program_filepath)
     }
-    .map_err(|err| matches!(err, SyntaxError::Error(_)));
+    .map_err(|err| matches!(err, LeoError::ParserError(_)));
 
     assert!(error_result.err().unwrap());
 }
