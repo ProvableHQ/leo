@@ -24,10 +24,10 @@ pub use circuit::*;
 mod function;
 pub use function::*;
 
-use crate::{
-    node::FromAst, ArenaNode, AsgContext, AsgConvertError, DefinitionStatement, ImportResolver, Input, Scope, Statement,
-};
-use leo_ast::{PackageAccess, PackageOrPackages, Span};
+use crate::{node::FromAst, ArenaNode, AsgContext, DefinitionStatement, Input, Scope, Statement};
+// use leo_ast::{PackageAccess, PackageOrPackages};
+use leo_errors::{AsgError, Result};
+
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -68,7 +68,10 @@ impl<'a> Program<'a> {
     /// 3. finalize declared functions
     /// 4. resolve all asg nodes
     ///
-    pub fn new(context: AsgContext<'a>, program: &leo_ast::Program) -> Result<Program<'a>, AsgConvertError> {
+    pub fn new(
+        context: AsgContext<'a>,
+        program: &leo_ast::Program,
+    ) -> Result<Program<'a>> {
         let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
         let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
         let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
@@ -89,7 +92,6 @@ impl<'a> Program<'a> {
             context,
             id: context.get_id(),
             parent_scope: Cell::new(None),
-            circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(imported_functions),
             global_consts: RefCell::new(imported_global_consts),
@@ -106,7 +108,6 @@ impl<'a> Program<'a> {
             input: Cell::new(Some(Input::new(import_scope))), // we use import_scope to avoid recursive scope ref here
             id: context.get_id(),
             parent_scope: Cell::new(Some(import_scope)),
-            circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
             global_consts: RefCell::new(IndexMap::new()),
@@ -170,7 +171,7 @@ impl<'a> Program<'a> {
             let name = name.name.to_string();
 
             if functions.contains_key(&name) {
-                return Err(AsgConvertError::duplicate_function_definition(&name, &function.span));
+                return Err(AsgError::duplicate_function_definition(name, &function.span).into());
             }
 
             functions.insert(name, asg_function);

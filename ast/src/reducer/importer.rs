@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
+use leo_errors::{AstError, Span};
 
 use indexmap::IndexMap;
 
@@ -127,9 +128,9 @@ where
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
         global_consts: IndexMap<String, DefinitionStatement>,
-    ) -> Result<Program, ReducerError> {
+    ) -> Result<Program> {
         if !empty_imports.is_empty() {
-            // TODO THROW  ERR
+            // TODO THROW ERR
         }
 
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
@@ -151,7 +152,7 @@ where
             let resolved_package =
                 match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], &span)? {
                     Some(x) => x,
-                    None => return Err(ReducerError::empty_string(&span)),
+                    None => return Err(AstError::empty_string(&span).into()),
                 };
 
             resolved_packages.insert(package.clone(), resolved_package);
@@ -182,7 +183,7 @@ where
                             .global_consts
                             .insert(alias.clone(), global_const.clone());
                     } else {
-                        return Err(ReducerError::empty_string(&span));
+                        return Err(AstError::empty_string(&span).into());
                     }
                 }
                 _ => {}

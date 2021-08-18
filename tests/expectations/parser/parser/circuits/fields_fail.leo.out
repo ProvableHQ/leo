@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "    --> test:10:11\n     |\n  10 |     y: u32;\n     |           ^\n     |\n     = Cannot mix use of commas and semi-colons for circuit member variable declarations."
+  - "Error [EPAR0370006]: Cannot mix use of commas and semi-colons for circuit member variable declarations.\n    --> test:10:11\n     |\n  10 |     y: u32;\n     |           ^"

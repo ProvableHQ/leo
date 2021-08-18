@@ -15,12 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 #![allow(clippy::from_over_into)]
-
-#[macro_use]
-extern crate thiserror;
-
-pub mod errors;
-pub use self::errors::*;
+#![doc = include_str!("../README.md")]
 
 pub mod parser;
 pub use self::parser::*;

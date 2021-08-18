@@ -20,8 +20,7 @@
 //! The [`Ast`] type is intended to be parsed and modified by different passes
 //! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].
 
-#[macro_use]
-extern crate thiserror;
+#![doc = include_str!("../README.md")]
 
 pub mod annotation;
 pub use self::annotation::*;
@@ -34,9 +33,6 @@ pub use self::chars::*;
 
 pub mod common;
 pub use self::common::*;
-
-pub mod errors;
-pub use self::errors::*;
 
 pub mod expression;
 pub use self::expression::*;
@@ -68,6 +64,8 @@ pub use self::types::*;
 mod node;
 pub use node::*;
 
+use leo_errors::{AstError, Result};
+
 /// The abstract syntax tree (AST) for a Leo program.
 ///
 /// The [`Ast`] type represents a Leo program as a series of recursive data types.
@@ -86,13 +84,13 @@ impl Ast {
     }
 
     /// Mutates the program ast by resolving the imports.
-    pub fn importer<T: ImportResolver>(&mut self, importer: T) -> Result<(), AstError> {
+    pub fn importer<T: ImportResolver>(&mut self, importer: T) -> Result<()> {
         self.ast = ReconstructingDirector::new(Importer::new(importer)).reduce_program(self.as_repr())?;
         Ok(())
     }
 
     /// Mutates the program ast by preforming canonicalization on it.
-    pub fn canonicalize(&mut self) -> Result<(), AstError> {
+    pub fn canonicalize(&mut self) -> Result<()> {
         self.ast = ReconstructingDirector::new(Canonicalizer::default()).reduce_program(self.as_repr())?;
         Ok(())
     }
@@ -107,26 +105,28 @@ impl Ast {
     }
 
     /// Serializes the ast into a JSON string.
-    pub fn to_json_string(&self) -> Result<String, AstError> {
-        Ok(serde_json::to_string_pretty(&self.ast)?)
+    pub fn to_json_string(&self) -> Result<String> {
+        Ok(serde_json::to_string_pretty(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
     }
 
-    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<(), AstError> {
+    /// Serializes the ast into a JSON file.
+    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
         path.push(file_name);
-        let file = std::fs::File::create(path)?;
+        let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
         let writer = std::io::BufWriter::new(file);
-        serde_json::to_writer_pretty(writer, &self.ast)?;
-        Ok(())
+        Ok(serde_json::to_writer_pretty(writer, &self.ast)
+            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
     }
 
     /// Deserializes the JSON string into a ast.
-    pub fn from_json_string(json: &str) -> Result<Self, AstError> {
-        let ast: Program = serde_json::from_str(json)?;
+    pub fn from_json_string(json: &str) -> Result<Self> {
+        let ast: Program = serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_ast(&e))?;
         Ok(Self { ast })
     }
 
-    pub fn from_json_file(path: std::path::PathBuf) -> Result<Self, AstError> {
-        let data = std::fs::read_to_string(path)?;
+    /// Deserializes the JSON string into a ast from a file.
+    pub fn from_json_file(path: std::path::PathBuf) -> Result<Self> {
+        let data = std::fs::read_to_string(&path).map_err(|e| AstError::failed_to_read_json_file(&path, &e))?;
         Self::from_json_string(&data)
     }
 }

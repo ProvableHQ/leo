@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::ImportParserError;
-use leo_ast::{ImportResolver, Program, Span, ReducerError};
+use leo_ast::{ImportResolver, Program};
+use leo_errors::{ImportError, LeoError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};
 use std::path::PathBuf;
@@ -46,11 +46,10 @@ impl ImportResolver for ImportParser {
         &mut self,
         package_segments: &[&str],
         span: &Span,
-    ) -> Result<Option<Program>, ReducerError> {
+    ) -> Result<Option<Program>> {
         let full_path = package_segments.join(".");
         if self.partial_imports.contains(&full_path) {
-	    
-            // return Err(ImportParserError::recursive_imports(&full_path, span).into());
+            return Err(ImportError::recursive_imports(full_path, span).into());
         }
         if let Some(program) = self.imports.get(&full_path) {
             return Ok(Some(program.clone()));
@@ -60,7 +59,7 @@ impl ImportResolver for ImportParser {
         let mut imports = self.clone(); // Self::default() was previously
         let program = imports
             .parse_package(path, package_segments, span)
-            .map_err(|x| -> ReducerError { x.into() })?;
+            .map_err(|x| -> LeoError { x })?;
         self.partial_imports.remove(&full_path);
         self.imports.insert(full_path, program.clone());
         Ok(Some(program))

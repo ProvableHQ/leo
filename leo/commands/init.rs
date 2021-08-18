@@ -15,9 +15,9 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, config::*, context::Context};
+use leo_errors::{CliError, Result};
 use leo_package::LeoPackage;
 
-use anyhow::{anyhow, Result};
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -44,17 +44,17 @@ impl Command for Init {
 
         // Check that the current package directory path exists.
         if !path.exists() {
-            return Err(anyhow!("Directory does not exist"));
+            return Err(CliError::package_directory_does_not_exist().into());
         }
 
         // Check that the given package name is valid.
         let package_name = path
             .file_stem()
-            .ok_or_else(|| anyhow!("Project name invalid"))?
+            .ok_or_else(CliError::invalid_project_name)?
             .to_string_lossy()
             .to_string();
         if !LeoPackage::is_package_name_valid(&package_name) {
-            return Err(anyhow!("Invalid Leo project name: {}", package_name));
+            return Err(CliError::invalid_package_name(&package_name).into());
         }
 
         let username = read_username().ok();

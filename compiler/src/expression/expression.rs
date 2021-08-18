@@ -18,7 +18,6 @@
 
 use crate::{
     arithmetic::*,
-    errors::ExpressionError,
     logical::*,
     program::ConstrainedProgram,
     relational::*,
@@ -26,7 +25,8 @@ use crate::{
     value::{Address, Char, CharType, ConstrainedCircuitMember, ConstrainedValue, Integer},
     FieldType, GroupType,
 };
-use leo_asg::{expression::*, ConstValue, Expression, Node, Span};
+use leo_asg::{expression::*, ConstValue, Expression, Node};
+use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -38,7 +38,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         value: &'a ConstValue<'a>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         Ok(match value {
             ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.to_string(), span)?),
             ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
@@ -92,7 +92,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         expression: &'a Expression<'a>,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let span = &expression.span().cloned().unwrap_or_default();
         match expression {
             // Cast
@@ -116,15 +116,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     BinaryOperation::Mul => enforce_mul(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Div => enforce_div(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Pow => enforce_pow(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Or => {
-                        enforce_or(cs, resolved_left, resolved_right, span).map_err(ExpressionError::BooleanError)
-                    }
-                    BinaryOperation::And => {
-                        enforce_and(cs, resolved_left, resolved_right, span).map_err(ExpressionError::BooleanError)
-                    }
+                    BinaryOperation::Or => enforce_or(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::And => enforce_and(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Eq => evaluate_eq(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, span)?, span)
-                        .map_err(ExpressionError::BooleanError),
+                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, span)?, span),
                     BinaryOperation::Ge => evaluate_ge(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Gt => evaluate_gt(cs, resolved_left, resolved_right, span),
                     BinaryOperation::Le => evaluate_le(cs, resolved_left, resolved_right, span),

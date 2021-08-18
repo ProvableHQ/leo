@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ImportParserError, ImportParser};
-use leo_ast::{Identifier, ImportResolver, Program, Span, ReducerError};
+use crate::ImportParser;
+use leo_ast::{Identifier, ImportResolver, Program};
+use leo_errors::{ImportError, Result, Span};
 
 use std::{fs, fs::DirEntry, path::PathBuf};
 
@@ -29,12 +30,12 @@ impl ImportParser {
         package: &DirEntry,
         remaining_segments: &[&str],
         span: &Span,
-    ) -> Result<Program, ImportParserError> {
+    ) -> Result<Program> {
         if !remaining_segments.is_empty() {
             return self.parse_package(package.path(), remaining_segments, span);
         }
 
-	Self::parse_import_file(package, span)
+	    Self::parse_import_file(package, span)
     }
 
     ///
@@ -47,7 +48,7 @@ impl ImportParser {
         mut path: PathBuf,
         segments: &[&str],
         span: &Span,
-    ) -> Result<Program, ImportParserError> {
+    ) -> Result<Program> {
         let error_path = path.clone();
         let package_name = segments[0];
 
@@ -78,9 +79,9 @@ impl ImportParser {
 
         // Get a vector of all packages in the source directory.
         let entries = fs::read_dir(path)
-            .map_err(|error| ImportParserError::directory_error(error, span, &error_path))?
+            .map_err(|error| ImportError::directory_error(error, &error_path, span))?
             .collect::<Result<Vec<_>, std::io::Error>>()
-            .map_err(|error| ImportParserError::directory_error(error, span, &error_path))?;
+            .map_err(|error| ImportError::directory_error(error, &error_path, span))?;
 
         // Check if the imported package name is in the source directory.
         let matched_source_entry = entries.into_iter().find(|entry| {
@@ -95,9 +96,9 @@ impl ImportParser {
         if imports_directory.exists() {
             // Get a vector of all packages in the imports directory.
             let entries = fs::read_dir(imports_directory)
-                .map_err(|error| ImportParserError::directory_error(error, span, &error_path))?
+                .map_err(|error| ImportError::directory_error(error, &error_path, span))?
                 .collect::<Result<Vec<_>, std::io::Error>>()
-                .map_err(|error| ImportParserError::directory_error(error, span, &error_path))?;
+                .map_err(|error| ImportError::directory_error(error, error_path, span))?;
 
             // Check if the imported package name is in the imports directory.
             let matched_import_entry = entries
@@ -106,25 +107,16 @@ impl ImportParser {
 
             // Check if the package name was found in both the source and imports directory.
             match (matched_source_entry, matched_import_entry) {
-                (Some(_), Some(_)) => Err(ImportParserError::conflicting_imports(Identifier::new_with_span(
-                    package_name,
-                    span.clone(),
-                ))),
+                (Some(_), Some(_)) => Err(ImportError::conflicting_imports(package_name, span).into()),
                 (Some(source_entry), None) => self.parse_package_access(&source_entry, &segments[1..], span),
                 (None, Some(import_entry)) => self.parse_package_access(&import_entry, &segments[1..], span),
-                (None, None) => Err(ImportParserError::unknown_package(Identifier::new_with_span(
-                    package_name,
-                    span.clone(),
-                ))),
+                (None, None) => Err(ImportError::unknown_package(package_name, span).into()),
             }
         } else {
             // Enforce local package access with no found imports directory
             match matched_source_entry {
                 Some(source_entry) => self.parse_package_access(&source_entry, &segments[1..], span),
-                None => Err(ImportParserError::unknown_package(Identifier::new_with_span(
-                    package_name,
-                    span.clone(),
-                ))),
+                None => Err(ImportError::unknown_package(package_name, span).into()),
             }
         }
     }

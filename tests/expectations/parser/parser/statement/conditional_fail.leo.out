@@ -2,4 +2,4 @@
 namespace: ParseStatement
 expectation: Fail
 outputs:
-  - "    --> test:1:17\n     |\n   1 | if true {} else let x = 2;\n     |                 ^^^^^^^^^\n     |\n     = expected 'Block or Conditional', got 'let mut x = 2;'"
+  - "Error [EPAR0370008]: unexpected statement: expected 'Block or Conditional', got 'let mut x = 2;'\n    --> test:1:17\n     |\n   1 | if true {} else let x = 2;\n     |                 ^^^^^^^^^"

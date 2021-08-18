@@ -16,8 +16,9 @@
 
 //! Enforces array access in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Expression, Span};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::Expression;
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -30,17 +31,17 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         tuple: &'a Expression<'a>,
         index: usize,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         // Get the tuple values.
         let tuple = match self.enforce_expression(cs, tuple)? {
             ConstrainedValue::Tuple(tuple) => tuple,
-            value => return Err(ExpressionError::undefined_array(value.to_string(), span)),
+            value => return Err(CompilerError::undefined_array(value, span).into()),
         };
 
         // Check for out of bounds access.
         if index > tuple.len() - 1 {
             // probably safe to be a panic here
-            return Err(ExpressionError::tuple_index_out_of_bounds(index, span));
+            return Err(CompilerError::tuple_index_out_of_bounds(index, span).into());
         }
 
         Ok(tuple[index].to_owned())

@@ -20,6 +20,7 @@ use leo_compiler::{
     group::targets::edwards_bls12::EdwardsGroupType,
     AstSnapshotOptions, CompilerOptions,
 };
+use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -27,7 +28,6 @@ use leo_package::{
 };
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
-use anyhow::{anyhow, Result};
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
@@ -37,8 +37,6 @@ use tracing::span::Span;
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug)]
 pub struct BuildOptions {
-    #[structopt(long, help = "Disable canonicaliztion compiler optimization")]
-    pub disable_canonicalization: bool,
     #[structopt(long, help = "Disable constant folding compiler optimization")]
     pub disable_constant_folding: bool,
     #[structopt(long, help = "Disable dead code elimination compiler optimization")]
@@ -58,7 +56,6 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            disable_canonicalization: true,
             disable_constant_folding: true,
             disable_code_elimination: true,
             disable_all_optimizations: true,
@@ -74,13 +71,11 @@ impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         if !options.disable_all_optimizations {
             CompilerOptions {
-                canonicalization_enabled: true,
                 constant_folding_enabled: true,
                 dead_code_elimination_enabled: true,
             }
         } else {
             CompilerOptions {
-                canonicalization_enabled: !options.disable_canonicalization,
                 constant_folding_enabled: !options.disable_constant_folding,
                 dead_code_elimination_enabled: !options.disable_code_elimination,
             }
@@ -144,7 +139,7 @@ impl Command for Build {
 
         // Compile the main.leo file along with constraints
         if !MainFile::exists_at(&package_path) {
-            return Err(anyhow!("File main.leo not found in src/ directory"));
+            return Err(CliError::package_main_file_not_found().into());
         }
 
         // Create the output directory
@@ -163,12 +158,6 @@ impl Command for Build {
 
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
-
-        if self.compiler_options.disable_canonicalization && self.compiler_options.enable_canonicalized_ast_snapshot {
-            tracing::warn!(
-                "Can not ask for canonicalization theorem without having canonicalization compiler feature enabled."
-            );
-        }
 
         // Load the program at `main_file_path`
         let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(

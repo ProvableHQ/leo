@@ -14,18 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Program, ReducerError, Span};
+use crate::Program;
+use leo_errors::{Result, Span};
 
 use indexmap::IndexMap;
 
 pub trait ImportResolver {
-    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>, ReducerError>;
+    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>>;
 }
 
 pub struct NullImportResolver;
 
 impl ImportResolver for NullImportResolver {
-    fn resolve_package(&mut self, _package_segments: &[&str], _span: &Span) -> Result<Option<Program>, ReducerError> {
+    fn resolve_package(&mut self, _package_segments: &[&str], _span: &Span) -> Result<Option<Program>> {
         Ok(None)
     }
 }
@@ -41,7 +42,7 @@ impl<'a, T: ImportResolver> CoreImportResolver<'a, T> {
 }
 
 impl<'a, T: ImportResolver> ImportResolver for CoreImportResolver<'a, T> {
-    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>, ReducerError> {
+    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>> {
         if !package_segments.is_empty() && package_segments.get(0).unwrap() == &"core" {
             Ok(resolve_core_module(&*package_segments[1..].join("."))?)
         } else {
@@ -55,12 +56,12 @@ pub struct MockedImportResolver {
 }
 
 impl ImportResolver for MockedImportResolver {
-    fn resolve_package(&mut self, package_segments: &[&str], _span: &Span) -> Result<Option<Program>, ReducerError> {
+    fn resolve_package(&mut self, package_segments: &[&str], _span: &Span) -> Result<Option<Program>> {
         Ok(self.packages.get(&package_segments.join(".")).cloned())
     }
 }
 
-pub fn resolve_core_module(module: &str) -> Result<Option<Program>, ReducerError> {
+pub fn resolve_core_module(module: &str) -> Result<Option<Program>> {
     match module {
         "unstable.blake2s" => {
             // let ast = load_asg(

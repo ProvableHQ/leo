@@ -16,8 +16,9 @@
 
 //! Methods to enforce constraints on input field values in a compiled Leo program.
 
-use crate::{errors::FieldError, number_string_typing, value::ConstrainedValue, FieldType, GroupType};
-use leo_ast::{InputValue, Span};
+use crate::{number_string_typing, value::ConstrainedValue, FieldType, GroupType};
+use leo_ast::InputValue;
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::traits::alloc::AllocGadget;
@@ -28,7 +29,7 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
     name: &str,
     option: Option<String>,
     span: &Span,
-) -> Result<FieldType<F>, FieldError> {
+) -> Result<FieldType<F>> {
     match option {
         Some(string) => {
             let number_info = number_string_typing(&string);
@@ -39,15 +40,17 @@ pub(crate) fn allocate_field<F: PrimeField, CS: ConstraintSystem<F>>(
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
                 .map(|value| value.negate(cs, span))
-                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span))?,
-                (number, _) => FieldType::alloc(
+                .map_err(|_| CompilerError::field_value_missing_field(format!("{}: field", name), span))?,
+                (number, _) => Ok(FieldType::alloc(
                     cs.ns(|| format!("`{}: field` {}:{}", name, span.line_start, span.col_start)),
                     || Some(number).ok_or(SynthesisError::AssignmentMissing),
                 )
-                .map_err(|_| FieldError::missing_field(format!("{}: field", name), span)),
+                .map_err(|_| CompilerError::field_value_missing_field(format!("{}: field", name), span))?),
             }
         }
-        None => Err(FieldError::missing_field(format!("{}: field", name), span)),
+        None => {
+            return Err(CompilerError::field_value_missing_field(format!("{}: field", name), span).into());
+        }
     }
 }
 
@@ -56,14 +59,14 @@ pub(crate) fn field_from_input<'a, F: PrimeField, G: GroupType<F>, CS: Constrain
     name: &str,
     input_value: Option<InputValue>,
     span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>, FieldError> {
+) -> Result<ConstrainedValue<'a, F, G>> {
     // Check that the parameter value is the correct type
     let option = match input_value {
         Some(input) => {
             if let InputValue::Field(string) = input {
                 Some(string)
             } else {
-                return Err(FieldError::invalid_field(input.to_string(), span));
+                return Err(CompilerError::field_value_invalid_field(input, span).into());
             }
         }
         None => None,
