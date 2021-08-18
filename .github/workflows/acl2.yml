@@ -39,15 +39,22 @@ jobs:
       # Using the prepared ASTs and the pulled and unzipped tgc run theorem generation.
       - name: Run tgc over the asts
         run: |
-          ARRAY=();
+          errors=();
           for dir in `ls tmp/tgc`;
           do
             cd tmp/tgc/$dir; # enter the directory
-            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp || ARRAY+=("$dir");
+            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp > result.out || errors+=("$dir");
             cd ../../..
           done;
-          echo "Failures:";
-          for i in ${ARRAY[@]};
-          do
-          echo $i;
-          done;
+
+          if [ ${#errors[@]} -eq 0 ]; then
+            echo "Success!"
+          else
+            echo "Failures:";
+            for i in ${errors[@]};
+            do
+              echo $i;
+              cat tmp/tgc/$dir.out
+            done;
+            exit 1
+          fi
