@@ -55,10 +55,9 @@ impl<'a> ImportResolver<'a> for ImportParser<'a> {
         if let Some(program) = self.imports.get(&full_path) {
             return Ok(Some(program.clone()));
         }
-        let mut imports = Self::default();
         let path = self.program_path.clone();
-
         self.partial_imports.insert(full_path.clone());
+        let mut imports = self.clone(); // Self::default() was previously
         let program = imports
             .parse_package(context, path, package_segments, span)
             .map_err(|x| -> LeoError { x })?;
