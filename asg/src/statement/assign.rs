@@ -15,22 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
-    CircuitMember,
-    ConstInt,
-    ConstValue,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    Identifier,
-    IntegerType,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Statement,
-    Type,
-    Variable,
+    AsgConvertError, CircuitMember, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, Identifier, IntegerType,
+    Node, PartialType, Scope, Span, Statement, Type, Variable,
 };
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
@@ -79,12 +65,12 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
             }
         } else {
             scope
-                .resolve_variable(&name)
-                .ok_or_else(|| AsgConvertError::unresolved_reference(name, &span))?
+                .resolve_variable(name)
+                .ok_or_else(|| AsgConvertError::unresolved_reference(name, span))?
         };
 
         if !variable.borrow().mutable {
-            return Err(AsgConvertError::immutable_assignment(&name, &statement.span));
+            return Err(AsgConvertError::immutable_assignment(name, &statement.span));
         }
         let mut target_type: Option<PartialType> = Some(variable.borrow().type_.clone().into());
 
@@ -123,13 +109,13 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             ) {
                                 let left = match left {
                                     ConstValue::Int(x) => x.to_usize().ok_or_else(|| {
-                                        AsgConvertError::invalid_assign_index(&name, &x.to_string(), &statement.span)
+                                        AsgConvertError::invalid_assign_index(name, &x.to_string(), &statement.span)
                                     })?,
                                     _ => unimplemented!(),
                                 };
                                 let right = match right {
                                     ConstValue::Int(x) => x.to_usize().ok_or_else(|| {
-                                        AsgConvertError::invalid_assign_index(&name, &x.to_string(), &statement.span)
+                                        AsgConvertError::invalid_assign_index(name, &x.to_string(), &statement.span)
                                     })?,
                                     _ => unimplemented!(),
                                 };
@@ -137,7 +123,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                                     target_type = Some(PartialType::Array(item.clone(), Some((right - left) as usize)))
                                 } else {
                                     return Err(AsgConvertError::invalid_backwards_assignment(
-                                        &name,
+                                        name,
                                         left,
                                         right,
                                         &statement.span,
@@ -145,7 +131,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                                 }
                             }
                         }
-                        _ => return Err(AsgConvertError::index_into_non_array(&name, &statement.span)),
+                        _ => return Err(AsgConvertError::index_into_non_array(name, &statement.span)),
                     }
 
                     AssignAccess::ArrayRange(Cell::new(left), Cell::new(right))
@@ -153,7 +139,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                 AstAssigneeAccess::ArrayIndex(index) => {
                     target_type = match target_type.clone() {
                         Some(PartialType::Array(item, _)) => item.map(|x| *x),
-                        _ => return Err(AsgConvertError::index_into_non_array(&name, &statement.span)),
+                        _ => return Err(AsgConvertError::index_into_non_array(name, &statement.span)),
                     };
                     AssignAccess::ArrayIndex(Cell::new(<&Expression<'a>>::from_ast(
                         scope,
@@ -171,7 +157,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             .get(index)
                             .cloned()
                             .ok_or_else(|| AsgConvertError::tuple_index_out_of_bounds(index, &statement.span))?,
-                        _ => return Err(AsgConvertError::index_into_non_tuple(&name, &statement.span)),
+                        _ => return Err(AsgConvertError::index_into_non_tuple(name, &statement.span)),
                     };
                     AssignAccess::Tuple(index)
                 }

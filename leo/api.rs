@@ -17,8 +17,7 @@
 use anyhow::{anyhow, Error, Result};
 use reqwest::{
     blocking::{multipart::Form, Client, Response},
-    Method,
-    StatusCode,
+    Method, StatusCode,
 };
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::PathBuf};

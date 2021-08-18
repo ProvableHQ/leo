@@ -17,11 +17,7 @@
 //! Enforces that one return value is produced in a compiled Leo program.
 
 use crate::{
-    errors::StatementError,
-    get_indicator_value,
-    program::ConstrainedProgram,
-    value::ConstrainedValue,
-    GroupType,
+    errors::StatementError, get_indicator_value, program::ConstrainedProgram, value::ConstrainedValue, GroupType,
 };
 
 use leo_asg::{Span, Type};
@@ -82,7 +78,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         cs.ns(|| format!("select result {} {}:{}", i, span.line_start, span.col_start)),
                         &indicator,
                         &result,
-                        &value,
+                        value,
                     )
                     .map_err(|_| StatementError::select_fail(result.to_string(), value.to_string(), span))?,
                 );
@@ -94,7 +90,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if expected_return.is_unit() {
             Ok(ConstrainedValue::Tuple(vec![]))
         } else {
-            return_value.ok_or_else(|| StatementError::no_returns(&expected_return, span))
+            return_value.ok_or_else(|| StatementError::no_returns(expected_return, span))
         }
     }
 }

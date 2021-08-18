@@ -27,11 +27,7 @@ use serde_yaml::Value;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
 use crate::{
-    compiler::Compiler,
-    errors::CompilerError,
-    targets::edwards_bls12::EdwardsGroupType,
-    AstSnapshotOptions,
-    Output,
+    compiler::Compiler, errors::CompilerError, targets::edwards_bls12::EdwardsGroupType, AstSnapshotOptions, Output,
 };
 
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
@@ -70,8 +66,9 @@ fn hash(input: String) -> String {
 pub(crate) fn parse_program(
     program_string: &str,
     theorem_options: Option<AstSnapshotOptions>,
+    cwd: Option<PathBuf>,
 ) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler("compiler-test".into(), theorem_options);
+    let mut compiler = new_compiler(cwd.unwrap_or("compiler-test".into()), theorem_options);
 
     compiler.parse_program_from_string(program_string)?;
 
@@ -105,15 +102,12 @@ impl Namespace for CompileNamespace {
         // ``` cwd: import ```
         // When set, uses different working directory for current file.
         // If not, uses file path as current working directory.
-        // let cwd = test
-        //     .config
-        //     .get("cwd")
-        //     .map(|val| {
-        //         let mut cwd = test.path.clone();
-        //         cwd.pop();
-        //         cwd.join(&val.as_str().unwrap())
-        //     })
-        //     .unwrap_or(test.path.clone());
+        let cwd = test.config.get("cwd").map(|val| {
+            let mut cwd = test.path.clone();
+            cwd.pop();
+            cwd.join(&val.as_str().unwrap())
+        });
+        // .unwrap_or(test.path.clone());
 
         let parsed = parse_program(
             &test.content,
@@ -122,6 +116,7 @@ impl Namespace for CompileNamespace {
                 canonicalized: true,
                 type_inferenced: true,
             }),
+            cwd,
         )
         .map_err(|x| x.to_string())?;
 

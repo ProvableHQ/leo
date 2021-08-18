@@ -124,7 +124,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<'a, F
 
                 write!(f, "({})", values)
             }
-            ConstrainedValue::CircuitExpression(ref circuit, ref members) => {
+            ConstrainedValue::CircuitExpression(circuit, ref members) => {
                 write!(f, "{} {{", circuit.name.borrow())?;
                 for (i, member) in members.iter().enumerate() {
                     write!(f, "{}: {}", member.0, member.1)?;

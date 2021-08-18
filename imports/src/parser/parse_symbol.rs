@@ -54,7 +54,7 @@ impl ImportParser {
         // Build the package abstract syntax tree.
         let program_string =
             &std::fs::read_to_string(&file_path).map_err(|x| ImportParserError::io_error(span, file_path_str, x))?;
-        let mut program = leo_parser::parse(&file_path_str, &program_string)?;
+        let mut program = leo_parser::parse(file_path_str, program_string)?;
         program.name = file_name;
         Ok(program)
     }

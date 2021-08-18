@@ -32,7 +32,7 @@ pub enum GroupCoordinate<'ast> {
 impl<'ast> GroupCoordinate<'ast> {
     pub fn span(&self) -> &Span<'ast> {
         match self {
-            GroupCoordinate::Number(number) => &number.span(),
+            GroupCoordinate::Number(number) => number.span(),
             GroupCoordinate::SignHigh(sign_high) => &sign_high.span,
             GroupCoordinate::SignLow(sign_low) => &sign_low.span,
             GroupCoordinate::Inferred(inferred) => &inferred.span,

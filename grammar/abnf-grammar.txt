@@ -421,10 +421,7 @@ keyword = %s"address"
         / %s"u64"
         / %s"u128"
 
-; The following rules define (ASCII)
-; digits and (uppercase and lowercase) letters.
-
-digit = %x30-39   ; 0-9
+; The following rules define (ASCII) letters.
 
 uppercase-letter = %x41-5A   ; A-Z
 
@@ -432,30 +429,34 @@ lowercase-letter = %x61-7A   ; a-z
 
 letter = uppercase-letter / lowercase-letter
 
-; The following rules defines (ASCII) octal and hexadecimal digits.
+; The following rules defines (ASCII) decimal, octal, and hexadecimal digits.
 ; Note that the latter are case-insensitive.
+
+decimal-digit = %x30-39   ; 0-9
 
 octal-digit = %x30-37   ; 0-7
 
-hexadecimal-digit = digit / "a" / "b" / "c" / "d" / "e" / "f"
+hexadecimal-digit = decimal-digit / "a" / "b" / "c" / "d" / "e" / "f"
 
-; An identifier is a non-empty sequence of letters, digits, and underscores,
+; An identifier is a non-empty sequence of
+; letters, (decimal) digits, and underscores,
 ; starting with a letter.
 ; It must not be a keyword: this is an extra-grammatical requirement.
 ; It must also not be or start with `aleo1`,
 ; because that is used for address literals:
 ; this is another extra-grammatical requirement.
 
-identifier = letter *( letter / digit / "_" )
+identifier = letter *( letter / decimal-digit / "_" )
              ; but not a keyword or a boolean literal or aleo1...
 
 ; A package name consists of one or more segments separated by single dashes,
-; where each segment is a non-empty sequence of lowercase letters and digits.
+; where each segment is a non-empty sequence of
+; lowercase letters and (decimal) digits.
 ; Similarly to an identifier, a package name must not be a keyword
 ; and must not be or start with `aleo1`.
 
-package-name = lowercase-letter *( lowercase-letter / digit )
-               *( "-" 1*( lowercase-letter / digit ) )
+package-name = lowercase-letter *( lowercase-letter / decimal-digit )
+               *( "-" 1*( lowercase-letter / decimal-digit ) )
                ; but not a keyword or a boolean literal or aleo1...
 
 ; Note that, grammatically, identifiers are also package names.
@@ -465,10 +466,10 @@ package-name = lowercase-letter *( lowercase-letter / digit )
 
 annotation-name = "@" identifier
 
-; A natural (number) is a sequence of one or more digits.
+; A natural (number) is a sequence of one or more decimal digits.
 ; We allow leading zeros, e.g. `007`.
 
-natural = 1*digit
+natural = 1*decimal-digit
 
 ; An integer (number) is either a natural or its negation.
 ; We allow leading zeros also in negative numbers, e.g. `-007`.
@@ -504,10 +505,10 @@ product-group-literal = integer %s"group"
 boolean-literal = %s"true" / %s"false"
 
 ; An address literal starts with `aleo1`
-; and continues with exactly 58 lowercase letters and digits.
+; and continues with exactly 58 lowercase letters and (decimal) digits.
 ; Thus an address always consists of 63 characters.
 
-address-literal = %s"aleo1" 58( lowercase-letter / digit )
+address-literal = %s"aleo1" 58( lowercase-letter / decimal-digit )
 
 ; A character literal consists of an element surrounded by single quotes.
 ; The element is any character other than single quote or backslash,
@@ -610,6 +611,10 @@ token = keyword
       / package-name
       / annotation-name
       / symbol
+
+; Tokens, comments, and whitespace are lexemes, i.e. lexical units.
+
+lexeme = token / comment / whitespace
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

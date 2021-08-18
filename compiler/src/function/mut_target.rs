@@ -20,16 +20,8 @@ use std::cell::Cell;
 
 use crate::{errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{
-    ArrayAccessExpression,
-    ArrayRangeAccessExpression,
-    AssignAccess,
-    AssignOperation,
-    AssignStatement,
-    CircuitAccessExpression,
-    Expression,
-    Node,
-    TupleAccessExpression,
-    Variable,
+    ArrayAccessExpression, ArrayRangeAccessExpression, AssignAccess, AssignOperation, AssignStatement,
+    CircuitAccessExpression, Expression, Node, TupleAccessExpression, Variable,
 };
 
 use snarkvm_fields::PrimeField;

@@ -22,8 +22,7 @@ pub mod manifest;
 use lazy_static::lazy_static;
 use std::{
     cell::RefCell,
-    env,
-    fs,
+    env, fs,
     path::PathBuf,
     sync::atomic::{AtomicUsize, Ordering},
 };

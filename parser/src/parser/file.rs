@@ -168,7 +168,18 @@ impl ParserContext {
         if let Some(SpannedToken { span, .. }) = self.eat(Token::Mul) {
             Ok(PackageAccess::Star { span })
         } else {
-            let name = self.expect_ident()?;
+            let mut name = self.expect_ident()?;
+
+            // Allow dashes in the accessed members (should only be used for directories).
+            // If imported member does not exist, code will fail on ASG level.
+            if let Token::Minus = self.peek_token().as_ref() {
+                let span = self.expect(Token::Minus)?;
+                name.span = name.span + span;
+                let next = self.expect_ident()?;
+                name.span = name.span + next.span;
+                name.name = format_tendril!("{}-{}", name.name, next.name);
+            }
+
             if self.peek_token().as_ref() == &Token::Dot {
                 self.backtrack(SpannedToken {
                     token: Token::Ident(name.name),
@@ -222,7 +233,7 @@ impl ParserContext {
                     base.name = format_tendril!("{}{}", base.name, next.name);
                     base.span = base.span + next.span;
                 }
-                x if KEYWORD_TOKENS.contains(&x) => {
+                x if KEYWORD_TOKENS.contains(x) => {
                     let next = self.expect_loose_identifier()?;
                     base.name = format_tendril!("{}{}", base.name, next.name);
                     base.span = base.span + next.span;
@@ -379,10 +390,13 @@ impl ParserContext {
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
 
-        Ok((name.clone(), Circuit {
-            circuit_name: name,
-            members,
-        }))
+        Ok((
+            name.clone(),
+            Circuit {
+                circuit_name: name,
+                members,
+            },
+        ))
     }
 
     ///
@@ -459,14 +473,17 @@ impl ParserContext {
             None
         };
         let block = self.parse_block()?;
-        Ok((name.clone(), Function {
-            annotations,
-            identifier: name,
-            input: inputs,
-            output,
-            span: start + block.span.clone(),
-            block,
-        }))
+        Ok((
+            name.clone(),
+            Function {
+                annotations,
+                identifier: name,
+                input: inputs,
+                output,
+                span: start + block.span.clone(),
+                block,
+            },
+        ))
     }
 
     ///

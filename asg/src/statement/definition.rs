@@ -15,18 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    AsgConvertError,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    InnerVariable,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Statement,
-    Type,
-    Variable,
+    AsgConvertError, Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Span, Statement,
+    Type, Variable,
 };
 
 use std::cell::{Cell, RefCell};
@@ -44,12 +34,15 @@ impl<'a> DefinitionStatement<'a> {
         self.variables
             .iter()
             .map(|variable| {
-                (variable.borrow().name.name.to_string(), DefinitionStatement {
-                    parent: self.parent.clone(),
-                    span: self.span.clone(),
-                    variables: vec![variable],
-                    value: self.value.clone(),
-                })
+                (
+                    variable.borrow().name.name.to_string(),
+                    DefinitionStatement {
+                        parent: self.parent.clone(),
+                        span: self.span.clone(),
+                        variables: vec![variable],
+                        value: self.value.clone(),
+                    },
+                )
             })
             .collect()
     }
@@ -70,7 +63,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         let type_ = statement
             .type_
             .as_ref()
-            .map(|x| scope.resolve_ast_type(&x))
+            .map(|x| scope.resolve_ast_type(x))
             .transpose()?;
 
         let value = <&Expression<'a>>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;

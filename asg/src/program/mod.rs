@@ -25,15 +25,7 @@ mod function;
 pub use function::*;
 
 use crate::{
-    node::FromAst,
-    ArenaNode,
-    AsgContext,
-    AsgConvertError,
-    DefinitionStatement,
-    ImportResolver,
-    Input,
-    Scope,
-    Statement,
+    node::FromAst, ArenaNode, AsgContext, AsgConvertError, DefinitionStatement, ImportResolver, Input, Scope, Statement,
 };
 use leo_ast::{PackageAccess, PackageOrPackages, Span};
 

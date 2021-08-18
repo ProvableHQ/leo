@@ -39,13 +39,13 @@ pub enum Value<'ast> {
 impl<'ast> Value<'ast> {
     pub fn span(&self) -> &Span<'ast> {
         match self {
-            Value::Address(value) => &value.span(),
+            Value::Address(value) => value.span(),
             Value::Boolean(value) => &value.span,
             Value::Char(value) => &value.span,
             Value::Field(value) => &value.span,
             Value::Group(value) => &value.span,
-            Value::Implicit(value) => &value.span(),
-            Value::Integer(value) => &value.span(),
+            Value::Implicit(value) => value.span(),
+            Value::Integer(value) => value.span(),
         }
     }
 }

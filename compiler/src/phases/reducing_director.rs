@@ -18,86 +18,37 @@
 
 use indexmap::IndexMap;
 use leo_asg::{
-    ArrayAccessExpression as AsgArrayAccessExpression,
-    ArrayInitExpression as AsgArrayInitExpression,
-    ArrayInlineExpression as AsgArrayInlineExpression,
-    ArrayRangeAccessExpression as AsgArrayRangeAccessExpression,
-    AssignAccess as AsgAssignAccess,
-    AssignStatement as AsgAssignStatement,
-    BinaryExpression as AsgBinaryExpression,
-    BlockStatement as AsgBlockStatement,
-    CallExpression as AsgCallExpression,
-    CastExpression as AsgCastExpression,
-    CharValue as AsgCharValue,
-    Circuit as AsgCircuit,
-    CircuitAccessExpression as AsgCircuitAccessExpression,
-    CircuitInitExpression as AsgCircuitInitExpression,
-    CircuitMember as AsgCircuitMember,
-    ConditionalStatement as AsgConditionalStatement,
-    ConsoleFunction as AsgConsoleFunction,
-    ConsoleStatement as AsgConsoleStatement,
-    ConstValue,
-    Constant as AsgConstant,
-    DefinitionStatement as AsgDefinitionStatement,
-    Expression as AsgExpression,
-    ExpressionStatement as AsgExpressionStatement,
-    Function as AsgFunction,
-    GroupValue as AsgGroupValue,
-    IterationStatement as AsgIterationStatement,
-    ReturnStatement as AsgReturnStatement,
-    Statement as AsgStatement,
-    TernaryExpression as AsgTernaryExpression,
-    TupleAccessExpression as AsgTupleAccessExpression,
-    TupleInitExpression as AsgTupleInitExpression,
-    Type as AsgType,
-    UnaryExpression as AsgUnaryExpression,
+    ArrayAccessExpression as AsgArrayAccessExpression, ArrayInitExpression as AsgArrayInitExpression,
+    ArrayInlineExpression as AsgArrayInlineExpression, ArrayRangeAccessExpression as AsgArrayRangeAccessExpression,
+    AssignAccess as AsgAssignAccess, AssignStatement as AsgAssignStatement, BinaryExpression as AsgBinaryExpression,
+    BlockStatement as AsgBlockStatement, CallExpression as AsgCallExpression, CastExpression as AsgCastExpression,
+    CharValue as AsgCharValue, Circuit as AsgCircuit, CircuitAccessExpression as AsgCircuitAccessExpression,
+    CircuitInitExpression as AsgCircuitInitExpression, CircuitMember as AsgCircuitMember,
+    ConditionalStatement as AsgConditionalStatement, ConsoleFunction as AsgConsoleFunction,
+    ConsoleStatement as AsgConsoleStatement, ConstValue, Constant as AsgConstant,
+    DefinitionStatement as AsgDefinitionStatement, Expression as AsgExpression,
+    ExpressionStatement as AsgExpressionStatement, Function as AsgFunction, GroupValue as AsgGroupValue,
+    IterationStatement as AsgIterationStatement, ReturnStatement as AsgReturnStatement, Statement as AsgStatement,
+    TernaryExpression as AsgTernaryExpression, TupleAccessExpression as AsgTupleAccessExpression,
+    TupleInitExpression as AsgTupleInitExpression, Type as AsgType, UnaryExpression as AsgUnaryExpression,
     VariableRef as AsgVariableRef,
 };
 use leo_ast::{
-    ArrayAccessExpression as AstArrayAccessExpression,
-    ArrayDimensions,
-    ArrayInitExpression as AstArrayInitExpression,
-    ArrayInlineExpression as AstArrayInlineExpression,
-    ArrayRangeAccessExpression as AstArrayRangeAccessExpression,
-    AssignStatement as AstAssignStatement,
-    Assignee,
-    AssigneeAccess as AstAssignAccess,
-    BinaryExpression as AstBinaryExpression,
-    Block as AstBlockStatement,
-    CallExpression as AstCallExpression,
-    CastExpression as AstCastExpression,
-    Char,
-    CharValue as AstCharValue,
-    Circuit as AstCircuit,
-    CircuitImpliedVariableDefinition,
-    CircuitInitExpression as AstCircuitInitExpression,
-    CircuitMember as AstCircuitMember,
-    CircuitMemberAccessExpression,
-    CircuitStaticFunctionAccessExpression,
-    CombinerError,
-    ConditionalStatement as AstConditionalStatement,
-    ConsoleArgs as AstConsoleArgs,
-    ConsoleFunction as AstConsoleFunction,
-    ConsoleStatement as AstConsoleStatement,
-    DefinitionStatement as AstDefinitionStatement,
-    Expression as AstExpression,
-    ExpressionStatement as AstExpressionStatement,
-    Function as AstFunction,
-    GroupTuple,
-    GroupValue as AstGroupValue,
-    IterationStatement as AstIterationStatement,
-    PositiveNumber,
-    ReconstructingReducer,
-    ReducerError,
-    ReturnStatement as AstReturnStatement,
-    Span,
-    SpreadOrExpression,
-    Statement as AstStatement,
-    TernaryExpression as AstTernaryExpression,
-    TupleAccessExpression as AstTupleAccessExpression,
-    TupleInitExpression as AstTupleInitExpression,
-    Type as AstType,
-    UnaryExpression as AstUnaryExpression,
+    ArrayAccessExpression as AstArrayAccessExpression, ArrayDimensions, ArrayInitExpression as AstArrayInitExpression,
+    ArrayInlineExpression as AstArrayInlineExpression, ArrayRangeAccessExpression as AstArrayRangeAccessExpression,
+    AssignStatement as AstAssignStatement, Assignee, AssigneeAccess as AstAssignAccess,
+    BinaryExpression as AstBinaryExpression, Block as AstBlockStatement, CallExpression as AstCallExpression,
+    CastExpression as AstCastExpression, Char, CharValue as AstCharValue, Circuit as AstCircuit,
+    CircuitImpliedVariableDefinition, CircuitInitExpression as AstCircuitInitExpression,
+    CircuitMember as AstCircuitMember, CircuitMemberAccessExpression, CircuitStaticFunctionAccessExpression,
+    CombinerError, ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
+    ConsoleFunction as AstConsoleFunction, ConsoleStatement as AstConsoleStatement,
+    DefinitionStatement as AstDefinitionStatement, Expression as AstExpression,
+    ExpressionStatement as AstExpressionStatement, Function as AstFunction, GroupTuple, GroupValue as AstGroupValue,
+    IterationStatement as AstIterationStatement, PositiveNumber, ReconstructingReducer, ReducerError,
+    ReturnStatement as AstReturnStatement, Span, SpreadOrExpression, Statement as AstStatement,
+    TernaryExpression as AstTernaryExpression, TupleAccessExpression as AstTupleAccessExpression,
+    TupleInitExpression as AstTupleInitExpression, Type as AstType, UnaryExpression as AstUnaryExpression,
     ValueExpression,
 };
 use tendril::StrTendril;
@@ -155,49 +106,49 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         asg: &AsgExpression,
     ) -> Result<AstExpression, ReducerError> {
         let new = match (ast, asg) {
-            (AstExpression::Value(value), AsgExpression::Constant(const_)) => self.reduce_value(&value, &const_)?,
+            (AstExpression::Value(value), AsgExpression::Constant(const_)) => self.reduce_value(value, const_)?,
             (AstExpression::Binary(ast), AsgExpression::Binary(asg)) => {
-                AstExpression::Binary(self.reduce_binary(&ast, &asg)?)
+                AstExpression::Binary(self.reduce_binary(ast, asg)?)
             }
             (AstExpression::Unary(ast), AsgExpression::Unary(asg)) => {
-                AstExpression::Unary(self.reduce_unary(&ast, &asg)?)
+                AstExpression::Unary(self.reduce_unary(ast, asg)?)
             }
             (AstExpression::Ternary(ast), AsgExpression::Ternary(asg)) => {
-                AstExpression::Ternary(self.reduce_ternary(&ast, &asg)?)
+                AstExpression::Ternary(self.reduce_ternary(ast, asg)?)
             }
-            (AstExpression::Cast(ast), AsgExpression::Cast(asg)) => AstExpression::Cast(self.reduce_cast(&ast, &asg)?),
+            (AstExpression::Cast(ast), AsgExpression::Cast(asg)) => AstExpression::Cast(self.reduce_cast(ast, asg)?),
 
             (AstExpression::ArrayInline(ast), AsgExpression::ArrayInline(asg)) => {
-                AstExpression::ArrayInline(self.reduce_array_inline(&ast, &asg)?)
+                AstExpression::ArrayInline(self.reduce_array_inline(ast, asg)?)
             }
             (AstExpression::ArrayInit(ast), AsgExpression::ArrayInit(asg)) => {
-                AstExpression::ArrayInit(self.reduce_array_init(&ast, &asg)?)
+                AstExpression::ArrayInit(self.reduce_array_init(ast, asg)?)
             }
             (AstExpression::ArrayAccess(ast), AsgExpression::ArrayAccess(asg)) => {
-                AstExpression::ArrayAccess(self.reduce_array_access(&ast, &asg)?)
+                AstExpression::ArrayAccess(self.reduce_array_access(ast, asg)?)
             }
             (AstExpression::ArrayRangeAccess(ast), AsgExpression::ArrayRangeAccess(asg)) => {
-                AstExpression::ArrayRangeAccess(self.reduce_array_range_access(&ast, &asg)?)
+                AstExpression::ArrayRangeAccess(self.reduce_array_range_access(ast, asg)?)
             }
 
             (AstExpression::TupleInit(ast), AsgExpression::TupleInit(asg)) => {
-                AstExpression::TupleInit(self.reduce_tuple_init(&ast, &asg)?)
+                AstExpression::TupleInit(self.reduce_tuple_init(ast, asg)?)
             }
             (AstExpression::TupleAccess(ast), AsgExpression::TupleAccess(asg)) => {
-                AstExpression::TupleAccess(self.reduce_tuple_access(&ast, &asg)?)
+                AstExpression::TupleAccess(self.reduce_tuple_access(ast, asg)?)
             }
 
             (AstExpression::CircuitInit(ast), AsgExpression::CircuitInit(asg)) => {
-                AstExpression::CircuitInit(self.reduce_circuit_init(&ast, &asg)?)
+                AstExpression::CircuitInit(self.reduce_circuit_init(ast, asg)?)
             }
             (AstExpression::CircuitMemberAccess(ast), AsgExpression::CircuitAccess(asg)) => {
-                AstExpression::CircuitMemberAccess(self.reduce_circuit_member_access(&ast, &asg)?)
+                AstExpression::CircuitMemberAccess(self.reduce_circuit_member_access(ast, asg)?)
             }
             (AstExpression::CircuitStaticFunctionAccess(ast), AsgExpression::CircuitAccess(asg)) => {
-                AstExpression::CircuitStaticFunctionAccess(self.reduce_circuit_static_fn_access(&ast, &asg)?)
+                AstExpression::CircuitStaticFunctionAccess(self.reduce_circuit_static_fn_access(ast, asg)?)
             }
 
-            (AstExpression::Call(ast), AsgExpression::Call(asg)) => AstExpression::Call(self.reduce_call(&ast, &asg)?),
+            (AstExpression::Call(ast), AsgExpression::Call(asg)) => AstExpression::Call(self.reduce_call(ast, asg)?),
             _ => ast.clone(),
         };
 
@@ -299,7 +250,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         ast: &AstCastExpression,
         asg: &AsgCastExpression,
     ) -> Result<AstCastExpression, ReducerError> {
-        let inner = self.reduce_expression(&ast.inner, &asg.inner.get())?;
+        let inner = self.reduce_expression(&ast.inner, asg.inner.get())?;
         let target_type = self.reduce_type(&ast.target_type, &asg.target_type, &ast.span)?;
 
         self.ast_reducer.reduce_cast(ast, inner, target_type)
@@ -524,7 +475,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 AstAssignAccess::ArrayRange(left, right)
             }
             (AstAssignAccess::ArrayIndex(ast_index), AsgAssignAccess::ArrayIndex(asg_index)) => {
-                let index = self.reduce_expression(&ast_index, asg_index.get())?;
+                let index = self.reduce_expression(ast_index, asg_index.get())?;
                 AstAssignAccess::ArrayIndex(index)
             }
             _ => ast.clone(),
@@ -577,7 +528,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             block = self.reduce_block(&ast.block, asg_block)?;
         } else {
             return Err(ReducerError::from(CombinerError::asg_statement_not_block(
-                &asg.span.as_ref().unwrap(),
+                asg.span.as_ref().unwrap(),
             )));
         }
         let next = match (ast.next.as_ref(), asg.next.get()) {
@@ -595,7 +546,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
     ) -> Result<AstConsoleStatement, ReducerError> {
         let function = match (&ast.function, &asg.function) {
             (AstConsoleFunction::Assert(ast_expression), AsgConsoleFunction::Assert(asg_expression)) => {
-                AstConsoleFunction::Assert(self.reduce_expression(&ast_expression, asg_expression.get())?)
+                AstConsoleFunction::Assert(self.reduce_expression(ast_expression, asg_expression.get())?)
             }
             (AstConsoleFunction::Error(ast_console_args), AsgConsoleFunction::Error(asg_format))
             | (AstConsoleFunction::Log(ast_console_args), AsgConsoleFunction::Log(asg_format)) => {
@@ -603,7 +554,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 for (ast_parameter, asg_parameter) in
                     ast_console_args.parameters.iter().zip(asg_format.parameters.iter())
                 {
-                    parameters.push(self.reduce_expression(&ast_parameter, asg_parameter.get())?);
+                    parameters.push(self.reduce_expression(ast_parameter, asg_parameter.get())?);
                 }
 
                 let args = AstConsoleArgs {
@@ -640,14 +591,14 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             let asg_type = AsgType::Tuple(types);
 
             type_ = match &ast.type_ {
-                Some(ast_type) => Some(self.reduce_type(&ast_type, &asg_type, &ast.span)?),
+                Some(ast_type) => Some(self.reduce_type(ast_type, &asg_type, &ast.span)?),
                 None if self.options.type_inference_enabled() => Some((&asg_type).into()),
                 _ => None,
             };
         } else {
             type_ = match &ast.type_ {
                 Some(ast_type) => {
-                    Some(self.reduce_type(&ast_type, &asg.variables.first().unwrap().borrow().type_, &ast.span)?)
+                    Some(self.reduce_type(ast_type, &asg.variables.first().unwrap().borrow().type_, &ast.span)?)
                 }
                 None if self.options.type_inference_enabled() => {
                     Some((&asg.variables.first().unwrap().borrow().type_).into())
@@ -683,7 +634,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             block = self.reduce_block(&ast.block, asg_block)?;
         } else {
             return Err(ReducerError::from(CombinerError::asg_statement_not_block(
-                &asg.span.as_ref().unwrap(),
+                asg.span.as_ref().unwrap(),
             )));
         }
 

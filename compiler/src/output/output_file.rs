@@ -21,8 +21,7 @@ use crate::errors::OutputFileError;
 use std::{
     borrow::Cow,
     fs::{
-        File,
-        {self},
+        File, {self},
     },
     io::Write,
     path::Path,
