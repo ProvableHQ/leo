@@ -333,9 +333,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
     /// Verifies the input to the program.
     ///
     pub fn verify_local_data_commitment(&self, system_parameters: &SystemParameters<Components>) -> Result<bool> {
-        // TODO CONVERT STATE ERROR TO LEO ERROR
-        let result = verify_local_data_commitment(system_parameters, &self.program_input).unwrap();
-        // .map_err(|e| SnarkVMError::new(e))?;
+        let result = verify_local_data_commitment(system_parameters, &self.program_input)?;
 
         Ok(result)
     }
@@ -357,11 +355,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'
     fn generate_constraints<CS: ConstraintSystem<F>>(&self, cs: &mut CS) -> Result<(), SynthesisError> {
         let output_directory = self.output_directory.clone();
         let package_name = self.program_name.clone();
-        // TODO WHAT TO DO HERE
-        let result = self.compile_constraints(cs).map_err(|e| {
-            tracing::error!("Error {}", e);
-            SynthesisError::Unsatisfiable
-        })?;
+
+        let result = match self.compile_constraints(cs) {
+            Err(err) => {
+                eprintln!("{}", err);
+                std::process::exit(err.exit_code())
+            }
+            Ok(result) => result,
+        };
 
         // Write results to file
         let output_file = OutputFile::new(&package_name);
