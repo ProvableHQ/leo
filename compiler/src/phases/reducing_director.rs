@@ -620,7 +620,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         for ((ast_ident, ast_program), (_asg_ident, asg_program)) in ast.imports.iter().zip(&asg.imported_modules) {
             imports.insert(ast_ident.clone(), self.reduce_program(ast_program, asg_program)?);
         }
-        
+
         self.ast_reducer.swap_in_circuit();
         let mut circuits = IndexMap::new();
         for ((ast_ident, ast_circuit), (_asg_ident, asg_circuit)) in ast.circuits.iter().zip(&asg.circuits) {

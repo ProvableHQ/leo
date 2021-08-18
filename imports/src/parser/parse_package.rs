@@ -35,7 +35,7 @@ impl ImportParser {
             return self.parse_package(package.path(), remaining_segments, span);
         }
 
-	    Self::parse_import_file(package, span)
+        Self::parse_import_file(package, span)
     }
 
     ///
@@ -43,12 +43,7 @@ impl ImportParser {
     ///
     /// Inserts the Leo syntax tree into the `ImportParser`.
     ///
-    pub(crate) fn parse_package(
-        &mut self,
-        mut path: PathBuf,
-        segments: &[&str],
-        span: &Span,
-    ) -> Result<Program> {
+    pub(crate) fn parse_package(&mut self, mut path: PathBuf, segments: &[&str], span: &Span) -> Result<Program> {
         let error_path = path.clone();
         let package_name = segments[0];
 

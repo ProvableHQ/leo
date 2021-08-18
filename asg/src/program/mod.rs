@@ -28,7 +28,6 @@ use crate::{node::FromAst, ArenaNode, AsgContext, DefinitionStatement, Input, Sc
 // use leo_ast::{PackageAccess, PackageOrPackages};
 use leo_errors::{AsgError, Result};
 
-
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
 
@@ -68,10 +67,7 @@ impl<'a> Program<'a> {
     /// 3. finalize declared functions
     /// 4. resolve all asg nodes
     ///
-    pub fn new(
-        context: AsgContext<'a>,
-        program: &leo_ast::Program,
-    ) -> Result<Program<'a>> {
+    pub fn new(context: AsgContext<'a>, program: &leo_ast::Program) -> Result<Program<'a>> {
         let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
         let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
         let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();

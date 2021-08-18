@@ -42,11 +42,7 @@ impl ImportParser {
 }
 
 impl ImportResolver for ImportParser {
-    fn resolve_package(
-        &mut self,
-        package_segments: &[&str],
-        span: &Span,
-    ) -> Result<Option<Program>> {
+    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>> {
         let full_path = package_segments.join(".");
         if self.partial_imports.contains(&full_path) {
             return Err(ImportError::recursive_imports(full_path, span).into());

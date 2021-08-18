@@ -438,11 +438,7 @@ pub trait ReconstructingReducer {
         Ok((identifier, import))
     }
 
-    fn reduce_circuit_member(
-        &mut self,
-        _circuit_member: &CircuitMember,
-        new: CircuitMember,
-    ) -> Result<CircuitMember> {
+    fn reduce_circuit_member(&mut self, _circuit_member: &CircuitMember, new: CircuitMember) -> Result<CircuitMember> {
         Ok(new)
     }
 

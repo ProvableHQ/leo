@@ -89,10 +89,7 @@ pub struct Asg<'a> {
 
 impl<'a> Asg<'a> {
     /// Creates a new ASG from a given AST and import resolver.
-    pub fn new<Y: AsRef<leo_ast::Program>>(
-        context: AsgContext<'a>,
-        ast: Y,
-    ) -> Result<Self> {
+    pub fn new<Y: AsRef<leo_ast::Program>>(context: AsgContext<'a>, ast: Y) -> Result<Self> {
         Ok(Self {
             context,
             asg: Program::new(context, ast.as_ref())?,
