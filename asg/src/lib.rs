@@ -35,9 +35,6 @@ pub use const_value::*;
 pub mod expression;
 pub use expression::*;
 
-pub mod import;
-pub use import::*;
-
 mod input;
 pub use input::*;
 
@@ -118,7 +115,7 @@ impl<'a> Asg<'a> {
 }
 
 // TODO (howardwu): Remove this.
-pub fn load_asg<'a, T: ImportResolver<'a>>(
+/* pub fn load_asg<'a, T: ImportResolver<'a>>(
     context: AsgContext<'a>,
     content: &str,
     resolver: &mut T,
@@ -127,7 +124,7 @@ pub fn load_asg<'a, T: ImportResolver<'a>>(
     let ast = leo_parser::parse_ast("input.leo", content)?;
 
     Program::new(context, ast.as_repr())
-}
+} */
 
 pub fn new_alloc_context<'a>() -> Arena<ArenaNode<'a>> {
     Arena::new()

@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports:
+    import_statements:
       - package_or_packages:
           Package:
             name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import test-import.*; // local import\\\"}\"}"
@@ -165,6 +165,7 @@ outputs:
           col_stop: 13
           path: ""
           content: import car.*;         // imports directory import
+    imports: {}
     circuits: {}
     global_consts: {}
     functions: {}

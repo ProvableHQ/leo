@@ -16,13 +16,13 @@
 
 // TODO (protryon): We should merge this with core
 
-use crate::{AsgContext, Program};
-use leo_errors::Result;
+// use crate::{AsgContext, Program};
+// use leo_errors::Result;
 
 // TODO (protryon): Make asg deep copy so we can cache resolved core modules
 // TODO (protryon): Figure out how to do headers without bogus returns
 
-pub fn resolve_core_module<'a>(context: AsgContext<'a>, module: &str) -> Result<Option<Program<'a>>> {
+/* pub fn resolve_core_module<'a>(context: AsgContext<'a>, module: &str) -> Result<Option<Program<'a>>> {
     match module {
         "unstable.blake2s" => {
             let asg = crate::load_asg(
@@ -42,3 +42,4 @@ pub fn resolve_core_module<'a>(context: AsgContext<'a>, module: &str) -> Result<
         _ => Ok(None),
     }
 }
+ */

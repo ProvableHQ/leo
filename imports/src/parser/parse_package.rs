@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::ImportParser;
-use leo_ast::{Identifier, ImportResolver, Program};
+use leo_ast::Program;
 use leo_errors::{ImportError, Result, Span};
 
 use std::{fs, fs::DirEntry, path::PathBuf};

@@ -17,7 +17,7 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Circuit, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
+use crate::{Circuit, DefinitionStatement, Function, FunctionInput, ImportStatement};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -30,9 +30,9 @@ pub struct Program {
     pub expected_input: Vec<FunctionInput>,
     pub import_statements: Vec<ImportStatement>,
     pub imports: IndexMap<String, Program>,
-    pub circuits: IndexMap<Identifier, Circuit>,
+    pub circuits: IndexMap<String, Circuit>,
     pub global_consts: IndexMap<String, DefinitionStatement>,
-    pub functions: IndexMap<Identifier, Function>,
+    pub functions: IndexMap<String, Function>,
 }
 
 impl AsRef<Program> for Program {

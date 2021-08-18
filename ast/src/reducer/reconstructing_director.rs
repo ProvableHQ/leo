@@ -428,14 +428,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let mut circuits = IndexMap::new();
         self.reducer.swap_in_circuit();
-        for (identifier, circuit) in program.circuits.iter() {
-            circuits.insert(self.reduce_identifier(identifier)?, self.reduce_circuit(circuit)?);
+        for (name, circuit) in program.circuits.iter() {
+            circuits.insert(name.clone(), self.reduce_circuit(circuit)?);
         }
         self.reducer.swap_in_circuit();
 
         let mut functions = IndexMap::new();
-        for (identifier, function) in program.functions.iter() {
-            functions.insert(self.reduce_identifier(identifier)?, self.reduce_function(function)?);
+        for (name, function) in program.functions.iter() {
+            functions.insert(name.clone(), self.reduce_function(function)?);
         }
 
         let mut global_consts = IndexMap::new();

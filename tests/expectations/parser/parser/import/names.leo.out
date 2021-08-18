@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports:
+    import_statements:
       - package_or_packages:
           Package:
             name: "{\"name\":\"a0-f\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a0-f.foo;\\\"}\"}"
@@ -89,6 +89,7 @@ outputs:
           col_stop: 25
           path: ""
           content: import hello-world.hello;
+    imports: {}
     circuits: {}
     global_consts: {}
     functions: {}

@@ -24,7 +24,6 @@ pub mod definition;
 pub mod field;
 pub mod function;
 pub mod group;
-pub mod import;
 pub mod input_files;
 pub mod integers;
 pub mod mutability;

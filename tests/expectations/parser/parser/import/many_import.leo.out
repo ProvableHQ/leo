@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports:
+    import_statements:
       - package_or_packages:
           Packages:
             name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import test-import.( // local import\\\"}\"}"
@@ -131,6 +131,7 @@ outputs:
           col_stop: 16
           path: ""
           content: "import bar.( // imports directory import\n         ...\n         ...\n    bat.bat.Bat,"
+    imports: {}
     circuits: {}
     global_consts: {}
     functions: {}

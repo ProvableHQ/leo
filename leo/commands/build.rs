@@ -47,6 +47,8 @@ pub struct BuildOptions {
     pub enable_all_ast_snapshots: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
+    #[structopt(long, help = "Writes AST snapshot after the import resolution phase.")]
+    pub enable_imports_resolved_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the canonicalization phase.")]
     pub enable_canonicalized_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
@@ -61,6 +63,7 @@ impl Default for BuildOptions {
             disable_all_optimizations: true,
             enable_all_ast_snapshots: false,
             enable_initial_ast_snapshot: false,
+            enable_imports_resolved_ast_snapshot: false,
             enable_canonicalized_ast_snapshot: false,
             enable_type_inferenced_ast_snapshot: false,
         }
@@ -88,12 +91,14 @@ impl From<BuildOptions> for AstSnapshotOptions {
         if options.enable_all_ast_snapshots {
             AstSnapshotOptions {
                 initial: true,
+                imports_resolved: true,
                 canonicalized: true,
                 type_inferenced: true,
             }
         } else {
             AstSnapshotOptions {
                 initial: options.enable_initial_ast_snapshot,
+                imports_resolved: options.enable_imports_resolved_ast_snapshot,
                 canonicalized: options.enable_canonicalized_ast_snapshot,
                 type_inferenced: options.enable_type_inferenced_ast_snapshot,
             }

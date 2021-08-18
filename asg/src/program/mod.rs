@@ -68,20 +68,10 @@ impl<'a> Program<'a> {
     /// 4. resolve all asg nodes
     ///
     pub fn new(context: AsgContext<'a>, program: &leo_ast::Program) -> Result<Program<'a>> {
-        let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
-        let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
-        let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
         let mut imported_modules: IndexMap<String, Program> = IndexMap::new();
 
         for (name, program) in program.imports.iter() {
-            let program = Program::new(context, program)?;
-
-            // TODO only take the ones specified.
-            imported_functions.extend(program.functions.clone());
-            imported_circuits.extend(program.circuits.clone());
-            imported_global_consts.extend(program.global_consts.clone());
-
-            imported_modules.insert(name.clone(), program);
+            imported_modules.insert(name.clone(), Program::new(context, program)?);
         }
 
         let import_scope = match context.arena.alloc(ArenaNode::Scope(Box::new(Scope {
@@ -89,9 +79,9 @@ impl<'a> Program<'a> {
             id: context.get_id(),
             parent_scope: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
-            functions: RefCell::new(imported_functions),
-            global_consts: RefCell::new(imported_global_consts),
-            circuits: RefCell::new(imported_circuits),
+            functions: RefCell::new(IndexMap::new()),
+            global_consts: RefCell::new(IndexMap::new()),
+            circuits: RefCell::new(IndexMap::new()),
             function: Cell::new(None),
             input: Cell::new(None),
         }))) {
@@ -113,25 +103,22 @@ impl<'a> Program<'a> {
 
         // Prepare header-like scope entries.
         for (name, circuit) in program.circuits.iter() {
-            assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init(scope, circuit)?;
 
-            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
+            scope.circuits.borrow_mut().insert(name.clone(), asg_circuit);
         }
 
         // Second pass for circuit members.
         for (name, circuit) in program.circuits.iter() {
-            assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init_member(scope, circuit)?;
 
-            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
+            scope.circuits.borrow_mut().insert(name.clone(), asg_circuit);
         }
 
         for (name, function) in program.functions.iter() {
-            assert_eq!(name.name, function.identifier.name);
             let function = Function::init(scope, function)?;
 
-            scope.functions.borrow_mut().insert(name.name.to_string(), function);
+            scope.functions.borrow_mut().insert(name.clone(), function);
         }
 
         for (name, global_const) in program.global_consts.iter() {
@@ -159,12 +146,11 @@ impl<'a> Program<'a> {
 
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
-            assert_eq!(name.name, function.identifier.name);
-            let asg_function = *scope.functions.borrow().get(name.name.as_ref()).unwrap();
+            let asg_function = *scope.functions.borrow().get(name).unwrap();
 
             asg_function.fill_from_ast(function)?;
 
-            let name = name.name.to_string();
+            let name = name.clone();
 
             if functions.contains_key(&name) {
                 return Err(AsgError::duplicate_function_definition(name, &function.span).into());
@@ -175,12 +161,11 @@ impl<'a> Program<'a> {
 
         let mut circuits = IndexMap::new();
         for (name, circuit) in program.circuits.iter() {
-            assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = *scope.circuits.borrow().get(name.name.as_ref()).unwrap();
+            let asg_circuit = *scope.circuits.borrow().get(name).unwrap();
 
             asg_circuit.fill_from_ast(circuit)?;
 
-            circuits.insert(name.name.to_string(), asg_circuit);
+            circuits.insert(name.clone(), asg_circuit);
         }
 
         Ok(Program {
@@ -195,9 +180,9 @@ impl<'a> Program<'a> {
         })
     }
 
-    pub(crate) fn set_core_mapping(&self, mapping: &str) {
+    /* pub(crate) fn set_core_mapping(&self, mapping: &str) {
         for (_, circuit) in self.circuits.iter() {
             circuit.core_mapping.replace(Some(mapping.to_string()));
         }
-    }
+    } */
 }

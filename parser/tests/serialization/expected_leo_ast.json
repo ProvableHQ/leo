@@ -1,15 +1,18 @@
 {
   "name": "",
   "expected_input": [],
-  "imports": [],
+  "import_statements": [],
+  "imports": {},
   "circuits": {},
   "global_consts": {},
   "functions": {
-    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function main() {\\\"}\"}": {
+    "main": {
       "annotations": [],
-      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function main() {\\\"}\"}",
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"C:\\\\\\\\Users\\\\\\\\jonat\\\\\\\\AppData\\\\\\\\Roaming\\\\\\\\work\\\\\\\\tester\\\\\\\\src/main.leo\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}",
       "input": [],
-      "output": null,
+      "output": {
+        "IntegerType": "U8"
+      },
       "block": {
         "statements": [
           {
@@ -18,30 +21,32 @@
                 "Binary": {
                   "left": {
                     "Value": {
-                      "Implicit": [
+                      "Integer": [
+                        "U8",
                         "1",
                         {
                           "line_start": 2,
                           "line_stop": 2,
                           "col_start": 12,
-                          "col_stop": 13,
-                          "path": "test",
-                          "content": "    return 1 + 1"
+                          "col_stop": 15,
+                          "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+                          "content": "    return 1u8 + 1u8;"
                         }
                       ]
                     }
                   },
                   "right": {
                     "Value": {
-                      "Implicit": [
+                      "Integer": [
+                        "U8",
                         "1",
                         {
                           "line_start": 2,
                           "line_stop": 2,
-                          "col_start": 16,
-                          "col_stop": 17,
-                          "path": "test",
-                          "content": "    return 1 + 1"
+                          "col_start": 18,
+                          "col_stop": 21,
+                          "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+                          "content": "    return 1u8 + 1u8;"
                         }
                       ]
                     }
@@ -51,9 +56,9 @@
                     "line_start": 2,
                     "line_stop": 2,
                     "col_start": 12,
-                    "col_stop": 17,
-                    "path": "test",
-                    "content": "    return 1 + 1"
+                    "col_stop": 21,
+                    "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+                    "content": "    return 1u8 + 1u8;"
                   }
                 }
               },
@@ -61,9 +66,9 @@
                 "line_start": 2,
                 "line_stop": 2,
                 "col_start": 5,
-                "col_stop": 17,
-                "path": "test",
-                "content": "    return 1 + 1"
+                "col_stop": 21,
+                "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+                "content": "    return 1u8 + 1u8;"
               }
             }
           }
@@ -71,10 +76,10 @@
         "span": {
           "line_start": 1,
           "line_stop": 3,
-          "col_start": 17,
+          "col_start": 23,
           "col_stop": 2,
-          "path": "test",
-          "content": "function main() {\n...\n}"
+          "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+          "content": "function main() -> u8 {\n     ...\n}"
         }
       },
       "span": {
@@ -82,8 +87,8 @@
         "line_stop": 3,
         "col_start": 1,
         "col_stop": 2,
-        "path": "test",
-        "content": "function main() {\n...\n}"
+        "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+        "content": "function main() -> u8 {\n     ...\n}"
       }
     }
   }

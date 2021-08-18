@@ -24,9 +24,6 @@ where
     T: ImportResolver,
 {
     import_resolver: T,
-    functions_to_import: Vec<(String, Option<String>)>,
-    circuits_to_import: Vec<(String, Option<String>)>,
-    global_consts_to_import: Vec<(String, Option<String>)>,
 }
 
 impl<T> Importer<T>
@@ -34,12 +31,7 @@ where
     T: ImportResolver,
 {
     pub fn new(import_resolver: T) -> Self {
-        Self {
-            import_resolver,
-            functions_to_import: Vec::new(),
-            circuits_to_import: Vec::new(),
-            global_consts_to_import: Vec::new(),
-        }
+        Self { import_resolver }
     }
 }
 
@@ -103,7 +95,7 @@ fn resolve_import_package_access(
         PackageAccess::Multiple(packages) => {
             package_segments.push(packages.name.name.to_string());
             for subaccess in packages.accesses.iter() {
-                resolve_import_package_access(output, package_segments.clone(), &subaccess);
+                resolve_import_package_access(output, package_segments.clone(), subaccess);
             }
         }
     }
@@ -125,12 +117,12 @@ where
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
         empty_imports: IndexMap<String, Program>,
-        circuits: IndexMap<Identifier, Circuit>,
-        functions: IndexMap<Identifier, Function>,
-        global_consts: IndexMap<String, DefinitionStatement>,
+        mut circuits: IndexMap<String, Circuit>,
+        mut functions: IndexMap<String, Function>,
+        mut global_consts: IndexMap<String, DefinitionStatement>,
     ) -> Result<Program> {
         if !empty_imports.is_empty() {
-            // TODO THROW ERR
+            // TODO THROW ERROR
         }
 
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
@@ -149,6 +141,7 @@ where
         for (package, span) in deduplicated_imports {
             let _pretty_package = package.join(".");
 
+            // TODO FIX ERROR
             let resolved_package =
                 match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], &span)? {
                     Some(x) => x,
@@ -158,35 +151,43 @@ where
             resolved_packages.insert(package.clone(), resolved_package);
         }
 
-        // TODO Errors
+        // TODO ERROR
         // TODO copyable AST.
-        // TODO should imports be renamed in imported program?
         for (package, symbol, span) in imported_symbols.into_iter() {
             let _pretty_package = package.join(".");
 
             let resolved_package = resolved_packages
                 .get_mut(&package)
                 .expect("could not find preloaded package");
+
             match symbol {
-                ImportSymbol::Alias(name, alias) => {
-                    let lookup_ident = Identifier::new(name.clone().into());
-                    if let Some((ident, function)) = resolved_package.functions.remove_entry(&lookup_ident) {
-                        let mut alias_identifier = ident.clone();
-                        alias_identifier.name = alias.into();
-                        resolved_package.functions.insert(alias_identifier, function.clone());
-                    } else if let Some((ident, circuit)) = resolved_package.circuits.remove_entry(&lookup_ident) {
-                        let mut alias_identifier = ident.clone();
-                        alias_identifier.name = alias.into();
-                        resolved_package.circuits.insert(alias_identifier, circuit.clone());
-                    } else if let Some(global_const) = resolved_package.global_consts.remove(&name) {
-                        resolved_package
-                            .global_consts
-                            .insert(alias.clone(), global_const.clone());
+                ImportSymbol::All => {
+                    functions.extend(resolved_package.functions.clone().into_iter());
+                    circuits.extend(resolved_package.circuits.clone().into_iter());
+                    global_consts.extend(resolved_package.global_consts.clone().into_iter());
+                }
+                ImportSymbol::Direct(name) => {
+                    if let Some(function) = resolved_package.functions.get(&name) {
+                        functions.insert(name.clone(), function.clone());
+                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
+                        circuits.insert(name.clone(), circuit.clone());
+                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
+                        global_consts.insert(name.clone(), global_const.clone());
                     } else {
                         return Err(AstError::empty_string(&span).into());
                     }
                 }
-                _ => {}
+                ImportSymbol::Alias(name, alias) => {
+                    if let Some(function) = resolved_package.functions.get(&name) {
+                        functions.insert(alias.clone(), function.clone());
+                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
+                        circuits.insert(alias.clone(), circuit.clone());
+                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
+                        global_consts.insert(alias.clone(), global_const.clone());
+                    } else {
+                        return Err(AstError::empty_string(&span).into());
+                    }
+                }
             }
         }
 

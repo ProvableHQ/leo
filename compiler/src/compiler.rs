@@ -242,6 +242,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         // Preform import resolution.
         ast.importer(leo_imports::ImportParser::new(self.main_file_path.clone()))?;
 
+        if self.ast_snapshot_options.imports_resolved {
+            ast.to_json_file(self.output_directory.clone(), "imports_resolved.json")?;
+        }
+
         // Preform canonicalization of AST always.
         ast.canonicalize()?;
 

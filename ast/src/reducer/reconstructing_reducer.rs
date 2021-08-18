@@ -374,6 +374,7 @@ pub trait ReconstructingReducer {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     // Program
     fn reduce_program(
         &mut self,
@@ -381,8 +382,8 @@ pub trait ReconstructingReducer {
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
         imports: IndexMap<String, Program>,
-        circuits: IndexMap<Identifier, Circuit>,
-        functions: IndexMap<Identifier, Function>,
+        circuits: IndexMap<String, Circuit>,
+        functions: IndexMap<String, Function>,
         global_consts: IndexMap<String, DefinitionStatement>,
     ) -> Result<Program> {
         Ok(Program {

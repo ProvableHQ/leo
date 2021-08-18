@@ -402,14 +402,14 @@ impl ParserContext {
     /// Returns an [`(Identifier, Circuit)`] tuple of AST nodes if the next tokens represent a
     /// circuit name and definition statement.
     ///
-    pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
+    pub fn parse_circuit(&mut self) -> Result<(String, Circuit)> {
         self.expect(Token::Circuit)?;
         let name = self.expect_ident()?;
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
 
         Ok((
-            name.clone(),
+            name.name.to_string(),
             Circuit {
                 circuit_name: name,
                 members,
@@ -466,7 +466,7 @@ impl ParserContext {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     ///
-    pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
+    pub fn parse_function_declaration(&mut self) -> Result<(String, Function)> {
         let mut annotations = Vec::new();
         while self.peek_token().as_ref() == &Token::At {
             annotations.push(self.parse_annotation()?);
@@ -490,7 +490,7 @@ impl ParserContext {
         };
         let block = self.parse_block()?;
         Ok((
-            name.clone(),
+            name.name.to_string(),
             Function {
                 annotations,
                 identifier: name,
