@@ -16,7 +16,9 @@
 
 use crate::{commands::Command, context::Context};
 use leo_compiler::OutputFile;
-use leo_package::outputs::{ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, VerificationKeyFile};
+use leo_package::outputs::{
+    ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, Snapshot, SnapshotFile, VerificationKeyFile,
+};
 
 use anyhow::Result;
 use structopt::StructOpt;
@@ -60,6 +62,11 @@ impl Command for Clean {
 
         // Remove the proof from the output directory
         ProofFile::new(&package_name).remove(&path)?;
+
+        // Remove AST snapshots from the output directory
+        SnapshotFile::new(&package_name, Snapshot::Initial).remove(&path)?;
+        SnapshotFile::new(&package_name, Snapshot::TypeInference).remove(&path)?;
+        SnapshotFile::new(&package_name, Snapshot::Canonicalization).remove(&path)?;
 
         Ok(())
     }

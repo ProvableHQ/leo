@@ -29,5 +29,8 @@ pub use self::proof::*;
 pub mod proving_key;
 pub use self::proving_key::*;
 
+pub mod ast_snapshot;
+pub use self::ast_snapshot::*;
+
 pub mod verification_key;
 pub use self::verification_key::*;
