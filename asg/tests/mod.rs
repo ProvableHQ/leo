@@ -28,8 +28,7 @@ fn load_asg(program_string: &str) -> Result<Program<'static>, LeoError> {
 }
 
 fn load_asg_imports<'a>(context: AsgContext<'a>, program_string: &str) -> Result<Program<'a>, LeoError> {
-    let mut ast = parse_ast(&TESTING_FILEPATH, program_string)?;
-    ast.canonicalize()?;
+    let ast = parse_ast(&TESTING_FILEPATH, program_string)?;
     Program::new(context, &ast.as_repr())
 }
 

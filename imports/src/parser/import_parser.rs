@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{ImportResolver, Program};
+use leo_ast::Program;
+use leo_ast_passes::ImportResolver;
 use leo_errors::{ImportError, LeoError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};

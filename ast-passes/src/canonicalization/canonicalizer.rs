@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::*;
+use leo_ast::*;
 use leo_errors::{AstError, Result, Span};
 
 /// Replace Self when it is in a enclosing circuit type.
@@ -35,6 +35,14 @@ impl Default for Canonicalizer {
             circuit_name: None,
             in_circuit: false,
         }
+    }
+}
+
+impl AstPass for Canonicalizer {
+    fn do_pass(ast: Program) -> Result<Ast> {
+        Ok(Ast::new(
+            ReconstructingDirector::new(Self::default()).reduce_program(&ast)?,
+        ))
     }
 }
 
@@ -663,13 +671,14 @@ impl ReconstructingReducer for Canonicalizer {
 
     fn reduce_circuit(
         &mut self,
-        _circuit: &Circuit,
+        circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
     ) -> Result<Circuit> {
         self.circuit_name = Some(circuit_name.clone());
         let circ = Circuit {
             circuit_name,
+            core_mapping: circuit.core_mapping.clone(),
             members: members
                 .iter()
                 .map(|member| self.canonicalize_circuit_member(member))

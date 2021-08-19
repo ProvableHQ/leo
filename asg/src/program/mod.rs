@@ -179,10 +179,4 @@ impl<'a> Program<'a> {
             scope,
         })
     }
-
-    /* pub(crate) fn set_core_mapping(&self, mapping: &str) {
-        for (_, circuit) in self.circuits.iter() {
-            circuit.core_mapping.replace(Some(mapping.to_string()));
-        }
-    } */
 }

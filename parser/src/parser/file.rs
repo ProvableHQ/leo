@@ -412,6 +412,7 @@ impl ParserContext {
             name.name.to_string(),
             Circuit {
                 circuit_name: name,
+                core_mapping: std::cell::RefCell::new(None),
                 members,
             },
         ))

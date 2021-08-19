@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::*;
-use leo_errors::{AstError, Span};
+use crate::resolver::*;
+
+use leo_ast::*;
+use leo_errors::{AstError, Result, Span};
 
 use indexmap::IndexMap;
 
@@ -32,6 +34,12 @@ where
 {
     pub fn new(import_resolver: T) -> Self {
         Self { import_resolver }
+    }
+
+    pub fn do_pass(ast: Program, importer: T) -> Result<Ast> {
+        Ok(Ast::new(
+            ReconstructingDirector::new(Importer::new(importer)).reduce_program(&ast)?,
+        ))
     }
 }
 

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Program;
+use leo_ast::Program;
 use leo_errors::{Result, Span};
 
 use indexmap::IndexMap;
@@ -61,23 +61,29 @@ impl ImportResolver for MockedImportResolver {
     }
 }
 
+// TODO: Remove this.
+pub fn load_ast(content: &str) -> Result<Program> {
+    // Parses the Leo file and constructs a grammar ast.
+    Ok(leo_parser::parse_ast("input.leo", content)?.into_repr())
+}
+
+// TODO: We should merge this with core
+// TODO: Make asg deep copy so we can cache resolved core modules
+// TODO: Figure out how to do headers without bogus returns
 pub fn resolve_core_module(module: &str) -> Result<Option<Program>> {
     match module {
         "unstable.blake2s" => {
-            // let ast = load_asg(
-            //     context,
-            //     r#"
-            //     circuit Blake2s {
-            //         function hash(seed: [u8; 32], message: [u8; 32]) -> [u8; 32] {
-            //             return [0; 32];
-            //         }
-            //     }
-            //     "#,
-            //     &mut crate::NullImportResolver,
-            // )?;
-            // asg.set_core_mapping("blake2s");
-            // Ok(Some(asg))
-            Ok(None)
+            let ast = load_ast(
+                r#"
+                circuit Blake2s {
+                    function hash(seed: [u8; 32], message: [u8; 32]) -> [u8; 32] {
+                        return [0; 32];
+                    }
+                }
+                "#,
+            )?;
+            ast.set_core_mapping("blake2s");
+            Ok(Some(ast))
         }
         _ => Ok(None),
     }

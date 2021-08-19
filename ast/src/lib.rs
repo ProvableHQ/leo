@@ -49,6 +49,9 @@ pub use self::imports::*;
 pub mod input;
 pub use self::input::*;
 
+pub mod pass;
+pub use self::pass::*;
+
 pub mod program;
 pub use self::program::*;
 
@@ -83,7 +86,7 @@ impl Ast {
         Self { ast: program }
     }
 
-    /// Mutates the program ast by resolving the imports.
+    /* /// Mutates the program ast by resolving the imports.
     pub fn importer<T: ImportResolver>(&mut self, importer: T) -> Result<()> {
         self.ast = ReconstructingDirector::new(Importer::new(importer)).reduce_program(self.as_repr())?;
         Ok(())
@@ -93,7 +96,7 @@ impl Ast {
     pub fn canonicalize(&mut self) -> Result<()> {
         self.ast = ReconstructingDirector::new(Canonicalizer::default()).reduce_program(self.as_repr())?;
         Ok(())
-    }
+    } */
 
     /// Returns a reference to the inner program AST representation.
     pub fn as_repr(&self) -> &Program {

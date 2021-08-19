@@ -21,7 +21,7 @@ use crate::{
 };
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, Program as AsgProgram};
-use leo_ast::{Input, MainInput, Program as AstProgram};
+use leo_ast::{AstPass, Input, MainInput, Program as AstProgram};
 use leo_errors::{CompilerError, Result};
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
@@ -240,14 +240,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         }
 
         // Preform import resolution.
-        ast.importer(leo_imports::ImportParser::new(self.main_file_path.clone()))?;
+        // ast.importer(leo_imports::ImportParser::new(self.main_file_path.clone()))?;
+        ast = leo_ast_passes::Importer::do_pass(
+            ast.into_repr(),
+            leo_imports::ImportParser::new(self.main_file_path.clone()),
+        )?;
 
         if self.ast_snapshot_options.imports_resolved {
             ast.to_json_file(self.output_directory.clone(), "imports_resolved.json")?;
         }
 
         // Preform canonicalization of AST always.
-        ast.canonicalize()?;
+        ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
 
         if self.ast_snapshot_options.canonicalized {
             ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;

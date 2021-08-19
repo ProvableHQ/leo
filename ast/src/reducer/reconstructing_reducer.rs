@@ -445,11 +445,15 @@ pub trait ReconstructingReducer {
 
     fn reduce_circuit(
         &mut self,
-        _circuit: &Circuit,
+        circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
     ) -> Result<Circuit> {
-        Ok(Circuit { circuit_name, members })
+        Ok(Circuit {
+            circuit_name,
+            core_mapping: circuit.core_mapping.clone(),
+            members,
+        })
     }
 
     fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation> {

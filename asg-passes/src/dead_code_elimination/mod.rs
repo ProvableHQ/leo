@@ -17,7 +17,7 @@
 use std::cell::Cell;
 
 use leo_asg::*;
-use leo_errors::LeoError;
+use leo_errors::Result;
 
 pub struct DeadCodeElimination {}
 
@@ -66,7 +66,7 @@ impl<'a> ReconstructingReducerStatement<'a> for DeadCodeElimination {
 }
 
 impl<'a> AsgPass<'a> for DeadCodeElimination {
-    fn do_pass(asg: Program<'a>) -> Result<Program<'a>, LeoError> {
+    fn do_pass(asg: Program<'a>) -> Result<Program<'a>> {
         let pass = DeadCodeElimination {};
         let mut director = ReconstructingDirector::new(asg.context, pass);
         Ok(director.reduce_program(asg))
