@@ -15,11 +15,12 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::*;
+use leo_errors::{AstError, Result, Span};
 
 /// Replace Self when it is in a enclosing circuit type.
 /// Error when Self is outside an enclosing circuit type.
 /// Tuple array types and expressions expand to nested arrays.
-/// Tuple array types and expressions error if a size of 0 is given.anyhow
+/// Tuple array types and expressions error if a size of 0 is given.
 /// Compound operators become simple assignments.
 /// Functions missing output type return a empty tuple.
 pub struct Canonicalizer {
@@ -43,7 +44,7 @@ impl Canonicalizer {
         start: Expression,
         accesses: &[AssigneeAccess],
         span: &Span,
-    ) -> Result<Box<Expression>, ReducerError> {
+    ) -> Result<Box<Expression>> {
         let mut left = Box::new(start);
 
         for access in accesses.iter() {
@@ -83,10 +84,7 @@ impl Canonicalizer {
         Ok(left)
     }
 
-    pub fn compound_operation_converstion(
-        &mut self,
-        operation: &AssignOperation,
-    ) -> Result<BinaryOperation, ReducerError> {
+    pub fn compound_operation_converstion(&mut self, operation: &AssignOperation) -> Result<BinaryOperation> {
         match operation {
             AssignOperation::Assign => unreachable!(),
             AssignOperation::Add => Ok(BinaryOperation::Add),
@@ -106,8 +104,24 @@ impl Canonicalizer {
         }
     }
 
-    fn is_self_type(&mut self, type_option: Option<&Type>) -> bool {
-        matches!(type_option, Some(Type::SelfType))
+    fn canonicalize_self_type(&self, type_option: Option<&Type>) -> Option<Type> {
+        match type_option {
+            Some(type_) => match type_ {
+                Type::SelfType => Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone())),
+                Type::Array(type_, dimensions) => Some(Type::Array(
+                    Box::new(self.canonicalize_self_type(Some(type_)).unwrap()),
+                    dimensions.clone(),
+                )),
+                Type::Tuple(types) => Some(Type::Tuple(
+                    types
+                        .iter()
+                        .map(|type_| self.canonicalize_self_type(Some(type_)).unwrap())
+                        .collect(),
+                )),
+                _ => Some(type_.clone()),
+            },
+            None => None,
+        }
     }
 
     fn canonicalize_expression(&mut self, expression: &Expression) -> Expression {
@@ -147,11 +161,7 @@ impl Canonicalizer {
 
             Expression::Cast(cast) => {
                 let inner = Box::new(self.canonicalize_expression(&cast.inner));
-                let mut target_type = cast.target_type.clone();
-
-                if matches!(target_type, Type::SelfType) {
-                    target_type = Type::Circuit(self.circuit_name.as_ref().unwrap().clone());
-                }
+                let target_type = self.canonicalize_self_type(Some(&cast.target_type)).unwrap();
 
                 return Expression::Cast(CastExpression {
                     inner,
@@ -338,11 +348,7 @@ impl Canonicalizer {
             }
             Statement::Definition(definition) => {
                 let value = self.canonicalize_expression(&definition.value);
-                let mut type_ = definition.type_.clone();
-
-                if self.is_self_type(type_.as_ref()) {
-                    type_ = Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone()));
-                }
+                let type_ = self.canonicalize_self_type(definition.type_.as_ref());
 
                 Statement::Definition(DefinitionStatement {
                     declaration_type: definition.declaration_type.clone(),
@@ -356,12 +362,12 @@ impl Canonicalizer {
                 let assignee = self.canonicalize_assignee(&assign.assignee);
                 let value = self.canonicalize_expression(&assign.value);
 
-                Statement::Assign(AssignStatement {
+                Statement::Assign(Box::new(AssignStatement {
                     assignee,
                     value,
                     operation: assign.operation,
                     span: assign.span.clone(),
-                })
+                }))
             }
             Statement::Conditional(conditional) => {
                 let condition = self.canonicalize_expression(&conditional.condition);
@@ -383,14 +389,14 @@ impl Canonicalizer {
                 let stop = self.canonicalize_expression(&iteration.stop);
                 let block = self.canonicalize_block(&iteration.block);
 
-                Statement::Iteration(IterationStatement {
+                Statement::Iteration(Box::new(IterationStatement {
                     variable: iteration.variable.clone(),
                     start,
                     stop,
                     inclusive: iteration.inclusive,
                     block,
                     span: iteration.span.clone(),
-                })
+                }))
             }
             Statement::Console(console_function_call) => {
                 let function = match &console_function_call.function {
@@ -436,12 +442,8 @@ impl Canonicalizer {
             CircuitMember::CircuitVariable(_, _) => {}
             CircuitMember::CircuitFunction(function) => {
                 let input = function.input.clone();
-                let mut output = function.output.clone();
+                let output = self.canonicalize_self_type(function.output.as_ref());
                 let block = self.canonicalize_block(&function.block);
-
-                if self.is_self_type(output.as_ref()) {
-                    output = Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone()));
-                }
 
                 return CircuitMember::CircuitFunction(Function {
                     annotations: function.annotations.clone(),
@@ -467,13 +469,11 @@ impl ReconstructingReducer for Canonicalizer {
         self.in_circuit = !self.in_circuit;
     }
 
-    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type, ReducerError> {
+    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type> {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
-                    return Err(ReducerError::from(CanonicalizeError::invalid_array_dimension_size(
-                        span,
-                    )));
+                    return Err(AstError::invalid_array_dimension_size(span).into());
                 }
 
                 let mut next = Type::Array(type_, ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
@@ -490,16 +490,14 @@ impl ReconstructingReducer for Canonicalizer {
 
                 Ok(array)
             }
-            Type::SelfType if !self.in_circuit => {
-                Err(ReducerError::from(CanonicalizeError::big_self_outside_of_circuit(span)))
-            }
+            Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
             _ => Ok(new.clone()),
         }
     }
 
-    fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression, ReducerError> {
+    fn reduce_string(&mut self, string: &[Char], span: &Span) -> Result<Expression> {
         if string.is_empty() {
-            return Err(ReducerError::empty_string(span));
+            return Err(AstError::empty_string(span).into());
         }
 
         let mut elements = Vec::new();
@@ -534,14 +532,14 @@ impl ReconstructingReducer for Canonicalizer {
             elements.push(SpreadOrExpression::Expression(Expression::Value(
                 ValueExpression::Char(CharValue {
                     character: character.clone(),
-                    span: Span {
-                        line_start: span.line_start,
-                        line_stop: span.line_stop,
+                    span: Span::new(
+                        span.line_start,
+                        span.line_stop,
                         col_start,
                         col_stop,
-                        path: span.path.clone(),
-                        content: span.content.clone(),
-                    },
+                        span.path.clone(),
+                        span.content.clone(),
+                    ),
                 }),
             )));
         }
@@ -556,11 +554,9 @@ impl ReconstructingReducer for Canonicalizer {
         &mut self,
         array_init: &ArrayInitExpression,
         element: Expression,
-    ) -> Result<ArrayInitExpression, ReducerError> {
+    ) -> Result<ArrayInitExpression> {
         if array_init.dimensions.is_zero() {
-            return Err(ReducerError::from(CanonicalizeError::invalid_array_dimension_size(
-                &array_init.span,
-            )));
+            return Err(AstError::invalid_array_dimension_size(&array_init.span).into());
         }
 
         let element = Box::new(element);
@@ -607,7 +603,7 @@ impl ReconstructingReducer for Canonicalizer {
         assign: &AssignStatement,
         assignee: Assignee,
         value: Expression,
-    ) -> Result<AssignStatement, ReducerError> {
+    ) -> Result<AssignStatement> {
         match value {
             value if assign.operation != AssignOperation::Assign => {
                 let left = self.canonicalize_accesses(
@@ -649,7 +645,7 @@ impl ReconstructingReducer for Canonicalizer {
         input: Vec<FunctionInput>,
         output: Option<Type>,
         block: Block,
-    ) -> Result<Function, ReducerError> {
+    ) -> Result<Function> {
         let new_output = match output {
             None => Some(Type::Tuple(vec![])),
             _ => output,
@@ -670,7 +666,7 @@ impl ReconstructingReducer for Canonicalizer {
         _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
-    ) -> Result<Circuit, ReducerError> {
+    ) -> Result<Circuit> {
         self.circuit_name = Some(circuit_name.clone());
         let circ = Circuit {
             circuit_name,

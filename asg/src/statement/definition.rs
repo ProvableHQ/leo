@@ -14,10 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    AsgConvertError, Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Span, Statement,
-    Type, Variable,
-};
+use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Type, Variable};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -59,11 +57,11 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::DefinitionStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self> {
         let type_ = statement
             .type_
             .as_ref()
-            .map(|x| scope.resolve_ast_type(x))
+            .map(|x| scope.resolve_ast_type(x, &statement.span))
             .transpose()?;
 
         let value = <&Expression<'a>>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;
@@ -76,7 +74,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                 .collect::<Vec<String>>()
                 .join(" ,");
 
-            return Err(AsgConvertError::invalid_const_assign(&var_names, &statement.span));
+            return Err(AsgError::invalid_const_assign(var_names, &statement.span).into());
         }
 
         let type_ = type_.or_else(|| value.get_type());
@@ -85,9 +83,11 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
 
         let mut variables = vec![];
         if statement.variable_names.is_empty() {
-            return Err(AsgConvertError::illegal_ast_structure(
+            return Err(AsgError::illegal_ast_structure(
                 "cannot have 0 variable names in destructuring tuple",
-            ));
+                &statement.span,
+            )
+            .into());
         }
         if statement.variable_names.len() == 1 {
             // any return type is fine
@@ -99,11 +99,12 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
                     output_types.extend(sub_types.clone().into_iter().map(Some).collect::<Vec<_>>());
                 }
                 type_ => {
-                    return Err(AsgConvertError::unexpected_type(
-                        &*format!("{}-ary tuple", statement.variable_names.len()),
-                        type_.map(|x| x.to_string()).as_deref(),
+                    return Err(AsgError::unexpected_type(
+                        format!("{}-ary tuple", statement.variable_names.len()),
+                        type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                         &statement.span,
-                    ));
+                    )
+                    .into());
                 }
             }
         }
@@ -112,8 +113,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             variables.push(&*scope.context.alloc_variable(RefCell::new(InnerVariable {
                 id: scope.context.get_id(),
                 name: variable.identifier.clone(),
-                type_:
-                    type_.ok_or_else(|| AsgConvertError::unresolved_type(&variable.identifier.name, &statement.span))?,
+                type_: type_.ok_or_else(|| AsgError::unresolved_type(&variable.identifier.name, &statement.span))?,
                 mutable: variable.mutable,
                 const_: false,
                 declaration: crate::VariableDeclaration::Definition,
@@ -126,10 +126,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             let mut variables = scope.variables.borrow_mut();
             let var_name = variable.borrow().name.name.to_string();
             if variables.contains_key(&var_name) {
-                return Err(AsgConvertError::duplicate_variable_definition(
-                    &var_name,
-                    &statement.span,
-                ));
+                return Err(AsgError::duplicate_variable_definition(var_name, &statement.span).into());
             }
 
             variables.insert(var_name, *variable);

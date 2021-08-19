@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::IntegerType;
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -83,7 +84,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayAccessExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayAccessExpression<'a>, AsgConvertError> {
+    ) -> Result<ArrayAccessExpression<'a>> {
         let array = <&Expression<'a>>::from_ast(
             scope,
             &*value.array,
@@ -92,11 +93,12 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
         let array_len = match array.get_type() {
             Some(Type::Array(_, len)) => len,
             type_ => {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(AsgError::unexpected_type(
                     "array",
-                    type_.map(|x| x.to_string()).as_deref(),
+                    type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                     &value.span,
-                ));
+                )
+                .into());
             }
         };
 
@@ -112,10 +114,9 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             .flatten()
         {
             if index >= array_len {
-                return Err(AsgConvertError::array_index_out_of_bounds(
-                    index,
-                    &array.span().cloned().unwrap_or_default(),
-                ));
+                return Err(
+                    AsgError::array_index_out_of_bounds(index, &array.span().cloned().unwrap_or_default()).into(),
+                );
             }
         }
 

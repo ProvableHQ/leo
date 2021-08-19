@@ -23,3 +23,7 @@ path = "src/lib.rs"
 [dependencies.leo-asg]
 path = "../asg"
 version = "1.5.3"
+
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"

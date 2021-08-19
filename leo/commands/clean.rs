@@ -16,9 +16,9 @@
 
 use crate::{commands::Command, context::Context};
 use leo_compiler::OutputFile;
+use leo_errors::Result;
 use leo_package::outputs::{ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, VerificationKeyFile};
 
-use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
 

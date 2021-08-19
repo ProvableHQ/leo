@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{find_input, input_to_bytes, input_to_integer_string, StateLeafValuesError};
+use crate::{find_input, input_to_bytes, input_to_integer_string};
 use leo_ast::StateLeaf as AstStateLeaf;
+use leo_errors::{LeoError, Result, StateError};
 
 use std::convert::TryFrom;
 
@@ -34,9 +35,9 @@ pub struct StateLeafValues {
 }
 
 impl TryFrom<&AstStateLeaf> for StateLeafValues {
-    type Error = StateLeafValuesError;
+    type Error = LeoError;
 
-    fn try_from(ast_state_leaf: &AstStateLeaf) -> Result<Self, Self::Error> {
+    fn try_from(ast_state_leaf: &AstStateLeaf) -> Result<Self> {
         let parameters = ast_state_leaf.values();
 
         // Lookup path
@@ -49,7 +50,9 @@ impl TryFrom<&AstStateLeaf> for StateLeafValues {
 
         // Lookup network id
         let network_id_value = find_input(NETWORK_ID_PARAMETER_STRING.to_owned(), &parameters)?;
-        let network_id = input_to_integer_string(network_id_value)?.parse::<u8>()?;
+        let network_id = input_to_integer_string(network_id_value)?
+            .parse::<u8>()
+            .map_err(StateError::parse_int_error)?;
 
         // Lookup leaf randomness
         let leaf_randomness_value = find_input(LEAF_RANDOMNESS_PARAMETER_STRING.to_owned(), &parameters)?;

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, BlockStatement, Expression, FromAst, Node, PartialType, Scope, Span, Statement, Type};
+use crate::{BlockStatement, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
+use leo_errors::{Result, Span};
 
 use std::cell::Cell;
 
@@ -38,7 +39,7 @@ impl<'a> FromAst<'a, leo_ast::ConditionalStatement> for ConditionalStatement<'a>
         scope: &'a Scope<'a>,
         statement: &leo_ast::ConditionalStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self> {
         let condition = <&Expression<'a>>::from_ast(scope, &statement.condition, Some(Type::Boolean.into()))?;
         let result = scope.context.alloc_statement(Statement::Block(BlockStatement::from_ast(
             scope,
@@ -48,9 +49,7 @@ impl<'a> FromAst<'a, leo_ast::ConditionalStatement> for ConditionalStatement<'a>
         let next = statement
             .next
             .as_deref()
-            .map(|next| -> Result<&'a Statement<'a>, AsgConvertError> {
-                <&'a Statement<'a>>::from_ast(scope, next, None)
-            })
+            .map(|next| -> Result<&'a Statement<'a>> { <&'a Statement<'a>>::from_ast(scope, next, None) })
             .transpose()?;
 
         Ok(ConditionalStatement {

@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - TupleAccess:
       tuple:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x.0\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.0\\\"}\"}"
       index:
         value: "0"
       span:
@@ -12,11 +12,11 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: test
+        path: ""
         content: x.0
   - TupleAccess:
       tuple:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x.1\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.1\\\"}\"}"
       index:
         value: "1"
       span:
@@ -24,11 +24,11 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: test
+        path: ""
         content: x.1
   - TupleAccess:
       tuple:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x.2\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.2\\\"}\"}"
       index:
         value: "2"
       span:
@@ -36,13 +36,13 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 4
-        path: test
+        path: ""
         content: x.2
   - TupleAccess:
       tuple:
         TupleAccess:
           tuple:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x.0.0\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.0.0\\\"}\"}"
           index:
             value: "0"
           span:
@@ -50,7 +50,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 4
-            path: test
+            path: ""
             content: x.0.0
       index:
         value: "0"
@@ -59,13 +59,13 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 6
-        path: test
+        path: ""
         content: x.0.0
   - TupleAccess:
       tuple:
         TupleAccess:
           tuple:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x.1.1\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.1.1\\\"}\"}"
           index:
             value: "1"
           span:
@@ -73,7 +73,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 4
-            path: test
+            path: ""
             content: x.1.1
       index:
         value: "1"
@@ -82,13 +82,13 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 6
-        path: test
+        path: ""
         content: x.1.1
   - TupleAccess:
       tuple:
         TupleAccess:
           tuple:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x.2.2\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.2.2\\\"}\"}"
           index:
             value: "2"
           span:
@@ -96,7 +96,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 4
-            path: test
+            path: ""
             content: x.2.2
       index:
         value: "2"
@@ -105,5 +105,5 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 6
-        path: test
+        path: ""
         content: x.2.2

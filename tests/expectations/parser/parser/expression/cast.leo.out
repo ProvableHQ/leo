@@ -4,7 +4,7 @@ expectation: Pass
 outputs:
   - Cast:
       inner:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x as u8\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x as u8\\\"}\"}"
       target_type:
         IntegerType: U8
       span:
@@ -12,23 +12,23 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 8
-        path: test
+        path: ""
         content: x as u8
   - Cast:
       inner:
-        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"y as id\\\"}\"}"
+        Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"y as id\\\"}\"}"
       target_type:
-        Circuit: "{\"name\":\"id\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":8,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"y as id\\\"}\"}"
+        Circuit: "{\"name\":\"id\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"y as id\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 8
-        path: test
+        path: ""
         content: y as id
   - Cast:
       inner:
-        Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"z as u32\\\"}\"}"
+        Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"z as u32\\\"}\"}"
       target_type:
         IntegerType: U32
       span:
@@ -36,11 +36,11 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 9
-        path: test
+        path: ""
         content: z as u32
   - Cast:
       inner:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x as i128\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x as i128\\\"}\"}"
       target_type:
         IntegerType: I128
       span:
@@ -48,13 +48,13 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 10
-        path: test
+        path: ""
         content: x as i128
   - Cast:
       inner:
         Cast:
           inner:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x as u8 as u128\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x as u8 as u128\\\"}\"}"
           target_type:
             IntegerType: U8
           span:
@@ -62,7 +62,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 8
-            path: test
+            path: ""
             content: x as u8 as u128
       target_type:
         IntegerType: U128
@@ -71,39 +71,39 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 16
-        path: test
+        path: ""
         content: x as u8 as u128
   - Cast:
       inner:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x as field\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x as field\\\"}\"}"
       target_type: Field
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 11
-        path: test
+        path: ""
         content: x as field
   - Cast:
       inner:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x as group\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x as group\\\"}\"}"
       target_type: Group
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 11
-        path: test
+        path: ""
         content: x as group
   - Binary:
       left:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x ** y as u32 ** z\\\"}\"}"
+        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x ** y as u32 ** z\\\"}\"}"
       right:
         Binary:
           left:
             Cast:
               inner:
-                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x ** y as u32 ** z\\\"}\"}"
+                Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x ** y as u32 ** z\\\"}\"}"
               target_type:
                 IntegerType: U32
               span:
@@ -111,17 +111,17 @@ outputs:
                 line_stop: 1
                 col_start: 6
                 col_stop: 14
-                path: test
+                path: ""
                 content: x ** y as u32 ** z
           right:
-            Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"x ** y as u32 ** z\\\"}\"}"
+            Identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x ** y as u32 ** z\\\"}\"}"
           op: Pow
           span:
             line_start: 1
             line_stop: 1
             col_start: 6
             col_stop: 19
-            path: test
+            path: ""
             content: x ** y as u32 ** z
       op: Pow
       span:
@@ -129,7 +129,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 19
-        path: test
+        path: ""
         content: x ** y as u32 ** z
   - Value:
       Implicit:
@@ -144,14 +144,14 @@ outputs:
       inner:
         Unary:
           inner:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"!x as u32\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"!x as u32\\\"}\"}"
           op: Not
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 3
-            path: test
+            path: ""
             content: "!x as u32"
       target_type:
         IntegerType: U32
@@ -160,20 +160,20 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 10
-        path: test
+        path: ""
         content: "!x as u32"
   - Cast:
       inner:
         Unary:
           inner:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"-x as u32\\\"}\"}"
+            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x as u32\\\"}\"}"
           op: Negate
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 3
-            path: test
+            path: ""
             content: "-x as u32"
       target_type:
         IntegerType: U32
@@ -182,5 +182,5 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 10
-        path: test
+        path: ""
         content: "-x as u32"

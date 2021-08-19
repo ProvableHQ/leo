@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:5:3\n     |\n   5 |   let x = true;\n     |   ^^^^^^^^^^^^\n     |\n     = a variable named \"x\" already exists in this scope"
+  - "Error [EASG0373017]: a variable named \"x\" already exists in this scope\n    --> compiler-test:5:3\n     |\n   5 |   let x = true;\n     |   ^^^^^^^^^^^^"
