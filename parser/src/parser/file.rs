@@ -16,7 +16,7 @@
 
 use tendril::format_tendril;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::{ParserError, Result, Span};
 
 use crate::KEYWORD_TOKENS;
 
@@ -28,6 +28,7 @@ impl ParserContext {
     ///
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut import_statements = Vec::new();
+        let mut aliases = IndexMap::new();
         let mut circuits = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut global_consts = IndexMap::new();
@@ -60,6 +61,10 @@ impl ParserContext {
                     let (name, global_const) = self.parse_global_const_declaration()?;
                     global_consts.insert(name, global_const);
                 }
+                Token::Type => {
+                    let (name, type_) = self.parse_type_alias()?;
+                    aliases.insert(name, type_);
+                }
                 _ => {
                     return Err(ParserError::unexpected(
                         &token.token,
@@ -85,6 +90,7 @@ impl ParserContext {
             expected_input: Vec::new(),
             import_statements,
             imports: IndexMap::new(),
+            aliases,
             circuits,
             functions,
             global_consts,
@@ -517,5 +523,19 @@ impl ParserContext {
             .join(",");
 
         Ok((variable_names, statement))
+    }
+
+    ///
+    /// Returns an [`(String, (Type, Span))`] AST node if the next tokens represent a global
+    /// const definition statement and assignment.
+    ///
+    pub fn parse_type_alias(&mut self) -> Result<(String, (Type, Span))> {
+        self.expect(Token::Type)?;
+        let name = self.expect_ident()?;
+        self.expect(Token::Assign)?;
+        let type_ = self.parse_type()?;
+        self.expect(Token::Semicolon)?;
+
+        Ok((name.name.to_string(), type_))
     }
 }

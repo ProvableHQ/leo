@@ -90,6 +90,7 @@ outputs:
           path: ""
           content: import hello-world.hello;
     imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions: {}

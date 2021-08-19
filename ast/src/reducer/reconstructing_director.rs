@@ -41,7 +41,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
                 Type::Tuple(reduced_types)
             }
-            Type::Circuit(identifier) => Type::Circuit(self.reduce_identifier(identifier)?),
+            Type::CircuitOrAlias(identifier) => Type::CircuitOrAlias(self.reduce_identifier(identifier)?),
             _ => type_.clone(),
         };
 
@@ -426,6 +426,12 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             imports.insert(ident, import);
         }
 
+        let mut aliases = IndexMap::new();
+        for (name, (type_, span)) in program.aliases.iter() {
+            let type_ = self.reduce_type(type_, span)?;
+            aliases.insert(name.clone(), (type_, span.clone()));
+        }
+
         let mut circuits = IndexMap::new();
         self.reducer.swap_in_circuit();
         for (name, circuit) in program.circuits.iter() {
@@ -448,6 +454,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             inputs,
             import_statements,
             imports,
+            aliases,
             circuits,
             functions,
             global_consts,

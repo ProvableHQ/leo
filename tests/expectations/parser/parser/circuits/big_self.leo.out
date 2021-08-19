@@ -6,6 +6,7 @@ outputs:
     expected_input: []
     import_statements: []
     imports: {}
+    aliases: {}
     circuits:
       X:
         circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"

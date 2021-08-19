@@ -395,6 +395,7 @@ keyword = %s"address"
         / %s"console"
         / %s"const"
         / %s"else"
+        / %s"false"
         / %s"field"
         / %s"for"
         / %s"function"
@@ -415,6 +416,8 @@ keyword = %s"address"
         / %s"self"
         / %s"static"
         / %s"string"
+        / %s"true"
+        / %s"type"
         / %s"u8"
         / %s"u16"
         / %s"u32"
@@ -1052,6 +1055,12 @@ package-path = "*"
              / package-name "." package-path
              / "(" package-path *( "," package-path ) [","] ")"
 
+; A type declaration consists of the `type` keyword
+; followed by an identifier and a type that the alias
+; would refer to.
+
+type-alias-declaration = %s"type" identifier "=" type ";"
+
 ; Finally, we define a file as a sequence of zero or more declarations.
 ; We allow constant declarations at the top level, for global constants.
 ; Currently variable declarations are disallowed at the top level.
@@ -1060,6 +1069,7 @@ declaration = import-declaration
             / function-declaration
             / circuit-declaration
             / constant-declaration
+            / type-alias-declaration
 
 file = *declaration
 

@@ -32,6 +32,7 @@ outputs:
           path: ""
           content: import test-import.*;
     imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions: {}

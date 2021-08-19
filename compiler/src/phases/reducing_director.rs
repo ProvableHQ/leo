@@ -644,6 +644,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             ast.expected_input.clone(),
             ast.import_statements.clone(),
             imports,
+            ast.aliases.clone(),
             circuits,
             functions,
             global_consts,

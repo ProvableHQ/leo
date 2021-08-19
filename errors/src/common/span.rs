@@ -78,6 +78,7 @@ impl Serialize for Span {
         state.serialize_field("line_stop", &self.line_stop)?;
         state.serialize_field("col_start", &self.col_start)?;
         state.serialize_field("col_stop", &self.col_stop)?;
+        // This is for testing purposes since the tests are run on a variety of OSes.
         if std::env::var("LEO_TESTFRAMEWORK")
             .unwrap_or_default()
             .trim()

@@ -34,6 +34,7 @@ outputs:
           path: ""
           content: import a.b;
     imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions: {}

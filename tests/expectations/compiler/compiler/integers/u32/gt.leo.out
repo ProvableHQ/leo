@@ -16,7 +16,7 @@ outputs:
       - input_file: u32_f.in
         output:
           registers: {}
-    initial_ast: 83f9e1f6403a78ccf519c9cd7dcc351ebb3d0b3fe31ed8a37a5be96b4d6c6cbc
-    imports_resolved_ast: 68d56e1fe5be8f6859aaeb97692139083eddd0f7f91041f8d583cf05ebf4c922
-    canonicalized_ast: 67ef0eb627b4deb4614c201db34176f31b0a3270a8e4cf86c18a445e48612fcd
-    type_inferenced_ast: 0caa6724e5d59397f8736c37d9e9a41c8446b41beb14e6641e17a1d51da8a0be
+    initial_ast: 4ed15433afa05fb560d4a3281fe1118c7430d137d2f57e63c240e085b923d39e
+    imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
+    canonicalized_ast: aaae56231b9fdb3d1b8d87c18d553efc78db0d88a99a545d03d9df781b1976f3
+    type_inferenced_ast: dd2a3217b9e6f50a2ceb7cbfa7f06f795cd9086a44fb3b3ff6644fc14ccb396c

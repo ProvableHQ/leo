@@ -97,7 +97,10 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --features ci_skip
+          args: --all
+      
+      - name: Install sccache Ubuntu
+        if: matrix.os == 'ubuntu-latest'
 
       - name: Print sccache stats
         run: sccache --show-stats
@@ -161,7 +164,7 @@ jobs:
         run: |
           SDKROOT=$(xcrun -sdk macosx11.1 --show-sdk-path) \
           MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx11.1 --show-sdk-platform-version) \
-          cargo test --all --features ci_skip
+          cargo test --all
 
       - name: Print sccache stats
         run: sccache --show-stats
@@ -297,7 +300,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all --features ci_skip
+          args: --all
         env:
           CARGO_INCREMENTAL: "0"
 

@@ -179,7 +179,7 @@ impl<'a> Scope<'a> {
                     .collect::<Result<Vec<_>>>()?,
             ),
             SelfType => return Err(AsgError::unexpected_big_self(span).into()),
-            Circuit(name) => Type::Circuit(
+            CircuitOrAlias(name) => Type::Circuit(
                 self.resolve_circuit(&name.name)
                     .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
             ),

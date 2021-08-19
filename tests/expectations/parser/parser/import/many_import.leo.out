@@ -132,6 +132,7 @@ outputs:
           path: ""
           content: "import bar.( // imports directory import\n         ...\n         ...\n    bat.bat.Bat,"
     imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions: {}

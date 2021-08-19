@@ -6,6 +6,7 @@ outputs:
     expected_input: []
     import_statements: []
     imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions:

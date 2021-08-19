@@ -125,6 +125,7 @@ where
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
         empty_imports: IndexMap<String, Program>,
+        mut aliases: IndexMap<String, (Type, Span)>,
         mut circuits: IndexMap<String, Circuit>,
         mut functions: IndexMap<String, Function>,
         mut global_consts: IndexMap<String, DefinitionStatement>,
@@ -170,12 +171,15 @@ where
 
             match symbol {
                 ImportSymbol::All => {
+                    aliases.extend(resolved_package.aliases.clone().into_iter());
                     functions.extend(resolved_package.functions.clone().into_iter());
                     circuits.extend(resolved_package.circuits.clone().into_iter());
                     global_consts.extend(resolved_package.global_consts.clone().into_iter());
                 }
                 ImportSymbol::Direct(name) => {
-                    if let Some(function) = resolved_package.functions.get(&name) {
+                    if let Some(alias) = resolved_package.aliases.get(&name) {
+                        aliases.insert(name.clone(), alias.clone());
+                    } else if let Some(function) = resolved_package.functions.get(&name) {
                         functions.insert(name.clone(), function.clone());
                     } else if let Some(circuit) = resolved_package.circuits.get(&name) {
                         circuits.insert(name.clone(), circuit.clone());
@@ -186,7 +190,9 @@ where
                     }
                 }
                 ImportSymbol::Alias(name, alias) => {
-                    if let Some(function) = resolved_package.functions.get(&name) {
+                    if let Some(type_alias) = resolved_package.aliases.get(&name) {
+                        aliases.insert(alias.clone(), type_alias.clone());
+                    } else if let Some(function) = resolved_package.functions.get(&name) {
                         functions.insert(alias.clone(), function.clone());
                     } else if let Some(circuit) = resolved_package.circuits.get(&name) {
                         circuits.insert(alias.clone(), circuit.clone());
@@ -207,6 +213,7 @@ where
                 .into_iter()
                 .map(|(package, program)| (package.join("."), program))
                 .collect(),
+            aliases,
             circuits,
             functions,
             global_consts,

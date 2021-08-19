@@ -166,6 +166,7 @@ outputs:
           path: ""
           content: import car.*;         // imports directory import
     imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions: {}

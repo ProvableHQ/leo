@@ -17,6 +17,8 @@
 use leo_ast::*;
 use leo_errors::{AstError, Result, Span};
 
+use indexmap::IndexMap;
+
 /// Replace Self when it is in a enclosing circuit type.
 /// Error when Self is outside an enclosing circuit type.
 /// Tuple array types and expressions expand to nested arrays.
@@ -27,26 +29,26 @@ pub struct Canonicalizer {
     // If we are in a circuit keep track of the circuit name.
     circuit_name: Option<Identifier>,
     in_circuit: bool,
-}
-
-impl Default for Canonicalizer {
-    fn default() -> Self {
-        Self {
-            circuit_name: None,
-            in_circuit: false,
-        }
-    }
+    alias_lookup: Box<dyn Fn(String) -> Option<(Type, Span)>>,
 }
 
 impl AstPass for Canonicalizer {
     fn do_pass(ast: Program) -> Result<Ast> {
         Ok(Ast::new(
-            ReconstructingDirector::new(Self::default()).reduce_program(&ast)?,
+            ReconstructingDirector::new(Self::new(ast.aliases.clone())).reduce_program(&ast)?,
         ))
     }
 }
 
 impl Canonicalizer {
+    pub fn new(aliases: IndexMap<String, (Type, Span)>) -> Self {
+        Self {
+            circuit_name: None,
+            in_circuit: false,
+            alias_lookup: Box::new(move |alias: String| -> Option<(Type, Span)> { aliases.get(&alias).cloned() }),
+        }
+    }
+
     pub fn canonicalize_accesses(
         &mut self,
         start: Expression,
@@ -115,7 +117,7 @@ impl Canonicalizer {
     fn canonicalize_self_type(&self, type_option: Option<&Type>) -> Option<Type> {
         match type_option {
             Some(type_) => match type_ {
-                Type::SelfType => Some(Type::Circuit(self.circuit_name.as_ref().unwrap().clone())),
+                Type::SelfType => Some(Type::CircuitOrAlias(self.circuit_name.as_ref().unwrap().clone())),
                 Type::Array(type_, dimensions) => Some(Type::Array(
                     Box::new(self.canonicalize_self_type(Some(type_)).unwrap()),
                     dimensions.clone(),
@@ -477,7 +479,7 @@ impl ReconstructingReducer for Canonicalizer {
         self.in_circuit = !self.in_circuit;
     }
 
-    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type> {
+    fn reduce_type(&mut self, type_: &Type, new: Type, span: &Span) -> Result<Type> {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
@@ -497,6 +499,13 @@ impl ReconstructingReducer for Canonicalizer {
                 }
 
                 Ok(array)
+            }
+            Type::CircuitOrAlias(identifier) => {
+                if let Some(alias_type) = (self.alias_lookup)(identifier.name.to_string()) {
+                    return self.reduce_type(type_, alias_type.0, &alias_type.1);
+                }
+
+                Ok(Type::CircuitOrAlias(identifier))
             }
             Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
             _ => Ok(new.clone()),
