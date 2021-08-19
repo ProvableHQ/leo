@@ -84,7 +84,6 @@ pub(crate) fn tokenize(path: &str, input: StrTendril) -> Result<Vec<SpannedToken
                 } else if token_len == 0 {
                     return Err(ParserError::unexpected_token(
                         &input[index..index + 1],
-                        "HELP TODO".to_string(),
                         &Span::new(
                             line_no,
                             line_no,

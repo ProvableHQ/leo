@@ -14,8 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod integer_type;
-pub use integer_type::*;
+use crate::{Identifier, Type};
 
-pub mod type_;
-pub use type_::*;
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Alias {
+    pub name: Identifier,
+    pub represents: Type,
+}
+
+impl fmt::Display for Alias {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} : {}", self.name.name, self.represents)
+    }
+}

@@ -125,13 +125,13 @@ where
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
         empty_imports: IndexMap<String, Program>,
-        mut aliases: IndexMap<String, (Type, Span)>,
+        mut aliases: IndexMap<String, Alias>,
         mut circuits: IndexMap<String, Circuit>,
         mut functions: IndexMap<String, Function>,
         mut global_consts: IndexMap<String, DefinitionStatement>,
     ) -> Result<Program> {
         if !empty_imports.is_empty() {
-            // TODO THROW ERROR
+            return Err(AstError::injected_programs(empty_imports.len()).into());
         }
 
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
@@ -148,22 +148,20 @@ where
 
         let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new();
         for (package, span) in deduplicated_imports {
-            let _pretty_package = package.join(".");
+            let pretty_package = package.join(".");
 
-            // TODO FIX ERROR
             let resolved_package =
                 match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], &span)? {
                     Some(x) => x,
-                    None => return Err(AstError::empty_string(&span).into()),
+                    None => return Err(AstError::unresolved_import(pretty_package, &span).into()),
                 };
 
             resolved_packages.insert(package.clone(), resolved_package);
         }
 
-        // TODO ERROR
         // TODO copyable AST.
         for (package, symbol, span) in imported_symbols.into_iter() {
-            let _pretty_package = package.join(".");
+            let pretty_package = package.join(".");
 
             let resolved_package = resolved_packages
                 .get_mut(&package)
@@ -186,7 +184,7 @@ where
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         global_consts.insert(name.clone(), global_const.clone());
                     } else {
-                        return Err(AstError::empty_string(&span).into());
+                        return Err(AstError::unresolved_import(pretty_package, &span).into());
                     }
                 }
                 ImportSymbol::Alias(name, alias) => {
@@ -199,7 +197,7 @@ where
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         global_consts.insert(alias.clone(), global_const.clone());
                     } else {
-                        return Err(AstError::empty_string(&span).into());
+                        return Err(AstError::unresolved_import(pretty_package, &span).into());
                     }
                 }
             }

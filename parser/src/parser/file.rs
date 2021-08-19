@@ -62,8 +62,8 @@ impl ParserContext {
                     global_consts.insert(name, global_const);
                 }
                 Token::Type => {
-                    let (name, type_) = self.parse_type_alias()?;
-                    aliases.insert(name, type_);
+                    let (name, alias) = self.parse_type_alias()?;
+                    aliases.insert(name, alias);
                 }
                 _ => {
                     return Err(ParserError::unexpected(
@@ -526,16 +526,22 @@ impl ParserContext {
     }
 
     ///
-    /// Returns an [`(String, (Type, Span))`] AST node if the next tokens represent a global
+    /// Returns an [`(String, Alias)`] AST node if the next tokens represent a global
     /// const definition statement and assignment.
     ///
-    pub fn parse_type_alias(&mut self) -> Result<(String, (Type, Span))> {
+    pub fn parse_type_alias(&mut self) -> Result<(String, Alias)> {
         self.expect(Token::Type)?;
         let name = self.expect_ident()?;
         self.expect(Token::Assign)?;
-        let type_ = self.parse_type()?;
+        let (type_, _) = self.parse_type()?;
         self.expect(Token::Semicolon)?;
 
-        Ok((name.name.to_string(), type_))
+        Ok((
+            name.name.to_string(),
+            Alias {
+                represents: type_,
+                name,
+            },
+        ))
     }
 }

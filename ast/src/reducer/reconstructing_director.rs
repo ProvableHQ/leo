@@ -427,9 +427,15 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         }
 
         let mut aliases = IndexMap::new();
-        for (name, (type_, span)) in program.aliases.iter() {
-            let type_ = self.reduce_type(type_, span)?;
-            aliases.insert(name.clone(), (type_, span.clone()));
+        for (name, alias) in program.aliases.iter() {
+            let represents = self.reduce_type(&alias.represents, &alias.name.span)?;
+            aliases.insert(
+                name.clone(),
+                Alias {
+                    name: alias.name.clone(),
+                    represents,
+                },
+            );
         }
 
         let mut circuits = IndexMap::new();

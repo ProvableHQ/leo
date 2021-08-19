@@ -33,14 +33,6 @@ create_errors!(
         help: None,
     }
 
-    /// For when a import of the specified name is unresolved.
-    @formatted
-    unresolved_import {
-        args: (name: impl Display),
-        msg: format!("failed to resolve import: '{}'", name),
-        help: None,
-    }
-
      /// For when a circuit member of the specified name is unresolved.
     @formatted
     unresolved_circuit_member {

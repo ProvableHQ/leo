@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373028]: failed to resolve variable reference 'myGlobal'\n    --> compiler-test:5:12\n     |\n   5 |     return myGlobal;\n     |            ^^^^^^^^"
+  - "Error [EASG0373027]: failed to resolve variable reference 'myGlobal'\n    --> compiler-test:5:12\n     |\n   5 |     return myGlobal;\n     |            ^^^^^^^^"

@@ -22,6 +22,9 @@
 
 #![doc = include_str!("../README.md")]
 
+pub mod aliases;
+pub use self::aliases::*;
+
 pub mod annotation;
 pub use self::annotation::*;
 

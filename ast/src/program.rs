@@ -17,9 +17,7 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Circuit, DefinitionStatement, Function, FunctionInput, ImportStatement, Type};
-
-use leo_errors::Span;
+use crate::{Alias, Circuit, DefinitionStatement, Function, FunctionInput, ImportStatement};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -32,7 +30,7 @@ pub struct Program {
     pub expected_input: Vec<FunctionInput>,
     pub import_statements: Vec<ImportStatement>,
     pub imports: IndexMap<String, Program>,
-    pub aliases: IndexMap<String, (Type, Span)>,
+    pub aliases: IndexMap<String, Alias>,
     pub circuits: IndexMap<String, Circuit>,
     pub global_consts: IndexMap<String, DefinitionStatement>,
     pub functions: IndexMap<String, Function>,
@@ -51,8 +49,8 @@ impl fmt::Display for Program {
             writeln!(f,)?;
         }
         writeln!(f,)?;
-        for alias in self.aliases.iter() {
-            write!(f, "({}, {})", alias.0, alias.1 .0)?;
+        for (_, alias) in self.aliases.iter() {
+            alias.fmt(f)?;
             writeln!(f,)?;
         }
         writeln!(f,)?;

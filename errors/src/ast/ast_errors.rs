@@ -15,7 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::create_errors;
-use std::{error::Error as ErrorArg, fmt::Debug};
+use std::{
+    error::Error as ErrorArg,
+    fmt::{Debug, Display},
+};
 
 create_errors!(
     /// AstError enum that represents all the errors for the `leo-ast` crate.
@@ -100,6 +103,23 @@ create_errors!(
     impossible_console_assert_call {
         args: (),
         msg: "Console::Assert cannot be matched here, its handled in another case.",
+        help: None,
+    }
+
+    /// This error is for when a user tries to use the library and programatically inject an import
+    /// on the rust side.
+    @backtraced
+    injected_programs {
+        args: (injected_import_count: impl Display),
+        msg: format!("It seems the AST has {} injected imports. This is unexpected please import the library naturally", injected_import_count),
+        help: None,
+    }
+
+    /// For when a import of the specified name is unresolved.
+    @formatted
+    unresolved_import {
+        args: (name: impl Display),
+        msg: format!("failed to resolve import: '{}'", name),
         help: None,
     }
 );

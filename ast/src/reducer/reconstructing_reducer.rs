@@ -382,7 +382,7 @@ pub trait ReconstructingReducer {
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
         imports: IndexMap<String, Program>,
-        aliases: IndexMap<String, (Type, Span)>,
+        aliases: IndexMap<String, Alias>,
         circuits: IndexMap<String, Circuit>,
         functions: IndexMap<String, Function>,
         global_consts: IndexMap<String, DefinitionStatement>,
