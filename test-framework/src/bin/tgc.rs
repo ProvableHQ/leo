@@ -36,8 +36,11 @@ struct Opt {
     )]
     path: PathBuf,
 
-    #[structopt(short, long, help = "Filter test names and run only matching")]
+    #[structopt(short, long, help = "Run only for test that match pattern")]
     filter: Option<String>,
+
+    #[structopt(short, long, help = "Skip tests matching pattern")]
+    skip: Option<String>,
 }
 
 fn main() {
@@ -72,6 +75,13 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
             // Filter out the tests that do not match pattern, if pattern is set.
             if let Some(filter) = &opt.filter {
                 if !test_name.contains(filter) {
+                    continue;
+                }
+            }
+
+            // If skip flag is used, don't run tests matching the pattern.
+            if let Some(skip_name) = &opt.skip {
+                if test_name.contains(skip_name) {
                     continue;
                 }
             }

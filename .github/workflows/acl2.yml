@@ -30,7 +30,7 @@ jobs:
 
       - name: Generate asts
         run: |
-          cargo -q run -p leo-test-framework --bin tgc
+          cargo -q run -p leo-test-framework --bin tgc -- --skip access_all
 
       # Pull the latest release from the leo-acl2-bin repo, and put it into the
       # repo/acl2 directory. After it's done, unpack the tgz file locally.
