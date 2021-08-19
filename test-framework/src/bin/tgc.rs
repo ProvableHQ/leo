@@ -40,7 +40,7 @@ struct Opt {
     filter: Option<String>,
 
     #[structopt(short, long, help = "Skip tests matching pattern")]
-    skip: Option<String>,
+    skip: Option<Vec<String>>,
 }
 
 fn main() {
@@ -59,7 +59,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
     }
 
     // Prepare directory for placing results.
-    for (index, (path, text)) in tests.iter().enumerate() {
+    'main_loop: for (index, (path, text)) in tests.iter().enumerate() {
         if let Some(config) = extract_test_config(text) {
             // Skip namespaces that we don't need; also skip failure tests.
             if config.namespace != "Compile" || config.expectation == Expectation::Fail {
@@ -67,10 +67,10 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
             }
 
             let mut test_name = path
-                .split(std::path::MAIN_SEPARATOR)
+                .split("tests/")
                 .last()
                 .unwrap()
-                .replace(".leo", "");
+                .replace(std::path::MAIN_SEPARATOR, "_");
 
             // Filter out the tests that do not match pattern, if pattern is set.
             if let Some(filter) = &opt.filter {
@@ -80,9 +80,12 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
             }
 
             // If skip flag is used, don't run tests matching the pattern.
-            if let Some(skip_name) = &opt.skip {
-                if test_name.contains(skip_name) {
-                    continue;
+            if let Some(skips) = &opt.skip {
+                for skip_pattern in skips {
+                    if test_name.contains(skip_pattern) {
+                        println!("Skipping: {} because of {}", test_name, skip_pattern);
+                        continue 'main_loop;
+                    }
                 }
             }
 
