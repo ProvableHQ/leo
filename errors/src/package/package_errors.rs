@@ -218,19 +218,19 @@ create_errors!(
         help: None,
     }
 
-    /// For when reading the prooving key failed.
+    /// For when reading the proving key failed.
     @backtraced
     failed_to_read_proving_key_file {
         args: (path: impl Debug),
-        msg: format!("Cannot read prooving key file from the provided file path - {:?}", path),
+        msg: format!("Cannot read proving key file from the provided file path - {:?}", path),
         help: None,
     }
 
-    /// For when removing the prooving key file failed.
+    /// For when removing the proving key file failed.
     @backtraced
     failed_to_remove_proving_key_file {
         args: (path: impl Debug),
-        msg: format!("Cannot remove prooving key file from the provided file path - {:?}", path),
+        msg: format!("Cannot remove proving key file from the provided file path - {:?}", path),
         help: None,
     }
 
@@ -239,6 +239,22 @@ create_errors!(
     io_error_proving_key_file {
         args: (error: impl ErrorArg),
         msg: format!("IO error proving key file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when reading the snapshot file failed.
+    @backtraced
+    failed_to_read_snapshot_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot read snapshot file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when removing the snapshot file failed.
+    @backtraced
+    failed_to_remove_snapshot_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot remove snapshot file from the provided file path - {:?}", path),
         help: None,
     }
 
