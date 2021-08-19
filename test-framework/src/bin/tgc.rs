@@ -137,8 +137,7 @@ fn handle_error(res: Result<(), Box<dyn Error>>) {
     match res {
         Ok(_) => (),
         Err(err) => {
-            // eprintln!("Error: {}", err);
-            panic!();
+            eprintln!("Error: {}", err);
             std::process::exit(1);
         }
     }
