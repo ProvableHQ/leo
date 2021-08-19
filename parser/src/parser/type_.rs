@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
+use leo_errors::{ParserError, Result};
 
 const TYPE_TOKENS: &[Token] = &[
     Token::I8,
@@ -57,7 +58,7 @@ impl ParserContext {
     ///
     /// Returns an [`ArrayDimensions`] AST node if the next tokens represent dimensions for an array type.
     ///
-    pub fn parse_array_dimensions(&mut self) -> SyntaxResult<ArrayDimensions> {
+    pub fn parse_array_dimensions(&mut self) -> Result<ArrayDimensions> {
         Ok(if let Some((int, _)) = self.eat_int() {
             ArrayDimensions(vec![int])
         } else {
@@ -68,7 +69,7 @@ impl ParserContext {
                     dimensions.push(int);
                 } else {
                     let token = self.peek()?;
-                    return Err(SyntaxError::unexpected_str(&token.token, "int", &token.span));
+                    return Err(ParserError::unexpected_str(&token.token, "int", &token.span).into());
                 }
                 if self.eat(Token::Comma).is_none() {
                     break;
@@ -83,7 +84,7 @@ impl ParserContext {
     /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type. Also
     /// returns the span of the parsed token.
     ///
-    pub fn parse_type(&mut self) -> SyntaxResult<(Type, Span)> {
+    pub fn parse_type(&mut self) -> Result<(Type, Span)> {
         Ok(if let Some(token) = self.eat(Token::BigSelf) {
             (Type::SelfType, token.span)
         } else if let Some(ident) = self.eat_identifier() {

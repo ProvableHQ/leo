@@ -17,10 +17,10 @@
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
 use crate::{
-    errors::StatementError, program::ConstrainedProgram, value::ConstrainedValue, GroupType,
-    IndicatorAndConstrainedValue, StatementResult,
+    program::ConstrainedProgram, value::ConstrainedValue, GroupType, IndicatorAndConstrainedValue, StatementResult,
 };
 use leo_asg::ConditionalStatement;
+use leo_errors::CompilerError;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
@@ -53,7 +53,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let inner_indicator = match self.enforce_expression(cs, statement.condition.get())? {
             ConstrainedValue::Boolean(resolved) => resolved,
             value => {
-                return Err(StatementError::conditional_boolean(value.to_string(), &span));
+                return Err(CompilerError::conditional_boolean_expression_fails_to_resolve_to_bool(
+                    value.to_string(),
+                    &span,
+                )
+                .into());
             }
         };
 
@@ -69,7 +73,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             outer_indicator,
             &inner_indicator,
         )
-        .map_err(|_| StatementError::indicator_calculation(branch_1_name, &span))?;
+        .map_err(|_| CompilerError::statement_indicator_calculation(branch_1_name, &span))?;
 
         let mut results = vec![];
 
@@ -90,7 +94,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             outer_indicator,
             &inner_indicator,
         )
-        .map_err(|_| StatementError::indicator_calculation(branch_2_name, &span))?;
+        .map_err(|_| CompilerError::statement_indicator_calculation(branch_2_name, &span))?;
 
         // Evaluate branch 2
         let mut branch_2_result = match statement.next.get() {

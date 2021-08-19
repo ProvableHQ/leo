@@ -14,10 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{
-    inputs::{InputFile, InputsDirectory, StateFile, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION},
-    InputsDirectoryError,
-};
+use crate::inputs::{InputFile, InputsDirectory, StateFile, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION};
+use leo_errors::{LeoError, PackageError};
 
 use std::{collections::HashMap, convert::TryFrom, path::Path};
 
@@ -40,7 +38,7 @@ impl InputPairs {
 }
 
 impl TryFrom<&Path> for InputPairs {
-    type Error = InputsDirectoryError;
+    type Error = LeoError;
 
     fn try_from(directory: &Path) -> Result<Self, Self::Error> {
         let files = InputsDirectory::files(directory)?;
@@ -55,11 +53,18 @@ impl TryFrom<&Path> for InputPairs {
                 None => continue,
             };
 
-            let file_name = file
-                .file_stem()
-                .ok_or_else(|| InputsDirectoryError::GettingFileName(file.as_os_str().to_owned()))?
-                .to_str()
-                .ok_or_else(|| InputsDirectoryError::GettingFileName(file.as_os_str().to_owned()))?;
+            // Have to handle error mapping this way because of rust error: https://github.com/rust-lang/rust/issues/42424.
+            let file_name = match file.file_stem() {
+                Some(stem) => match stem.to_str() {
+                    Some(file_name) => file_name,
+                    None => {
+                        return Err(PackageError::failed_to_get_input_file_name(file.as_os_str()).into());
+                    }
+                },
+                None => {
+                    return Err(PackageError::failed_to_get_input_file_name(file.as_os_str()).into());
+                }
+            };
 
             if file_extension == INPUT_FILE_EXTENSION.trim_start_matches('.') {
                 let input_file = InputFile::new(file_name).read_from(&file)?.0;

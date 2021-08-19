@@ -17,8 +17,8 @@
 use super::{build::BuildOptions, prove::Prove};
 use crate::{commands::Command, context::Context};
 use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use leo_errors::{Result, SnarkVMError};
 
-use anyhow::Result;
 use snarkvm_algorithms::{snark::groth16::Groth16, traits::SNARK};
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use structopt::StructOpt;
@@ -61,7 +61,8 @@ impl Command for Run {
             &prepared_verifying_key,
             &vec![],
             &proof,
-        )?;
+        )
+        .map_err(|_| SnarkVMError::default())?;
 
         // Log the verifier output
         match is_success {

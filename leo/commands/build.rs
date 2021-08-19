@@ -20,6 +20,7 @@ use leo_compiler::{
     group::targets::edwards_bls12::EdwardsGroupType,
     AstSnapshotOptions, CompilerOptions,
 };
+use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
@@ -27,7 +28,6 @@ use leo_package::{
 };
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
-use anyhow::{anyhow, Result};
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
@@ -123,15 +123,13 @@ impl Command for Build {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
-        let manifest = context
-            .manifest()
-            .map_err(|_| anyhow!("Package manifest not found, try running `leo init`"))?;
+        let manifest = context.manifest().map_err(|_| CliError::manifest_file_not_found())?;
         let package_name = manifest.get_package_name();
         let imports_map = manifest.get_imports_map().unwrap_or_default();
 
         // Error out if there are dependencies but no lock file found.
         if !imports_map.is_empty() && !context.lock_file_exists()? {
-            return Err(anyhow!("Dependencies are not installed, please run `leo fetch` first"));
+            return Err(CliError::dependencies_are_not_installed().into());
         }
 
         // Sanitize the package path to the root directory.
@@ -148,7 +146,7 @@ impl Command for Build {
 
         // Compile the main.leo file along with constraints
         if !MainFile::exists_at(&package_path) {
-            return Err(anyhow!("File main.leo not found in src/ directory"));
+            return Err(CliError::package_main_file_not_found().into());
         }
 
         // Create the output directory

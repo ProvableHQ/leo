@@ -24,8 +24,8 @@ use leo_package::root::{
     Dependency,
 };
 
-use anyhow::{anyhow, Result};
 use indexmap::{set::IndexSet, IndexMap};
+use leo_errors::{CliError, Result};
 use structopt::StructOpt;
 use tracing::span::Span;
 
@@ -55,7 +55,7 @@ impl Command for Fetch {
     fn apply(self, context: Context, tree: Self::Input) -> Result<Self::Output> {
         let dependencies = context
             .manifest()
-            .map_err(|_| anyhow!("Package Manifest not found"))?
+            .map_err(|_| CliError::manifest_file_not_found())?
             .get_package_dependencies();
 
         // If program has no dependencies in the Leo.toml, exit with success.
@@ -113,13 +113,13 @@ impl Fetch {
 
                 message.push(format!("{}└─{} (FAILURE)", " ".repeat(message.len() * 2), package.name));
 
-                return Err(anyhow!("recursive dependency found \n{}", message.join("\n")));
+                return Err(CliError::recursive_dependency_found(message.join("\n")).into());
             }
 
             // Check imported dependency's dependencies.
             let imported_dependencies = create_context(path, None)?
                 .manifest()
-                .map_err(|_| anyhow!("Unable to parse imported dependency's manifest"))?
+                .map_err(|_| CliError::unable_to_read_imported_dependency_manifest())?
                 .get_package_dependencies();
 
             if let Some(dependencies) = imported_dependencies {

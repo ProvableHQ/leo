@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::LockFileError, root::Dependency};
+use crate::root::Dependency;
+use leo_errors::{PackageError, Result};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -69,8 +70,8 @@ impl LockFile {
     }
 
     /// Print LockFile as toml.
-    pub fn to_string(&self) -> Result<String, LockFileError> {
-        Ok(toml::to_string(self)?)
+    pub fn to_string(&self) -> Result<String> {
+        Ok(toml::to_string(self).map_err(PackageError::failed_to_serialize_lock_file)?)
     }
 
     /// Form a HashMap of kind:
@@ -89,20 +90,23 @@ impl LockFile {
     }
 
     /// Write Leo.lock to the given location.
-    pub fn write_to(self, path: &Path) -> Result<(), LockFileError> {
+    pub fn write_to(self, path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() {
             path.to_mut().push(LOCKFILE_FILENAME);
         }
 
-        let mut file = File::create(&path).map_err(|error| LockFileError::Creating(LOCKFILE_FILENAME, error))?;
-        file.write_all(self.to_string()?.as_bytes())
-            .map_err(|error| LockFileError::Writing(LOCKFILE_FILENAME, error))
+        File::create(&path)
+            .map_err(|error| PackageError::failed_to_create_lock_file(LOCKFILE_FILENAME, error))?
+            .write_all(self.to_string()?.as_bytes())
+            .map_err(|error| PackageError::failed_to_write_lock_file(LOCKFILE_FILENAME, error))?;
+
+        Ok(())
     }
 }
 
 impl TryFrom<&Path> for LockFile {
-    type Error = LockFileError;
+    type Error = PackageError;
 
     fn try_from(path: &Path) -> Result<Self, Self::Error> {
         let mut path = Cow::from(path);
@@ -110,17 +114,18 @@ impl TryFrom<&Path> for LockFile {
             path.to_mut().push(LOCKFILE_FILENAME);
         }
 
-        let mut file = File::open(path.clone()).map_err(|error| LockFileError::Opening(LOCKFILE_FILENAME, error))?;
+        let mut file = File::open(path.clone())
+            .map_err(|error| PackageError::failed_to_open_lock_file(LOCKFILE_FILENAME, error))?;
         let size = file
             .metadata()
-            .map_err(|error| LockFileError::Metadata(LOCKFILE_FILENAME, error))?
+            .map_err(|error| PackageError::failed_to_get_lock_file_metadata(LOCKFILE_FILENAME, error))?
             .len() as usize;
 
         let mut buffer = String::with_capacity(size);
         file.read_to_string(&mut buffer)
-            .map_err(|error| LockFileError::Reading(LOCKFILE_FILENAME, error))?;
+            .map_err(|error| PackageError::failed_to_read_lock_file(LOCKFILE_FILENAME, error))?;
 
-        toml::from_str(&buffer).map_err(|error| LockFileError::Parsing(LOCKFILE_FILENAME, error))
+        toml::from_str(&buffer).map_err(|error| PackageError::failed_to_parse_lock_file(LOCKFILE_FILENAME, error))
     }
 }
 

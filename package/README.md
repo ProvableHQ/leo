@@ -15,7 +15,7 @@ Mainly used by Leo binary.
 
 Each directory in this crate mirrors a corresponding file generated in a new Leo project package:
 
-```
+```bash
 package/src
 ├── errors  # crate level error definitions
 ├── imports # program imports management

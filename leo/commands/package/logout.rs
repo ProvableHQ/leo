@@ -15,9 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{commands::Command, config::remove_token_and_username, context::Context};
+use leo_errors::Result;
 
-use anyhow::Result;
-use std::io::ErrorKind;
 use structopt::StructOpt;
 use tracing::Span;
 
@@ -41,24 +40,8 @@ impl Command for Logout {
     fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
         // the only error we're interested here is NotFound
         // however err in this case can also be of kind PermissionDenied or other
-        if let Err(err) = remove_token_and_username() {
-            match err.kind() {
-                ErrorKind::NotFound => {
-                    tracing::info!("you are not logged in");
-                    Ok(())
-                }
-                ErrorKind::PermissionDenied => {
-                    tracing::error!("permission denied - check file permission in .leo folder");
-                    Ok(())
-                }
-                _ => {
-                    tracing::error!("something went wrong, can't access the file");
-                    Ok(())
-                }
-            }
-        } else {
-            tracing::info!("success");
-            Ok(())
-        }
+        remove_token_and_username()?;
+        tracing::info!("success");
+        Ok(())
     }
 }

@@ -16,10 +16,11 @@
 
 //! Enforces constraints on the main function of a compiled Leo program.
 
-use crate::{errors::FunctionError, program::ConstrainedProgram, GroupType, Output};
+use crate::{program::ConstrainedProgram, GroupType, Output};
 
 use leo_asg::{Expression, Function, FunctionQualifier};
 use leo_ast::Input;
+use leo_errors::{CompilerError, Result};
 use std::cell::Cell;
 
 use snarkvm_fields::PrimeField;
@@ -31,7 +32,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         function: &'a Function<'a>,
         input: &Input,
-    ) -> Result<Output, FunctionError> {
+    ) -> Result<Output> {
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
@@ -65,10 +66,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 ) {
                     // If variable is in both [main] and [constants] sections - error.
                     (_, Some(_), Some(_)) => {
-                        return Err(FunctionError::double_input_declaration(
-                            name.to_string(),
-                            &input_variable.name.span,
-                        ));
+                        return Err(CompilerError::double_input_declaration(name, &input_variable.name.span).into());
                     }
                     // If input option is found in [main] section and input is not const.
                     (false, Some(input_option), _) => self.allocate_main_function_input(
@@ -88,24 +86,24 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     )?,
                     // Function argument is const, input is not.
                     (true, Some(_), None) => {
-                        return Err(FunctionError::expected_const_input(
-                            name.to_string(),
-                            &input_variable.name.span,
-                        ));
+                        return Err(
+                            CompilerError::expected_const_input_variable(name, &input_variable.name.span).into(),
+                        );
                     }
                     // Input is const, function argument is not.
                     (false, None, Some(_)) => {
-                        return Err(FunctionError::expected_non_const_input(
-                            name.to_string(),
-                            &input_variable.name.span,
-                        ));
+                        return Err(
+                            CompilerError::expected_non_const_input_variable(name, &input_variable.name.span).into(),
+                        );
                     }
                     // When not found - Error out.
                     (_, _, _) => {
-                        return Err(FunctionError::input_not_found(
-                            name.to_string(),
+                        return Err(CompilerError::function_input_not_found(
+                            function.name.borrow().name.to_string(),
+                            name,
                             &input_variable.name.span,
-                        ));
+                        )
+                        .into());
                     }
                 };
 

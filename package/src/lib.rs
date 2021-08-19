@@ -14,11 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-#[macro_use]
-extern crate thiserror;
-
-pub mod errors;
-pub use errors::*;
+#![doc = include_str!("../README.md")]
 
 pub mod imports;
 pub mod inputs;
@@ -29,11 +25,13 @@ pub mod source;
 
 use std::path::Path;
 
+use leo_errors::Result;
+
 pub struct LeoPackage;
 
 impl LeoPackage {
     /// Initializes a Leo package at the given path.
-    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<(), PackageError> {
+    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<()> {
         package::Package::initialize(package_name, path, author)
     }
 
@@ -43,7 +41,7 @@ impl LeoPackage {
     }
 
     /// Removes an imported Leo package
-    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), PackageError> {
+    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<()> {
         package::Package::remove_imported_package(package_name, path)
     }
 }

@@ -17,7 +17,7 @@
 
 //! The `README.md` file.
 
-use crate::errors::READMEError;
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::{borrow::Cow, fs::File, io::Write, path::Path};
@@ -48,14 +48,17 @@ impl README {
         path.exists()
     }
 
-    pub fn write_to(self, path: &Path) -> Result<(), READMEError> {
+    pub fn write_to(self, path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() {
             path.to_mut().push(README_FILENAME);
         }
 
-        let mut file = File::create(&path)?;
-        Ok(file.write_all(self.template().as_bytes())?)
+        let mut file = File::create(&path).map_err(PackageError::io_error_readme_file)?;
+
+        file.write_all(self.template().as_bytes())
+            .map_err(PackageError::io_error_readme_file)?;
+        Ok(())
     }
 
     fn template(&self) -> String {

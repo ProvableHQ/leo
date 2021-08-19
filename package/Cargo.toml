@@ -17,6 +17,10 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
 [dependencies.indexmap]
 version = "1.7"
 features = ["serde"]
@@ -24,9 +28,6 @@ features = ["serde"]
 [dependencies.serde]
 version = "1.0"
 features = [ "derive" ]
-
-[dependencies.thiserror]
-version = "1.0"
 
 [dependencies.toml]
 version = "0.5"

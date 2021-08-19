@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{utilities::*, DPCRecordValuesError};
+use crate::utilities::*;
 use leo_ast::Record as AstRecord;
+use leo_errors::{LeoError, Result, SnarkVMError, StateError};
 
 use snarkvm_dpc::{testnet1::instantiated::Components, Address};
 
@@ -48,9 +49,9 @@ pub struct DPCRecordValues {
 }
 
 impl TryFrom<&AstRecord> for DPCRecordValues {
-    type Error = DPCRecordValuesError;
+    type Error = LeoError;
 
-    fn try_from(ast_record: &AstRecord) -> Result<Self, Self::Error> {
+    fn try_from(ast_record: &AstRecord) -> Result<Self> {
         let parameters = ast_record.values();
 
         // Lookup serial number
@@ -59,15 +60,20 @@ impl TryFrom<&AstRecord> for DPCRecordValues {
 
         // Lookup record owner
         let owner_value = find_input(OWNER_PARAMETER_STRING.to_owned(), &parameters)?;
-        let owner = Address::<Components>::from_str(&owner_value.to_string())?;
+        let owner = Address::<Components>::from_str(&owner_value.to_string()).map_err(|_| SnarkVMError::default())?;
 
         // Lookup record is_dummy
         let is_dummy_value = find_input(IS_DUMMY_PARAMETER_STRING.to_owned(), &parameters)?;
-        let is_dummy = is_dummy_value.to_string().parse::<bool>()?;
+        let is_dummy = is_dummy_value
+            .to_string()
+            .parse::<bool>()
+            .map_err(StateError::parse_bool_error)?;
 
         // Lookup record value
         let value_value = find_input(VALUE_PARAMETER_STRING.to_owned(), &parameters)?;
-        let value = input_to_integer_string(value_value)?.parse::<u64>()?;
+        let value = input_to_integer_string(value_value)?
+            .parse::<u64>()
+            .map_err(StateError::parse_int_error)?;
 
         // Lookup record payload
         let payload_value = find_input(PAYLOAD_PARAMETER_STRING.to_owned(), &parameters)?;

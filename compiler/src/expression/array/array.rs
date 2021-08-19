@@ -18,8 +18,9 @@
 
 use std::cell::Cell;
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Expression, Span};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::Expression;
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -31,8 +32,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         array: &[(Cell<&'a Expression<'a>>, bool)],
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
-        let expected_dimension = None;
+    ) -> Result<ConstrainedValue<'a, F, G>> {
+        let expected_dimension: Option<usize> = None;
 
         let mut result = vec![];
         for (element, is_spread) in array.iter() {
@@ -51,7 +52,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         if let Some(dimension) = expected_dimension {
             // Return an error if the expected dimension != the actual dimension.
             if dimension != result.len() {
-                return Err(ExpressionError::invalid_length(dimension, result.len(), span));
+                return Err(CompilerError::unexpected_array_length(dimension, result.len(), span).into());
             }
         }
 
@@ -67,7 +68,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         cs: &mut CS,
         element_expression: &'a Expression<'a>,
         actual_size: usize,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let mut value = self.enforce_expression(cs, element_expression)?;
 
         // Allocate the array.
