@@ -20,12 +20,7 @@ use crate::outputs::OUTPUTS_DIRECTORY_NAME;
 use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
-use std::{
-    borrow::Cow,
-    fmt,
-    fs,
-    path::Path,
-};
+use std::{borrow::Cow, fmt, fs, path::Path};
 
 /// Enum to handle all 3 types of snapshots.
 #[derive(Deserialize)]
@@ -76,7 +71,8 @@ impl SnapshotFile {
     pub fn read_from(&self, path: &Path) -> Result<String> {
         let path = self.snapshot_file_path(path);
 
-        let result = fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_snapshot_file(path.into_owned()))?;
+        let result =
+            fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_snapshot_file(path.into_owned()))?;
 
         Ok(result)
     }
