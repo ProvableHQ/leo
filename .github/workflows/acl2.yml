@@ -48,23 +48,36 @@ jobs:
       # Using the prepared ASTs and the pulled and unzipped tgc run theorem generation.
       - name: Run tgc over ASTs
         run: |
-          errors=();
+          canonicalization_errors=();
+          type_inference_errors=();
           for dir in `ls tmp/tgc`;
           do
             cd tmp/tgc/$dir; # enter the directory
-            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp > result.out || errors+=("$dir");
-            ./../../../acl2/tgc type-inference canonicalization_ast.json type_inferenced_ast.json type-inference-theorem.lisp || errors+=("$dir");
+            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp > canonicalization_result.out || canonicalization_errors+=("$dir");
+            ./../../../acl2/tgc type-inference canonicalization_ast.json type_inferenced_ast.json type-inference-theorem.lisp > type_inference_result.out || type_inference_errors+=("$dir");
             cd ../../..
           done;
 
-          if [ ${#errors[@]} -eq 0 ]; then
-            echo "Success!"
+          if [ ${#canonicalization_errors[@]} -eq 0 ]; then
+            echo "Canonicalization - Success!"
           else
-            echo "Failures:";
-            for i in ${errors[@]};
+            echo "Canonicalization Failures:";
+            for i in ${canonicalization_errors[@]};
             do
               echo $i;
-              cat tmp/tgc/$dir.out
+              cat tmp/tgc/$dir/canonicalization_result.out
+            done;
+            exit 1
+          fi
+
+          if [ ${#type_inference_errors[@]} -eq 0 ]; then
+            echo "Type Inference - Success!"
+          else
+            echo "Type Inference Failures:";
+            for i in ${type_inference_errors[@]};
+            do
+              echo $i;
+              cat tmp/tgc/$dir/type_inference_result.out
             done;
             exit 1
           fi
