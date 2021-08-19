@@ -98,9 +98,6 @@ jobs:
         with:
           command: test
           args: --all
-      
-      - name: Install sccache Ubuntu
-        if: matrix.os == 'ubuntu-latest'
 
       - name: Print sccache stats
         run: sccache --show-stats
