@@ -15,10 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::Ast;
-use leo_parser::errors::SyntaxError;
+use leo_errors::Result;
 use std::{env, fs, path::Path};
 
-fn to_leo_tree(filepath: &Path) -> Result<String, SyntaxError> {
+fn to_leo_tree(filepath: &Path) -> Result<String> {
     // Loads the Leo code as a string from the given file path.
     let program_filepath = filepath.to_path_buf();
     let program_string = fs::read_to_string(&program_filepath).expect("failed to open input file");
@@ -31,7 +31,7 @@ fn to_leo_tree(filepath: &Path) -> Result<String, SyntaxError> {
     Ok(serialized_leo_ast)
 }
 
-fn main() -> Result<(), SyntaxError> {
+fn main() -> Result<()> {
     // Parse the command-line arguments as strings.
     let cli_arguments = env::args().collect::<Vec<String>>();
 

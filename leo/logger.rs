@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_errors::Result;
+
 use std::{fmt, sync::Once};
 
-use anyhow::Result;
 use colored::Colorize;
 use tracing::{event::Event, subscriber::Subscriber};
 use tracing_subscriber::{
@@ -213,10 +214,7 @@ where
 pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
     // This line enables Windows 10 ANSI coloring API.
     #[cfg(target_family = "windows")]
-    match ansi_term::enable_ansi_support() {
-        Ok(_) => {}
-        Err(_) => return Err(anyhow::anyhow!("Error: Failed to enable ansi_support")),
-    };
+    ansi_term::enable_ansi_support().map_err(|_| leo_errors::CliError::failed_to_enable_ansi_support())?;
 
     use tracing_subscriber::fmt::writer::MakeWriterExt;
 

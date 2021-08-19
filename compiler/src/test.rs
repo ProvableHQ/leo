@@ -18,6 +18,8 @@ use std::path::{Path, PathBuf};
 
 use leo_asg::*;
 use leo_ast::{Ast, Program};
+use leo_errors::Result;
+
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
@@ -26,9 +28,7 @@ use leo_test_framework::{
 use serde_yaml::Value;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
-use crate::{
-    compiler::Compiler, errors::CompilerError, targets::edwards_bls12::EdwardsGroupType, AstSnapshotOptions, Output,
-};
+use crate::{compiler::Compiler, targets::edwards_bls12::EdwardsGroupType, AstSnapshotOptions, Output};
 
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
 // pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
@@ -67,8 +67,8 @@ pub(crate) fn parse_program(
     program_string: &str,
     theorem_options: Option<AstSnapshotOptions>,
     cwd: Option<PathBuf>,
-) -> Result<EdwardsTestCompiler, CompilerError> {
-    let mut compiler = new_compiler(cwd.unwrap_or("compiler-test".into()), theorem_options);
+) -> Result<EdwardsTestCompiler> {
+    let mut compiler = new_compiler(cwd.unwrap_or_else(|| "compiler-test".into()), theorem_options);
 
     compiler.parse_program_from_string(program_string)?;
 

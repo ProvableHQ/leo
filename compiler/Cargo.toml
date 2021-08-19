@@ -21,6 +21,10 @@ edition = "2018"
 path = "../ast"
 version = "1.5.3"
 
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
 [dependencies.leo-imports]
 path = "../imports"
 version = "1.5.3"
@@ -101,9 +105,6 @@ version = "1.0"
 
 [dependencies.sha2]
 version = "0.9"
-
-[dependencies.thiserror]
-version = "1.0"
 
 [dependencies.tracing]
 version = "0.1"

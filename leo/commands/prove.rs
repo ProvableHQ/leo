@@ -16,6 +16,7 @@
 
 use super::{build::BuildOptions, setup::Setup};
 use crate::{commands::Command, context::Context};
+use leo_errors::{CliError, Result, SnarkVMError};
 use leo_package::outputs::ProofFile;
 use snarkvm_algorithms::{
     snark::groth16::{Groth16, PreparedVerifyingKey, Proof},
@@ -24,7 +25,6 @@ use snarkvm_algorithms::{
 use snarkvm_curves::bls12_377::{Bls12_377, Fr};
 use snarkvm_utilities::bytes::ToBytes;
 
-use anyhow::Result;
 use rand::thread_rng;
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -66,11 +66,13 @@ impl Command for Prove {
         tracing::info!("Starting...");
 
         let rng = &mut thread_rng();
-        let program_proof = Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, &program, rng)?;
+        // TODO fix this once snarkvm has better errors.
+        let program_proof =
+            Groth16::<Bls12_377, _, Vec<Fr>>::prove(&parameters, &program, rng).map_err(|_| SnarkVMError::default())?;
 
         // Write the proof file to the output directory
         let mut proof = vec![];
-        program_proof.write_le(&mut proof)?;
+        program_proof.write_le(&mut proof).map_err(CliError::cli_io_error)?;
         ProofFile::new(&package_name).write_to(&path, &proof)?;
 
         Ok((program_proof, prepared_verifying_key))

@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{find_input, input_to_bytes, input_to_integer_string, StateValuesError};
+use crate::{find_input, input_to_bytes, input_to_integer_string};
 use leo_ast::State as AstState;
+use leo_errors::{LeoError, Result, StateError};
 
 use std::convert::TryFrom;
 
@@ -30,14 +31,16 @@ pub struct StateValues {
 }
 
 impl TryFrom<&AstState> for StateValues {
-    type Error = StateValuesError;
+    type Error = LeoError;
 
-    fn try_from(ast_state: &AstState) -> Result<Self, Self::Error> {
+    fn try_from(ast_state: &AstState) -> Result<Self> {
         let parameters = ast_state.values();
 
         // Lookup leaf index
         let leaf_index_value = find_input(LEAF_INDEX_PARAMETER_STRING.to_owned(), &parameters)?;
-        let leaf_index = input_to_integer_string(leaf_index_value)?.parse::<u32>()?;
+        let leaf_index = input_to_integer_string(leaf_index_value)?
+            .parse::<u32>()
+            .map_err(StateError::parse_int_error)?;
 
         // Lookup root
         let root_value = find_input(ROOT_PARAMETER_STRING.to_owned(), &parameters)?;

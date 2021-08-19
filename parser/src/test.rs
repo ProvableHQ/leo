@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_ast::{Expression, ExpressionStatement, Span, Statement, ValueExpression};
+use leo_ast::{Expression, ExpressionStatement, Statement, ValueExpression};
+use leo_errors::Span;
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,

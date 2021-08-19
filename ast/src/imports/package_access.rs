@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ImportSymbol, Node, Package, Packages, Span};
+use crate::{ImportSymbol, Node, Package, Packages};
+use leo_errors::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;

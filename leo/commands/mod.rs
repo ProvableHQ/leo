@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::context::Context;
+use leo_errors::Result;
 
-use anyhow::Result;
 use std::time::Instant;
 use tracing::span::Span;
 

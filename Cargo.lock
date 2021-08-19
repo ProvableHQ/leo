@@ -23,9 +23,9 @@ dependencies = [
 
 [[package]]
 name = "addr2line"
-version = "0.15.2"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7a2e47a1fbe209ee101dd6d61285226744c6c8d3c21c8dc878ba6cb9f467f3a"
+checksum = "3e61f2b7f93d2c7d2b08263acaa4a363b3e276806c68af6134c44f523bf1aacd"
 dependencies = [
  "gimli",
 ]
@@ -119,9 +119,9 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
 name = "backtrace"
-version = "0.3.60"
+version = "0.3.61"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7815ea54e4d821e791162e078acbebfd6d8c8939cd559c9335dceb1c8ca7282"
+checksum = "e7a905d892734eea339e896738c14b9afce22b5318f64b951e70bf3844419b01"
 dependencies = [
  "addr2line",
  "cc",
@@ -338,6 +338,17 @@ dependencies = [
  "textwrap",
  "unicode-width",
  "vec_map",
+]
+
+[[package]]
+name = "color-backtrace"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cd6c04463c99389fff045d2b90ce84f5131332712c7ffbede020f5e9ad1ed685"
+dependencies = [
+ "atty",
+ "backtrace",
+ "termcolor",
 ]
 
 [[package]]
@@ -641,6 +652,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "eyre"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "221239d1d5ea86bf5d6f91c9d6bc3646ffe471b08ff9b0f91c44f115ac969d2b"
+dependencies = [
+ "indenter",
+ "once_cell",
+]
+
+[[package]]
 name = "failure"
 version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -900,9 +921,9 @@ dependencies = [
 
 [[package]]
 name = "gimli"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e4075386626662786ddb0ec9081e7c7eeb1ba31951f447ca780ef9f5d568189"
+checksum = "f0a01e0497841a3b2db4f8afa483cce65f7e96a3498bd6c541734792aeac8fe7"
 
 [[package]]
 name = "h2"
@@ -1045,6 +1066,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "indenter"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce23b50ad8242c51a442f3ff322d56b02f08852c77e4c0b4d3fd684abc89c683"
+
+[[package]]
 name = "indexmap"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1172,12 +1199,12 @@ dependencies = [
  "criterion",
  "indexmap",
  "leo-ast",
+ "leo-errors",
  "leo-parser",
  "num-bigint",
  "serde",
  "serde_json",
  "tendril",
- "thiserror",
  "typed-arena",
 ]
 
@@ -1186,21 +1213,21 @@ name = "leo-asg-passes"
 version = "1.5.3"
 dependencies = [
  "leo-asg",
+ "leo-errors",
 ]
 
 [[package]]
 name = "leo-ast"
 version = "1.5.3"
 dependencies = [
- "anyhow",
  "criterion",
  "indexmap",
+ "leo-errors",
  "leo-input",
  "pest",
  "serde",
  "serde_json",
  "tendril",
- "thiserror",
 ]
 
 [[package]]
@@ -1213,6 +1240,7 @@ dependencies = [
  "leo-asg",
  "leo-asg-passes",
  "leo-ast",
+ "leo-errors",
  "leo-imports",
  "leo-input",
  "leo-package",
@@ -1237,8 +1265,23 @@ dependencies = [
  "snarkvm-utilities",
  "tempfile",
  "tendril",
- "thiserror",
  "tracing",
+]
+
+[[package]]
+name = "leo-errors"
+version = "1.5.3"
+dependencies = [
+ "backtrace",
+ "color-backtrace",
+ "colored",
+ "derivative",
+ "eyre",
+ "leo-input",
+ "pest",
+ "serde",
+ "tendril",
+ "thiserror",
 ]
 
 [[package]]
@@ -1248,8 +1291,8 @@ dependencies = [
  "indexmap",
  "leo-asg",
  "leo-ast",
+ "leo-errors",
  "leo-parser",
- "thiserror",
  "tracing",
 ]
 
@@ -1270,9 +1313,9 @@ name = "leo-lang"
 version = "1.5.3"
 dependencies = [
  "ansi_term 0.12.1",
- "anyhow",
  "assert_cmd",
  "clap",
+ "color-backtrace",
  "colored",
  "console",
  "dirs",
@@ -1280,6 +1323,7 @@ dependencies = [
  "lazy_static",
  "leo-ast",
  "leo-compiler",
+ "leo-errors",
  "leo-imports",
  "leo-input",
  "leo-package",
@@ -1301,7 +1345,6 @@ dependencies = [
  "snarkvm-utilities",
  "structopt",
  "test_dir",
- "thiserror",
  "toml",
  "tracing",
  "tracing-subscriber",
@@ -1317,8 +1360,8 @@ name = "leo-package"
 version = "1.5.3"
 dependencies = [
  "lazy_static",
+ "leo-errors",
  "serde",
- "thiserror",
  "toml",
  "tracing",
  "walkdir",
@@ -1333,12 +1376,12 @@ dependencies = [
  "indexmap",
  "lazy_static",
  "leo-ast",
+ "leo-errors",
  "leo-test-framework",
  "serde",
  "serde_json",
  "serde_yaml",
  "tendril",
- "thiserror",
  "tracing",
 ]
 
@@ -1348,6 +1391,7 @@ version = "1.5.3"
 dependencies = [
  "indexmap",
  "leo-ast",
+ "leo-errors",
  "leo-input",
  "rand 0.8.4",
  "rand_core 0.6.3",
@@ -1356,14 +1400,15 @@ dependencies = [
  "snarkvm-curves",
  "snarkvm-dpc",
  "snarkvm-utilities",
- "thiserror",
 ]
 
 [[package]]
 name = "leo-synthesizer"
 version = "1.5.3"
 dependencies = [
+ "eyre",
  "hex",
+ "leo-errors",
  "num-bigint",
  "serde",
  "serde_json",
@@ -1689,9 +1734,9 @@ checksum = "17b02fc0ff9a9e4b35b3342880f48e896ebf69f2967921fe8646bf5b7125956a"
 
 [[package]]
 name = "object"
-version = "0.25.3"
+version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a38f2be3697a57b4060074ff41b44c16870d916ad7877c17696e063257482bc7"
+checksum = "c55827317fb4c08822499848a14237d2874d6f139828893017237e7ab93eb386"
 dependencies = [
  "memchr",
 ]
@@ -2361,9 +2406,9 @@ dependencies = [
 
 [[package]]
 name = "serde_yaml"
-version = "0.8.17"
+version = "0.8.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15654ed4ab61726bf918a39cb8d98a2e2995b002387807fa6ba58fdf7f59bb23"
+checksum = "039ba818c784248423789eec090aab9fb566c7b94d6ebbfa1814a9fd52c8afb2"
 dependencies = [
  "dtoa",
  "linked-hash-map",
@@ -2757,6 +2802,15 @@ dependencies = [
  "futf",
  "mac",
  "utf-8",
+]
+
+[[package]]
+name = "termcolor"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2dfed899f0eb03f32ee8c6a0aabdb8a7949659e3466561fc0adf54e26d88c5f4"
+dependencies = [
+ "winapi-util",
 ]
 
 [[package]]

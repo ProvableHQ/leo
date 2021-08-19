@@ -16,10 +16,11 @@
 
 //! Allocates an array as a main function input parameter in a compiled Leo program.
 
-use crate::{errors::FunctionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 
 use leo_asg::Type;
-use leo_ast::{InputValue, Span};
+use leo_ast::InputValue;
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -32,13 +33,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         types: &[Type],
         input_value: Option<InputValue>,
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, FunctionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let mut tuple_values = vec![];
 
         match input_value {
             Some(InputValue::Tuple(values)) => {
                 if values.len() != types.len() {
-                    return Err(FunctionError::tuple_size_mismatch(types.len(), values.len(), span));
+                    return Err(CompilerError::input_tuple_size_mismatch(types.len(), values.len(), span).into());
                 }
 
                 // Allocate each value in the tuple.
@@ -57,7 +58,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
             _ => {
-                return Err(FunctionError::invalid_tuple(input_value.unwrap().to_string(), span));
+                return Err(CompilerError::invalid_function_input_tuple(input_value.unwrap(), span).into());
             }
         }
 

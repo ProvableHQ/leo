@@ -16,12 +16,7 @@
 
 #![allow(clippy::module_inception)]
 #![allow(clippy::upper_case_acronyms)]
-
-#[macro_use]
-extern crate thiserror;
-
-pub mod errors;
-pub use self::errors::*;
+#![doc = include_str!("../README.md")]
 
 pub mod local_data_commitment;
 pub use self::local_data_commitment::*;

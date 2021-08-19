@@ -18,8 +18,9 @@
 
 use std::cell::Cell;
 
-use crate::{errors::ExpressionError, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Expression, Function, Span};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use leo_asg::{Expression, Function};
+use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -33,7 +34,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
         span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>, ExpressionError> {
+    ) -> Result<ConstrainedValue<'a, F, G>> {
         let name_unique = || {
             format!(
                 "function call {} {}:{}",
@@ -43,9 +44,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             )
         };
 
-        let return_value = self
-            .enforce_function(&mut cs.ns(name_unique), function, target, arguments)
-            .map_err(|error| ExpressionError::from(Box::new(error)))?;
+        let return_value = self.enforce_function(&mut cs.ns(name_unique), function, target, arguments)?;
 
         Ok(return_value)
     }
