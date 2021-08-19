@@ -97,7 +97,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
                 .unwrap_or(PathBuf::from(path));
 
             // Write all files into the directory.
-            let (initial, canonicalized, _type_inferenced) = generate_asts(cwd, text)?;
+            let (initial, canonicalized, type_inferenced) = generate_asts(cwd, text)?;
 
             target.push("initial_ast.json");
             fs::write(target.clone(), initial)?;
@@ -105,6 +105,10 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
 
             target.push("canonicalization_ast.json");
             fs::write(target.clone(), canonicalized)?;
+            target.pop();
+
+            target.push("type_inferenced_ast.json");
+            fs::write(target.clone(), type_inferenced)?;
         }
     }
 
@@ -133,7 +137,8 @@ fn handle_error(res: Result<(), Box<dyn Error>>) {
     match res {
         Ok(_) => (),
         Err(err) => {
-            eprintln!("Error: {}", err);
+            // eprintln!("Error: {}", err);
+            panic!();
             std::process::exit(1);
         }
     }

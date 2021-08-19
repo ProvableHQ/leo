@@ -53,6 +53,7 @@ jobs:
           do
             cd tmp/tgc/$dir; # enter the directory
             ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp > result.out || errors+=("$dir");
+            ./../../../acl2/tgc type-inference canonicalization_ast.json type_inferenced_ast.json type-inference-theorem.lisp || errors+=("$dir");
             cd ../../..
           done;
 
