@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["LOCKFILE_FILENAME",""]],"struct":[["LockFile","Lock-file struct, contains all information about imported dependencies and their relationships."],["Package","Single dependency record."]]});

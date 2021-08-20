@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["add",""],["clone",""],["login",""],["logout",""],["publish",""],["remove",""]]});
+initSidebarItems({"mod":[["add",""],["clone",""],["fetch",""],["login",""],["logout",""],["publish",""],["remove",""]]});

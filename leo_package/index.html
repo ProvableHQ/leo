@@ -4,8 +4,22 @@
 <p><a href="https://crates.io/crates/leo-package"><img src="https://img.shields.io/crates/v/leo-package.svg?color=neon" alt="Crates.io" /></a>
 <a href="../AUTHORS"><img src="https://img.shields.io/badge/authors-Aleo-orange.svg" alt="Authors" /></a>
 <a href="./LICENSE.md"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="License" /></a></p>
-<p>This module defines the structure of a Leo project package.</p>
-<p>Each file in this directory mirrors a corresponding file generated in a new Leo project package.</p>
+<h2 id="description" class="section-header"><a href="#description">Description</a></h2>
+<p>This module defines the structure of a Leo project package. And describes behavior of package internals, such
+as Leo Manifest (Leo.toml), Lock File (Leo.lock), source files and imports. </p>
+<p>Mainly used by Leo binary.</p>
+<h2 id="structure" class="section-header"><a href="#structure">Structure</a></h2>
+<p>Each directory in this crate mirrors a corresponding file generated in a new Leo project package:</p>
+<pre><code class="language-bash">package/src
+├── errors  # crate level error definitions
+├── imports # program imports management
+├── inputs  # program inputs directory
+├── outputs # program outputs directory
+├── root    # program root: Leo.toml, Leo.lock 
+└── source  # source files directory
+</code></pre>
+<h2 id="testing" class="section-header"><a href="#testing">Testing</a></h2>
+<p>Package features functional tests in the <code>tests/</code> directory.</p>
 </div></details><h2 id="modules" class="section-header"><a href="#modules">Modules</a></h2>
 <table><tr class="module-item"><td><a class="mod" href="imports/index.html" title="leo_package::imports mod">imports</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="inputs/index.html" title="leo_package::inputs mod">inputs</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="outputs/index.html" title="leo_package::outputs mod">outputs</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="package/index.html" title="leo_package::package mod">package</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="root/index.html" title="leo_package::root mod">root</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="mod" href="source/index.html" title="leo_package::source mod">source</a></td><td class="docblock-short"></td></tr></table><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
 <table><tr class="module-item"><td><a class="struct" href="struct.LeoPackage.html" title="leo_package::LeoPackage struct">LeoPackage</a></td><td class="docblock-short"></td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="leo_package" data-search-index-js="../search-index.js" data-search-js="../search.js"></div><script src="../main.js"></script></body></html>

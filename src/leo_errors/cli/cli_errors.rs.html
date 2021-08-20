@@ -403,6 +403,27 @@
 <span id="401">401</span>
 <span id="402">402</span>
 <span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -563,7 +584,7 @@
 
     <span class="doccomment">/// For when the CLI cannot find the manifest file.</span>
     @<span class="ident">backtraced</span>
-    <span class="ident">mainifest_file_not_found</span> {
+    <span class="ident">manifest_file_not_found</span> {
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>: <span class="string">&quot;Package manifest not found, try running `leo init`&quot;</span>,
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
@@ -783,6 +804,27 @@
     <span class="ident">old_release_version</span> {
         <span class="ident">args</span>: (<span class="ident">current</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">latest</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;Old release version {} {}&quot;</span>, <span class="ident">current</span>, <span class="ident">latest</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">backtraced</span>
+    <span class="ident">dependencies_are_not_installed</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;dependencies are not installed, please run `leo fetch` first&quot;</span>,
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">backtraced</span>
+    <span class="ident">recursive_dependency_found</span> {
+        <span class="ident">args</span>: (<span class="ident">message</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;recursive dependency found \n{}&quot;</span>, <span class="ident">message</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">backtraced</span>
+    <span class="ident">unable_to_read_imported_dependency_manifest</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;unable to parse imported dependency&#39;s manifest&quot;</span>,
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );

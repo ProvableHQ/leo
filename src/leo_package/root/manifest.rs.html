@@ -235,6 +235,46 @@
 <span id="233">233</span>
 <span id="234">234</span>
 <span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -255,9 +295,11 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::package::Package</span>;
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">PackageError</span>, <span class="prelude-ty">Result</span>};
 
+<span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
 <span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">borrow::Cow</span>,
+    <span class="ident">collections::HashMap</span>,
     <span class="ident">convert::TryFrom</span>,
     <span class="ident">fs::File</span>,
     <span class="ident">io</span>::{<span class="ident">Read</span>, <span class="ident">Write</span>},
@@ -272,10 +314,18 @@
     <span class="kw">pub</span> <span class="ident">author</span>: <span class="ident">String</span>,
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dependency</span> {
+    <span class="kw">pub</span> <span class="ident">author</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">version</span>: <span class="ident">String</span>,
+    <span class="kw">pub</span> <span class="ident">package</span>: <span class="ident">String</span>,
+}
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Manifest</span> {
     <span class="kw">pub</span> <span class="ident">project</span>: <span class="ident">Package</span>,
     <span class="kw">pub</span> <span class="ident">remote</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Remote</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">dependencies</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Dependency</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Manifest</span> {
@@ -283,6 +333,7 @@
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
             <span class="ident">project</span>: <span class="ident">Package::new</span>(<span class="ident">package_name</span>)<span class="question-mark">?</span>,
             <span class="ident">remote</span>: <span class="ident">author</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">author</span><span class="op">|</span> <span class="ident">Remote</span> { <span class="ident">author</span> }),
+            <span class="ident">dependencies</span>: <span class="prelude-val">Some</span>(<span class="ident">IndexMap</span>::<span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Dependency</span><span class="op">&gt;</span><span class="ident">::new</span>()),
         })
     }
 
@@ -308,6 +359,27 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_package_description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">project</span>.<span class="ident">description</span>.<span class="ident">clone</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_package_dependencies</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Dependency</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">dependencies</span>.<span class="ident">clone</span>()
+    }
+
+    <span class="doccomment">/// Get HashMap of kind:</span>
+    <span class="doccomment">///     import name =&gt; import directory</span>
+    <span class="doccomment">/// Which then used in AST/ASG to resolve import paths.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_imports_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">dependencies</span>.<span class="ident">clone</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">dependencies</span><span class="op">|</span> {
+            <span class="ident">dependencies</span>
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="ident">dependency</span>)<span class="op">|</span> {
+                    (
+                        <span class="ident">name</span>,
+                        <span class="macro">format!</span>(<span class="string">&quot;{}-{}@{}&quot;</span>, <span class="ident">dependency</span>.<span class="ident">author</span>, <span class="ident">dependency</span>.<span class="ident">package</span>, <span class="ident">dependency</span>.<span class="ident">version</span>),
+                    )
+                })
+                .<span class="ident">collect</span>()
+        })
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_package_license</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
@@ -347,6 +419,14 @@ license = &quot;MIT&quot;
 
 [remote]
 author = &quot;{author}&quot; # Add your Aleo Package Manager username or team name.
+
+[target]
+curve = &quot;bls12_377&quot;
+proving_system = &quot;groth16&quot;
+
+[dependencies]
+# Define dependencies here in format:
+# name = {{ package = &quot;package-name&quot;, author = &quot;author&quot;, version = &quot;version&quot; }}
 &quot;#</span>,
             <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">project</span>.<span class="ident">name</span>,
             <span class="ident">author</span> <span class="op">=</span> <span class="ident">author</span>
