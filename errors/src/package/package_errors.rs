@@ -497,4 +497,66 @@ create_errors!(
         msg: format!("invalid project name {}", package),
         help: None,
     }
+
+    @backtraced
+    failed_to_create_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed creating manifest file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when getting the lock file metadata failed.
+    @backtraced
+    failed_to_get_lock_file_metadata {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed getting lock file metadata `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when opening the lock file failed.
+    @backtraced
+    failed_to_open_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed openining lock file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when parsing the lock file failed.
+    @backtraced
+    failed_to_parse_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed parsing lock file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when reading the lock file failed.
+    @backtraced
+    failed_to_read_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed reading lock file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when writing the lock file failed.
+    @backtraced
+    failed_to_write_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed writing lock file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when the lock file has an IO error.
+    @backtraced
+    io_error_lock_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error lock file from the provided file path - {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_serialize_lock_file {
+        args: (error: impl ErrorArg),
+        msg: format!("serialization failed: {}", error),
+        help: None,
+    }
 );

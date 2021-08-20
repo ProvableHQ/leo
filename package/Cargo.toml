@@ -21,6 +21,10 @@ edition = "2018"
 path = "../errors"
 version = "1.5.3"
 
+[dependencies.indexmap]
+version = "1.7"
+features = ["serde"]
+
 [dependencies.serde]
 version = "1.0"
 features = [ "derive" ]

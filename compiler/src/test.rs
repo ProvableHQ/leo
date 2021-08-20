@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use leo_asg::*;
 use leo_ast::{Ast, Program};
@@ -50,6 +53,7 @@ fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> E
         output_dir,
         make_test_context(),
         None,
+        HashMap::new(),
         theorem_options,
     )
 }

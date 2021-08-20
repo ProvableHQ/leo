@@ -22,7 +22,7 @@ pub mod logger;
 pub mod updater;
 
 use commands::{
-    package::{Add, Clone, Login, Logout, Publish, Remove},
+    package::{Clone, Fetch, Login, Logout, Publish},
     Build, Clean, Command, Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
 use leo_errors::Result;
@@ -119,10 +119,15 @@ enum CommandOpts {
         command: Test,
     },
 
-    #[structopt(about = "Import a package from the Aleo Package Manager")]
-    Add {
+    // #[structopt(about = "Import a package from the Aleo Package Manager")]
+    // Add {
+    //     #[structopt(flatten)]
+    //     command: Add,
+    // },
+    #[structopt(about = "Pull dependencies from Aleo Package Manager")]
+    Fetch {
         #[structopt(flatten)]
-        command: Add,
+        command: Fetch,
     },
 
     #[structopt(about = "Clone a package from the Aleo Package Manager")]
@@ -149,12 +154,11 @@ enum CommandOpts {
         command: Publish,
     },
 
-    #[structopt(about = "Uninstall a package from the current package")]
-    Remove {
-        #[structopt(flatten)]
-        command: Remove,
-    },
-
+    // #[structopt(about = "Uninstall a package from the current package")]
+    // Remove {
+    //     #[structopt(flatten)]
+    //     command: Remove,
+    // },
     #[structopt(about = "Lints the Leo files in the package (*)")]
     Lint {
         #[structopt(flatten)]
@@ -204,13 +208,13 @@ fn run_with_args(opt: Opt) -> Result<()> {
         CommandOpts::Watch { command } => command.try_execute(context),
         CommandOpts::Update { command } => command.try_execute(context),
 
-        CommandOpts::Add { command } => command.try_execute(context),
+        // CommandOpts::Add { command } => command.try_execute(context),
+        CommandOpts::Fetch { command } => command.try_execute(context),
         CommandOpts::Clone { command } => command.try_execute(context),
         CommandOpts::Login { command } => command.try_execute(context),
         CommandOpts::Logout { command } => command.try_execute(context),
         CommandOpts::Publish { command } => command.try_execute(context),
-        CommandOpts::Remove { command } => command.try_execute(context),
-
+        // CommandOpts::Remove { command } => command.try_execute(context),
         CommandOpts::Lint { command } => command.try_execute(context),
         CommandOpts::Deploy { command } => command.try_execute(context),
     }
@@ -231,6 +235,7 @@ mod cli_tests {
     use crate::{run_with_args, Opt};
     use leo_errors::{CliError, Result};
 
+    use snarkvm_utilities::Write;
     use std::path::PathBuf;
     use structopt::StructOpt;
     use test_dir::{DirBuilder, FileType, TestDir};
@@ -347,6 +352,7 @@ mod cli_tests {
     }
 
     #[test]
+    #[ignore]
     fn test_import() {
         let dir = testdir("test");
         let path = dir.path("test");
@@ -387,5 +393,33 @@ mod cli_tests {
         assert!(run_cmd("leo test", path).is_ok());
         assert!(run_cmd("leo test -f examples/silly-sudoku/src/lib.leo", path).is_ok());
         assert!(run_cmd("leo test -f examples/silly-sudoku/src/main.leo", path).is_ok());
+    }
+
+    #[test]
+    fn test_install() {
+        let dir = testdir("test");
+        let path = dir.path("test");
+
+        assert!(run_cmd("leo new install", &Some(path.clone())).is_ok());
+
+        let install_path = &Some(path.join("install"));
+
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(path.join("install/Leo.toml"))
+            .unwrap();
+
+        assert!(run_cmd("leo fetch", install_path).is_ok());
+        assert!(file
+            .write_all(
+                br#"
+            sudoku = {author = "justice-league", package = "u8u32", version = "0.1.0"}
+        "#
+            )
+            .is_ok());
+
+        assert!(run_cmd("leo fetch", install_path).is_ok());
+        assert!(run_cmd("leo build", install_path).is_ok());
     }
 }

@@ -157,7 +157,7 @@ create_errors!(
 
     /// For when the CLI cannot find the manifest file.
     @backtraced
-    mainifest_file_not_found {
+    manifest_file_not_found {
         args: (),
         msg: "Package manifest not found, try running `leo init`",
         help: None,
@@ -377,6 +377,27 @@ create_errors!(
     old_release_version {
         args: (current: impl Display, latest: impl Display),
         msg: format!("Old release version {} {}", current, latest),
+        help: None,
+    }
+
+    @backtraced
+    dependencies_are_not_installed {
+        args: (),
+        msg: "dependencies are not installed, please run `leo fetch` first",
+        help: None,
+    }
+
+    @backtraced
+    recursive_dependency_found {
+        args: (message: impl Display),
+        msg: format!("recursive dependency found \n{}", message),
+        help: None,
+    }
+
+    @backtraced
+    unable_to_read_imported_dependency_manifest {
+        args: (),
+        msg: "unable to parse imported dependency's manifest",
         help: None,
     }
 );
