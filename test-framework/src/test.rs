@@ -22,7 +22,7 @@ pub enum TestExpectationMode {
     Fail,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct TestConfig {
     pub namespace: String,
     pub expectation: TestExpectationMode,

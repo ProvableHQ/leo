@@ -1425,9 +1425,15 @@ dependencies = [
 name = "leo-test-framework"
 version = "1.5.3"
 dependencies = [
+ "leo-asg",
+ "leo-ast",
+ "leo-compiler",
+ "leo-imports",
+ "leo-parser",
  "serde",
  "serde_json",
  "serde_yaml",
+ "structopt",
 ]
 
 [[package]]

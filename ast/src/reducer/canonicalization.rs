@@ -291,7 +291,7 @@ impl Canonicalizer {
                     return Expression::Identifier(self.circuit_name.as_ref().unwrap().clone());
                 }
             }
-            _ => {}
+            _ => (),
         }
 
         expression.clone()
