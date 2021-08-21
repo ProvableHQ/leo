@@ -63,7 +63,7 @@
     <span class="ident">Fail</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TestConfig</span> {
     <span class="kw">pub</span> <span class="ident">namespace</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">expectation</span>: <span class="ident">TestExpectationMode</span>,

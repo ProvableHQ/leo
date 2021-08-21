@@ -15,4 +15,5 @@ sourcesIndex["leo_parser"] = {"name":"","dirs":[{"name":"parser","files":["conte
 sourcesIndex["leo_state"] = {"name":"","dirs":[{"name":"local_data_commitment","files":["local_data_commitment.rs","mod.rs","state_leaf_values.rs","state_values.rs"]},{"name":"record_commitment","files":["dpc_record_values.rs","mod.rs","record_commitment.rs"]},{"name":"utilities","files":["input_value.rs","mod.rs"]}],"files":["lib.rs"]};
 sourcesIndex["leo_synthesizer"] = {"name":"","files":["circuit_synthesizer.rs","lib.rs","serialized_circuit.rs","serialized_field.rs","serialized_index.rs","summarized_circuit.rs"]};
 sourcesIndex["leo_test_framework"] = {"name":"","files":["error.rs","fetch.rs","lib.rs","output.rs","runner.rs","test.rs"]};
+sourcesIndex["tgc"] = {"name":"","files":["tgc.rs"]};
 createSourceSidebar();
