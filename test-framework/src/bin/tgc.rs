@@ -136,7 +136,11 @@ fn generate_asts(path: PathBuf, text: &String) -> Result<(String, String, String
     ast.canonicalize()?;
     let canonicalized = ast.to_json_string()?;
 
-    let asg = Asg::new(thread_leaked_context(), &ast, &mut ImportParser::new(path))?;
+    let asg = Asg::new(
+        thread_leaked_context(),
+        &ast,
+        &mut ImportParser::new(path, Default::default()),
+    )?;
 
     let type_inferenced = TypeInferencePhase::default()
         .phase_ast(&ast.into_repr(), &asg.clone().into_repr())
