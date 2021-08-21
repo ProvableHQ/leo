@@ -1320,6 +1320,7 @@ dependencies = [
  "console",
  "dirs",
  "from-pest",
+ "indexmap",
  "lazy_static",
  "leo-ast",
  "leo-compiler",
@@ -1359,6 +1360,7 @@ version = "1.5.3"
 name = "leo-package"
 version = "1.5.3"
 dependencies = [
+ "indexmap",
  "lazy_static",
  "leo-errors",
  "serde",

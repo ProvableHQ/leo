@@ -17,9 +17,11 @@
 use crate::package::Package;
 use leo_errors::{PackageError, Result};
 
+use indexmap::IndexMap;
 use serde::Deserialize;
 use std::{
     borrow::Cow,
+    collections::HashMap,
     convert::TryFrom,
     fs::File,
     io::{Read, Write},
@@ -34,10 +36,18 @@ pub struct Remote {
     pub author: String,
 }
 
+#[derive(Clone, Debug, Deserialize)]
+pub struct Dependency {
+    pub author: String,
+    pub version: String,
+    pub package: String,
+}
+
 #[derive(Deserialize)]
 pub struct Manifest {
     pub project: Package,
     pub remote: Option<Remote>,
+    pub dependencies: Option<IndexMap<String, Dependency>>,
 }
 
 impl Manifest {
@@ -45,6 +55,7 @@ impl Manifest {
         Ok(Self {
             project: Package::new(package_name)?,
             remote: author.map(|author| Remote { author }),
+            dependencies: Some(IndexMap::<String, Dependency>::new()),
         })
     }
 
@@ -70,6 +81,27 @@ impl Manifest {
 
     pub fn get_package_description(&self) -> Option<String> {
         self.project.description.clone()
+    }
+
+    pub fn get_package_dependencies(&self) -> Option<IndexMap<String, Dependency>> {
+        self.dependencies.clone()
+    }
+
+    /// Get HashMap of kind:
+    ///     import name => import directory
+    /// Which then used in AST/ASG to resolve import paths.
+    pub fn get_imports_map(&self) -> Option<HashMap<String, String>> {
+        self.dependencies.clone().map(|dependencies| {
+            dependencies
+                .into_iter()
+                .map(|(name, dependency)| {
+                    (
+                        name,
+                        format!("{}-{}@{}", dependency.author, dependency.package, dependency.version),
+                    )
+                })
+                .collect()
+        })
     }
 
     pub fn get_package_license(&self) -> Option<String> {
@@ -109,6 +141,14 @@ license = "MIT"
 
 [remote]
 author = "{author}" # Add your Aleo Package Manager username or team name.
+
+[target]
+curve = "bls12_377"
+proving_system = "groth16"
+
+[dependencies]
+# Define dependencies here in format:
+# name = {{ package = "package-name", author = "author", version = "version" }}
 "#,
             name = self.project.name,
             author = author

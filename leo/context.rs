@@ -16,7 +16,7 @@
 
 use crate::{api::Api, config};
 use leo_errors::{CliError, Result};
-use leo_package::root::Manifest;
+use leo_package::root::{LockFile, Manifest};
 
 use std::{convert::TryFrom, env::current_dir, path::PathBuf};
 
@@ -41,9 +41,19 @@ impl Context {
         }
     }
 
-    /// Get package manifest for current context
+    /// Get package manifest for current context.
     pub fn manifest(&self) -> Result<Manifest> {
         Ok(Manifest::try_from(self.dir()?.as_path())?)
+    }
+
+    /// Get lock file for current context.
+    pub fn lock_file(&self) -> Result<LockFile> {
+        Ok(LockFile::try_from(self.dir()?.as_path())?)
+    }
+
+    /// Check if lock file exists.
+    pub fn lock_file_exists(&self) -> Result<bool> {
+        Ok(LockFile::exists_at(&self.dir()?))
     }
 }
 

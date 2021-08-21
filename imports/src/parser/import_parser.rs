@@ -18,7 +18,7 @@ use leo_asg::{AsgContext, ImportResolver, Program};
 use leo_errors::{ImportError, LeoError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 /// Stores imported packages.
 ///
@@ -29,14 +29,16 @@ pub struct ImportParser<'a> {
     program_path: PathBuf,
     partial_imports: IndexSet<String>,
     imports: IndexMap<String, Program<'a>>,
+    pub imports_map: HashMap<String, String>,
 }
 
 impl<'a> ImportParser<'a> {
-    pub fn new(program_path: PathBuf) -> Self {
+    pub fn new(program_path: PathBuf, imports_map: HashMap<String, String>) -> Self {
         ImportParser {
             program_path,
             partial_imports: Default::default(),
             imports: Default::default(),
+            imports_map,
         }
     }
 }

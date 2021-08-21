@@ -156,10 +156,8 @@ impl ZipFile {
 
 /// Check if the file path should be included in the package zip file.
 fn is_included(path: &Path) -> bool {
-    // excluded directories: `output`, `imports`
-    if path.ends_with(OUTPUTS_DIRECTORY_NAME.trim_end_matches('/'))
-        | path.ends_with(IMPORTS_DIRECTORY_NAME.trim_end_matches('/'))
-    {
+    // DO NOT include `imports` and `outputs` directories.
+    if path.starts_with(IMPORTS_DIRECTORY_NAME) || path.starts_with(OUTPUTS_DIRECTORY_NAME) {
         return false;
     }
 

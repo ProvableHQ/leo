@@ -23,6 +23,7 @@ pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, Program as AsgProgram};
 use leo_ast::{Input, MainInput, Program as AstProgram};
 use leo_errors::{CompilerError, Result};
+use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
@@ -34,6 +35,7 @@ use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
 use sha2::{Digest, Sha256};
 use std::{
+    collections::HashMap,
     fs,
     marker::PhantomData,
     path::{Path, PathBuf},
@@ -62,6 +64,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     context: AsgContext<'a>,
     asg: Option<AsgProgram<'a>>,
     options: CompilerOptions,
+    imports_map: HashMap<String, String>,
     ast_snapshot_options: AstSnapshotOptions,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
@@ -77,6 +80,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
+        imports_map: HashMap<String, String>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Self {
         Self {
@@ -88,6 +92,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             asg: None,
             context,
             options: options.unwrap_or_default(),
+            imports_map,
             ast_snapshot_options: ast_snapshot_options.unwrap_or_default(),
             _engine: PhantomData,
             _group: PhantomData,
@@ -107,6 +112,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
+        imports_map: HashMap<String, String>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Result<Self> {
         let mut compiler = Self::new(
@@ -115,6 +121,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             output_directory,
             context,
             options,
+            imports_map,
             ast_snapshot_options,
         );
 
@@ -146,6 +153,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         state_path: &Path,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
+        imports_map: HashMap<String, String>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Result<Self> {
         let mut compiler = Self::new(
@@ -154,6 +162,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             output_directory,
             context,
             options,
+            imports_map,
             ast_snapshot_options,
         );
 
@@ -239,7 +248,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
         }
 
-        // Preform canonicalization of AST always.
+        // Perform canonicalization of AST always.
         ast.canonicalize()?;
 
         if self.ast_snapshot_options.canonicalized {
@@ -256,7 +265,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         let asg = Asg::new(
             self.context,
             &self.program,
-            &mut leo_imports::ImportParser::new(self.main_file_path.clone()),
+            &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
         )?;
 
         if self.ast_snapshot_options.type_inferenced {

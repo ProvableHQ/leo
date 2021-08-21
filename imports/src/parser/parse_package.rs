@@ -104,10 +104,19 @@ impl<'a> ImportParser<'a> {
                 .collect::<Result<Vec<_>, std::io::Error>>()
                 .map_err(|error| ImportError::directory_error(error, error_path, span))?;
 
+            // Keeping backward compatibilty for existing packages.
+            // If index_map contains key, use it or try to access directly.
+            // TODO: Remove when migration is possible.
+            let package_name = self
+                .imports_map
+                .get(package_name)
+                .unwrap_or(&package_name.to_string())
+                .clone();
+
             // Check if the imported package name is in the imports directory.
             let matched_import_entry = entries
                 .into_iter()
-                .find(|entry| entry.file_name().into_string().unwrap().eq(package_name));
+                .find(|entry| entry.file_name().into_string().unwrap().eq(&package_name));
 
             // Check if the package name was found in both the source and imports directory.
             match (matched_source_entry, matched_import_entry) {

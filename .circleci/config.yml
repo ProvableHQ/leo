@@ -186,18 +186,18 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-setup.sh
 
-  leo-add-remove:
-    docker:
-      - image: cimg/rust:1.54.0
-    resource_class: xlarge
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project/
-      - run:
-          name: leo add & remove
-          command: |
-            export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/leo-add-remove.sh
+  # leo-add-remove:
+  #   docker:
+  #     - image: cimg/rust:1.54.0
+  #   resource_class: xlarge
+  #   steps:
+  #     - attach_workspace:
+  #         at: /home/circleci/project/
+  #     - run:
+  #         name: leo add & remove
+  #         command: |
+  #           export LEO=/home/circleci/project/project/bin/leo
+  #           ./project/.circleci/leo-add-remove.sh
 
   leo-check-constraints:
     docker:
@@ -270,9 +270,9 @@ workflows:
       - leo-setup:
           requires:
             - leo-executable
-      - leo-add-remove:
-          requires:
-            - leo-executable
+      # - leo-add-remove:
+      #     requires:
+      #       - leo-executable
       - leo-check-constraints:
           requires:
             - leo-executable

@@ -218,19 +218,19 @@ create_errors!(
         help: None,
     }
 
-    /// For when reading the prooving key failed.
+    /// For when reading the proving key failed.
     @backtraced
     failed_to_read_proving_key_file {
         args: (path: impl Debug),
-        msg: format!("Cannot read prooving key file from the provided file path - {:?}", path),
+        msg: format!("Cannot read proving key file from the provided file path - {:?}", path),
         help: None,
     }
 
-    /// For when removing the prooving key file failed.
+    /// For when removing the proving key file failed.
     @backtraced
     failed_to_remove_proving_key_file {
         args: (path: impl Debug),
-        msg: format!("Cannot remove prooving key file from the provided file path - {:?}", path),
+        msg: format!("Cannot remove proving key file from the provided file path - {:?}", path),
         help: None,
     }
 
@@ -239,6 +239,22 @@ create_errors!(
     io_error_proving_key_file {
         args: (error: impl ErrorArg),
         msg: format!("IO error proving key file from the provided file path - {}", error),
+        help: None,
+    }
+
+    /// For when reading the snapshot file failed.
+    @backtraced
+    failed_to_read_snapshot_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot read snapshot file from the provided file path - {:?}", path),
+        help: None,
+    }
+
+    /// For when removing the snapshot file failed.
+    @backtraced
+    failed_to_remove_snapshot_file {
+        args: (path: impl Debug),
+        msg: format!("Cannot remove snapshot file from the provided file path - {:?}", path),
         help: None,
     }
 
@@ -479,6 +495,68 @@ create_errors!(
     invalid_package_name {
         args: (package: impl Display),
         msg: format!("invalid project name {}", package),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_create_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed creating manifest file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when getting the lock file metadata failed.
+    @backtraced
+    failed_to_get_lock_file_metadata {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed getting lock file metadata `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when opening the lock file failed.
+    @backtraced
+    failed_to_open_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed openining lock file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when parsing the lock file failed.
+    @backtraced
+    failed_to_parse_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed parsing lock file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when reading the lock file failed.
+    @backtraced
+    failed_to_read_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed reading lock file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when writing the lock file failed.
+    @backtraced
+    failed_to_write_lock_file {
+        args: (filename: impl Display, error: impl ErrorArg),
+        msg: format!("failed writing lock file `{}` {}", filename, error),
+        help: None,
+    }
+
+    /// For when the lock file has an IO error.
+    @backtraced
+    io_error_lock_file {
+        args: (error: impl ErrorArg),
+        msg: format!("IO error lock file from the provided file path - {}", error),
+        help: None,
+    }
+
+    @backtraced
+    failed_to_serialize_lock_file {
+        args: (error: impl ErrorArg),
+        msg: format!("serialization failed: {}", error),
         help: None,
     }
 );
