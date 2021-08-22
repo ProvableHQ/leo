@@ -1,0 +1,6 @@
+[main]
+x: u8 = 3;
+y: bool = true;
+
+[registers]
+a: u8 = 0;
