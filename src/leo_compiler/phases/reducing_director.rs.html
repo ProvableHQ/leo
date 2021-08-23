@@ -705,6 +705,25 @@
 <span id="703">703</span>
 <span id="704">704</span>
 <span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -933,17 +952,31 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reduce_call</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ast</span>: <span class="kw-2">&amp;</span><span class="ident">AstCallExpression</span>, <span class="ident">asg</span>: <span class="kw-2">&amp;</span><span class="ident">AsgCallExpression</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AstCallExpression</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO FIGURE IT OUT</span>
-        <span class="comment">// let function = self.reduce_expression(&amp;ast.function, asg.function.get())?;</span>
-        <span class="comment">// let target = asg.target.get().map(|exp| self.reduce_expression())</span>
-        <span class="comment">// Is this needed?</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">function</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ast</span>.<span class="ident">function</span>.<span class="ident">clone</span>();
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">type_inference_enabled</span>() {
+            <span class="kw">let</span> <span class="ident">function_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">leo_ast::Type</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">asg</span>
+                .<span class="ident">target</span>
+                .<span class="ident">get</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">target</span><span class="op">|</span> {
+                    (<span class="ident">target</span> <span class="kw">as</span> <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">leo_asg::ExpressionNode</span>)
+                        .<span class="ident">get_type</span>()
+                        .<span class="ident">as_ref</span>()
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">into</span>())
+                })
+                .<span class="ident">flatten</span>();
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">AstExpression::CircuitMemberAccess</span>(<span class="kw-2">mut</span> <span class="ident">access</span>) <span class="op">=</span> <span class="ident">function</span> {
+                <span class="ident">access</span>.<span class="ident">type_</span> <span class="op">=</span> <span class="ident">function_type</span>;
+                <span class="ident">function</span> <span class="op">=</span> <span class="ident">AstExpression::CircuitMemberAccess</span>(<span class="ident">access</span>);
+            }
+        }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arguments</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">for</span> (<span class="ident">ast_arg</span>, <span class="ident">asg_arg</span>) <span class="kw">in</span> <span class="ident">ast</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">asg</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>()) {
             <span class="ident">arguments</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">reduce_expression</span>(<span class="ident">ast_arg</span>, <span class="ident">asg_arg</span>.<span class="ident">get</span>())<span class="question-mark">?</span>);
         }
 
-        <span class="self">self</span>.<span class="ident">ast_reducer</span>.<span class="ident">reduce_call</span>(<span class="ident">ast</span>, <span class="kw-2">*</span><span class="ident">ast</span>.<span class="ident">function</span>.<span class="ident">clone</span>(), <span class="ident">arguments</span>)
+        <span class="self">self</span>.<span class="ident">ast_reducer</span>.<span class="ident">reduce_call</span>(<span class="ident">ast</span>, <span class="ident">function</span>, <span class="ident">arguments</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reduce_cast</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ast</span>: <span class="kw-2">&amp;</span><span class="ident">AstCastExpression</span>, <span class="ident">asg</span>: <span class="kw-2">&amp;</span><span class="ident">AsgCastExpression</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AstCastExpression</span><span class="op">&gt;</span> {
@@ -956,14 +989,19 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reduce_circuit_member_access</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">ast</span>: <span class="kw-2">&amp;</span><span class="ident">CircuitMemberAccessExpression</span>,
-        <span class="ident">_asg</span>: <span class="kw-2">&amp;</span><span class="ident">AsgCircuitAccessExpression</span>,
+        <span class="ident">asg</span>: <span class="kw-2">&amp;</span><span class="ident">AsgCircuitAccessExpression</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CircuitMemberAccessExpression</span><span class="op">&gt;</span> {
         <span class="comment">// let circuit = self.reduce_expression(&amp;circuit_member_access.circuit)?;</span>
         <span class="comment">// let name = self.reduce_identifier(&amp;circuit_member_access.name)?;</span>
         <span class="comment">// let target = input.target.get().map(|e| self.reduce_expression(e));</span>
+        <span class="kw">let</span> <span class="ident">type_</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">type_inference_enabled</span>() {
+            <span class="prelude-val">Some</span>(<span class="ident">leo_ast::Type::Circuit</span>(<span class="ident">asg</span>.<span class="ident">circuit</span>.<span class="ident">get</span>().<span class="ident">name</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>()))
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        };
 
         <span class="self">self</span>.<span class="ident">ast_reducer</span>
-            .<span class="ident">reduce_circuit_member_access</span>(<span class="ident">ast</span>, <span class="kw-2">*</span><span class="ident">ast</span>.<span class="ident">circuit</span>.<span class="ident">clone</span>(), <span class="ident">ast</span>.<span class="ident">name</span>.<span class="ident">clone</span>())
+            .<span class="ident">reduce_circuit_member_access</span>(<span class="ident">ast</span>, <span class="kw-2">*</span><span class="ident">ast</span>.<span class="ident">circuit</span>.<span class="ident">clone</span>(), <span class="ident">ast</span>.<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">type_</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reduce_circuit_static_fn_access</span>(

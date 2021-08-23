@@ -229,7 +229,7 @@
                         <span class="ident">scope</span>, <span class="ident">statement</span>, <span class="prelude-val">None</span>,
                     )<span class="question-mark">?</span>))
             }
-            <span class="ident">Iteration</span>(<span class="ident">statement</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::from_ast</span>(<span class="ident">scope</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">statement</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>,
+            <span class="ident">Iteration</span>(<span class="kw-2">ref</span> <span class="ident">statement</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::from_ast</span>(<span class="ident">scope</span>, <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">statement</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>,
             <span class="ident">Console</span>(<span class="ident">statement</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">scope</span>
                 .<span class="ident">context</span>
                 .<span class="ident">alloc_statement</span>(<span class="ident">Statement::Console</span>(<span class="ident">ConsoleStatement::from_ast</span>(<span class="ident">scope</span>, <span class="ident">statement</span>, <span class="prelude-val">None</span>)<span class="question-mark">?</span>)),

@@ -681,6 +681,8 @@
 <span id="679">679</span>
 <span id="680">680</span>
 <span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -760,6 +762,7 @@
                         <span class="ident">circuit</span>: <span class="ident">left</span>,
                         <span class="ident">name</span>: <span class="ident">identifier</span>,
                         <span class="ident">span</span>: <span class="ident">span</span>.<span class="ident">clone</span>(),
+                        <span class="ident">type_</span>: <span class="prelude-val">None</span>,
                     }));
                 }
             }
@@ -954,6 +957,7 @@
                     <span class="ident">circuit</span>: <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">canonicalize_expression</span>(<span class="kw-2">&amp;</span><span class="ident">circuit_member_access</span>.<span class="ident">circuit</span>)),
                     <span class="ident">name</span>: <span class="ident">circuit_member_access</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
                     <span class="ident">span</span>: <span class="ident">circuit_member_access</span>.<span class="ident">span</span>.<span class="ident">clone</span>(),
+                    <span class="ident">type_</span>: <span class="prelude-val">None</span>,
                 });
             }
             <span class="ident">Expression::CircuitStaticFunctionAccess</span>(<span class="ident">circuit_static_func_access</span>) <span class="op">=</span><span class="op">&gt;</span> {
