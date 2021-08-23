@@ -21,6 +21,7 @@ pub struct CircuitMemberAccessExpression {
     pub circuit: Box<Expression>,
     pub name: Identifier,
     pub span: Span,
+    pub type_: Option<crate::Type>,
 }
 
 impl fmt::Display for CircuitMemberAccessExpression {
