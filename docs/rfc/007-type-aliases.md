@@ -28,7 +28,7 @@ Many programming languages provide the ability to create aliases (i.e. synonyms)
 The purpose may be to abbreviate a longer type,
 such as an alias `matrix` for `[i32; (3, 3)]` in an application in which 3x3 matrices of 32-bit integers are relevant
 (e.g. for 3-D rotations, even though fractional numbers may be more realistic).
-The purpose may also be to clarify the purpose and use of an existing type,
+The purpose may also be to clarify the intent and use of an existing type,
 such as an alias `balance` for `u64` in an application that keeps track of balances.
 
 The initial motivation that inspired this RFC (along with other RFCs)
