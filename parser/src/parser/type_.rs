@@ -61,7 +61,7 @@ impl ParserContext {
     pub fn parse_array_dimensions(&mut self) -> Result<Option<ArrayDimensions>> {
         Ok(if let Some((int, _)) = self.eat_int() {
             Some(ArrayDimensions(vec![int]))
-        } else if let Some(_) = self.eat(Token::Underscore) {
+        } else if self.eat(Token::Underscore).is_some() {
             None
         } else {
             self.expect(Token::LeftParen)?;
