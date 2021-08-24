@@ -87,15 +87,7 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
         )?);
         let left: PartialType = if_true.get().get_type().unwrap().into();
 
-        let if_false = if expected_type.is_none() {
-            Cell::new(<&Expression<'a>>::from_ast(
-                scope,
-                &*value.if_false,
-                Some(left.clone()),
-            )?)
-        } else {
-            Cell::new(<&Expression<'a>>::from_ast(scope, &*value.if_false, expected_type)?)
-        };
+        let if_false = Cell::new(<&Expression<'a>>::from_ast(scope, &*value.if_false, expected_type)?);
         let right = if_false.get().get_type().unwrap().into();
 
         if left != right {

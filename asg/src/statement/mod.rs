@@ -95,7 +95,7 @@ impl<'a> FromAst<'a, leo_ast::Statement> for &'a Statement<'a> {
                         scope, statement, None,
                     )?))
             }
-            Iteration(ref statement) => Self::from_ast(scope, &**statement, None)?,
+            Iteration(statement) => Self::from_ast(scope, &**statement, None)?,
             Console(statement) => scope
                 .context
                 .alloc_statement(Statement::Console(ConsoleStatement::from_ast(scope, statement, None)?)),

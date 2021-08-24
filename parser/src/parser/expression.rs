@@ -452,7 +452,6 @@ impl ParserContext {
                             span: expr.span() + &ident.span,
                             circuit: Box::new(expr),
                             name: ident,
-                            type_: None,
                         });
                     } else if let Some((num, span)) = self.eat_int() {
                         expr = Expression::TupleAccess(TupleAccessExpression {

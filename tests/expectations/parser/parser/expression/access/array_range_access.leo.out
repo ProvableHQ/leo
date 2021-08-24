@@ -280,7 +280,6 @@ outputs:
             col_stop: 6
             path: ""
             content: "x[x.y..]"
-          type_: ~
       right: ~
       span:
         line_start: 1
@@ -305,7 +304,6 @@ outputs:
             col_stop: 8
             path: ""
             content: "x[..y.x]"
-          type_: ~
       span:
         line_start: 1
         line_stop: 1
@@ -328,7 +326,6 @@ outputs:
             col_stop: 6
             path: ""
             content: "x[x.y..y.x]"
-          type_: ~
       right:
         CircuitMemberAccess:
           circuit:
@@ -341,7 +338,6 @@ outputs:
             col_stop: 11
             path: ""
             content: "x[x.y..y.x]"
-          type_: ~
       span:
         line_start: 1
         line_stop: 1
@@ -366,7 +362,6 @@ outputs:
                 col_stop: 6
                 path: ""
                 content: "x[x.y.x..y.x.y]"
-              type_: ~
           name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
           span:
             line_start: 1
@@ -375,7 +370,6 @@ outputs:
             col_stop: 8
             path: ""
             content: "x[x.y.x..y.x.y]"
-          type_: ~
       right:
         CircuitMemberAccess:
           circuit:
@@ -390,7 +384,6 @@ outputs:
                 col_stop: 13
                 path: ""
                 content: "x[x.y.x..y.x.y]"
-              type_: ~
           name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[x.y.x..y.x.y]\\\"}\"}"
           span:
             line_start: 1
@@ -399,7 +392,6 @@ outputs:
             col_stop: 15
             path: ""
             content: "x[x.y.x..y.x.y]"
-          type_: ~
       span:
         line_start: 1
         line_stop: 1

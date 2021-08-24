@@ -76,7 +76,6 @@ impl Canonicalizer {
                         circuit: left,
                         name: identifier,
                         span: span.clone(),
-                        type_: None,
                     }));
                 }
             }
@@ -271,7 +270,6 @@ impl Canonicalizer {
                     circuit: Box::new(self.canonicalize_expression(&circuit_member_access.circuit)),
                     name: circuit_member_access.name.clone(),
                     span: circuit_member_access.span.clone(),
-                    type_: None,
                 });
             }
             Expression::CircuitStaticFunctionAccess(circuit_static_func_access) => {

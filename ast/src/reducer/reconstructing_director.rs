@@ -241,14 +241,9 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     ) -> Result<CircuitMemberAccessExpression> {
         let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
         let name = self.reduce_identifier(&circuit_member_access.name)?;
-        let type_ = circuit_member_access
-            .type_
-            .as_ref()
-            .map(|type_| self.reduce_type(type_, &circuit_member_access.span))
-            .transpose()?;
 
         self.reducer
-            .reduce_circuit_member_access(circuit_member_access, circuit, name, type_)
+            .reduce_circuit_member_access(circuit_member_access, circuit, name)
     }
 
     pub fn reduce_circuit_static_fn_access(

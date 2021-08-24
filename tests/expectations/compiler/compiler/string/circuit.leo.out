@@ -16,6 +16,6 @@ outputs:
             out:
               type: "[char; 13]"
               value: "\"Hello, World!\""
-    initial_ast: 70c3f622477262389299233a81c02174f0af3c99eb9aea42c2be73f191f44673
-    canonicalized_ast: e8a3e9c427681a58127b088b0053cbc2f80c859a7081636fceb59dd0cc6cfee7
-    type_inferenced_ast: db96adeedf84f21908b53bd7db4c4941396afc5fe592012109069186fa066b1a
+    initial_ast: 3ece39236ca03d9f6e4a89ae1a5f27cdbc8036eb1485913a2043d1e0a44beb3c
+    canonicalized_ast: b3df972e5b9658b6addba6f82e972043620a591f5981ac009b56fb6965742695
+    type_inferenced_ast: 22fdc2ba01f04dbe8140df231d6f8c77ad4b5e62a12dfb45a67686830ebee455
