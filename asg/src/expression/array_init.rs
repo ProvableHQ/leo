@@ -70,13 +70,18 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
         value: &leo_ast::ArrayInitExpression,
         expected_type: Option<PartialType<'a>>,
     ) -> Result<ArrayInitExpression<'a>> {
-        let (mut expected_item, expected_len) = match expected_type {
+        let (mut expected_item, expected_len) = match expected_type.clone() {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
                 return Err(AsgError::unexpected_type(type_, "array", &value.span).into());
             }
         };
+
+        if let PartialType::Array(_item, dims) = expected_type.clone().unwrap() {
+            dbg!(dims);
+        }
+
         let dimensions = value
             .dimensions
             .0

@@ -603,7 +603,10 @@ impl ParserContext {
         }
         let first = self.parse_spread_or_expression()?;
         if self.eat(Token::Semicolon).is_some() {
-            let dimensions = self.parse_array_dimensions()?;
+            // TODO: @damirka change the error
+            let dimensions = self
+                .parse_array_dimensions()?
+                .ok_or(ParserError::spread_in_array_init(&span))?;
             let end = self.expect(Token::RightSquare)?;
             let first = match first {
                 SpreadOrExpression::Spread(first) => {
