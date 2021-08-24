@@ -37,7 +37,9 @@ jobs:
       - name: Pull tgc executable
         run: |
           mkdir acl2 && cd acl2;
-          wget $(curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/releases/latest \
+          # temporarily changing this line to v0.1.1 instead of latest
+          # wget $(curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/releases/latest \
+          wget $(curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/releases/47557967 \
               | grep "browser_download_url.*.tgz"  \
               | cut -d : -f 2,3 \
               | tr -d \" \
