@@ -103,22 +103,25 @@ impl<'a> Program<'a> {
 
         // Prepare header-like scope entries.
         for (name, circuit) in program.circuits.iter() {
+            assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init(scope, circuit)?;
 
-            scope.circuits.borrow_mut().insert(name.clone(), asg_circuit);
+            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
         }
 
         // Second pass for circuit members.
         for (name, circuit) in program.circuits.iter() {
+            assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init_member(scope, circuit)?;
 
-            scope.circuits.borrow_mut().insert(name.clone(), asg_circuit);
+            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
         }
 
         for (name, function) in program.functions.iter() {
+            assert_eq!(name.name, function.identifier.name);
             let function = Function::init(scope, function)?;
 
-            scope.functions.borrow_mut().insert(name.clone(), function);
+            scope.functions.borrow_mut().insert(name.name.to_string(), function);
         }
 
         for (name, global_const) in program.global_consts.iter() {
@@ -146,11 +149,12 @@ impl<'a> Program<'a> {
 
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
-            let asg_function = *scope.functions.borrow().get(name).unwrap();
+            assert_eq!(name.name, function.identifier.name);
+            let asg_function = *scope.functions.borrow().get(name.name.as_ref()).unwrap();
 
             asg_function.fill_from_ast(function)?;
 
-            let name = name.clone();
+            let name = name.name.to_string();
 
             if functions.contains_key(&name) {
                 return Err(AsgError::duplicate_function_definition(name, &function.span).into());
@@ -161,11 +165,12 @@ impl<'a> Program<'a> {
 
         let mut circuits = IndexMap::new();
         for (name, circuit) in program.circuits.iter() {
-            let asg_circuit = *scope.circuits.borrow().get(name).unwrap();
+            assert_eq!(name.name, circuit.circuit_name.name);
+            let asg_circuit = *scope.circuits.borrow().get(name.name.as_ref()).unwrap();
 
             asg_circuit.fill_from_ast(circuit)?;
 
-            circuits.insert(name.clone(), asg_circuit);
+            circuits.insert(name.name.to_string(), asg_circuit);
         }
 
         Ok(Program {

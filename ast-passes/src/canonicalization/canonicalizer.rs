@@ -29,7 +29,7 @@ pub struct Canonicalizer {
     // If we are in a circuit keep track of the circuit name.
     circuit_name: Option<Identifier>,
     in_circuit: bool,
-    alias_lookup: Box<dyn Fn(String) -> Option<Alias>>,
+    alias_lookup: Box<dyn Fn(Identifier) -> Option<Alias>>,
 }
 
 impl AstPass for Canonicalizer {
@@ -41,11 +41,11 @@ impl AstPass for Canonicalizer {
 }
 
 impl Canonicalizer {
-    pub fn new(aliases: IndexMap<String, Alias>) -> Self {
+    pub fn new(aliases: IndexMap<Identifier, Alias>) -> Self {
         Self {
             circuit_name: None,
             in_circuit: false,
-            alias_lookup: Box::new(move |alias: String| -> Option<Alias> { aliases.get(&alias).cloned() }),
+            alias_lookup: Box::new(move |alias: Identifier| -> Option<Alias> { aliases.get(&alias).cloned() }),
         }
     }
 
@@ -501,7 +501,7 @@ impl ReconstructingReducer for Canonicalizer {
                 Ok(array)
             }
             Type::CircuitOrAlias(identifier) => {
-                if let Some(alias_type) = (self.alias_lookup)(identifier.name.to_string()) {
+                if let Some(alias_type) = (self.alias_lookup)(identifier.clone()) {
                     return self.reduce_type(type_, alias_type.represents, &alias_type.name.span);
                 }
 

@@ -50,12 +50,6 @@ impl ParserContext {
                 }
                 Token::Ident(ident) if ident.as_ref() == "test" => {
                     return Err(ParserError::test_function(&token.span).into());
-                    // self.expect(Token::Test)?;
-                    // let (id, function) = self.parse_function_declaration()?;
-                    // tests.insert(id, TestFunction {
-                    //     function,
-                    //     input_file: None,
-                    // });
                 }
                 Token::Const => {
                     let (name, global_const) = self.parse_global_const_declaration()?;
@@ -408,14 +402,14 @@ impl ParserContext {
     /// Returns an [`(Identifier, Circuit)`] tuple of AST nodes if the next tokens represent a
     /// circuit name and definition statement.
     ///
-    pub fn parse_circuit(&mut self) -> Result<(String, Circuit)> {
+    pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         self.expect(Token::Circuit)?;
         let name = self.expect_ident()?;
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
 
         Ok((
-            name.name.to_string(),
+            name.clone(),
             Circuit {
                 circuit_name: name,
                 core_mapping: std::cell::RefCell::new(None),
@@ -473,7 +467,7 @@ impl ParserContext {
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     ///
-    pub fn parse_function_declaration(&mut self) -> Result<(String, Function)> {
+    pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
         let mut annotations = Vec::new();
         while self.peek_token().as_ref() == &Token::At {
             annotations.push(self.parse_annotation()?);
@@ -497,7 +491,7 @@ impl ParserContext {
         };
         let block = self.parse_block()?;
         Ok((
-            name.name.to_string(),
+            name.clone(),
             Function {
                 annotations,
                 identifier: name,
@@ -529,7 +523,7 @@ impl ParserContext {
     /// Returns an [`(String, Alias)`] AST node if the next tokens represent a global
     /// const definition statement and assignment.
     ///
-    pub fn parse_type_alias(&mut self) -> Result<(String, Alias)> {
+    pub fn parse_type_alias(&mut self) -> Result<(Identifier, Alias)> {
         self.expect(Token::Type)?;
         let name = self.expect_ident()?;
         self.expect(Token::Assign)?;
@@ -537,7 +531,7 @@ impl ParserContext {
         self.expect(Token::Semicolon)?;
 
         Ok((
-            name.name.to_string(),
+            name.clone(),
             Alias {
                 represents: type_,
                 name,

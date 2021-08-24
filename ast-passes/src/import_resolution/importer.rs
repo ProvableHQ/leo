@@ -125,9 +125,9 @@ where
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
         empty_imports: IndexMap<String, Program>,
-        mut aliases: IndexMap<String, Alias>,
-        mut circuits: IndexMap<String, Circuit>,
-        mut functions: IndexMap<String, Function>,
+        mut aliases: IndexMap<Identifier, Alias>,
+        mut circuits: IndexMap<Identifier, Circuit>,
+        mut functions: IndexMap<Identifier, Function>,
         mut global_consts: IndexMap<String, DefinitionStatement>,
     ) -> Result<Program> {
         if !empty_imports.is_empty() {
@@ -160,7 +160,7 @@ where
         }
 
         // TODO copyable AST.
-        for (package, symbol, span) in imported_symbols.into_iter() {
+        /* for (package, symbol, span) in imported_symbols.into_iter() {
             let pretty_package = package.join(".");
 
             let resolved_package = resolved_packages
@@ -201,7 +201,7 @@ where
                     }
                 }
             }
-        }
+        } */
 
         Ok(Program {
             name: program.name.clone(),
