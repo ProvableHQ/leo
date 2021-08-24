@@ -2,4 +2,8 @@
 namespace: Compile
 expectation: Fail
 outputs:
+<<<<<<< HEAD
   - "Error [EASG0373020]: ternary sides had different types: left u32, right bool\n    --> compiler-test:4:13\n     |\n   4 |     let x = true ? x: true;\n     |             ^^^^^^^^^^^^^^"
+=======
+  - "Error [EASG0373026]: unexpected type, expected: 'u32', received: 'bool'\n    --> compiler-test:4:23\n     |\n   4 |     let x = true ? x: true;\n     |                       ^^^^"
+>>>>>>> 7a5979660b7c4200fc3c8feb3263dbadd04daf0a

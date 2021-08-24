@@ -17,7 +17,7 @@
 ///
 /// Toggles compiler optimizations on the program.
 ///
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct CompilerOptions {
     pub constant_folding_enabled: bool,
     pub dead_code_elimination_enabled: bool,

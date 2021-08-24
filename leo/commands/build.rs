@@ -58,9 +58,9 @@ pub struct BuildOptions {
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            disable_constant_folding: true,
-            disable_code_elimination: true,
-            disable_all_optimizations: true,
+            disable_constant_folding: false,
+            disable_code_elimination: false,
+            disable_all_optimizations: false,
             enable_all_ast_snapshots: false,
             enable_initial_ast_snapshot: false,
             enable_imports_resolved_ast_snapshot: false,
@@ -72,10 +72,10 @@ impl Default for BuildOptions {
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
-        if !options.disable_all_optimizations {
+        if options.disable_all_optimizations {
             CompilerOptions {
-                constant_folding_enabled: true,
-                dead_code_elimination_enabled: true,
+                constant_folding_enabled: false,
+                dead_code_elimination_enabled: false,
             }
         } else {
             CompilerOptions {
@@ -128,7 +128,14 @@ impl Command for Build {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
-        let package_name = context.manifest()?.get_package_name();
+        let manifest = context.manifest().map_err(|_| CliError::manifest_file_not_found())?;
+        let package_name = manifest.get_package_name();
+        let imports_map = manifest.get_imports_map().unwrap_or_default();
+
+        // Error out if there are dependencies but no lock file found.
+        if !imports_map.is_empty() && !context.lock_file_exists()? {
+            return Err(CliError::dependencies_are_not_installed().into());
+        }
 
         // Sanitize the package path to the root directory.
         let mut package_path = path.clone();
@@ -164,6 +171,12 @@ impl Command for Build {
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
 
+        let imports_map = if context.lock_file_exists()? {
+            context.lock_file()?.to_import_map()
+        } else {
+            Default::default()
+        };
+
         // Load the program at `main_file_path`
         let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
             package_name.clone(),
@@ -175,6 +188,7 @@ impl Command for Build {
             &state_path,
             thread_leaked_context(),
             Some(self.compiler_options.clone().into()),
+            imports_map,
             Some(self.compiler_options.into()),
         )?;
 

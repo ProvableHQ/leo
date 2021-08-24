@@ -13,6 +13,7 @@ outputs:
         col_stop: 4
         path: ""
         content: x.y
+      type_: ~
   - CircuitMemberAccess:
       circuit:
         Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"X.Y\\\"}\"}"
@@ -24,6 +25,7 @@ outputs:
         col_stop: 4
         path: ""
         content: X.Y
+      type_: ~
   - CircuitMemberAccess:
       circuit:
         CircuitMemberAccess:
@@ -37,6 +39,7 @@ outputs:
             col_stop: 4
             path: ""
             content: x.y.z
+          type_: ~
       name: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.y.z\\\"}\"}"
       span:
         line_start: 1
@@ -45,6 +48,7 @@ outputs:
         col_stop: 6
         path: ""
         content: x.y.z
+      type_: ~
   - Call:
       function:
         CircuitMemberAccess:
@@ -58,6 +62,7 @@ outputs:
             col_stop: 4
             path: ""
             content: x.y()
+          type_: ~
       arguments: []
       span:
         line_start: 1
@@ -79,6 +84,7 @@ outputs:
             col_stop: 4
             path: ""
             content: x.y.0
+          type_: ~
       index:
         value: "0"
       span:
@@ -101,6 +107,7 @@ outputs:
             col_stop: 4
             path: ""
             content: "x.y[1]"
+          type_: ~
       index:
         Value:
           Implicit:

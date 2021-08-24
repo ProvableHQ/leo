@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// COMMAND TEMPORARILY DISABLED
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 use crate::{api::Fetch, commands::Command, context::Context};
 use leo_errors::{CliError, Result};
 use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
@@ -21,6 +25,7 @@ use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
 use std::{
     fs::{create_dir_all, File},
     io::{Read, Write},
+    path::PathBuf,
 };
 use structopt::StructOpt;
 use tracing::Span;
@@ -76,7 +81,7 @@ impl Add {
 
 impl Command for Add {
     type Input = ();
-    type Output = ();
+    type Output = PathBuf;
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Adding")
@@ -88,18 +93,20 @@ impl Command for Add {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         // Check that a manifest exists for the current package.
-        context.manifest().map_err(|_| CliError::mainifest_file_not_found())?;
+        context.manifest().map_err(|_| CliError::manifest_file_not_found())?;
 
         let (author, package_name) = self
             .try_read_arguments()
             .map_err(CliError::cli_bytes_conversion_error)?;
 
+        tracing::info!("Package: {}/{}", &author, &package_name);
+
         // Attempt to fetch the package.
         let reader = {
             let fetch = Fetch {
-                author,
+                author: author.clone(),
                 package_name: package_name.clone(),
-                version: self.version,
+                version: self.version.clone(),
             };
             let bytes = context
                 .api
@@ -114,7 +121,14 @@ impl Command for Add {
         {
             ImportsDirectory::create(&path)?;
             path.push(IMPORTS_DIRECTORY_NAME);
-            path.push(package_name);
+
+            // Dumb compatibility hack.
+            // TODO: Remove once `leo add` functionality is discussed.
+            if self.version.is_some() {
+                path.push(format!("{}-{}@{}", author, package_name, self.version.unwrap()));
+            } else {
+                path.push(package_name.clone());
+            }
             create_dir_all(&path).map_err(CliError::cli_io_error)?;
         };
 
@@ -142,8 +156,8 @@ impl Command for Add {
             }
         }
 
-        tracing::info!("Successfully added a package");
+        tracing::info!("Successfully added package {}/{}", author, package_name);
 
-        Ok(())
+        Ok(path)
     }
 }

@@ -20,6 +20,9 @@ pub use add::Add;
 pub mod clone;
 pub use clone::Clone;
 
+pub mod fetch;
+pub use fetch::Fetch;
+
 pub mod login;
 pub use login::Login;
 

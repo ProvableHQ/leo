@@ -125,10 +125,10 @@ where
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
         empty_imports: IndexMap<String, Program>,
-        mut aliases: IndexMap<Identifier, Alias>,
-        mut circuits: IndexMap<Identifier, Circuit>,
-        mut functions: IndexMap<Identifier, Function>,
-        mut global_consts: IndexMap<String, DefinitionStatement>,
+        aliases: IndexMap<Identifier, Alias>,
+        circuits: IndexMap<Identifier, Circuit>,
+        functions: IndexMap<Identifier, Function>,
+        global_consts: IndexMap<String, DefinitionStatement>,
     ) -> Result<Program> {
         if !empty_imports.is_empty() {
             return Err(AstError::injected_programs(empty_imports.len()).into());

@@ -118,6 +118,10 @@ version = "0.14.0"
 [dependencies.from-pest]
 version = "0.3.1"
 
+[dependencies.indexmap]
+version = "1.7"
+features = ["serde"]
+
 [dependencies.lazy_static]
 version = "1.4.0"
 
