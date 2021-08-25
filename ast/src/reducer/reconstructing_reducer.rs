@@ -383,7 +383,7 @@ pub trait ReconstructingReducer {
         program: &Program,
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
-        imports: IndexMap<String, Program>,
+        imports: IndexMap<Vec<String>, Program>,
         aliases: IndexMap<Identifier, Alias>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
@@ -439,7 +439,7 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_import(&mut self, identifier: String, import: Program) -> Result<(String, Program)> {
+    fn reduce_import(&mut self, identifier: Vec<String>, import: Program) -> Result<(Vec<String>, Program)> {
         Ok((identifier, import))
     }
 

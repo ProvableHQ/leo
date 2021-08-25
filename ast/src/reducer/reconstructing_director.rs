@@ -438,6 +438,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                 name.clone(),
                 Alias {
                     name: alias.name.clone(),
+                    span: alias.span.clone(),
                     represents,
                 },
             );
@@ -516,8 +517,8 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_import_statement(import, package_or_packages)
     }
 
-    pub fn reduce_import(&mut self, identifier: &str, import: &Program) -> Result<(String, Program)> {
-        let new_identifer = identifier.to_string();
+    pub fn reduce_import(&mut self, identifier: &[String], import: &Program) -> Result<(Vec<String>, Program)> {
+        let new_identifer = identifier.to_vec();
         let new_import = self.reduce_program(import)?;
         self.reducer.reduce_import(new_identifer, new_import)
     }

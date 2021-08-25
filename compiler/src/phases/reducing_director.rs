@@ -95,6 +95,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
 
                 AstType::Tuple(reduced_types)
             }
+            _ if self.options.type_inference_enabled() => asg.into(),
             _ => ast.clone(),
         };
 

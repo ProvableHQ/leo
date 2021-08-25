@@ -34,7 +34,7 @@ outputs:
             x:
               type: bool
               value: "true"
-    initial_ast: 0ccc0ba25764d2533805bfc569d796cba88c82ad7135a874e5ff60ecf29fc576
+    initial_ast: 08f026e24cab51634a7a2a6f1f3b082eace1d4be649cd9ff7c244194891d7d78
     imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
-    canonicalized_ast: 0ccc0ba25764d2533805bfc569d796cba88c82ad7135a874e5ff60ecf29fc576
-    type_inferenced_ast: c85eeb8262aad7558bb8a61b78a33b3c7c644dd8e93456cb8cc8bfdfc13c12ba
+    canonicalized_ast: 08f026e24cab51634a7a2a6f1f3b082eace1d4be649cd9ff7c244194891d7d78
+    type_inferenced_ast: 2112e9f631a77bb16ba1561bbe1028a415413f23fd32d21bfe086e071938c845

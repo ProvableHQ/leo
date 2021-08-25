@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgContext, Circuit, DefinitionStatement, Function, Input, Type, Variable};
+use crate::{Alias, AsgContext, Circuit, DefinitionStatement, Function, Input, Type, Variable};
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
@@ -36,6 +36,9 @@ pub struct Scope<'a> {
 
     /// Maps variable name => variable.
     pub variables: RefCell<IndexMap<String, &'a Variable<'a>>>,
+
+    /// Maps alias name => alias.
+    pub aliases: RefCell<IndexMap<String, &'a Alias<'a>>>,
 
     /// Maps function name => function.
     pub functions: RefCell<IndexMap<String, &'a Function<'a>>>,
@@ -101,6 +104,22 @@ impl<'a> Scope<'a> {
     }
 
     ///
+    /// Returns a reference to the alias corresponding to the name.
+    ///
+    /// If the current scope did not have this name present, then the parent scope is checked.
+    /// If there is no parent scope, then `None` is returned.
+    ///
+    pub fn resolve_alias(&self, name: &str) -> Option<&'a Alias<'a>> {
+        if let Some(resolved) = self.aliases.borrow().get(name) {
+            Some(*resolved)
+        } else if let Some(resolved) = self.parent_scope.get() {
+            resolved.resolve_alias(name)
+        } else {
+            None
+        }
+    }
+
+    ///
     /// Returns a reference to the function corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
@@ -141,6 +160,7 @@ impl<'a> Scope<'a> {
             id: self.context.get_id(),
             parent_scope: Cell::new(Some(self)),
             variables: RefCell::new(IndexMap::new()),
+            aliases: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
             circuits: RefCell::new(IndexMap::new()),
             global_consts: RefCell::new(IndexMap::new()),
@@ -179,10 +199,15 @@ impl<'a> Scope<'a> {
                     .collect::<Result<Vec<_>>>()?,
             ),
             SelfType => return Err(AsgError::unexpected_big_self(span).into()),
-            CircuitOrAlias(name) => Type::Circuit(
-                self.resolve_circuit(&name.name)
-                    .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
-            ),
+            CircuitOrAlias(name) => {
+                if let Some(circuit) = self.resolve_circuit(&name.name) {
+                    Type::Circuit(circuit)
+                } else if let Some(alias) = self.resolve_alias(&name.name) {
+                    alias.represents.clone()
+                } else {
+                    return Err(AsgError::unresolved_circuit(&name.name, &name.span).into());
+                }
+            }
         })
     }
 }

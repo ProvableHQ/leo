@@ -17,8 +17,6 @@
 use leo_ast::*;
 use leo_errors::{AstError, Result, Span};
 
-use indexmap::IndexMap;
-
 /// Replace Self when it is in a enclosing circuit type.
 /// Error when Self is outside an enclosing circuit type.
 /// Tuple array types and expressions expand to nested arrays.
@@ -29,26 +27,26 @@ pub struct Canonicalizer {
     // If we are in a circuit keep track of the circuit name.
     circuit_name: Option<Identifier>,
     in_circuit: bool,
-    alias_lookup: Box<dyn Fn(Identifier) -> Option<Alias>>,
 }
 
 impl AstPass for Canonicalizer {
     fn do_pass(ast: Program) -> Result<Ast> {
         Ok(Ast::new(
-            ReconstructingDirector::new(Self::new(ast.aliases.clone())).reduce_program(&ast)?,
+            ReconstructingDirector::new(Self::default()).reduce_program(&ast)?,
         ))
     }
 }
 
-impl Canonicalizer {
-    pub fn new(aliases: IndexMap<Identifier, Alias>) -> Self {
+impl Default for Canonicalizer {
+    fn default() -> Self {
         Self {
             circuit_name: None,
             in_circuit: false,
-            alias_lookup: Box::new(move |alias: Identifier| -> Option<Alias> { aliases.get(&alias).cloned() }),
         }
     }
+}
 
+impl Canonicalizer {
     pub fn canonicalize_accesses(
         &mut self,
         start: Expression,
@@ -481,7 +479,7 @@ impl ReconstructingReducer for Canonicalizer {
         self.in_circuit = !self.in_circuit;
     }
 
-    fn reduce_type(&mut self, type_: &Type, new: Type, span: &Span) -> Result<Type> {
+    fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type> {
         match new {
             Type::Array(type_, mut dimensions) => {
                 if dimensions.is_zero() {
@@ -501,13 +499,6 @@ impl ReconstructingReducer for Canonicalizer {
                 }
 
                 Ok(array)
-            }
-            Type::CircuitOrAlias(identifier) => {
-                if let Some(alias_type) = (self.alias_lookup)(identifier.clone()) {
-                    return self.reduce_type(type_, alias_type.represents, &alias_type.name.span);
-                }
-
-                Ok(Type::CircuitOrAlias(identifier))
             }
             Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
             _ => Ok(new.clone()),

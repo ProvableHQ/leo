@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Identifier, Type};
+use leo_errors::Span;
 
 use std::fmt;
 
@@ -23,6 +24,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Alias {
     pub name: Identifier,
+    pub span: Span,
     pub represents: Type,
 }
 

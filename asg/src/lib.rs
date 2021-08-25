@@ -98,30 +98,7 @@ impl<'a> Asg<'a> {
     pub fn into_repr(self) -> Program<'a> {
         self.asg
     }
-
-    // /// Serializes the ast into a JSON string.
-    // pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
-    //     serde_json::to_string_pretty(&self.asg)
-    // }
-    //
-    // /// Deserializes the JSON string into a ast.
-    // pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {
-    //     let ast: Program = serde_json::from_str(json)?;
-    //     Ok(Self { ast })
-    // }
 }
-
-// TODO (howardwu): Remove this.
-/* pub fn load_asg<'a, T: ImportResolver<'a>>(
-    context: AsgContext<'a>,
-    content: &str,
-    resolver: &mut T,
-) -> Result<Program<'a>> {
-    // Parses the Leo file and constructs a grammar ast.
-    let ast = leo_parser::parse_ast("input.leo", content)?;
-
-    Program::new(context, ast.as_repr())
-} */
 
 pub fn new_alloc_context<'a>() -> Arena<ArenaNode<'a>> {
     Arena::new()

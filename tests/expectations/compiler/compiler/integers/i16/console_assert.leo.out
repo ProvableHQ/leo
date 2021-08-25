@@ -13,7 +13,7 @@ outputs:
       - input_file: i16.in
         output:
           registers: {}
-    initial_ast: c3c8128b9da2514d3c4094a8354fd17788aaff4e43165eaccd7947f770d9c963
+    initial_ast: f68bd73d5f657b880c76f678c5d8b6903aebd0701415977f5dd35009b383daaf
     imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
-    canonicalized_ast: 020102981b6321a108cd7d9c8869bbf933766eb718974bf8ad9ecb0b666a77af
-    type_inferenced_ast: 2302176b5d6a9a3fa2fdc6341593a36d033a98cc73f831a1698e0d19f09fac3b
+    canonicalized_ast: a1a4fada7b1c3d4e82ac1065a720c6b11fdffd4a1cf270128432e04cee150cbb
+    type_inferenced_ast: 18633259cef0bf8b6f58b4fdddeff2e0f212f4bfd9a3a9d2e7c8b328117ee679

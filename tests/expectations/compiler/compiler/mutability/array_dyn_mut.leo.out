@@ -22,7 +22,7 @@ outputs:
             r0:
               type: "[u32; 3]"
               value: "\"150\""
-    initial_ast: 7eb63a9e38d41a1e68aef4b3e38e179917878c9ec675df73d25bbb47581c456d
+    initial_ast: b56c67d410c98a75c5f742d382e223355d214484d198ccaefe65296421c6854b
     imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
-    canonicalized_ast: a711756ffe479187394a5a26da6c032ed8e9da497225da2c55738727055f1a79
-    type_inferenced_ast: 72bdd4280b72d4445c14dd7c281ea148edaccbd9b2013a016819d6c01944d46e
+    canonicalized_ast: 7217fa688744caee18ab779ab9c43deac2d70a8d0b989873fe720d3f46a5e366
+    type_inferenced_ast: 6d673f91cd5c98cd1ae69777a317cf2b2ee50fd291996c8ae70d036705e76062

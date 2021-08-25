@@ -124,7 +124,7 @@ where
         program: &Program,
         expected_input: Vec<FunctionInput>,
         import_statements: Vec<ImportStatement>,
-        empty_imports: IndexMap<String, Program>,
+        empty_imports: IndexMap<Vec<String>, Program>,
         aliases: IndexMap<Identifier, Alias>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
@@ -159,58 +159,11 @@ where
             resolved_packages.insert(package.clone(), resolved_package);
         }
 
-        // TODO copyable AST.
-        /* for (package, symbol, span) in imported_symbols.into_iter() {
-            let pretty_package = package.join(".");
-
-            let resolved_package = resolved_packages
-                .get_mut(&package)
-                .expect("could not find preloaded package");
-
-            match symbol {
-                ImportSymbol::All => {
-                    aliases.extend(resolved_package.aliases.clone().into_iter());
-                    functions.extend(resolved_package.functions.clone().into_iter());
-                    circuits.extend(resolved_package.circuits.clone().into_iter());
-                    global_consts.extend(resolved_package.global_consts.clone().into_iter());
-                }
-                ImportSymbol::Direct(name) => {
-                    if let Some(alias) = resolved_package.aliases.get(&name) {
-                        aliases.insert(name.clone(), alias.clone());
-                    } else if let Some(function) = resolved_package.functions.get(&name) {
-                        functions.insert(name.clone(), function.clone());
-                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
-                        circuits.insert(name.clone(), circuit.clone());
-                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
-                        global_consts.insert(name.clone(), global_const.clone());
-                    } else {
-                        return Err(AstError::unresolved_import(pretty_package, &span).into());
-                    }
-                }
-                ImportSymbol::Alias(name, alias) => {
-                    if let Some(type_alias) = resolved_package.aliases.get(&name) {
-                        aliases.insert(alias.clone(), type_alias.clone());
-                    } else if let Some(function) = resolved_package.functions.get(&name) {
-                        functions.insert(alias.clone(), function.clone());
-                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
-                        circuits.insert(alias.clone(), circuit.clone());
-                    } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
-                        global_consts.insert(alias.clone(), global_const.clone());
-                    } else {
-                        return Err(AstError::unresolved_import(pretty_package, &span).into());
-                    }
-                }
-            }
-        } */
-
         Ok(Program {
             name: program.name.clone(),
             expected_input,
             import_statements,
-            imports: resolved_packages
-                .into_iter()
-                .map(|(package, program)| (package.join("."), program))
-                .collect(),
+            imports: resolved_packages,
             aliases,
             circuits,
             functions,

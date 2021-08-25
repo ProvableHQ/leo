@@ -29,7 +29,8 @@ pub struct Program {
     pub name: String,
     pub expected_input: Vec<FunctionInput>,
     pub import_statements: Vec<ImportStatement>,
-    pub imports: IndexMap<String, Program>,
+    #[serde(with = "crate::common::imported_modules")]
+    pub imports: IndexMap<Vec<String>, Program>,
     pub aliases: IndexMap<Identifier, Alias>,
     pub circuits: IndexMap<Identifier, Circuit>,
     pub global_consts: IndexMap<String, DefinitionStatement>,

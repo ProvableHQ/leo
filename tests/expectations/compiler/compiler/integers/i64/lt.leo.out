@@ -22,7 +22,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 7833b0f1fe8dab33b3ad76887d67bf487da43387a9cfc8aa3b583490ea7cf42b
+    initial_ast: db923fdd10ce89e66c72f1db5f8e95e3016dd8513ee687250b21b7aa5ce4daec
     imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
-    canonicalized_ast: 7833b0f1fe8dab33b3ad76887d67bf487da43387a9cfc8aa3b583490ea7cf42b
-    type_inferenced_ast: 89ef6b4f586c0b8010c2bb5d4d896192a21c0be52a0468aab1dccbe5da647186
+    canonicalized_ast: db923fdd10ce89e66c72f1db5f8e95e3016dd8513ee687250b21b7aa5ce4daec
+    type_inferenced_ast: eaa70c92e2390a74eec47bee46b954cdcc2fca0f441545902759a13b81d3cfe0

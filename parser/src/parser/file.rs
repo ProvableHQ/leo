@@ -534,6 +534,7 @@ impl ParserContext {
             name.clone(),
             Alias {
                 represents: type_,
+                span: name.span.clone(),
                 name,
             },
         ))

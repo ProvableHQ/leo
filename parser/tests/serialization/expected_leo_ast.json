@@ -7,9 +7,9 @@
   "circuits": {},
   "global_consts": {},
   "functions": {
-    "main": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}": {
       "annotations": [],
-      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"C:\\\\\\\\Users\\\\\\\\jonat\\\\\\\\AppData\\\\\\\\Roaming\\\\\\\\work\\\\\\\\tester\\\\\\\\src/main.leo\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}",
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}",
       "input": [],
       "output": {
         "IntegerType": "U8"
@@ -30,7 +30,7 @@
                           "line_stop": 2,
                           "col_start": 12,
                           "col_stop": 15,
-                          "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+                          "path": "",
                           "content": "    return 1u8 + 1u8;"
                         }
                       ]
@@ -46,7 +46,7 @@
                           "line_stop": 2,
                           "col_start": 18,
                           "col_stop": 21,
-                          "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+                          "path": "",
                           "content": "    return 1u8 + 1u8;"
                         }
                       ]
@@ -58,7 +58,7 @@
                     "line_stop": 2,
                     "col_start": 12,
                     "col_stop": 21,
-                    "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+                    "path": "",
                     "content": "    return 1u8 + 1u8;"
                   }
                 }
@@ -68,7 +68,7 @@
                 "line_stop": 2,
                 "col_start": 5,
                 "col_stop": 21,
-                "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+                "path": "",
                 "content": "    return 1u8 + 1u8;"
               }
             }
@@ -79,7 +79,7 @@
           "line_stop": 3,
           "col_start": 23,
           "col_stop": 2,
-          "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+          "path": "",
           "content": "function main() -> u8 {\n     ...\n}"
         }
       },
@@ -88,7 +88,7 @@
         "line_stop": 3,
         "col_start": 1,
         "col_stop": 2,
-        "path": "C:\\Users\\jonat\\AppData\\Roaming\\work\\tester\\src/main.leo",
+        "path": "",
         "content": "function main() -> u8 {\n     ...\n}"
       }
     }

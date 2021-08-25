@@ -19,7 +19,7 @@ outputs:
             r1:
               type: u32
               value: "103"
-    initial_ast: 5a909f77f99ab6cfabec27b05eb7816fe7202444a2c445e13a85eb9a1712394a
+    initial_ast: 3818078d8b7b34d11b38a9e53d326543a357f4db169acc32a52e2b08a8126602
     imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
-    canonicalized_ast: 5a909f77f99ab6cfabec27b05eb7816fe7202444a2c445e13a85eb9a1712394a
-    type_inferenced_ast: 0f8156948daece48995cfec97bcee152da96c4d29fbc208f0788ce3962e5b5fe
+    canonicalized_ast: 3818078d8b7b34d11b38a9e53d326543a357f4db169acc32a52e2b08a8126602
+    type_inferenced_ast: 3eb5fbe370ce358e9d00865a230bb5eb6f2cfdb85f30408a164da43dfe16277d

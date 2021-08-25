@@ -100,13 +100,7 @@ outputs:
             r:
               type: char
               value: "'\\u{1f62d}'"
-<<<<<<< HEAD
-    initial_ast: 9b476ab0cc1f82ffbe5735bdc9839290da1f19b860193bc6ca76dac7086797a9
+    initial_ast: 77a91d0bba02b2c0da0b8a455460cf0e4873a23fe07fd6c2055c881f065cdfe9
     imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
-    canonicalized_ast: 9b476ab0cc1f82ffbe5735bdc9839290da1f19b860193bc6ca76dac7086797a9
-    type_inferenced_ast: c1b6a8e1c31fe2eb3c523e9d142093f4bd0ea426c0bb1b179ee4b3624e202102
-=======
-    initial_ast: 715a33d0032f02d69d13687ac98005a789b6bcb63ff619865b21f0c691f14a75
-    canonicalized_ast: 715a33d0032f02d69d13687ac98005a789b6bcb63ff619865b21f0c691f14a75
-    type_inferenced_ast: d04164068277e88b5529f1072b512ffadc7eaaf704c8a3e394a409e783cc1e27
->>>>>>> 7a5979660b7c4200fc3c8feb3263dbadd04daf0a
+    canonicalized_ast: 77a91d0bba02b2c0da0b8a455460cf0e4873a23fe07fd6c2055c881f065cdfe9
+    type_inferenced_ast: 545343f828df02fec9995639e0c3d03464ab896475d6ca2ebd3304d237c55ec7

@@ -22,13 +22,7 @@ outputs:
             r:
               type: "[u8; 3]"
               value: "\"123\""
-<<<<<<< HEAD
-    initial_ast: 5b224262cdf11d2a6e114637866c5768c6013ceea2a7602884bddf470652fd84
+    initial_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
     imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
-    canonicalized_ast: 5b224262cdf11d2a6e114637866c5768c6013ceea2a7602884bddf470652fd84
-    type_inferenced_ast: 900f2882fecb7096f0862b05fa64bd9c0a8d51ae4fb255994062234e9451acf2
-=======
-    initial_ast: 1c07965336635dce8cd66c67eddf25a51f61a3b90513f87ef123c642a9b5b18a
-    canonicalized_ast: 1c07965336635dce8cd66c67eddf25a51f61a3b90513f87ef123c642a9b5b18a
-    type_inferenced_ast: cf35fa9ca18f19ac75ca522a77e310b02ff56ac1d748cd5df5c2204bba4a4802
->>>>>>> 7a5979660b7c4200fc3c8feb3263dbadd04daf0a
+    canonicalized_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
+    type_inferenced_ast: f5cb6326028b3cf9187889be6ac5ed5bd095a570d45ae63c7285a09366fc6803
