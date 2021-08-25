@@ -98,3 +98,8 @@ const (x, y): u32 = x();
 let (x,y,) = ();
 
 let (x,) = ();
+
+
+let x: [u32; _] = expr;
+
+let x: [[char; _]; _] = expr;

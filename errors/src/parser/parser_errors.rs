@@ -120,14 +120,6 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser failed to parse array dimensions.
-    @formatted
-    unable_to_parse_array_dimensions {
-        args: (),
-        msg: "unable to parse array dimensions",
-        help: None,
-    }
-
     /// For when the parser encountered an invalid assignment target.
     @formatted
     invalid_assignment_target {
@@ -181,6 +173,14 @@ create_errors!(
     context_annotation {
         args: (),
         msg: "\"@context(...)\" is deprecated. Did you mean @test annotation?",
+        help: None,
+    }
+
+    /// For when the parser failed to parse array dimensions.
+    @formatted
+    unable_to_parse_array_dimensions {
+        args: (),
+        msg: "unable to parse array dimensions",
         help: None,
     }
 );

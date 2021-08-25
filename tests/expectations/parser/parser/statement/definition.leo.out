@@ -1471,3 +1471,55 @@ outputs:
         col_stop: 14
         path: ""
         content: "let (x,) = ();"
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [u32; _] = expr;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: "let x: [u32; _] = expr;"
+      type_:
+        Array:
+          - IntegerType: U32
+          - ~
+      value:
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":19,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [u32; _] = expr;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 23
+        path: ""
+        content: "let x: [u32; _] = expr;"
+  - Definition:
+      declaration_type: Let
+      variable_names:
+        - mutable: true
+          identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [[char; _]; _] = expr;\\\"}\"}"
+          span:
+            line_start: 1
+            line_stop: 1
+            col_start: 5
+            col_stop: 6
+            path: ""
+            content: "let x: [[char; _]; _] = expr;"
+      type_:
+        Array:
+          - Array:
+              - Char
+              - ~
+          - ~
+      value:
+        Identifier: "{\"name\":\"expr\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":25,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"let x: [[char; _]; _] = expr;\\\"}\"}"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 29
+        path: ""
+        content: "let x: [[char; _]; _] = expr;"

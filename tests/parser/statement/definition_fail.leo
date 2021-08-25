@@ -52,3 +52,8 @@ let (x,y,,) = ();
 let (,x,y) = ();
 
 let (x,,y) = ();
+
+
+let x: [u32: aa] = expr;
+
+let x: [u32; _ 2] = expr;

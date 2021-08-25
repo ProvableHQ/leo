@@ -25,3 +25,5 @@ outputs:
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:10\n     |\n   1 | let (x,y,,) = ();\n     |          ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:6\n     |\n   1 | let (,x,y) = ();\n     |      ^"
   - "Error [EPAR0370009]: unexpected string: expected 'ident', got ','\n    --> test:1:8\n     |\n   1 | let (x,,y) = ();\n     |        ^"
+  - "Error [EPAR0370005]: expected ; -- got ':'\n    --> test:1:12\n     |\n   1 | let x: [u32: aa] = expr;\n     |            ^"
+  - "Error [EPAR0370005]: expected ] -- got '2'\n    --> test:1:16\n     |\n   1 | let x: [u32; _ 2] = expr;\n     |                ^"
