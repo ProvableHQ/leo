@@ -125,6 +125,19 @@ impl Canonicalizer {
         }
     }
 
+    fn canonicalize_circuit_implied_variable_definition(
+        &mut self,
+        member: &CircuitImpliedVariableDefinition,
+    ) -> CircuitImpliedVariableDefinition {
+        CircuitImpliedVariableDefinition {
+            identifier: member.identifier.clone(),
+            expression: member
+                .expression
+                .as_ref()
+                .map(|expr| self.canonicalize_expression(expr)),
+        }
+    }
+
     fn canonicalize_expression(&mut self, expression: &Expression) -> Expression {
         match expression {
             Expression::Unary(unary) => {
@@ -262,7 +275,11 @@ impl Canonicalizer {
 
                 return Expression::CircuitInit(CircuitInitExpression {
                     name,
-                    members: circuit_init.members.clone(),
+                    members: circuit_init
+                        .members
+                        .iter()
+                        .map(|member| self.canonicalize_circuit_implied_variable_definition(member))
+                        .collect(),
                     span: circuit_init.span.clone(),
                 });
             }
@@ -284,7 +301,11 @@ impl Canonicalizer {
             Expression::Call(call) => {
                 return Expression::Call(CallExpression {
                     function: Box::new(self.canonicalize_expression(&call.function)),
-                    arguments: call.arguments.clone(),
+                    arguments: call
+                        .arguments
+                        .iter()
+                        .map(|arg| self.canonicalize_expression(dbg!(arg)))
+                        .collect(),
                     span: call.span.clone(),
                 });
             }
@@ -439,11 +460,31 @@ impl Canonicalizer {
         }
     }
 
+    fn canonicalize_function_input(&mut self, input: &FunctionInput) -> FunctionInput {
+        if let FunctionInput::Variable(variable) = input {
+            if variable.type_.is_self() {
+                return FunctionInput::Variable(FunctionInputVariable {
+                    identifier: variable.identifier.clone(),
+                    const_: variable.const_,
+                    mutable: variable.mutable,
+                    type_: Type::Circuit(self.circuit_name.as_ref().unwrap().clone()),
+                    span: variable.span.clone(),
+                });
+            }
+        }
+
+        input.clone()
+    }
+
     fn canonicalize_circuit_member(&mut self, circuit_member: &CircuitMember) -> CircuitMember {
         match circuit_member {
             CircuitMember::CircuitVariable(_, _) => {}
             CircuitMember::CircuitFunction(function) => {
-                let input = function.input.clone();
+                let input = function
+                    .input
+                    .iter()
+                    .map(|input| self.canonicalize_function_input(input))
+                    .collect();
                 let output = self.canonicalize_self_type(function.output.as_ref());
                 let block = self.canonicalize_block(&function.block);
 
