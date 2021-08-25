@@ -30,7 +30,7 @@ pub enum Type<'a> {
     Group,
     Integer(IntegerType),
 
-    // Data type wrappersf
+    // Data type wrappers
     Array(Box<Type<'a>>, usize),
     Tuple(Vec<Type<'a>>),
     Circuit(&'a Circuit<'a>),
