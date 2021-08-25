@@ -304,7 +304,7 @@ impl Canonicalizer {
                     arguments: call
                         .arguments
                         .iter()
-                        .map(|arg| self.canonicalize_expression(dbg!(arg)))
+                        .map(|arg| self.canonicalize_expression(arg))
                         .collect(),
                     span: call.span.clone(),
                 });
