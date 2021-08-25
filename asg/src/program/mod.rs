@@ -29,7 +29,7 @@ pub use function::*;
 
 use crate::{node::FromAst, ArenaNode, AsgContext, DefinitionStatement, Input, Scope, Statement};
 use leo_ast::{PackageAccess, PackageOrPackages};
-use leo_errors::{AsgError, AstError, Result, Span};
+use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -185,7 +185,7 @@ impl<'a> Program<'a> {
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         imported_global_consts.insert(name.clone(), *global_const);
                     } else {
-                        return Err(AstError::unresolved_import(pretty_package, &span).into());
+                        return Err(AsgError::unresolved_import(pretty_package, &span).into());
                     }
                 }
                 ImportSymbol::Alias(name, alias) => {
@@ -198,7 +198,7 @@ impl<'a> Program<'a> {
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         imported_global_consts.insert(alias.clone(), *global_const);
                     } else {
-                        return Err(AstError::unresolved_import(pretty_package, &span).into());
+                        return Err(AsgError::unresolved_import(pretty_package, &span).into());
                     }
                 }
             }
@@ -234,6 +234,14 @@ impl<'a> Program<'a> {
         });
 
         // Prepare header-like scope entries.
+        // Have to do aliases first.
+        for (name, alias) in program.aliases.iter() {
+            assert_eq!(name.name, alias.name.name);
+
+            let asg_alias = Alias::init(scope, alias)?;
+            scope.aliases.borrow_mut().insert(name.name.to_string(), asg_alias);
+        }
+
         for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = Circuit::init(scope, circuit)?;
@@ -247,13 +255,6 @@ impl<'a> Program<'a> {
             let asg_circuit = Circuit::init_member(scope, circuit)?;
 
             scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
-        }
-
-        for (name, alias) in program.aliases.iter() {
-            assert_eq!(name.name, alias.name.name);
-
-            let asg_alias = Alias::init(scope, alias)?;
-            scope.aliases.borrow_mut().insert(name.name.to_string(), asg_alias);
         }
 
         for (name, function) in program.functions.iter() {
@@ -283,8 +284,7 @@ impl<'a> Program<'a> {
             let name = name.name.to_string();
 
             if aliases.contains_key(&name) {
-                // TODO new error for duplicate aliases
-                return Err(AsgError::duplicate_function_definition(name, &alias.span).into());
+                return Err(AsgError::duplicate_alias_definition(name, &alias.span).into());
             }
 
             aliases.insert(name, asg_alias);

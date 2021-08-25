@@ -1,0 +1,5 @@
+[main]
+y: bool = true;
+
+[registers]
+r0: bool = false;

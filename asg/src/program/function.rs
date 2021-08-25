@@ -82,6 +82,14 @@ impl<'a> Function<'a> {
                         qualifier = FunctionQualifier::MutSelfRef;
                     }
                     FunctionInput::Variable(input_variable) => {
+                        if arguments.contains_key(input_variable.identifier.name.as_ref()) {
+                            return Err(AsgError::duplicate_function_input_definition(
+                                input_variable.identifier.name.as_ref(),
+                                &input_variable.identifier.span,
+                            )
+                            .into());
+                        }
+
                         let variable = scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                             id: scope.context.get_id(),
                             name: input_variable.identifier.clone(),
@@ -133,6 +141,10 @@ impl<'a> Function<'a> {
                 .insert("self".to_string(), self_variable);
         }
         for (name, argument) in self.arguments.iter() {
+            /* if self.scope.resolve_alias(name).is_some() {
+                return Err(AsgError::cannot_shadow_name("function input", name, "alias", &argument.get().borrow().name.span).into());
+            } */
+
             self.scope.variables.borrow_mut().insert(name.clone(), argument.get());
         }
 

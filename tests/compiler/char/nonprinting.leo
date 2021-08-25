@@ -37,7 +37,7 @@ function main(
     in30: char,
     in31: char,
     in32: char,
-    in32: char,
+    in33: char,
 ) -> ([char; 33], bool) {
     let str = [
         in1,
@@ -72,7 +72,7 @@ function main(
         in30,
         in31,
         in32,
-        in32,
+        in33,
     ];
     console.log("{}", str);
     return (str, in1 == '\x00');

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372011]: failed to resolve import: 'core.unstable.blake2s'\n    --> compiler-test:3:30\n     |\n   3 | import core.unstable.blake2s.BadCircuit; // `BadCircuit` is not included in the blake2s package\n     |                              ^^^^^^^^^^"
+  - "Error [EASG0373043]: failed to resolve import: 'core.unstable.blake2s'\n    --> compiler-test:3:30\n     |\n   3 | import core.unstable.blake2s.BadCircuit; // `BadCircuit` is not included in the blake2s package\n     |                              ^^^^^^^^^^"
