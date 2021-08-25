@@ -105,6 +105,8 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
         value: &leo_ast::ArrayInlineExpression,
         expected_type: Option<PartialType<'a>>,
     ) -> Result<ArrayInlineExpression<'a>> {
+        // println!("{}", expected_type.clone().unwrap());
+
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgContext, Circuit, DefinitionStatement, Function, Input, Type, Variable};
+use crate::{AsgContext, Circuit, DefinitionStatement, Function, Input, PartialType, Type, Variable};
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
@@ -185,6 +185,45 @@ impl<'a> Scope<'a> {
                 self.resolve_circuit(&name.name)
                     .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
             ),
+        })
+    }
+
+    pub fn resolve_ast_partial_type(&self, type_: &leo_ast::Type, span: &Span) -> Result<PartialType<'a>> {
+        use leo_ast::Type::*;
+        Ok(match type_ {
+            Address => (Type::Address).into(),
+            Boolean => (Type::Boolean).into(),
+            Char => (Type::Char).into(),
+            Field => (Type::Field).into(),
+            Group => (Type::Group).into(),
+            IntegerType(int_type) => (Type::Integer(int_type.clone())).into(),
+            Array(sub_type, dimensions) => {
+                let mut item = Box::new(self.resolve_ast_partial_type(&*sub_type, span)?);
+                if let Some(dimensions) = dimensions {
+                    for dimension in dimensions.0.iter().rev() {
+                        let dimension = dimension
+                            .value
+                            .parse::<usize>()
+                            .map_err(|_| AsgError::parse_index_error(span))?;
+                        item = Box::new(PartialType::Array(Some(item), Some(dimension)));
+                    }
+                } else {
+                    item = Box::new(PartialType::Array(Some(item), None));
+                }
+                *item
+            }
+            Tuple(sub_types) => PartialType::Tuple(
+                sub_types
+                    .iter()
+                    .map(|x| self.resolve_ast_partial_type(x, span).ok())
+                    .collect::<Vec<Option<PartialType>>>(),
+            ),
+            SelfType => return Err(AsgError::unexpected_big_self(span).into()),
+            Circuit(name) => (Type::Circuit(
+                self.resolve_circuit(&name.name)
+                    .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
+            ))
+            .into(),
         })
     }
 }

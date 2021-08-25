@@ -78,10 +78,6 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             }
         };
 
-        if let PartialType::Array(_item, dims) = expected_type.clone().unwrap() {
-            dbg!(dims);
-        }
-
         let dimensions = value
             .dimensions
             .0

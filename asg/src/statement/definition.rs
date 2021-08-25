@@ -58,10 +58,13 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         statement: &leo_ast::DefinitionStatement,
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self> {
+        // Unlike the other similar methods, this one gets PartialType information instead
+        // of attempting to get final Type. It allows type information for unsized arrays
+        // to exist and be later used to define actual array length.
         let type_ = statement
             .type_
             .as_ref()
-            .map(|x| scope.resolve_ast_type(x, &statement.span))
+            .map(|x| scope.resolve_ast_partial_type(x, &statement.span))
             .transpose()?;
 
         let value = <&Expression<'a>>::from_ast(scope, &statement.value, type_.clone().map(Into::into))?;
@@ -77,8 +80,14 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
             return Err(AsgError::invalid_const_assign(var_names, &statement.span).into());
         }
 
-        let type_ = type_.or_else(|| value.get_type());
+        // Transform PartialType into Type.
+        let type_ = match type_ {
+            Some(partial) => partial.full(),
+            None => None,
+        };
 
+        // Use value Type information if PartialType cannot be transformed.
+        let type_ = type_.or_else(|| value.get_type());
         let mut output_types = vec![];
 
         let mut variables = vec![];
