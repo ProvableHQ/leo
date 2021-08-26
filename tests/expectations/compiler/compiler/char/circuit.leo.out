@@ -100,6 +100,6 @@ outputs:
             r:
               type: char
               value: "'\\u{1f62d}'"
-    initial_ast: 304211ce3e3a21bc75ea5c869f3148df5f4a24a075b885c617080b907c479590
-    canonicalized_ast: 304211ce3e3a21bc75ea5c869f3148df5f4a24a075b885c617080b907c479590
-    type_inferenced_ast: 88dbe3f5b1d5ea9532ff5f18c9d707e84126baa99db9689b3d0cfe892e61ba62
+    initial_ast: 715a33d0032f02d69d13687ac98005a789b6bcb63ff619865b21f0c691f14a75
+    canonicalized_ast: 715a33d0032f02d69d13687ac98005a789b6bcb63ff619865b21f0c691f14a75
+    type_inferenced_ast: d04164068277e88b5529f1072b512ffadc7eaaf704c8a3e394a409e783cc1e27
