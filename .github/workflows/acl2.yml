@@ -72,6 +72,7 @@ jobs:
             for dir in ${canonicalization_errors[@]};
             do
               cat tmp/tgc/$dir/canonicalization_result.out
+              cat tmp/tgc/$dir/canonicalization-theorem.lisp
             done;
             exit 1
           fi
