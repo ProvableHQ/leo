@@ -45,7 +45,7 @@ impl fmt::Display for ValueExpression {
             Char(character) => write!(f, "{}", character),
             Field(field, _) => write!(f, "{}", field),
             Implicit(implicit, _) => write!(f, "{}", implicit),
-            Integer(value, type_, _) => write!(f, "{}{}", value, type_),
+            Integer(type_, value, _) => write!(f, "{}{}", value, type_),
             Group(group) => write!(f, "{}", group),
             String(string, _) => {
                 for character in string.iter() {

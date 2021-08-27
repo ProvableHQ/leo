@@ -22,6 +22,7 @@ use std::fmt;
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Circuit {
     pub circuit_name: Identifier,
+    pub core_mapping: std::cell::RefCell<Option<String>>,
     pub members: Vec<CircuitMember>,
 }
 

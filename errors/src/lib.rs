@@ -130,29 +130,3 @@ impl LeoError {
 
 /// A global result type for all Leo crates, that defaults the errors to be a LeoError.
 pub type Result<T, E = LeoError> = core::result::Result<T, E>;
-
-// #[test]
-// fn test_error() {
-//     let err = FormattedError {
-//         path: std::sync::Arc::new("file.leo".to_string()),
-//         line_start: 2,
-//         line_stop: 2,
-//         col_start: 9,
-//         col_stop: 10,
-//         content: "let a = x;".into(),
-//         message: "undefined value `x`".to_string(),
-//     };
-
-//     assert_eq!(
-//         err.to_string(),
-//         vec![
-//             "    --> file.leo:2:9",
-//             "     |",
-//             "   2 | let a = x;",
-//             "     |         ^",
-//             "     |",
-//             "     = undefined value `x`",
-//         ]
-//         .join("\n")
-//     );
-// }

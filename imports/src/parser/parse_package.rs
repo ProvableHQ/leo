@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::ImportParser;
-use leo_asg::{AsgContext, Program};
+use leo_ast::Program;
 use leo_errors::{ImportError, Result, Span};
 
 use std::{fs, fs::DirEntry, path::PathBuf};
@@ -24,21 +24,18 @@ static SOURCE_FILE_EXTENSION: &str = ".leo";
 static SOURCE_DIRECTORY_NAME: &str = "src/";
 static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
-impl<'a> ImportParser<'a> {
+impl ImportParser {
     fn parse_package_access(
         &mut self,
-        context: AsgContext<'a>,
         package: &DirEntry,
         remaining_segments: &[&str],
         span: &Span,
-    ) -> Result<Program<'a>> {
+    ) -> Result<Program> {
         if !remaining_segments.is_empty() {
-            return self.parse_package(context, package.path(), remaining_segments, span);
+            return self.parse_package(package.path(), remaining_segments, span);
         }
-        let program = Self::parse_import_file(package, span)?;
-        let asg = leo_asg::Program::new(context, &program, self)?;
 
-        Ok(asg)
+        Self::parse_import_file(package, span)
     }
 
     ///
@@ -46,13 +43,7 @@ impl<'a> ImportParser<'a> {
     ///
     /// Inserts the Leo syntax tree into the `ImportParser`.
     ///
-    pub(crate) fn parse_package(
-        &mut self,
-        context: AsgContext<'a>,
-        mut path: PathBuf,
-        segments: &[&str],
-        span: &Span,
-    ) -> Result<Program<'a>> {
+    pub(crate) fn parse_package(&mut self, mut path: PathBuf, segments: &[&str], span: &Span) -> Result<Program> {
         let error_path = path.clone();
         let package_name = segments[0];
 
@@ -121,14 +112,14 @@ impl<'a> ImportParser<'a> {
             // Check if the package name was found in both the source and imports directory.
             match (matched_source_entry, matched_import_entry) {
                 (Some(_), Some(_)) => Err(ImportError::conflicting_imports(package_name, span).into()),
-                (Some(source_entry), None) => self.parse_package_access(context, &source_entry, &segments[1..], span),
-                (None, Some(import_entry)) => self.parse_package_access(context, &import_entry, &segments[1..], span),
+                (Some(source_entry), None) => self.parse_package_access(&source_entry, &segments[1..], span),
+                (None, Some(import_entry)) => self.parse_package_access(&import_entry, &segments[1..], span),
                 (None, None) => Err(ImportError::unknown_package(package_name, span).into()),
             }
         } else {
             // Enforce local package access with no found imports directory
             match matched_source_entry {
-                Some(source_entry) => self.parse_package_access(context, &source_entry, &segments[1..], span),
+                Some(source_entry) => self.parse_package_access(&source_entry, &segments[1..], span),
                 None => Err(ImportError::unknown_package(package_name, span).into()),
             }
         }

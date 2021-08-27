@@ -376,12 +376,15 @@ pub trait ReconstructingReducer {
         })
     }
 
+    #[allow(clippy::too_many_arguments)]
     // Program
     fn reduce_program(
         &mut self,
         program: &Program,
         expected_input: Vec<FunctionInput>,
-        imports: Vec<ImportStatement>,
+        import_statements: Vec<ImportStatement>,
+        imports: IndexMap<Vec<String>, Program>,
+        aliases: IndexMap<Identifier, Alias>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
         global_consts: IndexMap<String, DefinitionStatement>,
@@ -389,7 +392,9 @@ pub trait ReconstructingReducer {
         Ok(Program {
             name: program.name.clone(),
             expected_input,
+            import_statements,
             imports,
+            aliases,
             circuits,
             functions,
             global_consts,
@@ -423,7 +428,7 @@ pub trait ReconstructingReducer {
         Ok(new)
     }
 
-    fn reduce_import(
+    fn reduce_import_statement(
         &mut self,
         import: &ImportStatement,
         package_or_packages: PackageOrPackages,
@@ -434,17 +439,25 @@ pub trait ReconstructingReducer {
         })
     }
 
+    fn reduce_import(&mut self, identifier: Vec<String>, import: Program) -> Result<(Vec<String>, Program)> {
+        Ok((identifier, import))
+    }
+
     fn reduce_circuit_member(&mut self, _circuit_member: &CircuitMember, new: CircuitMember) -> Result<CircuitMember> {
         Ok(new)
     }
 
     fn reduce_circuit(
         &mut self,
-        _circuit: &Circuit,
+        circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
     ) -> Result<Circuit> {
-        Ok(Circuit { circuit_name, members })
+        Ok(Circuit {
+            circuit_name,
+            core_mapping: circuit.core_mapping.clone(),
+            members,
+        })
     }
 
     fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation> {

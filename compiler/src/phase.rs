@@ -14,8 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::Program;
+use leo_asg::Program as AsgProgram;
+use leo_ast::Program as AstProgram;
 
 pub trait ASGPhase {
-    fn apply(asg: &mut Program);
+    fn apply(asg: &mut AsgProgram);
+}
+
+pub trait ASTPhase {
+    fn apply(asg: &mut AstProgram);
 }

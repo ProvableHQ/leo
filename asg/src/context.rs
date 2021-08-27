@@ -18,7 +18,7 @@ use std::{cell::Cell, unimplemented};
 
 use typed_arena::Arena;
 
-use crate::{ArenaNode, Circuit, Expression, Function, Scope, Statement, Variable};
+use crate::{Alias, ArenaNode, Circuit, Expression, Function, Scope, Statement, Variable};
 
 pub struct AsgContextInner<'a> {
     pub arena: &'a Arena<ArenaNode<'a>>,
@@ -70,6 +70,14 @@ impl<'a> AsgContextInner<'a> {
     pub fn alloc_scope(&'a self, scope: Scope<'a>) -> &'a Scope<'a> {
         match self.arena.alloc(ArenaNode::Scope(Box::new(scope))) {
             ArenaNode::Scope(e) => e,
+            _ => unimplemented!(),
+        }
+    }
+
+    #[allow(clippy::mut_from_ref)]
+    pub fn alloc_alias(&'a self, expr: Alias<'a>) -> &'a Alias<'a> {
+        match self.arena.alloc(ArenaNode::Alias(expr)) {
+            ArenaNode::Alias(e) => e,
             _ => unimplemented!(),
         }
     }

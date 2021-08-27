@@ -138,6 +138,7 @@ pub enum Token {
     Return,
     Static,
     String,
+    Type,
     // Not yet in ABNF
     // BitAnd,
     // BitAndEq,
@@ -193,6 +194,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Static,
     Token::String,
     Token::True,
+    Token::Type,
     Token::U8,
     Token::U16,
     Token::U32,
@@ -304,6 +306,7 @@ impl fmt::Display for Token {
             Return => write!(f, "return"),
             Static => write!(f, "static"),
             String => write!(f, "string"),
+            Type => write!(f, "type"),
             Eof => write!(f, ""),
             // BitAnd => write!(f, "&"),
             // BitAndEq => write!(f, "&="),

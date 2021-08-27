@@ -3,7 +3,3 @@ circuit Cave {
         return "cave";
     }
 }
-
-function main() {
-    
-}
