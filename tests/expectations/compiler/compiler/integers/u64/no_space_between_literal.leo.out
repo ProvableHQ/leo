@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370004]: Unexpected white space between terms 1 and u64\n    --> compiler-test:7:15\n     |\n   7 |     const i = 1 u64;\n     |               ^"
+  - "Error [EPAR0370004]: Unexpected white space between terms 1 and u64\n    --> compiler-test:4:15\n     |\n   4 |     const i = 1 u64;\n     |               ^"

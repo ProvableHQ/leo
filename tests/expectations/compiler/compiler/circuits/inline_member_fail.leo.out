@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373003]: missing circuit member 'x' for initialization of circuit 'Foo'\n    --> compiler-test:12:15\n     |\n  12 |     const a = Foo { y };\n     |               ^^^^^^^^^"
+  - "Error [EASG0373003]: missing circuit member 'x' for initialization of circuit 'Foo'\n    --> compiler-test:9:15\n     |\n   9 |     const a = Foo { y };\n     |               ^^^^^^^^^"

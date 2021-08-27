@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373031]: failed to parse int value '170141183460469231731687303715884105728'\n    --> compiler-test:7:21\n     |\n   7 |     const a: i128 = 170141183460469231731687303715884105728;\n     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+  - "Error [EASG0373031]: failed to parse int value '170141183460469231731687303715884105728'\n    --> compiler-test:4:21\n     |\n   4 |     const a: i128 = 170141183460469231731687303715884105728;\n     |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"

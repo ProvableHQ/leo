@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373033]: illegal assignment to immutable variable 'a'\n    --> compiler-test:13:5\n     |\n  13 |     a.x = 0;\n     |     ^^^^^^^"
+  - "Error [EASG0373033]: illegal assignment to immutable variable 'a'\n    --> compiler-test:10:5\n     |\n  10 |     a.x = 0;\n     |     ^^^^^^^"

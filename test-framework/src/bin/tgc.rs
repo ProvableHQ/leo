@@ -109,6 +109,8 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
                 })
                 .unwrap_or_else(|| PathBuf::from(path));
 
+            let end_of_header = text.find("*/").expect("failed to find header block in test");
+            let text = &text[end_of_header + 2..];
             // Write all files into the directory.
             let (initial, canonicalized, type_inferenced) = generate_asts(cwd, text)?;
 
