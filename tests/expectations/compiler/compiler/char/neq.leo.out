@@ -101,6 +101,6 @@ outputs:
               type: char
               value: "'a'"
     initial_ast: ac56e34b2a2cb282d36133df39d80947dfdfc56b5655b3ba9f408ba529c8f505
-    imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
+    imports_resolved_ast: ac56e34b2a2cb282d36133df39d80947dfdfc56b5655b3ba9f408ba529c8f505
     canonicalized_ast: ac56e34b2a2cb282d36133df39d80947dfdfc56b5655b3ba9f408ba529c8f505
     type_inferenced_ast: 2eecf906226893c46f526a72f272a3f11eb34ada7cc4cd573439ebfed44ba170
