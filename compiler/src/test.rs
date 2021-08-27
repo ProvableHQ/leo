@@ -215,9 +215,9 @@ impl Namespace for CompileNamespace {
         let canonicalized_ast: String = hash_file("/tmp/output/canonicalization_ast.json");
         let type_inferenced_ast = hash_file("/tmp/output/type_inferenced_ast.json");
 
-        /* if std::fs::read_dir("/tmp/output").is_ok() {
+        if std::fs::read_dir("/tmp/output").is_ok() {
             std::fs::remove_dir_all(std::path::Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
-        } */
+        }
 
         let final_output = CompileOutput {
             circuit: last_circuit.unwrap(),
