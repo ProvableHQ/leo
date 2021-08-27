@@ -28,7 +28,7 @@ Many programming languages provide the ability to create aliases (i.e. synonyms)
 The purpose may be to abbreviate a longer type,
 such as an alias `matrix` for `[i32; (3, 3)]` in an application in which 3x3 matrices of 32-bit integers are relevant
 (e.g. for 3-D rotations, even though fractional numbers may be more realistic).
-The purpose may also be to clarify the purpose and use of an existing type,
+The purpose may also be to clarify the intent and use of an existing type,
 such as an alias `balance` for `u64` in an application that keeps track of balances.
 
 The initial motivation that inspired this RFC (along with other RFCs)
@@ -42,7 +42,7 @@ With the array types of unspecified size proposed in RFC 006,
 ## Syntax
 
 The ABNF grammar changes as follows:
-```ts
+```
 ; modified rule:
 keyword = ...
         / %s"true"
@@ -59,11 +59,62 @@ declaration = import-declaration
             / circuit-declaration
             / constant-declaration
             / type-alias-declaration ; new
+
+
 ```
 
 A type alias declaration introduces the identifier to stand for the type.
 Only top-level type alias declarations are supported;
 they are not supported inside functions or circuit types.
+
+In addition, the following changes to the grammar are appropriate.
+
+First, the rule
+```
+circuit-type = identifier / self-type ; replace with the one below
+```
+should be replaced with the rule
+```
+circuit-or-alias-type = identifier / self-type
+```
+The reason is that, at parsing time, an identifier is not necessarily a circuit type;
+it may be a type alias that may expand to a (circuit or non-circuit type).
+Thus, the nomenclature `circuit-or-alias-type` is appropriate.
+Consequently, references to `circuit-type` in the following rules must be replaced with `circuit-or-alias-type`:
+```
+; modified rule:
+circuit-construction = circuit-or-alias-type "{" ; modified
+                       circuit-inline-element
+                       *( "," circuit-inline-element ) [ "," ]
+                       "}"
+
+; modified rule:
+postfix-expression = primary-expression
+                   / postfix-expression "." natural
+                   / postfix-expression "." identifier
+                   / identifier function-arguments
+                   / postfix-expression "." identifier function-arguments
+                   / circuit-or-alias-type "::" identifier function-arguments ; modified
+                   / postfix-expression "[" expression "]"
+                   / postfix-expression "[" [expression] ".." [expression] "]"
+```
+
+Second, the rule
+```
+aggregate-type = tuple-type / array-type / circuit-type
+```
+should be removed, because if we replaced `circuit-type` with `circuit-or-alias-type` there,
+the identifier could be a type alias, not necessarily an aggregate type.
+(The notion of aggregate type remains at a semantic level, but has no longer a place in the grammar.)
+Consequently, the rule
+```
+type = scalar-type / aggregate-type
+```
+should be rephrased as
+```
+type = scalar-type / tuple-type / array-type / circuit-or-alias-type
+```
+which "inlines" the previous `aggregate-type` with `circuit-type` replaced with `circuit-or-alias-type`.
 
 ## Semantics
 
