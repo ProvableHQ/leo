@@ -128,7 +128,7 @@ where
         aliases: IndexMap<Identifier, Alias>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
-        global_consts: IndexMap<String, DefinitionStatement>,
+        global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     ) -> Result<Program> {
         if !empty_imports.is_empty() {
             return Err(AstError::injected_programs(empty_imports.len()).into());

@@ -33,7 +33,7 @@ pub struct Program {
     pub imports: IndexMap<Vec<String>, Program>,
     pub aliases: IndexMap<Identifier, Alias>,
     pub circuits: IndexMap<Identifier, Circuit>,
-    pub global_consts: IndexMap<String, DefinitionStatement>,
+    pub global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     pub functions: IndexMap<Identifier, Function>,
 }
 

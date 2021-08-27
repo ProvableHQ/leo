@@ -420,6 +420,14 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user defines an circuit with the same name twice.
+    @formatted
+    duplicate_circuit_definition {
+        args: (name: impl Display),
+        msg: format!("a circuit named \"{}\" already exists in this scope", name),
+        help: None,
+    }
+
     /// For when a user defines a function input with the same name twice.
     @formatted
     duplicate_function_input_definition {
