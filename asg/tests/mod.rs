@@ -24,22 +24,12 @@ mod pass;
 const TESTING_FILEPATH: &str = "input.leo";
 
 fn load_asg(program_string: &str) -> Result<Program<'static>, LeoError> {
-    load_asg_imports(make_test_context(), program_string, &mut NullImportResolver)
+    load_asg_imports(make_test_context(), program_string)
 }
 
-fn load_asg_imports<'a, T: ImportResolver<'a>>(
-    context: AsgContext<'a>,
-    program_string: &str,
-    imports: &mut T,
-) -> Result<Program<'a>, LeoError> {
-    let mut ast = parse_ast(&TESTING_FILEPATH, program_string)?;
-    ast.canonicalize()?;
-    Program::new(context, &ast.as_repr(), imports)
-}
-
-fn mocked_resolver(_context: AsgContext<'_>) -> MockedImportResolver<'_> {
-    let packages = indexmap::IndexMap::new();
-    MockedImportResolver { packages }
+fn load_asg_imports<'a>(context: AsgContext<'a>, program_string: &str) -> Result<Program<'a>, LeoError> {
+    let ast = parse_ast(&TESTING_FILEPATH, program_string)?;
+    Program::new(context, &ast.as_repr())
 }
 
 //convenience function for tests, leaks memory

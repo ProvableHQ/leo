@@ -17,7 +17,7 @@
 use std::cell::Cell;
 
 use leo_asg::*;
-use leo_errors::LeoError;
+use leo_errors::Result;
 
 pub struct ConstantFolding<'a, 'b> {
     program: &'b Program<'a>,
@@ -46,7 +46,7 @@ impl<'a, 'b> StatementVisitor<'a> for ConstantFolding<'a, 'b> {}
 impl<'a, 'b> ProgramVisitor<'a> for ConstantFolding<'a, 'b> {}
 
 impl<'a, 'b> AsgPass<'a> for ConstantFolding<'a, 'b> {
-    fn do_pass(asg: Program<'a>) -> Result<Program<'a>, LeoError> {
+    fn do_pass(asg: Program<'a>) -> Result<Program<'a>> {
         let pass = ConstantFolding { program: &asg };
         let mut director = VisitorDirector::new(pass);
         director.visit_program(&asg).ok();

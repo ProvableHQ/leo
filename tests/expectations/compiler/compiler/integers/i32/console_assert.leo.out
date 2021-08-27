@@ -13,6 +13,7 @@ outputs:
       - input_file: i32.in
         output:
           registers: {}
-    initial_ast: c2a72c4ab80cce9d171a487cfaf2a930a4ee9191298786335af894d483e58857
-    canonicalized_ast: 4cea550893a8ccb47451f8c54a8f568c2ca29c8a73a4d4a6e6c3fe69ea081e20
-    type_inferenced_ast: c7c946c493772f30c641a53a56a410c9a17af557b24fa6411af7162b8cf49394
+    initial_ast: 6ba5c49aaa9ed5abf49a7f538392cb18905e6805b7d3780e5d6391adb7df6631
+    imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
+    canonicalized_ast: 35877250663e7d44c5e01e64cd99d5e1b8fa84da4d00667bade1fd9a517f3803
+    type_inferenced_ast: 2c72c8cf340cc122fb5a081c8dd6eaa22ac2c79511e98fd5f23f4b8b1dac3526

@@ -24,7 +24,6 @@ pub mod definition;
 pub mod field;
 pub mod function;
 // pub mod group; // we dont do context-specific type checking for groups
-pub mod import;
 pub mod integers;
 pub mod mutability;
 pub mod statements;

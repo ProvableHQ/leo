@@ -33,14 +33,6 @@ create_errors!(
         help: None,
     }
 
-    /// For when a import of the specified name is unresolved.
-    @formatted
-    unresolved_import {
-        args: (name: impl Display),
-        msg: format!("failed to resolve import: '{}'", name),
-        help: None,
-    }
-
      /// For when a circuit member of the specified name is unresolved.
     @formatted
     unresolved_circuit_member {
@@ -183,7 +175,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when a user defines function with the same name twice.
+    /// For when a user defines a function with the same name twice.
     @formatted
     duplicate_function_definition {
         args: (name: impl Display),
@@ -410,5 +402,45 @@ create_errors!(
         args: (),
         msg:  "received a Self statement, which should never happen.",
         help: Some("Something went wrong during canonicalization, or you ran the ASG on an uncanonicalized AST.".to_string()),
+    }
+
+    /// For when a import of the specified name is unresolved.
+    @formatted
+    unresolved_import {
+        args: (name: impl Display),
+        msg: format!("failed to resolve import: '{}'", name),
+        help: None,
+    }
+
+    /// For when a user defines an alias with the same name twice.
+    @formatted
+    duplicate_alias_definition {
+        args: (name: impl Display),
+        msg: format!("a alias named \"{}\" already exists in this scope", name),
+        help: None,
+    }
+
+    /// For when a user defines a function input with the same name twice.
+    @formatted
+    duplicate_function_input_definition {
+        args: (name: impl Display),
+        msg: format!("a function input named \"{}\" already exists in this scope", name),
+        help: None,
+    }
+
+    /// For when a user defines a global const with the same name twice.
+    @formatted
+    duplicate_global_const_definition {
+        args: (name: impl Display),
+        msg: format!("a global const named \"{}\" already exists in this scope", name),
+        help: None,
+    }
+
+    /// For when a named identifier is being shadowed.
+    @formatted
+    cannot_shadow_name {
+        args: (type_: impl Display, name: impl Display, location: impl Display),
+        msg: format!("a {} cannot be named `{}` as a {} with that name already exists in this scope", type_, name, location),
+        help: None,
     }
 );

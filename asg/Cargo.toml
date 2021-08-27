@@ -30,6 +30,10 @@ version = "1.7"
 version = "1.5.3"
 path = "../ast"
 
+[dependencies.leo-ast-passes]
+path = "../ast-passes"
+version = "1.5.3"
+
 [dependencies.leo-errors]
 path = "../errors"
 version = "1.5.3"

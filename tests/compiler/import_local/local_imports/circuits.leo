@@ -6,3 +6,5 @@ circuit Point {
 function foo() -> u32 {
     return 1u32;
 }
+
+type char5 = [char; 5];

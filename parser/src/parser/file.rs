@@ -16,7 +16,7 @@
 
 use tendril::format_tendril;
 
-use leo_errors::{ParserError, Result};
+use leo_errors::{ParserError, Result, Span};
 
 use crate::KEYWORD_TOKENS;
 
@@ -27,7 +27,8 @@ impl ParserContext {
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     ///
     pub fn parse_program(&mut self) -> Result<Program> {
-        let mut imports = Vec::new();
+        let mut import_statements = Vec::new();
+        let mut aliases = IndexMap::new();
         let mut circuits = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut global_consts = IndexMap::new();
@@ -37,7 +38,7 @@ impl ParserContext {
             let token = self.peek()?;
             match &token.token {
                 Token::Import => {
-                    imports.push(self.parse_import()?);
+                    import_statements.push(self.parse_import_statement()?);
                 }
                 Token::Circuit => {
                     let (id, circuit) = self.parse_circuit()?;
@@ -49,16 +50,14 @@ impl ParserContext {
                 }
                 Token::Ident(ident) if ident.as_ref() == "test" => {
                     return Err(ParserError::test_function(&token.span).into());
-                    // self.expect(Token::Test)?;
-                    // let (id, function) = self.parse_function_declaration()?;
-                    // tests.insert(id, TestFunction {
-                    //     function,
-                    //     input_file: None,
-                    // });
                 }
                 Token::Const => {
                     let (name, global_const) = self.parse_global_const_declaration()?;
                     global_consts.insert(name, global_const);
+                }
+                Token::Type => {
+                    let (name, alias) = self.parse_type_alias()?;
+                    aliases.insert(name, alias);
                 }
                 _ => {
                     return Err(ParserError::unexpected(
@@ -83,7 +82,9 @@ impl ParserContext {
         Ok(Program {
             name: String::new(),
             expected_input: Vec::new(),
-            imports,
+            import_statements,
+            imports: IndexMap::new(),
+            aliases,
             circuits,
             functions,
             global_consts,
@@ -300,7 +301,7 @@ impl ParserContext {
     ///
     /// Returns a [`ImportStatement`] AST node if the next tokens represent an import statement.
     ///
-    pub fn parse_import(&mut self) -> Result<ImportStatement> {
+    pub fn parse_import_statement(&mut self) -> Result<ImportStatement> {
         self.expect(Token::Import)?;
         let package_or_packages = self.parse_package_path()?;
         self.expect(Token::Semicolon)?;
@@ -411,6 +412,7 @@ impl ParserContext {
             name.clone(),
             Circuit {
                 circuit_name: name,
+                core_mapping: std::cell::RefCell::new(None),
                 members,
             },
         ))
@@ -515,5 +517,26 @@ impl ParserContext {
             .join(",");
 
         Ok((variable_names, statement))
+    }
+
+    ///
+    /// Returns an [`(String, Alias)`] AST node if the next tokens represent a global
+    /// const definition statement and assignment.
+    ///
+    pub fn parse_type_alias(&mut self) -> Result<(Identifier, Alias)> {
+        self.expect(Token::Type)?;
+        let name = self.expect_ident()?;
+        self.expect(Token::Assign)?;
+        let (type_, _) = self.parse_type()?;
+        self.expect(Token::Semicolon)?;
+
+        Ok((
+            name.clone(),
+            Alias {
+                represents: type_,
+                span: name.span.clone(),
+                name,
+            },
+        ))
     }
 }

@@ -18,7 +18,7 @@ outputs:
       inner:
         Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"y as id\\\"}\"}"
       target_type:
-        Circuit: "{\"name\":\"id\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"y as id\\\"}\"}"
+        CircuitOrAlias: "{\"name\":\"id\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"y as id\\\"}\"}"
       span:
         line_start: 1
         line_stop: 1

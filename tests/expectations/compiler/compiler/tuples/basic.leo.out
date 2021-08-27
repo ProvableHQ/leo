@@ -19,6 +19,7 @@ outputs:
             c:
               type: bool
               value: "false"
-    initial_ast: b8ecc455d0eb34031adea3dd2f74dc4eaeecd0a47fb3143db786c672015383ca
-    canonicalized_ast: b8ecc455d0eb34031adea3dd2f74dc4eaeecd0a47fb3143db786c672015383ca
-    type_inferenced_ast: 77ece65393296b71964354ac6915049d5f40d5a22288c3c47bb3889e17cca692
+    initial_ast: 51cc6c9ff08fa4320783cf8b6683f784a6325a0e371c7d93049c30eb9d04cf72
+    imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
+    canonicalized_ast: 51cc6c9ff08fa4320783cf8b6683f784a6325a0e371c7d93049c30eb9d04cf72
+    type_inferenced_ast: a1e55a4a926b0d9c8d0f611136c7f9ba8ed5c6156a85d1d04adc9faaadf1a611

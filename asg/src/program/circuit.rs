@@ -61,7 +61,7 @@ impl<'a> Circuit<'a> {
             id: scope.context.get_id(),
             name: RefCell::new(value.circuit_name.clone()),
             members: RefCell::new(IndexMap::new()),
-            core_mapping: RefCell::new(None),
+            core_mapping: value.core_mapping.clone(),
             span: Some(value.circuit_name.span.clone()),
             scope: new_scope,
         });
@@ -153,6 +153,7 @@ impl<'a> Into<leo_ast::Circuit> for &Circuit<'a> {
             .collect();
         leo_ast::Circuit {
             circuit_name: self.name.borrow().clone(),
+            core_mapping: self.core_mapping.clone(),
             members,
         }
     }

@@ -4,7 +4,9 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports: []
+    import_statements: []
+    imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions:

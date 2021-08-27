@@ -1199,6 +1199,7 @@ dependencies = [
  "criterion",
  "indexmap",
  "leo-ast",
+ "leo-ast-passes",
  "leo-errors",
  "leo-parser",
  "num-bigint",
@@ -1231,6 +1232,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-ast-passes"
+version = "1.5.3"
+dependencies = [
+ "indexmap",
+ "leo-ast",
+ "leo-errors",
+ "leo-parser",
+]
+
+[[package]]
 name = "leo-compiler"
 version = "1.5.3"
 dependencies = [
@@ -1240,6 +1251,7 @@ dependencies = [
  "leo-asg",
  "leo-asg-passes",
  "leo-ast",
+ "leo-ast-passes",
  "leo-errors",
  "leo-imports",
  "leo-input",
@@ -1291,6 +1303,7 @@ dependencies = [
  "indexmap",
  "leo-asg",
  "leo-ast",
+ "leo-ast-passes",
  "leo-errors",
  "leo-parser",
  "tracing",
@@ -1427,6 +1440,7 @@ version = "1.5.3"
 dependencies = [
  "leo-asg",
  "leo-ast",
+ "leo-ast-passes",
  "leo-compiler",
  "leo-imports",
  "leo-parser",

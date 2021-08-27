@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_asg::Asg;
+use leo_ast::AstPass;
 use leo_compiler::{compiler::thread_leaked_context, TypeInferencePhase};
 use leo_imports::ImportParser;
 use leo_test_framework::{
@@ -107,7 +108,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
                     cwd.pop();
                     cwd.join(&val.as_str().unwrap())
                 })
-                .unwrap_or(PathBuf::from(path));
+                .unwrap_or_else(|| PathBuf::from(path));
 
             // Write all files into the directory.
             let (initial, canonicalized, type_inferenced) = generate_asts(cwd, text)?;
@@ -129,18 +130,16 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
 }
 
 /// Do what Compiler does - prepare 3 stages of AST: initial, canonicalized and type_inferenced
-fn generate_asts(path: PathBuf, text: &String) -> Result<(String, String, String), Box<dyn Error>> {
+fn generate_asts(path: PathBuf, text: &str) -> Result<(String, String, String), Box<dyn Error>> {
     let mut ast = leo_parser::parse_ast(path.clone().into_os_string().into_string().unwrap(), text)?;
     let initial = ast.to_json_string()?;
 
-    ast.canonicalize()?;
+    ast = leo_ast_passes::Importer::do_pass(ast.into_repr(), ImportParser::new(path, Default::default()))?;
+
+    ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
     let canonicalized = ast.to_json_string()?;
 
-    let asg = Asg::new(
-        thread_leaked_context(),
-        &ast,
-        &mut ImportParser::new(path, Default::default()),
-    )?;
+    let asg = Asg::new(thread_leaked_context(), &ast)?;
 
     let type_inferenced = TypeInferencePhase::default()
         .phase_ast(&ast.into_repr(), &asg.clone().into_repr())

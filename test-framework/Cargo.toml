@@ -33,6 +33,10 @@ version = "0.8"
 path = "../ast"
 version = "1.5.2"
 
+[dependencies.leo-ast-passes]
+path = "../ast-passes"
+version = "1.5.2"
+
 [dependencies.leo-parser]
 path = "../parser"
 version = "1.5.2"

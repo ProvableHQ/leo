@@ -4,7 +4,9 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports: []
+    import_statements: []
+    imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions:
@@ -17,7 +19,7 @@ outputs:
               const_: false
               mutable: true
               type_:
-                Circuit: "{\"name\":\"MyCircuit\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
+                CircuitOrAlias: "{\"name\":\"MyCircuit\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
               span:
                 line_start: 3
                 line_stop: 3

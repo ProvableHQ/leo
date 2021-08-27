@@ -27,9 +27,9 @@ create_errors!(
     /// For when the parser encountered an unexpected token.
     @formatted
     unexpected_token {
-        args: (message: impl Display, help: String),
+        args: (message: impl Display),
         msg: message,
-        help: Some(help),
+        help: None,
     }
 
     /// For when the parser encoutnered an invalid address literal.
