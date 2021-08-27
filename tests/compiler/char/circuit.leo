@@ -26,6 +26,6 @@ circuit Foo {
 function main(character: char) -> char {
     let f = Foo { character };
 
-    let character = f.character == 'a' ? 'a' : f.character;
-    return character;
+    let character2 = f.character == 'a' ? 'a' : f.character;
+    return character2;
 }
