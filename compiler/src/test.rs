@@ -20,7 +20,6 @@ use std::{
 };
 
 use leo_asg::*;
-use leo_ast::{Ast, Program};
 use leo_errors::Result;
 
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
@@ -58,13 +57,14 @@ fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> E
     )
 }
 
-fn hash(input: String) -> String {
+fn hash_file(path: &std::path::Path) -> String {
     use sha2::{Digest, Sha256};
-
+    let mut file = std::fs::File::open(&path).unwrap();
     let mut hasher = Sha256::new();
-    hasher.update(input.as_bytes());
-    let output = hasher.finalize();
-    hex::encode(&output[..])
+    std::io::copy(&mut file, &mut hasher).unwrap();
+    let hash = hasher.finalize();
+
+    format!("{:x}", hash)
 }
 
 pub(crate) fn parse_program(
@@ -211,28 +211,13 @@ impl Namespace for CompileNamespace {
             });
         }
 
-        let initial_ast: String = hash(
-            Ast::from_json_file("/tmp/output/initial_ast.json".into())
-                .unwrap_or_else(|_| Ast::new(Program::new("Error reading initial theorem.".to_string())))
-                .to_json_string()
-                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
-        );
-        let canonicalized_ast: String = hash(
-            Ast::from_json_file("/tmp/output/canonicalization_ast.json".into())
-                .unwrap_or_else(|_| Ast::new(Program::new("Error reading canonicalized theorem.".to_string())))
-                .to_json_string()
-                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
-        );
-        let type_inferenced_ast = hash(
-            Ast::from_json_file("/tmp/output/type_inferenced_ast.json".into())
-                .unwrap_or_else(|_| Ast::new(Program::new("Error reading type inferenced theorem.".to_string())))
-                .to_json_string()
-                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
-        );
+        let initial_ast: String = hash_file(Path::new("/tmp/output/initial_ast.json"));
+        let canonicalized_ast: String = hash_file(Path::new("/tmp/output/canonicalization_ast.json"));
+        let type_inferenced_ast = hash_file(Path::new("/tmp/output/type_inferenced_ast.json"));
 
-        if std::fs::read_dir("/tmp/output").is_ok() {
+        /* if std::fs::read_dir("/tmp/output").is_ok() {
             std::fs::remove_dir_all(std::path::Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
-        }
+        } */
 
         let final_output = CompileOutput {
             circuit: last_circuit.unwrap(),

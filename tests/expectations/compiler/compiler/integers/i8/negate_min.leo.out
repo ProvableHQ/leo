@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ECMP0376083]: integer operation failed due to the signed integer error `Integer overflow`\n    --> compiler-test:5:15\n     |\n   5 |     const b = -a;\n     |               ^^"
+  - "Error [ECMP0376083]: integer operation failed due to the signed integer error `Integer overflow`\n    --> compiler-test:8:15\n     |\n   8 |     const b = -a;\n     |               ^^"

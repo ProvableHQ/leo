@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373009]: cannot call static function 'bar' of circuit 'Foo' from target\n    --> compiler-test:11:17\n     |\n  11 |     const err = foo.bar();\n     |                 ^^^^^^^"
+  - "Error [EASG0373009]: cannot call static function 'bar' of circuit 'Foo' from target\n    --> compiler-test:14:17\n     |\n  14 |     const err = foo.bar();\n     |                 ^^^^^^^"

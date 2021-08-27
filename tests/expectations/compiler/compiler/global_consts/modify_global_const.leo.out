@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373033]: illegal assignment to immutable variable 'basic'\n    --> compiler-test:7:5\n     |\n   7 |     basic = 2u32;\n     |     ^^^^^^^^^^^^"
+  - "Error [EASG0373033]: illegal assignment to immutable variable 'basic'\n    --> compiler-test:10:5\n     |\n  10 |     basic = 2u32;\n     |     ^^^^^^^^^^^^"

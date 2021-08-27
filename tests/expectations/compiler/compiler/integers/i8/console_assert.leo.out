@@ -13,6 +13,6 @@ outputs:
       - input_file: i8.in
         output:
           registers: {}
-    initial_ast: 4d01f64027709ac40a2582307fdd9420e8b20bfd2cdb26d134b740e00e1f2d1a
-    canonicalized_ast: f01b1c5294c1f84e31961e0a55595f8bc3fcb213b979c47ff714d4999d157d47
-    type_inferenced_ast: 220a44664b251324980f86daba0146c3cb9bd42d315447a9348e3b7c25a2ee92
+    initial_ast: 779a9a06fcd13b1554a5aff5b15fa618cff6c30c6b7f0ec3c3bb364486e380ea
+    canonicalized_ast: baa2b2441420940bb0de5601893f0119b75e99e7ac2a79ef9d97a1fa49320ee9
+    type_inferenced_ast: 873470bfe04bf27542e1af849876d92f48a09ec68d50f22771a5c26b80ec3cb2

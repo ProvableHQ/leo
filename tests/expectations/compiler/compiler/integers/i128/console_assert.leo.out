@@ -13,6 +13,6 @@ outputs:
       - input_file: i128.in
         output:
           registers: {}
-    initial_ast: 9179994f97bb644f2398fb05b40a3a953f07131cde0835661ddf13c02b9a79ff
-    canonicalized_ast: 84d32c3262b3ae07914ddfc44ff21be8e1ba8750e8a36dca109d615db2393f85
-    type_inferenced_ast: e0a51a2a919c8fbd7225bac172d55a1f03592b4355b7f7894a3b7ad2816f36bf
+    initial_ast: 9f9969273f191e9e00446450df808738ef2e4a57944fb17df97182f79670b3fb
+    canonicalized_ast: 93dcf4f5c97ad55d9e542497b405413c75634677f09c2ec4923f4f1aec67e625
+    type_inferenced_ast: 0500af7a5731c7a2ac691ea577a7dee6653b906b03ae81a959fa2ea7023e48c0

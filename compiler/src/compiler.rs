@@ -333,7 +333,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         hasher.update(unparsed_file.as_bytes());
         let hash = hasher.finalize();
 
-        Ok(hex::encode(hash))
+        Ok(format!("{:x}", hash))
     }
 
     /// TODO (howardwu): Incorporate this for real program executions and intentionally-real

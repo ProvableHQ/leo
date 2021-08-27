@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373026]: unexpected type, expected: 'array of length 2', received: 'array of length 1'\n    --> compiler-test:4:31\n     |\n   4 |     const arr: [u8; (2, 2)] = [1u8; (2, 1)]; // incorrect dimensions\n     |                               ^^^^^^^^^^^^^"
+  - "Error [EASG0373026]: unexpected type, expected: 'array of length 2', received: 'array of length 1'\n    --> compiler-test:8:31\n     |\n   8 |     const arr: [u8; (2, 2)] = [1u8; (2, 1)]; // incorrect dimensions\n     |                               ^^^^^^^^^^^^^"

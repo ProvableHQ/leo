@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373006]: extra circuit member 'x' for initialization of circuit 'Foo' is not allowed\n    --> compiler-test:8:19\n     |\n   8 |     let a = Foo { x: 1 };\n     |                   ^"
+  - "Error [EASG0373006]: extra circuit member 'x' for initialization of circuit 'Foo' is not allowed\n    --> compiler-test:11:19\n     |\n  11 |     let a = Foo { x: 1 };\n     |                   ^"

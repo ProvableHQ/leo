@@ -1235,7 +1235,6 @@ name = "leo-compiler"
 version = "1.5.3"
 dependencies = [
  "bincode",
- "hex",
  "indexmap",
  "leo-asg",
  "leo-asg-passes",

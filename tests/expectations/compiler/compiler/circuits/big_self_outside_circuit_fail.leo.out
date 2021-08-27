@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372005]: cannot call keyword `Self` outside of a circuit function\n    --> compiler-test:16:3\n     |\n  16 |   let foo: Self = Foo::new();\n     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^"
+  - "Error [EAST0372005]: cannot call keyword `Self` outside of a circuit function\n    --> compiler-test:20:3\n     |\n  20 |   let foo: Self = Foo::new();\n     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^"

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373026]: unexpected type, expected: 'array of length 3', received: 'array of length 2'\n    --> compiler-test:4:29\n     |\n   4 |     const b: [[u8; 2]; 3] = [[0; 3]; 2]; // initializer (incorrectly reversed ordering)\n     |                             ^^^^^^^^^^^"
+  - "Error [EASG0373026]: unexpected type, expected: 'array of length 3', received: 'array of length 2'\n    --> compiler-test:7:29\n     |\n   7 |     const b: [[u8; 2]; 3] = [[0; 3]; 2]; // initializer (incorrectly reversed ordering)\n     |                             ^^^^^^^^^^^"

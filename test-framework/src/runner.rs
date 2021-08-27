@@ -123,15 +123,12 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
             None
         };
 
-        let end_of_header = content.find("*/").expect("failed to find header block in test");
-        let content = &content[end_of_header + 2..];
-
         let tests = match namespace.parse_type() {
-            ParseType::Line => crate::fetch::split_tests_oneline(content)
+            ParseType::Line => crate::fetch::split_tests_oneline(&content)
                 .into_iter()
                 .map(|x| x.to_string())
                 .collect(),
-            ParseType::ContinuousLines => crate::fetch::split_tests_twoline(content),
+            ParseType::ContinuousLines => crate::fetch::split_tests_twoline(&content),
             ParseType::Whole => vec![content.to_string()],
         };
 

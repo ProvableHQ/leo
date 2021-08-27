@@ -16,6 +16,6 @@ outputs:
       - input_file: u8_f.in
         output:
           registers: {}
-    initial_ast: 367bd7c0e5be94e791a9d837ffd38b75346a717b6819180ac3f9de72252d27d5
-    canonicalized_ast: 6d52d5232ccd2c88404b6fa137aecb9d40b02c6330995f1060e5f27f5b8ca224
-    type_inferenced_ast: bdf5ecebb6a1522b6f2b94a2aab91550473604de2db6dc8d32ec19c2ab6ca590
+    initial_ast: 0cec58fb374f2bd941a6bc1726eb846a33ecc9693e1a18b3c94e3327f6542dee
+    canonicalized_ast: 31c78bd8d6128e6418d25d8c4aa4850ca254cd5bb45e7257250cb3e19dac8743
+    type_inferenced_ast: 21afd48960023e262d7b76c51628db4a362a42f3645cb13ed49054f90bdfd92e
