@@ -232,6 +232,7 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
+<span id="233">233</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -282,6 +283,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_tests</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Runner</span><span class="op">&gt;</span>(<span class="ident">runner</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="ident">expectation_category</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+    <span class="ident">std::env::remove_var</span>(<span class="string">&quot;LEO_BACKTRACE&quot;</span>); <span class="comment">// always remove backtrace so it doesn&#39;t clog output files</span>
     <span class="ident">std::env::set_var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>, <span class="string">&quot;true&quot;</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pass_categories</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pass_tests</span> <span class="op">=</span> <span class="number">0</span>;

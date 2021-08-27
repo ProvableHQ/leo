@@ -414,6 +414,8 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -813,6 +815,7 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">input</span>: <span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
         <span class="ident">imported_modules</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Program</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+        <span class="ident">aliases</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Alias</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
         <span class="ident">functions</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
         <span class="ident">circuits</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Circuit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
         <span class="ident">global_consts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DefinitionStatement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
@@ -822,6 +825,7 @@
             <span class="ident">id</span>: <span class="ident">input</span>.<span class="ident">id</span>,
             <span class="ident">name</span>: <span class="ident">input</span>.<span class="ident">name</span>,
             <span class="ident">imported_modules</span>: <span class="ident">imported_modules</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
+            <span class="ident">aliases</span>: <span class="ident">aliases</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">functions</span>: <span class="ident">functions</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">circuits</span>: <span class="ident">circuits</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">scope</span>: <span class="ident">input</span>.<span class="ident">scope</span>,

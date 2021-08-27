@@ -132,32 +132,6 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-<span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -291,31 +265,5 @@
 
 <span class="doccomment">/// A global result type for all Leo crates, that defaults the errors to be a LeoError.</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span> <span class="op">=</span> <span class="ident">LeoError</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">core::result::Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span>;
-
-<span class="comment">// #[test]</span>
-<span class="comment">// fn test_error() {</span>
-<span class="comment">//     let err = FormattedError {</span>
-<span class="comment">//         path: std::sync::Arc::new(&quot;file.leo&quot;.to_string()),</span>
-<span class="comment">//         line_start: 2,</span>
-<span class="comment">//         line_stop: 2,</span>
-<span class="comment">//         col_start: 9,</span>
-<span class="comment">//         col_stop: 10,</span>
-<span class="comment">//         content: &quot;let a = x;&quot;.into(),</span>
-<span class="comment">//         message: &quot;undefined value `x`&quot;.to_string(),</span>
-<span class="comment">//     };</span>
-
-<span class="comment">//     assert_eq!(</span>
-<span class="comment">//         err.to_string(),</span>
-<span class="comment">//         vec![</span>
-<span class="comment">//             &quot;    --&gt; file.leo:2:9&quot;,</span>
-<span class="comment">//             &quot;     |&quot;,</span>
-<span class="comment">//             &quot;   2 | let a = x;&quot;,</span>
-<span class="comment">//             &quot;     |         ^&quot;,</span>
-<span class="comment">//             &quot;     |&quot;,</span>
-<span class="comment">//             &quot;     = undefined value `x`&quot;,</span>
-<span class="comment">//         ]</span>
-<span class="comment">//         .join(&quot;\n&quot;)</span>
-<span class="comment">//     );</span>
-<span class="comment">// }</span>
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_errors" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

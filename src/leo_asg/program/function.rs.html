@@ -198,6 +198,18 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -283,6 +295,14 @@
                         <span class="ident">qualifier</span> <span class="op">=</span> <span class="ident">FunctionQualifier::MutSelfRef</span>;
                     }
                     <span class="ident">FunctionInput::Variable</span>(<span class="ident">input_variable</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">if</span> <span class="ident">arguments</span>.<span class="ident">contains_key</span>(<span class="ident">input_variable</span>.<span class="ident">identifier</span>.<span class="ident">name</span>.<span class="ident">as_ref</span>()) {
+                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::duplicate_function_input_definition</span>(
+                                <span class="ident">input_variable</span>.<span class="ident">identifier</span>.<span class="ident">name</span>.<span class="ident">as_ref</span>(),
+                                <span class="kw-2">&amp;</span><span class="ident">input_variable</span>.<span class="ident">identifier</span>.<span class="ident">span</span>,
+                            )
+                            .<span class="ident">into</span>());
+                        }
+
                         <span class="kw">let</span> <span class="ident">variable</span> <span class="op">=</span> <span class="ident">scope</span>.<span class="ident">context</span>.<span class="ident">alloc_variable</span>(<span class="ident">RefCell::new</span>(<span class="kw">crate</span><span class="ident">::InnerVariable</span> {
                             <span class="ident">id</span>: <span class="ident">scope</span>.<span class="ident">context</span>.<span class="ident">get_id</span>(),
                             <span class="ident">name</span>: <span class="ident">input_variable</span>.<span class="ident">identifier</span>.<span class="ident">clone</span>(),
@@ -334,6 +354,10 @@
                 .<span class="ident">insert</span>(<span class="string">&quot;self&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">self_variable</span>);
         }
         <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">argument</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">arguments</span>.<span class="ident">iter</span>() {
+            <span class="comment">/* if self.scope.resolve_alias(name).is_some() {
+                return Err(AsgError::cannot_shadow_name(&quot;function input&quot;, name, &quot;alias&quot;, &amp;argument.get().borrow().name.span).into());
+            } */</span>
+
             <span class="self">self</span>.<span class="ident">scope</span>.<span class="ident">variables</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">argument</span>.<span class="ident">get</span>());
         }
 

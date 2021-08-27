@@ -40,6 +40,7 @@
 <span id="38">38</span>
 <span id="39">39</span>
 <span id="40">40</span>
+<span id="41">41</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -57,7 +58,7 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AsgContextInner</span>, <span class="ident">Circuit</span>, <span class="ident">Expression</span>, <span class="ident">Function</span>, <span class="ident">PartialType</span>, <span class="ident">Scope</span>, <span class="ident">Statement</span>, <span class="ident">Variable</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Alias</span>, <span class="ident">AsgContextInner</span>, <span class="ident">Circuit</span>, <span class="ident">Expression</span>, <span class="ident">Function</span>, <span class="ident">PartialType</span>, <span class="ident">Scope</span>, <span class="ident">Statement</span>, <span class="ident">Variable</span>};
 
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="prelude-ty">Result</span>, <span class="ident">Span</span>};
 
@@ -80,6 +81,7 @@
     <span class="ident">Circuit</span>(<span class="ident">Circuit</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">Function</span>(<span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">Inner</span>(<span class="ident">AsgContextInner</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">Alias</span>(<span class="ident">Alias</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_asg" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

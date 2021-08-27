@@ -196,6 +196,7 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
+<span id="197">197</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -277,6 +278,7 @@
         <span class="ident">state</span>.<span class="ident">serialize_field</span>(<span class="string">&quot;line_stop&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line_stop</span>)<span class="question-mark">?</span>;
         <span class="ident">state</span>.<span class="ident">serialize_field</span>(<span class="string">&quot;col_start&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">col_start</span>)<span class="question-mark">?</span>;
         <span class="ident">state</span>.<span class="ident">serialize_field</span>(<span class="string">&quot;col_stop&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">col_stop</span>)<span class="question-mark">?</span>;
+        <span class="comment">// This is for testing purposes since the tests are run on a variety of OSes.</span>
         <span class="kw">if</span> <span class="ident">std::env::var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>)
             .<span class="ident">unwrap_or_default</span>()
             .<span class="ident">trim</span>()

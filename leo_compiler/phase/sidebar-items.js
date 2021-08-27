@@ -1,1 +1,1 @@
-initSidebarItems({"trait":[["ASGPhase",""]]});
+initSidebarItems({"trait":[["ASGPhase",""],["ASTPhase",""]]});

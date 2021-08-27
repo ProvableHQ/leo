@@ -208,9 +208,9 @@
     <span class="doccomment">/// For when the parser encountered an unexpected token.</span>
     @<span class="ident">formatted</span>
     <span class="ident">unexpected_token</span> {
-        <span class="ident">args</span>: (<span class="ident">message</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">help</span>: <span class="ident">String</span>),
+        <span class="ident">args</span>: (<span class="ident">message</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="ident">message</span>,
-        <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="ident">help</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
     <span class="doccomment">/// For when the parser encoutnered an invalid address literal.</span>

@@ -414,6 +414,38 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -447,14 +479,6 @@
     <span class="ident">unresolved_circuit</span> {
         <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to resolve circuit: &#39;{}&#39;&quot;</span>, <span class="ident">name</span>),
-        <span class="ident">help</span>: <span class="prelude-val">None</span>,
-    }
-
-    <span class="doccomment">/// For when a import of the specified name is unresolved.</span>
-    @<span class="ident">formatted</span>
-    <span class="ident">unresolved_import</span> {
-        <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
-        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to resolve import: &#39;{}&#39;&quot;</span>, <span class="ident">name</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
@@ -600,7 +624,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when a user defines function with the same name twice.</span>
+    <span class="doccomment">/// For when a user defines a function with the same name twice.</span>
     @<span class="ident">formatted</span>
     <span class="ident">duplicate_function_definition</span> {
         <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
@@ -827,6 +851,46 @@
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>:  <span class="string">&quot;received a Self statement, which should never happen.&quot;</span>,
         <span class="ident">help</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;Something went wrong during canonicalization, or you ran the ASG on an uncanonicalized AST.&quot;</span>.<span class="ident">to_string</span>()),
+    }
+
+    <span class="doccomment">/// For when a import of the specified name is unresolved.</span>
+    @<span class="ident">formatted</span>
+    <span class="ident">unresolved_import</span> {
+        <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to resolve import: &#39;{}&#39;&quot;</span>, <span class="ident">name</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when a user defines an alias with the same name twice.</span>
+    @<span class="ident">formatted</span>
+    <span class="ident">duplicate_alias_definition</span> {
+        <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;a alias named \&quot;{}\&quot; already exists in this scope&quot;</span>, <span class="ident">name</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when a user defines a function input with the same name twice.</span>
+    @<span class="ident">formatted</span>
+    <span class="ident">duplicate_function_input_definition</span> {
+        <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;a function input named \&quot;{}\&quot; already exists in this scope&quot;</span>, <span class="ident">name</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when a user defines a global const with the same name twice.</span>
+    @<span class="ident">formatted</span>
+    <span class="ident">duplicate_global_const_definition</span> {
+        <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;a global const named \&quot;{}\&quot; already exists in this scope&quot;</span>, <span class="ident">name</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when a named identifier is being shadowed.</span>
+    @<span class="ident">formatted</span>
+    <span class="ident">cannot_shadow_name</span> {
+        <span class="ident">args</span>: (<span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">location</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;a {} cannot be named `{}` as a {} with that name already exists in this scope&quot;</span>, <span class="ident">type_</span>, <span class="ident">name</span>, <span class="ident">location</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );
 </pre></div>

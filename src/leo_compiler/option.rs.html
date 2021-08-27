@@ -53,6 +53,8 @@
 <span id="51">51</span>
 <span id="52">52</span>
 <span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -94,6 +96,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AstSnapshotOptions</span> {
     <span class="kw">pub</span> <span class="ident">initial</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">imports_resolved</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">canonicalized</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">type_inferenced</span>: <span class="ident">bool</span>,
 }
@@ -102,6 +105,7 @@
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">initial</span>: <span class="bool-val">false</span>,
+            <span class="ident">imports_resolved</span>: <span class="bool-val">false</span>,
             <span class="ident">canonicalized</span>: <span class="bool-val">false</span>,
             <span class="ident">type_inferenced</span>: <span class="bool-val">false</span>,
         }

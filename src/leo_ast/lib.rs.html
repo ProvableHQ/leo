@@ -132,6 +132,18 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -156,6 +168,9 @@
 <span class="doccomment">//! of the Leo compiler. The Leo compiler can generate a set of R1CS constraints from any [`Ast`].</span>
 
 <span class="attribute">#![<span class="ident">doc</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;../README.md&quot;</span>)]</span>
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">aliases</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::aliases</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">annotation</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::annotation</span>::<span class="kw-2">*</span>;
@@ -183,6 +198,9 @@
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">input</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::input</span>::<span class="kw-2">*</span>;
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">pass</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::pass</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">program</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::program</span>::<span class="kw-2">*</span>;
@@ -218,11 +236,17 @@
         <span class="self">Self</span> { <span class="ident">ast</span>: <span class="ident">program</span> }
     }
 
-    <span class="doccomment">/// Mutates the program ast by preforming canonicalization on it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canonicalize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">ast</span> <span class="op">=</span> <span class="ident">ReconstructingDirector::new</span>(<span class="ident">Canonicalizer::default</span>()).<span class="ident">reduce_program</span>(<span class="self">self</span>.<span class="ident">as_repr</span>())<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(())
+    <span class="comment">/* /// Mutates the program ast by resolving the imports.
+    pub fn importer&lt;T: ImportResolver&gt;(&amp;mut self, importer: T) -&gt; Result&lt;()&gt; {
+        self.ast = ReconstructingDirector::new(Importer::new(importer)).reduce_program(self.as_repr())?;
+        Ok(())
     }
+
+    /// Mutates the program ast by preforming canonicalization on it.
+    pub fn canonicalize(&amp;mut self) -&gt; Result&lt;()&gt; {
+        self.ast = ReconstructingDirector::new(Canonicalizer::default()).reduce_program(self.as_repr())?;
+        Ok(())
+    } */</span>
 
     <span class="doccomment">/// Returns a reference to the inner program AST representation.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_repr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Program</span> {

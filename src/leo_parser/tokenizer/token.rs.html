@@ -327,6 +327,9 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -468,6 +471,7 @@
     <span class="ident">Return</span>,
     <span class="ident">Static</span>,
     <span class="ident">String</span>,
+    <span class="ident">Type</span>,
     <span class="comment">// Not yet in ABNF</span>
     <span class="comment">// BitAnd,</span>
     <span class="comment">// BitAndEq,</span>
@@ -523,6 +527,7 @@
     <span class="ident">Token::Static</span>,
     <span class="ident">Token::String</span>,
     <span class="ident">Token::True</span>,
+    <span class="ident">Token::Type</span>,
     <span class="ident">Token::U8</span>,
     <span class="ident">Token::U16</span>,
     <span class="ident">Token::U32</span>,
@@ -634,6 +639,7 @@
             <span class="ident">Return</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;return&quot;</span>),
             <span class="ident">Static</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;static&quot;</span>),
             <span class="ident">String</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;string&quot;</span>),
+            <span class="ident">Type</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;type&quot;</span>),
             <span class="ident">Eof</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;&quot;</span>),
             <span class="comment">// BitAnd =&gt; write!(f, &quot;&amp;&quot;),</span>
             <span class="comment">// BitAndEq =&gt; write!(f, &quot;&amp;=&quot;),</span>

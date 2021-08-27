@@ -433,7 +433,7 @@
                 }]),
             ),
             <span class="ident">Tuple</span>(<span class="ident">subtypes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Type::Tuple</span>(<span class="ident">subtypes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">Into::into</span>).<span class="ident">collect</span>()),
-            <span class="ident">Circuit</span>(<span class="ident">circuit</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Type::Circuit</span>(<span class="ident">circuit</span>.<span class="ident">name</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>()),
+            <span class="ident">Circuit</span>(<span class="ident">circuit</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Type::CircuitOrAlias</span>(<span class="ident">circuit</span>.<span class="ident">name</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>()),
         }
     }
 }

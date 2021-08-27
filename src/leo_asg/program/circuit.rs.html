@@ -159,6 +159,7 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
+<span id="160">160</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -223,7 +224,7 @@
             <span class="ident">id</span>: <span class="ident">scope</span>.<span class="ident">context</span>.<span class="ident">get_id</span>(),
             <span class="ident">name</span>: <span class="ident">RefCell::new</span>(<span class="ident">value</span>.<span class="ident">circuit_name</span>.<span class="ident">clone</span>()),
             <span class="ident">members</span>: <span class="ident">RefCell::new</span>(<span class="ident">IndexMap::new</span>()),
-            <span class="ident">core_mapping</span>: <span class="ident">RefCell::new</span>(<span class="prelude-val">None</span>),
+            <span class="ident">core_mapping</span>: <span class="ident">value</span>.<span class="ident">core_mapping</span>.<span class="ident">clone</span>(),
             <span class="ident">span</span>: <span class="prelude-val">Some</span>(<span class="ident">value</span>.<span class="ident">circuit_name</span>.<span class="ident">span</span>.<span class="ident">clone</span>()),
             <span class="ident">scope</span>: <span class="ident">new_scope</span>,
         });
@@ -315,6 +316,7 @@
             .<span class="ident">collect</span>();
         <span class="ident">leo_ast::Circuit</span> {
             <span class="ident">circuit_name</span>: <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>(),
+            <span class="ident">core_mapping</span>: <span class="self">self</span>.<span class="ident">core_mapping</span>.<span class="ident">clone</span>(),
             <span class="ident">members</span>,
         }
     }

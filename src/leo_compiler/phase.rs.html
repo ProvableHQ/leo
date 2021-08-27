@@ -21,6 +21,11 @@
 <span id="19">19</span>
 <span id="20">20</span>
 <span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -38,10 +43,15 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="ident">leo_asg::Program</span>;
+<span class="kw">use</span> <span class="ident">leo_asg::Program</span> <span class="kw">as</span> <span class="ident">AsgProgram</span>;
+<span class="kw">use</span> <span class="ident">leo_ast::Program</span> <span class="kw">as</span> <span class="ident">AstProgram</span>;
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ASGPhase</span> {
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="ident">asg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Program</span>);
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="ident">asg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AsgProgram</span>);
+}
+
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ASTPhase</span> {
+    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="ident">asg</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AstProgram</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo_compiler" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

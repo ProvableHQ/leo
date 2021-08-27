@@ -223,7 +223,7 @@
     <span class="comment">// Data type wrappers</span>
     <span class="ident">Array</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>, <span class="ident">ArrayDimensions</span>),
     <span class="ident">Tuple</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Type</span><span class="op">&gt;</span>),
-    <span class="ident">Circuit</span>(<span class="ident">Identifier</span>),
+    <span class="ident">CircuitOrAlias</span>(<span class="ident">Identifier</span>),
     <span class="ident">SelfType</span>,
 }
 
@@ -239,7 +239,7 @@
     <span class="doccomment">/// Returns `true` if the self `Type` is a `Circuit`.</span>
     <span class="doccomment">///</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_circuit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Type::Circuit</span>(<span class="kw">_</span>))
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">Type::CircuitOrAlias</span>(<span class="kw">_</span>))
     }
 
     <span class="doccomment">///</span>
@@ -255,7 +255,7 @@
             (<span class="ident">Type::Field</span>, <span class="ident">Type::Field</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             (<span class="ident">Type::Group</span>, <span class="ident">Type::Group</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             (<span class="ident">Type::IntegerType</span>(<span class="ident">left</span>), <span class="ident">Type::IntegerType</span>(<span class="ident">right</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">left</span>.<span class="ident">eq</span>(<span class="ident">right</span>),
-            (<span class="ident">Type::Circuit</span>(<span class="ident">left</span>), <span class="ident">Type::Circuit</span>(<span class="ident">right</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">left</span>.<span class="ident">eq</span>(<span class="ident">right</span>),
+            (<span class="ident">Type::CircuitOrAlias</span>(<span class="ident">left</span>), <span class="ident">Type::CircuitOrAlias</span>(<span class="ident">right</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">left</span>.<span class="ident">eq</span>(<span class="ident">right</span>),
             (<span class="ident">Type::SelfType</span>, <span class="ident">Type::SelfType</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
             (<span class="ident">Type::Array</span>(<span class="ident">left_type</span>, <span class="ident">left_dim</span>), <span class="ident">Type::Array</span>(<span class="ident">right_type</span>, <span class="ident">right_dim</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Convert array dimensions to owned.</span>
@@ -338,7 +338,7 @@
             <span class="ident">Type::Field</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;field&quot;</span>),
             <span class="ident">Type::Group</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;group&quot;</span>),
             <span class="ident">Type::IntegerType</span>(<span class="kw-2">ref</span> <span class="ident">integer_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">integer_type</span>),
-            <span class="ident">Type::Circuit</span>(<span class="kw-2">ref</span> <span class="ident">variable</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;circuit {}&quot;</span>, <span class="ident">variable</span>),
+            <span class="ident">Type::CircuitOrAlias</span>(<span class="kw-2">ref</span> <span class="ident">variable</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;circuit {}&quot;</span>, <span class="ident">variable</span>),
             <span class="ident">Type::SelfType</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;SelfType&quot;</span>),
             <span class="ident">Type::Array</span>(<span class="kw-2">ref</span> <span class="ident">array</span>, <span class="kw-2">ref</span> <span class="ident">dimensions</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;[{}; {}]&quot;</span>, <span class="kw-2">*</span><span class="ident">array</span>, <span class="ident">dimensions</span>),
             <span class="ident">Type::Tuple</span>(<span class="kw-2">ref</span> <span class="ident">tuple</span>) <span class="op">=</span><span class="op">&gt;</span> {

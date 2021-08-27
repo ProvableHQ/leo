@@ -384,6 +384,12 @@
 <span id="382">382</span>
 <span id="383">383</span>
 <span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -408,7 +414,7 @@
 };
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">leo_asg</span>::{<span class="ident">new_context</span>, <span class="ident">AsgContext</span> <span class="kw">as</span> <span class="ident">Context</span>, <span class="ident">AsgContext</span>};
 <span class="kw">use</span> <span class="ident">leo_asg</span>::{<span class="ident">Asg</span>, <span class="ident">AsgPass</span>, <span class="ident">Program</span> <span class="kw">as</span> <span class="ident">AsgProgram</span>};
-<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">Input</span>, <span class="ident">MainInput</span>, <span class="ident">Program</span> <span class="kw">as</span> <span class="ident">AstProgram</span>};
+<span class="kw">use</span> <span class="ident">leo_ast</span>::{<span class="ident">AstPass</span>, <span class="ident">Input</span>, <span class="ident">MainInput</span>, <span class="ident">Program</span> <span class="kw">as</span> <span class="ident">AstProgram</span>};
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">CompilerError</span>, <span class="prelude-ty">Result</span>};
 <span class="kw">use</span> <span class="ident">leo_imports::ImportParser</span>;
 <span class="kw">use</span> <span class="ident">leo_input::LeoInputParser</span>;
@@ -635,8 +641,18 @@
             <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;initial_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
-        <span class="comment">// Perform canonicalization of AST always.</span>
-        <span class="ident">ast</span>.<span class="ident">canonicalize</span>()<span class="question-mark">?</span>;
+        <span class="comment">// Preform import resolution.</span>
+        <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_ast_passes::Importer::do_pass</span>(
+            <span class="ident">ast</span>.<span class="ident">into_repr</span>(),
+            <span class="ident">ImportParser::new</span>(<span class="self">self</span>.<span class="ident">main_file_path</span>.<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">imports_map</span>.<span class="ident">clone</span>()),
+        )<span class="question-mark">?</span>;
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">imports_resolved</span> {
+            <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;imports_resolved.json&quot;</span>)<span class="question-mark">?</span>;
+        }
+
+        <span class="comment">// Preform canonicalization of AST always.</span>
+        <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_ast_passes::Canonicalizer::do_pass</span>(<span class="ident">ast</span>.<span class="ident">into_repr</span>())<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">canonicalized</span> {
             <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;canonicalization_ast.json&quot;</span>)<span class="question-mark">?</span>;
@@ -649,11 +665,7 @@
         <span class="macro">tracing::debug!</span>(<span class="string">&quot;Program parsing complete\n{:#?}&quot;</span>, <span class="self">self</span>.<span class="ident">program</span>);
 
         <span class="comment">// Create a new symbol table from the program, imported_programs, and program_input.</span>
-        <span class="kw">let</span> <span class="ident">asg</span> <span class="op">=</span> <span class="ident">Asg::new</span>(
-            <span class="self">self</span>.<span class="ident">context</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>,
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ImportParser::new</span>(<span class="self">self</span>.<span class="ident">main_file_path</span>.<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">imports_map</span>.<span class="ident">clone</span>()),
-        )<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">asg</span> <span class="op">=</span> <span class="ident">Asg::new</span>(<span class="self">self</span>.<span class="ident">context</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">type_inferenced</span> {
             <span class="kw">let</span> <span class="ident">new_ast</span> <span class="op">=</span> <span class="ident">TypeInferencePhase::default</span>()

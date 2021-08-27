@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["CoreImportResolver",""],["MockedImportResolver",""],["NullImportResolver",""]],"trait":[["ImportResolver",""]]});

@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["leo_ast_passes"] = [{"text":"impl <a class=\"trait\" href=\"leo_ast/pass/trait.AstPass.html\" title=\"trait leo_ast::pass::AstPass\">AstPass</a> for <a class=\"struct\" href=\"leo_ast_passes/canonicalization/canonicalizer/struct.Canonicalizer.html\" title=\"struct leo_ast_passes::canonicalization::canonicalizer::Canonicalizer\">Canonicalizer</a>","synthetic":false,"types":["leo_ast_passes::canonicalization::canonicalizer::Canonicalizer"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

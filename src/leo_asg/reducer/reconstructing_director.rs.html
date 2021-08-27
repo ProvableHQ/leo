@@ -357,6 +357,7 @@
 <span id="355">355</span>
 <span id="356">356</span>
 <span id="357">357</span>
+<span id="358">358</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -694,6 +695,7 @@ reconstructing director tries to maintain a normalized ASG but may require renor
             .<span class="ident">iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">module</span>, <span class="ident">import</span>)<span class="op">|</span> (<span class="ident">module</span>.<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">reduce_program</span>(<span class="ident">import</span>.<span class="ident">clone</span>())))
             .<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">aliases</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">aliases</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="ident">a</span>)<span class="op">|</span> (<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">a</span>)).<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="ident">functions</span> <span class="op">=</span> <span class="ident">input</span>
             .<span class="ident">functions</span>
             .<span class="ident">iter</span>()
@@ -712,7 +714,7 @@ reconstructing director tries to maintain a normalized ASG but may require renor
             .<span class="ident">collect</span>();
 
         <span class="self">self</span>.<span class="ident">reducer</span>
-            .<span class="ident">reduce_program</span>(<span class="ident">input</span>, <span class="ident">imported_modules</span>, <span class="ident">functions</span>, <span class="ident">circuits</span>, <span class="ident">global_consts</span>)
+            .<span class="ident">reduce_program</span>(<span class="ident">input</span>, <span class="ident">imported_modules</span>, <span class="ident">aliases</span>, <span class="ident">functions</span>, <span class="ident">circuits</span>, <span class="ident">global_consts</span>)
     }
 }
 </pre></div>
