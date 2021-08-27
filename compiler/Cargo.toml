@@ -53,6 +53,10 @@ version = "1.5.3"
 path = "../asg-passes"
 version = "1.5.3"
 
+[dependencies.leo-ast-passes]
+path = "../ast-passes"
+version = "1.5.3"
+
 [dependencies.leo-synthesizer]
 path = "../synthesizer"
 version = "1.5.3"

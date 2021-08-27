@@ -89,7 +89,7 @@ impl ParserContext {
             (Type::SelfType, token.span)
         } else if let Some(ident) = self.eat_identifier() {
             let span = ident.span.clone();
-            (Type::Circuit(ident), span)
+            (Type::CircuitOrAlias(ident), span)
         } else if let Some(token) = self.eat(Token::LeftParen) {
             let mut types = Vec::new();
             let end_span;

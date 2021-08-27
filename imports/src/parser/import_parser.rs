@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::{AsgContext, ImportResolver, Program};
+use leo_ast::Program;
+use leo_ast_passes::ImportResolver;
 use leo_errors::{ImportError, LeoError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};
@@ -25,14 +26,14 @@ use std::{collections::HashMap, path::PathBuf};
 /// A program can import one or more packages. A package can be found locally in the source
 /// directory, foreign in the imports directory, or part of the core package list.
 #[derive(Clone, Default)]
-pub struct ImportParser<'a> {
+pub struct ImportParser {
     program_path: PathBuf,
     partial_imports: IndexSet<String>,
-    imports: IndexMap<String, Program<'a>>,
+    imports: IndexMap<String, Program>,
     pub imports_map: HashMap<String, String>,
 }
 
-impl<'a> ImportParser<'a> {
+impl ImportParser {
     pub fn new(program_path: PathBuf, imports_map: HashMap<String, String>) -> Self {
         ImportParser {
             program_path,
@@ -43,13 +44,8 @@ impl<'a> ImportParser<'a> {
     }
 }
 
-impl<'a> ImportResolver<'a> for ImportParser<'a> {
-    fn resolve_package(
-        &mut self,
-        context: AsgContext<'a>,
-        package_segments: &[&str],
-        span: &Span,
-    ) -> Result<Option<Program<'a>>> {
+impl ImportResolver for ImportParser {
+    fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>> {
         let full_path = package_segments.join(".");
         if self.partial_imports.contains(&full_path) {
             return Err(ImportError::recursive_imports(full_path, span).into());
@@ -61,7 +57,7 @@ impl<'a> ImportResolver<'a> for ImportParser<'a> {
         self.partial_imports.insert(full_path.clone());
         let mut imports = self.clone(); // Self::default() was previously
         let program = imports
-            .parse_package(context, path, package_segments, span)
+            .parse_package(path, package_segments, span)
             .map_err(|x| -> LeoError { x })?;
         self.partial_imports.remove(&full_path);
         self.imports.insert(full_path, program.clone());

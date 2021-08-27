@@ -14,11 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod canonicalization;
-pub use canonicalization::*;
-
-mod reconstructing_reducer;
+pub mod reconstructing_reducer;
 pub use reconstructing_reducer::*;
 
-mod reconstructing_director;
+pub mod reconstructing_director;
 pub use reconstructing_director::*;

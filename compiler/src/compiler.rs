@@ -21,7 +21,7 @@ use crate::{
 };
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, Program as AsgProgram};
-use leo_ast::{Input, MainInput, Program as AstProgram};
+use leo_ast::{AstPass, Input, MainInput, Program as AstProgram};
 use leo_errors::{CompilerError, Result};
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
@@ -248,8 +248,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
         }
 
-        // Perform canonicalization of AST always.
-        ast.canonicalize()?;
+        // Preform import resolution.
+        ast = leo_ast_passes::Importer::do_pass(
+            ast.into_repr(),
+            ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
+        )?;
+
+        if self.ast_snapshot_options.imports_resolved {
+            ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
+        }
+
+        // Preform canonicalization of AST always.
+        ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
 
         if self.ast_snapshot_options.canonicalized {
             ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
@@ -262,11 +272,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         tracing::debug!("Program parsing complete\n{:#?}", self.program);
 
         // Create a new symbol table from the program, imported_programs, and program_input.
-        let asg = Asg::new(
-            self.context,
-            &self.program,
-            &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
-        )?;
+        let asg = Asg::new(self.context, &self.program)?;
 
         if self.ast_snapshot_options.type_inferenced {
             let new_ast = TypeInferencePhase::default()

@@ -100,6 +100,7 @@ outputs:
             r:
               type: char
               value: "'a'"
-    initial_ast: d3a773c0b0555cc2c3a6d2fafb9e567488ea8fd91ea965f758ec9f58a4679dd7
-    canonicalized_ast: d3a773c0b0555cc2c3a6d2fafb9e567488ea8fd91ea965f758ec9f58a4679dd7
-    type_inferenced_ast: 460b284982e0fb9819768800b2c84ab682929bba1b6056f03e5e90bfe7f92420
+    initial_ast: ac56e34b2a2cb282d36133df39d80947dfdfc56b5655b3ba9f408ba529c8f505
+    imports_resolved_ast: 4ca172d902f797a1d225223900fbf3f01a68c44ad5a0cf402e719f9e5961988b
+    canonicalized_ast: ac56e34b2a2cb282d36133df39d80947dfdfc56b5655b3ba9f408ba529c8f505
+    type_inferenced_ast: 2eecf906226893c46f526a72f272a3f11eb34ada7cc4cd573439ebfed44ba170

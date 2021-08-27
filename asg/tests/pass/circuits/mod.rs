@@ -73,12 +73,6 @@ fn test_member_static_function() {
     load_asg(program_string).unwrap();
 }
 
-#[test]
-fn test_member_static_function_nested() {
-    let program_string = include_str!("member_static_function_nested.leo");
-    load_asg(program_string).unwrap();
-}
-
 // Mutability
 
 #[test]
@@ -108,12 +102,6 @@ fn test_self_member_pass() {
 }
 
 // All
-
-#[test]
-fn test_pedersen_mock() {
-    let program_string = include_str!("pedersen_mock.leo");
-    load_asg(program_string).unwrap();
-}
 
 #[test]
 fn test_define_circuit_inside_circuit_function() {

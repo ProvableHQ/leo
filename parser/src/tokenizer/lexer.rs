@@ -518,6 +518,7 @@ impl Token {
                     "static" => Token::Static,
                     "string" => Token::String,
                     "true" => Token::True,
+                    "type" => Token::Type,
                     "u8" => Token::U8,
                     "u16" => Token::U16,
                     "u32" => Token::U32,

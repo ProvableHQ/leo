@@ -110,6 +110,11 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         }
 
         for (variable, type_) in statement.variable_names.iter().zip(output_types.into_iter()) {
+            /* let name = variable.identifier.name.as_ref();
+            if scope.resolve_alias(name).is_some() {
+                return Err(AsgError::cannot_shadow_name("function input", name, "alias", &variable.identifier.span).into());
+            } */
+
             variables.push(&*scope.context.alloc_variable(RefCell::new(InnerVariable {
                 id: scope.context.get_id(),
                 name: variable.identifier.clone(),

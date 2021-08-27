@@ -93,6 +93,7 @@ struct CompileOutput {
     pub circuit: SummarizedCircuit,
     pub output: Vec<OutputItem>,
     pub initial_ast: String,
+    pub imports_resolved_ast: String,
     pub canonicalized_ast: String,
     pub type_inferenced_ast: String,
 }
@@ -118,6 +119,7 @@ impl Namespace for CompileNamespace {
             &test.content,
             Some(AstSnapshotOptions {
                 initial: true,
+                imports_resolved: true,
                 canonicalized: true,
                 type_inferenced: true,
             }),
@@ -212,8 +214,9 @@ impl Namespace for CompileNamespace {
             });
         }
 
-        let initial_ast: String = hash_file("/tmp/output/initial_ast.json");
-        let canonicalized_ast: String = hash_file("/tmp/output/canonicalization_ast.json");
+        let initial_ast = hash_file("/tmp/output/initial_ast.json");
+        let imports_resolved_ast = hash_file("/tmp/output/imports_resolved_ast.json");
+        let canonicalized_ast = hash_file("/tmp/output/canonicalization_ast.json");
         let type_inferenced_ast = hash_file("/tmp/output/type_inferenced_ast.json");
 
         if fs::read_dir("/tmp/output").is_ok() {
@@ -224,6 +227,7 @@ impl Namespace for CompileNamespace {
             circuit: last_circuit.unwrap(),
             output: output_items,
             initial_ast,
+            imports_resolved_ast,
             canonicalized_ast,
             type_inferenced_ast,
         };

@@ -95,6 +95,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
 
                 AstType::Tuple(reduced_types)
             }
+            _ if self.options.type_inference_enabled() => asg.into(),
             _ => ast.clone(),
         };
 
@@ -264,11 +265,8 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         ast: &CircuitMemberAccessExpression,
         asg: &AsgCircuitAccessExpression,
     ) -> Result<CircuitMemberAccessExpression> {
-        // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
-        // let name = self.reduce_identifier(&circuit_member_access.name)?;
-        // let target = input.target.get().map(|e| self.reduce_expression(e));
         let type_ = if self.options.type_inference_enabled() {
-            Some(leo_ast::Type::Circuit(asg.circuit.get().name.borrow().clone()))
+            Some(leo_ast::Type::CircuitOrAlias(asg.circuit.get().name.borrow().clone()))
         } else {
             None
         };
@@ -282,10 +280,6 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         ast: &CircuitStaticFunctionAccessExpression,
         _asg: &AsgCircuitAccessExpression,
     ) -> Result<CircuitStaticFunctionAccessExpression> {
-        // let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
-        // let name = self.reduce_identifier(&circuit_member_access.name)?;
-        // let target = input.target.get().map(|e| self.reduce_expression(e));
-
         self.ast_reducer
             .reduce_circuit_static_fn_access(ast, *ast.circuit.clone(), ast.name.clone())
     }
@@ -635,6 +629,11 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
     }
 
     pub fn reduce_program(&mut self, ast: &leo_ast::Program, asg: &leo_asg::Program) -> Result<leo_ast::Program> {
+        let mut imports = IndexMap::new();
+        for ((ast_ident, ast_program), (_asg_ident, asg_program)) in ast.imports.iter().zip(&asg.imported_modules) {
+            imports.insert(ast_ident.clone(), self.reduce_program(ast_program, asg_program)?);
+        }
+
         self.ast_reducer.swap_in_circuit();
         let mut circuits = IndexMap::new();
         for ((ast_ident, ast_circuit), (_asg_ident, asg_circuit)) in ast.circuits.iter().zip(&asg.circuits) {
@@ -656,7 +655,9 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         self.ast_reducer.reduce_program(
             ast,
             ast.expected_input.clone(),
-            ast.imports.clone(),
+            ast.import_statements.clone(),
+            imports,
+            ast.aliases.clone(),
             circuits,
             functions,
             global_consts,
