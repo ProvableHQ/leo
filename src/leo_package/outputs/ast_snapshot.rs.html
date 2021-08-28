@@ -103,6 +103,8 @@
 <span id="101">101</span>
 <span id="102">102</span>
 <span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -132,6 +134,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Snapshot</span> {
     <span class="ident">Initial</span>,
+    <span class="ident">ImportsResolved</span>,
     <span class="ident">TypeInference</span>,
     <span class="ident">Canonicalization</span>,
 }
@@ -143,6 +146,7 @@
             <span class="string">&quot;{}&quot;</span>,
             <span class="kw">match</span> <span class="self">self</span> {
                 <span class="self">Self</span><span class="ident">::Initial</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;initial_ast&quot;</span>,
+                <span class="self">Self</span><span class="ident">::ImportsResolved</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;imports_resolved_ast&quot;</span>,
                 <span class="self">Self</span><span class="ident">::TypeInference</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;type_inferenced_ast&quot;</span>,
                 <span class="self">Self</span><span class="ident">::Canonicalization</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;canonicalization_ast&quot;</span>,
             }

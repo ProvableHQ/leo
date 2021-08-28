@@ -648,7 +648,7 @@
         )<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">imports_resolved</span> {
-            <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;imports_resolved.json&quot;</span>)<span class="question-mark">?</span>;
+            <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;imports_resolved_ast.json&quot;</span>)<span class="question-mark">?</span>;
         }
 
         <span class="comment">// Preform canonicalization of AST always.</span>
@@ -732,7 +732,7 @@
         <span class="ident">hasher</span>.<span class="ident">update</span>(<span class="ident">unparsed_file</span>.<span class="ident">as_bytes</span>());
         <span class="kw">let</span> <span class="ident">hash</span> <span class="op">=</span> <span class="ident">hasher</span>.<span class="ident">finalize</span>();
 
-        <span class="prelude-val">Ok</span>(<span class="ident">hex::encode</span>(<span class="ident">hash</span>))
+        <span class="prelude-val">Ok</span>(<span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">hash</span>))
     }
 
     <span class="doccomment">/// TODO (howardwu): Incorporate this for real program executions and intentionally-real</span>
