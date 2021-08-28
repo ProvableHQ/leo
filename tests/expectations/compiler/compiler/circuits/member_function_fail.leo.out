@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373001]: illegal reference to non-existant member 'echoed' of circuit 'Foo'\n    --> compiler-test:11:17\n     |\n  11 |     const err = a.echoed(1u32);\n     |                 ^^^^^^^^"

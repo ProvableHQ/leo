@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373027]: failed to resolve variable reference 'myGlobal'\n    --> compiler-test:5:12\n     |\n   5 |     return myGlobal;\n     |            ^^^^^^^^"

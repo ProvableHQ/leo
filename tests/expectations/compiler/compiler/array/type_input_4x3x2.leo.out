@@ -1,4 +1,22 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 383
+      num_constraints: 383
+      at: ec8cf3ea9e586d3c504b8b467b4404d213dd375aa2691f2b9a8670c879ffa24d
+      bt: 9b5ba17ea683af827718f9062b3102faa0be01b9f67022e2322db989bf90f057
+      ct: 6fe90b4e46834afeb215a4702281504d676eae391588e5b576f6e406f6ddd504
+    output:
+      - input_file: input/type_tuple_value_nested_4x3x2.in
+        output:
+          registers:
+            x:
+              type: bool
+              value: "true"
+    initial_ast: f61370b311806223d351c6dd611a178362cf8ad6de976d7b0ed709b51fadbecb
+    imports_resolved_ast: f61370b311806223d351c6dd611a178362cf8ad6de976d7b0ed709b51fadbecb
+    canonicalized_ast: f61370b311806223d351c6dd611a178362cf8ad6de976d7b0ed709b51fadbecb
+    type_inferenced_ast: 54531d6afced0deaa59c93b9270768a5e89ea8ea1df34365eb4e440bdf725904

@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373032]: illegal assignment to immutable variable 'a'\n    --> compiler-test:6:5\n     |\n   6 |     a = 0;\n     |     ^^^^^"

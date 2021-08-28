@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373032]: illegal assignment to immutable variable 'basic'\n    --> compiler-test:7:5\n     |\n   7 |     basic = 2u32;\n     |     ^^^^^^^^^^^^"

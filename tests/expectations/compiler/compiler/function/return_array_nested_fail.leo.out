@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373025]: unexpected type, expected: 'array of length 3', received: 'array of length 2'\n    --> compiler-test:4:12\n     |\n   4 |     return [0u8; (2, 3)]; // The correct 3x2 array tuple is `[0u8; (3, 2)]`\n     |            ^^^^^^^^^^^^^"

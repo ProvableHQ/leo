@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373025]: unexpected type, expected: 'array of length 2', received: 'array of length 1'\n    --> compiler-test:5:35\n     |\n   5 |                                   [1u8]];   // incorrect dimensions\n     |                                   ^^^^^"

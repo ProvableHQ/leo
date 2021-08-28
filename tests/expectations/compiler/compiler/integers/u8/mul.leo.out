@@ -1,4 +1,22 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 258
+      num_constraints: 331
+      at: 9db6e7fa73b98bf7623bed5997bf61d51f348aaf43d9249b629a866a9085f08b
+      bt: a9bb86254052a3c5b275213180e89108aea721369a9d32cbd837a1cb974d76b3
+      ct: 4dc6b4ca7c3bcedbbe8abbaee96615345e08b304dd65b217319ece1224721b57
+    output:
+      - input_file: mul.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "false"
+    initial_ast: 8db1872b44d014eca2e66c5de1be6ae902623a1548ca53b6146de18dced3d409
+    imports_resolved_ast: 8db1872b44d014eca2e66c5de1be6ae902623a1548ca53b6146de18dced3d409
+    canonicalized_ast: 8db1872b44d014eca2e66c5de1be6ae902623a1548ca53b6146de18dced3d409
+    type_inferenced_ast: c838cd4e5527762edc4fc43355c05b68085c39fd5a338f68caafc0160c68a574

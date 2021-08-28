@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373032]: illegal assignment to immutable variable 'self'\n    --> compiler-test:7:9\n     |\n   7 |         self.a = new;\n     |         ^^^^^^^^^^^^"

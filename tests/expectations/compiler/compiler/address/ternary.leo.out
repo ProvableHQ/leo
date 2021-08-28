@@ -1,4 +1,28 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 1022
+      num_constraints: 1022
+      at: 1b42ef63a212d2ea51cab07171c8fb1438112afdbd14501470c2477b9eeb4c99
+      bt: 15054154626f1ae748008fc4ed9a650c3873b608988ff31312fe4049957dfffb
+      ct: dbda9de51fe9897456cbbcc3b450ed7d66185fb6018c7a0c72414784f29b2ad4
+    output:
+      - input_file: inputs/address1.in
+        output:
+          registers:
+            a:
+              type: bool
+              value: "false"
+      - input_file: inputs/address2.in
+        output:
+          registers:
+            a:
+              type: bool
+              value: "false"
+    initial_ast: 6f8e7a94ccb702790204360959a2673abf6b53027fccaaa9feed8a4e41ee05c1
+    imports_resolved_ast: 6f8e7a94ccb702790204360959a2673abf6b53027fccaaa9feed8a4e41ee05c1
+    canonicalized_ast: 6f8e7a94ccb702790204360959a2673abf6b53027fccaaa9feed8a4e41ee05c1
+    type_inferenced_ast: 91e597663c88fbfd0c6ff787d109f5a71d5357c44d5306f7149714cda86475ae

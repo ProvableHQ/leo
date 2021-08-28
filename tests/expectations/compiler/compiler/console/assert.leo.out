@@ -1,4 +1,22 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 1
+      num_constraints: 1
+      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
+      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
+      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+    output:
+      - input_file: assert.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+    initial_ast: bd23695040d06dbd59426b363ea66da8c9344aad064615d1b5beb6326933acbc
+    imports_resolved_ast: bd23695040d06dbd59426b363ea66da8c9344aad064615d1b5beb6326933acbc
+    canonicalized_ast: bd23695040d06dbd59426b363ea66da8c9344aad064615d1b5beb6326933acbc
+    type_inferenced_ast: 198e2817e4d6d454d7e1d1eba8226757d7f044b20e6dd4f6962530b177c469c5

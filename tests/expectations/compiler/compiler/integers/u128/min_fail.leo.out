@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373030]: failed to parse int value '-1'\n    --> compiler-test:4:21\n     |\n   4 |     const a: u128 = -1;\n     |                     ^^"

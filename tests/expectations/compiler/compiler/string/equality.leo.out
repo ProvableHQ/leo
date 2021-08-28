@@ -1,4 +1,28 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 92
+      num_constraints: 75
+      at: c03384068dd2b9bd528c65e301960d5c4f61bf94949c9080f28a4bc57f81e856
+      bt: 7f653d4004b13eee112bbefcf900b0c8201524129423cdda82799c18fdcfb3f7
+      ct: bce0d8a64cf530613e693412358d17d231ec8516108ab4ee5a47ddf185a471fa
+    output:
+      - input_file: inputs/string.in
+        output:
+          registers:
+            out:
+              type: bool
+              value: "true"
+      - input_file: inputs/weird.in
+        output:
+          registers:
+            out:
+              type: bool
+              value: "false"
+    initial_ast: 18cc23be73fed22f06b3bfdb93c1b92688131d4bbeb0d68ed8dc691c97f0c415
+    imports_resolved_ast: 18cc23be73fed22f06b3bfdb93c1b92688131d4bbeb0d68ed8dc691c97f0c415
+    canonicalized_ast: 63331696106397640ace1c15d354979b8a05f25dd650465954cd1fd72124bae6
+    type_inferenced_ast: 83e3cba193c50f19049cdf4296d75187cfd9d6d9fa5276fd328c2e3acf0936e2

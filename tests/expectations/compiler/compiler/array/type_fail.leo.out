@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EPAR0370005]: expected ( -- got '-'\n    --> compiler-test:4:19\n     |\n   4 |     const a: [u8; -2] = [0u32; 2];\n     |                   ^"

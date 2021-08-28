@@ -1,4 +1,22 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 223
+      num_constraints: 223
+      at: 87fe022f8971e90450cc219824d04ea84f08040429143393193aa2de0321759f
+      bt: 65e18f4e1e32d72f87d238401f8397b5d8ba20e7da7d50cc5930faa5673cdb77
+      ct: 389354117abccc4ef9f4822705889f64f1d16b7e0d2adae52005c7b91b0ccabb
+    output:
+      - input_file: input/main_multi_dimension_array.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+    initial_ast: f74b907c08c1bfd4d2afc9df5589bc2aed1923db5e858c5cc6046f5aed735cf2
+    imports_resolved_ast: f74b907c08c1bfd4d2afc9df5589bc2aed1923db5e858c5cc6046f5aed735cf2
+    canonicalized_ast: f80f2c0fd5fa415c5ca0b8295d918a884ae8590f5f9760947ca5a0513f531f73
+    type_inferenced_ast: a866c7acc69cab458f8b6fe729b35cfd4fc66d578155382d130b24e2e092df8b

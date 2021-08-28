@@ -1,4 +1,22 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 847
+      num_constraints: 847
+      at: 7a173ccf91016726958e205fb7a60e954c826a7d8f3dbfba86417c4dad8a8809
+      bt: ef390629424c3ec765f6759eba6be4285e92bbb34e1fdb083ea723021fda1a83
+      ct: 048882f78f795732711ba34cb6892495a782c2573a1358a9c679b97fa5ea5fe7
+    output:
+      - input_file: input/token_withdraw.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+    initial_ast: 6b051c3f9ce82efb30d3ba89764cc9c2607a126cb0cede72ad55ecda6c9d996d
+    imports_resolved_ast: 6b051c3f9ce82efb30d3ba89764cc9c2607a126cb0cede72ad55ecda6c9d996d
+    canonicalized_ast: 6b051c3f9ce82efb30d3ba89764cc9c2607a126cb0cede72ad55ecda6c9d996d
+    type_inferenced_ast: 3c04200d560739b0d551204b65e56abc11f26843b99aa0361362f61f0d6a3328

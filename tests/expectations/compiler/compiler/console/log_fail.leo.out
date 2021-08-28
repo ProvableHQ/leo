@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EPAR0370009]: unexpected string: expected 'formatted string', got 'hello'\n    --> compiler-test:4:18\n     |\n   4 |     console.log( hello );\n     |                  ^^^^^"

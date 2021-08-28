@@ -1,4 +1,22 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 95
+      num_constraints: 95
+      at: a57d02fa8b8a2336cc5c407e6a9489a3cb89357e3a3d966f18d8f0f86c21602f
+      bt: e0a9aa0cab882fb690b28137d24f271ccaa334521934a3badc07592a31b7be7f
+      ct: 7b8a2025971971c829b68fc994c6761496807e5b091ba4360d90fb6f35f4656e
+    output:
+      - input_file: func_circ.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+    initial_ast: bfd7751e8ea64c6d41af36d968f194a18a5411ac71932a67766f40448ce755f5
+    imports_resolved_ast: bfd7751e8ea64c6d41af36d968f194a18a5411ac71932a67766f40448ce755f5
+    canonicalized_ast: bfd7751e8ea64c6d41af36d968f194a18a5411ac71932a67766f40448ce755f5
+    type_inferenced_ast: 910b51f962861da6011f214a5379bc9296034e3fecda347b17c7db97df833a25

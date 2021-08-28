@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373014]: failed to create const variable(s) 'y' with non constant values.\n    --> compiler-test:5:5\n     |\n   5 |     const y = x > 2u8? 1u8 : 2u8;\n     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^"

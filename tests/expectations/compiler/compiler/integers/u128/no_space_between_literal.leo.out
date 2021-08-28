@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EPAR0370004]: Unexpected white space between terms 1 and u128\n    --> compiler-test:4:15\n     |\n   4 |     const i = 1 u128;\n     |               ^"

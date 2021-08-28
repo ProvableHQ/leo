@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EPAR0370000]: '\n    --> compiler-test:4:23\n     |\n   4 |     const not_valid = '';\n     |                       ^"

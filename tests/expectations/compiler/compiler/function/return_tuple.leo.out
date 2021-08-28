@@ -1,4 +1,25 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 65
+      num_constraints: 66
+      at: 0c8cb242ee3815f5ea6fdd08873577a6cc51fcfbda8cb5671f0b4dc851939d07
+      bt: 32bbce55a7ed95a5b0277ef5ddfa171ad065c5c7c743031d8b0bd8e50e51b0af
+      ct: 1390f763c4329cb5c51853b83d8d5d6e92d8ea8fed8fc7299285908d14c9d3b4
+    output:
+      - input_file: tuple.in
+        output:
+          registers:
+            r0:
+              type: "(u8, u8)"
+              value: "(1, 2)"
+            r1:
+              type: u32
+              value: "103"
+    initial_ast: 3818078d8b7b34d11b38a9e53d326543a357f4db169acc32a52e2b08a8126602
+    imports_resolved_ast: 3818078d8b7b34d11b38a9e53d326543a357f4db169acc32a52e2b08a8126602
+    canonicalized_ast: 3818078d8b7b34d11b38a9e53d326543a357f4db169acc32a52e2b08a8126602
+    type_inferenced_ast: 3eb5fbe370ce358e9d00865a230bb5eb6f2cfdb85f30408a164da43dfe16277d

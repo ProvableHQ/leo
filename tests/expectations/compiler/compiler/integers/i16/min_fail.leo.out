@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373030]: failed to parse int value '-32769'\n    --> compiler-test:4:20\n     |\n   4 |     const a: i16 = -32769;\n     |                    ^^^^^^"

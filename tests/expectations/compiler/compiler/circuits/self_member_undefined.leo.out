@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EASG0373008]: cannot call static function 'bar' of circuit 'Foo' from target\n    --> compiler-test:11:17\n     |\n  11 |     const err = foo.bar();\n     |                 ^^^^^^^"

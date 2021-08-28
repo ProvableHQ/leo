@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EPAR0370004]: Unexpected white space between terms 1 and field\n    --> compiler-test:4:13\n     |\n   4 |   const f = 1 field;\n     |             ^"

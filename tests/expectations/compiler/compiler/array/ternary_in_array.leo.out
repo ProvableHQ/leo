@@ -1,4 +1,22 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 39
+      num_constraints: 39
+      at: 6f3ffff33f4e513211e7a55cc9edcab3bc2d2a146c2b280981308bb69165f86f
+      bt: adde6ad1b603a50c986ec99b6edcc972138bb6239e58a1b88e931bc0165b2e8e
+      ct: 867e3f6ee1f26af954e7868633a595d319267d91afc5d7e2074fe641fabde1d6
+    output:
+      - input_file: input/three_ones.in
+        output:
+          registers:
+            x:
+              type: bool
+              value: "true"
+    initial_ast: 002cb467a5c1357617b45f955944bb4a79ab465dc13f3eb5eb8db4c158b8c745
+    imports_resolved_ast: 002cb467a5c1357617b45f955944bb4a79ab465dc13f3eb5eb8db4c158b8c745
+    canonicalized_ast: 002cb467a5c1357617b45f955944bb4a79ab465dc13f3eb5eb8db4c158b8c745
+    type_inferenced_ast: 323fc99ac247b37bb395eb08691d451a3b6b563a15bb94b5af6a0193ccc0bd34

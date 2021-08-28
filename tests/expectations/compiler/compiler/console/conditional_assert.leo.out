@@ -1,4 +1,22 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 1
+      num_constraints: 1
+      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
+      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
+      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+    output:
+      - input_file: cond.in
+        output:
+          registers: {}
+      - input_file: cond_2.in
+        output:
+          registers: {}
+    initial_ast: a7b374e2c0a97af2160b5f6faeadb17a12e8908c1a7b3d251194e6867fd98f07
+    imports_resolved_ast: a7b374e2c0a97af2160b5f6faeadb17a12e8908c1a7b3d251194e6867fd98f07
+    canonicalized_ast: ebd1a1f28fafd6fc55c13f4c362ae9a13dee4717e41d99c23fd0d32c5fcdc526
+    type_inferenced_ast: eb15aba7bdb3c3a2f776af8cb80f52f44d6d6ab60e5ee3c032ab4ec8a90a2436

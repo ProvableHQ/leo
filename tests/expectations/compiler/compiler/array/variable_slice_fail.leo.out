@@ -1,4 +1,5 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs: []
+outputs:
+  - "Error [EPAR0370007]: unexpected identifier: expected 'assert', 'error', 'log' -- got 'debug'\n    --> compiler-test:7:17\n     |\n   7 |         console.debug(\"{}\", x);\n     |                 ^^^^^"

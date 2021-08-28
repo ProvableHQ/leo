@@ -1,4 +1,22 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 95
+      num_constraints: 95
+      at: 5884e806c47756fa1d12f47e5cc5249843d8de4e2fafcb373c5a0d67dfe22d69
+      bt: 983c734b40e342144d6b4d52e315da9ff9f97580f019f606403924bb977a5be7
+      ct: 49f0db71bd29b80dbe5f2f96573a5959b1df339c92350e16f111bade214037aa
+    output:
+      - input_file: input/input_tuple_3x2.in
+        output:
+          registers:
+            x:
+              type: bool
+              value: "true"
+    initial_ast: 9f2080fab6a85294afa2423cd79482fb3d944c4afab7363e66a4086a120ad34d
+    imports_resolved_ast: 9f2080fab6a85294afa2423cd79482fb3d944c4afab7363e66a4086a120ad34d
+    canonicalized_ast: 9f2080fab6a85294afa2423cd79482fb3d944c4afab7363e66a4086a120ad34d
+    type_inferenced_ast: f8c6b9a9ac418220c87bbd1a99a5eb15817cfa289d822624f2d3cc41e10718b4

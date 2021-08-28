@@ -1,4 +1,28 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs: []
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 113
+      num_constraints: 113
+      at: 5c1bf4b2c0dcee44497206b68fafb1e2e98bc020688d260da3730723c0c90dd8
+      bt: 07da85fcfccc58758d043e27b0aab5a749760c644824684c13befde258deb78c
+      ct: 92784334fb47e5a53eb972ec42d95f97470117bb6839cf2d46e8fcbd38a662f9
+    output:
+      - input_file: i16_g.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+      - input_file: i16_e.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+    initial_ast: 062d3eb6035e1677c45329522cbd26b8a9b5bc6d501510db6d48a47e262253e6
+    imports_resolved_ast: 062d3eb6035e1677c45329522cbd26b8a9b5bc6d501510db6d48a47e262253e6
+    canonicalized_ast: 062d3eb6035e1677c45329522cbd26b8a9b5bc6d501510db6d48a47e262253e6
+    type_inferenced_ast: 2f160dd1d274d6efc5359b8643d33846d32e78ab5c541ed5f5c58fb42c9ea245
