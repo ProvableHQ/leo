@@ -1,5 +1,4 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs:
-  - "Error [EPAR0370005]: expected ] -- got ')'\n    --> compiler-test:4:29\n     |\n   4 |     return a == [[0u8; 2]; 3)]; // This should be written the right way as this test is for the input file.\n     |                             ^"
+outputs: []

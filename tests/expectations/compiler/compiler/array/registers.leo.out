@@ -1,28 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 119
-      num_constraints: 143
-      at: 144d1bd1f6756ac172ddddf3ca5cf4358ba8fc053fd754b56a425ab6566af47a
-      bt: 43972815ec9d0ab821613fde2cd6a5df9ee42f50758a27a0fed6dc111b44f3ee
-      ct: 5ed7a755b881aa851f3d3e966a4bd18dd48ce59be71b4ada39c9c891f8297201
-    output:
-      - input_file: input/registers_ones.in
-        output:
-          registers:
-            r:
-              type: "[u8; 3]"
-              value: "\"321\""
-      - input_file: input/registers_zeros.in
-        output:
-          registers:
-            r:
-              type: "[u8; 3]"
-              value: "\"123\""
-    initial_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
-    imports_resolved_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
-    canonicalized_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
-    type_inferenced_ast: f5cb6326028b3cf9187889be6ac5ed5bd095a570d45ae63c7285a09366fc6803
+outputs: []

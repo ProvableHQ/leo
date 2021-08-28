@@ -1,28 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 224
-      num_constraints: 256
-      at: 45301188494f0c65b2e88eac9117ba7367e772ea34e9b8f34bf3d49dbd1dd067
-      bt: 35d9c47cfd4fc137760d0ee411c0b097541cab7aae2b0a9ea83b368328fe5c23
-      ct: 032da4c7df957d9ca89b5395be6e1c84cab7d19a78abe1b02bb37b26ca65b0e4
-    output:
-      - input_file: u32_t.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-      - input_file: u32_f.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-    initial_ast: c5b7d8bd3863f44039ab510def2034acb99362b39a5428e6fc117483353f4afe
-    imports_resolved_ast: c5b7d8bd3863f44039ab510def2034acb99362b39a5428e6fc117483353f4afe
-    canonicalized_ast: c5b7d8bd3863f44039ab510def2034acb99362b39a5428e6fc117483353f4afe
-    type_inferenced_ast: dc3eaf97d5cb489ebffb01f14ba974027562ca17f438301c26167aa3471ddc52
+outputs: []

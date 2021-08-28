@@ -1,22 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 9
-      num_constraints: 7
-      at: 5f4cfa276f9e316a42c9292a4f149fcf3c301a4ca3dc14112b7d59e8ef1e002c
-      bt: c728f18e4b654023c5189f382573af92682099ed5c7c08e706604e6f1cb7d72d
-      ct: 74aca434b2a72f7215a0dbe138b708fb2c2857d95dc3bc4776903c90d5f47bb9
-    output:
-      - input_file: inputs/two.in
-        output:
-          registers:
-            out:
-              type: bool
-              value: "true"
-    initial_ast: cb6caa7598139ad4bdf20a4ace3eb443f83932c91606214227c192684efa2c33
-    imports_resolved_ast: cb6caa7598139ad4bdf20a4ace3eb443f83932c91606214227c192684efa2c33
-    canonicalized_ast: ef8938160ef517c3856d42b1c651877de6baaa791409cd92ea0552b8c82b228a
-    type_inferenced_ast: 313f5120e880583f9cced569d3afcfe7b893a8b9c58f521680037df4202e6d8c
+outputs: []

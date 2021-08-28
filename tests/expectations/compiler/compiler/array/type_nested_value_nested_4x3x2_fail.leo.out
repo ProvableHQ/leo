@@ -1,5 +1,4 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs:
-  - "Error [EASG0373025]: unexpected type, expected: 'array of length 4', received: 'array of length 2'\n    --> compiler-test:4:34\n     |\n   4 |     const b: [[[u8; 2]; 3]; 4] = [[[0; 4]; 3]; 2]; // initializer (incorrectly reversed ordering)\n     |                                  ^^^^^^^^^^^^^^^^"
+outputs: []

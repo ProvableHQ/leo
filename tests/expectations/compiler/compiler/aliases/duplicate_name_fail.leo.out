@@ -1,5 +1,4 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs:
-  - "Error [EASG0373044]: a alias named \"int\" already exists in this scope\n    --> compiler-test:4:6\n     |\n   4 | type int = u8;\n     |      ^^^"
+outputs: []

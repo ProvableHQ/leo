@@ -1,5 +1,4 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs:
-  - "Error [EASG0373027]: failed to resolve variable reference 'Foo'\n    --> compiler-test:10:17\n     |\n  10 |     const err = Foo.echo(1u32); // Invalid, echo is a static function and must be accessed using `::`\n     |                 ^^^"
+outputs: []

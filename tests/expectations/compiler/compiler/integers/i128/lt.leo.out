@@ -1,28 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 897
-      num_constraints: 897
-      at: 9164a7c32351fa140180bb6aedc74fc291dde69bbff2b1e9c2191b3d155356dd
-      bt: 9a46d23879218b3aa9d5b6575fc677aca1f7470b3b4e623a26f410a38200661b
-      ct: 8d7309bdb692a71de6c9efc246984ce389534e8fc31222a94d5217720c2d20e9
-    output:
-      - input_file: i128_l.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-      - input_file: i128_e.in
-        output:
-          registers:
-            r0:
-              type: bool
-              value: "true"
-    initial_ast: ff20432be7beb83e5e5b022eef93d6ea0ef262fb834ce0eef5633c1db97abe03
-    imports_resolved_ast: ff20432be7beb83e5e5b022eef93d6ea0ef262fb834ce0eef5633c1db97abe03
-    canonicalized_ast: ff20432be7beb83e5e5b022eef93d6ea0ef262fb834ce0eef5633c1db97abe03
-    type_inferenced_ast: 5a43f0e27448024f978e71e784a16071cccbe7d8bf666ce7c42653e593244249
+outputs: []

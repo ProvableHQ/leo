@@ -1,5 +1,4 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs:
-  - "Error [EASG0373005]: extra circuit member 'a' for initialization of circuit 'Foo' is not allowed\n    --> compiler-test:8:19\n     |\n   8 |     let f = Foo { a: 0u8 };\n     |                   ^"
+outputs: []

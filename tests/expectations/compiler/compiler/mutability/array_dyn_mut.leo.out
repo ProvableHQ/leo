@@ -1,28 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 1277
-      num_constraints: 1604
-      at: c5d2d5bbb85d0f7ba48170fdb652aff057db6d1babf378d8a548af874e0734ff
-      bt: 726f3c39d11da5bc8487b8b7228a55cb7819a47a9b674d41f9c756c6927fb55a
-      ct: 7c4917152b59cb9caa30bad7d5119a3e36c40f7a783fdb8ff602dd5447573cc7
-    output:
-      - input_file: input/index1.in
-        output:
-          registers:
-            r0:
-              type: "[u32; 3]"
-              value: "\"303\""
-      - input_file: input/index2.in
-        output:
-          registers:
-            r0:
-              type: "[u32; 3]"
-              value: "\"150\""
-    initial_ast: b56c67d410c98a75c5f742d382e223355d214484d198ccaefe65296421c6854b
-    imports_resolved_ast: b56c67d410c98a75c5f742d382e223355d214484d198ccaefe65296421c6854b
-    canonicalized_ast: 7217fa688744caee18ab779ab9c43deac2d70a8d0b989873fe720d3f46a5e366
-    type_inferenced_ast: 6d673f91cd5c98cd1ae69777a317cf2b2ee50fd291996c8ae70d036705e76062
+outputs: []

@@ -1,22 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 95
-      num_constraints: 127
-      at: 2cbb45563950440ec6b2ad12e378f1df49d6a12d4e773f0aa898f65f4eb109ff
-      bt: 7e12153373f45abf58e3b2954d1f1abfc951c7c1203e9e6c96fc37d9d25d8442
-      ct: 50977b6cd45450d9fddf5934d9167f889165f6ff117b03bb780bd6d89434daf4
-    output:
-      - input_file: input/integers.in
-        output:
-          registers:
-            a:
-              type: u32
-              value: "4"
-    initial_ast: cf2d49dcd581c923b4ccfeb9c155de0e836fb8725c3c3af7abc5e6334231ba2f
-    imports_resolved_ast: cf2d49dcd581c923b4ccfeb9c155de0e836fb8725c3c3af7abc5e6334231ba2f
-    canonicalized_ast: cf2d49dcd581c923b4ccfeb9c155de0e836fb8725c3c3af7abc5e6334231ba2f
-    type_inferenced_ast: 085d3126391766edfb8cd9b92bff04cb67175fea26de3ff127392f4aab681cf8
+outputs: []

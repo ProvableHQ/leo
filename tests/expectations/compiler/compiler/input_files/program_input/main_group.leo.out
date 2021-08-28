@@ -1,19 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 12
-      num_constraints: 9
-      at: df88b362955f00b8c41afd9e31c9e41e4b8254a71ea0f3f2f97d5b6b8b767415
-      bt: df58aff07b131c34e977ffb5657bbd21852f59fd7e059117c419c3c6070a7053
-      ct: 335cdfb09b13172262042abccf4560511666deaa63cc1b3f30dd35dcb554840f
-    output:
-      - input_file: input/main_group.in
-        output:
-          registers: {}
-    initial_ast: 731684bc8e22a3bbde7816d4f9ddc4db9561244b81caff4ef23e90ab5949ef60
-    imports_resolved_ast: 731684bc8e22a3bbde7816d4f9ddc4db9561244b81caff4ef23e90ab5949ef60
-    canonicalized_ast: d4b3e34c002f7dd2bfb3b12b5028d44a84113e9c9a2d22d7576763cd59c7521b
-    type_inferenced_ast: 326c07a3eae5f211848b943adcb05103121e0b241967bfd4a545ff6f6566f699
+outputs: []

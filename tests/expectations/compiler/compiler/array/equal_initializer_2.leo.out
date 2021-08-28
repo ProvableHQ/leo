@@ -1,28 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 95
-      num_constraints: 95
-      at: 9273b9ab94dee8605c4f1e49fe99910f674468f5026b8d2c48ecaa4d8c006f3a
-      bt: a3614a9ddd1ae0fde16a61336aba5a02b44816b3e43e23c7b9663976319bcb8a
-      ct: 49f0db71bd29b80dbe5f2f96573a5959b1df339c92350e16f111bade214037aa
-    output:
-      - input_file: input/six_zeros.in
-        output:
-          registers:
-            x:
-              type: bool
-              value: "false"
-      - input_file: input/count_to_6.in
-        output:
-          registers:
-            x:
-              type: bool
-              value: "true"
-    initial_ast: 307b6817fa2a5005462686901129e97bf75c00bf14568fafbe1de2c8afc1804d
-    imports_resolved_ast: 307b6817fa2a5005462686901129e97bf75c00bf14568fafbe1de2c8afc1804d
-    canonicalized_ast: cbaa304ba210d8155762701d8e6a2ddca3eaffb008a813ed7a60db1fb0043f10
-    type_inferenced_ast: 47e371ce112ac17fd65bfd100d24829e8c4819e1f96cc715b8c6245f01d608bb
+outputs: []

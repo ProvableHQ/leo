@@ -1,5 +1,4 @@
 ---
 namespace: Compile
 expectation: Fail
-outputs:
-  - "Error [EASG0373015]: a function named \"main\" already exists in this scope\n    --> compiler-test:8:1\n     |\n   8 | function main() {\n   9 |      ...\n  10 | }\n     | ^"
+outputs: []

@@ -111,6 +111,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
                 .unwrap_or_else(|| PathBuf::from(path));
 
             let end_of_header = text.find("*/").expect("failed to find header block in test");
+            // Do this to match test-framework ast bc of spans
             let text = &text[end_of_header + 2..];
             // Write all files into the directory.
             let (initial, imports_resolved, canonicalized, type_inferenced) = generate_asts(cwd, text)?;
@@ -148,10 +149,13 @@ fn generate_asts(path: PathBuf, text: &str) -> Result<(String, String, String, S
     ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
     let canonicalized = ast.to_json_string()?;
 
-    let asg = Asg::new(thread_leaked_context(), &ast)?;
+    let mut ti_ast = ast.into_repr();
+    ti_ast.name = "test".to_string(); // Do this to match test-framework ast
+
+    let asg = Asg::new(thread_leaked_context(), &ti_ast)?;
 
     let type_inferenced = TypeInferencePhase::default()
-        .phase_ast(&ast.into_repr(), &asg.clone().into_repr())
+        .phase_ast(&ti_ast, &asg.clone().into_repr())
         .expect("Failed to produce type inference ast.")
         .to_json_string()?;
 

@@ -1,22 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 113
-      num_constraints: 113
-      at: 800702d0776e95fee2689e79fcfe570db9fbd128310fc88565e72d322bea0407
-      bt: 417dc25c14bf36db410808a30f2263083728f1158cbf74a81bd8d8b5cba878d9
-      ct: 92784334fb47e5a53eb972ec42d95f97470117bb6839cf2d46e8fcbd38a662f9
-    output:
-      - input_file: u16_g.in
-        output:
-          registers: {}
-      - input_file: u16_f.in
-        output:
-          registers: {}
-    initial_ast: 07aa194712e885c67e73bd8ce425b09aa0b11a0597fd28e2b6b861c2890a7dbf
-    imports_resolved_ast: 07aa194712e885c67e73bd8ce425b09aa0b11a0597fd28e2b6b861c2890a7dbf
-    canonicalized_ast: 585b9eb84b4794b44a491f3a20919aa03b1defb10b34ff0c1ccaf16943c95498
-    type_inferenced_ast: f58d2c30292c5b7066145cc1f9f103c347c69bcfd103f68a11870d436d93034c
+outputs: []

@@ -1,22 +1,4 @@
 ---
 namespace: Compile
 expectation: Pass
-outputs:
-  - circuit:
-      num_public_variables: 0
-      num_private_variables: 32
-      num_constraints: 32
-      at: 4f36fe54f989d60bb9c279120800f4f44596c2efb7ba703669d4c4d591569780
-      bt: d378030968a64801f66d95699329086ca17e676d8bffcf73f6b431cbda7c7005
-      ct: dbd098af6556ed79650d149b1691be336a46f8bad6f327e942508dd11342575e
-    output:
-      - input_file: inline.in
-        output:
-          registers:
-            r0:
-              type: u32
-              value: "100"
-    initial_ast: c40a1d60f872fdb03ab7379a3abf43439a100b8f1546b76ffeac60c8739e0d68
-    imports_resolved_ast: c40a1d60f872fdb03ab7379a3abf43439a100b8f1546b76ffeac60c8739e0d68
-    canonicalized_ast: c40a1d60f872fdb03ab7379a3abf43439a100b8f1546b76ffeac60c8739e0d68
-    type_inferenced_ast: 3d56ffd95d1b84970e24f10a48f52053717876f062db72d8be93f413f7b2c9a3
+outputs: []
