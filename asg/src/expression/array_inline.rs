@@ -108,6 +108,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
         let (mut expected_item, expected_len) = match expected_type {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
+            Some(PartialType::Type(Type::UnsizedArray(item))) => (Some(item.clone().partial()), None),
             Some(type_) => {
                 return Err(AsgError::unexpected_type(type_, "array", &value.span).into());
             }

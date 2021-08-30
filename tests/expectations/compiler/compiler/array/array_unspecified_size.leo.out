@@ -18,4 +18,4 @@ outputs:
               value: "true"
     initial_ast: 4483823ad88ca4c56f6699b5f6908409afee0bd7aee7d5070d34ac5411653c8a
     canonicalized_ast: 4483823ad88ca4c56f6699b5f6908409afee0bd7aee7d5070d34ac5411653c8a
-    type_inferenced_ast: e30307360ae54ced0ab13272ea00ddbcf94735c8f0ba990404f8b54aa72e4e17
+    type_inferenced_ast: 8970a54468b7ceda90bda7c6ba26ac8da595b14cfd252035aae99f5d949ab97b

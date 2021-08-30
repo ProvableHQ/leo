@@ -32,6 +32,7 @@ pub enum Type<'a> {
 
     // Data type wrappers
     Array(Box<Type<'a>>, usize),
+    UnsizedArray(Box<Type<'a>>),
     Tuple(Vec<Type<'a>>),
     Circuit(&'a Circuit<'a>),
 }
@@ -49,7 +50,13 @@ impl<'a> Into<Option<Type<'a>>> for PartialType<'a> {
         match self {
             PartialType::Type(t) => Some(t),
             PartialType::Integer(sub_type, contextual_type) => Some(Type::Integer(sub_type.or(contextual_type)?)),
-            PartialType::Array(element, len) => Some(Type::Array(Box::new((*element?).full()?), len?)),
+            PartialType::Array(element, len) => {
+                if len.is_some() {
+                    Some(Type::Array(Box::new((*element?).full()?), len?))
+                } else {
+                    Some(Type::UnsizedArray(Box::new((*element?).full()?)))
+                }
+            }
             PartialType::Tuple(sub_types) => Some(Type::Tuple(
                 sub_types
                     .into_iter()
@@ -79,6 +86,14 @@ impl<'a> PartialType<'a> {
                 }
                 if let Some(len) = len {
                     return len == other_len;
+                }
+                true
+            }
+            (PartialType::Array(element, _len), Type::UnsizedArray(other_element)) => {
+                if let Some(element) = element {
+                    if !element.matches(&*other_element) {
+                        return false;
+                    }
                 }
                 true
             }
@@ -140,6 +155,7 @@ impl<'a> fmt::Display for Type<'a> {
             Type::Group => write!(f, "group"),
             Type::Integer(sub_type) => sub_type.fmt(f),
             Type::Array(sub_type, len) => write!(f, "[{}; {}]", sub_type, len),
+            Type::UnsizedArray(sub_type) => write!(f, "[{}, _]", sub_type),
             Type::Tuple(sub_types) => {
                 write!(f, "(")?;
                 for (i, sub_type) in sub_types.iter().enumerate() {
@@ -211,6 +227,7 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
                     value: len.to_string().into(),
                 }])),
             ),
+            UnsizedArray(type_) => leo_ast::Type::Array(Box::new(type_.as_ref().into()), None),
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),
             Circuit(circuit) => leo_ast::Type::Circuit(circuit.name.borrow().clone()),
         }

@@ -91,7 +91,8 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             Some(PartialType::Array(expected_type.map(Box::new), None)),
         )?;
         let array_len = match array.get_type() {
-            Some(Type::Array(_, len)) => len,
+            Some(Type::Array(_, len)) => Some(len),
+            Some(Type::UnsizedArray(_arr)) => None, // TODO: @damirka - try to find workaround for this place
             type_ => {
                 return Err(AsgError::unexpected_type(
                     "array",
@@ -113,10 +114,12 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             .map(|x| x.int().map(|x| x.to_usize()).flatten())
             .flatten()
         {
-            if index >= array_len {
-                return Err(
-                    AsgError::array_index_out_of_bounds(index, &array.span().cloned().unwrap_or_default()).into(),
-                );
+            if let Some(array_len) = array_len {
+                if index >= array_len {
+                    return Err(
+                        AsgError::array_index_out_of_bounds(index, &array.span().cloned().unwrap_or_default()).into(),
+                    );
+                }
             }
         }
 

@@ -171,6 +171,8 @@ impl<'a> Scope<'a> {
                             .map_err(|_| AsgError::parse_index_error(span))?;
                         item = Box::new(Type::Array(item, dimension));
                     }
+                } else {
+                    item = Box::new(Type::UnsizedArray(item));
                 }
                 *item
             }

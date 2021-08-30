@@ -159,6 +159,7 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
             let type_ = expression
                 .get_type()
                 .ok_or_else(|| AsgError::unresolved_reference(&value.name, &value.span))?;
+
             if !expected_type.matches(&type_) {
                 return Err(AsgError::unexpected_type(expected_type, type_, &value.span).into());
             }
