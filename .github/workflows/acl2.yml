@@ -46,7 +46,7 @@ jobs:
             cd tmp/tgc/$dir; # enter the directory
             ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp > canonicalization_result.out || canonicalization_errors+=("$dir");
             # Disabling Type inference for now
-            # ./../../../acl2/tgc type-inference canonicalization_ast.json type_inferenced_ast.json type-inference-theorem.lisp > type_inference_result.out || type_inference_errors+=("$dir");
+            ./../../../acl2/tgc type-inference canonicalization_ast.json type_inferenced_ast.json type-inference-theorem.lisp > type_inference_result.out || type_inference_errors+=("$dir");
             cd ../../..
           done;
 
