@@ -59,12 +59,12 @@ jobs:
               echo $dir;
             done;
 
-            echo "Attaching logs:"
-            for dir in ${canonicalization_errors[@]};
-            do
-              # cat tmp/tgc/$dir/canonicalization_result.out
-              # cat tmp/tgc/$dir/canonicalization-theorem.lisp
-            done;
+            #echo "Attaching logs:"
+            #for dir in ${canonicalization_errors[@]};
+            #do
+            # cat tmp/tgc/$dir/canonicalization_result.out
+            # cat tmp/tgc/$dir/canonicalization-theorem.lisp
+            #done;
             exit 1
           fi
 
@@ -77,11 +77,11 @@ jobs:
               echo $dir;
             done;
 
-            echo "Attaching logs:"
-            for dir in ${type_inference_errors[@]};
-            do
-              # cat tmp/tgc/$dir/type_inference_result.out
-            done;
+            #echo "Attaching logs:"
+            #for dir in ${type_inference_errors[@]};
+            #do
+            # cat tmp/tgc/$dir/type_inference_result.out
+            #done;
 
             exit 1
           fi
