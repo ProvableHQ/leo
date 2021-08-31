@@ -1,14 +1,5 @@
 name: Leo-ACL2
-on: 
-  pull_request:
-    push:
-      branches:
-        - master
-        - staging
-        - trying
-      paths-ignore:
-        - 'docs/**'
-        - 'documentation/**'
+on: workflow_dispatch
 env: 
   RUST_BACKTRACE: 1
 
