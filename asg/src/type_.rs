@@ -207,9 +207,9 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
             Integer(int_type) => leo_ast::Type::IntegerType(int_type.clone()),
             Array(type_, len) => leo_ast::Type::Array(
                 Box::new(type_.as_ref().into()),
-                leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {
+                Some(leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {
                     value: len.to_string().into(),
-                }]),
+                }])),
             ),
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),
             Circuit(circuit) => leo_ast::Type::CircuitOrAlias(circuit.name.borrow().clone()),
