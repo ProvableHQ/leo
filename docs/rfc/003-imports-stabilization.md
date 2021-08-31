@@ -2,14 +2,7 @@
 
 ## Authors
 
-- Max Bruce
-- Collin Chin
-- Alessandro Coglio
-- Eric McCarthy
-- Jon Pavlik
-- Damir Shamanaev
-- Damon Sicore
-- Howard Wu
+The Aleo Team.
 
 ## Status
 
@@ -18,7 +11,7 @@ FINAL
 # Summary
 
 This proposal aims to improve the import management system in Leo programs to
-make program environment more reproducible, predictable and compatible. To achieve 
+make program environment more reproducible, predictable and compatible. To achieve
 that we suggest few changes to Leo CLI and Manifest:
 
 - add a "dependencies" section to Leo Manifest and add a command to pull those dependencies;
@@ -29,19 +22,19 @@ that we suggest few changes to Leo CLI and Manifest:
 
 # Motivation
 
-The current design of imports does not provide any guarantees on what's stored 
-in program imports and published with the program to Aleo Package Manager. 
+The current design of imports does not provide any guarantees on what's stored
+in program imports and published with the program to Aleo Package Manager.
 When a dependency is "added," it is stored inside imports folder, and it is possible
 to manually edit and/or add packages in this folder.
 
 Also, imports are stored under the package name which makes it impossible to import
-two different packages with the same name. 
+two different packages with the same name.
 
 Another important detail in the scope of this proposal is that in future Leo
-programs will have the ability to be run with different proving systems 
-and curves, possibly creating incompatibility between programs written 
+programs will have the ability to be run with different proving systems
+and curves, possibly creating incompatibility between programs written
 for different proving systems or curves. To make a foundation for these features,
-imports need to be managed with include/exclude lists for allowed (compatible) 
+imports need to be managed with include/exclude lists for allowed (compatible)
 proving systems and curves.
 
 # Design
@@ -67,7 +60,7 @@ curve = "Bls12_377"
 proving_system = "Groth16"
 ```
 
-These fields are meant to be used to determine whether imported program is 
+These fields are meant to be used to determine whether imported program is
 compatible to the original when support for different curves and proving systems
 is added.
 
@@ -88,7 +81,7 @@ version = "1.0"
 
 ### Parameters description
 
-`name` field sets the name of the dependency in Leo code. That way we allow 
+`name` field sets the name of the dependency in Leo code. That way we allow
 developer to resolve collisions in import names manually. So, for example,
 if a developer is adding `howard/silly-sudoku` package to his program, he
 might define its in-code name as `sudoku` and import it with that name:
@@ -97,13 +90,13 @@ might define its in-code name as `sudoku` and import it with that name:
 import sudoku;
 ```
 
-`package`, `author` and `version` are package name, package author and 
-version respectively. They are already used as arguments in `leo add` 
+`package`, `author` and `version` are package name, package author and
+version respectively. They are already used as arguments in `leo add`
 command, so these fields are already understood by the Leo developers.
 
-## Leo CLI 
+## Leo CLI
 
-To support updated Manifest new command should be added to Leo CLI. 
+To support updated Manifest new command should be added to Leo CLI.
 
 ```bash
 # pull imports
@@ -113,11 +106,11 @@ leo fetch
 ## Imports Restructurization
 
 One of the goals of proposed changes is to allow importing packages with the
-same name but different authors. This has to be solved not only on the 
-language level but also on the level of storing program imports. 
+same name but different authors. This has to be solved not only on the
+language level but also on the level of storing program imports.
 
 We suggest using set of all 3 possible program identifiers for import
-folder name: `author-package@version`. Later it can be extended to 
+folder name: `author-package@version`. Later it can be extended to
 include hash for version, but having the inital set already solves name
 collisions.
 
@@ -140,7 +133,7 @@ leo-program
 
 This change would also affect the way imports are being processed on the ASG
 level, and we'd need to add an imports map as an argument to the Leo compiler.
-The Leo Manifest's dependencies sections needs to be parsed and passed as 
+The Leo Manifest's dependencies sections needs to be parsed and passed as
 a hashmap to the compiler:
 
 ```
@@ -184,7 +177,7 @@ The format described here allows the Leo binary to form an imports map which can
 passed to the compiler.
 
 It is important to note that Leo.lock file is created only when a package has dependencies.
-For programs with no dependencies, a lock file is not required and not created. 
+For programs with no dependencies, a lock file is not required and not created.
 
 ## Recursive Dependencies
 
@@ -208,12 +201,12 @@ It also introduces the danger of having recursive dependencies, this problem is 
 # Effect on Ecosystem
 
 Proposed improvement provides safety inside Leo programs and should not affect
-ecosystem except for the tools which use Leo directly (such as Aleo Studio). 
+ecosystem except for the tools which use Leo directly (such as Aleo Studio).
 
-It is possible that some of the proposed features will open new features on Aleo PM. 
+It is possible that some of the proposed features will open new features on Aleo PM.
 
 # Alternatives
 
 Another approach to the stated cases is to keep everything as we have now but change
-the way programs are imported and stored and make names unique. Also, current 
-implementation provides some guarantees on import stablitity and consistency. 
+the way programs are imported and stored and make names unique. Also, current
+implementation provides some guarantees on import stablitity and consistency.
