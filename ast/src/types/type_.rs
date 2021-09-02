@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayDimensions, Identifier, IntegerType};
+use crate::{ArrayDimensions, Identifier, IntegerType, PositiveNumber};
 use leo_input::types::{
     ArrayType as InputArrayType, DataType as InputDataType, TupleType as InputTupleType, Type as InputType,
 };
 
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeSeq, Deserialize, Serialize, Serializer};
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
@@ -34,6 +34,7 @@ pub enum Type {
     IntegerType(IntegerType),
 
     // Data type wrappers
+    #[serde(serialize_with = "serialize_array")]
     Array(Box<Type>, Option<ArrayDimensions>),
     Tuple(Vec<Type>),
     CircuitOrAlias(Identifier),
@@ -196,4 +197,23 @@ pub fn inner_array_type(element_type: Type, dimensions: ArrayDimensions) -> Type
         // The array has multiple dimensions.
         Type::Array(Box::new(element_type), Some(dimensions))
     }
+}
+
+///
+/// Custom Serializer for Type::Array. Handles the case when ArrayDimensions are None and turns it into
+/// a Vec<PositiveNumber>, where the only element is "0".
+///
+fn serialize_array<S>(type_: &Type, dimensions: &Option<ArrayDimensions>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    let mut seq = serializer.serialize_seq(Some(2))?;
+    seq.serialize_element(type_)?;
+    // seq.serialize_element(dimensions)?;
+    if let Some(dimensions) = dimensions {
+        seq.serialize_element(&dimensions)?;
+    } else {
+        seq.serialize_element(&ArrayDimensions(vec![PositiveNumber { value: "0".into() }]))?;
+    }
+    seq.end()
 }
