@@ -123,7 +123,11 @@ impl<'a> Into<PartialType<'a>> for Type<'a> {
 
 impl<'a> Type<'a> {
     pub fn is_assignable_from(&self, from: &Type<'a>) -> bool {
-        self == from
+        match (self, from) {
+            (Type::Array(_, _), Type::ArrayWithoutSize(_)) => true,
+            (Type::ArrayWithoutSize(_), Type::Array(_, _)) => true,
+            _ => self == from,
+        }
     }
 
     pub fn partial(self) -> PartialType<'a> {
