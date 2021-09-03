@@ -733,6 +733,8 @@
 <span id="731">731</span>
 <span id="732">732</span>
 <span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -1340,7 +1342,9 @@
         }
         <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_spread_or_expression</span>()<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::Semicolon</span>).<span class="ident">is_some</span>() {
-            <span class="kw">let</span> <span class="ident">dimensions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_array_dimensions</span>()<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">dimensions</span> <span class="op">=</span> <span class="self">self</span>
+                .<span class="ident">parse_array_dimensions</span>()<span class="question-mark">?</span>
+                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ParserError::unable_to_parse_array_dimensions</span>(<span class="ident">span</span>))<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">expect</span>(<span class="ident">Token::RightSquare</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">first</span> {
                 <span class="ident">SpreadOrExpression::Spread</span>(<span class="ident">first</span>) <span class="op">=</span><span class="op">&gt;</span> {

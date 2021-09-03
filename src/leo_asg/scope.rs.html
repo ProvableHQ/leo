@@ -213,6 +213,12 @@
 <span id="211">211</span>
 <span id="212">212</span>
 <span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -399,13 +405,19 @@
             <span class="ident">IntegerType</span>(<span class="ident">int_type</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Integer</span>(<span class="ident">int_type</span>.<span class="ident">clone</span>()),
             <span class="ident">Array</span>(<span class="ident">sub_type</span>, <span class="ident">dimensions</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">item</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">resolve_ast_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">sub_type</span>, <span class="ident">span</span>)<span class="question-mark">?</span>);
-                <span class="kw">for</span> <span class="ident">dimension</span> <span class="kw">in</span> <span class="ident">dimensions</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">rev</span>() {
-                    <span class="kw">let</span> <span class="ident">dimension</span> <span class="op">=</span> <span class="ident">dimension</span>
-                        .<span class="ident">value</span>
-                        .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()
-                        .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">AsgError::parse_index_error</span>(<span class="ident">span</span>))<span class="question-mark">?</span>;
-                    <span class="ident">item</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">Type::Array</span>(<span class="ident">item</span>, <span class="ident">dimension</span>));
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dimensions</span>) <span class="op">=</span> <span class="ident">dimensions</span> {
+                    <span class="kw">for</span> <span class="ident">dimension</span> <span class="kw">in</span> <span class="ident">dimensions</span>.<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">rev</span>() {
+                        <span class="kw">let</span> <span class="ident">dimension</span> <span class="op">=</span> <span class="ident">dimension</span>
+                            .<span class="ident">value</span>
+                            .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()
+                            .<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">AsgError::parse_index_error</span>(<span class="ident">span</span>))<span class="question-mark">?</span>;
+                        <span class="ident">item</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">Type::Array</span>(<span class="ident">item</span>, <span class="ident">dimension</span>));
+                    }
+                } <span class="kw">else</span> {
+                    <span class="ident">item</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">Type::ArrayWithoutSize</span>(<span class="ident">item</span>));
                 }
+
                 <span class="kw-2">*</span><span class="ident">item</span>
             }
             <span class="ident">Tuple</span>(<span class="ident">sub_types</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Tuple</span>(

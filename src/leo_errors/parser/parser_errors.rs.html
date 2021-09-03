@@ -178,6 +178,14 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -213,7 +221,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an invalid address literal.</span>
+    <span class="doccomment">/// For when the parser encountered an invalid address literal.</span>
     @<span class="ident">formatted</span>
     <span class="ident">invalid_address_lit</span> {
         <span class="ident">args</span>: (<span class="ident">token</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
@@ -221,7 +229,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an empty import list.</span>
+    <span class="doccomment">/// For when the parser encountered an empty import list.</span>
     @<span class="ident">formatted</span>
     <span class="ident">invalid_import_list</span> {
         <span class="ident">args</span>: (),
@@ -229,7 +237,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an unexpected End of File.</span>
+    <span class="doccomment">/// For when the parser encountered an unexpected End of File.</span>
     @<span class="ident">formatted</span>
     <span class="ident">unexpected_eof</span> {
         <span class="ident">args</span>: (),
@@ -237,7 +245,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an unexpected whitespace.</span>
+    <span class="doccomment">/// For when the parser encountered an unexpected whitespace.</span>
     @<span class="ident">formatted</span>
     <span class="ident">unexpected_whitespace</span> {
         <span class="ident">args</span>: (<span class="ident">left</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">right</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
@@ -245,7 +253,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an unexpected list of tokens.</span>
+    <span class="doccomment">/// For when the parser encountered an unexpected list of tokens.</span>
     @<span class="ident">formatted</span>
     <span class="ident">unexpected</span> {
         <span class="ident">args</span>: (<span class="ident">got</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
@@ -253,7 +261,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered a mix of commas and semi-colons in circuit member variables.</span>
+    <span class="doccomment">/// For when the parser encountered a mix of commas and semi-colons in circuit member variables.</span>
     @<span class="ident">formatted</span>
     <span class="ident">mixed_commas_and_semicolons</span> {
         <span class="ident">args</span>: (),
@@ -261,7 +269,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an unexpected identifier.</span>
+    <span class="doccomment">/// For when the parser encountered an unexpected identifier.</span>
     @<span class="ident">formatted</span>
     <span class="ident">unexpected_ident</span> {
         <span class="ident">args</span>: (<span class="ident">got</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">expected</span>: <span class="kw-2">&amp;</span>[<span class="kw">impl</span> <span class="ident">Display</span>]),
@@ -277,7 +285,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an unexpected statement.</span>
+    <span class="doccomment">/// For when the parser encountered an unexpected statement.</span>
     @<span class="ident">formatted</span>
     <span class="ident">unexpected_statement</span> {
         <span class="ident">args</span>: (<span class="ident">got</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
@@ -285,7 +293,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an unexpected string.</span>
+    <span class="doccomment">/// For when the parser encountered an unexpected string.</span>
     @<span class="ident">formatted</span>
     <span class="ident">unexpected_str</span> {
         <span class="ident">args</span>: (<span class="ident">got</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">expected</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
@@ -293,7 +301,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an unexpected spread in an array init expression.</span>
+    <span class="doccomment">/// For when the parser encountered an unexpected spread in an array init expression.</span>
     @<span class="ident">formatted</span>
     <span class="ident">spread_in_array_init</span> {
         <span class="ident">args</span>: (),
@@ -301,7 +309,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an invalid assignment target.</span>
+    <span class="doccomment">/// For when the parser encountered an invalid assignment target.</span>
     @<span class="ident">formatted</span>
     <span class="ident">invalid_assignment_target</span> {
         <span class="ident">args</span>: (),
@@ -309,7 +317,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an invalid package name.</span>
+    <span class="doccomment">/// For when the parser encountered an invalid package name.</span>
     @<span class="ident">formatted</span>
     <span class="ident">invalid_package_name</span> {
         <span class="ident">args</span>: (),
@@ -317,7 +325,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered an illegal `const self` argument.</span>
+    <span class="doccomment">/// For when the parser encountered an illegal `const self` argument.</span>
     @<span class="ident">formatted</span>
     <span class="ident">illegal_self_const</span> {
         <span class="ident">args</span>: (),
@@ -325,7 +333,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered a deprecated `mut` argument in a function.</span>
+    <span class="doccomment">/// For when the parser encountered a deprecated `mut` argument in a function.</span>
     @<span class="ident">formatted</span>
     <span class="ident">mut_function_input</span> {
         <span class="ident">args</span>: (),
@@ -333,7 +341,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered a deprecated `mut` argument in a let statement.</span>
+    <span class="doccomment">/// For when the parser encountered a deprecated `mut` argument in a let statement.</span>
     @<span class="ident">formatted</span>
     <span class="ident">let_mut_statement</span> {
         <span class="ident">args</span>: (),
@@ -341,7 +349,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered a deprecated `test function`.</span>
+    <span class="doccomment">/// For when the parser encountered a deprecated `test function`.</span>
     @<span class="ident">formatted</span>
     <span class="ident">test_function</span> {
         <span class="ident">args</span>: (),
@@ -349,11 +357,19 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the parser encoutnered a deprecated `@context(...)` annotation.</span>
+    <span class="doccomment">/// For when the parser encountered a deprecated `@context(...)` annotation.</span>
     @<span class="ident">formatted</span>
     <span class="ident">context_annotation</span> {
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>: <span class="string">&quot;\&quot;@context(...)\&quot; is deprecated. Did you mean @test annotation?&quot;</span>,
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when the parser failed to parse array dimensions.</span>
+    @<span class="ident">formatted</span>
+    <span class="ident">unable_to_parse_array_dimensions</span> {
+        <span class="ident">args</span>: (),
+        <span class="ident">msg</span>: <span class="string">&quot;unable to parse array dimensions&quot;</span>,
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );

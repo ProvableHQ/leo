@@ -804,9 +804,9 @@
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">type_inference_enabled</span>() {
                     <span class="ident">AstType::Array</span>(
                         <span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">reduce_type</span>(<span class="ident">ast_type</span>, <span class="ident">asg_type</span>, <span class="ident">span</span>)<span class="question-mark">?</span>),
-                        <span class="ident">ArrayDimensions</span>(<span class="macro">vec!</span>[<span class="ident">PositiveNumber</span> {
+                        <span class="prelude-val">Some</span>(<span class="ident">ArrayDimensions</span>(<span class="macro">vec!</span>[<span class="ident">PositiveNumber</span> {
                             <span class="ident">value</span>: <span class="ident">StrTendril::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">asg_dimensions</span>)),
-                        }]),
+                        }])),
                     )
                 } <span class="kw">else</span> {
                     <span class="ident">AstType::Array</span>(

@@ -129,6 +129,8 @@
 <span id="127">127</span>
 <span id="128">128</span>
 <span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -190,9 +192,11 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Returns an [`ArrayDimensions`] AST node if the next tokens represent dimensions for an array type.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_array_dimensions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ArrayDimensions</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_array_dimensions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ArrayDimensions</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">int</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_int</span>() {
-            <span class="ident">ArrayDimensions</span>(<span class="macro">vec!</span>[<span class="ident">int</span>])
+            <span class="prelude-val">Some</span>(<span class="ident">ArrayDimensions</span>(<span class="macro">vec!</span>[<span class="ident">int</span>]))
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::Underscore</span>).<span class="ident">is_some</span>() {
+            <span class="prelude-val">None</span>
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">expect</span>(<span class="ident">Token::LeftParen</span>)<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dimensions</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -208,7 +212,7 @@
                 }
             }
             <span class="self">self</span>.<span class="ident">expect</span>(<span class="ident">Token::RightParen</span>)<span class="question-mark">?</span>;
-            <span class="ident">ArrayDimensions</span>(<span class="ident">dimensions</span>)
+            <span class="prelude-val">Some</span>(<span class="ident">ArrayDimensions</span>(<span class="ident">dimensions</span>))
         })
     }
 
