@@ -58,9 +58,11 @@ impl ParserContext {
     ///
     /// Returns an [`ArrayDimensions`] AST node if the next tokens represent dimensions for an array type.
     ///
-    pub fn parse_array_dimensions(&mut self) -> Result<ArrayDimensions> {
+    pub fn parse_array_dimensions(&mut self) -> Result<Option<ArrayDimensions>> {
         Ok(if let Some((int, _)) = self.eat_int() {
-            ArrayDimensions(vec![int])
+            Some(ArrayDimensions(vec![int]))
+        } else if self.eat(Token::Underscore).is_some() {
+            None
         } else {
             self.expect(Token::LeftParen)?;
             let mut dimensions = Vec::new();
@@ -76,7 +78,7 @@ impl ParserContext {
                 }
             }
             self.expect(Token::RightParen)?;
-            ArrayDimensions(dimensions)
+            Some(ArrayDimensions(dimensions))
         })
     }
 
