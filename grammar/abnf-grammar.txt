@@ -659,17 +659,6 @@ character-type = %s"char"
 
 scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
-; Circuit types are denoted by identifiers and the keyword `Self`;
-; the latter is only allowed inside a circuit definition,
-; to denote the circuit type being defined.
-; Identifiers may also be type aliases;
-; syntactically (i.e. without a semantic analysis),
-; they cannot be distinguished from circuit types.
-
-self-type = %s"Self"
-
-identifier-or-self-type = identifier / self-type
-
 ; A tuple type consists of zero, two, or more component types.
 
 tuple-type = "(" [ type 1*( "," type ) ] ")"
@@ -683,6 +672,17 @@ array-type = "[" type ";" array-dimensions "]"
 
 array-dimensions = natural
                  / "(" natural *( "," natural ) ")"
+
+; Circuit types are denoted by identifiers and the keyword `Self`;
+; the latter is only allowed inside a circuit definition,
+; to denote the circuit type being defined.
+; Identifiers may also be type aliases;
+; syntactically (i.e. without a semantic analysis),
+; they cannot be distinguished from circuit types.
+
+self-type = %s"Self"
+
+identifier-or-self-type = identifier / self-type
 
 ; Scalar and the remaining types form all the types.
 
