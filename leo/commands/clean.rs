@@ -65,6 +65,7 @@ impl Command for Clean {
 
         // Remove AST snapshots from the output directory
         SnapshotFile::new(&package_name, Snapshot::Initial).remove(&path)?;
+        SnapshotFile::new(&package_name, Snapshot::ImportsResolved).remove(&path)?;
         SnapshotFile::new(&package_name, Snapshot::TypeInference).remove(&path)?;
         SnapshotFile::new(&package_name, Snapshot::Canonicalization).remove(&path)?;
 

@@ -395,7 +395,6 @@ keyword = %s"address"
         / %s"console"
         / %s"const"
         / %s"else"
-        / %s"false"
         / %s"field"
         / %s"for"
         / %s"function"
@@ -416,7 +415,6 @@ keyword = %s"address"
         / %s"self"
         / %s"static"
         / %s"string"
-        / %s"true"
         / %s"type"
         / %s"u8"
         / %s"u16"
@@ -680,8 +678,10 @@ tuple-type = "(" [ type 1*( "," type ) ] ")"
 
 array-type = "[" type ";" array-dimensions "]"
 
-array-dimensions = natural
-                 / "(" natural *( "," natural ) ")"
+array-dimension = natural / "_"
+
+array-dimensions = array-dimension
+                 / "(" array-dimension *( "," array-dimension ) ")"
 
 ; Scalar and the remaining types form all the types.
 

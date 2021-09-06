@@ -183,13 +183,19 @@ impl<'a> Scope<'a> {
             IntegerType(int_type) => Type::Integer(int_type.clone()),
             Array(sub_type, dimensions) => {
                 let mut item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
-                for dimension in dimensions.0.iter().rev() {
-                    let dimension = dimension
-                        .value
-                        .parse::<usize>()
-                        .map_err(|_| AsgError::parse_index_error(span))?;
-                    item = Box::new(Type::Array(item, dimension));
+
+                if let Some(dimensions) = dimensions {
+                    for dimension in dimensions.0.iter().rev() {
+                        let dimension = dimension
+                            .value
+                            .parse::<usize>()
+                            .map_err(|_| AsgError::parse_index_error(span))?;
+                        item = Box::new(Type::Array(item, dimension));
+                    }
+                } else {
+                    item = Box::new(Type::ArrayWithoutSize(item));
                 }
+
                 *item
             }
             Tuple(sub_types) => Type::Tuple(
