@@ -36,7 +36,7 @@ pub enum Type {
     // Data type wrappers
     Array(Box<Type>, ArrayDimensions),
     Tuple(Vec<Type>),
-    CircuitOrAlias(Identifier),
+    Identifier(Identifier), // ex Circuit or Alias
     SelfType,
 }
 
@@ -52,7 +52,7 @@ impl Type {
     /// Returns `true` if the self `Type` is a `Circuit`.
     ///
     pub fn is_circuit(&self) -> bool {
-        matches!(self, Type::CircuitOrAlias(_))
+        matches!(self, Type::Identifier(_))
     }
 
     ///
@@ -68,7 +68,7 @@ impl Type {
             (Type::Field, Type::Field) => true,
             (Type::Group, Type::Group) => true,
             (Type::IntegerType(left), Type::IntegerType(right)) => left.eq(right),
-            (Type::CircuitOrAlias(left), Type::CircuitOrAlias(right)) => left.eq(right),
+            (Type::Identifier(left), Type::Identifier(right)) => left.eq(right),
             (Type::SelfType, Type::SelfType) => true,
             (Type::Array(left_type, left_dim), Type::Array(right_type, right_dim)) => {
                 // Convert array dimensions to owned.
@@ -151,7 +151,7 @@ impl fmt::Display for Type {
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
-            Type::CircuitOrAlias(ref variable) => write!(f, "circuit {}", variable),
+            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::SelfType => write!(f, "SelfType"),
             Type::Array(ref array, ref dimensions) => write!(f, "[{}; {}]", *array, dimensions),
             Type::Tuple(ref tuple) => {
