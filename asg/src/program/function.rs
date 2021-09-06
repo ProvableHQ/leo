@@ -89,6 +89,14 @@ impl<'a> Function<'a> {
                             )
                             .into());
                         }
+                        /* else if let Some(_) = scope.resolve_global_const(input_variable.identifier.name.as_ref()) {
+                            // TODO ERROR FOR INPUT BEING NAMED AFTER GLOBAL CONST.
+                            return Err(AsgError::duplicate_function_input_definition(
+                                input_variable.identifier.name.as_ref(),
+                                &input_variable.identifier.span,
+                            )
+                            .into());
+                        } */
 
                         let variable = scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                             id: scope.context.get_id(),
@@ -141,9 +149,13 @@ impl<'a> Function<'a> {
                 .insert("self".to_string(), self_variable);
         }
         for (name, argument) in self.arguments.iter() {
-            /* if self.scope.resolve_alias(name).is_some() {
-                return Err(AsgError::cannot_shadow_name("function input", name, "alias", &argument.get().borrow().name.span).into());
-            } */
+            if self.scope.resolve_global_const(name).is_some() {
+                return Err(AsgError::function_input_cannot_shadow_global_const(
+                    name,
+                    &argument.get().borrow().name.span,
+                )
+                .into());
+            }
 
             self.scope.variables.borrow_mut().insert(name.clone(), argument.get());
         }

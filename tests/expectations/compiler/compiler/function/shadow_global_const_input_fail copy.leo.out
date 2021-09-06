@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373048]: a function input cannot be named `hi` as a global const with that name already exists in this scope\n    --> compiler-test:5:17\n     |\n   5 | function tester(hi: u8) {}\n     |                 ^^"

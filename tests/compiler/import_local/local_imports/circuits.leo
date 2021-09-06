@@ -8,3 +8,5 @@ function foo() -> u32 {
 }
 
 type char5 = [char; 5];
+ 
+const EIGHT = 8u8;

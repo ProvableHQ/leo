@@ -444,11 +444,27 @@ create_errors!(
         help: None,
     }
 
-    /// For when a named identifier is being shadowed.
+    /// For when a function input shadows a global const.
     @formatted
-    cannot_shadow_name {
-        args: (type_: impl Display, name: impl Display, location: impl Display),
-        msg: format!("a {} cannot be named `{}` as a {} with that name already exists in this scope", type_, name, location),
+    function_input_cannot_shadow_global_const {
+        args: (name: impl Display),
+        msg: format!("a function input cannot be named `{}` as a global const with that name already exists in this scope", name),
+        help: None,
+    }
+
+    /// For when a variable definition shadows a global const.
+    @formatted
+    function_variable_cannot_shadow_global_const {
+        args: (name: impl Display),
+        msg: format!("a variable cannot be named `{}` as a global const with that name already exists in this scope", name),
+        help: None,
+    }
+
+    /// For when a variable definition shadows a function input.
+    @formatted
+    function_variable_cannot_shadow_other_function_variable {
+        args: (name: impl Display),
+        msg: format!("a variable cannot be named `{}` as a function input or variable with that name already exists in this scope", name),
         help: None,
     }
 );
