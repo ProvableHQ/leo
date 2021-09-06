@@ -90,7 +90,7 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
         if let Some(Type::Tuple(_items)) = tuple_type {
         } else {
             return Err(AsgError::unexpected_type(
-                "a tuple",
+                "tuple",
                 tuple_type
                     .map(|x| x.to_string())
                     .unwrap_or_else(|| "unknown".to_string()),

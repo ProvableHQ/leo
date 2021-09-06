@@ -108,7 +108,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
             Some(PartialType::Array(element, len)) => (Some(PartialType::Array(element, None)), len),
             None => (None, None),
             Some(x) => {
-                return Err(AsgError::unexpected_type(x, "array", &value.span).into());
+                return Err(AsgError::unexpected_type("array", x, &value.span).into());
             }
         };
         let array = <&Expression<'a>>::from_ast(scope, &*value.array, expected_array)?;

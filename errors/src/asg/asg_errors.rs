@@ -443,4 +443,11 @@ create_errors!(
         msg: format!("a {} cannot be named `{}` as a {} with that name already exists in this scope", type_, name, location),
         help: None,
     }
+
+    @formatted
+    operator_allowed_only_for_type {
+        args: (operator: impl Display, type_: impl Display, received: impl Display),
+        msg: format!("operator '{}' is only allowed for type '{}', received: '{}'", operator, type_, received),
+        help: None,
+    }
 );

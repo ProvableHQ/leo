@@ -95,7 +95,7 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
             UnaryOperation::Not => match expected_type.map(|x| x.full()).flatten() {
                 Some(Type::Boolean) | None => Some(Type::Boolean),
                 Some(type_) => {
-                    return Err(AsgError::unexpected_type(type_, Type::Boolean, &value.span).into());
+                    return Err(AsgError::unexpected_type(Type::Boolean, type_, &value.span).into());
                 }
             },
             UnaryOperation::Negate => match expected_type.map(|x| x.full()).flatten() {
@@ -104,14 +104,14 @@ impl<'a> FromAst<'a, leo_ast::UnaryExpression> for UnaryExpression<'a> {
                 Some(Type::Field) => Some(Type::Field),
                 None => None,
                 Some(type_) => {
-                    return Err(AsgError::unexpected_type(type_, "integer, group, field", &value.span).into());
+                    return Err(AsgError::unexpected_type("integer, group, field", type_, &value.span).into());
                 }
             },
             UnaryOperation::BitNot => match expected_type.map(|x| x.full()).flatten() {
                 Some(type_ @ Type::Integer(_)) => Some(type_),
                 None => None,
                 Some(type_) => {
-                    return Err(AsgError::unexpected_type(type_, "integer", &value.span).into());
+                    return Err(AsgError::unexpected_type("integer", type_, &value.span).into());
                 }
             },
         };
