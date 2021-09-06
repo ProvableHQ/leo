@@ -130,6 +130,8 @@ fn resolve_import_package_access(
     }
 }
 
+/// Checks whether a given string is found in any other global namespaces.
+/// If it is found it returns an error.
 fn check_top_level_namespaces<'a>(
     name: &str,
     span: &Span,
