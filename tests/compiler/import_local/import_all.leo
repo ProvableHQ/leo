@@ -12,6 +12,7 @@ function main(y: bool) -> bool {
     const hello_alias: char5 = "hello";
     const hello = "hello";
     const eight = 8u8;
+    const fab = fab_gen();
 
     return( (foo() == 1u32) && hello_alias == hello && EIGHT == eight) == y;
 }
