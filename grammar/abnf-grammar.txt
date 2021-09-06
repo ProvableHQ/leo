@@ -667,11 +667,14 @@ tuple-type = "(" [ type 1*( "," type ) ] ")"
 ; and an indication of dimensions.
 ; There is either a single dimension,
 ; or a tuple of one or more dimensions.
+; Each dimension is either a natural or is unspecified.
 
 array-type = "[" type ";" array-dimensions "]"
 
-array-dimensions = natural
-                 / "(" natural *( "," natural ) ")"
+array-dimension = natural / "_"
+
+array-dimensions = array-dimension
+                 / "(" array-dimension *( "," array-dimension ) ")"
 
 ; The keyword `Self` denotes the enclosing circuit type.
 ; It is only allowed inside a circuit type declaration.
