@@ -152,6 +152,22 @@ impl<'a> Scope<'a> {
     }
 
     ///
+    /// Returns a reference to the global const definition statement corresponding to the name.
+    ///
+    /// If the current scope did not have this name present, then the parent scope is checked.
+    /// If there is no parent scope, then `None` is returned.
+    ///
+    pub fn resolve_global_const(&self, name: &str) -> Option<&'a DefinitionStatement<'a>> {
+        if let Some(resolved) = self.global_consts.borrow().get(name) {
+            Some(*resolved)
+        } else if let Some(resolved) = self.parent_scope.get() {
+            resolved.resolve_global_const(name)
+        } else {
+            None
+        }
+    }
+
+    ///
     /// Returns a new scope given a parent scope.
     ///
     pub fn make_subscope(self: &'a Scope<'a>) -> &'a Scope<'a> {

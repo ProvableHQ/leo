@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373044]: a alias named \"int\" already exists in this scope\n    --> compiler-test:5:1\n     |\n   5 | const int = 8u8;\n     | ^^^^^^^^^^^^^^^"

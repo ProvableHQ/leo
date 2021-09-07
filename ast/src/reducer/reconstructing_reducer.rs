@@ -387,7 +387,7 @@ pub trait ReconstructingReducer {
         aliases: IndexMap<Identifier, Alias>,
         circuits: IndexMap<Identifier, Circuit>,
         functions: IndexMap<Identifier, Function>,
-        global_consts: IndexMap<String, DefinitionStatement>,
+        global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     ) -> Result<Program> {
         Ok(Program {
             name: program.name.clone(),

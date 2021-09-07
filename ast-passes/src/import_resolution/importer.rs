@@ -21,25 +21,42 @@ use leo_errors::{AstError, Result, Span};
 
 use indexmap::IndexMap;
 
-pub struct Importer<T>
-where
-    T: ImportResolver,
-{
-    import_resolver: T,
-}
+pub struct Importer {}
 
-impl<T> Importer<T>
-where
-    T: ImportResolver,
-{
-    pub fn new(import_resolver: T) -> Self {
-        Self { import_resolver }
-    }
+impl Importer {
+    pub fn do_pass<T>(program: Program, importer: &mut T) -> Result<Ast>
+    where
+        T: ImportResolver,
+    {
+        let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
+        for import_statement in program.import_statements.iter() {
+            resolve_import_package(&mut imported_symbols, vec![], &import_statement.package_or_packages);
+        }
 
-    pub fn do_pass(ast: Program, importer: T) -> Result<Ast> {
-        Ok(Ast::new(
-            ReconstructingDirector::new(Importer::new(importer)).reduce_program(&ast)?,
-        ))
+        let mut deduplicated_imports: IndexMap<Vec<String>, Span> = IndexMap::new();
+        for (package, _symbol, span) in imported_symbols.iter() {
+            deduplicated_imports.insert(package.clone(), span.clone());
+        }
+
+        let mut wrapped_resolver = CoreImportResolver::new(importer);
+
+        let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new();
+        for (package, span) in deduplicated_imports {
+            let pretty_package = package.join(".");
+
+            let resolved_package =
+                match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], &span)? {
+                    Some(x) => x,
+                    None => return Err(AstError::unresolved_import(pretty_package, &span).into()),
+                };
+
+            resolved_packages.insert(package.clone(), resolved_package);
+        }
+
+        let mut ast = program;
+        ast.imports = resolved_packages;
+
+        Ok(Ast::new(ast))
     }
 }
 
@@ -106,68 +123,5 @@ fn resolve_import_package_access(
                 resolve_import_package_access(output, package_segments.clone(), subaccess);
             }
         }
-    }
-}
-
-impl<T> ReconstructingReducer for Importer<T>
-where
-    T: ImportResolver,
-{
-    fn in_circuit(&self) -> bool {
-        false
-    }
-
-    fn swap_in_circuit(&mut self) {}
-
-    fn reduce_program(
-        &mut self,
-        program: &Program,
-        expected_input: Vec<FunctionInput>,
-        import_statements: Vec<ImportStatement>,
-        empty_imports: IndexMap<Vec<String>, Program>,
-        aliases: IndexMap<Identifier, Alias>,
-        circuits: IndexMap<Identifier, Circuit>,
-        functions: IndexMap<Identifier, Function>,
-        global_consts: IndexMap<String, DefinitionStatement>,
-    ) -> Result<Program> {
-        if !empty_imports.is_empty() {
-            return Err(AstError::injected_programs(empty_imports.len()).into());
-        }
-
-        let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
-        for import_statement in import_statements.iter() {
-            resolve_import_package(&mut imported_symbols, vec![], &import_statement.package_or_packages);
-        }
-
-        let mut deduplicated_imports: IndexMap<Vec<String>, Span> = IndexMap::new();
-        for (package, _symbol, span) in imported_symbols.iter() {
-            deduplicated_imports.insert(package.clone(), span.clone());
-        }
-
-        let mut wrapped_resolver = CoreImportResolver::new(&mut self.import_resolver);
-
-        let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new();
-        for (package, span) in deduplicated_imports {
-            let pretty_package = package.join(".");
-
-            let resolved_package =
-                match wrapped_resolver.resolve_package(&package.iter().map(|x| &**x).collect::<Vec<_>>()[..], &span)? {
-                    Some(x) => x,
-                    None => return Err(AstError::unresolved_import(pretty_package, &span).into()),
-                };
-
-            resolved_packages.insert(package.clone(), resolved_package);
-        }
-
-        Ok(Program {
-            name: program.name.clone(),
-            expected_input,
-            import_statements,
-            imports: resolved_packages,
-            aliases,
-            circuits,
-            functions,
-            global_consts,
-        })
     }
 }
