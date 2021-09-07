@@ -467,4 +467,11 @@ create_errors!(
         msg: format!("a variable cannot be named `{}` as a function input or variable with that name already exists in this scope", name),
         help: None,
     }
+
+    @formatted
+    operator_allowed_only_for_type {
+        args: (operator: impl Display, type_: impl Display, received: impl Display),
+        msg: format!("operator '{}' is only allowed for type '{}', received: '{}'", operator, type_, received),
+        help: None,
+    }
 );
