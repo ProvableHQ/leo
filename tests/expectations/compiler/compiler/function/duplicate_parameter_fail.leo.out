@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373045]: a function input named \"a\" already exists in this scope\n    --> compiler-test:3:23\n     |\n   3 | function main(a: u32, a: u32) {\n     |                       ^"
+  - "Error [EASG0373046]: a function input named \"a\" already exists in this scope\n    --> compiler-test:3:23\n     |\n   3 | function main(a: u32, a: u32) {\n     |                       ^"
