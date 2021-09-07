@@ -172,7 +172,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for Circuit
         };
 
         if let Some(expected_type) = expected_type {
-            return Err(AsgError::unexpected_type(expected_type, "none", &value.span).into());
+            return Err(AsgError::unexpected_type("none", expected_type, &value.span).into());
             // TODO: what is expected type here???
         }
 
