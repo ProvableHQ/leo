@@ -26,7 +26,7 @@ that can be readily used in programs. The initial motivation for this in Leo was
 
 ## Design
 
-Leo supports four kinds of top-level declarations:
+Leo supports five kinds of top-level declarations:
 
 - Import declarations.
 - Function declarations.
@@ -46,8 +46,7 @@ This does not seem to bring any drawbacks.
 
 ## Effect on Ecosystem
 
-This change may interact with libraries and packages in some way,
-if we go with case 2 or 3 above.
+This change may interact with libraries and packages in some way.
 But it should not be much different from standard libraries/packages.
 
 ## Alternatives
