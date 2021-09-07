@@ -41,7 +41,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
                 Type::Tuple(reduced_types)
             }
-            Type::CircuitOrAlias(identifier) => Type::CircuitOrAlias(self.reduce_identifier(identifier)?),
+            Type::Identifier(identifier) => Type::Identifier(self.reduce_identifier(identifier)?),
             _ => type_.clone(),
         };
 

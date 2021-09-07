@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - aborting due to syntax error
