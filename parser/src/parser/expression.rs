@@ -727,6 +727,10 @@ impl ParserContext {
                 };
                 Expression::Identifier(ident)
             }
+            Token::SizeOf => Expression::SizeOf(SizeOfExpression {
+                span,
+                inner: Box::new(self.parse_primary_expression()?),
+            }),
             token => {
                 return Err(ParserError::unexpected_str(token, "expression", &span).into());
             }

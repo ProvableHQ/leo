@@ -519,6 +519,7 @@ impl Token {
                     "string" => Token::String,
                     "true" => Token::True,
                     "type" => Token::Type,
+                    "sizeof" => Token::SizeOf,
                     "u8" => Token::U8,
                     "u16" => Token::U16,
                     "u32" => Token::U32,

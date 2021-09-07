@@ -14,40 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Methods to enforce expressions in a compiled Leo program.
+// use crate::Type;
 
-pub mod arithmetic;
-pub use self::arithmetic::*;
+use super::*;
 
-pub mod array;
-pub use self::array::*;
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SizeOfExpression {
+    pub inner: Box<Expression>,
+    pub span: Span,
+}
 
-pub mod binary;
-pub use self::binary::*;
+impl fmt::Display for SizeOfExpression {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "sizeof {}", self.inner)
+    }
+}
 
-pub mod circuit;
-pub use self::circuit::*;
+impl Node for SizeOfExpression {
+    fn span(&self) -> &Span {
+        &self.span
+    }
 
-pub mod conditional;
-pub use self::conditional::*;
-
-pub mod expression;
-pub use self::expression::*;
-
-pub mod function;
-pub use self::function::*;
-
-pub mod variable_ref;
-pub use self::variable_ref::*;
-
-pub mod logical;
-pub use self::logical::*;
-
-pub mod operator;
-pub use self::operator::*;
-
-pub mod relational;
-pub use self::relational::*;
-
-pub mod tuple;
-pub use self::tuple::*;
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
+}

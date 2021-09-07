@@ -68,6 +68,10 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         inner
     }
 
+    fn reduce_sizeof_expression(&mut self, input: &SizeOfExpression<'a>, inner: T) -> T {
+        inner
+    }
+
     fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
         T::default()
     }
