@@ -470,6 +470,13 @@
 <span id="468">468</span>
 <span id="469">469</span>
 <span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -938,6 +945,13 @@
     <span class="ident">function_variable_cannot_shadow_other_function_variable</span> {
         <span class="ident">args</span>: (<span class="ident">name</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;a variable cannot be named `{}` as a function input or variable with that name already exists in this scope&quot;</span>, <span class="ident">name</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">operator_allowed_only_for_type</span> {
+        <span class="ident">args</span>: (<span class="ident">operator</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">type_</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">received</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;operator &#39;{}&#39; is only allowed for type &#39;{}&#39;, received: &#39;{}&#39;&quot;</span>, <span class="ident">operator</span>, <span class="ident">type_</span>, <span class="ident">received</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );

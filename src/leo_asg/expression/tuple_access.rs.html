@@ -214,7 +214,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Type::Tuple</span>(<span class="ident">_items</span>)) <span class="op">=</span> <span class="ident">tuple_type</span> {
         } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::unexpected_type</span>(
-                <span class="string">&quot;a tuple&quot;</span>,
+                <span class="string">&quot;tuple&quot;</span>,
                 <span class="ident">tuple_type</span>
                     .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
                     .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unknown&quot;</span>.<span class="ident">to_string</span>()),
