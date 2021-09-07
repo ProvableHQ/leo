@@ -173,7 +173,6 @@ impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for Circuit
 
         if let Some(expected_type) = expected_type {
             return Err(AsgError::unexpected_type("none", expected_type, &value.span).into());
-            // TODO: what is expected type here???
         }
 
         if let Some(CircuitMember::Function(_)) = circuit.members.borrow().get(value.name.name.as_ref()) {
