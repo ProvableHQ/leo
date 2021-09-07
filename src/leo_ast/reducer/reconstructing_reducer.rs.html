@@ -880,7 +880,7 @@
         <span class="ident">aliases</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Identifier</span>, <span class="ident">Alias</span><span class="op">&gt;</span>,
         <span class="ident">circuits</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Identifier</span>, <span class="ident">Circuit</span><span class="op">&gt;</span>,
         <span class="ident">functions</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Identifier</span>, <span class="ident">Function</span><span class="op">&gt;</span>,
-        <span class="ident">global_consts</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">DefinitionStatement</span><span class="op">&gt;</span>,
+        <span class="ident">global_consts</span>: <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Identifier</span><span class="op">&gt;</span>, <span class="ident">DefinitionStatement</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Program</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="ident">Program</span> {
             <span class="ident">name</span>: <span class="ident">program</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),

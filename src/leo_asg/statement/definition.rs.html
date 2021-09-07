@@ -183,6 +183,14 @@
 <span id="181">181</span>
 <span id="182">182</span>
 <span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -296,10 +304,18 @@
         }
 
         <span class="kw">for</span> (<span class="ident">variable</span>, <span class="ident">type_</span>) <span class="kw">in</span> <span class="ident">statement</span>.<span class="ident">variable_names</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">output_types</span>.<span class="ident">into_iter</span>()) {
-            <span class="comment">/* let name = variable.identifier.name.as_ref();
-            if scope.resolve_alias(name).is_some() {
-                return Err(AsgError::cannot_shadow_name(&quot;function input&quot;, name, &quot;alias&quot;, &amp;variable.identifier.span).into());
-            } */</span>
+            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">variable</span>.<span class="ident">identifier</span>.<span class="ident">name</span>.<span class="ident">as_ref</span>();
+            <span class="kw">if</span> <span class="ident">scope</span>.<span class="ident">resolve_global_const</span>(<span class="ident">name</span>).<span class="ident">is_some</span>() {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(
+                    <span class="ident">AsgError::function_variable_cannot_shadow_global_const</span>(<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">variable</span>.<span class="ident">identifier</span>.<span class="ident">span</span>).<span class="ident">into</span>(),
+                );
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">scope</span>.<span class="ident">resolve_variable</span>(<span class="ident">name</span>).<span class="ident">is_some</span>() {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">AsgError::function_variable_cannot_shadow_other_function_variable</span>(
+                    <span class="ident">name</span>,
+                    <span class="kw-2">&amp;</span><span class="ident">variable</span>.<span class="ident">identifier</span>.<span class="ident">span</span>,
+                )
+                .<span class="ident">into</span>());
+            }
 
             <span class="ident">variables</span>.<span class="ident">push</span>(<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">scope</span>.<span class="ident">context</span>.<span class="ident">alloc_variable</span>(<span class="ident">RefCell::new</span>(<span class="ident">InnerVariable</span> {
                 <span class="ident">id</span>: <span class="ident">scope</span>.<span class="ident">context</span>.<span class="ident">get_id</span>(),

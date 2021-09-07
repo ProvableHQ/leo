@@ -541,7 +541,6 @@
 <span id="539">539</span>
 <span id="540">540</span>
 <span id="541">541</span>
-<span id="542">542</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -1052,14 +1051,13 @@
     <span class="doccomment">/// Returns an [`(String, DefinitionStatement)`] AST node if the next tokens represent a global</span>
     <span class="doccomment">/// const definition statement and assignment.</span>
     <span class="doccomment">///</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_global_const_declaration</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">DefinitionStatement</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_global_const_declaration</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Identifier</span><span class="op">&gt;</span>, <span class="ident">DefinitionStatement</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">statement</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">parse_definition_statement</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">variable_names</span> <span class="op">=</span> <span class="ident">statement</span>
             .<span class="ident">variable_names</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">variable_name</span><span class="op">|</span> <span class="ident">variable_name</span>.<span class="ident">identifier</span>.<span class="ident">name</span>.<span class="ident">to_string</span>())
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-            .<span class="ident">join</span>(<span class="string">&quot;,&quot;</span>);
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">variable_name</span><span class="op">|</span> <span class="ident">variable_name</span>.<span class="ident">identifier</span>.<span class="ident">clone</span>())
+            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Identifier</span><span class="op">&gt;</span><span class="op">&gt;</span>();
 
         <span class="prelude-val">Ok</span>((<span class="ident">variable_names</span>, <span class="ident">statement</span>))
     }
