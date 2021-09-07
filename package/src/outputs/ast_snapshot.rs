@@ -26,6 +26,7 @@ use std::{borrow::Cow, fmt, fs, path::Path};
 #[derive(Deserialize)]
 pub enum Snapshot {
     Initial,
+    ImportsResolved,
     TypeInference,
     Canonicalization,
 }
@@ -37,6 +38,7 @@ impl fmt::Display for Snapshot {
             "{}",
             match self {
                 Self::Initial => "initial_ast",
+                Self::ImportsResolved => "imports_resolved_ast",
                 Self::TypeInference => "type_inferenced_ast",
                 Self::Canonicalization => "canonicalization_ast",
             }

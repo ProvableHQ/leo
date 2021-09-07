@@ -45,7 +45,7 @@ The ABNF grammar changes as follows:
 ```
 ; modified rule:
 keyword = ...
-        / %s"true"
+        / %s"string"
         / %s"type" ; new
         / %s"u8"
         / ...

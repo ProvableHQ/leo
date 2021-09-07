@@ -32,7 +32,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an invalid address literal.
+    /// For when the parser encountered an invalid address literal.
     @formatted
     invalid_address_lit {
         args: (token: impl Display),
@@ -40,7 +40,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an empty import list.
+    /// For when the parser encountered an empty import list.
     @formatted
     invalid_import_list {
         args: (),
@@ -48,7 +48,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an unexpected End of File.
+    /// For when the parser encountered an unexpected End of File.
     @formatted
     unexpected_eof {
         args: (),
@@ -56,7 +56,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an unexpected whitespace.
+    /// For when the parser encountered an unexpected whitespace.
     @formatted
     unexpected_whitespace {
         args: (left: impl Display, right: impl Display),
@@ -64,7 +64,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an unexpected list of tokens.
+    /// For when the parser encountered an unexpected list of tokens.
     @formatted
     unexpected {
         args: (got: impl Display, expected: impl Display),
@@ -72,7 +72,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered a mix of commas and semi-colons in circuit member variables.
+    /// For when the parser encountered a mix of commas and semi-colons in circuit member variables.
     @formatted
     mixed_commas_and_semicolons {
         args: (),
@@ -80,7 +80,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an unexpected identifier.
+    /// For when the parser encountered an unexpected identifier.
     @formatted
     unexpected_ident {
         args: (got: impl Display, expected: &[impl Display]),
@@ -96,7 +96,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an unexpected statement.
+    /// For when the parser encountered an unexpected statement.
     @formatted
     unexpected_statement {
         args: (got: impl Display, expected: impl Display),
@@ -104,7 +104,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an unexpected string.
+    /// For when the parser encountered an unexpected string.
     @formatted
     unexpected_str {
         args: (got: impl Display, expected: impl Display),
@@ -112,7 +112,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an unexpected spread in an array init expression.
+    /// For when the parser encountered an unexpected spread in an array init expression.
     @formatted
     spread_in_array_init {
         args: (),
@@ -120,7 +120,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an invalid assignment target.
+    /// For when the parser encountered an invalid assignment target.
     @formatted
     invalid_assignment_target {
         args: (),
@@ -128,7 +128,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an invalid package name.
+    /// For when the parser encountered an invalid package name.
     @formatted
     invalid_package_name {
         args: (),
@@ -136,7 +136,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered an illegal `const self` argument.
+    /// For when the parser encountered an illegal `const self` argument.
     @formatted
     illegal_self_const {
         args: (),
@@ -144,7 +144,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered a deprecated `mut` argument in a function.
+    /// For when the parser encountered a deprecated `mut` argument in a function.
     @formatted
     mut_function_input {
         args: (),
@@ -152,7 +152,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered a deprecated `mut` argument in a let statement.
+    /// For when the parser encountered a deprecated `mut` argument in a let statement.
     @formatted
     let_mut_statement {
         args: (),
@@ -160,7 +160,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered a deprecated `test function`.
+    /// For when the parser encountered a deprecated `test function`.
     @formatted
     test_function {
         args: (),
@@ -168,11 +168,19 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encoutnered a deprecated `@context(...)` annotation.
+    /// For when the parser encountered a deprecated `@context(...)` annotation.
     @formatted
     context_annotation {
         args: (),
         msg: "\"@context(...)\" is deprecated. Did you mean @test annotation?",
+        help: None,
+    }
+
+    /// For when the parser failed to parse array dimensions.
+    @formatted
+    unable_to_parse_array_dimensions {
+        args: (),
+        msg: "unable to parse array dimensions",
         help: None,
     }
 );

@@ -110,11 +110,18 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
                 })
                 .unwrap_or_else(|| PathBuf::from(path));
 
+            let end_of_header = text.find("*/").expect("failed to find header block in test");
+            // Do this to match test-framework ast bc of spans
+            let text = &text[end_of_header + 2..];
             // Write all files into the directory.
-            let (initial, canonicalized, type_inferenced) = generate_asts(cwd, text)?;
+            let (initial, imports_resolved, canonicalized, type_inferenced) = generate_asts(cwd, text)?;
 
             target.push("initial_ast.json");
             fs::write(target.clone(), initial)?;
+            target.pop();
+
+            target.push("imports_resolved_ast.json");
+            fs::write(target.clone(), imports_resolved)?;
             target.pop();
 
             target.push("canonicalization_ast.json");
@@ -130,23 +137,31 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
 }
 
 /// Do what Compiler does - prepare 3 stages of AST: initial, canonicalized and type_inferenced
-fn generate_asts(path: PathBuf, text: &str) -> Result<(String, String, String), Box<dyn Error>> {
+fn generate_asts(path: PathBuf, text: &str) -> Result<(String, String, String, String), Box<dyn Error>> {
+    std::env::set_var("LEO_TESTFRAMEWORK", "true");
+
     let mut ast = leo_parser::parse_ast(path.clone().into_os_string().into_string().unwrap(), text)?;
     let initial = ast.to_json_string()?;
 
     ast = leo_ast_passes::Importer::do_pass(ast.into_repr(), ImportParser::new(path, Default::default()))?;
+    let imports_resolved = ast.to_json_string()?;
 
     ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
     let canonicalized = ast.to_json_string()?;
 
-    let asg = Asg::new(thread_leaked_context(), &ast)?;
+    let mut ti_ast = ast.into_repr();
+    ti_ast.name = "test".to_string(); // Do this to match test-framework ast
+
+    let asg = Asg::new(thread_leaked_context(), &ti_ast)?;
 
     let type_inferenced = TypeInferencePhase::default()
-        .phase_ast(&ast.into_repr(), &asg.clone().into_repr())
+        .phase_ast(&ti_ast, &asg.clone().into_repr())
         .expect("Failed to produce type inference ast.")
         .to_json_string()?;
 
-    Ok((initial, canonicalized, type_inferenced))
+    std::env::remove_var("LEO_TESTFRAMEWORK");
+
+    Ok((initial, imports_resolved, canonicalized, type_inferenced))
 }
 
 fn handle_error(res: Result<(), Box<dyn Error>>) {

@@ -522,24 +522,31 @@ impl ReconstructingReducer for Canonicalizer {
 
     fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type> {
         match new {
-            Type::Array(type_, mut dimensions) => {
-                if dimensions.is_zero() {
-                    return Err(AstError::invalid_array_dimension_size(span).into());
-                }
-
-                let mut next = Type::Array(type_, ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
-                let mut array = next.clone();
-
-                loop {
-                    if dimensions.is_empty() {
-                        break;
+            Type::Array(type_, dimensions) => {
+                if let Some(mut dimensions) = dimensions {
+                    if dimensions.is_zero() {
+                        return Err(AstError::invalid_array_dimension_size(span).into());
                     }
 
-                    array = Type::Array(Box::new(next), ArrayDimensions(vec![dimensions.remove_last().unwrap()]));
-                    next = array.clone();
-                }
+                    let mut next = Type::Array(type_, Some(ArrayDimensions(vec![dimensions.remove_last().unwrap()])));
+                    let mut array = next.clone();
 
-                Ok(array)
+                    loop {
+                        if dimensions.is_empty() {
+                            break;
+                        }
+
+                        array = Type::Array(
+                            Box::new(next),
+                            Some(ArrayDimensions(vec![dimensions.remove_last().unwrap()])),
+                        );
+                        next = array.clone();
+                    }
+
+                    Ok(array)
+                } else {
+                    Ok(Type::Array(type_, None))
+                }
             }
             Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
             _ => Ok(new.clone()),

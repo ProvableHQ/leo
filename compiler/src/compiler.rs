@@ -255,7 +255,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         )?;
 
         if self.ast_snapshot_options.imports_resolved {
-            ast.to_json_file(self.output_directory.clone(), "imports_resolved.json")?;
+            ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
         }
 
         // Preform canonicalization of AST always.
@@ -339,7 +339,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         hasher.update(unparsed_file.as_bytes());
         let hash = hasher.finalize();
 
-        Ok(hex::encode(hash))
+        Ok(format!("{:x}", hash))
     }
 
     /// TODO (howardwu): Incorporate this for real program executions and intentionally-real

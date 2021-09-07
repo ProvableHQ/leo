@@ -16,11 +16,11 @@
 
 use std::{
     collections::HashMap,
+    fs,
     path::{Path, PathBuf},
 };
 
 use leo_asg::*;
-use leo_ast::{Ast, Program};
 use leo_errors::Result;
 
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
@@ -45,7 +45,7 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
 fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> EdwardsTestCompiler {
     let program_name = "test".to_string();
     let output_dir = PathBuf::from("/tmp/output/");
-    std::fs::create_dir_all(output_dir.clone()).unwrap();
+    fs::create_dir_all(output_dir.clone()).unwrap();
 
     EdwardsTestCompiler::new(
         program_name,
@@ -58,13 +58,14 @@ fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> E
     )
 }
 
-fn hash(input: String) -> String {
+fn hash_file(path: &str) -> String {
     use sha2::{Digest, Sha256};
-
+    let mut file = fs::File::open(&Path::new(path)).unwrap();
     let mut hasher = Sha256::new();
-    hasher.update(input.as_bytes());
-    let output = hasher.finalize();
-    hex::encode(&output[..])
+    std::io::copy(&mut file, &mut hasher).unwrap();
+    let hash = hasher.finalize();
+
+    format!("{:x}", hash)
 }
 
 pub(crate) fn parse_program(
@@ -151,7 +152,7 @@ impl Namespace for CompileNamespace {
                 input_file.push(input.as_str().expect("input_file was not a string or array"));
                 inputs.push((
                     name.to_string(),
-                    std::fs::read_to_string(&input_file).expect("failed to read test input file"),
+                    fs::read_to_string(&input_file).expect("failed to read test input file"),
                 ));
             } else if let Some(seq) = input.as_sequence() {
                 for name in seq {
@@ -159,7 +160,7 @@ impl Namespace for CompileNamespace {
                     input_file.push(name.as_str().expect("input_file was not a string"));
                     inputs.push((
                         name.as_str().expect("input_file item was not a string").to_string(),
-                        std::fs::read_to_string(&input_file).expect("failed to read test input file"),
+                        fs::read_to_string(&input_file).expect("failed to read test input file"),
                     ));
                 }
             }
@@ -171,7 +172,7 @@ impl Namespace for CompileNamespace {
         let state = if let Some(input) = test.config.get("state_file") {
             let mut input_file: PathBuf = test.path.parent().expect("no test parent dir").into();
             input_file.push(input.as_str().expect("state_file was not a string"));
-            std::fs::read_to_string(&input_file).expect("failed to read test state file")
+            fs::read_to_string(&input_file).expect("failed to read test state file")
         } else {
             "".to_string()
         };
@@ -213,33 +214,13 @@ impl Namespace for CompileNamespace {
             });
         }
 
-        let initial_ast: String = hash(
-            Ast::from_json_file("/tmp/output/initial_ast.json".into())
-                .unwrap_or_else(|_| Ast::new(Program::new("Error reading initial snapshot.".to_string())))
-                .to_json_string()
-                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
-        );
-        let imports_resolved_ast: String = hash(
-            Ast::from_json_file("/tmp/output/imports_resolved_ast.json".into())
-                .unwrap_or_else(|_| Ast::new(Program::new("Error reading imports resolved snapshot.".to_string())))
-                .to_json_string()
-                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
-        );
-        let canonicalized_ast: String = hash(
-            Ast::from_json_file("/tmp/output/canonicalization_ast.json".into())
-                .unwrap_or_else(|_| Ast::new(Program::new("Error reading canonicalized snapshot.".to_string())))
-                .to_json_string()
-                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
-        );
-        let type_inferenced_ast = hash(
-            Ast::from_json_file("/tmp/output/type_inferenced_ast.json".into())
-                .unwrap_or_else(|_| Ast::new(Program::new("Error reading type inferenced snapshot.".to_string())))
-                .to_json_string()
-                .unwrap_or_else(|_| "Error converting ast to string.".to_string()),
-        );
+        let initial_ast = hash_file("/tmp/output/initial_ast.json");
+        let imports_resolved_ast = hash_file("/tmp/output/imports_resolved_ast.json");
+        let canonicalized_ast = hash_file("/tmp/output/canonicalization_ast.json");
+        let type_inferenced_ast = hash_file("/tmp/output/type_inferenced_ast.json");
 
-        if std::fs::read_dir("/tmp/output").is_ok() {
-            std::fs::remove_dir_all(std::path::Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
+        if fs::read_dir("/tmp/output").is_ok() {
+            fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");
         }
 
         let final_output = CompileOutput {
