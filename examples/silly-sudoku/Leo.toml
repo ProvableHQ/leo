@@ -6,3 +6,7 @@ license = "MIT"
 
 [remote]
 author = "howard"
+
+[target]
+curve = "bls12_377"
+proving_system = "groth16"

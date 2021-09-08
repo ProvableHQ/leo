@@ -1,0 +1,7 @@
+// The program input for light-cuddly-cyan-polo/src/main.leo
+[main]
+x: i32 = 1i32;
+y: i32 = 2i32;
+
+[registers]
+r0: [i32; 2] = [1i32, 2i32];
