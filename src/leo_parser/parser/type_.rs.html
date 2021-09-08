@@ -225,7 +225,7 @@
             (<span class="ident">Type::SelfType</span>, <span class="ident">token</span>.<span class="ident">span</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ident</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat_identifier</span>() {
             <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ident</span>.<span class="ident">span</span>.<span class="ident">clone</span>();
-            (<span class="ident">Type::CircuitOrAlias</span>(<span class="ident">ident</span>), <span class="ident">span</span>)
+            (<span class="ident">Type::Identifier</span>(<span class="ident">ident</span>), <span class="ident">span</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">token</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">eat</span>(<span class="ident">Token::LeftParen</span>) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">let</span> <span class="ident">end_span</span>;

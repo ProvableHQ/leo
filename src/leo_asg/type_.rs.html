@@ -463,7 +463,7 @@
             ),
             <span class="ident">ArrayWithoutSize</span>(<span class="ident">type_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Type::Array</span>(<span class="ident">Box::new</span>(<span class="ident">type_</span>.<span class="ident">as_ref</span>().<span class="ident">into</span>()), <span class="prelude-val">None</span>),
             <span class="ident">Tuple</span>(<span class="ident">subtypes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Type::Tuple</span>(<span class="ident">subtypes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="ident">Into::into</span>).<span class="ident">collect</span>()),
-            <span class="ident">Circuit</span>(<span class="ident">circuit</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Type::CircuitOrAlias</span>(<span class="ident">circuit</span>.<span class="ident">name</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>()),
+            <span class="ident">Circuit</span>(<span class="ident">circuit</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Type::Identifier</span>(<span class="ident">circuit</span>.<span class="ident">name</span>.<span class="ident">borrow</span>().<span class="ident">clone</span>()),
         }
     }
 }

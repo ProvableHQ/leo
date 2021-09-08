@@ -623,7 +623,7 @@
 
                 <span class="ident">Type::Tuple</span>(<span class="ident">reduced_types</span>)
             }
-            <span class="ident">Type::CircuitOrAlias</span>(<span class="ident">identifier</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::CircuitOrAlias</span>(<span class="self">self</span>.<span class="ident">reduce_identifier</span>(<span class="ident">identifier</span>)<span class="question-mark">?</span>),
+            <span class="ident">Type::Identifier</span>(<span class="ident">identifier</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Type::Identifier</span>(<span class="self">self</span>.<span class="ident">reduce_identifier</span>(<span class="ident">identifier</span>)<span class="question-mark">?</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">type_</span>.<span class="ident">clone</span>(),
         };
 
