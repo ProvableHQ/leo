@@ -25,4 +25,4 @@ outputs:
     initial_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
     imports_resolved_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
     canonicalized_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
-    type_inferenced_ast: f5cb6326028b3cf9187889be6ac5ed5bd095a570d45ae63c7285a09366fc6803
+    type_inferenced_ast: de80815f88fb65efa62ce7f5fa23c6fc4f1bbdf601954e94c1212c4eabbee1cb

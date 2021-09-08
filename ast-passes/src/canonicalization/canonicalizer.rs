@@ -116,7 +116,7 @@ impl Canonicalizer {
     fn canonicalize_self_type(&self, type_option: Option<&Type>) -> Option<Type> {
         match type_option {
             Some(type_) => match type_ {
-                Type::SelfType => Some(Type::CircuitOrAlias(self.circuit_name.as_ref().unwrap().clone())),
+                Type::SelfType => Some(Type::Identifier(self.circuit_name.as_ref().unwrap().clone())),
                 Type::Array(type_, dimensions) => Some(Type::Array(
                     Box::new(self.canonicalize_self_type(Some(type_)).unwrap()),
                     dimensions.clone(),
@@ -475,7 +475,7 @@ impl Canonicalizer {
                     identifier: variable.identifier.clone(),
                     const_: variable.const_,
                     mutable: variable.mutable,
-                    type_: Type::CircuitOrAlias(self.circuit_name.as_ref().unwrap().clone()),
+                    type_: Type::Identifier(self.circuit_name.as_ref().unwrap().clone()),
                     span: variable.span.clone(),
                 });
             }

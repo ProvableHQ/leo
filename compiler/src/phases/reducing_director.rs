@@ -266,7 +266,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         asg: &AsgCircuitAccessExpression,
     ) -> Result<CircuitMemberAccessExpression> {
         let type_ = if self.options.type_inference_enabled() {
-            Some(leo_ast::Type::CircuitOrAlias(asg.circuit.get().name.borrow().clone()))
+            Some(leo_ast::Type::Identifier(asg.circuit.get().name.borrow().clone()))
         } else {
             None
         };

@@ -659,14 +659,6 @@ character-type = %s"char"
 
 scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
-; Circuit types are denoted by identifiers and the keyword `Self`.
-; The latter is only allowed inside a circuit definition,
-; to denote the circuit being defined.
-
-self-type = %s"Self"
-
-circuit-or-alias-type = identifier / self-type
-
 ; A tuple type consists of zero, two, or more component types.
 
 tuple-type = "(" [ type 1*( "," type ) ] ")"
@@ -675,6 +667,7 @@ tuple-type = "(" [ type 1*( "," type ) ] ")"
 ; and an indication of dimensions.
 ; There is either a single dimension,
 ; or a tuple of one or more dimensions.
+; Each dimension is either a natural or is unspecified.
 
 array-type = "[" type ";" array-dimensions "]"
 
@@ -683,9 +676,27 @@ array-dimension = natural / "_"
 array-dimensions = array-dimension
                  / "(" array-dimension *( "," array-dimension ) ")"
 
-; Scalar and the remaining types form all the types.
+; The keyword `Self` denotes the enclosing circuit type.
+; It is only allowed inside a circuit type declaration.
 
-type = scalar-type / tuple-type / array-type / circuit-or-alias-type
+self-type = %s"Self"
+
+; Circuit types are denoted by identifiers and by `Self`.
+; Identifiers may also be type aliases;
+; syntactically (i.e. without a semantic analysis),
+; they cannot be distinguished from circuit types.
+
+; Scalar types, tuple types, array types,
+; identifiers (which may be circuit types or type aliases),
+; and the `Self` type
+; form all the types.
+
+type = scalar-type / tuple-type / array-type / identifier / self-type
+
+; It is convenient to introduce a rule for types that are
+; either identifiers or `Self`, as this is used in other rules.
+
+identifier-or-self-type = identifier / self-type
 
 ; The lexical grammar given earlier defines product group literals.
 ; The other kind of group literal is a pair of integer coordinates,
@@ -771,7 +782,7 @@ array-expression = array-construction
 ; while the right one denotes an expression (a variable),
 ; so they are syntactically identical but semantically different.
 
-circuit-construction = circuit-or-alias-type "{"
+circuit-construction = identifier-or-self-type "{"
                        circuit-inline-element
                        *( "," circuit-inline-element ) [ "," ]
                        "}"
@@ -807,7 +818,7 @@ postfix-expression = primary-expression
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / circuit-or-alias-type "::" identifier function-arguments
+                   / identifier-or-self-type "::" identifier function-arguments
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 
@@ -937,7 +948,8 @@ conditional-statement = branch
 ; that goes from a starting value (inclusive) to an ending value (exclusive).
 ; The body is a block.
 
-loop-statement = %s"for" identifier %s"in" expression ".." [ "=" ] expression block
+loop-statement = %s"for" identifier %s"in" expression ".." [ "=" ] expression
+                 block
 
 ; An assignment statement is straightforward.
 ; Based on the operator, the assignment may be simple (i.e. `=`)
@@ -1049,9 +1061,7 @@ package-path = "*"
              / package-name "." package-path
              / "(" package-path *( "," package-path ) [","] ")"
 
-; A type declaration consists of the `type` keyword
-; followed by an identifier and a type that the alias
-; would refer to.
+; A type alias declaration defines an identifier to stand for a type.
 
 type-alias-declaration = %s"type" identifier "=" type ";"
 
