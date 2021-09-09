@@ -21,20 +21,20 @@ use leo_errors::{AsgError, Result, Span};
 use std::cell::Cell;
 
 #[derive(Clone)]
-pub struct ArrayAccessExpression<'a> {
+pub struct ArrayAccess<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub array: Cell<&'a Expression<'a>>,
     pub index: Cell<&'a Expression<'a>>,
 }
 
-impl<'a> Node for ArrayAccessExpression<'a> {
+impl<'a> Node for ArrayAccess<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl<'a> ExpressionNode<'a> for ArrayAccessExpression<'a> {
+impl<'a> ExpressionNode<'a> for ArrayAccess<'a> {
     fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
@@ -79,12 +79,12 @@ impl<'a> ExpressionNode<'a> for ArrayAccessExpression<'a> {
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'a> {
+impl<'a> FromAst<'a, leo_ast::accesses::ArrayAccess> for ArrayAccess<'a> {
     fn from_ast(
         scope: &'a Scope<'a>,
-        value: &leo_ast::ArrayAccessExpression,
+        value: &leo_ast::accesses::ArrayAccess,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayAccessExpression<'a>> {
+    ) -> Result<ArrayAccess<'a>> {
         let array = <&Expression<'a>>::from_ast(
             scope,
             &*value.array,
@@ -125,7 +125,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             }
         }
 
-        Ok(ArrayAccessExpression {
+        Ok(ArrayAccess {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             array: Cell::new(array),
@@ -134,9 +134,9 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
     }
 }
 
-impl<'a> Into<leo_ast::ArrayAccessExpression> for &ArrayAccessExpression<'a> {
-    fn into(self) -> leo_ast::ArrayAccessExpression {
-        leo_ast::ArrayAccessExpression {
+impl<'a> Into<leo_ast::accesses::ArrayAccess> for &ArrayAccess<'a> {
+    fn into(self) -> leo_ast::ArrayAccess {
+        leo_ast::ArrayAccess {
             array: Box::new(self.array.get().into()),
             index: Box::new(self.index.get().into()),
             span: self.span.clone().unwrap_or_default(),

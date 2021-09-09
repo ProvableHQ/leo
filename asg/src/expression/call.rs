@@ -87,75 +87,88 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     .resolve_function(&name.name)
                     .ok_or_else(|| AsgError::unresolved_function(&name.name, &name.span))?,
             ),
-            leo_ast::Expression::CircuitMemberAccess(leo_ast::CircuitMemberAccessExpression {
-                circuit: ast_circuit,
-                name,
-                span,
-                ..
-            }) => {
-                let target = <&Expression<'a>>::from_ast(scope, &**ast_circuit, None)?;
-                let circuit = match target.get_type() {
-                    Some(Type::Circuit(circuit)) => circuit,
-                    type_ => {
-                        return Err(AsgError::unexpected_type(
-                            "circuit",
-                            type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
-                            span,
-                        )
-                        .into());
-                    }
-                };
-                let circuit_name = circuit.name.borrow().name.clone();
-                let member = circuit.members.borrow();
-                let member = member
-                    .get(name.name.as_ref())
-                    .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
-                match member {
-                    CircuitMember::Function(body) => {
-                        if body.qualifier == FunctionQualifier::Static {
-                            return Err(AsgError::circuit_static_call_invalid(&circuit_name, &name.name, span).into());
-                        } else if body.qualifier == FunctionQualifier::MutSelfRef && !target.is_mut_ref() {
-                            return Err(
-                                AsgError::circuit_member_mut_call_invalid(circuit_name, &name.name, span).into(),
-                            );
+            leo_ast::Expression::Access(access) => match access {
+                leo_ast::AccessExpression::CircuitMember(leo_ast::accesses::CircuitMemberAccess {
+                    circuit: ast_circuit,
+                    name,
+                    span,
+                    ..
+                }) => {
+                    let target = <&Expression<'a>>::from_ast(scope, &**ast_circuit, None)?;
+                    let circuit = match target.get_type() {
+                        Some(Type::Circuit(circuit)) => circuit,
+                        type_ => {
+                            return Err(AsgError::unexpected_type(
+                                "circuit",
+                                type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
+                                span,
+                            )
+                            .into());
                         }
-                        (Some(target), *body)
-                    }
-                    CircuitMember::Variable(_) => {
-                        return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
+                    };
+                    let circuit_name = circuit.name.borrow().name.clone();
+                    let member = circuit.members.borrow();
+                    let member = member
+                        .get(name.name.as_ref())
+                        .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
+                    match member {
+                        CircuitMember::Function(body) => {
+                            if body.qualifier == FunctionQualifier::Static {
+                                return Err(
+                                    AsgError::circuit_static_call_invalid(&circuit_name, &name.name, span).into()
+                                );
+                            } else if body.qualifier == FunctionQualifier::MutSelfRef && !target.is_mut_ref() {
+                                return Err(
+                                    AsgError::circuit_member_mut_call_invalid(circuit_name, &name.name, span).into(),
+                                );
+                            }
+                            (Some(target), *body)
+                        }
+                        CircuitMember::Variable(_) => {
+                            return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
+                        }
                     }
                 }
-            }
-            leo_ast::Expression::CircuitStaticFunctionAccess(leo_ast::CircuitStaticFunctionAccessExpression {
-                circuit: ast_circuit,
-                name,
-                span,
-            }) => {
-                let circuit = if let leo_ast::Expression::Identifier(circuit_name) = &**ast_circuit {
-                    scope
-                        .resolve_circuit(&circuit_name.name)
-                        .ok_or_else(|| AsgError::unresolved_circuit(&circuit_name.name, &circuit_name.span))?
-                } else {
-                    return Err(AsgError::unexpected_type("circuit", "unknown", span).into());
-                };
-                let circuit_name = circuit.name.borrow().name.clone();
+                leo_ast::AccessExpression::CircuitStaticFunction(leo_ast::accesses::CircuitStaticFunctionAccess {
+                    circuit: ast_circuit,
+                    name,
+                    span,
+                }) => {
+                    let circuit = if let leo_ast::Expression::Identifier(circuit_name) = &**ast_circuit {
+                        scope
+                            .resolve_circuit(&circuit_name.name)
+                            .ok_or_else(|| AsgError::unresolved_circuit(&circuit_name.name, &circuit_name.span))?
+                    } else {
+                        return Err(AsgError::unexpected_type("circuit", "unknown", span).into());
+                    };
+                    let circuit_name = circuit.name.borrow().name.clone();
 
-                let member = circuit.members.borrow();
-                let member = member
-                    .get(name.name.as_ref())
-                    .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
-                match member {
-                    CircuitMember::Function(body) => {
-                        if body.qualifier != FunctionQualifier::Static {
-                            return Err(AsgError::circuit_member_call_invalid(circuit_name, &name.name, span).into());
+                    let member = circuit.members.borrow();
+                    let member = member
+                        .get(name.name.as_ref())
+                        .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
+                    match member {
+                        CircuitMember::Function(body) => {
+                            if body.qualifier != FunctionQualifier::Static {
+                                return Err(
+                                    AsgError::circuit_member_call_invalid(circuit_name, &name.name, span).into()
+                                );
+                            }
+                            (None, *body)
                         }
-                        (None, *body)
-                    }
-                    CircuitMember::Variable(_) => {
-                        return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
+                        CircuitMember::Variable(_) => {
+                            return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
+                        }
                     }
                 }
-            }
+                _ => {
+                    return Err(AsgError::illegal_ast_structure(
+                        "non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess as call target",
+                        access.span(),
+                    )
+                    .into());
+                }
+            },
             _ => {
                 return Err(AsgError::illegal_ast_structure(
                     "non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess as call target",
@@ -213,11 +226,13 @@ impl<'a> Into<leo_ast::CallExpression> for &CallExpression<'a> {
         } else {
             let circuit = self.function.get().circuit.get();
             if let Some(circuit) = circuit {
-                leo_ast::Expression::CircuitStaticFunctionAccess(leo_ast::CircuitStaticFunctionAccessExpression {
-                    circuit: Box::new(leo_ast::Expression::Identifier(circuit.name.borrow().clone())),
-                    name: self.function.get().name.borrow().clone(),
-                    span: self.span.clone().unwrap_or_default(),
-                })
+                leo_ast::Expression::Access(leo_ast::AccessExpression::CircuitStaticFunction(
+                    leo_ast::accesses::CircuitStaticFunctionAccess {
+                        circuit: Box::new(leo_ast::Expression::Identifier(circuit.name.borrow().clone())),
+                        name: self.function.get().name.borrow().clone(),
+                        span: self.span.clone().unwrap_or_default(),
+                    },
+                ))
             } else {
                 leo_ast::Expression::Identifier(self.function.get().name.borrow().clone())
             }

@@ -14,29 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
+use crate::{Expression, Identifier, Node};
+use leo_errors::Span;
+
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ArrayRangeAccessExpression {
-    pub array: Box<Expression>,
-    pub left: Option<Box<Expression>>,
-    pub right: Option<Box<Expression>>,
+pub struct CircuitMemberAccess {
+    pub circuit: Box<Expression>,
+    pub name: Identifier,
     pub span: Span,
+    pub type_: Option<crate::Type>,
 }
 
-impl fmt::Display for ArrayRangeAccessExpression {
+impl fmt::Display for CircuitMemberAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{}[{}..{}]",
-            self.array,
-            self.left.as_ref().map(|e| e.to_string()).unwrap_or_default(),
-            self.right.as_ref().map(|e| e.to_string()).unwrap_or_default()
-        )
+        write!(f, "{}.{}", self.circuit, self.name)
     }
 }
 
-impl Node for ArrayRangeAccessExpression {
+impl Node for CircuitMemberAccess {
     fn span(&self) -> &Span {
         &self.span
     }

@@ -14,27 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
+mod array_access;
+pub use array_access::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CircuitStaticFunctionAccessExpression {
-    pub circuit: Box<Expression>,
-    pub name: Identifier,
-    pub span: Span,
-}
+mod array_range_access;
+pub use array_range_access::*;
 
-impl fmt::Display for CircuitStaticFunctionAccessExpression {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.circuit, self.name)
-    }
-}
+mod circuit_access;
+pub use circuit_access::*;
 
-impl Node for CircuitStaticFunctionAccessExpression {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+mod tuple_access;
+pub use tuple_access::*;

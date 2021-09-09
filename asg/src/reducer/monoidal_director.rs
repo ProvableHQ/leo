@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{expression::*, program::*, statement::*};
+use crate::{accesses::*, expression::*, program::*, statement::*};
 
 use std::marker::PhantomData;
 
@@ -38,31 +38,21 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
 
     pub fn reduce_expression(&mut self, input: &'a Expression<'a>) -> T {
         let value = match input {
-            Expression::ArrayAccess(e) => self.reduce_array_access(e),
             Expression::ArrayInit(e) => self.reduce_array_init(e),
             Expression::ArrayInline(e) => self.reduce_array_inline(e),
-            Expression::ArrayRangeAccess(e) => self.reduce_array_range_access(e),
             Expression::Binary(e) => self.reduce_binary(e),
             Expression::Call(e) => self.reduce_call(e),
-            Expression::CircuitAccess(e) => self.reduce_circuit_access(e),
             Expression::CircuitInit(e) => self.reduce_circuit_init(e),
             Expression::Ternary(e) => self.reduce_ternary_expression(e),
             Expression::Cast(e) => self.reduce_cast_expression(e),
+            Expression::Access(e) => self.reduce_access_expression(e),
             Expression::Constant(e) => self.reduce_constant(e),
-            Expression::TupleAccess(e) => self.reduce_tuple_access(e),
             Expression::TupleInit(e) => self.reduce_tuple_init(e),
             Expression::Unary(e) => self.reduce_unary(e),
             Expression::VariableRef(e) => self.reduce_variable_ref(e),
         };
 
         self.reducer.reduce_expression(input, value)
-    }
-
-    pub fn reduce_array_access(&mut self, input: &ArrayAccessExpression<'a>) -> T {
-        let array = self.reduce_expression(input.array.get());
-        let index = self.reduce_expression(input.index.get());
-
-        self.reducer.reduce_array_access(input, array, index)
     }
 
     pub fn reduce_array_init(&mut self, input: &ArrayInitExpression<'a>) -> T {
@@ -81,14 +71,6 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_array_inline(input, elements)
     }
 
-    pub fn reduce_array_range_access(&mut self, input: &ArrayRangeAccessExpression<'a>) -> T {
-        let array = self.reduce_expression(input.array.get());
-        let left = input.left.get().map(|e| self.reduce_expression(e));
-        let right = input.right.get().map(|e| self.reduce_expression(e));
-
-        self.reducer.reduce_array_range_access(input, array, left, right)
-    }
-
     pub fn reduce_binary(&mut self, input: &BinaryExpression<'a>) -> T {
         let left = self.reduce_expression(input.left.get());
         let right = self.reduce_expression(input.right.get());
@@ -105,12 +87,6 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
             .collect();
 
         self.reducer.reduce_call(input, target, arguments)
-    }
-
-    pub fn reduce_circuit_access(&mut self, input: &CircuitAccessExpression<'a>) -> T {
-        let target = input.target.get().map(|e| self.reduce_expression(e));
-
-        self.reducer.reduce_circuit_access(input, target)
     }
 
     pub fn reduce_circuit_init(&mut self, input: &CircuitInitExpression<'a>) -> T {
@@ -138,14 +114,46 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_cast_expression(input, inner)
     }
 
-    pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
-        self.reducer.reduce_constant(input)
+    pub fn reduce_array_access(&mut self, input: &ArrayAccess<'a>) -> T {
+        let array = self.reduce_expression(input.array.get());
+        let index = self.reduce_expression(input.index.get());
+
+        self.reducer.reduce_array_access(input, array, index)
     }
 
-    pub fn reduce_tuple_access(&mut self, input: &TupleAccessExpression<'a>) -> T {
+    pub fn reduce_array_range_access(&mut self, input: &ArrayRangeAccess<'a>) -> T {
+        let array = self.reduce_expression(input.array.get());
+        let left = input.left.get().map(|e| self.reduce_expression(e));
+        let right = input.right.get().map(|e| self.reduce_expression(e));
+
+        self.reducer.reduce_array_range_access(input, array, left, right)
+    }
+
+    pub fn reduce_circuit_access(&mut self, input: &CircuitAccess<'a>) -> T {
+        let target = input.target.get().map(|e| self.reduce_expression(e));
+
+        self.reducer.reduce_circuit_access(input, target)
+    }
+
+    pub fn reduce_tuple_access(&mut self, input: &TupleAccess<'a>) -> T {
         let tuple_ref = self.reduce_expression(input.tuple_ref.get());
 
         self.reducer.reduce_tuple_access(input, tuple_ref)
+    }
+
+    pub fn reduce_access_expression(&mut self, input: &AccessExpression<'a>) -> T {
+        use AccessExpression::*;
+
+        match input {
+            Array(a) => self.reduce_array_access(a),
+            ArrayRange(a) => self.reduce_array_range_access(a),
+            Circuit(a) => self.reduce_circuit_access(a),
+            Tuple(a) => self.reduce_tuple_access(a),
+        }
+    }
+
+    pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
+        self.reducer.reduce_constant(input)
     }
 
     pub fn reduce_tuple_init(&mut self, input: &TupleInitExpression<'a>) -> T {

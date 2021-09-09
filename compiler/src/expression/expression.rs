@@ -25,7 +25,7 @@ use crate::{
     value::{Address, Char, CharType, ConstrainedCircuitMember, ConstrainedValue, Integer},
     FieldType, GroupType,
 };
-use leo_asg::{expression::*, ConstValue, Expression, Node};
+use leo_asg::{accesses::*, expression::*, ConstValue, Expression, Node};
 use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
@@ -95,6 +95,24 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     ) -> Result<ConstrainedValue<'a, F, G>> {
         let span = &expression.span().cloned().unwrap_or_default();
         match expression {
+            // Access
+            Expression::Access(access) => match access {
+                AccessExpression::Array(ArrayAccess { array, index, .. }) => {
+                    self.enforce_array_access(cs, array.get(), index.get(), span)
+                }
+                AccessExpression::ArrayRange(ArrayRangeAccess {
+                    array,
+                    left,
+                    right,
+                    length,
+                    ..
+                }) => self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), *length, span),
+                AccessExpression::Circuit(expr) => self.enforce_circuit_access(cs, expr),
+                AccessExpression::Tuple(TupleAccess { tuple_ref, index, .. }) => {
+                    self.enforce_tuple_access(cs, tuple_ref.get(), *index, span)
+                }
+            },
+
             // Cast
             Expression::Cast(_) => unimplemented!("casts not implemented"),
 
@@ -152,26 +170,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             Expression::ArrayInit(ArrayInitExpression { element, len, .. }) => {
                 self.enforce_array_initializer(cs, element.get(), *len)
             }
-            Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
-                self.enforce_array_access(cs, array.get(), index.get(), span)
-            }
-            Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
-                array,
-                left,
-                right,
-                length,
-                ..
-            }) => self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), *length, span),
 
             // Tuples
             Expression::TupleInit(TupleInitExpression { elements, .. }) => self.enforce_tuple(cs, &elements[..]),
-            Expression::TupleAccess(TupleAccessExpression { tuple_ref, index, .. }) => {
-                self.enforce_tuple_access(cs, tuple_ref.get(), *index, span)
-            }
 
             // Circuits
             Expression::CircuitInit(expr) => self.enforce_circuit(cs, expr, span),
-            Expression::CircuitAccess(expr) => self.enforce_circuit_access(cs, expr),
 
             // Functions
             Expression::Call(CallExpression {

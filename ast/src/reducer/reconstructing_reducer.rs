@@ -114,6 +114,70 @@ pub trait ReconstructingReducer {
         })
     }
 
+    fn reduce_array_access(
+        &mut self,
+        array_access: &ArrayAccess,
+        array: Expression,
+        index: Expression,
+    ) -> Result<ArrayAccess> {
+        Ok(ArrayAccess {
+            array: Box::new(array),
+            index: Box::new(index),
+            span: array_access.span.clone(),
+        })
+    }
+
+    fn reduce_array_range_access(
+        &mut self,
+        array_rage_access: &ArrayRangeAccess,
+        array: Expression,
+        left: Option<Expression>,
+        right: Option<Expression>,
+    ) -> Result<ArrayRangeAccess> {
+        Ok(ArrayRangeAccess {
+            array: Box::new(array),
+            left: left.map(|expr| Box::new(expr)),
+            right: right.map(|expr| Box::new(expr)),
+            span: array_rage_access.span.clone(),
+        })
+    }
+
+    fn reduce_circuit_member_access(
+        &mut self,
+        circuit_member_access: &CircuitMemberAccess,
+        circuit: Expression,
+        name: Identifier,
+        type_: Option<Type>,
+    ) -> Result<CircuitMemberAccess> {
+        Ok(CircuitMemberAccess {
+            circuit: Box::new(circuit),
+            name,
+            span: circuit_member_access.span.clone(),
+            type_,
+        })
+    }
+
+    fn reduce_circuit_static_fn_access(
+        &mut self,
+        circuit_static_fn_access: &CircuitStaticFunctionAccess,
+        circuit: Expression,
+        name: Identifier,
+    ) -> Result<CircuitStaticFunctionAccess> {
+        Ok(CircuitStaticFunctionAccess {
+            circuit: Box::new(circuit),
+            name,
+            span: circuit_static_fn_access.span.clone(),
+        })
+    }
+
+    fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess, tuple: Expression) -> Result<TupleAccess> {
+        Ok(TupleAccess {
+            tuple: Box::new(tuple),
+            index: tuple_access.index.clone(),
+            span: tuple_access.span.clone(),
+        })
+    }
+
     fn reduce_array_inline(
         &mut self,
         array_inline: &ArrayInlineExpression,
@@ -137,34 +201,6 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_array_access(
-        &mut self,
-        array_access: &ArrayAccessExpression,
-        array: Expression,
-        index: Expression,
-    ) -> Result<ArrayAccessExpression> {
-        Ok(ArrayAccessExpression {
-            array: Box::new(array),
-            index: Box::new(index),
-            span: array_access.span.clone(),
-        })
-    }
-
-    fn reduce_array_range_access(
-        &mut self,
-        array_rage_access: &ArrayRangeAccessExpression,
-        array: Expression,
-        left: Option<Expression>,
-        right: Option<Expression>,
-    ) -> Result<ArrayRangeAccessExpression> {
-        Ok(ArrayRangeAccessExpression {
-            array: Box::new(array),
-            left: left.map(|expr| Box::new(expr)),
-            right: right.map(|expr| Box::new(expr)),
-            span: array_rage_access.span.clone(),
-        })
-    }
-
     fn reduce_tuple_init(
         &mut self,
         tuple_init: &TupleInitExpression,
@@ -173,18 +209,6 @@ pub trait ReconstructingReducer {
         Ok(TupleInitExpression {
             elements,
             span: tuple_init.span.clone(),
-        })
-    }
-
-    fn reduce_tuple_access(
-        &mut self,
-        tuple_access: &TupleAccessExpression,
-        tuple: Expression,
-    ) -> Result<TupleAccessExpression> {
-        Ok(TupleAccessExpression {
-            tuple: Box::new(tuple),
-            index: tuple_access.index.clone(),
-            span: tuple_access.span.clone(),
         })
     }
 
@@ -207,34 +231,6 @@ pub trait ReconstructingReducer {
             name,
             members,
             span: circuit_init.span.clone(),
-        })
-    }
-
-    fn reduce_circuit_member_access(
-        &mut self,
-        circuit_member_access: &CircuitMemberAccessExpression,
-        circuit: Expression,
-        name: Identifier,
-        type_: Option<Type>,
-    ) -> Result<CircuitMemberAccessExpression> {
-        Ok(CircuitMemberAccessExpression {
-            circuit: Box::new(circuit),
-            name,
-            span: circuit_member_access.span.clone(),
-            type_,
-        })
-    }
-
-    fn reduce_circuit_static_fn_access(
-        &mut self,
-        circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
-        circuit: Expression,
-        name: Identifier,
-    ) -> Result<CircuitStaticFunctionAccessExpression> {
-        Ok(CircuitStaticFunctionAccessExpression {
-            circuit: Box::new(circuit),
-            name,
-            span: circuit_static_fn_access.span.clone(),
         })
     }
 

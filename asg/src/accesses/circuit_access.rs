@@ -22,7 +22,7 @@ use leo_errors::{AsgError, Result, Span};
 use std::cell::Cell;
 
 #[derive(Clone)]
-pub struct CircuitAccessExpression<'a> {
+pub struct CircuitAccess<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub circuit: Cell<&'a Circuit<'a>>,
@@ -30,13 +30,13 @@ pub struct CircuitAccessExpression<'a> {
     pub member: Identifier,
 }
 
-impl<'a> Node for CircuitAccessExpression<'a> {
+impl<'a> Node for CircuitAccess<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl<'a> ExpressionNode<'a> for CircuitAccessExpression<'a> {
+impl<'a> ExpressionNode<'a> for CircuitAccess<'a> {
     fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
@@ -87,12 +87,12 @@ impl<'a> ExpressionNode<'a> for CircuitAccessExpression<'a> {
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessExpression<'a> {
+impl<'a> FromAst<'a, leo_ast::accesses::CircuitMemberAccess> for CircuitAccess<'a> {
     fn from_ast(
         scope: &'a Scope<'a>,
-        value: &leo_ast::CircuitMemberAccessExpression,
+        value: &leo_ast::accesses::CircuitMemberAccess,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<CircuitAccessExpression<'a>> {
+    ) -> Result<CircuitAccess<'a>> {
         let target = <&'a Expression<'a>>::from_ast(scope, &*value.circuit, None)?;
         let circuit = match target.get_type() {
             Some(Type::Circuit(circuit)) => circuit,
@@ -146,7 +146,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
             .into());
         }
 
-        Ok(CircuitAccessExpression {
+        Ok(CircuitAccess {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             target: Cell::new(Some(target)),
@@ -156,12 +156,12 @@ impl<'a> FromAst<'a, leo_ast::CircuitMemberAccessExpression> for CircuitAccessEx
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for CircuitAccessExpression<'a> {
+impl<'a> FromAst<'a, leo_ast::accesses::CircuitStaticFunctionAccess> for CircuitAccess<'a> {
     fn from_ast(
         scope: &Scope<'a>,
-        value: &leo_ast::CircuitStaticFunctionAccessExpression,
+        value: &leo_ast::accesses::CircuitStaticFunctionAccess,
         expected_type: Option<PartialType>,
-    ) -> Result<CircuitAccessExpression<'a>> {
+    ) -> Result<CircuitAccess<'a>> {
         let circuit = match &*value.circuit {
             leo_ast::Expression::Identifier(name) => scope
                 .resolve_circuit(&name.name)
@@ -186,7 +186,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for Circuit
             .into());
         }
 
-        Ok(CircuitAccessExpression {
+        Ok(CircuitAccess {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             target: Cell::new(None),
@@ -196,23 +196,27 @@ impl<'a> FromAst<'a, leo_ast::CircuitStaticFunctionAccessExpression> for Circuit
     }
 }
 
-impl<'a> Into<leo_ast::Expression> for &CircuitAccessExpression<'a> {
+impl<'a> Into<leo_ast::Expression> for &CircuitAccess<'a> {
     fn into(self) -> leo_ast::Expression {
         if let Some(target) = self.target.get() {
-            leo_ast::Expression::CircuitMemberAccess(leo_ast::CircuitMemberAccessExpression {
-                circuit: Box::new(target.into()),
-                name: self.member.clone(),
-                span: self.span.clone().unwrap_or_default(),
-                type_: None,
-            })
+            leo_ast::Expression::Access(leo_ast::AccessExpression::CircuitMember(
+                leo_ast::accesses::CircuitMemberAccess {
+                    circuit: Box::new(target.into()),
+                    name: self.member.clone(),
+                    span: self.span.clone().unwrap_or_default(),
+                    type_: None,
+                },
+            ))
         } else {
-            leo_ast::Expression::CircuitStaticFunctionAccess(leo_ast::CircuitStaticFunctionAccessExpression {
-                circuit: Box::new(leo_ast::Expression::Identifier(
-                    self.circuit.get().name.borrow().clone(),
-                )),
-                name: self.member.clone(),
-                span: self.span.clone().unwrap_or_default(),
-            })
+            leo_ast::Expression::Access(leo_ast::AccessExpression::CircuitStaticFunction(
+                leo_ast::accesses::CircuitStaticFunctionAccess {
+                    circuit: Box::new(leo_ast::Expression::Identifier(
+                        self.circuit.get().name.borrow().clone(),
+                    )),
+                    name: self.member.clone(),
+                    span: self.span.clone().unwrap_or_default(),
+                },
+            ))
         }
     }
 }

@@ -20,20 +20,20 @@ use leo_errors::{AsgError, Result, Span};
 use std::cell::Cell;
 
 #[derive(Clone)]
-pub struct TupleAccessExpression<'a> {
+pub struct TupleAccess<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub tuple_ref: Cell<&'a Expression<'a>>,
     pub index: usize,
 }
 
-impl<'a> Node for TupleAccessExpression<'a> {
+impl<'a> Node for TupleAccess<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl<'a> ExpressionNode<'a> for TupleAccessExpression<'a> {
+impl<'a> ExpressionNode<'a> for TupleAccess<'a> {
     fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
@@ -70,12 +70,12 @@ impl<'a> ExpressionNode<'a> for TupleAccessExpression<'a> {
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'a> {
+impl<'a> FromAst<'a, leo_ast::TupleAccess> for TupleAccess<'a> {
     fn from_ast(
         scope: &'a Scope<'a>,
-        value: &leo_ast::TupleAccessExpression,
+        value: &leo_ast::TupleAccess,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<TupleAccessExpression<'a>> {
+    ) -> Result<TupleAccess<'a>> {
         let index = value
             .index
             .value
@@ -99,7 +99,7 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
             .into());
         }
 
-        Ok(TupleAccessExpression {
+        Ok(TupleAccess {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             tuple_ref: Cell::new(tuple),
@@ -108,9 +108,9 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
     }
 }
 
-impl<'a> Into<leo_ast::TupleAccessExpression> for &TupleAccessExpression<'a> {
-    fn into(self) -> leo_ast::TupleAccessExpression {
-        leo_ast::TupleAccessExpression {
+impl<'a> Into<leo_ast::TupleAccess> for &TupleAccess<'a> {
+    fn into(self) -> leo_ast::TupleAccess {
+        leo_ast::TupleAccess {
             tuple: Box::new(self.tuple_ref.get().into()),
             index: leo_ast::PositiveNumber {
                 value: self.index.to_string().into(),

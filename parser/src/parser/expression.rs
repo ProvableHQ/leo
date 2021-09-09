@@ -401,6 +401,9 @@ impl ParserContext {
     /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
     ///
     pub fn parse_postfix_expression(&mut self) -> Result<Expression> {
+        // We don't directly parse named-type's and Identifier's here as
+        // the ABNF states. Rather the primary expression already
+        // handle those. The ABNF is more specific for language reasons.
         let mut expr = self.parse_primary_expression()?;
         while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen, Token::DoubleColon]) {
             match token.token {
@@ -413,12 +416,12 @@ impl ParserContext {
                         };
 
                         let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                        expr = Expression::Access(AccessExpression::ArrayRange(ArrayRangeAccess {
                             span: expr.span() + &end,
                             array: Box::new(expr),
                             left: None,
                             right,
-                        });
+                        }));
                         continue;
                     }
 
@@ -431,35 +434,35 @@ impl ParserContext {
                         };
 
                         let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                        expr = Expression::Access(AccessExpression::ArrayRange(ArrayRangeAccess {
                             span: expr.span() + &end,
                             array: Box::new(expr),
                             left: Some(Box::new(left)),
                             right,
-                        });
+                        }));
                     } else {
                         let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::ArrayAccess(ArrayAccessExpression {
+                        expr = Expression::Access(AccessExpression::Array(ArrayAccess {
                             span: expr.span() + &end,
                             array: Box::new(expr),
                             index: Box::new(left),
-                        });
+                        }));
                     }
                 }
                 Token::Dot => {
                     if let Some(ident) = self.eat_identifier() {
-                        expr = Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
+                        expr = Expression::Access(AccessExpression::CircuitMember(CircuitMemberAccess {
                             span: expr.span() + &ident.span,
                             circuit: Box::new(expr),
                             name: ident,
                             type_: None,
-                        });
+                        }));
                     } else if let Some((num, span)) = self.eat_int() {
-                        expr = Expression::TupleAccess(TupleAccessExpression {
+                        expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
                             span: expr.span() + &span,
                             tuple: Box::new(expr),
                             index: num,
-                        });
+                        }));
                     } else {
                         let next = self.peek()?;
                         return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
@@ -488,11 +491,11 @@ impl ParserContext {
                 }
                 Token::DoubleColon => {
                     let ident = self.expect_ident()?;
-                    expr = Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression {
+                    expr = Expression::Access(AccessExpression::CircuitStaticFunction(CircuitStaticFunctionAccess {
                         span: expr.span() + &ident.span,
                         circuit: Box::new(expr),
                         name: ident,
-                    });
+                    }));
                 }
                 _ => unimplemented!(),
             }
@@ -725,6 +728,14 @@ impl ParserContext {
                     name: token.to_string().into(),
                     span,
                 };
+                Expression::Identifier(ident)
+            }
+            t if crate::type_::TYPE_TOKENS.contains(&t) => {
+                let ident = Identifier {
+                    name: t.to_string().into(),
+                    span,
+                };
+
                 Expression::Identifier(ident)
             }
             token => {

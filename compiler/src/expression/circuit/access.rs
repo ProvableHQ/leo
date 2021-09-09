@@ -17,7 +17,7 @@
 //! Enforces a circuit access expression in a compiled Leo program.
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{CircuitAccessExpression, Node};
+use leo_asg::{CircuitAccess, Node};
 use leo_errors::{CompilerError, Result};
 
 use snarkvm_fields::PrimeField;
@@ -28,7 +28,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn enforce_circuit_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        expr: &CircuitAccessExpression<'a>,
+        expr: &CircuitAccess<'a>,
     ) -> Result<ConstrainedValue<'a, F, G>> {
         if let Some(target) = expr.target.get() {
             //todo: we can prob pass values by ref here to avoid copying the entire circuit on access

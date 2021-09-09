@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-const TYPE_TOKENS: &[Token] = &[
+pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::I8,
     Token::I16,
     Token::I32,

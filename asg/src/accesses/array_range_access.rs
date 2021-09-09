@@ -21,7 +21,7 @@ use leo_errors::{AsgError, Result, Span};
 use std::cell::Cell;
 
 #[derive(Clone)]
-pub struct ArrayRangeAccessExpression<'a> {
+pub struct ArrayRangeAccess<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub array: Cell<&'a Expression<'a>>,
@@ -32,13 +32,13 @@ pub struct ArrayRangeAccessExpression<'a> {
     pub length: usize,
 }
 
-impl<'a> Node for ArrayRangeAccessExpression<'a> {
+impl<'a> Node for ArrayRangeAccess<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl<'a> ExpressionNode<'a> for ArrayRangeAccessExpression<'a> {
+impl<'a> ExpressionNode<'a> for ArrayRangeAccess<'a> {
     fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
@@ -98,12 +98,12 @@ impl<'a> ExpressionNode<'a> for ArrayRangeAccessExpression<'a> {
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessExpression<'a> {
+impl<'a> FromAst<'a, leo_ast::accesses::ArrayRangeAccess> for ArrayRangeAccess<'a> {
     fn from_ast(
         scope: &'a Scope<'a>,
-        value: &leo_ast::ArrayRangeAccessExpression,
+        value: &leo_ast::accesses::ArrayRangeAccess,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayRangeAccessExpression<'a>> {
+    ) -> Result<ArrayRangeAccess<'a>> {
         let (expected_array, expected_len) = match expected_type.clone() {
             Some(PartialType::Array(element, len)) => (Some(PartialType::Array(element, None)), len),
             None => (None, None),
@@ -204,7 +204,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
             return Err(AsgError::unknown_array_size(&value.span).into());
         }
 
-        Ok(ArrayRangeAccessExpression {
+        Ok(ArrayRangeAccess {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             array: Cell::new(array),
@@ -215,9 +215,9 @@ impl<'a> FromAst<'a, leo_ast::ArrayRangeAccessExpression> for ArrayRangeAccessEx
     }
 }
 
-impl<'a> Into<leo_ast::ArrayRangeAccessExpression> for &ArrayRangeAccessExpression<'a> {
-    fn into(self) -> leo_ast::ArrayRangeAccessExpression {
-        leo_ast::ArrayRangeAccessExpression {
+impl<'a> Into<leo_ast::accesses::ArrayRangeAccess> for &ArrayRangeAccess<'a> {
+    fn into(self) -> leo_ast::accesses::ArrayRangeAccess {
+        leo_ast::accesses::ArrayRangeAccess {
             array: Box::new(self.array.get().into()),
             left: self.left.get().map(|left| Box::new(left.into())),
             right: self.right.get().map(|right| Box::new(right.into())),

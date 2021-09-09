@@ -26,6 +26,9 @@
 #![allow(clippy::result_unit_err)]
 #![doc = include_str!("../README.md")]
 
+pub mod accesses;
+pub use accesses::*;
+
 pub mod checks;
 pub use checks::*;
 

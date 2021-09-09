@@ -14,22 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
+use crate::{Expression, Node};
+use leo_errors::Span;
+
+use std::fmt;
+
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct TupleAccessExpression {
-    pub tuple: Box<Expression>,
-    pub index: PositiveNumber,
+pub struct ArrayAccess {
+    pub array: Box<Expression>,
+    pub index: Box<Expression>,
     pub span: Span,
 }
 
-impl fmt::Display for TupleAccessExpression {
+impl fmt::Display for ArrayAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.tuple, self.index)
+        write!(f, "{}[{}]", self.array, self.index)
     }
 }
 
-impl Node for TupleAccessExpression {
+impl Node for ArrayAccess {
     fn span(&self) -> &Span {
         &self.span
     }

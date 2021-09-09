@@ -57,24 +57,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
             Expression::Cast(cast) => Expression::Cast(self.reduce_cast(cast)?),
+            Expression::Access(access) => Expression::Access(self.reduce_access(access)?),
 
             Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(array_inline)?),
             Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(array_init)?),
-            Expression::ArrayAccess(array_access) => Expression::ArrayAccess(self.reduce_array_access(array_access)?),
-            Expression::ArrayRangeAccess(array_range_access) => {
-                Expression::ArrayRangeAccess(self.reduce_array_range_access(array_range_access)?)
-            }
 
             Expression::TupleInit(tuple_init) => Expression::TupleInit(self.reduce_tuple_init(tuple_init)?),
-            Expression::TupleAccess(tuple_access) => Expression::TupleAccess(self.reduce_tuple_access(tuple_access)?),
 
             Expression::CircuitInit(circuit_init) => Expression::CircuitInit(self.reduce_circuit_init(circuit_init)?),
-            Expression::CircuitMemberAccess(circuit_member_access) => {
-                Expression::CircuitMemberAccess(self.reduce_circuit_member_access(circuit_member_access)?)
-            }
-            Expression::CircuitStaticFunctionAccess(circuit_static_fn_access) => {
-                Expression::CircuitStaticFunctionAccess(self.reduce_circuit_static_fn_access(circuit_static_fn_access)?)
-            }
 
             Expression::Call(call) => Expression::Call(self.reduce_call(call)?),
         };
@@ -143,6 +133,77 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_cast(cast, inner, target_type)
     }
 
+    pub fn reduce_array_access(&mut self, array_access: &ArrayAccess) -> Result<ArrayAccess> {
+        let array = self.reduce_expression(&array_access.array)?;
+        let index = self.reduce_expression(&array_access.index)?;
+
+        self.reducer.reduce_array_access(array_access, array, index)
+    }
+
+    pub fn reduce_array_range_access(&mut self, array_range_access: &ArrayRangeAccess) -> Result<ArrayRangeAccess> {
+        let array = self.reduce_expression(&array_range_access.array)?;
+        let left = array_range_access
+            .left
+            .as_ref()
+            .map(|left| self.reduce_expression(left))
+            .transpose()?;
+        let right = array_range_access
+            .right
+            .as_ref()
+            .map(|right| self.reduce_expression(right))
+            .transpose()?;
+
+        self.reducer
+            .reduce_array_range_access(array_range_access, array, left, right)
+    }
+
+    pub fn reduce_circuit_member_access(
+        &mut self,
+        circuit_member_access: &CircuitMemberAccess,
+    ) -> Result<CircuitMemberAccess> {
+        let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
+        let name = self.reduce_identifier(&circuit_member_access.name)?;
+        let type_ = circuit_member_access
+            .type_
+            .as_ref()
+            .map(|type_| self.reduce_type(type_, &circuit_member_access.span))
+            .transpose()?;
+
+        self.reducer
+            .reduce_circuit_member_access(circuit_member_access, circuit, name, type_)
+    }
+
+    pub fn reduce_circuit_static_fn_access(
+        &mut self,
+        circuit_static_fn_access: &CircuitStaticFunctionAccess,
+    ) -> Result<CircuitStaticFunctionAccess> {
+        let circuit = self.reduce_expression(&circuit_static_fn_access.circuit)?;
+        let name = self.reduce_identifier(&circuit_static_fn_access.name)?;
+
+        self.reducer
+            .reduce_circuit_static_fn_access(circuit_static_fn_access, circuit, name)
+    }
+
+    pub fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess) -> Result<TupleAccess> {
+        let tuple = self.reduce_expression(&tuple_access.tuple)?;
+
+        self.reducer.reduce_tuple_access(tuple_access, tuple)
+    }
+
+    pub fn reduce_access(&mut self, access: &AccessExpression) -> Result<AccessExpression> {
+        use AccessExpression::*;
+
+        let new = match access {
+            Array(access) => Array(self.reduce_array_access(access)?),
+            ArrayRange(access) => ArrayRange(self.reduce_array_range_access(access)?),
+            CircuitMember(access) => CircuitMember(self.reduce_circuit_member_access(access)?),
+            CircuitStaticFunction(access) => CircuitStaticFunction(self.reduce_circuit_static_fn_access(access)?),
+            Tuple(access) => Tuple(self.reduce_tuple_access(access)?),
+        };
+
+        Ok(new)
+    }
+
     pub fn reduce_array_inline(&mut self, array_inline: &ArrayInlineExpression) -> Result<ArrayInlineExpression> {
         let mut elements = vec![];
         for element in array_inline.elements.iter() {
@@ -167,33 +228,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_array_init(array_init, element)
     }
 
-    pub fn reduce_array_access(&mut self, array_access: &ArrayAccessExpression) -> Result<ArrayAccessExpression> {
-        let array = self.reduce_expression(&array_access.array)?;
-        let index = self.reduce_expression(&array_access.index)?;
-
-        self.reducer.reduce_array_access(array_access, array, index)
-    }
-
-    pub fn reduce_array_range_access(
-        &mut self,
-        array_range_access: &ArrayRangeAccessExpression,
-    ) -> Result<ArrayRangeAccessExpression> {
-        let array = self.reduce_expression(&array_range_access.array)?;
-        let left = array_range_access
-            .left
-            .as_ref()
-            .map(|left| self.reduce_expression(left))
-            .transpose()?;
-        let right = array_range_access
-            .right
-            .as_ref()
-            .map(|right| self.reduce_expression(right))
-            .transpose()?;
-
-        self.reducer
-            .reduce_array_range_access(array_range_access, array, left, right)
-    }
-
     pub fn reduce_tuple_init(&mut self, tuple_init: &TupleInitExpression) -> Result<TupleInitExpression> {
         let mut elements = vec![];
         for element in tuple_init.elements.iter() {
@@ -201,12 +235,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         }
 
         self.reducer.reduce_tuple_init(tuple_init, elements)
-    }
-
-    pub fn reduce_tuple_access(&mut self, tuple_access: &TupleAccessExpression) -> Result<TupleAccessExpression> {
-        let tuple = self.reduce_expression(&tuple_access.tuple)?;
-
-        self.reducer.reduce_tuple_access(tuple_access, tuple)
     }
 
     pub fn reduce_circuit_implied_variable_definition(
@@ -233,33 +261,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         }
 
         self.reducer.reduce_circuit_init(circuit_init, name, members)
-    }
-
-    pub fn reduce_circuit_member_access(
-        &mut self,
-        circuit_member_access: &CircuitMemberAccessExpression,
-    ) -> Result<CircuitMemberAccessExpression> {
-        let circuit = self.reduce_expression(&circuit_member_access.circuit)?;
-        let name = self.reduce_identifier(&circuit_member_access.name)?;
-        let type_ = circuit_member_access
-            .type_
-            .as_ref()
-            .map(|type_| self.reduce_type(type_, &circuit_member_access.span))
-            .transpose()?;
-
-        self.reducer
-            .reduce_circuit_member_access(circuit_member_access, circuit, name, type_)
-    }
-
-    pub fn reduce_circuit_static_fn_access(
-        &mut self,
-        circuit_static_fn_access: &CircuitStaticFunctionAccessExpression,
-    ) -> Result<CircuitStaticFunctionAccessExpression> {
-        let circuit = self.reduce_expression(&circuit_static_fn_access.circuit)?;
-        let name = self.reduce_identifier(&circuit_static_fn_access.name)?;
-
-        self.reducer
-            .reduce_circuit_static_fn_access(circuit_static_fn_access, circuit, name)
     }
 
     pub fn reduce_call(&mut self, call: &CallExpression) -> Result<CallExpression> {

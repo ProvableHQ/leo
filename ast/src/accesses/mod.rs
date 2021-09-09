@@ -14,27 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::*;
+mod array_access;
+pub use array_access::*;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ArrayAccessExpression {
-    pub array: Box<Expression>,
-    pub index: Box<Expression>,
-    pub span: Span,
-}
+mod array_range_access;
+pub use array_range_access::*;
 
-impl fmt::Display for ArrayAccessExpression {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}[{}]", self.array, self.index)
-    }
-}
+mod circuit_member_access;
+pub use circuit_member_access::*;
 
-impl Node for ArrayAccessExpression {
-    fn span(&self) -> &Span {
-        &self.span
-    }
+mod circuit_static_function_access;
+pub use circuit_static_function_access::*;
 
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+mod tuple_access;
+pub use tuple_access::*;

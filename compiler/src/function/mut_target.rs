@@ -20,8 +20,8 @@ use std::cell::Cell;
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{
-    ArrayAccessExpression, ArrayRangeAccessExpression, AssignAccess, AssignOperation, AssignStatement,
-    CircuitAccessExpression, Expression, Node, TupleAccessExpression, Variable,
+    AccessExpression, ArrayAccess, ArrayRangeAccess, AssignAccess, AssignOperation, AssignStatement, CircuitAccess,
+    Expression, Node, TupleAccess, Variable,
 };
 use leo_errors::Result;
 
@@ -35,35 +35,37 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         expr: &'a Expression<'a>,
     ) -> Result<Option<&'a Variable<'a>>> {
         match expr {
-            Expression::ArrayRangeAccess(ArrayRangeAccessExpression { array, left, right, .. }) => {
-                let inner = Self::prepare_mut_access(out, array.get())?;
+            Expression::Access(access) => match access {
+                AccessExpression::ArrayRange(ArrayRangeAccess { array, left, right, .. }) => {
+                    let inner = Self::prepare_mut_access(out, array.get())?;
 
-                out.push(AssignAccess::ArrayRange(left.clone(), right.clone()));
+                    out.push(AssignAccess::ArrayRange(left.clone(), right.clone()));
 
-                Ok(inner)
-            }
-            Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
-                let inner = Self::prepare_mut_access(out, array.get())?;
-
-                out.push(AssignAccess::ArrayIndex(index.clone()));
-                Ok(inner)
-            }
-            Expression::TupleAccess(TupleAccessExpression { tuple_ref, index, .. }) => {
-                let inner = Self::prepare_mut_access(out, tuple_ref.get())?;
-
-                out.push(AssignAccess::Tuple(*index));
-                Ok(inner)
-            }
-            Expression::CircuitAccess(CircuitAccessExpression { target, member, .. }) => {
-                if let Some(target) = target.get() {
-                    let inner = Self::prepare_mut_access(out, target)?;
-
-                    out.push(AssignAccess::Member(member.clone()));
                     Ok(inner)
-                } else {
-                    Ok(None)
                 }
-            }
+                AccessExpression::Array(ArrayAccess { array, index, .. }) => {
+                    let inner = Self::prepare_mut_access(out, array.get())?;
+
+                    out.push(AssignAccess::ArrayIndex(index.clone()));
+                    Ok(inner)
+                }
+                AccessExpression::Circuit(CircuitAccess { target, member, .. }) => {
+                    if let Some(target) = target.get() {
+                        let inner = Self::prepare_mut_access(out, target)?;
+
+                        out.push(AssignAccess::Member(member.clone()));
+                        Ok(inner)
+                    } else {
+                        Ok(None)
+                    }
+                }
+                AccessExpression::Tuple(TupleAccess { tuple_ref, index, .. }) => {
+                    let inner = Self::prepare_mut_access(out, tuple_ref.get())?;
+
+                    out.push(AssignAccess::Tuple(*index));
+                    Ok(inner)
+                }
+            },
             Expression::VariableRef(variable_ref) => Ok(Some(variable_ref.variable)),
             _ => Ok(None), // not a valid reference to mutable variable, we copy
         }
