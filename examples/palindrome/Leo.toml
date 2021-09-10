@@ -1,8 +1,8 @@
 [project]
-name = "pedersen-hash"
+name = "palindrome"
 version = "0.1.0"
-description = "A 256bit hash function"
-license = "LICENSE-MIT"
+description = "The palindrome package"
+license = "MIT"
 
 [remote]
 author = "aleo"
@@ -10,3 +10,6 @@ author = "aleo"
 [target]
 curve = "bls12_377"
 proving_system = "groth16"
+
+[dependencies]
+# none

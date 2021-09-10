@@ -1,8 +1,8 @@
 [project]
-name = "pedersen-hash"
+name = "linear-regression"
 version = "0.1.0"
-description = "A 256bit hash function"
-license = "LICENSE-MIT"
+description = "The linear-regression package"
+license = "MIT"
 
 [remote]
 author = "aleo"
