@@ -20,7 +20,7 @@ circuit Foo {
         y[Self {x: 0}.x] += 2;
     }
 
-    function func() {
+    function func(a: [Self; 3], y: (Self)) {
         const x: Self = Foo {x: Self {x: 1}.x};
     }
 
