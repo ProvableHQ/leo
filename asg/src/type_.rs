@@ -227,7 +227,7 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
             ),
             ArrayWithoutSize(type_) => leo_ast::Type::Array(Box::new(type_.as_ref().into()), None),
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),
-            Circuit(circuit) => leo_ast::Type::CircuitOrAlias(circuit.name.borrow().clone()),
+            Circuit(circuit) => leo_ast::Type::Identifier(circuit.name.borrow().clone()),
         }
     }
 }

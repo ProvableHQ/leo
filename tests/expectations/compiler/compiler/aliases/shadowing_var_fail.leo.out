@@ -1,5 +1,0 @@
----
-namespace: Compile
-expectation: Fail
-outputs:
-  - "Error [EASG0373047]: a function input cannot be named `int` as a alias with that name already exists in this scope\n    --> compiler-test:6:9\n     |\n   6 |     let int: int = 1u32;\n     |         ^^^"
