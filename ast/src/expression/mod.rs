@@ -54,8 +54,8 @@ mod call;
 pub use call::*;
 mod cast;
 pub use cast::*;
-mod sizeof;
-pub use sizeof::*;
+mod lengthof;
+pub use lengthof::*;
 
 /// Expression that evaluates to a value
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -66,7 +66,7 @@ pub enum Expression {
     Unary(UnaryExpression),
     Ternary(TernaryExpression),
     Cast(CastExpression),
-    SizeOf(SizeOfExpression),
+    LengthOf(LengthOfExpression),
 
     ArrayInline(ArrayInlineExpression),
     ArrayInit(ArrayInitExpression),
@@ -103,7 +103,7 @@ impl Node for Expression {
             CircuitStaticFunctionAccess(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
-            SizeOf(n) => n.span(),
+            LengthOf(n) => n.span(),
         }
     }
 
@@ -126,7 +126,7 @@ impl Node for Expression {
             CircuitStaticFunctionAccess(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
-            SizeOf(n) => n.set_span(span),
+            LengthOf(n) => n.set_span(span),
         }
     }
 }
@@ -151,7 +151,7 @@ impl fmt::Display for Expression {
             CircuitStaticFunctionAccess(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
-            SizeOf(n) => n.fmt(f),
+            LengthOf(n) => n.fmt(f),
         }
     }
 }

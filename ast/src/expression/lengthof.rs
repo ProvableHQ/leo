@@ -19,18 +19,18 @@
 use super::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct SizeOfExpression {
+pub struct LengthOfExpression {
     pub inner: Box<Expression>,
     pub span: Span,
 }
 
-impl fmt::Display for SizeOfExpression {
+impl fmt::Display for LengthOfExpression {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "sizeof {}", self.inner)
     }
 }
 
-impl Node for SizeOfExpression {
+impl Node for LengthOfExpression {
     fn span(&self) -> &Span {
         &self.span
     }

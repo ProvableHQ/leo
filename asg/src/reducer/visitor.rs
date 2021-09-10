@@ -76,7 +76,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_sizeof_expression(&mut self, input: &SizeOfExpression<'a>) -> VisitResult {
+    fn visit_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> VisitResult {
         Default::default()
     }
 

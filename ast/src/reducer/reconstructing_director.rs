@@ -57,7 +57,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Unary(unary) => Expression::Unary(self.reduce_unary(unary)?),
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
             Expression::Cast(cast) => Expression::Cast(self.reduce_cast(cast)?),
-            Expression::SizeOf(sizeof) => Expression::SizeOf(sizeof.clone()), // Expression::SizeOf(self.reduce_sizeof(sizeof)?), // TODO: add reducer
+            Expression::LengthOf(sizeof) => Expression::LengthOf(sizeof.clone()), // Expression::LengthOf(self.reduce_sizeof(sizeof)?), // TODO: add reducer
 
             Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(array_inline)?),
             Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(array_init)?),

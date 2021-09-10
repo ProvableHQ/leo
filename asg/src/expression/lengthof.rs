@@ -21,19 +21,19 @@ use leo_errors::{Result, Span};
 use std::cell::Cell;
 
 #[derive(Clone)]
-pub struct SizeOfExpression<'a> {
+pub struct LengthOfExpression<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub inner: Cell<&'a Expression<'a>>,
 }
 
-impl<'a> Node for SizeOfExpression<'a> {
+impl<'a> Node for LengthOfExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl<'a> ExpressionNode<'a> for SizeOfExpression<'a> {
+impl<'a> ExpressionNode<'a> for LengthOfExpression<'a> {
     fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
@@ -47,10 +47,7 @@ impl<'a> ExpressionNode<'a> for SizeOfExpression<'a> {
     }
 
     fn get_type(&self) -> Option<Type<'a>> {
-        // TODO: make decision on get type method
-        // Should it be always u32? For indexes?
-        // How type casts are applied to this?
-        Some(Type::Integer(IntegerType::U32))
+        Some(Type::Integer(IntegerType::U32)) // For now we stick to U32 value type
     }
 
     fn is_mut_ref(&self) -> bool {
@@ -58,16 +55,6 @@ impl<'a> ExpressionNode<'a> for SizeOfExpression<'a> {
     }
 
     fn const_value(&self) -> Option<ConstValue> {
-        let _value = self.inner.get().const_value()?;
-        // match value {
-        //     ConstValue::Int(int) => match &self.target_type {
-        //         Type::Integer(target) => Some(ConstValue::Int(int.cast_to(target))),
-        //         _ => None,
-        //     },
-        //     _ => None,
-        // }
-
-        // TODO: IMPLEMENT CONST VALUE
         None
     }
 
@@ -76,15 +63,15 @@ impl<'a> ExpressionNode<'a> for SizeOfExpression<'a> {
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::SizeOfExpression> for SizeOfExpression<'a> {
+impl<'a> FromAst<'a, leo_ast::LengthOfExpression> for LengthOfExpression<'a> {
     fn from_ast(
         scope: &'a Scope<'a>,
-        value: &leo_ast::SizeOfExpression,
+        value: &leo_ast::LengthOfExpression,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<SizeOfExpression<'a>> {
+    ) -> Result<LengthOfExpression<'a>> {
         let inner = <&Expression<'a>>::from_ast(scope, &*value.inner, None)?;
 
-        Ok(SizeOfExpression {
+        Ok(LengthOfExpression {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             inner: Cell::new(inner),
@@ -92,9 +79,9 @@ impl<'a> FromAst<'a, leo_ast::SizeOfExpression> for SizeOfExpression<'a> {
     }
 }
 
-impl<'a> Into<leo_ast::SizeOfExpression> for &SizeOfExpression<'a> {
-    fn into(self) -> leo_ast::SizeOfExpression {
-        leo_ast::SizeOfExpression {
+impl<'a> Into<leo_ast::LengthOfExpression> for &LengthOfExpression<'a> {
+    fn into(self) -> leo_ast::LengthOfExpression {
+        leo_ast::LengthOfExpression {
             inner: Box::new(self.inner.get().into()),
             span: self.span.clone().unwrap_or_default(),
         }

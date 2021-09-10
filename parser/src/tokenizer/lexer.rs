@@ -388,6 +388,9 @@ impl Token {
                     return (len, Some(Token::DotDotDot));
                 } else if let Some(len) = eat(input, "..") {
                     return (len, Some(Token::DotDot));
+                } else if let Some(len) = eat(input, ".length()") {
+                    // FIXME: remove this code once we allow method calls
+                    return (len, Some(Token::LengthOf));
                 }
                 return (1, Some(Token::Dot));
             }
@@ -519,7 +522,6 @@ impl Token {
                     "string" => Token::String,
                     "true" => Token::True,
                     "type" => Token::Type,
-                    "sizeof" => Token::SizeOf,
                     "u8" => Token::U8,
                     "u16" => Token::U16,
                     "u32" => Token::U32,

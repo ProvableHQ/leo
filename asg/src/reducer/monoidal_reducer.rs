@@ -68,7 +68,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         inner
     }
 
-    fn reduce_sizeof_expression(&mut self, input: &SizeOfExpression<'a>, inner: T) -> T {
+    fn reduce_lengthof_expression(&mut self, input: &LengthOfExpression<'a>, inner: T) -> T {
         inner
     }
 

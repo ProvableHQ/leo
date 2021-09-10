@@ -65,8 +65,8 @@ pub use variable_ref::*;
 mod cast;
 pub use cast::*;
 
-mod sizeof;
-pub use sizeof::*;
+mod lengthof;
+pub use lengthof::*;
 
 use crate::{ConstValue, FromAst, Node, PartialType, Scope, Type};
 use leo_errors::{Result, Span};
@@ -79,7 +79,7 @@ pub enum Expression<'a> {
     Unary(UnaryExpression<'a>),
     Ternary(TernaryExpression<'a>),
     Cast(CastExpression<'a>),
-    SizeOf(SizeOfExpression<'a>),
+    LengthOf(LengthOfExpression<'a>),
 
     ArrayInline(ArrayInlineExpression<'a>),
     ArrayInit(ArrayInitExpression<'a>),
@@ -111,7 +111,7 @@ impl<'a> Node for Expression<'a> {
             Unary(x) => x.span(),
             Ternary(x) => x.span(),
             Cast(x) => x.span(),
-            SizeOf(x) => x.span(),
+            LengthOf(x) => x.span(),
             ArrayInline(x) => x.span(),
             ArrayInit(x) => x.span(),
             ArrayAccess(x) => x.span(),
@@ -146,7 +146,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Unary(x) => x.set_parent(parent),
             Ternary(x) => x.set_parent(parent),
             Cast(x) => x.set_parent(parent),
-            SizeOf(x) => x.set_parent(parent),
+            LengthOf(x) => x.set_parent(parent),
             ArrayInline(x) => x.set_parent(parent),
             ArrayInit(x) => x.set_parent(parent),
             ArrayAccess(x) => x.set_parent(parent),
@@ -168,7 +168,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Unary(x) => x.get_parent(),
             Ternary(x) => x.get_parent(),
             Cast(x) => x.get_parent(),
-            SizeOf(x) => x.get_parent(),
+            LengthOf(x) => x.get_parent(),
             ArrayInline(x) => x.get_parent(),
             ArrayInit(x) => x.get_parent(),
             ArrayAccess(x) => x.get_parent(),
@@ -190,7 +190,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Unary(x) => x.enforce_parents(expr),
             Ternary(x) => x.enforce_parents(expr),
             Cast(x) => x.enforce_parents(expr),
-            SizeOf(x) => x.enforce_parents(expr),
+            LengthOf(x) => x.enforce_parents(expr),
             ArrayInline(x) => x.enforce_parents(expr),
             ArrayInit(x) => x.enforce_parents(expr),
             ArrayAccess(x) => x.enforce_parents(expr),
@@ -212,7 +212,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Unary(x) => x.get_type(),
             Ternary(x) => x.get_type(),
             Cast(x) => x.get_type(),
-            SizeOf(x) => x.get_type(),
+            LengthOf(x) => x.get_type(),
             ArrayInline(x) => x.get_type(),
             ArrayInit(x) => x.get_type(),
             ArrayAccess(x) => x.get_type(),
@@ -234,7 +234,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Unary(x) => x.is_mut_ref(),
             Ternary(x) => x.is_mut_ref(),
             Cast(x) => x.is_mut_ref(),
-            SizeOf(x) => x.is_mut_ref(),
+            LengthOf(x) => x.is_mut_ref(),
             ArrayInline(x) => x.is_mut_ref(),
             ArrayInit(x) => x.is_mut_ref(),
             ArrayAccess(x) => x.is_mut_ref(),
@@ -256,7 +256,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Unary(x) => x.const_value(),
             Ternary(x) => x.const_value(),
             Cast(x) => x.const_value(),
-            SizeOf(x) => x.const_value(),
+            LengthOf(x) => x.const_value(),
             ArrayInline(x) => x.const_value(),
             ArrayInit(x) => x.const_value(),
             ArrayAccess(x) => x.const_value(),
@@ -278,7 +278,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Unary(x) => x.is_consty(),
             Ternary(x) => x.is_consty(),
             Cast(x) => x.is_consty(),
-            SizeOf(x) => x.is_consty(),
+            LengthOf(x) => x.is_consty(),
             ArrayInline(x) => x.is_consty(),
             ArrayInit(x) => x.is_consty(),
             ArrayAccess(x) => x.is_consty(),
@@ -317,9 +317,9 @@ impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
                 .context
                 .alloc_expression(CastExpression::from_ast(scope, cast, expected_type).map(Expression::Cast)?),
 
-            SizeOf(sizeof) => scope
-                .context
-                .alloc_expression(SizeOfExpression::from_ast(scope, sizeof, expected_type).map(Expression::SizeOf)?),
+            LengthOf(lengthof) => scope.context.alloc_expression(
+                LengthOfExpression::from_ast(scope, lengthof, expected_type).map(Expression::LengthOf)?,
+            ),
 
             ArrayInline(array_inline) => scope.context.alloc_expression(
                 ArrayInlineExpression::from_ast(scope, array_inline, expected_type).map(Expression::ArrayInline)?,
@@ -373,7 +373,7 @@ impl<'a> Into<leo_ast::Expression> for &Expression<'a> {
             Unary(x) => leo_ast::Expression::Unary(x.into()),
             Ternary(x) => leo_ast::Expression::Ternary(x.into()),
             Cast(x) => leo_ast::Expression::Cast(x.into()),
-            SizeOf(x) => leo_ast::Expression::SizeOf(x.into()),
+            LengthOf(x) => leo_ast::Expression::LengthOf(x.into()),
             ArrayInline(x) => leo_ast::Expression::ArrayInline(x.into()),
             ArrayInit(x) => leo_ast::Expression::ArrayInit(x.into()),
             ArrayAccess(x) => leo_ast::Expression::ArrayAccess(x.into()),

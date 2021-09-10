@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373025]: unexpected type, expected: '()', received: 'bool'\n    --> compiler-test:4:12\n     |\n   4 |     return 10.length() == 10u8;\n     |            ^^^^^^^^^^^^^^^^^^^"
