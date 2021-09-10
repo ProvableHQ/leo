@@ -28,6 +28,9 @@ impl Importer {
     where
         T: ImportResolver,
     {
+        let mut ast = program.clone();
+        ast.imports.extend(leo_stdlib::resolve_prelude_modules()?);
+
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
         for import_statement in program.import_statements.iter() {
             resolve_import_package(&mut imported_symbols, vec![], &import_statement.package_or_packages);
@@ -53,8 +56,7 @@ impl Importer {
             resolved_packages.insert(package.clone(), resolved_package);
         }
 
-        let mut ast = program;
-        ast.imports = resolved_packages;
+        ast.imports.extend(resolved_packages);
 
         Ok(Ast::new(ast))
     }

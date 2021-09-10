@@ -101,6 +101,6 @@ outputs:
               type: char
               value: "'\\u{1f62d}'"
     initial_ast: 0c2aeb5b47fc21f5aded4e3aebcdf55eb98c10c6b51a2a6dcb98490a96da0c97
-    imports_resolved_ast: 0c2aeb5b47fc21f5aded4e3aebcdf55eb98c10c6b51a2a6dcb98490a96da0c97
-    canonicalized_ast: 0c2aeb5b47fc21f5aded4e3aebcdf55eb98c10c6b51a2a6dcb98490a96da0c97
-    type_inferenced_ast: e9c5fc64aad2390305671ffbe316eee04d5fca7a6f09dcc8c8a69c38db8b3a62
+    imports_resolved_ast: dc29924de4b1752b8e29691b4e6938d20048c684a8e01e77b760f75b76507747
+    canonicalized_ast: dc29924de4b1752b8e29691b4e6938d20048c684a8e01e77b760f75b76507747
+    type_inferenced_ast: 0db49560694863b30bba8e3243ae034956c397249031215042b1615d99d397b7

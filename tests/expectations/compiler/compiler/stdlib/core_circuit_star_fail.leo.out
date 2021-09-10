@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EAST0372011]: failed to resolve import: 'std'\n    --> compiler-test:3:12\n     |\n   3 | import std.*; // You cannot import all dependencies from core at once\n     |            ^"

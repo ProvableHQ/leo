@@ -35,11 +35,12 @@ use snarkvm_r1cs::{ConstraintSynthesizer, ConstraintSystem, SynthesisError};
 
 use sha2::{Digest, Sha256};
 use std::{
-    collections::HashMap,
     fs,
     marker::PhantomData,
     path::{Path, PathBuf},
 };
+
+use indexmap::IndexMap;
 
 thread_local! {
     static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
@@ -64,7 +65,7 @@ pub struct Compiler<'a, F: PrimeField, G: GroupType<F>> {
     context: AsgContext<'a>,
     asg: Option<AsgProgram<'a>>,
     options: CompilerOptions,
-    imports_map: HashMap<String, String>,
+    imports_map: IndexMap<String, String>,
     ast_snapshot_options: AstSnapshotOptions,
     _engine: PhantomData<F>,
     _group: PhantomData<G>,
@@ -80,7 +81,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        imports_map: HashMap<String, String>,
+        imports_map: IndexMap<String, String>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Self {
         Self {
@@ -112,7 +113,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        imports_map: HashMap<String, String>,
+        imports_map: IndexMap<String, String>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Result<Self> {
         let mut compiler = Self::new(
@@ -153,7 +154,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         state_path: &Path,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        imports_map: HashMap<String, String>,
+        imports_map: IndexMap<String, String>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Result<Self> {
         let mut compiler = Self::new(
