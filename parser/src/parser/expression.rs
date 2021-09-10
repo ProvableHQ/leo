@@ -450,22 +450,42 @@ impl ParserContext {
                     }
                 }
                 Token::Dot => {
-                    if let Some(ident) = self.eat_identifier() {
-                        expr = Expression::Access(AccessExpression::CircuitMember(CircuitMemberAccess {
-                            span: expr.span() + &ident.span,
-                            circuit: Box::new(expr),
-                            name: ident,
-                            type_: None,
-                        }));
-                    } else if let Some((num, span)) = self.eat_int() {
-                        expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
-                            span: expr.span() + &span,
-                            tuple: Box::new(expr),
-                            index: num,
-                        }));
-                    } else {
-                        let next = self.peek()?;
-                        return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
+                    match expr {
+                        Expression::Value(_) => {
+                            if let Some(ident) = self.eat_identifier() {
+                                expr = Expression::Access(AccessExpression::Value(ValueAccess {
+                                    span: expr.span() + &ident.span,
+                                    value: Box::new(expr),
+                                    name: ident,
+                                }));
+                            } else {
+                                let next = self.peek()?;
+                                return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
+                            }
+                        },
+                        Expression::Identifier(_) => {
+                            if let Some(ident) = self.eat_identifier() {
+                                expr = Expression::Access(AccessExpression::CircuitMember(CircuitMemberAccess {
+                                    span: expr.span() + &ident.span,
+                                    circuit: Box::new(expr),
+                                    name: ident,
+                                    type_: None,
+                                }));
+                            } else if let Some((num, span)) = self.eat_int() {
+                                expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
+                                    span: expr.span() + &span,
+                                    tuple: Box::new(expr),
+                                    index: num,
+                                }));
+                            } else {
+                                let next = self.peek()?;
+                                return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
+                            }
+                        },
+                        _ => {
+                            let next = self.peek()?;
+                            return Err(ParserError::unexpected_str(&next.token, "int, bool, field, group, ident", &next.span).into());
+                        }
                     }
                 }
                 Token::LeftParen => {
@@ -491,11 +511,30 @@ impl ParserContext {
                 }
                 Token::DoubleColon => {
                     let ident = self.expect_ident()?;
-                    expr = Expression::Access(AccessExpression::CircuitStaticFunction(CircuitStaticFunctionAccess {
-                        span: expr.span() + &ident.span,
-                        circuit: Box::new(expr),
-                        name: ident,
-                    }));
+                    match expr {
+                        Expression::Value(ref value) => {
+                            match value {
+                                ValueExpression::NamedType(_, _) => {
+                                    expr = Expression::Access(AccessExpression::Value(ValueAccess {
+                                        span: expr.span() + &ident.span,
+                                        value: Box::new(expr),
+                                        name: ident,
+                                    }))
+                                }
+                                _ => unimplemented!(),
+                            }
+                        },
+                        Expression::Identifier(_) => {
+                            expr = Expression::Access(AccessExpression::CircuitStaticFunction(CircuitStaticFunctionAccess {
+                                span: expr.span() + &ident.span,
+                                circuit: Box::new(expr),
+                                name: ident,
+                            }));
+                        }
+                        _ => unimplemented!(),
+                    }
+
+                    
                 }
                 _ => unimplemented!(),
             }
@@ -731,12 +770,10 @@ impl ParserContext {
                 Expression::Identifier(ident)
             }
             t if crate::type_::TYPE_TOKENS.contains(&t) => {
-                let ident = Identifier {
-                    name: t.to_string().into(),
+                Expression::Value(ValueExpression::NamedType (
+                    t.to_string().into(),
                     span,
-                };
-
-                Expression::Identifier(ident)
+                ))
             }
             token => {
                 return Err(ParserError::unexpected_str(token, "expression", &span).into());

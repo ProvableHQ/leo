@@ -22,6 +22,7 @@ pub enum AccessExpression<'a> {
     Array(ArrayAccess<'a>),
     ArrayRange(ArrayRangeAccess<'a>),
     Circuit(CircuitAccess<'a>),
+    Constant(ConstantAccess<'a>),
     Tuple(TupleAccess<'a>),
 }
 
@@ -137,6 +138,7 @@ impl<'a> FromAst<'a, leo_ast::AccessExpression> for AccessExpression<'a> {
                 CircuitAccess::from_ast(scope, access, expected_type).map(AccessExpression::Circuit)
             }
             Tuple(access) => TupleAccess::from_ast(scope, access, expected_type).map(AccessExpression::Tuple),
+            Value(access) => 
         }
     }
 }

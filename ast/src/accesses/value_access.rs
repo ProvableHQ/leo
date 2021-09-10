@@ -14,20 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod array_access;
-pub use array_access::*;
+use crate::{Expression, Identifier, Node};
+use leo_errors::Span;
 
-mod array_range_access;
-pub use array_range_access::*;
+use std::fmt;
 
-mod circuit_member_access;
-pub use circuit_member_access::*;
+use serde::{Deserialize, Serialize};
 
-mod circuit_static_function_access;
-pub use circuit_static_function_access::*;
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ValueAccess {
+    pub value: Box<Expression>,
+    pub name: Identifier,
+    pub span: Span,
+}
 
-mod tuple_access;
-pub use tuple_access::*;
+impl fmt::Display for ValueAccess {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.value, self.name)
+    }
+}
 
-mod value_access;
-pub use value_access::*;
+impl Node for ValueAccess {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
+}

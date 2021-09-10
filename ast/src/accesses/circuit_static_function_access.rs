@@ -30,7 +30,7 @@ pub struct CircuitStaticFunctionAccess {
 
 impl fmt::Display for CircuitStaticFunctionAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.circuit, self.name)
+        write!(f, "{}::{}", self.circuit, self.name)
     }
 }
 

@@ -190,6 +190,12 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_tuple_access(tuple_access, tuple)
     }
 
+    pub fn reduce_value_access(&mut self, value_access: &ValueAccess) -> Result<ValueAccess> {
+        let value = self.reduce_expression(&value_access.value)?;
+
+        self.reducer.reduce_value_access(value_access, value)
+    }
+
     pub fn reduce_access(&mut self, access: &AccessExpression) -> Result<AccessExpression> {
         use AccessExpression::*;
 
@@ -199,6 +205,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             CircuitMember(access) => CircuitMember(self.reduce_circuit_member_access(access)?),
             CircuitStaticFunction(access) => CircuitStaticFunction(self.reduce_circuit_static_fn_access(access)?),
             Tuple(access) => Tuple(self.reduce_tuple_access(access)?),
+            Value(access) => Value(self.reduce_value_access(access)?),
         };
 
         Ok(new)

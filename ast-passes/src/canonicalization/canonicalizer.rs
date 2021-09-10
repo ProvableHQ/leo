@@ -248,6 +248,15 @@ impl Canonicalizer {
                             span: tuple_access.span.clone(),
                         })
                     }
+                    AccessExpression::Value(value_access) => {
+                        let value = Box::new(self.canonicalize_expression(&value_access.value));
+
+                        AccessExpression::Value(ValueAccess {
+                            value,
+                            name: value_access.name.clone(),
+                            span: value_access.span.clone(),
+                        })
+                    }
                 };
 
                 return Expression::Access(access);

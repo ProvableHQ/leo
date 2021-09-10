@@ -178,6 +178,14 @@ pub trait ReconstructingReducer {
         })
     }
 
+    fn reduce_value_access(&mut self, value_access: &ValueAccess, value: Expression) -> Result<ValueAccess> {
+        Ok(ValueAccess {
+            value: Box::new(value),
+            name: value_access.name.clone(),
+            span: value_access.span.clone(),
+        })
+    }
+
     fn reduce_array_inline(
         &mut self,
         array_inline: &ArrayInlineExpression,
