@@ -45,7 +45,7 @@ impl<'a, T: ImportResolver> CoreImportResolver<'a, T> {
 impl<'a, T: ImportResolver> ImportResolver for CoreImportResolver<'a, T> {
     fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>> {
         if !package_segments.is_empty() && package_segments.get(0).unwrap() == &"std" {
-            Ok(resolve_stdlib_module(&*package_segments[1..].join("."))?)
+            Ok(Some(resolve_stdlib_module(&*package_segments[1..].join("."))?))
         } else {
             self.inner.resolve_package(package_segments, span)
         }

@@ -17,7 +17,7 @@
 #![doc = include_str!("../README.md")]
 
 use leo_ast::Program;
-use leo_errors::Result;
+use leo_errors::{ImportError, Result};
 
 #[macro_use]
 extern crate include_dir;
@@ -27,25 +27,26 @@ use indexmap::IndexMap;
 
 static STDLIB: Dir = include_dir!(".");
 
-fn resolve_file(file: &str, mapping: &str) -> Result<Option<Program>> {
-    let resolved = if let Some(resolved) = STDLIB.get_file(&file).map(|f| f.contents_utf8()).flatten() {
-        resolved
-    } else {
-        return Ok(None);
-    };
+fn resolve_file(file: &str, mapping: Option<&str>) -> Result<Program> {
+    let resolved = STDLIB
+        .get_file(&file)
+        .ok_or_else(|| ImportError::no_such_stdlib_file(file))?
+        .contents_utf8()
+        .ok_or_else(|| ImportError::failed_to_read_stdlib_file(file))?;
 
     let ast = leo_parser::parse_ast(&file, resolved)?.into_repr();
     ast.set_core_mapping(mapping);
 
-    Ok(Some(ast))
+    Ok(ast)
 }
 
 pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
     let mut preludes: IndexMap<Vec<String>, Program> = IndexMap::new();
 
     for module in STDLIB.find("prelude/*.leo").unwrap() {
-        let path = module.path().to_str().unwrap().replace("\\", "/");
-        let program = resolve_file(&path, "")?.unwrap();
+        // If on windows repalce \\ with / as all paths are stored in unix style.
+        let path = module.path().to_str().unwrap_or("").replace("\\", "/");
+        let program = resolve_file(&path, None)?;
 
         let removed_extension = path.replace(".leo", "");
         let mut parts: Vec<String> = vec![String::from("std")];
@@ -61,11 +62,15 @@ pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
     Ok(preludes)
 }
 
-pub fn resolve_stdlib_module(module: &str) -> Result<Option<Program>> {
+pub fn resolve_stdlib_module(module: &str) -> Result<Program> {
     let mut file_path = module.replace(".", "/");
     file_path.push_str(".leo");
 
-    let mapping = if module == "unstable.blake2s" { module } else { "" };
+    let mapping = if module == "unstable.blake2s" {
+        Some("blake2s")
+    } else {
+        None
+    };
 
     resolve_file(&file_path, mapping)
 }

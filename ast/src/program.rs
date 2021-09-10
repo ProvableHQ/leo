@@ -88,9 +88,9 @@ impl Program {
         }
     }
 
-    pub fn set_core_mapping(&self, mapping: &str) {
+    pub fn set_core_mapping(&self, mapping: Option<&str>) {
         for (_, circuit) in self.circuits.iter() {
-            circuit.core_mapping.replace(Some(mapping.to_string()));
+            circuit.core_mapping.replace(mapping.map(str::to_string));
         }
     }
 

@@ -90,11 +90,27 @@ create_errors!(
         help: None,
     }
 
-    /// / For when the crate failed due to an IO error.
+    /// For when the crate failed due to an IO error.
     @formatted
     io_error {
         args: (path: impl Display, error: impl ErrorArg),
         msg: format!("cannot read imported file '{}': {:?}", path, error),
+        help: None,
+    }
+
+    /// For when the stdlib import file could not be found.
+    @backtraced
+    no_such_stdlib_file {
+        args: (import: impl Display),
+        msg: format!("failed to find the stdlib import file `{}`", import),
+        help: None,
+    }
+
+    /// For when the stdlib import file could not be read.
+    @backtraced
+    failed_to_read_stdlib_file {
+        args: (import: impl Display),
+        msg: format!("failed to read the stdlib import file `{}`", import),
         help: None,
     }
 );
