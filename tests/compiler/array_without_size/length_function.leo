@@ -13,5 +13,5 @@ function main(y: bool) -> bool {
 }
 
 function strlen(str: [char; _]) -> u32 {
-    return str.length();
+    return str.len();
 }

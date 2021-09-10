@@ -838,7 +838,7 @@ create_errors!(
     @formatted
     lengthof_can_only_be_used_on_arrays {
         args: (),
-        msg: "length() can only be called on an array value".to_string(),
+        msg: "len() can only be called on an array value".to_string(),
         help: None,
     }
 );

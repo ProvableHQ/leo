@@ -388,7 +388,7 @@ impl Token {
                     return (len, Some(Token::DotDotDot));
                 } else if let Some(len) = eat(input, "..") {
                     return (len, Some(Token::DotDot));
-                } else if let Some(len) = eat(input, ".length()") {
+                } else if let Some(len) = eat(input, ".len()") {
                     // FIXME: remove this code once we allow method calls
                     return (len, Some(Token::LengthOf));
                 }

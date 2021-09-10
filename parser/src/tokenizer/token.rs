@@ -141,7 +141,7 @@ pub enum Token {
     Type,
 
     // Not yet in ABNF
-    // arr.length() token - hacky zone
+    // arr.len() token - hacky zone
     LengthOf,
 
     // Not yet in ABNF
@@ -313,7 +313,7 @@ impl fmt::Display for Token {
             Static => write!(f, "static"),
             String => write!(f, "string"),
             Type => write!(f, "type"),
-            LengthOf => write!(f, ".length()"), // FIXME
+            LengthOf => write!(f, ".len()"), // FIXME
             Eof => write!(f, ""),
             // BitAnd => write!(f, "&"),
             // BitAndEq => write!(f, "&="),
