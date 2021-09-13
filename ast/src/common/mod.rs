@@ -20,6 +20,8 @@ pub use array_dimensions::*;
 pub mod const_self_keyword;
 pub use const_self_keyword::*;
 
+pub mod global_consts_json;
+
 pub mod identifier;
 pub use identifier::*;
 

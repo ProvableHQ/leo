@@ -251,7 +251,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         // Preform import resolution.
         ast = leo_ast_passes::Importer::do_pass(
             ast.into_repr(),
-            ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
+            &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
         )?;
 
         if self.ast_snapshot_options.imports_resolved {

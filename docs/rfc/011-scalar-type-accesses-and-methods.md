@@ -2,14 +2,7 @@
 
 ## Authors
 
-- Max Bruce
-- Collin Chin
-- Alessandro Coglio
-- Eric McCarthy
-- Jon Pavlik
-- Damir Shamanaev
-- Damon Sicore
-- Howard Wu
+The Aleo Team.
 
 ## Status
 
@@ -52,7 +45,7 @@ postfix-expression = primary-expression
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
                    / named-type "::" identifier function-arguments ; this used to be a circuit-type
-                   / named-type "::" identifier ; this is new to allow static members on 
+                   / named-type "::" identifier ; this is new to allow static members on
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```

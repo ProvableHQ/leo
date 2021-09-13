@@ -123,7 +123,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
             BinaryOperationClass::Boolean => match expected_type {
                 Some(PartialType::Type(Type::Boolean)) | None => None,
                 Some(x) => {
-                    return Err(AsgError::unexpected_type(x, Type::Boolean, &value.span).into());
+                    return Err(AsgError::unexpected_type(Type::Boolean, x, &value.span).into());
                 }
             },
             BinaryOperationClass::Numeric => match expected_type {
@@ -131,7 +131,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
                 Some(x @ PartialType::Type(Type::Field)) => Some(x),
                 Some(x @ PartialType::Type(Type::Group)) => Some(x),
                 Some(x) => {
-                    return Err(AsgError::unexpected_type(x, "integer, field, or group", &value.span).into());
+                    return Err(AsgError::unexpected_type("integer, field, or group", x, &value.span).into());
                 }
                 None => None,
             },
@@ -192,14 +192,16 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
                 BinaryOperation::And | BinaryOperation::Or => match left_type {
                     Some(Type::Boolean) | None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, Type::Boolean, &value.span).into());
+                        return Err(AsgError::unexpected_type(Type::Boolean, x, &value.span).into());
                     }
                 },
                 BinaryOperation::Eq | BinaryOperation::Ne => (), // all types allowed
-                _ => match left_type {
+                op => match left_type {
                     Some(Type::Integer(_)) | None => (),
                     Some(x) => {
-                        return Err(AsgError::unexpected_type(x, "integer", &value.span).into());
+                        return Err(
+                            AsgError::operator_allowed_only_for_type(op.as_ref(), "integer", x, &value.span).into(),
+                        );
                     }
                 },
             },

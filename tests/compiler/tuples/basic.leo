@@ -5,7 +5,7 @@ input_file: inputs/true_true.in
 */
 
 function main(a: (bool, bool)) -> (bool, bool) {
-    const a = (true, false);
+    const b = (true, false);
 
-    return (a.0, a.1);
+    return (b.0, b.1);
 }

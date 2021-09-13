@@ -130,6 +130,29 @@ fn resolve_import_package_access(
     }
 }
 
+/// Checks whether a given string is found in any other global namespaces.
+/// If it is found it returns an error.
+fn check_top_level_namespaces<'a>(
+    name: &str,
+    span: &Span,
+    aliases: &IndexMap<String, &'a Alias<'a>>,
+    functions: &IndexMap<String, &'a Function<'a>>,
+    circuits: &IndexMap<String, &'a Circuit<'a>>,
+    global_consts: &IndexMap<String, &'a DefinitionStatement<'a>>,
+) -> Result<()> {
+    if aliases.contains_key(name) {
+        Err(AsgError::duplicate_alias_definition(name, span).into())
+    } else if global_consts.contains_key(name) {
+        Err(AsgError::duplicate_global_const_definition(name, span).into())
+    } else if functions.contains_key(name) {
+        Err(AsgError::duplicate_function_definition(name, span).into())
+    } else if circuits.contains_key(name) {
+        Err(AsgError::duplicate_circuit_definition(name, span).into())
+    } else {
+        Ok(())
+    }
+}
+
 impl<'a> Program<'a> {
     /// Returns a new Leo program ASG from the given Leo program AST and its imports.
     ///
@@ -264,44 +287,40 @@ impl<'a> Program<'a> {
             scope.functions.borrow_mut().insert(name.name.to_string(), function);
         }
 
-        for (name, global_const) in program.global_consts.iter() {
-            global_const
-                .variable_names
-                .iter()
-                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name.to_string())));
+        for (names, global_const) in program.global_consts.iter() {
             let gc = <&Statement<'a>>::from_ast(scope, global_const, None)?;
-            if let Statement::Definition(gc) = gc {
-                scope.global_consts.borrow_mut().insert(name.clone(), gc);
+            if let Statement::Definition(def) = gc {
+                let name = names
+                    .iter()
+                    .enumerate()
+                    .map(|(i, name)| {
+                        assert_eq!(name.name, def.variables.get(i).unwrap().borrow().name.name);
+                        name.name.to_string()
+                    })
+                    .collect::<Vec<String>>()
+                    .join(",");
+
+                scope.global_consts.borrow_mut().insert(name, def);
             }
         }
 
         // Load concrete definitions.
         let mut aliases = IndexMap::new();
+        let mut functions = IndexMap::new();
+        let mut circuits = IndexMap::new();
+        let mut global_consts = IndexMap::new();
+
         for (name, alias) in program.aliases.iter() {
             assert_eq!(name.name, alias.name.name);
             let asg_alias = *scope.aliases.borrow().get(name.name.as_ref()).unwrap();
 
             let name = name.name.to_string();
 
-            if aliases.contains_key(&name) {
-                return Err(AsgError::duplicate_alias_definition(name, &alias.span).into());
-            }
+            check_top_level_namespaces(&name, &alias.span, &aliases, &functions, &circuits, &global_consts)?;
 
             aliases.insert(name, asg_alias);
         }
 
-        let mut global_consts = IndexMap::new();
-        for (name, global_const) in program.global_consts.iter() {
-            global_const
-                .variable_names
-                .iter()
-                .for_each(|variable_name| assert!(name.contains(&variable_name.identifier.name.to_string())));
-            let asg_global_const = *scope.global_consts.borrow().get(name).unwrap();
-
-            global_consts.insert(name.clone(), asg_global_const);
-        }
-
-        let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
             assert_eq!(name.name, function.identifier.name);
             let asg_function = *scope.functions.borrow().get(name.name.as_ref()).unwrap();
@@ -310,21 +329,50 @@ impl<'a> Program<'a> {
 
             let name = name.name.to_string();
 
-            if functions.contains_key(&name) {
-                return Err(AsgError::duplicate_function_definition(name, &function.span).into());
-            }
+            check_top_level_namespaces(&name, &function.span, &aliases, &functions, &circuits, &global_consts)?;
 
             functions.insert(name, asg_function);
         }
 
-        let mut circuits = IndexMap::new();
         for (name, circuit) in program.circuits.iter() {
             assert_eq!(name.name, circuit.circuit_name.name);
             let asg_circuit = *scope.circuits.borrow().get(name.name.as_ref()).unwrap();
 
             asg_circuit.fill_from_ast(circuit)?;
 
-            circuits.insert(name.name.to_string(), asg_circuit);
+            let name = name.name.to_string();
+
+            check_top_level_namespaces(
+                &name,
+                &circuit.circuit_name.span,
+                &aliases,
+                &functions,
+                &circuits,
+                &global_consts,
+            )?;
+
+            circuits.insert(name, asg_circuit);
+        }
+
+        for (names, global_const) in program.global_consts.iter() {
+            let name = names
+                .iter()
+                .map(|name| name.name.to_string())
+                .collect::<Vec<String>>()
+                .join(",");
+
+            let asg_global_const = *scope.global_consts.borrow().get(&name).unwrap();
+
+            check_top_level_namespaces(
+                &name,
+                &global_const.span,
+                &aliases,
+                &functions,
+                &circuits,
+                &global_consts,
+            )?;
+
+            global_consts.insert(name.clone(), asg_global_const);
         }
 
         Ok(Program {

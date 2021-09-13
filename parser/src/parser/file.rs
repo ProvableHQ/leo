@@ -507,14 +507,13 @@ impl ParserContext {
     /// Returns an [`(String, DefinitionStatement)`] AST node if the next tokens represent a global
     /// const definition statement and assignment.
     ///
-    pub fn parse_global_const_declaration(&mut self) -> Result<(String, DefinitionStatement)> {
+    pub fn parse_global_const_declaration(&mut self) -> Result<(Vec<Identifier>, DefinitionStatement)> {
         let statement = self.parse_definition_statement()?;
         let variable_names = statement
             .variable_names
             .iter()
-            .map(|variable_name| variable_name.identifier.name.to_string())
-            .collect::<Vec<String>>()
-            .join(",");
+            .map(|variable_name| variable_name.identifier.clone())
+            .collect::<Vec<Identifier>>();
 
         Ok((variable_names, statement))
     }
