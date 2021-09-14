@@ -55,3 +55,7 @@ version = "1.5.2"
 
 [dependencies.structopt]
 version = "0.3"
+
+# List of dependencies for errcov
+[dependencies.regex]
+version = "1.5"

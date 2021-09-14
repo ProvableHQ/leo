@@ -1485,6 +1485,7 @@ dependencies = [
  "leo-compiler",
  "leo-imports",
  "leo-parser",
+ "regex",
  "serde",
  "serde_json",
  "serde_yaml",
