@@ -141,7 +141,7 @@ Generalizing from one `main` entry point to multiple ones is conceptually easy.
 It means that, instead of implicitly designating `main` as the only entry point,
 we need a mechanism to explicitly designate one or more Leo functions as entry points.
 
-A simple approach could to use an annotation like `@interface` to designate _interface functions_, i.e. entry points:
+A simple approach could be to use an annotation like `@interface` to designate _interface functions_, i.e. entry points:
 ```
 @interface
 function mint(...) -> ... { ... }
@@ -198,7 +198,7 @@ Another approach is to avoid exposing the member variables,
 and just make the member functions available via an implicit import declaration.
 All of this needs to be thought through more carefully, in the broader context of the Leo language design;
 in any case, it should be clear that this can be made to work in some way,
-and that Leo programs can access the old records throught the special `input` variables.
+and that Leo programs can access the old records through the special `input` variables.
 
 One issue with the special `input` variable is whether it should be treated as a built-in global variable,
 or whether it should be explicitly passed to the interface functions and to the non-interface functions called by them.
