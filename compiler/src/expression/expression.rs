@@ -99,7 +99,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             Expression::Cast(_) => unimplemented!("casts not implemented"),
 
             // LengthOf
-            Expression::LengthOf(sizeof) => self.enforce_sizeof(cs, sizeof, span),
+            Expression::LengthOf(lengthof) => self.enforce_lengthof(cs, lengthof, span),
 
             // Variables
             Expression::VariableRef(variable_ref) => self.evaluate_ref(variable_ref),

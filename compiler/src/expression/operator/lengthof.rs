@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Enforces a sizeof operator in a compiled Leo program.
+//! Enforces a lengthof operator in a compiled Leo program.
 
 use crate::{
     program::ConstrainedProgram,
@@ -29,7 +29,7 @@ use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Enforce array expressions
-    pub fn enforce_sizeof<CS: ConstraintSystem<F>>(
+    pub fn enforce_lengthof<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
         lengthof: &'a LengthOfExpression<'a>,
