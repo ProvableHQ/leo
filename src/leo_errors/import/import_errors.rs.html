@@ -98,6 +98,22 @@
 <span id="98"> 98</span>
 <span id="99"> 99</span>
 <span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -191,11 +207,27 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// / For when the crate failed due to an IO error.</span>
+    <span class="doccomment">/// For when the crate failed due to an IO error.</span>
     @<span class="ident">formatted</span>
     <span class="ident">io_error</span> {
         <span class="ident">args</span>: (<span class="ident">path</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;cannot read imported file &#39;{}&#39;: {:?}&quot;</span>, <span class="ident">path</span>, <span class="ident">error</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when the stdlib import file could not be found.</span>
+    @<span class="ident">backtraced</span>
+    <span class="ident">no_such_stdlib_file</span> {
+        <span class="ident">args</span>: (<span class="ident">import</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to find the stdlib import file `{}`&quot;</span>, <span class="ident">import</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    <span class="doccomment">/// For when the stdlib import file could not be read.</span>
+    @<span class="ident">backtraced</span>
+    <span class="ident">failed_to_read_stdlib_file</span> {
+        <span class="ident">args</span>: (<span class="ident">import</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to read the stdlib import file `{}`&quot;</span>, <span class="ident">import</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );

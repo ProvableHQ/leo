@@ -137,6 +137,7 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
+<span id="140">140</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -167,6 +168,7 @@
     <span class="ident">source</span>::{<span class="ident">MainFile</span>, <span class="ident">MAIN_FILENAME</span>, <span class="ident">SOURCE_DIRECTORY_NAME</span>},
 };
 
+<span class="kw">use</span> <span class="ident">indexmap::IndexMap</span>;
 <span class="kw">use</span> <span class="ident">snarkvm_curves::edwards_bls12::Fq</span>;
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">convert::TryFrom</span>, <span class="ident">path::PathBuf</span>, <span class="ident">time::Instant</span>};
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -249,7 +251,7 @@
                 <span class="ident">output_directory</span>.<span class="ident">clone</span>(),
                 <span class="ident">thread_leaked_context</span>(),
                 <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>().<span class="ident">into</span>()),
-                <span class="ident">std::collections::HashMap::new</span>(),
+                <span class="ident">IndexMap::new</span>(),
                 <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">compiler_options</span>.<span class="ident">clone</span>().<span class="ident">into</span>()),
             )<span class="question-mark">?</span>;
 

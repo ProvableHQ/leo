@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["load_ast",""],["resolve_core_module",""]],"struct":[["CoreImportResolver",""],["MockedImportResolver",""],["NullImportResolver",""]],"trait":[["ImportResolver",""]]});
+initSidebarItems({"struct":[["CoreImportResolver",""],["MockedImportResolver",""],["NullImportResolver",""]],"trait":[["ImportResolver",""]]});

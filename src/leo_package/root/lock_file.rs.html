@@ -157,7 +157,6 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
-<span id="160">160</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -182,7 +181,6 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{
     <span class="ident">borrow::Cow</span>,
-    <span class="ident">collections::HashMap</span>,
     <span class="ident">convert::TryFrom</span>,
     <span class="ident">fmt</span>::{<span class="self">self</span>, <span class="ident">Display</span>},
     <span class="ident">fs::File</span>,
@@ -235,11 +233,11 @@
         <span class="prelude-val">Ok</span>(<span class="ident">toml::to_string</span>(<span class="self">self</span>).<span class="ident">map_err</span>(<span class="ident">PackageError::failed_to_serialize_lock_file</span>)<span class="question-mark">?</span>)
     }
 
-    <span class="doccomment">/// Form a HashMap of kind:</span>
+    <span class="doccomment">/// Form a IndexMap of kind:</span>
     <span class="doccomment">/// ``` imported_name =&gt; package_name ```</span>
     <span class="doccomment">/// for all imported packages.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_import_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_import_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IndexMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">IndexMap::new</span>();
         <span class="kw">for</span> <span class="ident">package</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">package</span>.<span class="ident">iter</span>() {
             <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">package</span>.<span class="ident">import_name</span> {
                 <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">result</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="ident">package</span>.<span class="ident">to_string</span>()),
