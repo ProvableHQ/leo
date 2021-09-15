@@ -1483,6 +1483,7 @@ dependencies = [
  "leo-ast",
  "leo-ast-passes",
  "leo-compiler",
+ "leo-errors",
  "leo-imports",
  "leo-parser",
  "regex",

@@ -17,6 +17,9 @@
 use leo_asg::Asg;
 use leo_ast::AstPass;
 use leo_compiler::{compiler::thread_leaked_context, TypeInferencePhase};
+use leo_errors::{
+    AsgError, AstError, CliError, CompilerError, ImportError, LeoErrorCode, PackageError, ParserError, StateError,
+};
 use leo_imports::ImportParser;
 use leo_test_framework::{
     fetch::find_tests,
@@ -51,7 +54,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
     find_tests(&test_dir, &mut tests);
 
     // Store all covered error codes
-    let mut codes = HashSet::new();
+    let mut found_codes = HashSet::new();
     let re = Regex::new(r"Error \[(?P<code>.*)\]:.*").unwrap();
 
     for (path, content) in tests.into_iter() {
@@ -86,7 +89,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
                     if let serde_yaml::Value::String(message) = value {
                         if let Some(caps) = re.captures(&message) {
                             if let Some(code) = caps.name("code") {
-                                codes.insert(code.as_str().to_string());
+                                found_codes.insert(code.as_str().to_string());
                             }
                         }
                     }
@@ -95,7 +98,58 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
         }
     }
 
-    let mut sorted: Vec<_> = codes.iter().collect();
+    // Collect all defined error codes.
+    let mut all_codes = HashSet::new();
+    collect_error_codes(
+        &mut all_codes,
+        AsgError::error_type(),
+        AsgError::code_identifier(),
+        AsgError::num_exit_codes(),
+    );
+    collect_error_codes(
+        &mut all_codes,
+        AstError::error_type(),
+        AstError::code_identifier(),
+        AstError::num_exit_codes(),
+    );
+    collect_error_codes(
+        &mut all_codes,
+        CliError::error_type(),
+        CliError::code_identifier(),
+        CliError::num_exit_codes(),
+    );
+    collect_error_codes(
+        &mut all_codes,
+        CompilerError::error_type(),
+        CompilerError::code_identifier(),
+        CompilerError::num_exit_codes(),
+    );
+    collect_error_codes(
+        &mut all_codes,
+        ImportError::error_type(),
+        ImportError::code_identifier(),
+        ImportError::num_exit_codes(),
+    );
+    collect_error_codes(
+        &mut all_codes,
+        PackageError::error_type(),
+        PackageError::code_identifier(),
+        PackageError::num_exit_codes(),
+    );
+    collect_error_codes(
+        &mut all_codes,
+        ParserError::error_type(),
+        ParserError::code_identifier(),
+        ParserError::num_exit_codes(),
+    );
+    collect_error_codes(
+        &mut all_codes,
+        StateError::error_type(),
+        StateError::code_identifier(),
+        StateError::num_exit_codes(),
+    );
+
+    let mut sorted: Vec<_> = found_codes.iter().collect();
     sorted.sort();
 
     println!("Found the following error codes");
@@ -103,7 +157,21 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
         println!("{}", code)
     }
 
+    let mut sorted: Vec<_> = all_codes.iter().collect();
+    sorted.sort();
+
+    println!("Showing all error codes");
+    for code in sorted {
+        println!("{}", code)
+    }
+
     Ok(())
+}
+
+fn collect_error_codes(codes: &mut HashSet<String>, error_type: String, code_identifier: i8, num_exit_codes: i32) {
+    for exit_code in 0..num_exit_codes {
+        codes.insert(format!("E{}{:0>3}{:0>4}", error_type, code_identifier, exit_code,));
+    }
 }
 
 fn handle_error(res: Result<(), Box<dyn Error>>) {
