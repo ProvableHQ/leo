@@ -48,6 +48,7 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
             Expression::CircuitInit(e) => self.reduce_circuit_init(e),
             Expression::Ternary(e) => self.reduce_ternary_expression(e),
             Expression::Cast(e) => self.reduce_cast_expression(e),
+            Expression::LengthOf(e) => Expression::LengthOf(e), // TODO: implement REDUCER
             Expression::Constant(e) => self.reduce_constant(e),
             Expression::TupleAccess(e) => self.reduce_tuple_access(e),
             Expression::TupleInit(e) => self.reduce_tuple_init(e),

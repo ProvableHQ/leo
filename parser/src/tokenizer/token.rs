@@ -138,6 +138,11 @@ pub enum Token {
     Return,
     Static,
     Type,
+
+    // Not yet in ABNF
+    // arr.len() token - hacky zone
+    LengthOf,
+
     // Not yet in ABNF
     // BitAnd,
     // BitAndEq,
@@ -193,6 +198,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Static,
     Token::True,
     Token::Type,
+    Token::LengthOf,
     Token::U8,
     Token::U16,
     Token::U32,
@@ -304,6 +310,7 @@ impl fmt::Display for Token {
             Return => write!(f, "return"),
             Static => write!(f, "static"),
             Type => write!(f, "type"),
+            LengthOf => write!(f, ".len()"), // FIXME
             Eof => write!(f, ""),
             // BitAnd => write!(f, "&"),
             // BitAndEq => write!(f, "&="),
