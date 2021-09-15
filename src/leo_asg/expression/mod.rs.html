@@ -369,6 +369,23 @@
 <span id="369">369</span>
 <span id="370">370</span>
 <span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -437,6 +454,9 @@
 <span class="kw">mod</span> <span class="ident">cast</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">cast</span>::<span class="kw-2">*</span>;
 
+<span class="kw">mod</span> <span class="ident">lengthof</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lengthof</span>::<span class="kw-2">*</span>;
+
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ConstValue</span>, <span class="ident">FromAst</span>, <span class="ident">Node</span>, <span class="ident">PartialType</span>, <span class="ident">Scope</span>, <span class="ident">Type</span>};
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="prelude-ty">Result</span>, <span class="ident">Span</span>};
 
@@ -448,6 +468,7 @@
     <span class="ident">Unary</span>(<span class="ident">UnaryExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">Ternary</span>(<span class="ident">TernaryExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">Cast</span>(<span class="ident">CastExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">LengthOf</span>(<span class="ident">LengthOfExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 
     <span class="ident">ArrayInline</span>(<span class="ident">ArrayInlineExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
     <span class="ident">ArrayInit</span>(<span class="ident">ArrayInitExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
@@ -479,6 +500,7 @@
             <span class="ident">Unary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">span</span>(),
             <span class="ident">Ternary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">span</span>(),
             <span class="ident">Cast</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">span</span>(),
+            <span class="ident">LengthOf</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">span</span>(),
             <span class="ident">ArrayInline</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">span</span>(),
             <span class="ident">ArrayInit</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">span</span>(),
             <span class="ident">ArrayAccess</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">span</span>(),
@@ -513,6 +535,7 @@
             <span class="ident">Unary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">set_parent</span>(<span class="ident">parent</span>),
             <span class="ident">Ternary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">set_parent</span>(<span class="ident">parent</span>),
             <span class="ident">Cast</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">set_parent</span>(<span class="ident">parent</span>),
+            <span class="ident">LengthOf</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">set_parent</span>(<span class="ident">parent</span>),
             <span class="ident">ArrayInline</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">set_parent</span>(<span class="ident">parent</span>),
             <span class="ident">ArrayInit</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">set_parent</span>(<span class="ident">parent</span>),
             <span class="ident">ArrayAccess</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">set_parent</span>(<span class="ident">parent</span>),
@@ -534,6 +557,7 @@
             <span class="ident">Unary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_parent</span>(),
             <span class="ident">Ternary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_parent</span>(),
             <span class="ident">Cast</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_parent</span>(),
+            <span class="ident">LengthOf</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_parent</span>(),
             <span class="ident">ArrayInline</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_parent</span>(),
             <span class="ident">ArrayInit</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_parent</span>(),
             <span class="ident">ArrayAccess</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_parent</span>(),
@@ -555,6 +579,7 @@
             <span class="ident">Unary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">enforce_parents</span>(<span class="ident">expr</span>),
             <span class="ident">Ternary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">enforce_parents</span>(<span class="ident">expr</span>),
             <span class="ident">Cast</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">enforce_parents</span>(<span class="ident">expr</span>),
+            <span class="ident">LengthOf</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">enforce_parents</span>(<span class="ident">expr</span>),
             <span class="ident">ArrayInline</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">enforce_parents</span>(<span class="ident">expr</span>),
             <span class="ident">ArrayInit</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">enforce_parents</span>(<span class="ident">expr</span>),
             <span class="ident">ArrayAccess</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">enforce_parents</span>(<span class="ident">expr</span>),
@@ -576,6 +601,7 @@
             <span class="ident">Unary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_type</span>(),
             <span class="ident">Ternary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_type</span>(),
             <span class="ident">Cast</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_type</span>(),
+            <span class="ident">LengthOf</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_type</span>(),
             <span class="ident">ArrayInline</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_type</span>(),
             <span class="ident">ArrayInit</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_type</span>(),
             <span class="ident">ArrayAccess</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">get_type</span>(),
@@ -597,6 +623,7 @@
             <span class="ident">Unary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_mut_ref</span>(),
             <span class="ident">Ternary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_mut_ref</span>(),
             <span class="ident">Cast</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_mut_ref</span>(),
+            <span class="ident">LengthOf</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_mut_ref</span>(),
             <span class="ident">ArrayInline</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_mut_ref</span>(),
             <span class="ident">ArrayInit</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_mut_ref</span>(),
             <span class="ident">ArrayAccess</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_mut_ref</span>(),
@@ -618,6 +645,7 @@
             <span class="ident">Unary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">const_value</span>(),
             <span class="ident">Ternary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">const_value</span>(),
             <span class="ident">Cast</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">const_value</span>(),
+            <span class="ident">LengthOf</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">const_value</span>(),
             <span class="ident">ArrayInline</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">const_value</span>(),
             <span class="ident">ArrayInit</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">const_value</span>(),
             <span class="ident">ArrayAccess</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">const_value</span>(),
@@ -639,6 +667,7 @@
             <span class="ident">Unary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_consty</span>(),
             <span class="ident">Ternary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_consty</span>(),
             <span class="ident">Cast</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_consty</span>(),
+            <span class="ident">LengthOf</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_consty</span>(),
             <span class="ident">ArrayInline</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_consty</span>(),
             <span class="ident">ArrayInit</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_consty</span>(),
             <span class="ident">ArrayAccess</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">is_consty</span>(),
@@ -676,6 +705,10 @@
             <span class="ident">Cast</span>(<span class="ident">cast</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">scope</span>
                 .<span class="ident">context</span>
                 .<span class="ident">alloc_expression</span>(<span class="ident">CastExpression::from_ast</span>(<span class="ident">scope</span>, <span class="ident">cast</span>, <span class="ident">expected_type</span>).<span class="ident">map</span>(<span class="ident">Expression::Cast</span>)<span class="question-mark">?</span>),
+
+            <span class="ident">LengthOf</span>(<span class="ident">lengthof</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">scope</span>.<span class="ident">context</span>.<span class="ident">alloc_expression</span>(
+                <span class="ident">LengthOfExpression::from_ast</span>(<span class="ident">scope</span>, <span class="ident">lengthof</span>, <span class="ident">expected_type</span>).<span class="ident">map</span>(<span class="ident">Expression::LengthOf</span>)<span class="question-mark">?</span>,
+            ),
 
             <span class="ident">ArrayInline</span>(<span class="ident">array_inline</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">scope</span>.<span class="ident">context</span>.<span class="ident">alloc_expression</span>(
                 <span class="ident">ArrayInlineExpression::from_ast</span>(<span class="ident">scope</span>, <span class="ident">array_inline</span>, <span class="ident">expected_type</span>).<span class="ident">map</span>(<span class="ident">Expression::ArrayInline</span>)<span class="question-mark">?</span>,
@@ -729,6 +762,7 @@
             <span class="ident">Unary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Expression::Unary</span>(<span class="ident">x</span>.<span class="ident">into</span>()),
             <span class="ident">Ternary</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Expression::Ternary</span>(<span class="ident">x</span>.<span class="ident">into</span>()),
             <span class="ident">Cast</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Expression::Cast</span>(<span class="ident">x</span>.<span class="ident">into</span>()),
+            <span class="ident">LengthOf</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Expression::LengthOf</span>(<span class="ident">x</span>.<span class="ident">into</span>()),
             <span class="ident">ArrayInline</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Expression::ArrayInline</span>(<span class="ident">x</span>.<span class="ident">into</span>()),
             <span class="ident">ArrayInit</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Expression::ArrayInit</span>(<span class="ident">x</span>.<span class="ident">into</span>()),
             <span class="ident">ArrayAccess</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">leo_ast::Expression::ArrayAccess</span>(<span class="ident">x</span>.<span class="ident">into</span>()),

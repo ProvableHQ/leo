@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["lengthof","Enforces a lengthof operator in a compiled Leo program."]]});

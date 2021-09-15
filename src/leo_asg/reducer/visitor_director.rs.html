@@ -453,6 +453,17 @@
 <span id="453">453</span>
 <span id="454">454</span>
 <span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -517,6 +528,7 @@
                 <span class="ident">Expression::CircuitInit</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_circuit_init</span>(<span class="ident">e</span>),
                 <span class="ident">Expression::Ternary</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_ternary_expression</span>(<span class="ident">e</span>),
                 <span class="ident">Expression::Cast</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_cast_expression</span>(<span class="ident">e</span>),
+                <span class="ident">Expression::LengthOf</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_lengthof_expression</span>(<span class="ident">e</span>),
                 <span class="ident">Expression::Constant</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_constant</span>(<span class="ident">e</span>),
                 <span class="ident">Expression::TupleAccess</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_tuple_access</span>(<span class="ident">e</span>),
                 <span class="ident">Expression::TupleInit</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">visit_tuple_init</span>(<span class="ident">e</span>),
@@ -643,6 +655,16 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">visit_cast_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">CastExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConcreteVisitResult</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">visitor</span>.<span class="ident">visit_cast_expression</span>(<span class="ident">input</span>) {
+            <span class="ident">VisitResult::VisitChildren</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">inner</span>)<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(())
+            }
+            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">into</span>(),
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">visit_lengthof_expression</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">LengthOfExpression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ConcreteVisitResult</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">visitor</span>.<span class="ident">visit_lengthof_expression</span>(<span class="ident">input</span>) {
             <span class="ident">VisitResult::VisitChildren</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">visit_expression</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">inner</span>)<span class="question-mark">?</span>;
                 <span class="prelude-val">Ok</span>(())

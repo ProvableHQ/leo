@@ -356,6 +356,7 @@
 <span id="356">356</span>
 <span id="357">357</span>
 <span id="358">358</span>
+<span id="359">359</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -407,6 +408,7 @@ reconstructing director tries to maintain a normalized ASG but may require renor
             <span class="ident">Expression::CircuitInit</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">reduce_circuit_init</span>(<span class="ident">e</span>),
             <span class="ident">Expression::Ternary</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">reduce_ternary_expression</span>(<span class="ident">e</span>),
             <span class="ident">Expression::Cast</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">reduce_cast_expression</span>(<span class="ident">e</span>),
+            <span class="ident">Expression::LengthOf</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::LengthOf</span>(<span class="ident">e</span>), <span class="comment">// TODO: implement REDUCER</span>
             <span class="ident">Expression::Constant</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">reduce_constant</span>(<span class="ident">e</span>),
             <span class="ident">Expression::TupleAccess</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">reduce_tuple_access</span>(<span class="ident">e</span>),
             <span class="ident">Expression::TupleInit</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">reduce_tuple_init</span>(<span class="ident">e</span>),

@@ -149,6 +149,12 @@
 <span id="149">149</span>
 <span id="150">150</span>
 <span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -206,6 +212,8 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">call</span>::<span class="kw-2">*</span>;
 <span class="kw">mod</span> <span class="ident">cast</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">cast</span>::<span class="kw-2">*</span>;
+<span class="kw">mod</span> <span class="ident">lengthof</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lengthof</span>::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Expression that evaluates to a value</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -216,6 +224,7 @@
     <span class="ident">Unary</span>(<span class="ident">UnaryExpression</span>),
     <span class="ident">Ternary</span>(<span class="ident">TernaryExpression</span>),
     <span class="ident">Cast</span>(<span class="ident">CastExpression</span>),
+    <span class="ident">LengthOf</span>(<span class="ident">LengthOfExpression</span>),
 
     <span class="ident">ArrayInline</span>(<span class="ident">ArrayInlineExpression</span>),
     <span class="ident">ArrayInit</span>(<span class="ident">ArrayInitExpression</span>),
@@ -252,6 +261,7 @@
             <span class="ident">CircuitStaticFunctionAccess</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">span</span>(),
             <span class="ident">Call</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">span</span>(),
             <span class="ident">Cast</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">span</span>(),
+            <span class="ident">LengthOf</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">span</span>(),
         }
     }
 
@@ -274,6 +284,7 @@
             <span class="ident">CircuitStaticFunctionAccess</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
             <span class="ident">Call</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
             <span class="ident">Cast</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
+            <span class="ident">LengthOf</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">set_span</span>(<span class="ident">span</span>),
         }
     }
 }
@@ -298,6 +309,7 @@
             <span class="ident">CircuitStaticFunctionAccess</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
             <span class="ident">Call</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
             <span class="ident">Cast</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
+            <span class="ident">LengthOf</span>(<span class="ident">n</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">n</span>.<span class="ident">fmt</span>(<span class="ident">f</span>),
         }
     }
 }

@@ -565,6 +565,9 @@
 <span id="565">565</span>
 <span id="566">566</span>
 <span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -956,6 +959,9 @@
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::DotDotDot</span>));
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;..&quot;</span>) {
                     <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::DotDot</span>));
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">eat</span>(<span class="ident">input</span>, <span class="string">&quot;.len()&quot;</span>) {
+                    <span class="comment">// FIXME: remove this code once we allow method calls</span>
+                    <span class="kw">return</span> (<span class="ident">len</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::LengthOf</span>));
                 }
                 <span class="kw">return</span> (<span class="number">1</span>, <span class="prelude-val">Some</span>(<span class="ident">Token::Dot</span>));
             }

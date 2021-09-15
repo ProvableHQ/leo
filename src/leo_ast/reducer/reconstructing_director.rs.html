@@ -577,6 +577,7 @@
 <span id="577">577</span>
 <span id="578">578</span>
 <span id="579">579</span>
+<span id="580">580</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -637,6 +638,7 @@
             <span class="ident">Expression::Unary</span>(<span class="ident">unary</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Unary</span>(<span class="self">self</span>.<span class="ident">reduce_unary</span>(<span class="ident">unary</span>)<span class="question-mark">?</span>),
             <span class="ident">Expression::Ternary</span>(<span class="ident">ternary</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Ternary</span>(<span class="self">self</span>.<span class="ident">reduce_ternary</span>(<span class="ident">ternary</span>)<span class="question-mark">?</span>),
             <span class="ident">Expression::Cast</span>(<span class="ident">cast</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Cast</span>(<span class="self">self</span>.<span class="ident">reduce_cast</span>(<span class="ident">cast</span>)<span class="question-mark">?</span>),
+            <span class="ident">Expression::LengthOf</span>(<span class="ident">lengthof</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::LengthOf</span>(<span class="ident">lengthof</span>.<span class="ident">clone</span>()), <span class="comment">// Expression::LengthOf(self.reduce_lengthof(lengthof)?), // TODO: add reducer</span>
 
             <span class="ident">Expression::ArrayInline</span>(<span class="ident">array_inline</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::ArrayInline</span>(<span class="self">self</span>.<span class="ident">reduce_array_inline</span>(<span class="ident">array_inline</span>)<span class="question-mark">?</span>),
             <span class="ident">Expression::ArrayInit</span>(<span class="ident">array_init</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::ArrayInit</span>(<span class="self">self</span>.<span class="ident">reduce_array_init</span>(<span class="ident">array_init</span>)<span class="question-mark">?</span>),
