@@ -516,7 +516,6 @@ impl Token {
                     "Self" => Token::BigSelf,
                     "self" => Token::LittleSelf,
                     "static" => Token::Static,
-                    "string" => Token::String,
                     "true" => Token::True,
                     "type" => Token::Type,
                     "u8" => Token::U8,

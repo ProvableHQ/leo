@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EIMP0374008]: failed to find the stdlib import file `unstable.leo`"

@@ -23,6 +23,6 @@ outputs:
               type: "[(u32, u32); 3]"
               value: "\"(1, 1)(2, 2)(0, 1)\""
     initial_ast: 7ca87cb79f11b6342bc6db56d6b051c68bcedb798ba9eb88992dcfe0873ce139
-    imports_resolved_ast: 7ca87cb79f11b6342bc6db56d6b051c68bcedb798ba9eb88992dcfe0873ce139
-    canonicalized_ast: 7ca87cb79f11b6342bc6db56d6b051c68bcedb798ba9eb88992dcfe0873ce139
-    type_inferenced_ast: 26f6c295a4ab2515eadf95855c66e3fa29d158a43765baa87895fea42bb379d1
+    imports_resolved_ast: be6617cf106d0228192d1e321a6444ffdbf4c0d0a77a617d1ea8f7aea52456b2
+    canonicalized_ast: be6617cf106d0228192d1e321a6444ffdbf4c0d0a77a617d1ea8f7aea52456b2
+    type_inferenced_ast: 27167759a3eb4f915968b45d63f25685a5d3e9f1e08bf09d0bc2481af51c8619

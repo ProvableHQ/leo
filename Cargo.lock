@@ -926,6 +926,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0a01e0497841a3b2db4f8afa483cce65f7e96a3498bd6c541734792aeac8fe7"
 
 [[package]]
+name = "glob"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
+
+[[package]]
 name = "h2"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1063,6 +1069,30 @@ dependencies = [
  "matches",
  "unicode-bidi",
  "unicode-normalization",
+]
+
+[[package]]
+name = "include_dir"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24b56e147e6187d61e9d0f039f10e070d0c0a887e24fe0bb9ca3f29bfde62cab"
+dependencies = [
+ "glob",
+ "include_dir_impl",
+ "proc-macro-hack",
+]
+
+[[package]]
+name = "include_dir_impl"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a0c890c85da4bab7bce4204c707396bbd3c6c8a681716a51c8814cfc2b682df"
+dependencies = [
+ "anyhow",
+ "proc-macro-hack",
+ "proc-macro2 1.0.27",
+ "quote 1.0.9",
+ "syn 1.0.73",
 ]
 
 [[package]]
@@ -1239,6 +1269,7 @@ dependencies = [
  "leo-ast",
  "leo-errors",
  "leo-parser",
+ "leo-stdlib",
 ]
 
 [[package]]
@@ -1300,7 +1331,6 @@ name = "leo-imports"
 version = "1.5.3"
 dependencies = [
  "indexmap",
- "leo-asg",
  "leo-ast",
  "leo-ast-passes",
  "leo-errors",
@@ -1342,6 +1372,7 @@ dependencies = [
  "leo-package",
  "leo-parser",
  "leo-state",
+ "leo-stdlib",
  "leo-synthesizer",
  "notify",
  "rand 0.8.4",
@@ -1414,6 +1445,17 @@ dependencies = [
  "snarkvm-curves",
  "snarkvm-dpc",
  "snarkvm-utilities",
+]
+
+[[package]]
+name = "leo-stdlib"
+version = "1.5.3"
+dependencies = [
+ "include_dir",
+ "indexmap",
+ "leo-ast",
+ "leo-errors",
+ "leo-parser",
 ]
 
 [[package]]
@@ -1992,6 +2034,12 @@ dependencies = [
  "quote 1.0.9",
  "version_check",
 ]
+
+[[package]]
+name = "proc-macro-hack"
+version = "0.5.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dbf0c48bc1d91375ae5c3cd81e3722dff1abcf81a30960240640d223f59fe0e5"
 
 [[package]]
 name = "proc-macro2"

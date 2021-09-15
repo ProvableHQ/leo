@@ -21,7 +21,6 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::{
     borrow::Cow,
-    collections::HashMap,
     convert::TryFrom,
     fmt::{self, Display},
     fs::File,
@@ -74,11 +73,11 @@ impl LockFile {
         Ok(toml::to_string(self).map_err(PackageError::failed_to_serialize_lock_file)?)
     }
 
-    /// Form a HashMap of kind:
+    /// Form a IndexMap of kind:
     /// ``` imported_name => package_name ```
     /// for all imported packages.
-    pub fn to_import_map(&self) -> HashMap<String, String> {
-        let mut result = HashMap::new();
+    pub fn to_import_map(&self) -> IndexMap<String, String> {
+        let mut result = IndexMap::new();
         for package in self.package.iter() {
             match &package.import_name {
                 Some(name) => result.insert(name.clone(), package.to_string()),
