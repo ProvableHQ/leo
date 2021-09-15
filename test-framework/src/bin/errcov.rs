@@ -26,19 +26,19 @@ use leo_test_framework::{
 use regex::Regex;
 use serde_yaml::Value;
 use std::collections::{BTreeMap, HashSet};
-use std::{
-    error::Error,
-    fs,
-    io::Write,
-    path::{Path, PathBuf},
-};
+use std::{error::Error, fs, io, path::PathBuf};
 use structopt::{clap::AppSettings, StructOpt};
 
 #[derive(StructOpt)]
 #[structopt(name = "error-coverage", author = "The Aleo Team <hello@aleo.org>", setting = AppSettings::ColoredHelp)]
 struct Opt {
-    #[structopt(short, long, help = "Path to the output file", parse(from_os_str))]
-    output: PathBuf,
+    #[structopt(
+        short,
+        long,
+        help = "Path to the output file, defaults to stdout.",
+        parse(from_os_str)
+    )]
+    output: Option<PathBuf>,
 }
 
 fn main() {
@@ -198,10 +198,13 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
     );
     results.insert(Value::String(String::from("covered")), Value::Mapping(covered_errors));
     results.insert(Value::String(String::from("unknown")), Value::Mapping(unknown_errors));
-    //let results_str = serde_yaml::to_string(&results).expect("serialization failed for error coverage report");
 
-    let mut file = fs::File::create(opt.output)?;
-    serde_yaml::to_writer(file, &results).expect("serialization failed for error coverage report");
+    if let Some(pathbuf) = opt.output {
+        let file = fs::File::create(pathbuf).expect("error creating output file");
+        serde_yaml::to_writer(file, &results).expect("serialization failed for error coverage report");
+    } else {
+        serde_yaml::to_writer(io::stdout(), &results).expect("serialization failed for error coverage report");
+    }
 
     Ok(())
 }
