@@ -92,7 +92,9 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
                     if let serde_yaml::Value::String(message) = value {
                         if let Some(caps) = re.captures(&message) {
                             if let Some(code) = caps.name("code") {
-                                let files = found_codes.entry(code.as_str().to_string()).or_insert(HashSet::new());
+                                let files = found_codes
+                                    .entry(code.as_str().to_string())
+                                    .or_insert_with(HashSet::new);
                                 let path = expectation_path
                                     .strip_prefix(test_dir.clone())
                                     .expect("invalid prefix for expectation path");
@@ -164,23 +166,24 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
         StateError::num_exit_codes(),
     );
 
+    // Repackage data into values compatible with serde_yaml
     let mut covered_errors = serde_yaml::Mapping::new();
     let mut unknown_errors = serde_yaml::Mapping::new();
 
     for (code, paths) in found_codes.iter() {
-        let mut yaml_paths = Vec::new();
+        let mut yaml_paths = Vec::with_capacity(paths.len());
         for path in paths {
             yaml_paths.push(path.to_str().unwrap());
         }
-        yaml_paths.sort();
+        yaml_paths.sort_unstable();
         let yaml_paths = yaml_paths.iter().map(|s| Value::String(s.to_string())).collect();
 
         if all_codes.contains(code) {
             covered_errors.insert(Value::String(code.to_owned()), Value::Sequence(yaml_paths));
-            all_codes.remove(code);
         } else {
             unknown_errors.insert(Value::String(code.to_owned()), Value::Sequence(yaml_paths));
         }
+        all_codes.remove(code);
     }
 
     let mut codes: Vec<String> = all_codes.drain().collect();
@@ -191,14 +194,43 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
         uncovered_errors.push(Value::String(code))
     }
 
+    let mut uncovered_information = serde_yaml::Mapping::new();
+    uncovered_information.insert(
+        Value::String(String::from("count")),
+        Value::Number(serde_yaml::Number::from(uncovered_errors.len())),
+    );
+    uncovered_information.insert(Value::String(String::from("codes")), Value::Sequence(uncovered_errors));
+
+    let mut covered_information = serde_yaml::Mapping::new();
+    covered_information.insert(
+        Value::String(String::from("count")),
+        Value::Number(serde_yaml::Number::from(covered_errors.len())),
+    );
+    covered_information.insert(Value::String(String::from("codes")), Value::Mapping(covered_errors));
+
+    let mut unknown_information = serde_yaml::Mapping::new();
+    unknown_information.insert(
+        Value::String(String::from("count")),
+        Value::Number(serde_yaml::Number::from(unknown_errors.len())),
+    );
+    unknown_information.insert(Value::String(String::from("codes")), Value::Mapping(unknown_errors));
+
     let mut results = serde_yaml::Mapping::new();
     results.insert(
         Value::String(String::from("uncovered")),
-        Value::Sequence(uncovered_errors),
+        Value::Mapping(uncovered_information),
     );
-    results.insert(Value::String(String::from("covered")), Value::Mapping(covered_errors));
-    results.insert(Value::String(String::from("unknown")), Value::Mapping(unknown_errors));
 
+    results.insert(
+        Value::String(String::from("covered")),
+        Value::Mapping(covered_information),
+    );
+    results.insert(
+        Value::String(String::from("unknown")),
+        Value::Mapping(unknown_information),
+    );
+
+    // Output error coverage results
     if let Some(pathbuf) = opt.output {
         let file = fs::File::create(pathbuf).expect("error creating output file");
         serde_yaml::to_writer(file, &results).expect("serialization failed for error coverage report");

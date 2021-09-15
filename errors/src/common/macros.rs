@@ -20,7 +20,6 @@
 #[macro_export]
 macro_rules! create_errors {
     (@step $code:expr,) => {
-
         #[inline(always)]
         // Returns the number of unique exit codes that this error type can take on.
         pub fn num_exit_codes() -> i32 {
