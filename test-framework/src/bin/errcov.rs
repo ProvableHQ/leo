@@ -14,13 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::Asg;
-use leo_ast::AstPass;
-use leo_compiler::{compiler::thread_leaked_context, TypeInferencePhase};
 use leo_errors::{
     AsgError, AstError, CliError, CompilerError, ImportError, LeoErrorCode, PackageError, ParserError, StateError,
 };
-use leo_imports::ImportParser;
 use leo_test_framework::{
     fetch::find_tests,
     output::TestExpectation,
@@ -28,7 +24,14 @@ use leo_test_framework::{
 };
 
 use regex::Regex;
-use std::{collections::HashSet, error::Error, fs, path::PathBuf};
+use serde_yaml::Value;
+use std::collections::{BTreeMap, HashSet};
+use std::{
+    error::Error,
+    fs,
+    io::Write,
+    path::{Path, PathBuf},
+};
 use structopt::{clap::AppSettings, StructOpt};
 
 #[derive(StructOpt)]
@@ -54,7 +57,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
     find_tests(&test_dir, &mut tests);
 
     // Store all covered error codes
-    let mut found_codes = HashSet::new();
+    let mut found_codes = BTreeMap::new();
     let re = Regex::new(r"Error \[(?P<code>.*)\]:.*").unwrap();
 
     for (path, content) in tests.into_iter() {
@@ -89,7 +92,11 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
                     if let serde_yaml::Value::String(message) = value {
                         if let Some(caps) = re.captures(&message) {
                             if let Some(code) = caps.name("code") {
-                                found_codes.insert(code.as_str().to_string());
+                                let files = found_codes.entry(code.as_str().to_string()).or_insert(HashSet::new());
+                                let path = expectation_path
+                                    .strip_prefix(test_dir.clone())
+                                    .expect("invalid prefix for expectation path");
+                                files.insert(PathBuf::from(path));
                             }
                         }
                     }
@@ -104,73 +111,115 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
         &mut all_codes,
         AsgError::error_type(),
         AsgError::code_identifier(),
+        AsgError::exit_code_mask(),
         AsgError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
         AstError::error_type(),
         AstError::code_identifier(),
+        AstError::exit_code_mask(),
         AstError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
         CliError::error_type(),
         CliError::code_identifier(),
+        CliError::exit_code_mask(),
         CliError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
         CompilerError::error_type(),
         CompilerError::code_identifier(),
+        CompilerError::exit_code_mask(),
         CompilerError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
         ImportError::error_type(),
         ImportError::code_identifier(),
+        ImportError::exit_code_mask(),
         ImportError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
         PackageError::error_type(),
         PackageError::code_identifier(),
+        PackageError::exit_code_mask(),
         PackageError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
         ParserError::error_type(),
         ParserError::code_identifier(),
+        ParserError::exit_code_mask(),
         ParserError::num_exit_codes(),
     );
     collect_error_codes(
         &mut all_codes,
         StateError::error_type(),
         StateError::code_identifier(),
+        StateError::exit_code_mask(),
         StateError::num_exit_codes(),
     );
 
-    let mut sorted: Vec<_> = found_codes.iter().collect();
-    sorted.sort();
+    let mut covered_errors = serde_yaml::Mapping::new();
+    let mut unknown_errors = serde_yaml::Mapping::new();
 
-    println!("Found the following error codes");
-    for code in sorted {
-        println!("{}", code)
+    for (code, paths) in found_codes.iter() {
+        let mut yaml_paths = Vec::new();
+        for path in paths {
+            yaml_paths.push(path.to_str().unwrap());
+        }
+        yaml_paths.sort();
+        let yaml_paths = yaml_paths.iter().map(|s| Value::String(s.to_string())).collect();
+
+        if all_codes.contains(code) {
+            covered_errors.insert(Value::String(code.to_owned()), Value::Sequence(yaml_paths));
+            all_codes.remove(code);
+        } else {
+            unknown_errors.insert(Value::String(code.to_owned()), Value::Sequence(yaml_paths));
+        }
     }
 
-    let mut sorted: Vec<_> = all_codes.iter().collect();
-    sorted.sort();
+    let mut codes: Vec<String> = all_codes.drain().collect();
+    codes.sort();
 
-    println!("Showing all error codes");
-    for code in sorted {
-        println!("{}", code)
+    let mut uncovered_errors = Vec::new();
+    for code in codes {
+        uncovered_errors.push(Value::String(code))
     }
+
+    let mut results = serde_yaml::Mapping::new();
+    results.insert(
+        Value::String(String::from("uncovered")),
+        Value::Sequence(uncovered_errors),
+    );
+    results.insert(Value::String(String::from("covered")), Value::Mapping(covered_errors));
+    results.insert(Value::String(String::from("unknown")), Value::Mapping(unknown_errors));
+    //let results_str = serde_yaml::to_string(&results).expect("serialization failed for error coverage report");
+
+    let mut file = fs::File::create(opt.output)?;
+    serde_yaml::to_writer(file, &results).expect("serialization failed for error coverage report");
 
     Ok(())
 }
 
-fn collect_error_codes(codes: &mut HashSet<String>, error_type: String, code_identifier: i8, num_exit_codes: i32) {
+fn collect_error_codes(
+    codes: &mut HashSet<String>,
+    error_type: String,
+    code_identifier: i8,
+    exit_code_mask: i32,
+    num_exit_codes: i32,
+) {
     for exit_code in 0..num_exit_codes {
-        codes.insert(format!("E{}{:0>3}{:0>4}", error_type, code_identifier, exit_code,));
+        codes.insert(format!(
+            "E{}{:0>3}{:0>4}",
+            error_type,
+            code_identifier,
+            exit_code_mask + exit_code,
+        ));
     }
 }
 
