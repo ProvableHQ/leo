@@ -17,17 +17,19 @@
 use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
-    CompilerOptions,
+    AstSnapshotOptions, CompilerOptions,
 };
+use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
+use leo_parser::parse_program_input;
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
-use anyhow::{anyhow, Result};
 use snarkvm_curves::bls12_377::Bls12_377;
+use snarkvm_eval::edwards_bls12::EdwardsGroupType;
 use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -42,31 +44,64 @@ pub struct BuildOptions {
     pub disable_code_elimination: bool,
     #[structopt(long, help = "Disable all compiler optimizations")]
     pub disable_all_optimizations: bool,
+    #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
+    pub enable_all_ast_snapshots: bool,
+    #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
+    pub enable_initial_ast_snapshot: bool,
+    #[structopt(long, help = "Writes AST snapshot after the import resolution phase.")]
+    pub enable_imports_resolved_ast_snapshot: bool,
+    #[structopt(long, help = "Writes AST snapshot after the canonicalization phase.")]
+    pub enable_canonicalized_ast_snapshot: bool,
+    #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
+    pub enable_type_inferenced_ast_snapshot: bool,
 }
 
 impl Default for BuildOptions {
     fn default() -> Self {
         Self {
-            disable_constant_folding: true,
-            disable_code_elimination: true,
-            disable_all_optimizations: true,
+            disable_constant_folding: false,
+            disable_code_elimination: false,
+            disable_all_optimizations: false,
+            enable_all_ast_snapshots: false,
+            enable_initial_ast_snapshot: false,
+            enable_imports_resolved_ast_snapshot: false,
+            enable_canonicalized_ast_snapshot: false,
+            enable_type_inferenced_ast_snapshot: false,
         }
     }
 }
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
-        if !options.disable_all_optimizations {
+        if options.disable_all_optimizations {
             CompilerOptions {
-                canonicalization_enabled: true,
-                constant_folding_enabled: true,
-                dead_code_elimination_enabled: true,
+                constant_folding_enabled: false,
+                dead_code_elimination_enabled: false,
             }
         } else {
             CompilerOptions {
-                canonicalization_enabled: true,
                 constant_folding_enabled: !options.disable_constant_folding,
                 dead_code_elimination_enabled: !options.disable_code_elimination,
+            }
+        }
+    }
+}
+
+impl From<BuildOptions> for AstSnapshotOptions {
+    fn from(options: BuildOptions) -> Self {
+        if options.enable_all_ast_snapshots {
+            AstSnapshotOptions {
+                initial: true,
+                imports_resolved: true,
+                canonicalized: true,
+                type_inferenced: true,
+            }
+        } else {
+            AstSnapshotOptions {
+                initial: options.enable_initial_ast_snapshot,
+                imports_resolved: options.enable_imports_resolved_ast_snapshot,
+                canonicalized: options.enable_canonicalized_ast_snapshot,
+                type_inferenced: options.enable_type_inferenced_ast_snapshot,
             }
         }
     }
@@ -82,7 +117,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Compiler<'static>, bool);
+    type Output = (Compiler<'static>, leo_ast::Input, bool);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -94,7 +129,14 @@ impl Command for Build {
 
     fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
-        let package_name = context.manifest()?.get_package_name();
+        let manifest = context.manifest().map_err(|_| CliError::manifest_file_not_found())?;
+        let package_name = manifest.get_package_name();
+        let imports_map = manifest.get_imports_map().unwrap_or_default();
+
+        // Error out if there are dependencies but no lock file found.
+        if !imports_map.is_empty() && !context.lock_file_exists()? {
+            return Err(CliError::dependencies_are_not_installed().into());
+        }
 
         // Sanitize the package path to the root directory.
         let mut package_path = path.clone();
@@ -110,7 +152,7 @@ impl Command for Build {
 
         // Compile the main.leo file along with constraints
         if !MainFile::exists_at(&package_path) {
-            return Err(anyhow!("File main.leo not found in src/ directory"));
+            return Err(CliError::package_main_file_not_found().into());
         }
 
         // Create the output directory
@@ -130,16 +172,28 @@ impl Command for Build {
         // Log compilation of files to console
         tracing::info!("Compiling main program... ({:?})", main_file_path);
 
+        let imports_map = if context.lock_file_exists()? {
+            context.lock_file()?.to_import_map()
+        } else {
+            Default::default()
+        };
+
+        // parse the program input
+        let input = parse_program_input(
+            &input_string,
+            &input_path.to_str().unwrap(),
+            &state_string,
+            &state_path.to_str().unwrap(),
+        )?;
+
         // Load the program at `main_file_path`
-        let program = Compiler::parse_program_with_input(
+        let program = Compiler::parse_program_without_input(
             package_name.clone(),
             main_file_path,
             output_directory,
-            &input_string,
-            &input_path,
-            &state_string,
-            &state_path,
             thread_leaked_context(),
+            Some(self.compiler_options.clone().into()),
+            imports_map,
             Some(self.compiler_options.into()),
         )?;
 
@@ -155,7 +209,7 @@ impl Command for Build {
                 namespaces: Default::default(),
             };
             let temporary_program = program.clone();
-            let output = temporary_program.compile_constraints(&mut cs)?;
+            let output = temporary_program.compile::<_, EdwardsGroupType, _>(&mut cs, &input)?;
 
             tracing::debug!("Compiled output - {:#?}", output);
             tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
@@ -198,6 +252,6 @@ impl Command for Build {
 
         tracing::info!("Complete");
 
-        Ok((program, checksum_differs))
+        Ok((program, input, checksum_differs))
     }
 }

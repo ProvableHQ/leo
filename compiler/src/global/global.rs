@@ -16,17 +16,19 @@
 
 //! Generates R1CS constraints for a compiled Leo program.
 
-use crate::{errors::CompilerError, Program};
+use crate::Program;
 use leo_asg::CircuitMember;
+use leo_errors::CompilerError;
+use leo_errors::Result;
 
 impl<'a> Program<'a> {
-    pub fn enforce_program(&mut self, input: &leo_ast::Input) -> Result<(), CompilerError> {
+    pub fn enforce_program(&mut self, input: &leo_ast::Input) -> Result<()> {
         let asg = self.asg.clone();
         let main = *self
             .asg
             .functions
             .get("main")
-            .ok_or_else(|| CompilerError::NoMainFunction)?;
+            .ok_or_else(|| CompilerError::no_main_function())?;
         let secondary_functions: Vec<_> = asg
             .functions
             .iter()

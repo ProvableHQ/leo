@@ -22,3 +22,7 @@ outputs:
             r:
               type: u8
               value: "101"
+    initial_ast: f47238f679ee2b220452140330e99f2a6cf063be523ed8e4ce0e9d56cf806128
+    imports_resolved_ast: f47238f679ee2b220452140330e99f2a6cf063be523ed8e4ce0e9d56cf806128
+    canonicalized_ast: f47238f679ee2b220452140330e99f2a6cf063be523ed8e4ce0e9d56cf806128
+    type_inferenced_ast: 6c62586bdcd983ee1ac3ae22b88577a5c2f0c5e5e5ed711f86c12f434917fd5f

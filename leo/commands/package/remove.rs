@@ -14,10 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// COMMAND TEMPORARILY DISABLED
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 use crate::{commands::Command, context::Context};
+use leo_errors::Result;
 use leo_package::LeoPackage;
 
-use anyhow::Result;
 use structopt::StructOpt;
 use tracing::span::Span;
 

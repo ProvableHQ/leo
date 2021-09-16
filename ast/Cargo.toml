@@ -1,6 +1,6 @@
 [package]
 name = "leo-ast"
-version = "1.5.2"
+version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Core AST of the Leo programming language"
 homepage = "https://aleo.org"
@@ -19,10 +19,14 @@ edition = "2018"
 
 [dependencies.leo-input]
 path = "../input"
-version = "1.5.2"
+version = "1.5.3"
+
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
 
 [dependencies.indexmap]
-version = "1.6.2"
+version = "1.7.0"
 features = [ "serde-1" ]
 
 [dependencies.pest]
@@ -33,12 +37,6 @@ version = "1.0"
 features = [ "derive", "rc" ]
 
 [dependencies.serde_json]
-version = "1.0"
-
-[dependencies.anyhow]
-version = "1.0"
-
-[dependencies.thiserror]
 version = "1.0"
 
 [dependencies.tendril]

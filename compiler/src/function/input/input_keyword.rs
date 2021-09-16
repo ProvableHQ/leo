@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::FunctionError, Program};
+use crate::Program;
 use leo_asg::{Circuit, CircuitMember, Type};
-use leo_ast::Span;
+use leo_errors::{Result, Span};
 use snarkvm_ir::Value;
 
 pub const RECORD_VARIABLE_NAME: &str = "record";
@@ -31,7 +31,7 @@ impl<'a> Program<'a> {
         span: &Span,
         expected_type: &'a Circuit<'a>,
         input: &leo_ast::Input,
-    ) -> Result<Value, FunctionError> {
+    ) -> Result<Value> {
         // Allocate each input variable as a circuit expression
 
         let sections = [

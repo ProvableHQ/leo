@@ -16,12 +16,13 @@
 
 //! Enforces a return statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 use leo_asg::{FunctionQualifier, ReturnStatement};
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, PredicateData, Value};
 
 impl<'a> Program<'a> {
-    pub fn enforce_return_statement(&mut self, statement: &ReturnStatement<'a>) -> Result<(), StatementError> {
+    pub fn enforce_return_statement(&mut self, statement: &ReturnStatement<'a>) -> Result<()> {
         let function = self.current_function.expect("return in non-function");
         let is_mut_self = matches!(function.qualifier, FunctionQualifier::MutSelfRef);
         let result = self.enforce_expression(statement.expression.get())?;

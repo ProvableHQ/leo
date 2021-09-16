@@ -1,6 +1,6 @@
 [package]
 name = "leo-package"
-version = "1.5.2"
+version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Package parser of the Leo programming language"
 homepage = "https://aleo.org"
@@ -17,12 +17,17 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
+[dependencies.indexmap]
+version = "1.7"
+features = ["serde"]
+
 [dependencies.serde]
 version = "1.0"
 features = [ "derive" ]
-
-[dependencies.thiserror]
-version = "1.0"
 
 [dependencies.toml]
 version = "0.5"

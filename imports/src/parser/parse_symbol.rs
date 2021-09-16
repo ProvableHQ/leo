@@ -14,38 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::ImportParserError, ImportParser};
-use leo_ast::{Program, Span};
+use crate::ImportParser;
+use leo_ast::Program;
+use leo_errors::{ImportError, Result, Span};
 
 use std::fs::DirEntry;
 
 static MAIN_FILE: &str = "src/main.leo";
 
-impl<'a> ImportParser<'a> {
+impl ImportParser {
     ///
     /// Returns a Leo syntax tree from a given package.
     ///
     /// Builds an abstract syntax tree from the given file and then builds the Leo syntax tree.
     ///
-    pub(crate) fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program, ImportParserError> {
+    pub(crate) fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program> {
         // Get the package file type.
         let file_type = package
             .file_type()
-            .map_err(|error| ImportParserError::directory_error(error, span, &package.path()))?;
+            .map_err(|error| ImportError::directory_error(error, package.path(), span))?;
         let file_name = package
             .file_name()
             .into_string()
-            .map_err(|_| ImportParserError::convert_os_string(span))?;
+            .map_err(|_| ImportError::convert_os_string(span))?;
 
         let mut file_path = package.path();
         if file_type.is_dir() {
             file_path.push(MAIN_FILE);
 
             if !file_path.exists() {
-                return Err(ImportParserError::expected_main_file(
-                    format!("{:?}", file_path.as_path()),
-                    span,
-                ));
+                return Err(ImportError::expected_main_file(file_path.as_path(), span).into());
             }
         }
 
@@ -53,9 +51,9 @@ impl<'a> ImportParser<'a> {
 
         // Build the package abstract syntax tree.
         let program_string =
-            &std::fs::read_to_string(&file_path).map_err(|x| ImportParserError::io_error(span, file_path_str, x))?;
-        let mut ast = leo_parser::parse(&file_path_str, &program_string)?;
-        ast.name = file_name;
-        Ok(ast)
+            &std::fs::read_to_string(&file_path).map_err(|x| ImportError::io_error(file_path_str, x, span))?;
+        let mut program = leo_parser::parse(file_path_str, program_string)?;
+        program.name = file_name;
+        Ok(program)
     }
 }

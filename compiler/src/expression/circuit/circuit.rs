@@ -16,12 +16,13 @@
 
 //! Enforces a circuit expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::Program};
-use leo_asg::{CircuitInitExpression, CircuitMember, Span};
+use crate::program::Program;
+use leo_asg::{CircuitInitExpression, CircuitMember};
+use leo_errors::{CompilerError, Result, Span};
 use snarkvm_ir::Value;
 
 impl<'a> Program<'a> {
-    pub fn enforce_circuit(&mut self, expr: &CircuitInitExpression<'a>, span: &Span) -> Result<Value, ExpressionError> {
+    pub fn enforce_circuit(&mut self, expr: &CircuitInitExpression<'a>, span: &Span) -> Result<Value> {
         let circuit = expr.circuit.get();
         let members = circuit.members.borrow();
 
@@ -42,7 +43,7 @@ impl<'a> Program<'a> {
                     let variable_value = self.enforce_expression(inner.get())?;
                     resolved_members[index] = Some(variable_value);
                 }
-                _ => return Err(ExpressionError::expected_circuit_member(name.to_string(), span)),
+                _ => return Err(CompilerError::expected_circuit_member(name, span).into()),
             }
         }
 

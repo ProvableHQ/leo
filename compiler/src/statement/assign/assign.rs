@@ -16,13 +16,14 @@
 
 //! Enforces an assign statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 use leo_asg::{AssignOperation, AssignStatement};
+use leo_errors::Result;
 use snarkvm_ir::Value;
 
 impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_assign_statement(&mut self, statement: &AssignStatement<'a>) -> Result<(), StatementError> {
+    pub fn enforce_assign_statement(&mut self, statement: &AssignStatement<'a>) -> Result<()> {
         // Get the name of the variable we are assigning to
         let new_value = self.enforce_expression(statement.value.get())?;
 
@@ -36,7 +37,7 @@ impl<'a> Program<'a> {
         operation: &AssignOperation,
         target: Value,
         new_value: Value,
-    ) -> Result<Value, StatementError> {
+    ) -> Result<Value> {
         let new_value = match operation {
             AssignOperation::Assign => new_value,
             AssignOperation::Add => self.evaluate_add(target, new_value)?,

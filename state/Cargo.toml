@@ -1,6 +1,6 @@
 [package]
 name = "leo-state"
-version = "1.5.2"
+version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "State parser of the Leo programming language"
 homepage = "https://aleo.org"
@@ -17,31 +17,34 @@ include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2018"
 
-[dependencies.leo-input]
-path = "../input"
-version = "1.5.2"
-
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.5.2"
+version = "1.5.3"
+
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
+[dependencies.leo-input]
+path = "../input"
+version = "1.5.3"
 
 [dependencies.snarkvm-algorithms]
-version = "0.6.0"
+version = "0.7.6"
 
 [dependencies.snarkvm-curves]
-version = "0.6.0"
+version = "0.7.9"
 default-features = false
 
 [dependencies.snarkvm-dpc]
-version = "0.6.0"
-default-features = false
+version = "0.7.9"
 features = [ "testnet1" ]
 
 [dependencies.snarkvm-utilities]
-version = "0.6.0"
+version = "0.7.6"
 
 [dependencies.indexmap]
-version = "1.6.2"
+version = "1.7.0"
 features = [ "serde-1" ]
 
 [dependencies.rand]
@@ -49,9 +52,6 @@ version = "0.8"
 
 [dependencies.rand_xorshift]
 version = "0.3"
-
-[dependencies.thiserror]
-version = "1.0"
 
 [dev-dependencies.rand_core]
 version = "0.6.3"

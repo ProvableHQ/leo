@@ -18,13 +18,14 @@
 
 use std::cell::Cell;
 
-use crate::{errors::ExpressionError, program::Program};
+use crate::program::Program;
 use leo_asg::Expression;
+use leo_errors::Result;
 use snarkvm_ir::Value;
 
 impl<'a> Program<'a> {
     /// Enforce tuple expressions
-    pub fn enforce_tuple(&mut self, tuple: &[Cell<&'a Expression<'a>>]) -> Result<Value, ExpressionError> {
+    pub fn enforce_tuple(&mut self, tuple: &[Cell<&'a Expression<'a>>]) -> Result<Value> {
         let mut result = Vec::with_capacity(tuple.len());
         for expression in tuple.iter() {
             result.push(self.enforce_expression(expression.get())?);

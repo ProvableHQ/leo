@@ -20,27 +20,24 @@
 //! method to create a new program ast.
 
 #![allow(clippy::vec_init_then_push)]
-
-#[macro_use]
-extern crate thiserror;
+#![doc = include_str!("../README.md")]
 
 pub(crate) mod tokenizer;
 use leo_input::LeoInputParser;
+pub use tokenizer::KEYWORD_TOKENS;
 pub(crate) use tokenizer::*;
-
-pub mod errors;
-pub use errors::*;
 
 pub mod parser;
 pub use parser::*;
 
 use leo_ast::{Ast, Input};
+use leo_errors::Result;
 
 #[cfg(test)]
 mod test;
 
 /// Creates a new AST from a given file path and source code text.
-pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(path: T, source: Y) -> SyntaxResult<Ast> {
+pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(path: T, source: Y) -> Result<Ast> {
     Ok(Ast::new(parser::parse(path.as_ref(), source.as_ref())?))
 }
 
@@ -50,7 +47,7 @@ pub fn parse_program_input<T: AsRef<str>, Y: AsRef<str>, T2: AsRef<str>, Y2: AsR
     input_path: Y,
     state_string: T2,
     state_path: Y2,
-) -> SyntaxResult<Input> {
+) -> Result<Input> {
     let input_syntax_tree = LeoInputParser::parse_file(input_string.as_ref()).map_err(|mut e| {
         e.set_path(
             input_path.as_ref(),

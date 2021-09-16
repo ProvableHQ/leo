@@ -9,5 +9,5 @@ function main(y: bool) -> bool {
     let a = 1u32;
     a = 0;
 
-    return a == 0u32 == y;
+    return (a == 0u32) == y;
 }

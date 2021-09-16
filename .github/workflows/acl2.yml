@@ -1,0 +1,96 @@
+name: Leo-ACL2
+on: 
+  pull_request:
+    push:
+      branches:
+        - master
+        - staging
+        - trying
+      paths-ignore:
+        - 'docs/**'
+        - 'documentation/**'
+env: 
+  RUST_BACKTRACE: 1
+
+# This job can only be run on linux (Ubuntu)
+jobs:
+  acl2:
+    name: leo-acl2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Generate asts
+        run: |
+          cargo -q run -p leo-test-framework --bin tgc
+
+      # Pull the latest release from the leo-acl2-bin repo, and put it into the
+      # repo/acl2 directory. After it's done, unpack the tgz file locally.
+      - name: Pull tgc executable
+        run: |
+          mkdir acl2 && cd acl2;
+          wget $(curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/releases/latest \
+              | grep "browser_download_url.*.tgz"  \
+              | cut -d : -f 2,3 \
+              | tr -d \" \
+              | xargs)
+
+          tar -xvzf $(ls)
+      
+      # Using the prepared ASTs and the pulled and unzipped tgc run theorem generation.
+      - name: Run tgc over ASTs
+        run: |
+          canonicalization_errors=();
+          type_inference_errors=();
+          for dir in `ls tmp/tgc`;
+          do
+            cd tmp/tgc/$dir; # enter the directory
+            ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp > canonicalization_result.out || canonicalization_errors+=("$dir");
+            # Disabling Type inference for now
+            # ./../../../acl2/tgc type-inference canonicalization_ast.json type_inferenced_ast.json type-inference-theorem.lisp > type_inference_result.out || type_inference_errors+=("$dir");
+            cd ../../..
+          done;
+
+          if [ ${#canonicalization_errors[@]} -eq 0 ]; then
+            echo "Canonicalization - Success!"
+          else
+            echo "Canonicalization Failures:";
+            for dir in ${canonicalization_errors[@]};
+            do
+              echo $dir;
+            done;
+
+            echo "Attaching logs:"
+            for dir in ${canonicalization_errors[@]};
+            do
+              cat tmp/tgc/$dir/canonicalization_result.out
+              cat tmp/tgc/$dir/canonicalization-theorem.lisp
+            done;
+            exit 1
+          fi
+
+          if [ ${#type_inference_errors[@]} -eq 0 ]; then
+            echo "Type Inference - Success!"
+          else
+            echo "Type Inference Failures:";
+            for dir in ${type_inference_errors[@]};
+            do
+              echo $dir;
+            done;
+
+            echo "Attaching logs:"
+            for dir in ${type_inference_errors[@]};
+            do
+              cat tmp/tgc/$dir/type_inference_result.out
+            done;
+
+            exit 1
+          fi

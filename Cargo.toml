@@ -1,6 +1,6 @@
 [package]
 name = "leo-lang"
-version = "1.5.2"
+version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "The Leo programming language"
 homepage = "https://aleo.org"
@@ -29,7 +29,9 @@ members = [
   "asg",
   "asg-passes",
   "ast",
+  "ast-passes",
   "compiler",
+  "errors",
   "grammar",
   "imports",
   "input",
@@ -43,58 +45,71 @@ members = [
 
 [dependencies.leo-ast]
 path = "./ast"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-compiler]
 path = "./compiler"
-version = "1.5.2"
+version = "1.5.3"
+
+[dependencies.leo-errors]
+path = "./errors"
+version = "1.5.3"
 
 [dependencies.leo-imports]
 path = "./imports"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-input]
 path = "./input"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-package]
 path = "./package"
-version = "1.5.2"
+version = "1.5.3"
+
+[dependencies.leo-parser]
+path = "./parser"
+version = "1.5.3"
 
 [dependencies.leo-state]
 path = "./state"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-synthesizer]
 path = "./synthesizer"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.snarkvm-algorithms]
-version = "0.6.0"
+version = "0.7.6"
 
 [dependencies.snarkvm-curves]
-version = "0.6.0"
+version = "0.7.9"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.6.0"
+version = "0.7.8"
 default-features = false
 
 [dependencies.snarkvm-r1cs]
-version = "0.6.0"
+version = "0.7.8"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.6.0"
+version = "0.7.6"
 
-[dependencies.anyhow]
-version = "1.0"
+#todo 0rphon
+[dependencies.snarkvm-eval]
+version = "0.7.7"
+path = "D:\\Work\\leo_repos\\snarkVM\\eval"
 
 [dependencies.structopt]
 version = "0.3"
 
 [dependencies.clap]
 version = "2.33.3"
+
+[dependencies]
+color-backtrace = "0.5.1"
 
 [dependencies.colored]
 version = "2.0"
@@ -107,6 +122,10 @@ version = "0.14.0"
 
 [dependencies.from-pest]
 version = "0.3.1"
+
+[dependencies.indexmap]
+version = "1.7"
+features = ["serde"]
 
 [dependencies.lazy_static]
 version = "1.4.0"
@@ -135,9 +154,6 @@ features = [ "derive" ]
 [dependencies.serde_json]
 version = "1.0"
 
-[dependencies.thiserror]
-version = "1.0"
-
 [dependencies.toml]
 version = "0.5"
 
@@ -145,7 +161,7 @@ version = "0.5"
 version = "0.1"
 
 [dependencies.tracing-subscriber]
-version = "0.2"
+version = "0.2.19"
 features = [ "fmt" ]
 
 [dependencies.zip]
@@ -158,7 +174,7 @@ version = "0.12.1"
 version = "0.11.2"
 
 [dev-dependencies.assert_cmd]
-version = "1.0.5"
+version = "2.0.0"
 
 [dev-dependencies.test_dir]
 version = "0.1.0"
@@ -189,12 +205,13 @@ opt-level = 0
 debug-assertions = true
 debug = true
 
+# todo 0rphon
 [patch.crates-io]
-snarkvm-curves = { path = "/home/p/aleo/snarkVM/curves" }
-snarkvm-fields = { path = "/home/p/aleo/snarkVM/fields" }
-snarkvm-utilities = { path = "/home/p/aleo/snarkVM/utilities" }
-snarkvm-r1cs = { path = "/home/p/aleo/snarkVM/r1cs" }
-snarkvm-gadgets = { path = "/home/p/aleo/snarkVM/gadgets" }
-snarkvm-parameters = { path = "/home/p/aleo/snarkVM/parameters" }
-snarkvm-dpc = { path = "/home/p/aleo/snarkVM/dpc" }
-snarkvm-algorithms = { path = "/home/p/aleo/snarkVM/algorithms" }
+snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
+snarkvm-fields = { path = "D:\\Work\\leo_repos\\snarkVM\\fields" }
+snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }
+snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }
+snarkvm-gadgets = { path = "D:\\Work\\leo_repos\\snarkVM\\gadgets" }
+snarkvm-parameters = { path = "D:\\Work\\leo_repos\\snarkVM\\parameters" }
+snarkvm-dpc = { path = "D:\\Work\\leo_repos\\snarkVM\\dpc" }
+snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }

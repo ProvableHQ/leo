@@ -16,18 +16,16 @@
 
 //! Evaluates a macro in a compiled Leo program.
 
-use crate::{errors::ConsoleError, program::Program};
+use crate::program::Program;
 use leo_asg::{ConsoleFunction, ConsoleStatement};
+use leo_errors::Result;
 use snarkvm_ir::LogLevel;
 
 impl<'a> Program<'a> {
-    pub fn evaluate_console_function_call(&mut self, console: &ConsoleStatement<'a>) -> Result<(), ConsoleError> {
+    pub fn evaluate_console_function_call(&mut self, console: &ConsoleStatement<'a>) -> Result<()> {
         match &console.function {
             ConsoleFunction::Assert(expression) => {
                 self.evaluate_console_assert(expression.get())?;
-            }
-            ConsoleFunction::Debug(string) => {
-                self.emit_log(LogLevel::Debug, string)?;
             }
             ConsoleFunction::Error(string) => {
                 self.emit_log(LogLevel::Error, string)?;

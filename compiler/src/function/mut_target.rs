@@ -18,26 +18,19 @@
 
 use std::cell::Cell;
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 use leo_asg::{
-    ArrayAccessExpression,
-    ArrayRangeAccessExpression,
-    AssignAccess,
-    AssignOperation,
-    AssignStatement,
-    CircuitAccessExpression,
-    Expression,
-    Node,
-    TupleAccessExpression,
-    Variable,
+    ArrayAccessExpression, ArrayRangeAccessExpression, AssignAccess, AssignOperation, AssignStatement,
+    CircuitAccessExpression, Expression, Node, TupleAccessExpression, Variable,
 };
+use leo_errors::Result;
 use snarkvm_ir::Value;
 
 impl<'a> Program<'a> {
     fn prepare_mut_access(
         out: &mut Vec<AssignAccess<'a>>,
         expr: &'a Expression<'a>,
-    ) -> Result<Option<&'a Variable<'a>>, StatementError> {
+    ) -> Result<Option<&'a Variable<'a>>> {
         match expr {
             Expression::ArrayRangeAccess(ArrayRangeAccessExpression { array, left, right, .. }) => {
                 let inner = Self::prepare_mut_access(out, array.get())?;
@@ -75,11 +68,7 @@ impl<'a> Program<'a> {
 
     // resolve a mutable reference from an expression
     // return false if no valid mutable reference, or Err(_) on more critical error
-    pub fn resolve_mut_ref(
-        &mut self,
-        assignee: &'a Expression<'a>,
-        target_value: Value,
-    ) -> Result<bool, StatementError> {
+    pub fn resolve_mut_ref(&mut self, assignee: &'a Expression<'a>, target_value: Value) -> Result<bool> {
         let mut accesses = vec![];
         let target = Self::prepare_mut_access(&mut accesses, assignee)?;
         if target.is_none() {

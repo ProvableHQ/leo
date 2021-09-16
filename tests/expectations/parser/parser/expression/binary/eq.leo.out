@@ -11,7 +11,7 @@ outputs:
               line_stop: 1
               col_start: 1
               col_stop: 2
-              path: test
+              path: ""
               content: 1 == 1
       right:
         Value:
@@ -21,7 +21,7 @@ outputs:
               line_stop: 1
               col_start: 6
               col_stop: 7
-              path: test
+              path: ""
               content: 1 == 1
       op: Eq
       span:
@@ -29,7 +29,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 7
-        path: test
+        path: ""
         content: 1 == 1
   - Binary:
       left:
@@ -40,7 +40,7 @@ outputs:
               line_stop: 1
               col_start: 1
               col_stop: 2
-              path: test
+              path: ""
               content: 2==3
       right:
         Value:
@@ -50,7 +50,7 @@ outputs:
               line_stop: 1
               col_start: 4
               col_stop: 5
-              path: test
+              path: ""
               content: 2==3
       op: Eq
       span:
@@ -58,7 +58,7 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 5
-        path: test
+        path: ""
         content: 2==3
   - Binary:
       left:
@@ -71,56 +71,7 @@ outputs:
                   line_stop: 1
                   col_start: 1
                   col_stop: 2
-                  path: test
-                  content: 1 == 2 == 3
-          right:
-            Value:
-              Implicit:
-                - "2"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 6
-                  col_stop: 7
-                  path: test
-                  content: 1 == 2 == 3
-          op: Eq
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 7
-            path: test
-            content: 1 == 2 == 3
-      right:
-        Value:
-          Implicit:
-            - "3"
-            - line_start: 1
-              line_stop: 1
-              col_start: 11
-              col_stop: 12
-              path: test
-              content: 1 == 2 == 3
-      op: Eq
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 12
-        path: test
-        content: 1 == 2 == 3
-  - Binary:
-      left:
-        Binary:
-          left:
-            Value:
-              Implicit:
-                - "1"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 1
-                  col_stop: 2
-                  path: test
+                  path: ""
                   content: 1 < 2 == 3 < 4
           right:
             Value:
@@ -130,7 +81,7 @@ outputs:
                   line_stop: 1
                   col_start: 5
                   col_stop: 6
-                  path: test
+                  path: ""
                   content: 1 < 2 == 3 < 4
           op: Lt
           span:
@@ -138,7 +89,7 @@ outputs:
             line_stop: 1
             col_start: 1
             col_stop: 6
-            path: test
+            path: ""
             content: 1 < 2 == 3 < 4
       right:
         Binary:
@@ -150,7 +101,7 @@ outputs:
                   line_stop: 1
                   col_start: 10
                   col_stop: 11
-                  path: test
+                  path: ""
                   content: 1 < 2 == 3 < 4
           right:
             Value:
@@ -160,7 +111,7 @@ outputs:
                   line_stop: 1
                   col_start: 14
                   col_stop: 15
-                  path: test
+                  path: ""
                   content: 1 < 2 == 3 < 4
           op: Lt
           span:
@@ -168,7 +119,7 @@ outputs:
             line_stop: 1
             col_start: 10
             col_stop: 15
-            path: test
+            path: ""
             content: 1 < 2 == 3 < 4
       op: Eq
       span:
@@ -176,57 +127,8 @@ outputs:
         line_stop: 1
         col_start: 1
         col_stop: 15
-        path: test
+        path: ""
         content: 1 < 2 == 3 < 4
-  - Binary:
-      left:
-        Binary:
-          left:
-            Value:
-              Implicit:
-                - "1"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 1
-                  col_stop: 2
-                  path: test
-                  content: 1 == 2 == 3
-          right:
-            Value:
-              Implicit:
-                - "2"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 6
-                  col_stop: 7
-                  path: test
-                  content: 1 == 2 == 3
-          op: Eq
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 7
-            path: test
-            content: 1 == 2 == 3
-      right:
-        Value:
-          Implicit:
-            - "3"
-            - line_start: 1
-              line_stop: 1
-              col_start: 11
-              col_stop: 12
-              path: test
-              content: 1 == 2 == 3
-      op: Eq
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 12
-        path: test
-        content: 1 == 2 == 3
   - Binary:
       left:
         Binary:
@@ -240,8 +142,8 @@ outputs:
                       line_stop: 1
                       col_start: 1
                       col_stop: 2
-                      path: test
-                      content: 1 < 2 == 3 < 4 == 5 < 6
+                      path: ""
+                      content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
               right:
                 Value:
                   Implicit:
@@ -250,16 +152,16 @@ outputs:
                       line_stop: 1
                       col_start: 5
                       col_stop: 6
-                      path: test
-                      content: 1 < 2 == 3 < 4 == 5 < 6
+                      path: ""
+                      content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
               op: Lt
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 1
                 col_stop: 6
-                path: test
-                content: 1 < 2 == 3 < 4 == 5 < 6
+                path: ""
+                content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
           right:
             Binary:
               left:
@@ -270,8 +172,8 @@ outputs:
                       line_stop: 1
                       col_start: 10
                       col_stop: 11
-                      path: test
-                      content: 1 < 2 == 3 < 4 == 5 < 6
+                      path: ""
+                      content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
               right:
                 Value:
                   Implicit:
@@ -280,59 +182,99 @@ outputs:
                       line_stop: 1
                       col_start: 14
                       col_stop: 15
-                      path: test
-                      content: 1 < 2 == 3 < 4 == 5 < 6
+                      path: ""
+                      content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
               op: Lt
               span:
                 line_start: 1
                 line_stop: 1
                 col_start: 10
                 col_stop: 15
-                path: test
-                content: 1 < 2 == 3 < 4 == 5 < 6
+                path: ""
+                content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
           op: Eq
           span:
             line_start: 1
             line_stop: 1
             col_start: 1
             col_stop: 15
-            path: test
-            content: 1 < 2 == 3 < 4 == 5 < 6
+            path: ""
+            content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
       right:
         Binary:
           left:
-            Value:
-              Implicit:
-                - "5"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 19
-                  col_stop: 20
-                  path: test
-                  content: 1 < 2 == 3 < 4 == 5 < 6
+            Binary:
+              left:
+                Value:
+                  Implicit:
+                    - "3"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 19
+                      col_stop: 20
+                      path: ""
+                      content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
+              right:
+                Value:
+                  Implicit:
+                    - "4"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 23
+                      col_stop: 24
+                      path: ""
+                      content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
+              op: Lt
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 19
+                col_stop: 24
+                path: ""
+                content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
           right:
-            Value:
-              Implicit:
-                - "6"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 23
-                  col_stop: 24
-                  path: test
-                  content: 1 < 2 == 3 < 4 == 5 < 6
-          op: Lt
+            Binary:
+              left:
+                Value:
+                  Implicit:
+                    - "5"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 28
+                      col_stop: 29
+                      path: ""
+                      content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
+              right:
+                Value:
+                  Implicit:
+                    - "6"
+                    - line_start: 1
+                      line_stop: 1
+                      col_start: 32
+                      col_stop: 33
+                      path: ""
+                      content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
+              op: Lt
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 28
+                col_stop: 33
+                path: ""
+                content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
+          op: Eq
           span:
             line_start: 1
             line_stop: 1
             col_start: 19
-            col_stop: 24
-            path: test
-            content: 1 < 2 == 3 < 4 == 5 < 6
-      op: Eq
+            col_stop: 33
+            path: ""
+            content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6
+      op: And
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 24
-        path: test
-        content: 1 < 2 == 3 < 4 == 5 < 6
+        col_stop: 33
+        path: ""
+        content: 1 < 2 == 3 < 4 && 3 < 4 == 5 < 6

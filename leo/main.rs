@@ -22,23 +22,11 @@ pub mod logger;
 pub mod updater;
 
 use commands::{
-    package::{Add, Clone, Login, Logout, Publish, Remove},
-    Build,
-    Clean,
-    Command,
-    Deploy,
-    Init,
-    Lint,
-    New,
-    Prove,
-    Run,
-    Setup,
-    Test,
-    Update,
-    Watch,
+    package::{Clone, Fetch, Login, Logout, Publish},
+    Build, Clean, Command, Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
+use leo_errors::Result;
 
-use anyhow::Error;
 use std::{path::PathBuf, process::exit};
 use structopt::{clap::AppSettings, StructOpt};
 
@@ -131,10 +119,15 @@ enum CommandOpts {
         command: Test,
     },
 
-    #[structopt(about = "Import a package from the Aleo Package Manager")]
-    Add {
+    // #[structopt(about = "Import a package from the Aleo Package Manager")]
+    // Add {
+    //     #[structopt(flatten)]
+    //     command: Add,
+    // },
+    #[structopt(about = "Pull dependencies from Aleo Package Manager")]
+    Fetch {
         #[structopt(flatten)]
-        command: Add,
+        command: Fetch,
     },
 
     #[structopt(about = "Clone a package from the Aleo Package Manager")]
@@ -161,12 +154,11 @@ enum CommandOpts {
         command: Publish,
     },
 
-    #[structopt(about = "Uninstall a package from the current package")]
-    Remove {
-        #[structopt(flatten)]
-        command: Remove,
-    },
-
+    // #[structopt(about = "Uninstall a package from the current package")]
+    // Remove {
+    //     #[structopt(flatten)]
+    //     command: Remove,
+    // },
     #[structopt(about = "Lints the Leo files in the package (*)")]
     Lint {
         #[structopt(flatten)]
@@ -185,13 +177,16 @@ fn main() {
 }
 
 /// Run command with custom build arguments.
-fn run_with_args(opt: Opt) -> Result<(), Error> {
+fn run_with_args(opt: Opt) -> Result<()> {
     if !opt.quiet {
         // Init logger with optional debug flag.
-        logger::init_logger("leo", match opt.debug {
-            false => 1,
-            true => 2,
-        });
+        logger::init_logger(
+            "leo",
+            match opt.debug {
+                false => 1,
+                true => 2,
+            },
+        )?;
     }
 
     // Get custom root folder and create context for it.
@@ -213,24 +208,24 @@ fn run_with_args(opt: Opt) -> Result<(), Error> {
         CommandOpts::Watch { command } => command.try_execute(context),
         CommandOpts::Update { command } => command.try_execute(context),
 
-        CommandOpts::Add { command } => command.try_execute(context),
+        // CommandOpts::Add { command } => command.try_execute(context),
+        CommandOpts::Fetch { command } => command.try_execute(context),
         CommandOpts::Clone { command } => command.try_execute(context),
         CommandOpts::Login { command } => command.try_execute(context),
         CommandOpts::Logout { command } => command.try_execute(context),
         CommandOpts::Publish { command } => command.try_execute(context),
-        CommandOpts::Remove { command } => command.try_execute(context),
-
+        // CommandOpts::Remove { command } => command.try_execute(context),
         CommandOpts::Lint { command } => command.try_execute(context),
         CommandOpts::Deploy { command } => command.try_execute(context),
     }
 }
 
-fn handle_error<T>(res: Result<T, Error>) -> T {
+fn handle_error<T>(res: Result<T>) -> T {
     match res {
         Ok(t) => t,
         Err(err) => {
-            eprintln!("Error: {}", err);
-            exit(1);
+            eprintln!("{}", err);
+            exit(err.exit_code());
         }
     }
 }
@@ -238,16 +233,17 @@ fn handle_error<T>(res: Result<T, Error>) -> T {
 #[cfg(test)]
 mod cli_tests {
     use crate::{run_with_args, Opt};
+    use leo_errors::{CliError, Result};
 
-    use anyhow::Error;
+    use snarkvm_utilities::Write;
     use std::path::PathBuf;
     use structopt::StructOpt;
     use test_dir::{DirBuilder, FileType, TestDir};
 
     // Runs Command from cmd-like argument "leo run --arg1 --arg2".
-    fn run_cmd(args: &str, path: &Option<PathBuf>) -> Result<(), Error> {
+    fn run_cmd(args: &str, path: &Option<PathBuf>) -> Result<()> {
         let args = args.split(' ').collect::<Vec<&str>>();
-        let mut opts = Opt::from_iter_safe(args)?;
+        let mut opts = Opt::from_iter_safe(args).map_err(CliError::opt_args_error)?;
 
         if path.is_some() {
             opts.path = path.clone();
@@ -272,9 +268,6 @@ mod cli_tests {
 
         assert!(run_cmd("leo build", &path).is_ok());
         assert!(run_cmd("leo -q build", &path).is_ok());
-
-        assert!(run_cmd("leo --path ../../examples/no-directory-there build", &None).is_err());
-        assert!(run_cmd("leo -v build", &None).is_err());
     }
 
     #[test]
@@ -308,7 +301,7 @@ mod cli_tests {
         let path = Some(dir.path("new"));
 
         assert!(run_cmd("leo new test", &path).is_ok());
-        assert!(run_cmd("leo new test", &path).is_err()); // 2nd time 
+        assert!(run_cmd("leo new test", &path).is_err()); // 2nd time
         assert!(run_cmd("leo new wrong_name", &path).is_err());
     }
 
@@ -359,6 +352,7 @@ mod cli_tests {
     }
 
     #[test]
+    #[ignore]
     fn test_import() {
         let dir = testdir("test");
         let path = dir.path("test");
@@ -399,5 +393,33 @@ mod cli_tests {
         assert!(run_cmd("leo test", path).is_ok());
         assert!(run_cmd("leo test -f examples/silly-sudoku/src/lib.leo", path).is_ok());
         assert!(run_cmd("leo test -f examples/silly-sudoku/src/main.leo", path).is_ok());
+    }
+
+    #[test]
+    fn test_install() {
+        let dir = testdir("test");
+        let path = dir.path("test");
+
+        assert!(run_cmd("leo new install", &Some(path.clone())).is_ok());
+
+        let install_path = &Some(path.join("install"));
+
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open(path.join("install/Leo.toml"))
+            .unwrap();
+
+        assert!(run_cmd("leo fetch", install_path).is_ok());
+        assert!(file
+            .write_all(
+                br#"
+            sudoku = {author = "justice-league", package = "u8u32", version = "0.1.0"}
+        "#
+            )
+            .is_ok());
+
+        assert!(run_cmd("leo fetch", install_path).is_ok());
+        assert!(run_cmd("leo build", install_path).is_ok());
     }
 }

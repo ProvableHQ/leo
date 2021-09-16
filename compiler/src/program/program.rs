@@ -80,11 +80,14 @@ impl<'a> Program<'a> {
 
     pub fn alloc_input(&mut self, category: InputCategory, name: &str, type_: AsgType<'a>) -> u32 {
         let variable = self.alloc();
-        self.inputs.insert(variable, Input {
-            category,
-            type_: asg_to_ir_type(&type_),
-            name: name.to_string(),
-        });
+        self.inputs.insert(
+            variable,
+            Input {
+                category,
+                type_: asg_to_ir_type(&type_),
+                name: name.to_string(),
+            },
+        );
         variable
     }
 
@@ -92,11 +95,14 @@ impl<'a> Program<'a> {
         let type_ = variable.borrow().type_.clone();
         let register = self.alloc();
         self.variable_to_register.insert(variable.borrow().id, register);
-        self.inputs.insert(register, Input {
-            category,
-            type_: asg_to_ir_type(&type_),
-            name: variable.borrow().name.name.to_string(),
-        });
+        self.inputs.insert(
+            register,
+            Input {
+                category,
+                type_: asg_to_ir_type(&type_),
+                name: variable.borrow().name.name.to_string(),
+            },
+        );
         register
     }
 
@@ -194,6 +200,7 @@ impl<'a> Program<'a> {
     pub fn repeat<R, E, F: FnMut(&mut Self) -> Result<R, E>>(
         &mut self,
         iter_variable: &Variable<'a>,
+        inclusive: bool,
         from: Value,
         to: Value,
         mut inner: F,
@@ -211,6 +218,7 @@ impl<'a> Program<'a> {
             Instruction::Repeat(RepeatData {
                 instruction_count: masked_count as u32,
                 iter_variable: iter_register,
+                inclusive,
                 from,
                 to,
             }),
@@ -260,7 +268,6 @@ impl<'a> Program<'a> {
     }
 }
 
-
 fn asg_to_ir_type(type_: &AsgType) -> Type {
     match type_ {
         AsgType::Address => Type::Address,
@@ -293,5 +300,6 @@ fn asg_to_ir_type(type_: &AsgType) -> Type {
                 .collect();
             Type::Tuple(members)
         }
+        AsgType::ArrayWithoutSize(inner) => todo!("0rphon"), //Type::ArrayWithoutSize(Box::new(asg_to_ir_type(&*inner))),
     }
 }

@@ -23,11 +23,10 @@ impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_iteration_statement(&mut self, statement: &IterationStatement<'a>) -> StatementResult<()> {
         let span = statement.span.clone().unwrap_or_default();
-
         let from = self.enforce_index(statement.start.get(), &span)?;
         let to = self.enforce_index(statement.stop.get(), &span)?;
 
-        self.repeat(statement.variable, from, to, |program| {
+        self.repeat(statement.variable, statement.inclusive, from, to, |program| {
             program.enforce_statement(statement.body.get())
         })?;
 

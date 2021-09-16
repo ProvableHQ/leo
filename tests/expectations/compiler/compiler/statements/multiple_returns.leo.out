@@ -32,3 +32,7 @@ outputs:
             a:
               type: bool
               value: "false"
+    initial_ast: f842a0668ac2fa61ee1f4c693c5159b1395527ee355e8d1d54da9e1ed63ac3ca
+    imports_resolved_ast: f842a0668ac2fa61ee1f4c693c5159b1395527ee355e8d1d54da9e1ed63ac3ca
+    canonicalized_ast: f842a0668ac2fa61ee1f4c693c5159b1395527ee355e8d1d54da9e1ed63ac3ca
+    type_inferenced_ast: 5adf5966c1fdb8a72af941b5b706d7a24b732441b7f56fb3de1319035ade46ec

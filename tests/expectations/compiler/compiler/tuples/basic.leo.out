@@ -25,3 +25,7 @@ outputs:
             c:
               type: bool
               value: "false"
+    initial_ast: 51cc6c9ff08fa4320783cf8b6683f784a6325a0e371c7d93049c30eb9d04cf72
+    imports_resolved_ast: 51cc6c9ff08fa4320783cf8b6683f784a6325a0e371c7d93049c30eb9d04cf72
+    canonicalized_ast: 51cc6c9ff08fa4320783cf8b6683f784a6325a0e371c7d93049c30eb9d04cf72
+    type_inferenced_ast: a1e55a4a926b0d9c8d0f611136c7f9ba8ed5c6156a85d1d04adc9faaadf1a611

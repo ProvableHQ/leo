@@ -16,12 +16,13 @@
 
 //! Enforces an assert equals statement in a compiled Leo program.
 
-use crate::{errors::ConsoleError, program::Program};
+use crate::program::Program;
 use leo_asg::Expression;
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, PredicateData};
 
 impl<'a> Program<'a> {
-    pub fn evaluate_console_assert(&mut self, expression: &'a Expression<'a>) -> Result<(), ConsoleError> {
+    pub fn evaluate_console_assert(&mut self, expression: &'a Expression<'a>) -> Result<()> {
         // Evaluate assert expression
         let assert_expression = self.enforce_expression(expression)?;
 

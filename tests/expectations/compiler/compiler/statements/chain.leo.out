@@ -46,3 +46,7 @@ outputs:
             a:
               type: bool
               value: "false"
+    initial_ast: 51f43c865b5082a79df9bba465629cc4d9cc9f3a472e35d0301ae1dc6ef37039
+    imports_resolved_ast: 51f43c865b5082a79df9bba465629cc4d9cc9f3a472e35d0301ae1dc6ef37039
+    canonicalized_ast: 51f43c865b5082a79df9bba465629cc4d9cc9f3a472e35d0301ae1dc6ef37039
+    type_inferenced_ast: 6198dfeacc891f4e22635060fa58a476fcae08cb6cfa74b6e8d80c07adc6c36d

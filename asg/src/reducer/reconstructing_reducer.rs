@@ -274,12 +274,12 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
 
     fn reduce_formatted_string(
         &mut self,
-        input: FormatString<'a>,
+        input: ConsoleArgs<'a>,
         parameters: Vec<&'a Expression<'a>>,
-    ) -> FormatString<'a> {
-        FormatString {
+    ) -> ConsoleArgs<'a> {
+        ConsoleArgs {
             span: input.span,
-            parts: input.parts,
+            string: input.string,
             parameters: parameters.into_iter().map(Cell::new).collect(),
         }
     }
@@ -293,14 +293,13 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
         })
     }
 
-    fn reduce_console_log(&mut self, input: ConsoleStatement<'a>, argument: FormatString<'a>) -> Statement<'a> {
+    fn reduce_console_log(&mut self, input: ConsoleStatement<'a>, argument: ConsoleArgs<'a>) -> Statement<'a> {
         assert!(!matches!(input.function, ConsoleFunction::Assert(_)));
         Statement::Console(ConsoleStatement {
             parent: input.parent,
             span: input.span,
             function: match input.function {
                 ConsoleFunction::Assert(_) => unimplemented!(),
-                ConsoleFunction::Debug(_) => ConsoleFunction::Debug(argument),
                 ConsoleFunction::Error(_) => ConsoleFunction::Error(argument),
                 ConsoleFunction::Log(_) => ConsoleFunction::Log(argument),
             },
@@ -341,6 +340,7 @@ pub trait ReconstructingReducerStatement<'a>: ReconstructingReducerExpression<'a
             variable: input.variable,
             start: Cell::new(start),
             stop: Cell::new(stop),
+            inclusive: input.inclusive,
             body: Cell::new(body),
         })
     }
@@ -396,6 +396,7 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
         &mut self,
         input: Program<'a>,
         imported_modules: Vec<(String, Program<'a>)>,
+        aliases: Vec<(String, &'a Alias<'a>)>,
         functions: Vec<(String, &'a Function<'a>)>,
         circuits: Vec<(String, &'a Circuit<'a>)>,
         global_consts: Vec<(String, &'a DefinitionStatement<'a>)>,
@@ -405,6 +406,7 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
             id: input.id,
             name: input.name,
             imported_modules: imported_modules.into_iter().collect(),
+            aliases: aliases.into_iter().collect(),
             functions: functions.into_iter().collect(),
             circuits: circuits.into_iter().collect(),
             scope: input.scope,

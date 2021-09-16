@@ -17,14 +17,13 @@
 use super::build::BuildOptions;
 use crate::{commands::Command, context::Context};
 use leo_compiler::compiler::{thread_leaked_context, Compiler};
+use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
     outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
-use anyhow::{anyhow, Result};
-use snarkvm_curves::edwards_bls12::Fq;
 use std::{convert::TryFrom, path::PathBuf, time::Instant};
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -77,10 +76,7 @@ impl Command for Test {
 
         // when no main file and no files marked - error
         } else {
-            return Err(anyhow!(
-                "Program file does not exist {}",
-                package_path.to_string_lossy()
-            ));
+            return Err(CliError::program_file_does_not_exist(package_path.to_string_lossy()).into());
         }
 
         // Construct the path to the output directory;
@@ -108,6 +104,8 @@ impl Command for Test {
                 file_path,
                 output_directory.clone(),
                 thread_leaked_context(),
+                Some(self.compiler_options.clone().into()),
+                std::collections::HashMap::new(),
                 Some(self.compiler_options.clone().into()),
             )?;
 

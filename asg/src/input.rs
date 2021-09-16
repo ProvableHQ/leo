@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Circuit, CircuitMember, Identifier, Scope, Type, Variable};
+use leo_errors::Span;
 
 use indexmap::IndexMap;
 use std::cell::RefCell;
@@ -54,7 +55,7 @@ impl<'a> Input<'a> {
             members: RefCell::new(IndexMap::new()),
             core_mapping: RefCell::new(None),
             scope,
-            span: Default::default(),
+            span: Some(Span::default()),
         })
     }
 
@@ -83,7 +84,7 @@ impl<'a> Input<'a> {
             members: RefCell::new(container_members),
             core_mapping: RefCell::new(None),
             scope: input_scope,
-            span: Default::default(),
+            span: Some(Span::default()),
         });
 
         Input {

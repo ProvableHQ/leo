@@ -24,9 +24,7 @@
 
 #![allow(clippy::from_over_into)]
 #![allow(clippy::result_unit_err)]
-
-#[macro_use]
-extern crate thiserror;
+#![doc = include_str!("../README.md")]
 
 pub mod checks;
 pub use checks::*;
@@ -34,23 +32,14 @@ pub use checks::*;
 pub mod const_value;
 pub use const_value::*;
 
-pub mod error;
-pub use error::*;
-
 pub mod expression;
 pub use expression::*;
-
-pub mod import;
-pub use import::*;
 
 mod input;
 pub use input::*;
 
 pub mod node;
 pub use node::*;
-
-pub mod prelude;
-pub use prelude::*;
 
 pub mod program;
 pub use program::*;
@@ -77,7 +66,8 @@ pub use pass::*;
 pub mod context;
 pub use context::*;
 
-pub use leo_ast::{Ast, Identifier, Span};
+pub use leo_ast::{Ast, Identifier};
+use leo_errors::Result;
 
 /// The abstract semantic graph (ASG) for a Leo program.
 ///
@@ -93,14 +83,10 @@ pub struct Asg<'a> {
 
 impl<'a> Asg<'a> {
     /// Creates a new ASG from a given AST and import resolver.
-    pub fn new<T: ImportResolver<'a>, Y: AsRef<leo_ast::Program>>(
-        context: AsgContext<'a>,
-        ast: Y,
-        resolver: &mut T,
-    ) -> Result<Self, AsgConvertError> {
+    pub fn new<Y: AsRef<leo_ast::Program>>(context: AsgContext<'a>, ast: Y) -> Result<Self> {
         Ok(Self {
             context,
-            asg: Program::new(context, ast.as_ref(), resolver)?,
+            asg: Program::new(context, ast.as_ref())?,
         })
     }
 
@@ -112,29 +98,6 @@ impl<'a> Asg<'a> {
     pub fn into_repr(self) -> Program<'a> {
         self.asg
     }
-
-    // /// Serializes the ast into a JSON string.
-    // pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
-    //     serde_json::to_string_pretty(&self.asg)
-    // }
-    //
-    // /// Deserializes the JSON string into a ast.
-    // pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {
-    //     let ast: Program = serde_json::from_str(json)?;
-    //     Ok(Self { ast })
-    // }
-}
-
-// TODO (howardwu): Remove this.
-pub fn load_asg<'a, T: ImportResolver<'a>>(
-    context: AsgContext<'a>,
-    content: &str,
-    resolver: &mut T,
-) -> Result<Program<'a>, AsgConvertError> {
-    // Parses the Leo file and constructs a grammar ast.
-    let ast = leo_parser::parse_ast("input.leo", content)?;
-
-    Program::new(context, ast.as_repr(), resolver)
 }
 
 pub fn new_alloc_context<'a>() -> Arena<ArenaNode<'a>> {

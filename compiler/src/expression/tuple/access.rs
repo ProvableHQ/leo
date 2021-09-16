@@ -16,13 +16,14 @@
 
 //! Enforces array access in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::Program};
+use crate::program::Program;
 use leo_asg::Expression;
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_tuple_access(&mut self, tuple: &'a Expression<'a>, index: usize) -> Result<Value, ExpressionError> {
+    pub fn enforce_tuple_access(&mut self, tuple: &'a Expression<'a>, index: usize) -> Result<Value> {
         // Get the tuple values.
         let inner = self.enforce_expression(tuple)?;
 

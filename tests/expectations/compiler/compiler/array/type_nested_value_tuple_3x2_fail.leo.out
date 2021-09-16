@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:4:29\n     |\n   4 |     const b: [[u8; 2]; 3] = [0; (2, 3)]; // initializer (incorrectly reversed ordering)\n     |                             ^^^^^^^^^^^\n     |\n     = unexpected type, expected: 'array of length 3', received: 'array of length 2'"
+  - "Error [EASG0373025]: unexpected type, expected: 'array of length 3', received: 'array of length 2'\n    --> compiler-test:4:29\n     |\n   4 |     const b: [[u8; 2]; 3] = [0; (2, 3)]; // initializer (incorrectly reversed ordering)\n     |                             ^^^^^^^^^^^"

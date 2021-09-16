@@ -4,13 +4,15 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports: []
+    import_statements: []
+    imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x() -> (u32, u32) {\\\"}\"}":
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() -> (u32, u32) {\\\"}\"}":
         annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x() -> (u32, u32) {\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() -> (u32, u32) {\\\"}\"}"
         input: []
         output:
           Tuple:
@@ -27,26 +29,26 @@ outputs:
                       line_stop: 4
                       col_start: 12
                       col_stop: 14
-                      path: test
+                      path: ""
                       content: "    return ();"
                 span:
                   line_start: 4
                   line_stop: 4
                   col_start: 5
                   col_stop: 14
-                  path: test
+                  path: ""
                   content: "    return ();"
           span:
             line_start: 3
             line_stop: 5
             col_start: 28
             col_stop: 2
-            path: test
-            content: "function x() -> (u32, u32) {\n...\n}"
+            path: ""
+            content: "function x() -> (u32, u32) {\n     ...\n}"
         span:
           line_start: 3
           line_stop: 5
           col_start: 1
           col_stop: 2
-          path: test
-          content: "function x() -> (u32, u32) {\n...\n}"
+          path: ""
+          content: "function x() -> (u32, u32) {\n     ...\n}"

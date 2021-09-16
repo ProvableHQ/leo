@@ -16,10 +16,11 @@
 
 //! Enforces a statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 use leo_asg::Statement;
+use leo_errors::Result;
 
-pub type StatementResult<T> = Result<T, StatementError>;
+pub type StatementResult<T> = Result<T>;
 
 impl<'a> Program<'a> {
     ///

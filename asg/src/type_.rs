@@ -32,6 +32,7 @@ pub enum Type<'a> {
 
     // Data type wrappers
     Array(Box<Type<'a>>, u32),
+    ArrayWithoutSize(Box<Type<'a>>),
     Tuple(Vec<Type<'a>>),
     Circuit(&'a Circuit<'a>),
 }
@@ -70,6 +71,14 @@ impl<'a> PartialType<'a> {
             (PartialType::Type(t), other) => t.is_assignable_from(other),
             (PartialType::Integer(self_sub_type, _), Type::Integer(sub_type)) => {
                 self_sub_type.as_ref().map(|x| x == sub_type).unwrap_or(true)
+            }
+            (PartialType::Array(element, _len), Type::ArrayWithoutSize(other_element)) => {
+                if let Some(element) = element {
+                    if !element.matches(&*other_element) {
+                        return false;
+                    }
+                }
+                true
             }
             (PartialType::Array(element, len), Type::Array(other_element, other_len)) => {
                 if let Some(element) = element {
@@ -114,7 +123,11 @@ impl<'a> Into<PartialType<'a>> for Type<'a> {
 
 impl<'a> Type<'a> {
     pub fn is_assignable_from(&self, from: &Type<'a>) -> bool {
-        self == from
+        match (self, from) {
+            (Type::Array(_, _), Type::ArrayWithoutSize(_)) => true,
+            (Type::ArrayWithoutSize(_), Type::Array(_, _)) => true,
+            _ => self == from,
+        }
     }
 
     pub fn partial(self) -> PartialType<'a> {
@@ -140,6 +153,7 @@ impl<'a> fmt::Display for Type<'a> {
             Type::Group => write!(f, "group"),
             Type::Integer(sub_type) => sub_type.fmt(f),
             Type::Array(sub_type, len) => write!(f, "[{}; {}]", sub_type, len),
+            Type::ArrayWithoutSize(sub_type) => write!(f, "[{}; _]", sub_type),
             Type::Tuple(sub_types) => {
                 write!(f, "(")?;
                 for (i, sub_type) in sub_types.iter().enumerate() {
@@ -213,12 +227,13 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
             Integer(int_type) => leo_ast::Type::IntegerType(int_type.clone()),
             Array(type_, len) => leo_ast::Type::Array(
                 Box::new(type_.as_ref().into()),
-                leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {
+                Some(leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {
                     value: len.to_string().into(),
-                }]),
+                }])),
             ),
+            ArrayWithoutSize(type_) => leo_ast::Type::Array(Box::new(type_.as_ref().into()), None),
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),
-            Circuit(circuit) => leo_ast::Type::Circuit(circuit.name.borrow().clone()),
+            Circuit(circuit) => leo_ast::Type::CircuitOrAlias(circuit.name.borrow().clone()),
         }
     }
 }

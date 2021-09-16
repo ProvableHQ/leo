@@ -16,12 +16,11 @@
 
 //! Enforce constraints on an expression in a compiled Leo program.
 
-use crate::{
-    errors::{AddressError, ExpressionError},
-    program::Program,
-};
+use crate::program::Program;
 use bech32::FromBase32;
-use leo_asg::{CharValue, ConstInt, ConstValue, Expression, GroupValue, Node, Span, expression::*};
+use leo_asg::{expression::*, CharValue, CircuitMember, ConstInt, ConstValue, Expression, GroupValue, Node};
+use leo_errors::CompilerError;
+use leo_errors::{Result, Span};
 use num_bigint::Sign;
 use snarkvm_ir::{Group, GroupCoordinate, Integer, Value};
 
@@ -37,18 +36,17 @@ pub(crate) fn asg_group_coordinate_to_ir(coordinate: &leo_asg::GroupCoordinate) 
     }
 }
 
-pub fn decode_address(value: &str, span: &Span) -> Result<Vec<u8>, AddressError> {
+pub fn decode_address(value: &str, span: &Span) -> Result<Vec<u8>> {
     if !value.starts_with("aleo") || value.len() != 63 {
-        return Err(AddressError::invalid_address(value.as_ref(), span));
+        return Err(CompilerError::address_value_invalid_address(value, span).into());
     }
-    let (_, data, _) =
-        bech32::decode(value.as_ref()).map_err(|_| AddressError::invalid_address(value.as_ref(), span))?;
-    let bytes = Vec::from_base32(&data).map_err(|_| AddressError::invalid_address(value.as_ref(), span))?;
+    let data = bech32::decode(value.as_ref()).map_err(|_| CompilerError::address_value_invalid_address(value, span))?;
+    let bytes = Vec::from_base32(&data.1).map_err(|_| CompilerError::address_value_invalid_address(value, span))?;
     Ok(bytes)
 }
 
 impl<'a> Program<'a> {
-    pub(crate) fn enforce_const_value(&mut self, value: &ConstValue, span: &Span) -> Result<Value, ExpressionError> {
+    pub(crate) fn enforce_const_value(&mut self, value: &ConstValue, span: &Span) -> Result<Value> {
         Ok(match value {
             ConstValue::Address(value) => Value::Address(decode_address(value.as_ref(), span)?),
             ConstValue::Boolean(value) => Value::Boolean(*value),
@@ -94,10 +92,39 @@ impl<'a> Program<'a> {
                     .map(|x| self.enforce_const_value(x, span))
                     .collect::<Result<Vec<_>, _>>()?,
             ),
+            ConstValue::Circuit(circuit, members) => {
+                let target_members = circuit.members.borrow();
+                let member_var_len = target_members
+                    .values()
+                    .filter(|x| matches!(x, CircuitMember::Variable(_)))
+                    .count();
+
+                let mut resolved_members = vec![None; member_var_len];
+
+                // type checking is already done in asg
+                for (name, inner) in members.iter() {
+                    let (index, _, target) = target_members
+                        .get_full(name)
+                        .expect("illegal name in asg circuit init expression");
+                    match target {
+                        CircuitMember::Variable(_type_) => {
+                            let variable_value = self.enforce_const_value(&inner.1, span)?;
+                            resolved_members[index] = Some(variable_value);
+                        }
+                        _ => return Err(CompilerError::expected_circuit_member(name, span).into()),
+                    }
+                }
+                Value::Tuple(
+                    resolved_members
+                        .into_iter()
+                        .map(|x| x.expect("missing circuit field"))
+                        .collect(),
+                )
+            }
         })
     }
 
-    pub(crate) fn enforce_expression(&mut self, expression: &'a Expression<'a>) -> Result<Value, ExpressionError> {
+    pub(crate) fn enforce_expression(&mut self, expression: &'a Expression<'a>) -> Result<Value> {
         let span = &expression.span().cloned().unwrap_or_default();
         match expression {
             // Cast
@@ -185,9 +212,7 @@ impl<'a> Program<'a> {
                 target,
                 arguments,
                 ..
-            }) => self
-                .enforce_function_call(function.get(), target.get(), &arguments[..])
-                .map_err(|e| Box::new(e).into()),
+            }) => self.enforce_function_call(function.get(), target.get(), &arguments[..]),
         }
     }
 }

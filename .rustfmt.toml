@@ -8,9 +8,9 @@ use_field_init_shorthand = true
 use_try_shorthand = true
 
 # Nightly configurations
-imports_layout = "HorizontalVertical"
-license_template_path = ".resources/license_header"
-imports_granularity = "Crate"
-overflow_delimited_expr = true
-reorder_impl_items = true
-version = "Two"
+# imports_layout = "HorizontalVertical"
+# license_template_path = ".resources/license_header"
+# imports_granularity = "Crate"
+# overflow_delimited_expr = true
+# reorder_impl_items = true
+# version = "Two"

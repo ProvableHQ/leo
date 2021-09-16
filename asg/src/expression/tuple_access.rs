@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -56,7 +57,7 @@ impl<'a> ExpressionNode<'a> for TupleAccessExpression<'a> {
         self.tuple_ref.get().is_mut_ref()
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         let tuple_const = self.tuple_ref.get().const_value()?;
         match tuple_const {
             ConstValue::Tuple(sub_consts) => sub_consts.get(self.index).cloned(),
@@ -74,12 +75,12 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::TupleAccessExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<TupleAccessExpression<'a>, AsgConvertError> {
+    ) -> Result<TupleAccessExpression<'a>> {
         let index = value
             .index
             .value
             .parse::<usize>()
-            .map_err(|_| AsgConvertError::parse_index_error())?;
+            .map_err(|_| AsgError::parse_index_error(&value.span))?;
 
         let mut expected_tuple = vec![None; index + 1];
         expected_tuple[index] = expected_type;
@@ -88,11 +89,14 @@ impl<'a> FromAst<'a, leo_ast::TupleAccessExpression> for TupleAccessExpression<'
         let tuple_type = tuple.get_type();
         if let Some(Type::Tuple(_items)) = tuple_type {
         } else {
-            return Err(AsgConvertError::unexpected_type(
+            return Err(AsgError::unexpected_type(
                 "a tuple",
-                tuple_type.map(|x| x.to_string()).as_deref(),
+                tuple_type
+                    .map(|x| x.to_string())
+                    .unwrap_or_else(|| "unknown".to_string()),
                 &value.span,
-            ));
+            )
+            .into());
         }
 
         Ok(TupleAccessExpression {

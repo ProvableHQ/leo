@@ -16,16 +16,13 @@
 
 //! Enforces array access in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::Program};
+use crate::program::Program;
 use leo_asg::{Expression, ExpressionNode, Type};
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 impl<'a> Program<'a> {
-    pub fn enforce_array_access(
-        &mut self,
-        array: &'a Expression<'a>,
-        index: &'a Expression<'a>,
-    ) -> Result<Value, ExpressionError> {
+    pub fn enforce_array_access(&mut self, array: &'a Expression<'a>, index: &'a Expression<'a>) -> Result<Value> {
         let array_value = self.enforce_expression(array)?;
         let index_value = self.enforce_expression(index)?;
 
@@ -43,7 +40,7 @@ impl<'a> Program<'a> {
         left: Option<&'a Expression<'a>>,
         right: Option<&'a Expression<'a>>,
         length: u32,
-    ) -> Result<Value, ExpressionError> {
+    ) -> Result<Value> {
         let full_length = match array.get_type() {
             Some(Type::Array(_, length)) => length,
             _ => panic!("invalid array type for index"),

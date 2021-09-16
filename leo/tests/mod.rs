@@ -14,20 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use anyhow::Result;
+use leo_errors::Result;
 use std::path::PathBuf;
 
 use crate::{
     commands::{
         package::{Login, Logout},
-        Build,
-        Command,
-        Prove,
-        Run,
-        Setup,
-        Test,
-        Update,
-        UpdateAutomatic,
+        Build, Command, Prove, Run, Setup, Test, Update, UpdateAutomatic,
     },
     context::{create_context, Context},
 };
@@ -35,6 +28,19 @@ use crate::{
 /// Path to the only complex Leo program that we have
 /// - relative to source dir - where Cargo.toml is located
 const PEDERSEN_HASH_PATH: &str = "./examples/pedersen-hash/";
+
+#[test]
+pub fn init_logger() -> Result<()> {
+    crate::logger::init_logger("test_init_logger", 1)?;
+    Ok(())
+}
+
+#[test]
+pub fn format_event() -> Result<()> {
+    crate::logger::init_logger("test_format_event", 1)?;
+    tracing::info!("test");
+    Ok(())
+}
 
 #[test]
 pub fn build_pedersen_hash() -> Result<()> {
@@ -137,7 +143,8 @@ pub fn test_pedersen_hash() -> Result<()> {
 
 #[test]
 pub fn test_logout() -> Result<()> {
-    (Logout {}).apply(context()?, ())?;
+    let logout = (Logout {}).apply(context()?, ());
+    assert!(logout.is_err());
     Ok(())
 }
 
@@ -166,6 +173,7 @@ pub fn login_incorrect_credentials_or_token() -> Result<()> {
     Ok(())
 }
 
+#[cfg(not(target_os = "macos"))]
 #[test]
 pub fn leo_update_and_update_automatic() -> Result<()> {
     let update = Update {

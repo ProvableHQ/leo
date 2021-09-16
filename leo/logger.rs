@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_errors::Result;
+
 use std::{fmt, sync::Once};
 
 use colored::Colorize;
@@ -181,17 +183,23 @@ where
 
             let mut message = "".to_string();
 
-            let scope = context.scope();
-            for span in scope {
-                message += span.metadata().name();
+            match context.lookup_current() {
+                Some(span_ref) => {
+                    let scope = span_ref.scope();
 
-                let ext = span.extensions();
-                let fields = &ext
-                    .get::<FormattedFields<N>>()
-                    .expect("Unable to find FormattedFields in extensions; this is a bug");
-                if !fields.is_empty() {
-                    message += &format!("{{{}}}", fields);
+                    for span in scope {
+                        message += span.metadata().name();
+
+                        let ext = span.extensions();
+                        let fields = &ext
+                            .get::<FormattedFields<N>>()
+                            .expect("Unable to find FormattedFields in extensions; this is a bug");
+                        if !fields.is_empty() {
+                            message += &format!("{{{}}}", fields);
+                        }
+                    }
                 }
+                None => return Err(std::fmt::Error),
             }
 
             write!(writer, "{:>10} ", colored_string(meta.level(), &message)).expect("Error writing event");
@@ -203,10 +211,15 @@ where
 }
 
 /// Initialize logger with custom format and verbosity.
-pub fn init_logger(_app_name: &'static str, verbosity: usize) {
+pub fn init_logger(_app_name: &'static str, verbosity: usize) -> Result<()> {
     // This line enables Windows 10 ANSI coloring API.
     #[cfg(target_family = "windows")]
-    ansi_term::enable_ansi_support();
+    ansi_term::enable_ansi_support().map_err(|_| leo_errors::CliError::failed_to_enable_ansi_support())?;
+
+    use tracing_subscriber::fmt::writer::MakeWriterExt;
+
+    let stderr = std::io::stderr.with_max_level(tracing::Level::WARN);
+    let mk_writer = stderr.or_else(std::io::stdout);
 
     let subscriber = FmtSubscriber::builder()
         // all spans/events with a level higher than TRACE (e.g, debug, info, warn, etc.)
@@ -217,6 +230,7 @@ pub fn init_logger(_app_name: &'static str, verbosity: usize) {
             2 => tracing::Level::DEBUG,
             _ => tracing::Level::TRACE
         })
+        .with_writer(mk_writer)
         .without_time()
         .with_target(false)
         .event_format(Format::default())
@@ -226,4 +240,5 @@ pub fn init_logger(_app_name: &'static str, verbosity: usize) {
     START.call_once(|| {
         tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     });
+    Ok(())
 }

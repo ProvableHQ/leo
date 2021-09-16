@@ -16,19 +16,8 @@
 
 use leo_ast::IntegerType;
 
-use crate::{
-    AsgConvertError,
-    Expression,
-    ExpressionNode,
-    FromAst,
-    InnerVariable,
-    Node,
-    PartialType,
-    Scope,
-    Span,
-    Statement,
-    Variable,
-};
+use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
@@ -39,6 +28,7 @@ pub struct IterationStatement<'a> {
     pub variable: &'a Variable<'a>,
     pub start: Cell<&'a Expression<'a>>,
     pub stop: Cell<&'a Expression<'a>>,
+    pub inclusive: bool,
     pub body: Cell<&'a Statement<'a>>,
 }
 
@@ -53,21 +43,17 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
         scope: &'a Scope<'a>,
         statement: &leo_ast::IterationStatement,
         _expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self> {
         let expected_index_type = Some(PartialType::Integer(Some(IntegerType::U32), None));
         let start = <&Expression<'a>>::from_ast(scope, &statement.start, expected_index_type.clone())?;
         let stop = <&Expression<'a>>::from_ast(scope, &statement.stop, expected_index_type)?;
 
         // Return an error if start or stop is not constant.
         if !start.is_consty() {
-            return Err(AsgConvertError::unexpected_nonconst(
-                &start.span().cloned().unwrap_or_default(),
-            ));
+            return Err(AsgError::unexpected_nonconst(&start.span().cloned().unwrap_or_default()).into());
         }
         if !stop.is_consty() {
-            return Err(AsgConvertError::unexpected_nonconst(
-                &stop.span().cloned().unwrap_or_default(),
-            ));
+            return Err(AsgError::unexpected_nonconst(&stop.span().cloned().unwrap_or_default()).into());
         }
 
         let variable = scope.context.alloc_variable(RefCell::new(InnerVariable {
@@ -75,7 +61,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
             name: statement.variable.clone(),
             type_: start
                 .get_type()
-                .ok_or_else(|| AsgConvertError::unresolved_type(&statement.variable.name, &statement.span))?,
+                .ok_or_else(|| AsgError::unresolved_type(&statement.variable.name, &statement.span))?,
             mutable: false,
             const_: true,
             declaration: crate::VariableDeclaration::IterationDefinition,
@@ -93,6 +79,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
             variable,
             stop: Cell::new(stop),
             start: Cell::new(start),
+            inclusive: statement.inclusive,
             body: Cell::new(
                 scope
                     .context
@@ -114,6 +101,7 @@ impl<'a> Into<leo_ast::IterationStatement> for &IterationStatement<'a> {
             variable: self.variable.borrow().name.clone(),
             start: self.start.get().into(),
             stop: self.stop.get().into(),
+            inclusive: self.inclusive,
             block: match self.body.get() {
                 Statement::Block(block) => block.into(),
                 _ => unimplemented!(),

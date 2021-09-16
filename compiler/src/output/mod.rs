@@ -22,11 +22,12 @@ pub use self::output_file::*;
 pub mod output_bytes;
 pub use self::output_bytes::*;
 
-use crate::{errors::OutputBytesError, REGISTERS_VARIABLE_NAME};
+use crate::REGISTERS_VARIABLE_NAME;
 use indexmap::IndexMap;
+use leo_errors::{CompilerError, Result, Span};
+use snarkvm_eval::{ConstrainedValue, GroupType, PrimeField};
 
 use serde::{Deserialize, Serialize};
-use snarkvm_eval::{ConstrainedValue, GroupType, PrimeField};
 use snarkvm_ir::Input;
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
@@ -66,7 +67,8 @@ impl Output {
     pub fn new<F: PrimeField, G: GroupType<F>>(
         registers: &[Input],
         value: ConstrainedValue<F, G>,
-    ) -> Result<Self, OutputBytesError> {
+        span: &Span,
+    ) -> Result<Self> {
         let return_values = match value {
             ConstrainedValue::Tuple(values) => values,
             value => vec![value],
@@ -74,25 +76,25 @@ impl Output {
 
         // Return an error if we do not have enough return registers
         if registers.len() < return_values.len() {
-            return Err(OutputBytesError::not_enough_registers());
+            return Err(CompilerError::output_not_enough_registers(span).into());
         }
 
         let mut out = IndexMap::new();
 
         for (input, value) in registers.iter().zip(return_values.into_iter()) {
             if !value.matches_input_type(&input.type_) {
-                return Err(OutputBytesError::mismatched_output_types(
-                    &input.type_,
-                    &*value.to_string(),
-                ));
+                return Err(CompilerError::output_mismatched_types(&input.type_, value.to_string(), span).into());
             }
 
             let value = value.to_string();
 
-            out.insert(input.name.clone(), OutputRegister {
-                type_: input.type_.to_string(),
-                value,
-            });
+            out.insert(
+                input.name.clone(),
+                OutputRegister {
+                    type_: input.type_.to_string(),
+                    value,
+                },
+            );
         }
 
         Ok(Output { registers: out })

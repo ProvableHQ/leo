@@ -3,7 +3,7 @@ namespace: ParseStatement
 expectation: Pass
 outputs:
   - Iteration:
-      variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"for x in 0..7 {}\\\"}\"}"
+      variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"for x in 0..7 {}\\\"}\"}"
       start:
         Value:
           Implicit:
@@ -12,7 +12,7 @@ outputs:
               line_stop: 1
               col_start: 10
               col_stop: 11
-              path: test
+              path: ""
               content: "for x in 0..7 {}"
       stop:
         Value:
@@ -22,8 +22,9 @@ outputs:
               line_stop: 1
               col_start: 13
               col_stop: 14
-              path: test
+              path: ""
               content: "for x in 0..7 {}"
+      inclusive: false
       block:
         statements: []
         span:
@@ -31,17 +32,17 @@ outputs:
           line_stop: 1
           col_start: 15
           col_stop: 17
-          path: test
+          path: ""
           content: "for x in 0..7 {}"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
         col_stop: 17
-        path: test
+        path: ""
         content: "for x in 0..7 {}"
   - Iteration:
-      variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"for x in 0..7 {\\\"}\"}"
+      variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"for x in 0..7 {\\\"}\"}"
       start:
         Value:
           Implicit:
@@ -50,7 +51,7 @@ outputs:
               line_stop: 1
               col_start: 10
               col_stop: 11
-              path: test
+              path: ""
               content: "for x in 0..7 {"
       stop:
         Value:
@@ -60,8 +61,9 @@ outputs:
               line_stop: 1
               col_start: 13
               col_stop: 14
-              path: test
+              path: ""
               content: "for x in 0..7 {"
+      inclusive: false
       block:
         statements:
           - Return:
@@ -73,31 +75,31 @@ outputs:
                     line_stop: 2
                     col_start: 8
                     col_stop: 10
-                    path: test
+                    path: ""
                     content: return ();
               span:
                 line_start: 2
                 line_stop: 2
                 col_start: 1
                 col_stop: 10
-                path: test
+                path: ""
                 content: return ();
         span:
           line_start: 1
           line_stop: 3
           col_start: 15
           col_stop: 2
-          path: test
-          content: "for x in 0..7 {\n...\n}"
+          path: ""
+          content: "for x in 0..7 {\n     ...\n}"
       span:
         line_start: 1
         line_stop: 3
         col_start: 1
         col_stop: 2
-        path: test
-        content: "for x in 0..7 {\n...\n}"
+        path: ""
+        content: "for x in 0..7 {\n     ...\n}"
   - Iteration:
-      variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"for x in 0..99u8 {\\\"}\"}"
+      variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"for x in 0..99u8 {\\\"}\"}"
       start:
         Value:
           Implicit:
@@ -106,7 +108,7 @@ outputs:
               line_stop: 1
               col_start: 10
               col_stop: 11
-              path: test
+              path: ""
               content: "for x in 0..99u8 {"
       stop:
         Value:
@@ -117,8 +119,9 @@ outputs:
               line_stop: 1
               col_start: 13
               col_stop: 17
-              path: test
+              path: ""
               content: "for x in 0..99u8 {"
+      inclusive: false
       block:
         statements:
           - Return:
@@ -130,31 +133,31 @@ outputs:
                     line_stop: 2
                     col_start: 8
                     col_stop: 10
-                    path: test
+                    path: ""
                     content: return ();
               span:
                 line_start: 2
                 line_stop: 2
                 col_start: 1
                 col_stop: 10
-                path: test
+                path: ""
                 content: return ();
         span:
           line_start: 1
           line_stop: 3
           col_start: 18
           col_stop: 2
-          path: test
-          content: "for x in 0..99u8 {\n...\n}"
+          path: ""
+          content: "for x in 0..99u8 {\n     ...\n}"
       span:
         line_start: 1
         line_stop: 3
         col_start: 1
         col_stop: 2
-        path: test
-        content: "for x in 0..99u8 {\n...\n}"
+        path: ""
+        content: "for x in 0..99u8 {\n     ...\n}"
   - Iteration:
-      variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"for x in 0..Self {\\\"}\"}"
+      variable: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"for x in 0..Self {\\\"}\"}"
       start:
         Value:
           Implicit:
@@ -163,10 +166,11 @@ outputs:
               line_stop: 1
               col_start: 10
               col_stop: 11
-              path: test
+              path: ""
               content: "for x in 0..Self {"
       stop:
-        Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"for x in 0..Self {\\\"}\"}"
+        Identifier: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":13,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"for x in 0..Self {\\\"}\"}"
+      inclusive: false
       block:
         statements:
           - Return:
@@ -178,26 +182,26 @@ outputs:
                     line_stop: 2
                     col_start: 8
                     col_stop: 10
-                    path: test
+                    path: ""
                     content: return ();
               span:
                 line_start: 2
                 line_stop: 2
                 col_start: 1
                 col_stop: 10
-                path: test
+                path: ""
                 content: return ();
         span:
           line_start: 1
           line_stop: 3
           col_start: 18
           col_stop: 2
-          path: test
-          content: "for x in 0..Self {\n...\n}"
+          path: ""
+          content: "for x in 0..Self {\n     ...\n}"
       span:
         line_start: 1
         line_stop: 3
         col_start: 1
         col_stop: 2
-        path: test
-        content: "for x in 0..Self {\n...\n}"
+        path: ""
+        content: "for x in 0..Self {\n     ...\n}"

@@ -15,12 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    errors::PackageError,
     imports::ImportsDirectory,
     inputs::{InputFile, InputsDirectory, StateFile},
     root::{Gitignore, Manifest, README},
     source::{MainFile, SourceDirectory},
 };
+
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::path::Path;
@@ -34,10 +35,10 @@ pub struct Package {
 }
 
 impl Package {
-    pub fn new(package_name: &str) -> Result<Self, PackageError> {
+    pub fn new(package_name: &str) -> Result<Self> {
         // Check that the package name is valid.
         if !Self::is_package_name_valid(package_name) {
-            return Err(PackageError::InvalidPackageName(package_name.to_string()));
+            return Err(PackageError::invalid_package_name(package_name).into());
         }
 
         Ok(Self {
@@ -123,14 +124,14 @@ impl Package {
         }
 
         // Check if the input file already exists.
-        let input_file = InputFile::new(&package_name);
+        let input_file = InputFile::new(package_name);
         if input_file.exists_at(path) {
             existing_files.push(input_file.filename());
             result = false;
         }
 
         // Check if the state file already exists.
-        let state_file = StateFile::new(&package_name);
+        let state_file = StateFile::new(package_name);
         if state_file.exists_at(path) {
             existing_files.push(state_file.filename());
             result = false;
@@ -157,24 +158,24 @@ impl Package {
         }
 
         // Check if the manifest file exists.
-        if !Manifest::exists_at(&path) {
+        if !Manifest::exists_at(path) {
             return false;
         }
 
         // Check if the input file exists.
-        let input_file = InputFile::new(&package_name);
-        if !input_file.exists_at(&path) {
+        let input_file = InputFile::new(package_name);
+        if !input_file.exists_at(path) {
             return false;
         }
 
         // Check if the state file exists.
-        let state_file = StateFile::new(&package_name);
-        if !state_file.exists_at(&path) {
+        let state_file = StateFile::new(package_name);
+        if !state_file.exists_at(path) {
             return false;
         }
 
         // Check if the main file exists.
-        if !MainFile::exists_at(&path) {
+        if !MainFile::exists_at(path) {
             return false;
         }
 
@@ -182,55 +183,49 @@ impl Package {
     }
 
     /// Creates a package at the given path
-    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<(), PackageError> {
+    pub fn initialize(package_name: &str, path: &Path, author: Option<String>) -> Result<()> {
         // First, verify that this directory is not already initialized as a Leo package.
         {
             if !Self::can_initialize(package_name, path) {
-                return Err(PackageError::FailedToInitialize(
-                    package_name.to_owned(),
-                    path.as_os_str().to_owned(),
-                ));
+                return Err(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
             }
         }
         // Next, initialize this directory as a Leo package.
         {
             // Create the manifest file.
-            Manifest::new(&package_name, author)?.write_to(&path)?;
+            Manifest::new(package_name, author)?.write_to(path)?;
 
             // Verify that the .gitignore file does not exist.
-            if !Gitignore::exists_at(&path) {
+            if !Gitignore::exists_at(path) {
                 // Create the .gitignore file.
-                Gitignore::new().write_to(&path)?;
+                Gitignore::new().write_to(path)?;
             }
 
             // Verify that the README.md file does not exist.
-            if !README::exists_at(&path) {
+            if !README::exists_at(path) {
                 // Create the README.md file.
-                README::new(package_name).write_to(&path)?;
+                README::new(package_name).write_to(path)?;
             }
 
             // Create the source directory.
-            SourceDirectory::create(&path)?;
+            SourceDirectory::create(path)?;
 
             // Create the input directory.
-            InputsDirectory::create(&path)?;
+            InputsDirectory::create(path)?;
 
             // Create the input file in the inputs directory.
-            InputFile::new(&package_name).write_to(&path)?;
+            InputFile::new(package_name).write_to(path)?;
 
             // Create the state file in the inputs directory.
-            StateFile::new(&package_name).write_to(&path)?;
+            StateFile::new(package_name).write_to(path)?;
 
             // Create the main file in the source directory.
-            MainFile::new(&package_name).write_to(&path)?;
+            MainFile::new(package_name).write_to(path)?;
         }
         // Next, verify that a valid Leo package has been initialized in this directory
         {
             if !Self::is_initialized(package_name, path) {
-                return Err(PackageError::FailedToInitialize(
-                    package_name.to_owned(),
-                    path.as_os_str().to_owned(),
-                ));
+                return Err(PackageError::failed_to_initialize_package(package_name, path.as_os_str()).into());
             }
         }
 
@@ -238,8 +233,8 @@ impl Package {
     }
 
     /// Removes the package at the given path
-    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<(), PackageError> {
-        Ok(ImportsDirectory::remove_import(path, package_name)?)
+    pub fn remove_imported_package(package_name: &str, path: &Path) -> Result<()> {
+        ImportsDirectory::remove_import(path, package_name)
     }
 }
 

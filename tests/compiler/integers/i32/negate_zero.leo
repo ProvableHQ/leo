@@ -13,5 +13,5 @@ inputs:
 function main(y: bool) -> bool {
     const a = 0i32;
 
-    return -a == 0i32 == y;
+    return (-a == 0i32) == y;
 }

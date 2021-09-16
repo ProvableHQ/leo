@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1595
-      num_constraints: 1986
-      at: 67fbfdc7e9d37cedb30d577c160c0f88d62f1d294779b07ed08606868fa61c38
-      bt: e3a8e41ffd547488283a2d5b59274580e3a029cace4519e64e6c0dc60caa8024
-      ct: b9db2505dbb4917a14a70795f38b098f53d0e2f443d2f170c760dbcd99cfd82b
+      num_private_variables: 1277
+      num_constraints: 1604
+      at: c5d2d5bbb85d0f7ba48170fdb652aff057db6d1babf378d8a548af874e0734ff
+      bt: 726f3c39d11da5bc8487b8b7228a55cb7819a47a9b674d41f9c756c6927fb55a
+      ct: 7c4917152b59cb9caa30bad7d5119a3e36c40f7a783fdb8ff602dd5447573cc7
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
@@ -37,3 +37,7 @@ outputs:
             r0:
               type: "[u32; 3]"
               value: "\"150\""
+    initial_ast: b56c67d410c98a75c5f742d382e223355d214484d198ccaefe65296421c6854b
+    imports_resolved_ast: b56c67d410c98a75c5f742d382e223355d214484d198ccaefe65296421c6854b
+    canonicalized_ast: 7217fa688744caee18ab779ab9c43deac2d70a8d0b989873fe720d3f46a5e366
+    type_inferenced_ast: 6d673f91cd5c98cd1ae69777a317cf2b2ee50fd291996c8ae70d036705e76062

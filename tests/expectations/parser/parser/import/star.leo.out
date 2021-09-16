@@ -4,10 +4,10 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports:
+    import_statements:
       - package_or_packages:
           Package:
-            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import test-import.*;\\\"}\"}"
+            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import test-import.*;\\\"}\"}"
             access:
               Star:
                 span:
@@ -15,22 +15,24 @@ outputs:
                   line_stop: 3
                   col_start: 20
                   col_stop: 21
-                  path: test
+                  path: ""
                   content: import test-import.*;
             span:
               line_start: 3
               line_stop: 3
               col_start: 8
               col_stop: 21
-              path: test
+              path: ""
               content: import test-import.*;
         span:
           line_start: 3
           line_stop: 3
           col_start: 8
           col_stop: 21
-          path: test
+          path: ""
           content: import test-import.*;
+    imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions: {}

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373016]: a variable named \"x\" already exists in this scope\n    --> compiler-test:5:3\n     |\n   5 |   let x = true;\n     |   ^^^^^^^^^^^^"

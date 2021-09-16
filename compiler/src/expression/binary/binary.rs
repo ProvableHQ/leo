@@ -16,8 +16,9 @@
 
 //! Enforces a binary expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::Program};
+use crate::program::Program;
 use leo_asg::Expression;
+use leo_errors::Result;
 use snarkvm_ir::Value;
 
 impl<'a> Program<'a> {
@@ -26,7 +27,7 @@ impl<'a> Program<'a> {
         &mut self,
         left: &'a Expression<'a>,
         right: &'a Expression<'a>,
-    ) -> Result<(Value, Value), ExpressionError> {
+    ) -> Result<(Value, Value)> {
         let resolved_left = { self.enforce_expression(left)? };
 
         let resolved_right = { self.enforce_expression(right)? };

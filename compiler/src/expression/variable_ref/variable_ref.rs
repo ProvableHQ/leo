@@ -16,13 +16,14 @@
 
 //! Enforces an identifier expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::Program};
+use crate::program::Program;
 use leo_asg::VariableRef;
+use leo_errors::Result;
 use snarkvm_ir::Value;
 
 impl<'a> Program<'a> {
     /// Enforce a variable expression by getting the resolved value
-    pub fn evaluate_ref(&mut self, variable_ref: &VariableRef<'a>) -> Result<Value, ExpressionError> {
+    pub fn evaluate_ref(&mut self, variable_ref: &VariableRef<'a>) -> Result<Value> {
         Ok(Value::Ref(self.resolve_var(variable_ref.variable)))
     }
 }

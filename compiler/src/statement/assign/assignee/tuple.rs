@@ -15,9 +15,10 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_asg::Type;
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 
 use super::ResolverContext;
 
@@ -26,7 +27,7 @@ impl<'a> Program<'a> {
         &mut self,
         mut context: ResolverContext<'a, 'b>,
         index: usize,
-    ) -> Result<Value, StatementError> {
+    ) -> Result<Value> {
         let input_var = context.input_register;
 
         let inner_type = match &context.input_type {

@@ -25,3 +25,7 @@ outputs:
             r:
               type: bool
               value: "true"
+    initial_ast: ab26194ed8eb600aca9329f95d1d34f567f8f23a7f3abf1bd374d68fedf835ab
+    imports_resolved_ast: ab26194ed8eb600aca9329f95d1d34f567f8f23a7f3abf1bd374d68fedf835ab
+    canonicalized_ast: ab26194ed8eb600aca9329f95d1d34f567f8f23a7f3abf1bd374d68fedf835ab
+    type_inferenced_ast: a129961f338ed15ef697362226422a48534480c0985c5023ea5183e9150cba07

@@ -16,8 +16,9 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 use leo_asg::{Expression, Type};
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 use super::ResolverContext;
@@ -28,7 +29,7 @@ impl<'a> Program<'a> {
         mut context: ResolverContext<'a, 'b>,
         start: Option<&'a Expression<'a>>,
         stop: Option<&'a Expression<'a>>,
-    ) -> Result<Value, StatementError> {
+    ) -> Result<Value> {
         let (inner_type, length) = match &context.input_type {
             Type::Array(inner_type, length) => (&**inner_type, *length),
             _ => panic!("illegal type in array range index assignment"),

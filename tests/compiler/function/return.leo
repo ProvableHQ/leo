@@ -9,5 +9,5 @@ function one() -> u32 {
 }
 
 function main(y: bool) -> bool {
-    return one() == 1u32 == y;
+    return (one() == 1u32) == y;
 }

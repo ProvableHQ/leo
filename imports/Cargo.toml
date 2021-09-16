@@ -1,6 +1,6 @@
 [package]
 name = "leo-imports"
-version = "1.5.2"
+version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Import parser for Leo program package dependencies"
 homepage = "https://aleo.org"
@@ -19,22 +19,27 @@ edition = "2018"
 
 [dependencies.leo-ast]
 path = "../ast"
-version = "1.5.2"
+version = "1.5.3"
+
+[dependencies.leo-ast-passes]
+path = "../ast-passes"
+version = "1.5.3"
+
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
 
 [dependencies.leo-asg]
 path = "../asg"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.leo-parser]
 path = "../parser"
-version = "1.5.2"
+version = "1.5.3"
 
 [dependencies.indexmap]
-version = "1.6.2"
+version = "1.7.0"
 features = [ "serde-1" ]
-
-[dependencies.thiserror]
-version = "1.0"
 
 [dependencies.tracing]
 version = "0.1"

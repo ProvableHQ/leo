@@ -154,6 +154,10 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
     fn num_private_variables(&self) -> usize {
         self.private_variables.len()
     }
+
+    fn is_in_setup_mode(&self) -> bool {
+        false
+    }
 }
 
 fn push_constraints<F: Field>(l: LinearCombination<F>, constraint: &mut Vec<(F, Index)>) {

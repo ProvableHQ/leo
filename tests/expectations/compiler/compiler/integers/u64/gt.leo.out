@@ -23,3 +23,7 @@ outputs:
       - input_file: u64_f.in
         output:
           registers: {}
+    initial_ast: c667f170b175a4c3991b2df81c0605d3980cab1ae01ae4c66c71f3a311d711c2
+    imports_resolved_ast: c667f170b175a4c3991b2df81c0605d3980cab1ae01ae4c66c71f3a311d711c2
+    canonicalized_ast: 173da56c6c9a8cd27a1181d9fe1197db4168f4f25129dbd02ef474e5c77c110f
+    type_inferenced_ast: 4618a65899c633510140b465505d8f767d890f40bc24535513f73d04e187a884

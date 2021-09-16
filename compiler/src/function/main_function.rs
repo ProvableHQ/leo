@@ -16,17 +16,14 @@
 
 //! Enforces constraints on the main function of a compiled Leo program.
 
-use crate::{errors::FunctionError, program::Program};
+use crate::program::Program;
 
 use leo_asg::{Expression, Function, FunctionQualifier, InputCategory};
+use leo_errors::Result;
 use std::cell::Cell;
 
 impl<'a> Program<'a> {
-    pub fn enforce_main_function(
-        &mut self,
-        function: &'a Function<'a>,
-        input: &leo_ast::Input,
-    ) -> Result<(), FunctionError> {
+    pub fn enforce_main_function(&mut self, function: &'a Function<'a>, input: &leo_ast::Input) -> Result<()> {
         // Iterate over main function input variables and allocate new values
         let asg_input = function.scope.resolve_input();
 

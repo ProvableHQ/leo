@@ -16,15 +16,16 @@
 
 //! Enforces an array index expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::Program};
-use leo_asg::{Expression, Span};
+use crate::program::Program;
+use leo_asg::Expression;
+use leo_errors::{CompilerError, Result, Span};
 use snarkvm_ir::Value;
 
 impl<'a> Program<'a> {
-    pub(crate) fn enforce_index(&mut self, index: &'a Expression<'a>, span: &Span) -> Result<Value, ExpressionError> {
+    pub(crate) fn enforce_index(&mut self, index: &'a Expression<'a>, span: &Span) -> Result<Value> {
         match self.enforce_expression(index)? {
             value @ Value::Integer(_) => Ok(value),
-            value => Err(ExpressionError::invalid_index(value.to_string(), span)),
+            value => Err(CompilerError::invalid_index_expression(value, span).into()),
         }
     }
 }

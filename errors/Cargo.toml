@@ -1,0 +1,51 @@
+[package]
+name = "leo-errors"
+version = "1.5.3"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "Errors of the Leo programming language"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+edition = "2018"
+
+[dependencies]
+colored = "2.0.0"
+
+[dependencies.leo-input]
+path = "../input"
+version = "1.5.3"
+
+[dependencies.color-backtrace]
+version = "0.5.1"
+
+[dependencies.derivative]
+version = "2.2.0"
+
+[dependencies.eyre]
+version = "0.6.5"
+default-features = false
+
+[dependencies.backtrace]
+version = "0.3.61"
+
+[dependencies.pest]
+version = "2.0"
+
+[dependencies.serde]
+version = "1.0.130"
+features = [ "derive", "rc" ]
+
+[dependencies.tendril]
+version = "0.4.2"
+
+[dependencies.thiserror]
+version = "1.0.28"

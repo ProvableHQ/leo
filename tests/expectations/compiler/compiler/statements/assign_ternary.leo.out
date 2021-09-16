@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373025]: unexpected type, expected: 'u32', received: 'bool'\n    --> compiler-test:4:23\n     |\n   4 |     let x = true ? x: true;\n     |                       ^^^^"

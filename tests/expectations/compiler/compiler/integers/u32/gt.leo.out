@@ -23,3 +23,7 @@ outputs:
       - input_file: u32_f.in
         output:
           registers: {}
+    initial_ast: ce24730aad7178331b88c496a8acbb95da355169193369d49801fc9eac092371
+    imports_resolved_ast: ce24730aad7178331b88c496a8acbb95da355169193369d49801fc9eac092371
+    canonicalized_ast: 21cd67ad1094e56f7cbcc6bc839d9b20c25e8d15e2017d64c4672da2233385e4
+    type_inferenced_ast: 532bef95e9c6d5432f89a08f207e25e30b61b862f7a1fd225603cb89f0b203b5

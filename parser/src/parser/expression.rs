@@ -16,6 +16,8 @@
 
 use tendril::format_tendril;
 
+use leo_errors::{ParserError, Result};
+
 use super::*;
 
 const INT_TYPES: &[Token] = &[
@@ -38,7 +40,7 @@ impl ParserContext {
     /// Returns an [`Expression`] AST node if the next token is an expression.
     /// Includes circuit init expressions.
     ///
-    pub fn parse_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_expression(&mut self) -> Result<Expression> {
         // Store current parser state.
         let prior_fuzzy_state = self.fuzzy_struct_state;
 
@@ -60,7 +62,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_disjunctive_expression`].
     ///
-    pub fn parse_conditional_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_conditional_expression(&mut self) -> Result<Expression> {
         // Try to parse the next expression. Try BinaryOperation::Or.
         let mut expr = self.parse_disjunctive_expression()?;
 
@@ -85,7 +87,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_conjunctive_expression`].
     ///
-    pub fn parse_disjunctive_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_disjunctive_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_conjunctive_expression()?;
         while self.eat(Token::Or).is_some() {
             let right = self.parse_conjunctive_expression()?;
@@ -105,7 +107,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_bit_or_expression`].
     ///
-    pub fn parse_conjunctive_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_conjunctive_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_equality_expression()?;
         while self.eat(Token::And).is_some() {
             let right = self.parse_equality_expression()?;
@@ -125,7 +127,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_bit_xor_expression`].
     ///
-    // pub fn parse_bit_or_expression(&mut self) -> SyntaxResult<Expression> {
+    // pub fn parse_bit_or_expression(&mut self) -> Result<Expression> {
     //     let mut expr = self.parse_bit_xor_expression()?;
     //     while self.eat(Token::BitOr).is_some() {
     //         let right = self.parse_bit_xor_expression()?;
@@ -145,7 +147,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_bit_and_expression`].
     ///
-    // pub fn parse_bit_xor_expression(&mut self) -> SyntaxResult<Expression> {
+    // pub fn parse_bit_xor_expression(&mut self) -> Result<Expression> {
     //     let mut expr = self.parse_bit_and_expression()?;
     //     while self.eat(Token::BitXor).is_some() {
     //         let right = self.parse_bit_and_expression()?;
@@ -165,7 +167,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_equality_expression`].
     ///
-    // pub fn parse_bit_and_expression(&mut self) -> SyntaxResult<Expression> {
+    // pub fn parse_bit_and_expression(&mut self) -> Result<Expression> {
     //     let mut expr = self.parse_equality_expression()?;
     //     while self.eat(Token::BitAnd).is_some() {
     //         let right = self.parse_equality_expression()?;
@@ -185,9 +187,9 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_ordering_expression`].
     ///
-    pub fn parse_equality_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_equality_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_ordering_expression()?;
-        while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Eq, Token::NotEq]) {
+        if let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Eq, Token::NotEq]) {
             let right = self.parse_ordering_expression()?;
             expr = Expression::Binary(BinaryExpression {
                 span: expr.span() + right.span(),
@@ -209,7 +211,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
     ///    
-    pub fn parse_ordering_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_ordering_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_additive_expression()?;
         while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq])
         {
@@ -236,7 +238,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_additive_expression`].
     ///
-    // pub fn parse_shift_expression(&mut self) -> SyntaxResult<Expression> {
+    // pub fn parse_shift_expression(&mut self) -> Result<Expression> {
     //     let mut expr = self.parse_additive_expression()?;
     //     while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Shl, Token::Shr, Token::ShrSigned]) {
     //         let right = self.parse_additive_expression()?;
@@ -261,7 +263,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_mul_div_pow_expression`].
     ///
-    pub fn parse_additive_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_additive_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_multiplicative_expression()?;
         while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Add, Token::Minus]) {
             let right = self.parse_multiplicative_expression()?;
@@ -285,7 +287,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_exponential_expression`].
     ///
-    pub fn parse_multiplicative_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_multiplicative_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_exponential_expression()?;
         while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Mul, Token::Div]) {
             let right = self.parse_exponential_expression()?;
@@ -310,7 +312,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_cast_expression`].
     ///
-    pub fn parse_exponential_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_exponential_expression(&mut self) -> Result<Expression> {
         let mut exprs = vec![self.parse_cast_expression()?];
         while self.eat(Token::Exp).is_some() {
             exprs.push(self.parse_cast_expression()?);
@@ -334,7 +336,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_unary_expression`].
     ///
-    pub fn parse_cast_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_cast_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_unary_expression()?;
         while self.eat(Token::As).is_some() {
             let (type_, type_span) = self.parse_type()?;
@@ -353,7 +355,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_postfix_expression`].
     ///
-    pub fn parse_unary_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_unary_expression(&mut self) -> Result<Expression> {
         let mut ops = Vec::new();
         while let Some(token) = self.eat_any(&[Token::Not, Token::Minus]) {
             ops.push(token);
@@ -398,7 +400,7 @@ impl ParserContext {
     ///
     /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
     ///
-    pub fn parse_postfix_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_postfix_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_primary_expression()?;
         while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen, Token::DoubleColon]) {
             match token.token {
@@ -450,6 +452,7 @@ impl ParserContext {
                             span: expr.span() + &ident.span,
                             circuit: Box::new(expr),
                             name: ident,
+                            type_: None,
                         });
                     } else if let Some((num, span)) = self.eat_int() {
                         expr = Expression::TupleAccess(TupleAccessExpression {
@@ -459,7 +462,7 @@ impl ParserContext {
                         });
                     } else {
                         let next = self.peek()?;
-                        return Err(SyntaxError::unexpected_str(&next.token, "int or ident", &next.span));
+                        return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
                     }
                 }
                 Token::LeftParen => {
@@ -503,7 +506,7 @@ impl ParserContext {
     ///
     /// This method should only be called in the context of an array access expression.
     ///
-    pub fn parse_spread_or_expression(&mut self) -> SyntaxResult<SpreadOrExpression> {
+    pub fn parse_spread_or_expression(&mut self) -> Result<SpreadOrExpression> {
         Ok(if self.eat(Token::DotDotDot).is_some() {
             SpreadOrExpression::Spread(self.parse_expression()?)
         } else {
@@ -515,7 +518,7 @@ impl ParserContext {
     /// Returns an [`Expression`] AST node if the next tokens represent an
     /// circuit initialization expression.
     ///
-    pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> SyntaxResult<Expression> {
+    pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
         self.expect(Token::LeftCurly)?;
         let mut members = Vec::new();
         let end_span;
@@ -553,7 +556,7 @@ impl ParserContext {
     /// Returns an [`Expression`] AST node if the next tokens represent an
     /// tuple initialization expression.
     ///
-    pub fn parse_tuple_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
+    pub fn parse_tuple_expression(&mut self, span: &Span) -> Result<Expression> {
         if let Some((left, right, span)) = self.eat_group_partial().transpose()? {
             return Ok(Expression::Value(ValueExpression::Group(Box::new(GroupValue::Tuple(
                 GroupTuple {
@@ -592,7 +595,7 @@ impl ParserContext {
     /// Returns an [`Expression`] AST node if the next tokens represent an
     /// array initialization expression.
     ///
-    pub fn parse_array_expression(&mut self, span: &Span) -> SyntaxResult<Expression> {
+    pub fn parse_array_expression(&mut self, span: &Span) -> Result<Expression> {
         if let Some(end) = self.eat(Token::RightSquare) {
             return Ok(Expression::ArrayInline(ArrayInlineExpression {
                 elements: Vec::new(),
@@ -601,12 +604,14 @@ impl ParserContext {
         }
         let first = self.parse_spread_or_expression()?;
         if self.eat(Token::Semicolon).is_some() {
-            let dimensions = self.parse_array_dimensions()?;
+            let dimensions = self
+                .parse_array_dimensions()?
+                .ok_or_else(|| ParserError::unable_to_parse_array_dimensions(span))?;
             let end = self.expect(Token::RightSquare)?;
             let first = match first {
                 SpreadOrExpression::Spread(first) => {
                     let span = span + first.span();
-                    return Err(SyntaxError::spread_in_array_init(&span));
+                    return Err(ParserError::spread_in_array_init(&span).into());
                 }
                 SpreadOrExpression::Expression(x) => x,
             };
@@ -652,7 +657,7 @@ impl ParserContext {
     ///
     /// Returns an expression error if the token cannot be matched.
     ///
-    pub fn parse_primary_expression(&mut self) -> SyntaxResult<Expression> {
+    pub fn parse_primary_expression(&mut self) -> Result<Expression> {
         let SpannedToken { token, span } = self.expect_any()?;
         Ok(match token {
             Token::Int(value) => {
@@ -723,7 +728,7 @@ impl ParserContext {
                 Expression::Identifier(ident)
             }
             token => {
-                return Err(SyntaxError::unexpected_str(&token, "expression", &span));
+                return Err(ParserError::unexpected_str(token, "expression", &span).into());
             }
         })
     }

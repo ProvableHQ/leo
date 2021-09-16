@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:3:21\n     |\n   3 | function main(const a: u32) {\n     |                     ^\n     |\n     = Expected input variable `a` to be constant. Move input variable `a` to [constants] section of input file"
+  - aborting due to syntax error

@@ -29,7 +29,7 @@ impl<F: Field> From<&F> for SerializedField {
 
         let mut buf = Vec::new();
 
-        field.write(&mut buf).unwrap();
+        field.write_le(&mut buf).unwrap();
 
         // convert to base 10 integer
 

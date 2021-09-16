@@ -5,7 +5,7 @@ commands:
     parameters:
       cache_key:
         type: string
-        default: leo-stable-cache
+        default: leo-stable-linux-cache
     steps:
       - run: set -e
       - setup_remote_docker
@@ -31,7 +31,7 @@ commands:
     parameters:
       cache_key:
         type: string
-        default: leo-stable-cache
+        default: leo-stable-linux-cache
     steps:
       - run: (sccache -s||true)
       - run: set +e
@@ -40,44 +40,85 @@ commands:
           paths:
             - .cache/sccache
             - .cargo
+# orbs:
+#   codecov: codecov/codecov@1.2.3
+
 jobs:
-
-  rust-stable:
+  check-style:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - checkout
       - setup_environment:
-          cache_key: leo-stable-cache
+          cache_key: leo-fmt-cache
       - run:
-          name: Build and run tests
-          no_output_timeout: 30m
-          command: cargo test --all
-      - persist_to_workspace:
-          root: ~/
-          paths: project/
+          name: Check style
+          no_output_timeout: 35m
+          command: cargo fmt --all -- --check
       - clear_environment:
-          cache_key: leo-stable-cache
+          cache_key: leo-fmt-cache
 
-  rust-nightly:
+  clippy:
     docker:
-      - image: howardwu/snarkos-ci:2021-03-25
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - checkout
       - setup_environment:
-          cache_key: leo-nightly-cache
+          cache_key: leo-clippy-cache
       - run:
-          name: Build and test
-          no_output_timeout: 30m
-          command: cargo test --all
+          name: Clippy
+          no_output_timeout: 35m
+          command: cargo clippy --all-features --examples --all --benches
       - clear_environment:
-          cache_key: leo-nightly-cache
+          cache_key: leo-clippy-cache
+          
+  # code-cov:
+  #   docker:
+  #     - image: cimg/rust:1.54.0
+  #   resource_class: xlarge
+  #   environment:
+  #     RUSTC_BOOTSTRAP: 1
+  #   steps:
+  #     - checkout
+  #     - setup_environment:
+  #         cache_key: leo-codecov-cache
+  #     - run:
+  #         name: Build and run tests
+  #         no_output_timeout: 30m
+  #         command: cargo test --all
+  #     - run:
+  #         name: Install Code Cov Deps
+  #         no_output_timeout: 30m
+  #         command: |
+  #           sudo apt-get update
+  #           sudo apt-get -y install binutils-dev libcurl4-openssl-dev zlib1g-dev libdw-dev libiberty-dev
+  #     - run:
+  #         name: Generate Coverage Report
+  #         no_output_timeout: 30m
+  #         command: |
+  #           wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz
+  #           tar xzf master.tar.gz
+  #           cd kcov-master
+  #           mkdir build && cd build
+  #           cmake .. && make
+  #           make install DESTDIR=../../kcov-build
+  #           cd ../..
+  #           rm -rf kcov-master
+  #           for file in target/debug/deps/*-*; do if [[ "$file" != *\.* ]]; then mkdir -p "target/cov/$(basename $file)"; ./kcov-build/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --exclude-region='@kcov_skip(start):@kcov_skip(end)' --verify "target/cov/$(basename $file)" "$file"; fi done
+  #     steps:
+  #     - codecov/upload:
+  #         file: {{}}
+  #     - persist_to_workspace:
+  #         root: ~/
+  #         paths: project/
+  #     - clear_environment:
+  #         cache_key: leo-codecov-cache
 
   leo-executable:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - checkout
@@ -95,7 +136,7 @@ jobs:
 
   leo-new:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -108,7 +149,7 @@ jobs:
 
   leo-init:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -121,7 +162,7 @@ jobs:
 
   leo-clean:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -134,7 +175,7 @@ jobs:
 
   leo-setup:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -145,22 +186,22 @@ jobs:
             export LEO=/home/circleci/project/project/bin/leo
             ./project/.circleci/leo-setup.sh
 
-  leo-add-remove:
-    docker:
-      - image: cimg/rust:1.52.1
-    resource_class: xlarge
-    steps:
-      - attach_workspace:
-          at: /home/circleci/project/
-      - run:
-          name: leo add & remove
-          command: |
-            export LEO=/home/circleci/project/project/bin/leo
-            ./project/.circleci/leo-add-remove.sh
+  # leo-add-remove:
+  #   docker:
+  #     - image: cimg/rust:1.54.0
+  #   resource_class: xlarge
+  #   steps:
+  #     - attach_workspace:
+  #         at: /home/circleci/project/
+  #     - run:
+  #         name: leo add & remove
+  #         command: |
+  #           export LEO=/home/circleci/project/project/bin/leo
+  #           ./project/.circleci/leo-add-remove.sh
 
   leo-check-constraints:
     docker:
-      - image: cimg/rust:1.50.0
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -173,7 +214,7 @@ jobs:
 
   leo-login-logout:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -186,7 +227,7 @@ jobs:
 
   leo-clone:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -199,7 +240,7 @@ jobs:
 
   leo-publish:
     docker:
-      - image: cimg/rust:1.52.1
+      - image: cimg/rust:1.54.0
     resource_class: xlarge
     steps:
       - attach_workspace:
@@ -214,8 +255,8 @@ workflows:
   version: 2
   main-workflow:
     jobs:
-      - rust-stable
-      - rust-nightly
+      - check-style
+      - clippy
       - leo-executable
       - leo-new:
           requires:
@@ -229,9 +270,9 @@ workflows:
       - leo-setup:
           requires:
             - leo-executable
-      - leo-add-remove:
-          requires:
-            - leo-executable
+      # - leo-add-remove:
+      #     requires:
+      #       - leo-executable
       - leo-check-constraints:
           requires:
             - leo-executable

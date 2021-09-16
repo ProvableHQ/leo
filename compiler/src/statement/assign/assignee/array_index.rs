@@ -16,8 +16,9 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 use leo_asg::{Expression, Type};
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, QueryData, Value};
 
 use super::ResolverContext;
@@ -27,7 +28,7 @@ impl<'a> Program<'a> {
         &mut self,
         mut context: ResolverContext<'a, 'b>,
         index: &'a Expression<'a>,
-    ) -> Result<Value, StatementError> {
+    ) -> Result<Value> {
         let index_value = self.enforce_expression(index)?;
         let input_var = context.input_register;
 

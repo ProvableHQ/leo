@@ -20,9 +20,7 @@
 
 #![allow(clippy::module_inception)]
 #![allow(clippy::upper_case_acronyms)]
-
-#[macro_use]
-extern crate thiserror;
+#![doc = include_str!("../README.md")]
 
 pub mod compiler;
 
@@ -31,8 +29,6 @@ pub use console::*;
 
 pub mod global;
 pub use global::*;
-
-pub mod errors;
 
 pub mod expression;
 pub use expression::*;
@@ -57,3 +53,6 @@ pub use phases::*;
 
 pub mod option;
 pub use option::*;
+
+#[cfg(test)]
+mod test;

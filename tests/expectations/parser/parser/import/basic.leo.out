@@ -4,35 +4,37 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports:
+    import_statements:
       - package_or_packages:
           Package:
-            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import a.b;\\\"}\"}"
+            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b;\\\"}\"}"
             access:
               Symbol:
-                symbol: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import a.b;\\\"}\"}"
+                symbol: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b;\\\"}\"}"
                 alias: ~
                 span:
                   line_start: 3
                   line_stop: 3
                   col_start: 10
                   col_stop: 11
-                  path: test
+                  path: ""
                   content: import a.b;
             span:
               line_start: 3
               line_stop: 3
               col_start: 8
               col_stop: 11
-              path: test
+              path: ""
               content: import a.b;
         span:
           line_start: 3
           line_stop: 3
           col_start: 8
           col_stop: 11
-          path: test
+          path: ""
           content: import a.b;
+    imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions: {}

@@ -1,6 +1,6 @@
 [package]
 name = "leo-abnf"
-version = "1.5.2"
+version = "1.5.3"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "ABNF to Markdown converter for the Leo programming language"
 homepage = "https://aleo.org"
@@ -19,3 +19,6 @@ edition = "2018"
 
 [dependencies.anyhow]
 version = "1.0"
+
+[dependencies.abnf]
+version = "0.12.0"

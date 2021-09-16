@@ -16,14 +16,16 @@
 
 //! Enforces constraints on a function in a compiled Leo program.
 
-use crate::{errors::FunctionError, program::Program};
+use crate::program::Program;
 
 use leo_asg::{Expression, Function, FunctionQualifier};
+use leo_errors::CompilerError;
+use leo_errors::Result;
 use snarkvm_ir::{CallCoreData, CallData, Instruction, Integer, PredicateData, QueryData, Value};
 use std::cell::Cell;
 
 impl<'a> Program<'a> {
-    pub(crate) fn enforce_function_definition(&mut self, function: &'a Function<'a>) -> Result<(), FunctionError> {
+    pub(crate) fn enforce_function_definition(&mut self, function: &'a Function<'a>) -> Result<()> {
         self.begin_function(function);
         let statement = function
             .body
@@ -48,7 +50,7 @@ impl<'a> Program<'a> {
         function: &'a Function<'a>,
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
-    ) -> Result<Value, FunctionError> {
+    ) -> Result<Value> {
         let target_value = target.map(|target| self.enforce_expression(target)).transpose()?;
 
         let mut ir_arguments = vec![];
@@ -58,10 +60,12 @@ impl<'a> Program<'a> {
         }
 
         if function.arguments.len() != arguments.len() {
-            return Err(FunctionError::input_not_found(
-                "arguments length invalid".to_string(),
+            return Err(CompilerError::function_input_not_found(
+                &function.name.borrow().name.to_string(),
+                "arguments length invalid",
                 &function.span.clone().unwrap_or_default(),
-            ));
+            )
+            .into());
         }
 
         // Store input values as new variables in resolved program

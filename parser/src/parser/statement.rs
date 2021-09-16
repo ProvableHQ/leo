@@ -16,6 +16,8 @@
 
 use super::*;
 
+use leo_errors::{ParserError, Result};
+
 const ASSIGN_TOKENS: &[Token] = &[
     Token::Assign,
     Token::AddEq,
@@ -39,7 +41,7 @@ impl ParserContext {
     /// Returns an [`Identifier`] AST node if the given [`Expression`] AST node evaluates to an
     /// identifier access. The access is stored in the given accesses.
     ///
-    pub fn construct_assignee_access(expr: Expression, accesses: &mut Vec<AssigneeAccess>) -> SyntaxResult<Identifier> {
+    pub fn construct_assignee_access(expr: Expression, accesses: &mut Vec<AssigneeAccess>) -> Result<Identifier> {
         let identifier;
         match expr {
             Expression::CircuitMemberAccess(expr) => {
@@ -62,7 +64,7 @@ impl ParserContext {
                 accesses.push(AssigneeAccess::ArrayIndex(*expr.index));
             }
             Expression::Identifier(id) => identifier = id,
-            _ => return Err(SyntaxError::invalid_assignment_target(expr.span())),
+            _ => return Err(ParserError::invalid_assignment_target(expr.span()).into()),
         }
         Ok(identifier)
     }
@@ -70,7 +72,7 @@ impl ParserContext {
     ///
     /// Returns an [`Assignee`] AST node from the given [`Expression`] AST node with accesses.
     ///
-    pub fn construct_assignee(expr: Expression) -> SyntaxResult<Assignee> {
+    pub fn construct_assignee(expr: Expression) -> Result<Assignee> {
         let expr_span = expr.span().clone();
         let mut accesses = Vec::new();
         let identifier = Self::construct_assignee_access(expr, &mut accesses)?;
@@ -85,11 +87,11 @@ impl ParserContext {
     ///
     /// Returns a [`Statement`] AST node if the next tokens represent a statement.
     ///
-    pub fn parse_statement(&mut self) -> SyntaxResult<Statement> {
+    pub fn parse_statement(&mut self) -> Result<Statement> {
         match &self.peek()?.token {
             Token::Return => Ok(Statement::Return(self.parse_return_statement()?)),
             Token::If => Ok(Statement::Conditional(self.parse_conditional_statement()?)),
-            Token::For => Ok(Statement::Iteration(self.parse_loop_statement()?)),
+            Token::For => Ok(Statement::Iteration(Box::new(self.parse_loop_statement()?))),
             Token::Console => Ok(Statement::Console(self.parse_console_statement()?)),
             Token::Let | Token::Const => Ok(Statement::Definition(self.parse_definition_statement()?)),
             Token::LeftCurly => Ok(Statement::Block(self.parse_block()?)),
@@ -100,14 +102,14 @@ impl ParserContext {
     ///
     /// Returns a [`Block`] AST node if the next tokens represent a assign, or expression statement.
     ///
-    pub fn parse_assign_statement(&mut self) -> SyntaxResult<Statement> {
+    pub fn parse_assign_statement(&mut self) -> Result<Statement> {
         let expr = self.parse_expression()?;
 
         if let Some(operator) = self.eat_any(ASSIGN_TOKENS) {
             let value = self.parse_expression()?;
             let assignee = Self::construct_assignee(expr)?;
             self.expect(Token::Semicolon)?;
-            Ok(Statement::Assign(AssignStatement {
+            Ok(Statement::Assign(Box::new(AssignStatement {
                 span: &assignee.span + value.span(),
                 assignee,
                 operation: match operator.token {
@@ -129,7 +131,7 @@ impl ParserContext {
                     _ => unimplemented!(),
                 },
                 value,
-            }))
+            })))
         } else {
             self.expect(Token::Semicolon)?;
             Ok(Statement::Expression(ExpressionStatement {
@@ -142,7 +144,7 @@ impl ParserContext {
     ///
     /// Returns a [`Block`] AST node if the next tokens represent a block of statements.
     ///
-    pub fn parse_block(&mut self) -> SyntaxResult<Block> {
+    pub fn parse_block(&mut self) -> Result<Block> {
         let start = self.expect(Token::LeftCurly)?;
 
         let mut statements = Vec::new();
@@ -164,7 +166,7 @@ impl ParserContext {
     ///
     /// Returns a [`ReturnStatement`] AST node if the next tokens represent a return statement.
     ///
-    pub fn parse_return_statement(&mut self) -> SyntaxResult<ReturnStatement> {
+    pub fn parse_return_statement(&mut self) -> Result<ReturnStatement> {
         let start = self.expect(Token::Return)?;
         let expr = self.parse_expression()?;
         self.expect(Token::Semicolon)?;
@@ -178,14 +180,20 @@ impl ParserContext {
     ///
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
     ///
-    pub fn parse_conditional_statement(&mut self) -> SyntaxResult<ConditionalStatement> {
+    pub fn parse_conditional_statement(&mut self) -> Result<ConditionalStatement> {
         let start = self.expect(Token::If)?;
         self.fuzzy_struct_state = true;
         let expr = self.parse_conditional_expression()?;
         self.fuzzy_struct_state = false;
         let body = self.parse_block()?;
         let next = if self.eat(Token::Else).is_some() {
-            Some(Box::new(self.parse_statement()?))
+            let s = self.parse_statement()?;
+            match s {
+                Statement::Block(_) | Statement::Conditional(_) => Some(Box::new(s)),
+                s => {
+                    return Err(ParserError::unexpected_statement(&s, "Block or Conditional", s.span()).into());
+                }
+            }
         } else {
             None
         };
@@ -201,12 +209,13 @@ impl ParserContext {
     ///
     /// Returns an [`IterationStatement`] AST node if the next tokens represent an iteration statement.
     ///
-    pub fn parse_loop_statement(&mut self) -> SyntaxResult<IterationStatement> {
+    pub fn parse_loop_statement(&mut self) -> Result<IterationStatement> {
         let start_span = self.expect(Token::For)?;
         let ident = self.expect_ident()?;
         self.expect(Token::In)?;
         let start = self.parse_expression()?;
         self.expect(Token::DotDot)?;
+        let inclusive = self.eat(Token::Assign).is_some();
         self.fuzzy_struct_state = true;
         let stop = self.parse_conditional_expression()?;
         self.fuzzy_struct_state = false;
@@ -217,14 +226,15 @@ impl ParserContext {
             variable: ident,
             start,
             stop,
+            inclusive,
             block,
         })
     }
 
     ///
-    /// Returns a [`FormatString`] AST node if the next tokens represent a formatted string.
+    /// Returns a [`ConsoleArgs`] AST node if the next tokens represent a formatted string.
     ///
-    pub fn parse_formatted_string(&mut self) -> SyntaxResult<FormatString> {
+    pub fn parse_console_args(&mut self) -> Result<ConsoleArgs> {
         let start_span;
         let string = match self.expect_any()? {
             SpannedToken {
@@ -234,10 +244,12 @@ impl ParserContext {
                 start_span = span;
                 chars
             }
-            SpannedToken { token, span } => return Err(SyntaxError::unexpected_str(&token, "formatted string", &span)),
+            SpannedToken { token, span } => {
+                return Err(ParserError::unexpected_str(token, "formatted string", &span).into());
+            }
         };
 
-        let parts = FormatStringPart::from_string(string);
+        // let parts = FormatStringPart::from_string(string);
 
         let mut parameters = Vec::new();
         while self.eat(Token::Comma).is_some() {
@@ -245,8 +257,8 @@ impl ParserContext {
             parameters.push(param);
         }
 
-        Ok(FormatString {
-            parts,
+        Ok(ConsoleArgs {
+            string,
             span: &start_span + parameters.last().map(|x| x.span()).unwrap_or(&start_span),
             parameters,
         })
@@ -255,7 +267,7 @@ impl ParserContext {
     ///
     /// Returns a [`ConsoleStatement`] AST node if the next tokens represent a console statement.
     ///
-    pub fn parse_console_statement(&mut self) -> SyntaxResult<ConsoleStatement> {
+    pub fn parse_console_statement(&mut self) -> Result<ConsoleStatement> {
         let keyword = self.expect(Token::Console)?;
         self.expect(Token::Dot)?;
         let function = self.expect_ident()?;
@@ -265,15 +277,10 @@ impl ParserContext {
                 let expr = self.parse_expression()?;
                 ConsoleFunction::Assert(expr)
             }
-            "debug" => ConsoleFunction::Debug(self.parse_formatted_string()?),
-            "error" => ConsoleFunction::Error(self.parse_formatted_string()?),
-            "log" => ConsoleFunction::Log(self.parse_formatted_string()?),
+            "error" => ConsoleFunction::Error(self.parse_console_args()?),
+            "log" => ConsoleFunction::Log(self.parse_console_args()?),
             x => {
-                return Err(SyntaxError::unexpected_ident(
-                    &x,
-                    &["assert", "debug", "error", "log"],
-                    &function.span,
-                ));
+                return Err(ParserError::unexpected_ident(x, &["assert", "error", "log"], &function.span).into());
             }
         };
         self.expect(Token::RightParen)?;
@@ -289,12 +296,10 @@ impl ParserContext {
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
     ///
-    pub fn parse_variable_name(&mut self, span: &SpannedToken) -> SyntaxResult<VariableName> {
+    pub fn parse_variable_name(&mut self, span: &SpannedToken) -> Result<VariableName> {
         let mutable = self.eat(Token::Mut);
         if let Some(mutable) = &mutable {
-            return Err(SyntaxError::DeprecatedError(DeprecatedError::let_mut_statement(
-                &mutable.span + &span.span,
-            )));
+            return Err(ParserError::let_mut_statement(&(&mutable.span + &span.span)).into());
         }
 
         let name = self.expect_ident()?;
@@ -308,7 +313,7 @@ impl ParserContext {
     ///
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
     ///
-    pub fn parse_definition_statement(&mut self) -> SyntaxResult<DefinitionStatement> {
+    pub fn parse_definition_statement(&mut self) -> Result<DefinitionStatement> {
         let declare = self.expect_oneof(&[Token::Let, Token::Const])?;
         let mut variable_names = Vec::new();
 

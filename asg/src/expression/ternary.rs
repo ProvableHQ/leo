@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -56,7 +57,7 @@ impl<'a> ExpressionNode<'a> for TernaryExpression<'a> {
         self.if_true.get().is_mut_ref() && self.if_false.get().is_mut_ref()
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         if let Some(ConstValue::Boolean(switch)) = self.condition.get().const_value() {
             if switch {
                 self.if_true.get().const_value()
@@ -78,7 +79,29 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::TernaryExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<TernaryExpression<'a>, AsgConvertError> {
+    ) -> Result<TernaryExpression<'a>> {
+        let if_true = Cell::new(<&Expression<'a>>::from_ast(
+            scope,
+            &*value.if_true,
+            expected_type.clone(),
+        )?);
+        let left: PartialType = if_true.get().get_type().unwrap().into();
+
+        let if_false = if expected_type.is_none() {
+            Cell::new(<&Expression<'a>>::from_ast(
+                scope,
+                &*value.if_false,
+                Some(left.clone()),
+            )?)
+        } else {
+            Cell::new(<&Expression<'a>>::from_ast(scope, &*value.if_false, expected_type)?)
+        };
+        let right = if_false.get().get_type().unwrap().into();
+
+        if left != right {
+            return Err(AsgError::ternary_different_types(left, right, &value.span).into());
+        }
+
         Ok(TernaryExpression {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
@@ -87,12 +110,8 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
                 &*value.condition,
                 Some(Type::Boolean.partial()),
             )?),
-            if_true: Cell::new(<&Expression<'a>>::from_ast(
-                scope,
-                &*value.if_true,
-                expected_type.clone(),
-            )?),
-            if_false: Cell::new(<&Expression<'a>>::from_ast(scope, &*value.if_false, expected_type)?),
+            if_true,
+            if_false,
         })
     }
 }

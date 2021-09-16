@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Identifier, Node, Span};
+use crate::{Block, Expression, Identifier, Node};
+use leo_errors::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -24,16 +25,18 @@ pub struct IterationStatement {
     pub variable: Identifier,
     pub start: Expression,
     pub stop: Expression,
+    pub inclusive: bool,
     pub block: Block,
     pub span: Span,
 }
 
 impl fmt::Display for IterationStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let eq = if self.inclusive { "=" } else { "" };
         write!(
             f,
-            "for {} in {}..{} {}",
-            self.variable, self.start, self.stop, self.block
+            "for {} in {}..{}{} {}",
+            self.variable, self.start, eq, self.stop, self.block
         )
     }
 }

@@ -14,20 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Span;
+use leo_errors::Span;
 use leo_input::common::Identifier as InputIdentifier;
 use tendril::StrTendril;
 
 use crate::Node;
 use serde::{
     de::{
-        Visitor,
-        {self},
+        Visitor, {self},
     },
-    Deserialize,
-    Deserializer,
-    Serialize,
-    Serializer,
+    Deserialize, Deserializer, Serialize, Serializer,
 };
 use std::{
     collections::BTreeMap,

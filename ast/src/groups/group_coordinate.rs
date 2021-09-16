@@ -14,13 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::common::span::Span;
+use leo_errors::Span;
 use leo_input::values::{
-    GroupCoordinate as InputGroupCoordinate,
-    Inferred as InputInferred,
-    NumberValue as InputNumberValue,
-    SignHigh as InputSignHigh,
-    SignLow as InputSignLow,
+    GroupCoordinate as InputGroupCoordinate, Inferred as InputInferred, NumberValue as InputNumberValue,
+    SignHigh as InputSignHigh, SignLow as InputSignLow,
 };
 
 use serde::{Deserialize, Serialize};
@@ -29,7 +26,7 @@ use tendril::StrTendril;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupCoordinate {
-    Number(#[serde(with = "crate::common::tendril_json")] StrTendril, Span),
+    Number(#[serde(with = "leo_errors::common::tendril_json")] StrTendril, Span),
     SignHigh,
     SignLow,
     Inferred,

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::errors::OutputsDirectoryError;
+use leo_errors::{PackageError, Result};
 
 use std::{borrow::Cow, fs, path::Path};
 
@@ -24,24 +24,25 @@ pub struct OutputsDirectory;
 
 impl OutputsDirectory {
     /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &Path) -> Result<(), OutputsDirectoryError> {
+    pub fn create(path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
             path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
         }
 
-        fs::create_dir_all(&path).map_err(OutputsDirectoryError::Creating)
+        fs::create_dir_all(&path).map_err(PackageError::failed_to_create_inputs_directory)?;
+        Ok(())
     }
 
     /// Removes the directory at the provided path.
-    pub fn remove(path: &Path) -> Result<(), OutputsDirectoryError> {
+    pub fn remove(path: &Path) -> Result<()> {
         let mut path = Cow::from(path);
         if path.is_dir() && !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
             path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
         }
 
         if path.exists() {
-            fs::remove_dir_all(&path).map_err(OutputsDirectoryError::Removing)?;
+            fs::remove_dir_all(&path).map_err(PackageError::failed_to_create_inputs_directory)?;
         }
 
         Ok(())

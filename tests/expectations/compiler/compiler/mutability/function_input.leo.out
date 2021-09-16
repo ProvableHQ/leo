@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:5:5\n     |\n   5 |     a = false;\n     |     ^\n     |\n     = failed to resolve variable reference 'a'"
+  - "Error [EASG0373027]: failed to resolve variable reference 'a'\n    --> compiler-test:5:5\n     |\n   5 |     a = false;\n     |     ^"

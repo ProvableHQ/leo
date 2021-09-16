@@ -16,40 +16,84 @@
 
 //! Evaluates a formatted string in a compiled Leo program.
 
-use crate::{errors::ConsoleError, program::Program};
-use leo_asg::FormatString;
-use leo_ast::FormatStringPart;
+use crate::program::Program;
+use leo_asg::{CharValue, ConsoleArgs};
+use leo_errors::CompilerError;
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, LogData, LogLevel, Value};
 
 impl<'a> Program<'a> {
-    pub fn emit_log(&mut self, log_level: LogLevel, formatted: &FormatString<'a>) -> Result<(), ConsoleError> {
-        // Check that containers and parameters match
-        let container_count = formatted
-            .parts
-            .iter()
-            .filter(|x| matches!(x, FormatStringPart::Container))
-            .count();
-        if container_count != formatted.parameters.len() {
-            return Err(ConsoleError::length(
-                container_count,
-                formatted.parameters.len(),
-                &formatted.span,
-            ));
-        }
-
-        let mut executed_containers = Vec::with_capacity(formatted.parameters.len());
-        for parameter in formatted.parameters.iter() {
-            executed_containers.push(self.enforce_expression(parameter.get())?);
-        }
-
-        let mut out = vec![];
-        let mut parameters = executed_containers.into_iter();
-        for part in formatted.parts.iter() {
-            match part {
-                FormatStringPart::Const(c) => out.push(Value::Str(c.to_string())),
-                FormatStringPart::Container => out.push(parameters.next().unwrap()),
+    pub fn emit_log(&mut self, log_level: LogLevel, args: &ConsoleArgs<'a>) -> Result<()> {
+        let mut out = Vec::new();
+        let mut in_container = false;
+        let mut substring = String::new();
+        let mut arg_index = 0;
+        let mut escape_right_bracket = false;
+        for (index, character) in args.string.iter().enumerate() {
+            match character {
+                _ if escape_right_bracket => {
+                    escape_right_bracket = false;
+                    continue;
+                }
+                CharValue::Scalar(scalar) => match scalar {
+                    '{' if !in_container => {
+                        out.push(Value::Str(substring.clone()));
+                        substring.clear();
+                        in_container = true;
+                    }
+                    '{' if in_container => {
+                        substring.push('{');
+                        in_container = false;
+                    }
+                    '}' if in_container => {
+                        in_container = false;
+                        let parameter = match args.parameters.get(arg_index) {
+                            Some(index) => index,
+                            None => {
+                                return Err(CompilerError::console_container_parameter_length_mismatch(
+                                    arg_index + 1,
+                                    args.parameters.len(),
+                                    &args.span,
+                                )
+                                .into());
+                            }
+                        };
+                        out.push(self.enforce_expression(parameter.get())?);
+                        arg_index += 1;
+                    }
+                    '}' if !in_container => {
+                        if let Some(CharValue::Scalar(next)) = args.string.get(index + 1) {
+                            if *next == '}' {
+                                substring.push('}');
+                                escape_right_bracket = true;
+                            } else {
+                                return Err(CompilerError::console_fmt_expected_escaped_right_brace(&args.span).into());
+                            }
+                        }
+                    }
+                    _ if in_container => {
+                        return Err(CompilerError::console_fmt_expected_left_or_right_brace(&args.span).into());
+                    }
+                    _ => substring.push(*scalar),
+                },
+                CharValue::NonScalar(non_scalar) => {
+                    substring.push_str(format!("\\u{{{:x}}}", non_scalar).as_str());
+                    in_container = false;
+                }
             }
         }
+        out.push(Value::Str(substring));
+
+        // Check that containers and parameters match
+        if arg_index != args.parameters.len() {
+            return Err(CompilerError::console_container_parameter_length_mismatch(
+                arg_index,
+                args.parameters.len(),
+                &args.span,
+            )
+            .into());
+        }
+
         self.emit(Instruction::Log(LogData { log_level, parts: out }));
         Ok(())
     }

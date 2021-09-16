@@ -16,12 +16,13 @@
 
 use std::convert::TryFrom;
 
+use eyre::eyre;
 use serde::{Deserialize, Serialize};
 use snarkvm_curves::{bls12_377::Bls12_377, traits::PairingEngine};
-use snarkvm_fields::FieldError;
 use snarkvm_r1cs::{ConstraintSystem, Index, OptionalVec};
 
 use crate::{CircuitSynthesizer, ConstraintSet, SerializedField, SerializedIndex};
+use leo_errors::{LeoError, SnarkVMError};
 
 #[derive(Serialize, Deserialize)]
 pub struct SerializedCircuit {
@@ -38,12 +39,12 @@ pub struct SerializedCircuit {
 }
 
 impl SerializedCircuit {
-    pub fn to_json_string(&self) -> Result<String, serde_json::Error> {
-        serde_json::to_string_pretty(&self)
+    pub fn to_json_string(&self) -> Result<String, LeoError> {
+        serde_json::to_string_pretty(&self).map_err(|e| LeoError::from(SnarkVMError::from(eyre!(e))))
     }
 
-    pub fn from_json_string(json: &str) -> Result<Self, serde_json::Error> {
-        serde_json::from_str(json)
+    pub fn from_json_string(json: &str) -> Result<Self, LeoError> {
+        serde_json::from_str(json).map_err(|e| LeoError::from(SnarkVMError::from(eyre!(e))))
     }
 }
 
@@ -114,17 +115,18 @@ impl<E: PairingEngine> From<CircuitSynthesizer<E>> for SerializedCircuit {
 }
 
 impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
-    type Error = FieldError;
+    type Error = LeoError;
 
     fn try_from(serialized: SerializedCircuit) -> Result<CircuitSynthesizer<Bls12_377>, Self::Error> {
         // Deserialize assignments
         fn get_deserialized_assignments(
             assignments: &[SerializedField],
-        ) -> Result<OptionalVec<<Bls12_377 as PairingEngine>::Fr>, FieldError> {
+        ) -> Result<OptionalVec<<Bls12_377 as PairingEngine>::Fr>, LeoError> {
             let mut deserialized = OptionalVec::with_capacity(assignments.len());
 
             for serialized_assignment in assignments {
-                let field = <Bls12_377 as PairingEngine>::Fr::try_from(serialized_assignment)?;
+                let field = <Bls12_377 as PairingEngine>::Fr::try_from(serialized_assignment)
+                    .map_err(|e| LeoError::from(SnarkVMError::from(eyre!(e))))?;
 
                 deserialized.insert(field);
             }
@@ -138,11 +140,12 @@ impl TryFrom<SerializedCircuit> for CircuitSynthesizer<Bls12_377> {
         // Deserialize constraints
         fn get_deserialized_constraints(
             constraints: &[(SerializedField, SerializedIndex)],
-        ) -> Result<Vec<(<Bls12_377 as PairingEngine>::Fr, Index)>, FieldError> {
+        ) -> Result<Vec<(<Bls12_377 as PairingEngine>::Fr, Index)>, LeoError> {
             let mut deserialized = Vec::with_capacity(constraints.len());
 
             for &(ref serialized_coeff, ref serialized_index) in constraints {
-                let field = <Bls12_377 as PairingEngine>::Fr::try_from(serialized_coeff)?;
+                let field = <Bls12_377 as PairingEngine>::Fr::try_from(serialized_coeff)
+                    .map_err(|e| LeoError::from(SnarkVMError::from(eyre!(e))))?;
                 let index = Index::from(serialized_index);
 
                 deserialized.push((field, index));

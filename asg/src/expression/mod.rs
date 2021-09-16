@@ -65,7 +65,8 @@ pub use variable_ref::*;
 mod cast;
 pub use cast::*;
 
-use crate::{AsgConvertError, ConstValue, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, FromAst, Node, PartialType, Scope, Type};
+use leo_errors::{Result, Span};
 
 #[derive(Clone)]
 pub enum Expression<'a> {
@@ -124,9 +125,9 @@ pub trait ExpressionNode<'a>: Node {
     fn get_parent(&self) -> Option<&'a Expression<'a>>;
     fn enforce_parents(&self, expr: &'a Expression<'a>);
 
-    fn get_type(&self) -> Option<Type<'a>>;
+    fn get_type(&'a self) -> Option<Type<'a>>;
     fn is_mut_ref(&self) -> bool;
-    fn const_value(&self) -> Option<ConstValue>; // todo: memoize
+    fn const_value(&'a self) -> Option<ConstValue>; // todo: memoize
     fn is_consty(&self) -> bool;
 }
 
@@ -194,7 +195,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
         }
     }
 
-    fn get_type(&self) -> Option<Type<'a>> {
+    fn get_type(&'a self) -> Option<Type<'a>> {
         use Expression::*;
         match self {
             VariableRef(x) => x.get_type(),
@@ -236,7 +237,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
         }
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&'a self) -> Option<ConstValue<'a>> {
         use Expression::*;
         match self {
             VariableRef(x) => x.const_value(),
@@ -284,7 +285,7 @@ impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
         scope: &'a Scope<'a>,
         value: &leo_ast::Expression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<Self, AsgConvertError> {
+    ) -> Result<Self> {
         use leo_ast::Expression::*;
         let expression = match value {
             Identifier(identifier) => Self::from_ast(scope, identifier, expected_type)?,
@@ -341,7 +342,7 @@ impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
                 .context
                 .alloc_expression(CallExpression::from_ast(scope, call, expected_type).map(Expression::Call)?),
         };
-        expression.enforce_parents(&expression);
+        expression.enforce_parents(expression);
         Ok(expression)
     }
 }

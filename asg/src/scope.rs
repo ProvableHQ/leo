@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgContext, AsgConvertError, Circuit, DefinitionStatement, Function, Input, Type, Variable};
+use crate::{Alias, AsgContext, Circuit, DefinitionStatement, Function, Input, Type, Variable};
+use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
@@ -33,11 +34,11 @@ pub struct Scope<'a> {
     /// The function definition that this scope occurs in.
     pub function: Cell<Option<&'a Function<'a>>>,
 
-    /// The circuit definition that this scope occurs in.
-    pub circuit_self: Cell<Option<&'a Circuit<'a>>>,
-
     /// Maps variable name => variable.
     pub variables: RefCell<IndexMap<String, &'a Variable<'a>>>,
+
+    /// Maps alias name => alias.
+    pub aliases: RefCell<IndexMap<String, &'a Alias<'a>>>,
 
     /// Maps function name => function.
     pub functions: RefCell<IndexMap<String, &'a Function<'a>>>,
@@ -103,6 +104,22 @@ impl<'a> Scope<'a> {
     }
 
     ///
+    /// Returns a reference to the alias corresponding to the name.
+    ///
+    /// If the current scope did not have this name present, then the parent scope is checked.
+    /// If there is no parent scope, then `None` is returned.
+    ///
+    pub fn resolve_alias(&self, name: &str) -> Option<&'a Alias<'a>> {
+        if let Some(resolved) = self.aliases.borrow().get(name) {
+            Some(*resolved)
+        } else if let Some(resolved) = self.parent_scope.get() {
+            resolved.resolve_alias(name)
+        } else {
+            None
+        }
+    }
+
+    ///
     /// Returns a reference to the function corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
@@ -127,26 +144,8 @@ impl<'a> Scope<'a> {
     pub fn resolve_circuit(&self, name: &str) -> Option<&'a Circuit<'a>> {
         if let Some(resolved) = self.circuits.borrow().get(name) {
             Some(*resolved)
-        } else if name == "Self" && self.circuit_self.get().is_some() {
-            self.circuit_self.get()
         } else if let Some(resolved) = self.parent_scope.get() {
             resolved.resolve_circuit(name)
-        } else {
-            None
-        }
-    }
-
-    ///
-    /// Returns a reference to the current circuit.
-    ///
-    /// If the current scope did not have a circuit self present, then the parent scope is checked.
-    /// If there is no parent scope, then `None` is returned.
-    ///
-    pub fn resolve_circuit_self(&self) -> Option<&'a Circuit<'a>> {
-        if let Some(resolved) = self.circuit_self.get() {
-            Some(resolved)
-        } else if let Some(resolved) = self.parent_scope.get() {
-            resolved.resolve_circuit_self()
         } else {
             None
         }
@@ -160,8 +159,8 @@ impl<'a> Scope<'a> {
             context: self.context,
             id: self.context.get_id(),
             parent_scope: Cell::new(Some(self)),
-            circuit_self: Cell::new(None),
             variables: RefCell::new(IndexMap::new()),
+            aliases: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
             circuits: RefCell::new(IndexMap::new()),
             global_consts: RefCell::new(IndexMap::new()),
@@ -173,7 +172,7 @@ impl<'a> Scope<'a> {
     ///
     /// Returns the type returned by the current scope.
     ///
-    pub fn resolve_ast_type(&self, type_: &leo_ast::Type) -> Result<Type<'a>, AsgConvertError> {
+    pub fn resolve_ast_type(&self, type_: &leo_ast::Type, span: &Span) -> Result<Type<'a>> {
         use leo_ast::Type::*;
         Ok(match type_ {
             Address => Type::Address,
@@ -183,34 +182,38 @@ impl<'a> Scope<'a> {
             Group => Type::Group,
             IntegerType(int_type) => Type::Integer(int_type.clone()),
             Array(sub_type, dimensions) => {
-                let mut item = Box::new(self.resolve_ast_type(&*sub_type)?);
-                for dimension in dimensions.0.iter().rev() {
-                    let dimension = dimension
-                        .value
-                        .parse::<u32>()
-                        .map_err(|_| AsgConvertError::parse_index_error())?;
-                    item = Box::new(Type::Array(item, dimension));
+                let mut item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
+
+                if let Some(dimensions) = dimensions {
+                    for dimension in dimensions.0.iter().rev() {
+                        let dimension = dimension
+                            .value
+                            .parse::<u32>()
+                            .map_err(|_| AsgError::parse_index_error(span))?;
+                        item = Box::new(Type::Array(item, dimension));
+                    }
+                } else {
+                    item = Box::new(Type::ArrayWithoutSize(item));
                 }
+
                 *item
             }
             Tuple(sub_types) => Type::Tuple(
                 sub_types
                     .iter()
-                    .map(|x| self.resolve_ast_type(x))
-                    .collect::<Result<Vec<_>, AsgConvertError>>()?,
+                    .map(|x| self.resolve_ast_type(x, span))
+                    .collect::<Result<Vec<_>>>()?,
             ),
-            Circuit(name) if name.name.as_ref() == "Self" => Type::Circuit(
-                self.resolve_circuit_self()
-                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
-            ),
-            SelfType => Type::Circuit(
-                self.resolve_circuit_self()
-                    .ok_or_else(AsgConvertError::reference_self_outside_circuit)?,
-            ),
-            Circuit(name) => Type::Circuit(
-                self.resolve_circuit(&name.name)
-                    .ok_or_else(|| AsgConvertError::unresolved_circuit(&name.name, &name.span))?,
-            ),
+            SelfType => return Err(AsgError::unexpected_big_self(span).into()),
+            CircuitOrAlias(name) => {
+                if let Some(circuit) = self.resolve_circuit(&name.name) {
+                    Type::Circuit(circuit)
+                } else if let Some(alias) = self.resolve_alias(&name.name) {
+                    alias.represents.clone()
+                } else {
+                    return Err(AsgError::unresolved_circuit(&name.name, &name.span).into());
+                }
+            }
         })
     }
 }

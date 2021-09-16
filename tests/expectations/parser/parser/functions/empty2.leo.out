@@ -4,13 +4,15 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports: []
+    import_statements: []
+    imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x() {}\\\"}\"}":
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() {}\\\"}\"}":
         annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x() {}\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() {}\\\"}\"}"
         input: []
         output: ~
         block:
@@ -20,12 +22,12 @@ outputs:
             line_stop: 3
             col_start: 14
             col_stop: 16
-            path: test
+            path: ""
             content: "function x() {}"
         span:
           line_start: 3
           line_stop: 3
           col_start: 1
           col_stop: 16
-          path: test
+          path: ""
           content: "function x() {}"

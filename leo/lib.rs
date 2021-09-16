@@ -14,12 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+#![doc = include_str!("../README.md")]
+
 pub mod api;
 pub mod commands;
 pub mod config;
 pub mod context;
 pub mod logger;
 pub mod updater;
+pub mod wrapper;
 
 #[cfg(test)]
 mod tests;

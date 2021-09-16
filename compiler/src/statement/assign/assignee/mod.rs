@@ -16,8 +16,9 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 use leo_asg::{AssignAccess, AssignOperation, AssignStatement, ExpressionNode, Type};
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, QueryData, Value};
 
 mod array_index;
@@ -35,7 +36,7 @@ struct ResolverContext<'a, 'b> {
 }
 
 impl<'a> Program<'a> {
-    fn resolve_target_access<'b>(&mut self, mut context: ResolverContext<'a, 'b>) -> Result<Value, StatementError> {
+    fn resolve_target_access<'b>(&mut self, mut context: ResolverContext<'a, 'b>) -> Result<Value> {
         if context.remaining_accesses.is_empty() {
             let resulting_value = self.enforce_assign_operation(
                 &context.operation,
@@ -57,11 +58,7 @@ impl<'a> Program<'a> {
         }
     }
 
-    pub fn resolve_assign(
-        &mut self,
-        assignee: &AssignStatement<'a>,
-        target_value: Value,
-    ) -> Result<(), StatementError> {
+    pub fn resolve_assign(&mut self, assignee: &AssignStatement<'a>, target_value: Value) -> Result<()> {
         let variable = assignee.target_variable.get();
         let type_ = variable.borrow().type_.clone();
         let target_array_length = match &assignee.value.get().get_type().expect("missing assignment value type") {

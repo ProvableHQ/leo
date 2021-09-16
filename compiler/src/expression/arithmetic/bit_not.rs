@@ -16,10 +16,9 @@
 
 //! Enforces a logical `!` operator in a resolved Leo program.
 
-use crate::errors::IntegerError;
-use leo_asg::Span;
+use leo_errors::{CompilerError, Result, Span};
 use snarkvm_ir::Value;
 
-pub fn evaluate_bit_not<'a>(value: Value, span: &Span) -> Result<Value, IntegerError> {
-    Err(IntegerError::cannot_evaluate(format!("!{}", value), span))
+pub fn evaluate_bit_not<'a>(value: Value, span: &Span) -> Result<Value> {
+    return Err(CompilerError::cannot_evaluate_expression(format!("!{}", value), span).into());
 }

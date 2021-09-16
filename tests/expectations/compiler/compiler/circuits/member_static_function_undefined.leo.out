@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:10:17\n     |\n  10 |     const err = Foo::echoed(1u32);\n     |                 ^^^^^^^^^^^\n     |\n     = illegal reference to non-existant member 'echoed' of circuit 'Foo'"
+  - "Error [EASG0373001]: illegal reference to non-existant member 'echoed' of circuit 'Foo'\n    --> compiler-test:10:17\n     |\n  10 |     const err = Foo::echoed(1u32);\n     |                 ^^^^^^^^^^^"

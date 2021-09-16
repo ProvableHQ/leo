@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "    --> compiler-test:3:1\n     |\n   3 | function main() -> bool {\n   4 | ...\n   5 | }\n   6 | \n   7 | \n   8 | \n   9 | \n  10 | \n     | ^\n     |\n     = function 'main' missing return for all paths"
+  - "Error [EASG0373033]: function 'main' missing return for all paths\n    --> compiler-test:3:1\n     |\n   3 | function main() -> bool {\n   4 |      ...\n   5 |      ...\n   6 |      ...\n   7 |      ...\n   8 |      ...\n   9 |      ...\n  10 |      ...\n  11 | }\n     | ^"

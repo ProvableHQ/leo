@@ -16,14 +16,14 @@
 
 //! The serialized circuit output file.
 
-use crate::{errors::CircuitFileError, outputs::OUTPUTS_DIRECTORY_NAME};
+use crate::outputs::OUTPUTS_DIRECTORY_NAME;
+use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
 use std::{
     borrow::Cow,
     fs::{
-        File,
-        {self},
+        File, {self},
     },
     io::Write,
     path::Path,
@@ -49,31 +49,33 @@ impl CircuitFile {
     }
 
     /// Reads the serialized circuit from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<String, CircuitFileError> {
+    pub fn read_from(&self, path: &Path) -> Result<String> {
         let path = self.setup_file_path(path);
 
-        fs::read_to_string(&path).map_err(|_| CircuitFileError::FileReadError(path.into_owned()))
+        let string =
+            fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_circuit_file(path.into_owned()))?;
+        Ok(string)
     }
 
     /// Writes the given serialized circuit to a file.
-    pub fn write_to(&self, path: &Path, circuit: String) -> Result<(), CircuitFileError> {
+    pub fn write_to(&self, path: &Path, circuit: String) -> Result<()> {
         let path = self.setup_file_path(path);
+        let mut file = File::create(&path).map_err(PackageError::io_error_circuit_file)?;
 
-        let mut file = File::create(&path)?;
-        file.write_all(circuit.as_bytes())?;
-
+        file.write_all(circuit.as_bytes())
+            .map_err(PackageError::io_error_circuit_file)?;
         Ok(())
     }
 
     /// Removes the serialized circuit at the given path if it exists. Returns `true` on success,
     /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool, CircuitFileError> {
+    pub fn remove(&self, path: &Path) -> Result<bool> {
         let path = self.setup_file_path(path);
         if !path.exists() {
             return Ok(false);
         }
 
-        fs::remove_file(&path).map_err(|_| CircuitFileError::FileRemovalError(path.into_owned()))?;
+        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_circuit_file(path))?;
         Ok(true)
     }
 

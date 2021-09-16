@@ -4,133 +4,135 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports:
+    import_statements:
       - package_or_packages:
           Packages:
-            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import test-import.( // local import\\\"}\"}"
+            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import test-import.( // local import\\\"}\"}"
             accesses:
               - Symbol:
-                  symbol: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":10,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    Point,\\\"}\"}"
+                  symbol: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    Point,\\\"}\"}"
                   alias: ~
                   span:
                     line_start: 4
                     line_stop: 4
                     col_start: 5
                     col_stop: 10
-                    path: test
+                    path: ""
                     content: "    Point,"
               - Symbol:
-                  symbol: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    foo,\\\"}\"}"
+                  symbol: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    foo,\\\"}\"}"
                   alias: ~
                   span:
                     line_start: 5
                     line_stop: 5
                     col_start: 5
                     col_stop: 8
-                    path: test
+                    path: ""
                     content: "    foo,"
             span:
               line_start: 3
               line_stop: 5
               col_start: 8
               col_stop: 8
-              path: test
-              content: "import test-import.( // local import\n...\n    foo,"
+              path: ""
+              content: "import test-import.( // local import\n         ...\n    foo,"
         span:
           line_start: 3
           line_stop: 5
           col_start: 8
           col_stop: 8
-          path: test
-          content: "import test-import.( // local import\n...\n    foo,"
+          path: ""
+          content: "import test-import.( // local import\n         ...\n    foo,"
       - package_or_packages:
           Packages:
-            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"import bar.( // imports directory import\\\"}\"}"
+            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.( // imports directory import\\\"}\"}"
             accesses:
               - Symbol:
-                  symbol: "{\"name\":\"Bar\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    Bar,\\\"}\"}"
+                  symbol: "{\"name\":\"Bar\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    Bar,\\\"}\"}"
                   alias: ~
                   span:
                     line_start: 9
                     line_stop: 9
                     col_start: 5
                     col_stop: 8
-                    path: test
+                    path: ""
                     content: "    Bar,"
               - Multiple:
-                  name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\"}\"}"
+                  name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\"}\"}"
                   accesses:
                     - Symbol:
-                        symbol: "{\"name\":\"Baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\"}\"}"
+                        symbol: "{\"name\":\"Baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\"}\"}"
                         alias: ~
                         span:
                           line_start: 10
                           line_stop: 10
                           col_start: 10
                           col_stop: 13
-                          path: test
+                          path: ""
                           content: "    baz.(Baz, Bazzar),"
                     - Symbol:
-                        symbol: "{\"name\":\"Bazzar\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":15,\\\"col_stop\\\":21,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\"}\"}"
+                        symbol: "{\"name\":\"Bazzar\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":15,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\"}\"}"
                         alias: ~
                         span:
                           line_start: 10
                           line_stop: 10
                           col_start: 15
                           col_stop: 21
-                          path: test
+                          path: ""
                           content: "    baz.(Baz, Bazzar),"
                   span:
                     line_start: 10
                     line_stop: 10
                     col_start: 5
                     col_stop: 21
-                    path: test
+                    path: ""
                     content: "    baz.(Baz, Bazzar),"
               - SubPackage:
-                  name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\"}\"}"
+                  name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\"}\"}"
                   access:
                     SubPackage:
-                      name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\"}\"}"
+                      name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\"}\"}"
                       access:
                         Symbol:
-                          symbol: "{\"name\":\"Bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\"}\"}"
+                          symbol: "{\"name\":\"Bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\"}\"}"
                           alias: ~
                           span:
                             line_start: 11
                             line_stop: 11
                             col_start: 13
                             col_stop: 16
-                            path: test
+                            path: ""
                             content: "    bat.bat.Bat,"
                       span:
                         line_start: 11
                         line_stop: 11
                         col_start: 9
                         col_stop: 16
-                        path: test
+                        path: ""
                         content: "    bat.bat.Bat,"
                   span:
                     line_start: 11
                     line_stop: 11
                     col_start: 5
                     col_stop: 16
-                    path: test
+                    path: ""
                     content: "    bat.bat.Bat,"
             span:
               line_start: 8
               line_stop: 11
               col_start: 8
               col_stop: 16
-              path: test
-              content: "import bar.( // imports directory import\n...\n    bat.bat.Bat,"
+              path: ""
+              content: "import bar.( // imports directory import\n         ...\n         ...\n    bat.bat.Bat,"
         span:
           line_start: 8
           line_stop: 11
           col_start: 8
           col_stop: 16
-          path: test
-          content: "import bar.( // imports directory import\n...\n    bat.bat.Bat,"
+          path: ""
+          content: "import bar.( // imports directory import\n         ...\n         ...\n    bat.bat.Bat,"
+    imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions: {}

@@ -18,13 +18,14 @@
 
 use std::cell::Cell;
 
-use crate::{errors::ExpressionError, program::Program};
+use crate::program::Program;
 use leo_asg::{Expression, ExpressionNode};
+use leo_errors::Result;
 use snarkvm_ir::{ArrayInitRepeatData, Instruction, Value, VarData};
 
 impl<'a> Program<'a> {
     /// Enforce array expressions
-    pub fn enforce_array(&mut self, array: &[(Cell<&'a Expression<'a>>, bool)]) -> Result<Value, ExpressionError> {
+    pub fn enforce_array(&mut self, array: &[(Cell<&'a Expression<'a>>, bool)]) -> Result<Value> {
         let any_spread = array.iter().any(|x| x.1);
 
         let mut result = vec![];
@@ -64,7 +65,7 @@ impl<'a> Program<'a> {
         &mut self,
         element_expression: &'a Expression<'a>,
         actual_size: u32,
-    ) -> Result<Value, ExpressionError> {
+    ) -> Result<Value> {
         let value = self.enforce_expression(element_expression)?;
 
         let out = self.alloc();

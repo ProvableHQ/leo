@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{AsgConvertError, ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Span, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_ast::IntegerType;
+use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
 
@@ -58,7 +59,7 @@ impl<'a> ExpressionNode<'a> for ArrayAccessExpression<'a> {
         self.array.get().is_mut_ref()
     }
 
-    fn const_value(&self) -> Option<ConstValue> {
+    fn const_value(&self) -> Option<ConstValue<'a>> {
         let mut array = match self.array.get().const_value()? {
             ConstValue::Array(values) => values,
             _ => return None,
@@ -83,20 +84,22 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
         scope: &'a Scope<'a>,
         value: &leo_ast::ArrayAccessExpression,
         expected_type: Option<PartialType<'a>>,
-    ) -> Result<ArrayAccessExpression<'a>, AsgConvertError> {
+    ) -> Result<ArrayAccessExpression<'a>> {
         let array = <&Expression<'a>>::from_ast(
             scope,
             &*value.array,
             Some(PartialType::Array(expected_type.map(Box::new), None)),
         )?;
         let array_len = match array.get_type() {
-            Some(Type::Array(_, len)) => len,
+            Some(Type::Array(_, len)) => Some(len),
+            Some(Type::ArrayWithoutSize(_)) => None,
             type_ => {
-                return Err(AsgConvertError::unexpected_type(
+                return Err(AsgError::unexpected_type(
                     "array",
-                    type_.map(|x| x.to_string()).as_deref(),
+                    type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                     &value.span,
-                ));
+                )
+                .into());
             }
         };
 
@@ -111,11 +114,14 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             .map(|x| x.int().map(|x| x.to_usize()).flatten())
             .flatten()
         {
-            if index >= array_len as usize {
-                return Err(AsgConvertError::array_index_out_of_bounds(
-                    index as u32,
-                    &array.span().cloned().unwrap_or_default(),
-                ));
+            // Only check index if array size is known.
+            // Array out of bounds will be caught later if it really happens.
+            if let Some(array_len) = array_len {
+                if index >= array_len as usize {
+                    return Err(
+                        AsgError::array_index_out_of_bounds(index, &array.span().cloned().unwrap_or_default()).into(),
+                    );
+                }
             }
         }
 

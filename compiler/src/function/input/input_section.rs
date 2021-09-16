@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::FunctionError, Program};
-use leo_asg::{AsgConvertError, Circuit, CircuitMember, InputCategory, Span};
+use crate::Program;
+use leo_asg::{Circuit, CircuitMember, InputCategory};
+use leo_errors::AsgError;
+use leo_errors::{Result, Span};
 
 use snarkvm_ir::Value;
 
@@ -28,7 +30,7 @@ impl<'a> Program<'a> {
         span: &Span,
         expected_type: &'a Circuit<'a>,
         origin: Vec<(String, leo_ast::Type)>,
-    ) -> Result<Vec<Value>, FunctionError> {
+    ) -> Result<Vec<Value>> {
         let mut value_out = vec![];
         let category = match name {
             RECORD_VARIABLE_NAME => InputCategory::StateRecord,
@@ -42,7 +44,7 @@ impl<'a> Program<'a> {
 
         let mut names = Vec::with_capacity(origin.len());
         for (name, type_) in origin {
-            let real_type = self.asg.scope.resolve_ast_type(&type_)?;
+            let real_type = self.asg.scope.resolve_ast_type(&type_, span)?;
 
             if let Some(member) = section_members.get(&name) {
                 let expected_type = match member {
@@ -50,12 +52,9 @@ impl<'a> Program<'a> {
                     _ => continue, // present, but unused
                 };
                 if !real_type.is_assignable_from(expected_type) {
-                    return Err(AsgConvertError::unexpected_type(
-                        &real_type.to_string(),
-                        Some(&expected_type.to_string()),
-                        span,
-                    )
-                    .into());
+                    return Err(
+                        AsgError::unexpected_type(&real_type.to_string(), expected_type.to_string(), span).into(),
+                    );
                 }
                 value_out.push(Value::Ref(self.alloc_input(category, &*name, expected_type.clone())));
             } else {

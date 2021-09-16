@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 use leo_asg::{CircuitMember, Identifier, Type};
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 use super::ResolverContext;
@@ -25,7 +26,7 @@ impl<'a> Program<'a> {
         &mut self,
         mut context: ResolverContext<'a, 'b>,
         name: &Identifier,
-    ) -> Result<Value, StatementError> {
+    ) -> Result<Value> {
         let input_var = context.input_register;
 
         let (inner_type, index) = match &context.input_type {

@@ -24,3 +24,7 @@ outputs:
             x:
               type: bool
               value: "true"
+    initial_ast: 6d5be1a3d383ecafa89b5327d3a4b9bce9a459f6c0241cb01f408566ec4a1cc4
+    imports_resolved_ast: 6d5be1a3d383ecafa89b5327d3a4b9bce9a459f6c0241cb01f408566ec4a1cc4
+    canonicalized_ast: eb64230be87deb03ac7f076961a82194a15afd964aa6966a10314b38def69684
+    type_inferenced_ast: e7985a24db781a3e42c9b2a67d1e8febc78fc2ad4e388a90207d00eb89734ffd

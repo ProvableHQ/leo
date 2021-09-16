@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Block, Expression, Node, Span, Statement};
+use crate::{Block, Expression, Node, Statement};
+use leo_errors::Span;
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -31,7 +32,7 @@ impl fmt::Display for ConditionalStatement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "if ({}) {}", self.condition, self.block)?;
         match self.next.clone() {
-            Some(n_or_e) => write!(f, " {}", n_or_e),
+            Some(n_or_e) => write!(f, " else {}", n_or_e),
             None => write!(f, ""),
         }
     }

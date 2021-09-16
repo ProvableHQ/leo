@@ -16,16 +16,13 @@
 
 //! Enforces a definition statement in a compiled Leo program.
 
-use crate::{errors::StatementError, program::Program};
+use crate::program::Program;
 use leo_asg::{DefinitionStatement, Variable};
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 impl<'a> Program<'a> {
-    fn enforce_multiple_definition(
-        &mut self,
-        variable_names: &[&'a Variable<'a>],
-        values: Value,
-    ) -> Result<(), StatementError> {
+    fn enforce_multiple_definition(&mut self, variable_names: &[&'a Variable<'a>], values: Value) -> Result<()> {
         for (i, variable) in variable_names.iter().enumerate() {
             let target = self.alloc_var(variable);
             self.emit(Instruction::TupleIndexGet(QueryData {
@@ -38,7 +35,7 @@ impl<'a> Program<'a> {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_definition_statement(&mut self, statement: &DefinitionStatement<'a>) -> Result<(), StatementError> {
+    pub fn enforce_definition_statement(&mut self, statement: &DefinitionStatement<'a>) -> Result<()> {
         let num_variables = statement.variables.len();
         let expression = self.enforce_expression(statement.value.get())?;
 

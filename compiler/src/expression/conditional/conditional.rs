@@ -16,8 +16,9 @@
 
 //! Enforces a conditional expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::Program};
+use crate::program::Program;
 use leo_asg::Expression;
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, QueryData, Value};
 
 impl<'a> Program<'a> {
@@ -28,7 +29,7 @@ impl<'a> Program<'a> {
         conditional: &'a Expression<'a>,
         first: &'a Expression<'a>,
         second: &'a Expression<'a>,
-    ) -> Result<Value, ExpressionError> {
+    ) -> Result<Value> {
         let conditional_value = self.enforce_expression(conditional)?;
 
         let first_value = self.enforce_expression(first)?;

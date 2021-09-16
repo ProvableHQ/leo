@@ -16,11 +16,12 @@
 
 //! Enforces a logical `&&` operator in a resolved Leo program.
 
-use crate::{errors::ExpressionError, Program};
+use crate::Program;
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, QueryData, Value};
 
 impl<'a> Program<'a> {
-    pub fn evaluate_and(&mut self, left: Value, right: Value) -> Result<Value, ExpressionError> {
+    pub fn evaluate_and(&mut self, left: Value, right: Value) -> Result<Value> {
         let output = self.alloc();
         self.emit(Instruction::And(QueryData {
             destination: output,

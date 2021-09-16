@@ -16,13 +16,14 @@
 
 //! Enforces a circuit access expression in a compiled Leo program.
 
-use crate::{errors::ExpressionError, program::Program};
+use crate::program::Program;
 use leo_asg::CircuitAccessExpression;
+use leo_errors::Result;
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_circuit_access(&mut self, expr: &CircuitAccessExpression<'a>) -> Result<Value, ExpressionError> {
+    pub fn enforce_circuit_access(&mut self, expr: &CircuitAccessExpression<'a>) -> Result<Value> {
         let target = expr.target.get().expect("invalid static access");
         let target_value = self.enforce_expression(target)?;
         let members = expr.circuit.get().members.borrow();

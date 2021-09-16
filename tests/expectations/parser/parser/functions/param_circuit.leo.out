@@ -4,26 +4,28 @@ expectation: Pass
 outputs:
   - name: ""
     expected_input: []
-    imports: []
+    import_statements: []
+    imports: {}
+    aliases: {}
     circuits: {}
     global_consts: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}":
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}":
         annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
               const_: false
               mutable: true
               type_:
-                Circuit: "{\"name\":\"MyCircuit\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":24,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
+                CircuitOrAlias: "{\"name\":\"MyCircuit\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
               span:
                 line_start: 3
                 line_stop: 3
                 col_start: 12
                 col_stop: 13
-                path: test
+                path: ""
                 content: "function x(x: MyCircuit) {"
         output: ~
         block:
@@ -37,26 +39,26 @@ outputs:
                       line_stop: 4
                       col_start: 12
                       col_stop: 14
-                      path: test
+                      path: ""
                       content: "    return ();"
                 span:
                   line_start: 4
                   line_stop: 4
                   col_start: 5
                   col_stop: 14
-                  path: test
+                  path: ""
                   content: "    return ();"
           span:
             line_start: 3
             line_stop: 5
             col_start: 26
             col_stop: 2
-            path: test
-            content: "function x(x: MyCircuit) {\n...\n}"
+            path: ""
+            content: "function x(x: MyCircuit) {\n     ...\n}"
         span:
           line_start: 3
           line_stop: 5
           col_start: 1
           col_stop: 2
-          path: test
-          content: "function x(x: MyCircuit) {\n...\n}"
+          path: ""
+          content: "function x(x: MyCircuit) {\n     ...\n}"
