@@ -47,6 +47,7 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
             Expression::Cast(e) => self.reduce_cast_expression(e),
             Expression::Access(e) => self.reduce_access_expression(e),
             Expression::NamedType(e) => self.reduce_named_type_expression(e),
+            Expression::LengthOf(e) => Expression::LengthOf(e), // TODO: implement REDUCER
             Expression::Constant(e) => self.reduce_constant(e),
             Expression::TupleInit(e) => self.reduce_tuple_init(e),
             Expression::Unary(e) => self.reduce_unary(e),

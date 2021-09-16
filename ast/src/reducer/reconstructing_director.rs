@@ -41,7 +41,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
                 Type::Tuple(reduced_types)
             }
-            Type::CircuitOrAlias(identifier) => Type::CircuitOrAlias(self.reduce_identifier(identifier)?),
+            Type::Identifier(identifier) => Type::Identifier(self.reduce_identifier(identifier)?),
             _ => type_.clone(),
         };
 
@@ -59,6 +59,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Cast(cast) => Expression::Cast(self.reduce_cast(cast)?),
             Expression::Access(access) => Expression::Access(self.reduce_access(access)?),
             Expression::NamedType(named_type) => Expression::NamedType(self.reduce_named_type(named_type)?),
+            Expression::LengthOf(lengthof) => Expression::LengthOf(lengthof.clone()), // Expression::LengthOf(self.reduce_lengthof(lengthof)?), // TODO: add reducer
 
             Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(array_inline)?),
             Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(array_init)?),

@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use std::{
-    collections::HashMap,
     fs,
     path::{Path, PathBuf},
 };
@@ -32,6 +31,7 @@ use serde_yaml::Value;
 use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
 
 use crate::{compiler::Compiler, targets::edwards_bls12::EdwardsGroupType, AstSnapshotOptions, Output};
+use indexmap::IndexMap;
 
 pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
 // pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
@@ -53,7 +53,7 @@ fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> E
         output_dir,
         make_test_context(),
         None,
-        HashMap::new(),
+        IndexMap::new(),
         theorem_options,
     )
 }

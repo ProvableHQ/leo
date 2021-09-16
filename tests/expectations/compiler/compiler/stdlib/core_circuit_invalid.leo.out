@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373043]: failed to resolve import: 'std.unstable.blake2s'\n    --> compiler-test:3:29\n     |\n   3 | import std.unstable.blake2s.BadCircuit; // `BadCircuit` is not included in the blake2s package\n     |                             ^^^^^^^^^^"

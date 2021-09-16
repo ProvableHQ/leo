@@ -29,10 +29,6 @@ version = "1.5.3"
 path = "../errors"
 version = "1.5.3"
 
-[dependencies.leo-asg]
-path = "../asg"
-version = "1.5.3"
-
 [dependencies.leo-parser]
 path = "../parser"
 version = "1.5.3"

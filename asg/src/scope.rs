@@ -221,7 +221,7 @@ impl<'a> Scope<'a> {
                     .collect::<Result<Vec<_>>>()?,
             ),
             SelfType => return Err(AsgError::unexpected_big_self(span).into()),
-            CircuitOrAlias(name) => {
+            Identifier(name) => {
                 if let Some(circuit) = self.resolve_circuit(&name.name) {
                     Type::Circuit(circuit)
                 } else if let Some(alias) = self.resolve_alias(&name.name) {

@@ -2,14 +2,7 @@
 
 ## Authors
 
-- Max Bruce
-- Collin Chin
-- Alessandro Coglio
-- Eric McCarthy
-- Jon Pavlik
-- Damir Shamanaev
-- Damon Sicore
-- Howard Wu
+The Aleo Team.
 
 ## Status
 

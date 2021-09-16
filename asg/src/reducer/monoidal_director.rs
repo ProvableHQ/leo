@@ -47,6 +47,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
             Expression::Cast(e) => self.reduce_cast_expression(e),
             Expression::Access(e) => self.reduce_access_expression(e),
             Expression::NamedType(e) => self.reduce_named_type_expression(e),
+            Expression::LengthOf(e) => self.reduce_lengthof_expression(e),
             Expression::Constant(e) => self.reduce_constant(e),
             Expression::TupleInit(e) => self.reduce_tuple_init(e),
             Expression::Unary(e) => self.reduce_unary(e),
@@ -143,6 +144,16 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_named_access(input, named_type, access)
     }
 
+    pub fn reduce_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> T {
+        let inner = self.reduce_expression(input.inner.get());
+
+        self.reducer.reduce_lengthof_expression(input, inner)
+    }
+
+    pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
+        self.reducer.reduce_constant(input)
+    }
+
     pub fn reduce_tuple_access(&mut self, input: &TupleAccess<'a>) -> T {
         let tuple_ref = self.reduce_expression(input.tuple_ref.get());
 
@@ -171,11 +182,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
     pub fn reduce_named_type_expression(&mut self, input: &NamedTypeExpression<'a>) -> T {
         self.reducer.reduce_named_type_expression(input)
     }
-
-    pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
-        self.reducer.reduce_constant(input)
-    }
-
+    
     pub fn reduce_tuple_init(&mut self, input: &TupleInitExpression<'a>) -> T {
         let values = input.elements.iter().map(|e| self.reduce_expression(e.get())).collect();
 

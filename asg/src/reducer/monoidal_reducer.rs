@@ -54,6 +54,14 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         array.append(index)
     }
 
+    fn reduce_lengthof_expression(&mut self, input: &LengthOfExpression<'a>, inner: T) -> T {
+        inner
+    }
+
+    fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
+        T::default()
+    }
+
     fn reduce_array_range_access(
         &mut self,
         input: &ArrayRangeAccess<'a>,
@@ -81,10 +89,6 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
     }
 
     fn reduce_named_type_expression(&mut self, input: &NamedTypeExpression<'a>) -> T {
-        T::default()
-    }
-
-    fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
         T::default()
     }
 

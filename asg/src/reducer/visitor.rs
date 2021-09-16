@@ -84,7 +84,15 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_value_access(&mut self, input: &ValueAccess<'a>) -> VisitResult {
+    fn visit_value_access(&mut self, input: &ValueAccess<'a>) -> VisitResult { 
+        Default::default()
+    }
+
+    fn visit_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_constant(&mut self, input: &Constant<'a>) -> VisitResult {
         Default::default()
     }
 
@@ -93,10 +101,6 @@ pub trait ExpressionVisitor<'a> {
     }
 
     fn visit_named_type_expression(&mut self, input: &NamedTypeExpression<'a>) -> VisitResult {
-        Default::default()
-    }
-
-    fn visit_constant(&mut self, input: &Constant<'a>) -> VisitResult {
         Default::default()
     }
 

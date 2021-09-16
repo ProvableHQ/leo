@@ -60,6 +60,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
                 Expression::Cast(e) => self.visit_cast_expression(e),
                 Expression::Access(e) => self.visit_access_expression(e),
                 Expression::NamedType(e) => self.visit_named_type_expression(e),
+                Expression::LengthOf(e) => self.visit_lengthof_expression(e),
                 Expression::Constant(e) => self.visit_constant(e),
                 Expression::TupleInit(e) => self.visit_tuple_init(e),
                 Expression::Unary(e) => self.visit_unary(e),
@@ -165,6 +166,16 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
             VisitResult::VisitChildren => {
                 self.visit_expression(&input.array)?;
                 self.visit_expression(&input.index)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
+    }
+    
+    pub fn visit_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_lengthof_expression(input) {
+            VisitResult::VisitChildren => {
+                self.visit_expression(&input.inner)?;
                 Ok(())
             }
             x => x.into(),

@@ -163,10 +163,26 @@ impl<'a> Program<'a> {
     /// 4. resolve all asg nodes
     ///
     pub fn new(context: AsgContext<'a>, program: &leo_ast::Program) -> Result<Program<'a>> {
+        let mut imported_aliases: IndexMap<String, &'a Alias<'a>> = IndexMap::new();
+        let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
+        let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
+        let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
+
         // Convert each sub AST.
+        // Import all prelude symbols on the way.
         let mut imported_modules: IndexMap<Vec<String>, Program> = IndexMap::new();
         for (package, program) in program.imports.iter() {
-            imported_modules.insert(package.clone(), Program::new(context, program)?);
+            let sub_program = Program::new(context, program)?;
+            imported_modules.insert(package.clone(), sub_program.clone());
+
+            let pretty_package = package.join(".");
+
+            if pretty_package.contains("std.prelude") {
+                imported_aliases.extend(sub_program.aliases.clone().into_iter());
+                imported_functions.extend(sub_program.functions.clone().into_iter());
+                imported_circuits.extend(sub_program.circuits.clone().into_iter());
+                imported_global_consts.extend(sub_program.global_consts.clone().into_iter());
+            }
         }
 
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
@@ -178,11 +194,6 @@ impl<'a> Program<'a> {
         for (package, _symbol, span) in imported_symbols.iter() {
             deduplicated_imports.insert(package.clone(), span.clone());
         }
-
-        let mut imported_aliases: IndexMap<String, &'a Alias<'a>> = IndexMap::new();
-        let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
-        let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
-        let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
 
         for (package, symbol, span) in imported_symbols.into_iter() {
             let pretty_package = package.join(".");

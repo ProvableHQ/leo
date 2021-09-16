@@ -8,7 +8,7 @@
 //     [registers]
 //     r0: [u8; 32] = [0; 32];
 
-import core.unstable.blake2s.Blake2s;
+import std.unstable.blake2s.Blake2s;
 
 function main(message: [u8; 32]) -> [u8; 32] {
     const seed: [u8; 32] = [1; 32];

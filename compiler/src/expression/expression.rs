@@ -120,6 +120,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
             // Named
             Expression::NamedType(_) => unimplemented!(), // TODO not sure
+            // LengthOf
+            Expression::LengthOf(lengthof) => self.enforce_lengthof(cs, lengthof, span),
 
             // Variables
             Expression::VariableRef(variable_ref) => self.evaluate_ref(variable_ref),
