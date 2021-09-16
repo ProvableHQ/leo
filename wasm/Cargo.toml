@@ -1,0 +1,54 @@
+[package]
+name = "leo-wasm"
+authors = [ "The Aleo Team <hello@aleo.org>" ]
+description = "Leo compiler as WASM"
+version = "1.5.3"
+edition = "2018"
+homepage = "https://aleo.org"
+repository = "https://github.com/AleoHQ/leo"
+keywords = [
+  "aleo",
+  "cryptography",
+  "leo",
+  "programming-language",
+  "zero-knowledge",
+  "wasm"
+]
+categories = [ "cryptography::cryptocurrencies", "web-programming" ]
+include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
+license = "GPL-3.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies.leo-parser]
+version = "1.5.3"
+path = "../parser"
+
+[dependencies.leo-errors]
+version = "1.5.3"
+path = "../errors"
+
+[dependencies.leo-asg]
+version = "1.5.3"
+path = "../asg"
+
+[dependencies.leo-ast]
+version = "1.5.3"
+path = "../ast"
+
+[dependencies.leo-ast-passes]
+version = "1.5.3"
+path = "../ast-passes"
+
+[dependencies.serde]
+version = "1.0"
+features = [ "derive" ]
+
+[dependencies.wasm-bindgen]
+version = "0.2"
+
+# Crate metadata
+
+[package.metadata.wasm-pack.profile.dev]
+wasm-opt = false

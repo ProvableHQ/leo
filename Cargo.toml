@@ -40,7 +40,8 @@ members = [
   "parser",
   "state",
   "synthesizer",
-  "test-framework"
+  "test-framework",
+  "wasm"
 ]
 
 [dependencies.leo-ast]
