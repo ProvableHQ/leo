@@ -115,7 +115,7 @@ color-backtrace = "0.5.1"
 version = "2.0"
 
 [dependencies.dirs]
-version = "3.0.2"
+version = "4.0.0"
 
 [dependencies.console]
 version = "0.14.0"
