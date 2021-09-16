@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node};
+use crate::{Expression, Node};
 use leo_errors::Span;
 
 use std::fmt;
@@ -24,13 +24,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ValueAccess {
     pub value: Box<Expression>,
-    pub name: Identifier,
+    pub access: Box<Expression>,
     pub span: Span,
 }
 
 impl fmt::Display for ValueAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.value, self.name)
+        write!(f, "{}.{}", self.value, self.access)
     }
 }
 

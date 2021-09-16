@@ -39,6 +39,8 @@ mod tuple_init;
 pub use tuple_init::*;
 mod circuit_init;
 pub use circuit_init::*;
+mod named_type;
+pub use named_type::*;
 mod value;
 pub use value::*;
 mod call;
@@ -56,6 +58,8 @@ pub enum Expression {
     Ternary(TernaryExpression),
     Cast(CastExpression),
     Access(AccessExpression),
+
+    NamedType(NamedTypeExpression),
 
     ArrayInline(ArrayInlineExpression),
     ArrayInit(ArrayInitExpression),
@@ -83,6 +87,7 @@ impl Node for Expression {
             Call(n) => n.span(),
             Cast(n) => n.span(),
             Access(n) => n.span(),
+            NamedType(n) => n.span(),
         }
     }
 
@@ -101,6 +106,7 @@ impl Node for Expression {
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
             Access(n) => n.set_span(span),
+            NamedType(n) => n.set_span(span),
         }
     }
 }
@@ -121,6 +127,7 @@ impl fmt::Display for Expression {
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
             Access(n) => n.fmt(f),
+            NamedType(n) => n.fmt(f),
         }
     }
 }

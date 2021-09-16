@@ -14,7 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Methods to enforce tuple expressions in a compiled Leo program.
+use super::*;
 
-pub mod tuple;
-pub use self::tuple::*;
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NamedTypeExpression {
+    pub named_type: Identifier,
+    pub span: Span,
+}
+
+impl fmt::Display for NamedTypeExpression {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.named_type.name)
+    }
+}
+
+impl Node for NamedTypeExpression {
+    fn span(&self) -> &Span {
+        &self.span
+    }
+
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
+    }
+}

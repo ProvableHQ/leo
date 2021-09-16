@@ -14,7 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Methods to enforce tuple expressions in a compiled Leo program.
+pub mod array_access;
+pub use array_access::*;
 
-pub mod tuple;
-pub use self::tuple::*;
+pub mod circuit_access;
+pub use circuit_access::*;
+
+pub mod named_access;
+pub use named_access::*;
+
+pub mod tuple_access;
+pub use tuple_access::*;
+
+pub mod value_access;
+pub use value_access::*;

@@ -59,6 +59,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
                 Expression::Ternary(e) => self.visit_ternary_expression(e),
                 Expression::Cast(e) => self.visit_cast_expression(e),
                 Expression::Access(e) => self.visit_access_expression(e),
+                Expression::NamedType(e) => self.visit_named_type_expression(e),
                 Expression::Constant(e) => self.visit_constant(e),
                 Expression::TupleInit(e) => self.visit_tuple_init(e),
                 Expression::Unary(e) => self.visit_unary(e),
@@ -192,10 +193,32 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
+    pub fn visit_named_access(&mut self, input: &NamedTypeAccess<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_named_access(input) {
+            VisitResult::VisitChildren => {
+                self.visit_expression(&input.named_type)?;
+                self.visit_expression(&input.access)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
+    }
+
     pub fn visit_tuple_access(&mut self, input: &TupleAccess<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_tuple_access(input) {
             VisitResult::VisitChildren => {
                 self.visit_expression(&input.tuple_ref)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
+    }
+
+    pub fn visit_value_access(&mut self, input: &ValueAccess<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_value_access(input) {
+            VisitResult::VisitChildren => {
+                self.visit_expression(&input.target)?;
+                self.visit_expression(&input.access)?;
                 Ok(())
             }
             x => x.into(),
@@ -209,7 +232,16 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
             Array(a) => self.visit_array_access(a),
             ArrayRange(a) => self.visit_array_range_access(a),
             Circuit(a) => self.visit_circuit_access(a),
+            Named(a) => self.visit_named_access(a),
             Tuple(a) => self.visit_tuple_access(a),
+            Value(a) => self.visit_value_access(a),
+        }
+    }
+
+    pub fn visit_named_type_expression(&mut self, input: &NamedTypeExpression<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_named_type_expression(input) {
+            VisitResult::VisitChildren => Ok(()),
+            x => x.into(),
         }
     }
 

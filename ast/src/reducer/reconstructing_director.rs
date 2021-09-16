@@ -58,6 +58,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
             Expression::Cast(cast) => Expression::Cast(self.reduce_cast(cast)?),
             Expression::Access(access) => Expression::Access(self.reduce_access(access)?),
+            Expression::NamedType(named_type) => Expression::NamedType(self.reduce_named_type(named_type)?),
 
             Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(array_inline)?),
             Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(array_init)?),
@@ -184,6 +185,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .reduce_circuit_static_fn_access(circuit_static_fn_access, circuit, name)
     }
 
+    pub fn reduce_named_access(&mut self, named_access: &NamedTypeAccess) -> Result<NamedTypeAccess> {
+        let named_type = self.reduce_expression(&named_access.named_type)?;
+        let access = self.reduce_expression(&named_access.access)?;
+
+        self.reducer.reduce_named_access(named_access, named_type, access)
+    }
+
     pub fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess) -> Result<TupleAccess> {
         let tuple = self.reduce_expression(&tuple_access.tuple)?;
 
@@ -192,8 +200,9 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_value_access(&mut self, value_access: &ValueAccess) -> Result<ValueAccess> {
         let value = self.reduce_expression(&value_access.value)?;
+        let access = self.reduce_expression(&value_access.access)?;
 
-        self.reducer.reduce_value_access(value_access, value)
+        self.reducer.reduce_value_access(value_access, value, access)
     }
 
     pub fn reduce_access(&mut self, access: &AccessExpression) -> Result<AccessExpression> {
@@ -204,11 +213,18 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             ArrayRange(access) => ArrayRange(self.reduce_array_range_access(access)?),
             CircuitMember(access) => CircuitMember(self.reduce_circuit_member_access(access)?),
             CircuitStaticFunction(access) => CircuitStaticFunction(self.reduce_circuit_static_fn_access(access)?),
+            Named(access) => Named(self.reduce_named_access(access)?),
             Tuple(access) => Tuple(self.reduce_tuple_access(access)?),
             Value(access) => Value(self.reduce_value_access(access)?),
         };
 
         Ok(new)
+    }
+
+    pub fn reduce_named_type(&mut self, named_type: &NamedTypeExpression) -> Result<NamedTypeExpression> {
+        let named = self.reduce_identifier(&named_type.named_type)?;
+
+        self.reducer.reduce_named_type(named_type, named)
     }
 
     pub fn reduce_array_inline(&mut self, array_inline: &ArrayInlineExpression) -> Result<ArrayInlineExpression> {

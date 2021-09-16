@@ -41,6 +41,9 @@ pub use circuit_init::*;
 mod constant;
 pub use constant::*;
 
+mod named_type;
+pub use named_type::*;
+
 mod ternary;
 pub use ternary::*;
 
@@ -68,6 +71,7 @@ pub enum Expression<'a> {
     Ternary(TernaryExpression<'a>),
     Cast(CastExpression<'a>),
     Access(AccessExpression<'a>),
+    NamedType(NamedTypeExpression<'a>),
 
     ArrayInline(ArrayInlineExpression<'a>),
     ArrayInit(ArrayInitExpression<'a>),
@@ -96,6 +100,7 @@ impl<'a> Node for Expression<'a> {
             Ternary(x) => x.span(),
             Cast(x) => x.span(),
             Access(x) => x.span(),
+            NamedType(x) => x.span(),
             ArrayInline(x) => x.span(),
             ArrayInit(x) => x.span(),
             TupleInit(x) => x.span(),
@@ -127,6 +132,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Ternary(x) => x.set_parent(parent),
             Cast(x) => x.set_parent(parent),
             Access(x) => x.set_parent(parent),
+            NamedType(x) => x.set_parent(parent),
             ArrayInline(x) => x.set_parent(parent),
             ArrayInit(x) => x.set_parent(parent),
             TupleInit(x) => x.set_parent(parent),
@@ -145,6 +151,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Ternary(x) => x.get_parent(),
             Cast(x) => x.get_parent(),
             Access(x) => x.get_parent(),
+            NamedType(x) => x.get_parent(),
             ArrayInline(x) => x.get_parent(),
             ArrayInit(x) => x.get_parent(),
             TupleInit(x) => x.get_parent(),
@@ -163,6 +170,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Ternary(x) => x.enforce_parents(expr),
             Cast(x) => x.enforce_parents(expr),
             Access(x) => x.enforce_parents(expr),
+            NamedType(x) => x.enforce_parents(expr),
             ArrayInline(x) => x.enforce_parents(expr),
             ArrayInit(x) => x.enforce_parents(expr),
             TupleInit(x) => x.enforce_parents(expr),
@@ -181,6 +189,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Ternary(x) => x.get_type(),
             Cast(x) => x.get_type(),
             Access(x) => x.get_type(),
+            NamedType(x) => x.get_type(),
             ArrayInline(x) => x.get_type(),
             ArrayInit(x) => x.get_type(),
             TupleInit(x) => x.get_type(),
@@ -199,6 +208,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Ternary(x) => x.is_mut_ref(),
             Cast(x) => x.is_mut_ref(),
             Access(x) => x.is_mut_ref(),
+            NamedType(x) => x.is_mut_ref(),
             ArrayInline(x) => x.is_mut_ref(),
             ArrayInit(x) => x.is_mut_ref(),
             TupleInit(x) => x.is_mut_ref(),
@@ -217,6 +227,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Ternary(x) => x.const_value(),
             Cast(x) => x.const_value(),
             Access(x) => x.const_value(),
+            NamedType(x) => x.const_value(),
             ArrayInline(x) => x.const_value(),
             ArrayInit(x) => x.const_value(),
             TupleInit(x) => x.const_value(),
@@ -235,6 +246,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             Ternary(x) => x.is_consty(),
             Cast(x) => x.is_consty(),
             Access(x) => x.is_consty(),
+            NamedType(x) => x.is_consty(),
             ArrayInline(x) => x.is_consty(),
             ArrayInit(x) => x.is_consty(),
             TupleInit(x) => x.is_consty(),
@@ -271,6 +283,9 @@ impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
             Access(access) => scope
                 .context
                 .alloc_expression(AccessExpression::from_ast(scope, access, expected_type).map(Expression::Access)?),
+            NamedType(named_type) => scope.context.alloc_expression(
+                NamedTypeExpression::from_ast(scope, named_type, expected_type).map(Expression::NamedType)?,
+            ),
             ArrayInline(array_inline) => scope.context.alloc_expression(
                 ArrayInlineExpression::from_ast(scope, array_inline, expected_type).map(Expression::ArrayInline)?,
             ),
@@ -306,6 +321,7 @@ impl<'a> Into<leo_ast::Expression> for &Expression<'a> {
             Ternary(x) => leo_ast::Expression::Ternary(x.into()),
             Cast(x) => leo_ast::Expression::Cast(x.into()),
             Access(x) => x.into(),
+            NamedType(x) => leo_ast::Expression::NamedType(x.into()),
             ArrayInline(x) => leo_ast::Expression::ArrayInline(x.into()),
             ArrayInit(x) => leo_ast::Expression::ArrayInit(x.into()),
             TupleInit(x) => leo_ast::Expression::TupleInit(x.into()),

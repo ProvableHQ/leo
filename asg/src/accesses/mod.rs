@@ -20,11 +20,14 @@ pub use array_access::*;
 mod array_range_access;
 pub use array_range_access::*;
 
-mod constant_access;
-pub use constant_access::*;
-
 mod circuit_access;
 pub use circuit_access::*;
 
+mod named_access;
+pub use named_access::*;
+
 mod tuple_access;
 pub use tuple_access::*;
+
+mod value_access;
+pub use value_access::*;

@@ -239,6 +239,11 @@ impl Canonicalizer {
                             span: circuit_static_func_access.span.clone(),
                         })
                     }
+                    AccessExpression::Named(named_type_access) => AccessExpression::Named(NamedTypeAccess {
+                        named_type: Box::new(self.canonicalize_expression(&named_type_access.named_type)),
+                        access: Box::new(self.canonicalize_expression(&named_type_access.access)),
+                        span: named_type_access.span.clone(),
+                    }),
                     AccessExpression::Tuple(tuple_access) => {
                         let tuple = Box::new(self.canonicalize_expression(&tuple_access.tuple));
 
@@ -250,10 +255,11 @@ impl Canonicalizer {
                     }
                     AccessExpression::Value(value_access) => {
                         let value = Box::new(self.canonicalize_expression(&value_access.value));
+                        let access = Box::new(self.canonicalize_expression(&value_access.access));
 
                         AccessExpression::Value(ValueAccess {
                             value,
-                            name: value_access.name.clone(),
+                            access,
                             span: value_access.span.clone(),
                         })
                     }

@@ -22,6 +22,9 @@
 #![allow(clippy::upper_case_acronyms)]
 #![doc = include_str!("../README.md")]
 
+pub mod accesses;
+pub use accesses::*;
+
 pub mod compiler;
 
 pub mod console;

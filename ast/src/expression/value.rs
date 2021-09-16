@@ -33,7 +33,6 @@ pub enum ValueExpression {
         #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
         Span,
     ),
-    NamedType(#[serde(with = "leo_errors::common::tendril_json")] StrTendril, Span),
     String(Vec<Char>, Span),
 }
 
@@ -48,7 +47,6 @@ impl fmt::Display for ValueExpression {
             Implicit(implicit, _) => write!(f, "{}", implicit),
             Integer(type_, value, _) => write!(f, "{}{}", value, type_),
             Group(group) => write!(f, "{}", group),
-            NamedType(named_type, _) => write!(f, "{}", named_type),
             String(string, _) => {
                 for character in string.iter() {
                     write!(f, "{}", character)?;
@@ -68,7 +66,6 @@ impl Node for ValueExpression {
             | Field(_, span)
             | Implicit(_, span)
             | Integer(_, _, span)
-            | NamedType(_, span)
             | String(_, span) => span,
             Char(character) => &character.span,
             Group(group) => match &**group {
@@ -86,7 +83,6 @@ impl Node for ValueExpression {
             | Field(_, span)
             | Implicit(_, span)
             | Integer(_, _, span)
-            | NamedType(_, span)
             | String(_, span) => *span = new_span,
             Char(character) => character.span = new_span,
             Group(group) => match &mut **group {

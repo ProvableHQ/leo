@@ -76,11 +76,23 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
+    fn visit_named_access(&mut self, input: &NamedTypeAccess<'a>) -> VisitResult {
+        Default::default()
+    }
+
     fn visit_tuple_access(&mut self, input: &TupleAccess<'a>) -> VisitResult {
         Default::default()
     }
 
+    fn visit_value_access(&mut self, input: &ValueAccess<'a>) -> VisitResult {
+        Default::default()
+    }
+
     fn visit_access_expression(&mut self, input: &AccessExpression<'a>) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_named_type_expression(&mut self, input: &NamedTypeExpression<'a>) -> VisitResult {
         Default::default()
     }
 

@@ -29,5 +29,8 @@ pub use circuit_static_function_access::*;
 mod tuple_access;
 pub use tuple_access::*;
 
+mod named_access;
+pub use named_access::*;
+
 mod value_access;
 pub use value_access::*;

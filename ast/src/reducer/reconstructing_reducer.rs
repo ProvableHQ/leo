@@ -170,6 +170,19 @@ pub trait ReconstructingReducer {
         })
     }
 
+    fn reduce_named_access(
+        &mut self,
+        value_access: &NamedTypeAccess,
+        named_type: Expression,
+        access: Expression,
+    ) -> Result<NamedTypeAccess> {
+        Ok(NamedTypeAccess {
+            named_type: Box::new(named_type),
+            access: Box::new(access),
+            span: value_access.span.clone(),
+        })
+    }
+
     fn reduce_tuple_access(&mut self, tuple_access: &TupleAccess, tuple: Expression) -> Result<TupleAccess> {
         Ok(TupleAccess {
             tuple: Box::new(tuple),
@@ -178,11 +191,27 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_value_access(&mut self, value_access: &ValueAccess, value: Expression) -> Result<ValueAccess> {
+    fn reduce_value_access(
+        &mut self,
+        value_access: &ValueAccess,
+        value: Expression,
+        access: Expression,
+    ) -> Result<ValueAccess> {
         Ok(ValueAccess {
             value: Box::new(value),
-            name: value_access.name.clone(),
+            access: Box::new(access),
             span: value_access.span.clone(),
+        })
+    }
+
+    fn reduce_named_type(
+        &mut self,
+        named_type: &NamedTypeExpression,
+        named: Identifier,
+    ) -> Result<NamedTypeExpression> {
+        Ok(NamedTypeExpression {
+            named_type: named,
+            span: named_type.span.clone(),
         })
     }
 

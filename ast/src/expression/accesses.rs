@@ -23,6 +23,7 @@ pub enum AccessExpression {
     ArrayRange(ArrayRangeAccess),
     CircuitMember(CircuitMemberAccess),
     CircuitStaticFunction(CircuitStaticFunctionAccess),
+    Named(NamedTypeAccess),
     Tuple(TupleAccess),
     Value(ValueAccess),
 }
@@ -36,6 +37,7 @@ impl fmt::Display for AccessExpression {
             ArrayRange(access) => access.fmt(f),
             CircuitMember(access) => access.fmt(f),
             CircuitStaticFunction(access) => access.fmt(f),
+            Named(access) => access.fmt(f),
             Tuple(access) => access.fmt(f),
             Value(access) => access.fmt(f),
         }
@@ -51,6 +53,7 @@ impl Node for AccessExpression {
             ArrayRange(access) => access.span(),
             CircuitMember(access) => access.span(),
             CircuitStaticFunction(access) => access.span(),
+            Named(access) => access.span(),
             Tuple(access) => access.span(),
             Value(access) => access.span(),
         }
@@ -64,6 +67,7 @@ impl Node for AccessExpression {
             ArrayRange(access) => access.set_span(span),
             CircuitMember(access) => access.set_span(span),
             CircuitStaticFunction(access) => access.set_span(span),
+            Named(access) => access.set_span(span),
             Tuple(access) => access.set_span(span),
             Value(access) => access.set_span(span),
         }

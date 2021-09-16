@@ -28,21 +28,21 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn enforce_circuit_access<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        expr: &CircuitAccess<'a>,
+        access: &CircuitAccess<'a>,
     ) -> Result<ConstrainedValue<'a, F, G>> {
-        if let Some(target) = expr.target.get() {
+        if let Some(target) = access.target.get() {
             //todo: we can prob pass values by ref here to avoid copying the entire circuit on access
             let target_value = self.enforce_expression(cs, target)?;
             match target_value {
                 ConstrainedValue::CircuitExpression(def, members) => {
-                    assert!(def == expr.circuit.get());
-                    if let Some(member) = members.into_iter().find(|x| x.0.name == expr.member.name) {
+                    assert!(def == access.circuit.get());
+                    if let Some(member) = members.into_iter().find(|x| x.0.name == access.member.name) {
                         Ok(member.1)
                     } else {
                         return Err(CompilerError::undefined_circuit_member_access(
-                            expr.circuit.get().name.borrow(),
-                            &expr.member.name,
-                            &expr.member.span,
+                            access.circuit.get().name.borrow(),
+                            &access.member.name,
+                            &access.member.span,
                         )
                         .into());
                     }
@@ -54,7 +54,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
         } else {
-            Err(CompilerError::invalid_circuit_static_member_access(&expr.member.name, &expr.member.span).into())
+            Err(CompilerError::invalid_circuit_static_member_access(&access.member.name, &access.member.span).into())
         }
     }
 }

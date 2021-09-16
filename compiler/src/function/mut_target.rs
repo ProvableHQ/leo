@@ -21,7 +21,7 @@ use std::cell::Cell;
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{
     AccessExpression, ArrayAccess, ArrayRangeAccess, AssignAccess, AssignOperation, AssignStatement, CircuitAccess,
-    Expression, Node, TupleAccess, Variable,
+    Expression, NamedTypeAccess, Node, TupleAccess, ValueAccess, Variable,
 };
 use leo_errors::Result;
 
@@ -59,10 +59,24 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                         Ok(None)
                     }
                 }
+                AccessExpression::Named(NamedTypeAccess { named_type, .. }) => {
+                    let inner = Self::prepare_mut_access(out, named_type.get())?;
+
+                    // TODO what to do with access
+
+                    Ok(inner)
+                }
                 AccessExpression::Tuple(TupleAccess { tuple_ref, index, .. }) => {
                     let inner = Self::prepare_mut_access(out, tuple_ref.get())?;
 
                     out.push(AssignAccess::Tuple(*index));
+                    Ok(inner)
+                }
+                AccessExpression::Value(ValueAccess { target, .. }) => {
+                    let inner = Self::prepare_mut_access(out, target.get())?;
+
+                    // TODO what to do with access
+
                     Ok(inner)
                 }
             },

@@ -14,27 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Constant, ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType, Scope, Type};
-use leo_errors::{AsgError, Result, Span};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType, Scope, Type};
+use leo_errors::{Result, Span};
 
 use std::cell::Cell;
 
 #[derive(Clone)]
-pub struct ConstantAccess<'a> {
+pub struct NamedTypeExpression<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
+    pub named_type: Identifier,
     pub span: Option<Span>,
-    pub value: Cell<&'a Constant<'a>>,
-    pub target: Cell<Option<&'a Expression<'a>>>,
-    pub member: Identifier,
 }
 
-impl<'a> Node for ConstantAccess<'a> {
+impl<'a> Node for NamedTypeExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
 }
 
-impl<'a> ExpressionNode<'a> for ConstantAccess<'a> {
+impl<'a> ExpressionNode<'a> for NamedTypeExpression<'a> {
     fn set_parent(&self, parent: &'a Expression<'a>) {
         self.parent.replace(Some(parent));
     }
@@ -43,11 +41,7 @@ impl<'a> ExpressionNode<'a> for ConstantAccess<'a> {
         self.parent.get()
     }
 
-    fn enforce_parents(&self, expr: &'a Expression<'a>) {
-        if let Some(target) = self.target.get() {
-            target.set_parent(expr);
-        }
-    }
+    fn enforce_parents(&self, _expr: &'a Expression<'a>) {}
 
     fn get_type(&self) -> Option<Type<'a>> {
         None
@@ -58,13 +52,7 @@ impl<'a> ExpressionNode<'a> for ConstantAccess<'a> {
     }
 
     fn const_value(&self) -> Option<ConstValue<'a>> {
-        match self.target.get()?.const_value()? {
-            ConstValue::Circuit(_, members) => {
-                let (_, const_value) = members.get(&self.member.name.to_string())?.clone();
-                Some(const_value)
-            }
-            _ => None,
-        }
+        None
     }
 
     fn is_consty(&self) -> bool {
@@ -72,21 +60,24 @@ impl<'a> ExpressionNode<'a> for ConstantAccess<'a> {
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::ValueAccess> for ConstantAccess<'a> {
+impl<'a> FromAst<'a, leo_ast::NamedTypeExpression> for NamedTypeExpression<'a> {
     fn from_ast(
-        scope: &'a Scope<'a>,
-        value: &leo_ast::ValueAccess,
-        expected_type: Option<PartialType<'a>>,
-    ) -> Result<ConstantAccess<'a>> {
-        let target = <&'a Expression<'a>>::from_ast(scope, &*value.value, None)?;
+        _scope: &'a Scope<'a>,
+        value: &leo_ast::NamedTypeExpression,
+        _expected_type: Option<PartialType<'a>>,
+    ) -> Result<NamedTypeExpression<'a>> {
+        Ok(NamedTypeExpression {
+            parent: Cell::new(None),
+            named_type: value.named_type.clone(),
+            span: Some(value.span.clone()),
+        })
     }
 }
 
-impl<'a> Into<leo_ast::ValueAccess> for &ConstantAccess<'a> {
-    fn into(self) -> leo_ast::ValueAccess {
-        leo_ast::ValueAccess {
-            value: Box::new(leo_ast::Expression::Value(self.value.into())),
-            name: self.member.clone(),
+impl<'a> Into<leo_ast::NamedTypeExpression> for &NamedTypeExpression<'a> {
+    fn into(self) -> leo_ast::NamedTypeExpression {
+        leo_ast::NamedTypeExpression {
+            named_type: self.named_type.clone(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

@@ -46,6 +46,7 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
             Expression::Ternary(e) => self.reduce_ternary_expression(e),
             Expression::Cast(e) => self.reduce_cast_expression(e),
             Expression::Access(e) => self.reduce_access_expression(e),
+            Expression::NamedType(e) => self.reduce_named_type_expression(e),
             Expression::Constant(e) => self.reduce_constant(e),
             Expression::TupleInit(e) => self.reduce_tuple_init(e),
             Expression::Unary(e) => self.reduce_unary(e),
@@ -151,10 +152,28 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
         self.reducer.reduce_circuit_access(input, target)
     }
 
+    pub fn reduce_named_access(&mut self, input: NamedTypeAccess<'a>) -> AccessExpression<'a> {
+        let named_type = self.reduce_expression(input.named_type.get());
+        let access = self.reduce_expression(input.access.get());
+
+        self.reducer.reduce_named_access(input, named_type, access)
+    }
+
     pub fn reduce_tuple_access(&mut self, input: TupleAccess<'a>) -> AccessExpression<'a> {
         let tuple_ref = self.reduce_expression(input.tuple_ref.get());
 
         self.reducer.reduce_tuple_access(input, tuple_ref)
+    }
+
+    pub fn reduce_value_access(&mut self, input: ValueAccess<'a>) -> AccessExpression<'a> {
+        let target = self.reduce_expression(input.target.get());
+        let access = self.reduce_expression(input.access.get());
+
+        self.reducer.reduce_value_access(input, target, access)
+    }
+
+    pub fn reduce_named_type_expression(&mut self, input: NamedTypeExpression<'a>) -> Expression<'a> {
+        self.reducer.reduce_named_type_expression(input)
     }
 
     pub fn reduce_access_expression(&mut self, input: AccessExpression<'a>) -> Expression<'a> {
@@ -164,7 +183,9 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
             Array(a) => self.reduce_array_access(a),
             ArrayRange(a) => self.reduce_array_range_access(a),
             Circuit(a) => self.reduce_circuit_access(a),
+            Named(a) => self.reduce_named_access(a),
             Tuple(a) => self.reduce_tuple_access(a),
+            Value(a) => self.reduce_value_access(a),
         };
 
         self.reducer.reduce_access_expression(access)
