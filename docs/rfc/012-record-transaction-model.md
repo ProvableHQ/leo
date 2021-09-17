@@ -115,7 +115,7 @@ the values in `Inputs` are accessed via the `main` parameters,
 while the old records are accessed via the special `input` variable,
 which provides access to the two old records and their slots,
 including the payloads that contain application-specific data.
-The picture for new records and values in `Output` is less clear form the documentation:
+The picture for new records and values in `Output` is less clear from the documentation:
 experimentation suggests that the new records are obtained
 by serializing the output value in `Output` (which, recall, may be a tuple).
 
