@@ -97,9 +97,9 @@ leaving the non-`const` inputs and the output for consideration.
 
 The execution of `main` can be described as a mathematical function
 ```
-main : Record * Record * Inputs -> Record * Record * Output
+main : Record x Record x Inputs -> Record x Record x Output
 ```
-where `*` is cartesian product,
+where `x` is cartesian product,
 `Record` is the set of possible records,
 `Inputs` is the set of possible inputs to `main`, and
 `Output` is the set of possible outputs from `main`.
