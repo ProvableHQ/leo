@@ -141,25 +141,25 @@ Generalizing from one `main` entry point to multiple ones is conceptually easy.
 It means that, instead of implicitly designating `main` as the only entry point,
 we need a mechanism to explicitly designate one or more Leo functions as entry points.
 
-A simple approach could be to use an annotation like `@interface` to designate _interface functions_, i.e. entry points:
+A simple approach could be to use an annotation like `@entrypoint` to designate _entry point functions_:
 ```
-@interface
+@entrypoint
 function mint(...) -> ... { ... }
 
-@interface
+@entrypoint
 function transfer(...) -> ... { ... }
 ```
 This has a precedent, in the use of `@test` to designate Leo test functions that are not compiled to circuits.
 
 Another approach is to use a keyword, e.g.
 ```
-interface function mint(...) -> ... { ... }
+entrypoint function mint(...) -> ... { ... }
 
-interface function transfer(...) -> ... { ... }
+entrypoint function transfer(...) -> ... { ... }
 ```
-Yet another approach is to group interface functions inside a new block construct, e.g.
+Yet another approach is to group entrypoint functions inside a new block construct, e.g.
 ```
-interface {
+entrypoint {
 
     function mint(...) -> ... { ... }
 
@@ -201,7 +201,7 @@ in any case, it should be clear that this can be made to work in some way,
 and that Leo programs can access the old records through the special `input` variables.
 
 One issue with the special `input` variable is whether it should be treated as a built-in global variable,
-or whether it should be explicitly passed to the interface functions and to the non-interface functions called by them.
+or whether it should be explicitly passed to the entry point functions and to the non-entry-point functions called by them.
 The first approach is more concise, while the second approach is more explicit.
 Note that, in the second approach, we may want to enforce certain restrictions on the use of `input`,
 e.g. we may not want to allow a call `f(input, input)` even if the parameters of `f` both have the same circuit type as `input`.
@@ -229,10 +229,10 @@ since the variable is read/write,
 i.e. it needs to be treated like a global variable,
 in the sense that there is a single instance of it.
 
-If we go the `output` variable route, a question is what happens with the outputs of the interface functions
+If we go the `output` variable route, a question is what happens with the outputs of the entry point functions
 (i.e. the values in `Output`, in the mathematical function described earlier).
 If all the output data is explicitly written into the output record by the Leo code,
-then perhaps the Leo interface functions should always return `()`, i.e. "nothing",
+then perhaps the Leo entry point functions should always return `()`, i.e. "nothing",
 or perhaps they should be predicates, i.e. return `bool`,
 where `true` indicates a successful check (e.g. "yes, this private input yields this commitment when hashed")
 and `false` indicates a failed check.
