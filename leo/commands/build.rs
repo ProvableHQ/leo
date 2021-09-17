@@ -52,6 +52,8 @@ pub struct BuildOptions {
     pub enable_all_snapshots: bool,
     #[structopt(long, help = "Enable spans in AST snapshots.")]
     pub enable_spans: bool,
+    #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
+    pub enable_all_ast_snapshots: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the import resolution phase.")]
@@ -60,6 +62,14 @@ pub struct BuildOptions {
     pub enable_canonicalized_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
     pub enable_type_inferenced_ast_snapshot: bool,
+    #[structopt(long, help = "Writes all ASG snapshots for the different compiler phases.")]
+    pub enable_all_asg_snapshots: bool,
+    #[structopt(long, help = "Writes ASG snapshot before the ASG compiler phases.")]
+    pub enable_initial_asg_snapshot: bool,
+    #[structopt(long, help = "Writes ASG snapshot after the constants folding phase.")]
+    pub enable_constants_folded_asg_snapshot: bool,
+    #[structopt(long, help = "Writes ASG snapshot after the dead code elimination phase.")]
+    pub enable_dead_code_eliminated_asg_snapshot: bool,
     #[structopt(
         long,
         default_value = "1000",
@@ -77,16 +87,21 @@ impl Default for BuildOptions {
             disable_code_elimination: Default::default(),
             disable_all_optimizations: Default::default(),
             enable_all_snapshots: Default::default(),
+            enable_all_ast_snapshots: Default::default(),
             enable_initial_ast_snapshot: Default::default(),
             enable_imports_resolved_ast_snapshot: Default::default(),
             enable_canonicalized_ast_snapshot: Default::default(),
             enable_type_inferenced_ast_snapshot: Default::default(),
+            enable_all_asg_snapshots: Default::default(),
+            enable_initial_asg_snapshot: Default::default(),
+            enable_constants_folded_asg_snapshot: Default::default(),
+            enable_dead_code_eliminated_asg_snapshot: Default::default(),
             inline_limit: DEFAULT_INLINE_LIMIT,
             enable_spans: Default::default(),
             emit_ir: Default::default(),
         }
     }
-}
+    }
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -108,25 +123,44 @@ impl From<BuildOptions> for CompilerOptions {
 
 impl From<BuildOptions> for OutputOptions {
     fn from(options: BuildOptions) -> Self {
-        if options.enable_all_snapshots {
-            OutputOptions {
-                spans_enabled: options.enable_spans,
-                ast_initial: true,
-                ast_imports_resolved: true,
-                ast_canonicalized: true,
-                ast_type_inferenced: true,
-                emit_ir: true,
-            }
-        } else {
-            OutputOptions {
-                spans_enabled: options.enable_spans,
-                ast_initial: options.enable_initial_ast_snapshot,
-                ast_imports_resolved: options.enable_imports_resolved_ast_snapshot,
-                ast_canonicalized: options.enable_canonicalized_ast_snapshot,
-                ast_type_inferenced: options.enable_type_inferenced_ast_snapshot,
-                emit_ir: options.emit_ir,
-            }
+        let mut out_options = OutputOptions {
+            spans_enabled: options.enable_spans,
+            ast_initial: options.enable_initial_ast_snapshot,
+            ast_imports_resolved: options.enable_imports_resolved_ast_snapshot,
+            ast_canonicalized: options.enable_canonicalized_ast_snapshot,
+            ast_type_inferenced: options.enable_type_inferenced_ast_snapshot,
+            asg_initial: options.enable_initial_asg_snapshot,
+            asg_constants_folded: options.enable_constants_folded_asg_snapshot,
+            asg_dead_code_eliminated: options.enable_dead_code_eliminated_asg_snapshot,
+            emit_ir: options.emit_ir,
+        };
+
+        if options.enable_all_ast_snapshots {
+            out_options.ast_initial =  true;
+            out_options.ast_imports_resolved = true;
+            out_options.ast_canonicalized = true;
+            out_options.ast_type_inferenced = true;
         }
+
+        if options.enable_all_asg_snapshots {
+            out_options.asg_initial = true;
+            out_options.asg_constants_folded = true;
+            out_options.asg_dead_code_eliminated = true;
+        }
+
+        if options.enable_all_snapshots {
+           out_options.spans_enabled = options.enable_spans;
+           out_options.ast_initial =  true;
+           out_options.ast_imports_resolved = true;
+           out_options.ast_canonicalized = true;
+           out_options.ast_type_inferenced = true;
+           out_options.asg_initial = true;
+           out_options.asg_constants_folded = true;
+           out_options.asg_dead_code_eliminated = true;
+           out_options.emit_ir = true;
+        }
+
+        out_options
     }
 }
 

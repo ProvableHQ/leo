@@ -46,5 +46,8 @@ pub struct OutputOptions {
     pub ast_imports_resolved: bool,
     pub ast_canonicalized: bool,
     pub ast_type_inferenced: bool,
+    pub asg_initial: bool,
+    pub asg_constants_folded: bool,
+    pub asg_dead_code_eliminated: bool,
     pub emit_ir: bool,
 }

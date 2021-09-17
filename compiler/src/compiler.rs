@@ -246,16 +246,31 @@ impl<'a, 'b> Compiler<'a, 'b> {
     fn do_asg_passes(&mut self) -> Result<()> {
         assert!(self.asg.is_some());
 
+        if self.output_options.asg_initial {
+            //TODO: Implement
+            panic!("ASG snapshot not implemented yet");
+        }
+
         // Do constant folding.
         if self.options.constant_folding_enabled {
             let asg = self.asg.take().unwrap();
             self.asg = Some(leo_asg_passes::ConstantFolding::do_pass(asg)?);
+
+            if self.output_options.asg_constants_folded {
+                //TODO
+                panic!("ASG snapshot not implemented yet");
+            }
         }
 
         // Do dead code elimination.
         if self.options.dead_code_elimination_enabled {
             let asg = self.asg.take().unwrap();
             self.asg = Some(leo_asg_passes::DeadCodeElimination::do_pass(asg)?);
+
+            if self.output_options.asg_dead_code_eliminated {
+                // TODO
+                panic!("ASG snapshot not implmented yet");
+            }
         }
 
         Ok(())
