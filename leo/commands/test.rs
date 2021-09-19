@@ -110,7 +110,7 @@ impl Command for Test {
             )?;
 
             let temporary_program = program;
-            let (passed, failed) = temporary_program.compile_test_constraints(input_pairs)?;
+            let (passed, failed) = temporary_program.compile_test(input_pairs)?;
             let time_taken = timer.elapsed().as_millis();
 
             if failed == 0 {

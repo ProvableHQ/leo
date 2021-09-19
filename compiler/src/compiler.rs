@@ -16,10 +16,10 @@
 
 //! Compiles a Leo program from a file path.
 
-use crate::{asg_group_coordinate_to_ir, decode_address, CompilerOptions, Output, Program};
+use crate::{asg_group_coordinate_to_ir, decode_address, CompilerOptions, Output, OutputFile, Program};
 use crate::{AstSnapshotOptions, TypeInferencePhase};
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
-use leo_asg::{Asg, AsgPass, GroupValue, Program as AsgProgram};
+use leo_asg::{Asg, AsgPass, CircuitMember, GroupValue, Program as AsgProgram};
 use leo_ast::AstPass;
 use leo_ast::{InputValue, IntegerType, Program as AstProgram};
 use leo_errors::AsgError;
@@ -27,11 +27,17 @@ use leo_errors::SnarkVMError;
 use leo_errors::StateError;
 use leo_errors::{CompilerError, Result, Span};
 use leo_imports::ImportParser;
+use leo_input::LeoInputParser;
+use leo_package::inputs::InputPairs;
 use leo_parser::parse_ast;
 
 use eyre::eyre;
+use leo_synthesizer::CircuitSynthesizer;
 use num_bigint::{BigInt, Sign};
 use sha2::{Digest, Sha256};
+
+use snarkvm_curves::bls12_377::Bls12_377;
+use snarkvm_eval::edwards_bls12::EdwardsGroupType;
 use snarkvm_eval::{Evaluator, GroupType, PrimeField};
 use snarkvm_ir::InputData;
 use snarkvm_ir::{Group, Integer, Type, Value};
@@ -237,8 +243,16 @@ impl<'a> Compiler<'a> {
         input: &leo_ast::Input,
     ) -> Result<CompilationData> {
         let compiled = self.compile_ir(&input)?;
-        let input_data = self.process_input(&input, &compiled.header)?;
+        self.compile_inner::<F, G, CS>(cs, input, compiled)
+    }
 
+    pub fn compile_inner<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
+        &self,
+        cs: CS,
+        input: &leo_ast::Input,
+        compiled: snarkvm_ir::Program,
+    ) -> Result<CompilationData> {
+        let input_data = self.process_input(&input, &compiled.header)?;
         let mut evaluator = snarkvm_eval::SetupEvaluator::<F, G, CS>::new(cs);
         let output = evaluator
             .evaluate(&compiled, &input_data)
@@ -251,6 +265,150 @@ impl<'a> Compiler<'a> {
             program: compiled,
             output,
         })
+    }
+
+    fn compile_ir_test(
+        &self,
+        program: &Program<'a>,
+        function: &'a leo_asg::Function<'a>,
+        input: &InputPairs,
+    ) -> Result<(leo_ast::Input, snarkvm_ir::Program, String)> {
+        let program_name = program.asg.name.clone();
+        let mut output_file_name = program_name.clone();
+
+        let input_file = function
+            .annotations
+            .iter()
+            .find(|x| x.name.name.as_ref() == "test")
+            .unwrap()
+            .arguments
+            .get(0);
+        // get input file name from annotation or use test_name
+        let input_pair = match input_file {
+            Some(file_id) => {
+                let file_name = file_id.clone();
+                let file_name_kebab = file_name.to_string().replace("_", "-");
+
+                // transform "test_name" into "test-name"
+                output_file_name = file_name.to_string();
+
+                // searches for test_input (snake case) or for test-input (kebab case)
+                match input
+                    .pairs
+                    .get(&file_name_kebab)
+                    .or_else(|| input.pairs.get(&file_name_kebab))
+                {
+                    Some(pair) => pair.to_owned(),
+                    None => {
+                        return Err(CompilerError::invalid_test_context(file_name).into());
+                    }
+                }
+            }
+            None => input
+                .pairs
+                .get(&program_name)
+                .ok_or_else(CompilerError::no_test_input)?,
+        };
+
+        // parse input files to abstract syntax trees
+        let input_file = &input_pair.input_file;
+        let state_file = &input_pair.state_file;
+
+        let input_ast = LeoInputParser::parse_file(input_file)?;
+        let state_ast = LeoInputParser::parse_file(state_file)?;
+
+        // parse input files into input struct
+        let mut input = leo_ast::Input::new();
+        input.parse_input(input_ast)?;
+        input.parse_state(state_ast)?;
+
+        let secondary_functions: Vec<_> = program
+            .asg
+            .functions
+            .iter()
+            .filter(|(name, func)| !func.is_test() && *name != "main")
+            .map(|(_, f)| *f)
+            .chain(program.asg.circuits.iter().flat_map(|(_, circuit)| {
+                circuit
+                    .members
+                    .borrow()
+                    .iter()
+                    .flat_map(|(_, member)| match member {
+                        CircuitMember::Function(function) => Some(*function),
+                        CircuitMember::Variable(_) => None,
+                    })
+                    .collect::<Vec<_>>()
+                    .into_iter()
+            }))
+            .collect();
+
+        // run test function on new program with input
+        let mut temporary_program = program.clone();
+        temporary_program.enforce_function(&program.asg, function, &secondary_functions, &input)?;
+        Ok((input, temporary_program.render(), output_file_name))
+    }
+
+    pub fn compile_test(&self, input: InputPairs) -> Result<(u32, u32)> {
+        let asg = self.asg.as_ref().unwrap().clone();
+        let program = Program::new(asg);
+
+        let program_name = program.asg.name.clone();
+        let mut output_file_name = program_name.clone();
+
+        let tests = program
+            .asg
+            .functions
+            .iter()
+            .filter(|(_name, func)| func.is_test())
+            .collect::<Vec<_>>();
+
+        tracing::info!("Running {} tests", tests.len());
+
+        // Count passed and failed tests
+        let mut passed = 0;
+        let mut failed = 0;
+
+        for (test_name, function) in tests.into_iter() {
+            let mut cs = CircuitSynthesizer::<Bls12_377> {
+                constraints: Default::default(),
+                public_variables: Default::default(),
+                private_variables: Default::default(),
+                namespaces: Default::default(),
+            };
+            let full_test_name = format!("{}::{}", program_name, test_name);
+
+            let result = match self.compile_ir_test(&program, function, &input) {
+                Ok((input, compiled, output_name)) => {
+                    output_file_name = output_name;
+                    self.compile_inner::<_, EdwardsGroupType, _>(&mut cs, &input, compiled)
+                }
+                Err(e) => Err(e),
+            };
+
+            if result.is_ok() {
+                tracing::info!("{} ... ok\n", full_test_name);
+
+                // write result to file
+                let output = result?;
+                let output_file = OutputFile::new(&output_file_name);
+
+                output_file
+                    .write(&self.output_directory, output.output.to_string().as_bytes())
+                    .unwrap();
+                // increment passed tests
+                passed += 1;
+            } else {
+                // Set file location of error
+                let error = result.unwrap_err();
+
+                tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
+
+                // increment failed tests
+                failed += 1;
+            }
+        }
+
+        Ok((passed, failed))
     }
 
     // ///

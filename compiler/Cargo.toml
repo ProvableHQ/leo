@@ -33,6 +33,10 @@ default-features = false
 path = "../imports"
 version = "1.5.3"
 
+[dependencies.leo-input]
+path = "../input"
+version = "1.5.3"
+
 [dependencies.leo-package]
 path = "../package"
 version = "1.5.3"
@@ -108,7 +112,7 @@ version = "0.7.7"
 path = "D:\\Work\\leo_repos\\snarkVM\\eval"
 
 #todo 0rphon
-[dev-dependencies.snarkvm-curves]
+[dependencies.snarkvm-curves]
 version = "0.7.7"
 path = "D:\\Work\\leo_repos\\snarkVM\\curves"
 

@@ -1293,6 +1293,7 @@ dependencies = [
  "leo-ast-passes",
  "leo-errors",
  "leo-imports",
+ "leo-input",
  "leo-package",
  "leo-parser",
  "leo-state",

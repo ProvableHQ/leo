@@ -42,86 +42,86 @@ pub fn format_event() -> Result<()> {
     Ok(())
 }
 
-#[test]
-pub fn build_pedersen_hash() -> Result<()> {
-    (Build {
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, ())?;
-    Ok(())
-}
+// #[test]
+// pub fn build_pedersen_hash() -> Result<()> {
+//     (Build {
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, ())?;
+//     Ok(())
+// }
 
-#[test]
-pub fn setup_pedersen_hash() -> Result<()> {
-    let build = (Build {
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, ())?;
-    (Setup {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, build.clone())?;
-    (Setup {
-        skip_key_check: true,
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, build)?;
-    Ok(())
-}
+// #[test]
+// pub fn setup_pedersen_hash() -> Result<()> {
+//     let build = (Build {
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, ())?;
+//     (Setup {
+//         skip_key_check: false,
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, build.clone())?;
+//     (Setup {
+//         skip_key_check: true,
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, build)?;
+//     Ok(())
+// }
 
-#[test]
-pub fn prove_pedersen_hash() -> Result<()> {
-    let build = (Build {
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, ())?;
-    let setup = (Setup {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, build)?;
-    (Prove {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, setup.clone())?;
-    (Prove {
-        skip_key_check: true,
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, setup)?;
-    Ok(())
-}
+// #[test]
+// pub fn prove_pedersen_hash() -> Result<()> {
+//     let build = (Build {
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, ())?;
+//     let setup = (Setup {
+//         skip_key_check: false,
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, build)?;
+//     (Prove {
+//         skip_key_check: false,
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, setup.clone())?;
+//     (Prove {
+//         skip_key_check: true,
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, setup)?;
+//     Ok(())
+// }
 
-#[test]
-pub fn run_pedersen_hash() -> Result<()> {
-    let build = (Build {
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, ())?;
-    let setup = (Setup {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, build)?;
-    let prove = (Prove {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, setup)?;
-    (Run {
-        skip_key_check: false,
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, prove.clone())?;
-    (Run {
-        skip_key_check: true,
-        compiler_options: Default::default(),
-    })
-    .apply(context()?, prove)?;
-    Ok(())
-}
+// #[test]
+// pub fn run_pedersen_hash() -> Result<()> {
+//     let build = (Build {
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, ())?;
+//     let setup = (Setup {
+//         skip_key_check: false,
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, build)?;
+//     let prove = (Prove {
+//         skip_key_check: false,
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, setup)?;
+//     (Run {
+//         skip_key_check: false,
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, prove.clone())?;
+//     (Run {
+//         skip_key_check: true,
+//         compiler_options: Default::default(),
+//     })
+//     .apply(context()?, prove)?;
+//     Ok(())
+// }
 
 #[test]
 pub fn test_pedersen_hash() -> Result<()> {

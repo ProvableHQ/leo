@@ -48,19 +48,29 @@ impl<'a> Program<'a> {
             }))
             .collect();
 
-        self.register_function(main);
+        self.enforce_function(&asg, &main, &secondary_functions, input)
+    }
+
+    pub fn enforce_function(
+        &mut self,
+        asg: &leo_asg::Program<'a>,
+        function: &'a leo_asg::Function<'a>,
+        secondary_functions: &[&'a leo_asg::Function<'a>],
+        input: &leo_ast::Input,
+    ) -> Result<()> {
+        self.register_function(function);
         for function in secondary_functions.iter() {
             self.register_function(*function);
         }
 
-        self.current_function = Some(main);
-        self.begin_main_function(main);
+        self.current_function = Some(function);
+        self.begin_main_function(function);
 
         for (_, global_const) in asg.global_consts.iter() {
             self.enforce_definition_statement(global_const)?;
         }
 
-        self.enforce_main_function(&main, input)?;
+        self.enforce_main_function(&function, input)?;
         for function in secondary_functions.iter() {
             self.enforce_function_definition(*function)?;
         }
