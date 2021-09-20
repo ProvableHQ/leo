@@ -128,7 +128,7 @@ Rather, the blockchain has to verify a zero-knowledge proof asserting that
 there exist values in `Input`, known to the creator of the transaction,
 such that the execution of the Leo program's `main`
 on those values and on the old records
-yields the new records;
+yields the new records, along with some value in `Output`;
 this is, roughly speaking, the assertion proved in zero-knowledge.
 
 ### Proposed Leo Program Execution Model
