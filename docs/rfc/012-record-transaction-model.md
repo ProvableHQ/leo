@@ -190,7 +190,7 @@ However, we probably want `input` to be read-only,
 i.e. disallow assigning to an old record slot.
 Designating `input` as `const` does not seem right,
 as that designation normally means that it is compiled into the circuit.
-Instead, we could provide read-only access via member function (e.g. `get_payload()`, `get_balance()`),
+Instead, we could provide read-only access via member function (e.g. `payload()`, `balance()`),
 but we still have to prohibit assignments to member variables (which is currently allowed on any circuit type).
 As an orthogonal and more generally useful feature,
 we could consider adding public/private access designations to Leo circuit members.
