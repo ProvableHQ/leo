@@ -237,6 +237,46 @@ or perhaps they should be predicates, i.e. return `bool`,
 where `true` indicates a successful check (e.g. "yes, this private input yields this commitment when hashed")
 and `false` indicates a failed check.
 
+Another possibility is to require entry point functions to return records as outputs.
+More precisely, these may be smaller structures than records,
+because some of the slots of the records may be only calculated outside of Leo,
+but for the present discussion we will assume that Leo can calculate the whole records.
+As mentioned earlier, a transaction may generate 0, 1, or 2 new records.
+Correspondingly, we could require entry point functions to return results of one of the following types:
+```
+@entrypoint function ...(...) -> () // when no new records are created
+@entrypoint function ...(...) -> Record // when one new record is created
+@entrypoint function ...(...) -> (Record, Record) // when two new records are created
+// using an annotation for concreteness, but the point stands for the other options discussed
+```
+In other words, an entry point function can be now seen as a mathematical function
+```
+entrypoint : Record x Record x Inputs -> Record x Record
+```
+where one or both output records are dummy if the function creates less than two new records.
+
+The above constrains each entry point to always return the same number of records.
+Different entry point functions may return different numbers of records.
+If we want the same entry point function
+to return different numbers of records in different situations,
+then it could make sense to have a more general circuit type for the output of a transaction,
+which may contain 0, 1, or 2 records, and possibly other information as needed,
+and require entry point functions to uniformly return values of that type:
+```
+@entrypoint function ...(...) -> TransactionOutput // contains 0, 1, or 2 records
+```
+
+Earlier we discussed having a known and accessible circuit type for the `input` special variable.
+This type could be called `TransactionInput`, which mirrors `TransactionOutput`.
+In this case, it seems more natural to treat `input` not as a global variable,
+but as a parameter of entry functions;
+it could be the first parameter, required for every entry function that accesses the transaction input:
+```
+@entrypoint function ...(input: TransactionInput, ...) -> TransactionOutput
+```
+We could even drop `input` as a special keyword/expression altogether,
+and allow any name (but suggest a convention) for the `TransactionInput` parameter of entry point functions.
+
 ## Alternatives
 
 The 'Design' section above already outlines several alternatives to consider.
