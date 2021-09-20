@@ -114,6 +114,12 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -136,7 +142,13 @@
 <span class="doccomment">/// with a unique error code.</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules!</span> <span class="ident">create_errors</span> {
-    (@<span class="ident">step</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">_code</span>:<span class="ident">expr</span>,) <span class="op">=</span><span class="op">&gt;</span> {};
+    (@<span class="ident">step</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>:<span class="ident">expr</span>,) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+        <span class="comment">// Returns the number of unique exit codes that this error type can take on.</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_exit_codes</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+            <span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span>
+        }
+    };
     ($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">error_type_docs</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">error_type</span>:<span class="ident">ident</span>, <span class="ident">exit_code_mask</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">exit_code_mask</span>:<span class="ident">expr</span>, <span class="ident">error_code_prefix</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">error_code_prefix</span>:<span class="ident">expr</span>, $($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">docs</span>:<span class="ident">meta</span>]</span>)<span class="op">*</span> @<span class="macro-nonterminal">$</span><span class="macro-nonterminal">formatted_or_backtraced_list</span>:<span class="ident">ident</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">names</span>:<span class="ident">ident</span> { <span class="ident">args</span>: ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_names</span>:<span class="ident">ident</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">arg_types</span>:<span class="ident">ty</span>$(,)<span class="question-mark">?</span>)<span class="kw-2">*</span>), <span class="ident">msg</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">messages</span>:<span class="ident">expr</span>, <span class="ident">help</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">helps</span>:<span class="ident">expr</span>, })<span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_imports</span>)]</span> <span class="comment">// Allow unused for errors that only use formatted or backtraced errors.</span>
         <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BacktracedError</span>, <span class="ident">FormattedError</span>, <span class="ident">LeoErrorCode</span>, <span class="ident">Span</span>};
@@ -179,6 +191,7 @@
                 <span class="macro-nonterminal">$</span><span class="macro-nonterminal">error_code_prefix</span>.<span class="ident">to_string</span>()
             }
         }
+
 
         <span class="comment">// Steps over the list of functions with an initial error code of 0.</span>
         <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">error_type</span> {
@@ -229,7 +242,6 @@
         <span class="comment">// Steps the error code value by one and calls on the rest of the functions.</span>
         <span class="macro">create_errors!</span>(@<span class="ident">step</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">code</span> <span class="op">+</span> <span class="number">1i32</span>, $(($(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">docs</span>]</span>)<span class="op">*</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">formatted_or_backtraced_tail</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">names</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_arg_names</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tail_arg_types</span>,)<span class="kw-2">*</span>), <span class="macro-nonterminal">$</span><span class="macro-nonterminal">messages</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">helps</span>),)<span class="kw-2">*</span>);
     };
-
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
