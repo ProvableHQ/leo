@@ -17,7 +17,7 @@
 //! Resolves assignees in a compiled Leo program.
 
 use crate::program::Program;
-use leo_asg::{AssignAccess, AssignOperation, AssignStatement, ExpressionNode, Type};
+use leo_asg::{AssignAccess, AssignOperation, AssignStatement, Type};
 use leo_errors::Result;
 use snarkvm_ir::{Instruction, QueryData, Value};
 
@@ -27,7 +27,6 @@ mod member;
 mod tuple;
 
 struct ResolverContext<'a, 'b> {
-    target_array_length: u32,
     input_type: Type<'a>,
     input_register: u32,
     remaining_accesses: &'b [&'b AssignAccess<'a>],
@@ -61,10 +60,6 @@ impl<'a> Program<'a> {
     pub fn resolve_assign(&mut self, assignee: &AssignStatement<'a>, target_value: Value) -> Result<()> {
         let variable = assignee.target_variable.get();
         let type_ = variable.borrow().type_.clone();
-        let target_array_length = match &assignee.value.get().get_type().expect("missing assignment value type") {
-            Type::Array(_, x) => *x,
-            _ => 0,
-        };
 
         let target = self.resolve_var(variable);
         let accesses: Vec<_> = assignee.target_accesses.iter().rev().collect();
@@ -72,7 +67,6 @@ impl<'a> Program<'a> {
             input_type: type_,
             input_register: target,
             remaining_accesses: &accesses[..],
-            target_array_length,
             operation: assignee.operation,
             target_value,
         })?;

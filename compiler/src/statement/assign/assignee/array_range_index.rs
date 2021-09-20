@@ -43,6 +43,10 @@ impl<'a> Program<'a> {
             .map(|e| self.enforce_expression(e))
             .transpose()?
             .unwrap_or_else(|| Value::Integer(Integer::U32(length)));
+        let slice_length = match (&start_value, &stop_value) {
+            (Value::Integer(start), Value::Integer(stop)) => stop.get_unsigned() - start.get_unsigned(),
+            _ => panic!("slice expected Integer"),
+        };
         let input_var = context.input_register;
 
         let out = self.alloc();
@@ -52,11 +56,11 @@ impl<'a> Program<'a> {
                 Value::Ref(input_var),
                 start_value.clone(),
                 stop_value.clone(),
-                Value::Integer(Integer::U32(context.target_array_length)),
+                Value::Integer(Integer::U32(slice_length)),
             ],
         }));
         context.input_register = out;
-        context.input_type = inner_type.clone();
+        context.input_type = Type::Array(Box::new(inner_type.clone()), slice_length);
         let inner = self.resolve_target_access(context)?;
         self.emit(Instruction::ArraySliceStore(QueryData {
             destination: input_var,
