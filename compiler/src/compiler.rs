@@ -22,7 +22,7 @@ use crate::{
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, Program as AsgProgram};
 use leo_ast::{AstPass, Input, MainInput, Program as AstProgram};
-use leo_errors::{CompilerError, Result};
+use leo_errors::{AstError, CompilerError, Result};
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
@@ -249,7 +249,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             if !self.ast_snapshot_options.spans_enabled {
                 let mut value = ast.to_json_value()?;
                 remove_key_from_json(&mut value, "span");
-                leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "initial_ast.json")?;
+                write_value_to_json_file(value, self.output_directory.clone(), "initial_ast.json")?;
             } else {
                 ast.to_json_file_direct(self.output_directory.clone(), "initial_ast.json")?;
             }
@@ -265,7 +265,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             if !self.ast_snapshot_options.spans_enabled {
                 let mut value = ast.to_json_value()?;
                 remove_key_from_json(&mut value, "span");
-                leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "imports_resolved_ast.json")?;
+                write_value_to_json_file(value, self.output_directory.clone(), "imports_resolved_ast.json")?;
             } else {
                 ast.to_json_file_direct(self.output_directory.clone(), "imports_resolved_ast.json")?;
             }
@@ -278,7 +278,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             if !self.ast_snapshot_options.spans_enabled {
                 let mut value = ast.to_json_value()?;
                 remove_key_from_json(&mut value, "span");
-                leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "canonicalization_ast.json")?;
+                write_value_to_json_file(value, self.output_directory.clone(), "canonicalization_ast.json")?;
             } else {
                 ast.to_json_file_direct(self.output_directory.clone(), "canonicalization_ast.json")?;
             }
@@ -301,7 +301,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             if !self.ast_snapshot_options.spans_enabled {
                 let mut value = new_ast.to_json_value()?;
                 remove_key_from_json(&mut value, "span");
-                leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "type_inferenced_ast.json")?;
+                write_value_to_json_file(value, self.output_directory.clone(), "type_inferenced_ast.json")?;
             } else {
                 new_ast.to_json_file_direct(self.output_directory.clone(), "type_inferenced_ast.json")?;
             }
@@ -431,4 +431,13 @@ fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
         }
         _ => (),
     }
+}
+
+/// Serializes a JSON value (of the AST) into a JSON file.
+fn write_value_to_json_file(value: serde_json::Value, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
+    path.push(file_name);
+    let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
+    let writer = std::io::BufWriter::new(file);
+    Ok(serde_json::to_writer_pretty(writer, &value)
+        .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
 }
