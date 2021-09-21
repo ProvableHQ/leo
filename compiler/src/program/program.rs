@@ -124,7 +124,6 @@ impl<'a> Program<'a> {
             .expect("missing register allocation for variable")
     }
 
-    //todo 0rphon: cant import functions
     /// returns function index
     pub fn resolve_function(&self, function: &leo_asg::Function<'a>) -> u32 {
         *self.function_to_index.get(&function.id).expect("unresolved function")

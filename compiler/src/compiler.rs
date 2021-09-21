@@ -324,11 +324,12 @@ impl<'a> Compiler<'a> {
 
         let secondary_functions: Vec<_> = program
             .asg
-            .functions
+            .scope
+            .get_functions()
             .iter()
-            .filter(|(name, func)| !func.is_test() && *name != "main")
+            .filter(|(_, func)| !func.is_test())
             .map(|(_, f)| *f)
-            .chain(program.asg.circuits.iter().flat_map(|(_, circuit)| {
+            .chain(program.asg.scope.get_circuits().iter().flat_map(|(_, circuit)| {
                 circuit
                     .members
                     .borrow()
