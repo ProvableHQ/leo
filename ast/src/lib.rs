@@ -103,12 +103,17 @@ impl Ast {
         Ok(serde_json::to_string_pretty(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
     }
 
+    // Converts the ast into a JSON value
+    pub fn to_json_value(&self) -> Result<serde_json::Value> {
+        Ok(serde_json::to_value(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
+    }
+
     /// Serializes the ast into a JSON file.
-    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
+    pub fn to_json_file(value: serde_json::Value, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
         path.push(file_name);
         let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
         let writer = std::io::BufWriter::new(file);
-        Ok(serde_json::to_writer_pretty(writer, &self.ast)
+        Ok(serde_json::to_writer_pretty(writer, &value)
             .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
     }
 
