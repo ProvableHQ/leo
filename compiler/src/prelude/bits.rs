@@ -16,7 +16,7 @@
 
 use super::CoreFunctionCall;
 use crate::{ConstrainedValue, GroupType};
-use leo_asg::{Function, Type};
+use leo_asg::Function;
 use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
@@ -77,7 +77,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreFunctionCall<'a, F, G> for FromBits
         mut arguments: Vec<ConstrainedValue<'a, F, G>>,
     ) -> Result<ConstrainedValue<'a, F, G>> {
         assert_eq!(arguments.len(), 1); // asg enforced
-                                        // assert!(function.borrow().name.borrow().name.as_ref() == "from_bits"); // asg enforced
+        assert!(function.borrow().name.borrow().name.as_ref() == "from_bits"); // asg enforced
         assert!(target.is_some()); // asg enforced
 
         let type_ = match target {
@@ -85,23 +85,21 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreFunctionCall<'a, F, G> for FromBits
             _ => unimplemented!("only named values implement to_bits gadget"),
         };
 
-        let (expected_number_of_bits, output_type): (usize, leo_asg::Type) = match type_.as_str() {
-            "u8" => (8, Type::Integer(leo_ast::IntegerType::U8)),
-            "u16" => (16, Type::Integer(leo_ast::IntegerType::U16)),
-            "u32" => (32, Type::Integer(leo_ast::IntegerType::U32)),
-            "u64" => (64, Type::Integer(leo_ast::IntegerType::U64)),
-            "u128" => (128, Type::Integer(leo_ast::IntegerType::U128)),
-            "i8" => (8, Type::Integer(leo_ast::IntegerType::I8)),
-            "i16" => (16, Type::Integer(leo_ast::IntegerType::I16)),
-            "i32" => (32, Type::Integer(leo_ast::IntegerType::I32)),
-            "i64" => (64, Type::Integer(leo_ast::IntegerType::I64)),
-            "i128" => (128, Type::Integer(leo_ast::IntegerType::I128)),
+        let expected_number_of_bits: usize = match type_.as_str() {
+            "u8" => 8,
+            "u16" => 16,
+            "u32" => 32,
+            "u64" => 64,
+            "u128" => 128,
+            "i8" => 8,
+            "i16" => 16,
+            "i32" => 32,
+            "i64" => 64,
+            "i128" => 128,
             _ => unimplemented!(),
         };
 
         let bits = unwrap_argument(arguments.remove(0), expected_number_of_bits);
-
-        // function.borrow_mut().output = output_type;
 
         ConstrainedValue::from_bits_le(&type_, &bits, span)
     }

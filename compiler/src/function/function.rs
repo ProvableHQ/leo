@@ -39,7 +39,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
 
         let self_var = if let Some(target) = &target_value {
-            let self_var = (*function)
+            let self_var = function
                 .borrow()
                 .scope
                 .resolve_variable("self")
