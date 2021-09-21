@@ -239,7 +239,7 @@ and `false` indicates a failed check.
 
 Another possibility is to require entry point functions to return records as outputs.
 More precisely, these may be smaller structures than records,
-because some of the slots of the records may be only calculated outside of Leo,
+because some of the slots of the records may only be calculated outside of Leo,
 but for the present discussion we will assume that Leo can calculate the whole records.
 As mentioned earlier, a transaction may generate 0, 1, or 2 new records.
 Correspondingly, we could require entry point functions to return results of one of the following types:
