@@ -246,11 +246,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
         if self.ast_snapshot_options.initial {
-            let mut value = ast.to_json_value()?;
             if !self.ast_snapshot_options.spans_enabled {
-                remove_key_from_json(&mut value, "span")
+                let mut value = ast.to_json_value()?;
+                remove_key_from_json(&mut value, "span");
+                leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "initial_ast.json")?;
+            } else {
+                ast.to_json_file_direct(self.output_directory.clone(), "initial_ast.json")?;
             }
-            leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "initial_ast.json")?;
         }
 
         // Preform import resolution.
@@ -260,24 +262,26 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         )?;
 
         if self.ast_snapshot_options.imports_resolved {
-            let mut value = ast.to_json_value()?;
             if !self.ast_snapshot_options.spans_enabled {
+                let mut value = ast.to_json_value()?;
                 remove_key_from_json(&mut value, "span");
+                leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "imports_resolved_ast.json")?;
+            } else {
+                ast.to_json_file_direct(self.output_directory.clone(), "imports_resolved_ast.json")?;
             }
-
-            leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "imports_resolved_ast.json")?;
         }
 
         // Preform canonicalization of AST always.
         ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
 
         if self.ast_snapshot_options.canonicalized {
-            let mut value = ast.to_json_value()?;
             if !self.ast_snapshot_options.spans_enabled {
+                let mut value = ast.to_json_value()?;
                 remove_key_from_json(&mut value, "span");
+                leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "canonicalization_ast.json")?;
+            } else {
+                ast.to_json_file_direct(self.output_directory.clone(), "canonicalization_ast.json")?;
             }
-
-            leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "canonicalization_ast.json")?;
         }
 
         // Store the main program file.
@@ -294,12 +298,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
                 .phase_ast(&self.program, &asg.clone().into_repr())
                 .expect("Failed to produce type inference ast.");
 
-            let mut value = new_ast.to_json_value()?;
-            if self.ast_snapshot_options.spans_enabled {
+            if !self.ast_snapshot_options.spans_enabled {
+                let mut value = new_ast.to_json_value()?;
                 remove_key_from_json(&mut value, "span");
+                leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "type_inferenced_ast.json")?;
+            } else {
+                new_ast.to_json_file_direct(self.output_directory.clone(), "type_inferenced_ast.json")?;
             }
-
-            leo_ast::Ast::to_json_file(value, self.output_directory.clone(), "type_inferenced_ast.json")?;
         }
 
         tracing::debug!("ASG generation complete");
