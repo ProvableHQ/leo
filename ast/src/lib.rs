@@ -109,7 +109,7 @@ impl Ast {
     }
 
     /// Serializes the ast into a JSON file.
-    pub fn to_json_file_direct(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
+    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
         path.push(file_name);
         let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
         let writer = std::io::BufWriter::new(file);

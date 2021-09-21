@@ -251,7 +251,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
                 remove_key_from_json(&mut value, "span");
                 write_value_to_json_file(value, self.output_directory.clone(), "initial_ast.json")?;
             } else {
-                ast.to_json_file_direct(self.output_directory.clone(), "initial_ast.json")?;
+                ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
             }
         }
 
@@ -267,7 +267,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
                 remove_key_from_json(&mut value, "span");
                 write_value_to_json_file(value, self.output_directory.clone(), "imports_resolved_ast.json")?;
             } else {
-                ast.to_json_file_direct(self.output_directory.clone(), "imports_resolved_ast.json")?;
+                ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
             }
         }
 
@@ -280,7 +280,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
                 remove_key_from_json(&mut value, "span");
                 write_value_to_json_file(value, self.output_directory.clone(), "canonicalization_ast.json")?;
             } else {
-                ast.to_json_file_direct(self.output_directory.clone(), "canonicalization_ast.json")?;
+                ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
             }
         }
 
@@ -303,7 +303,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
                 remove_key_from_json(&mut value, "span");
                 write_value_to_json_file(value, self.output_directory.clone(), "type_inferenced_ast.json")?;
             } else {
-                new_ast.to_json_file_direct(self.output_directory.clone(), "type_inferenced_ast.json")?;
+                new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
             }
         }
 
