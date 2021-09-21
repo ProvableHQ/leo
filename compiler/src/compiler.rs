@@ -246,7 +246,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
         if self.ast_snapshot_options.initial {
-            ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
+            if !self.ast_snapshot_options.spans_enabled {
+                //TODO: Implement
+            } else {
+                ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
+            }
         }
 
         // Preform import resolution.
@@ -256,14 +260,22 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         )?;
 
         if self.ast_snapshot_options.imports_resolved {
-            ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
+            if !self.ast_snapshot_options.spans_enabled {
+                //TODO: Implement
+            } else {
+                ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
+            }
         }
 
         // Preform canonicalization of AST always.
         ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
 
         if self.ast_snapshot_options.canonicalized {
-            ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
+            if !self.ast_snapshot_options.spans_enabled {
+                //TODO: Implement
+            } else {
+                ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
+            }
         }
 
         // Store the main program file.
@@ -279,7 +291,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
             let new_ast = TypeInferencePhase::default()
                 .phase_ast(&self.program, &asg.clone().into_repr())
                 .expect("Failed to produce type inference ast.");
-            new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
+            if self.ast_snapshot_options.spans_enabled {
+                //TODO: Implement
+            } else {
+                new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
+            }
         }
 
         tracing::debug!("ASG generation complete");

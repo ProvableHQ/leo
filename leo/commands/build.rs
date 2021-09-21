@@ -43,6 +43,8 @@ pub struct BuildOptions {
     pub disable_code_elimination: bool,
     #[structopt(long, help = "Disable all compiler optimizations")]
     pub disable_all_optimizations: bool,
+    #[structopt(long, help = "Enable spans in AST snapshots.")]
+    pub enable_spans: bool,
     #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
     pub enable_all_ast_snapshots: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
@@ -61,6 +63,7 @@ impl Default for BuildOptions {
             disable_constant_folding: false,
             disable_code_elimination: false,
             disable_all_optimizations: false,
+            enable_spans: false,
             enable_all_ast_snapshots: false,
             enable_initial_ast_snapshot: false,
             enable_imports_resolved_ast_snapshot: false,
@@ -90,6 +93,7 @@ impl From<BuildOptions> for AstSnapshotOptions {
     fn from(options: BuildOptions) -> Self {
         if options.enable_all_ast_snapshots {
             AstSnapshotOptions {
+                spans_enabled: options.enable_spans,
                 initial: true,
                 imports_resolved: true,
                 canonicalized: true,
@@ -97,6 +101,7 @@ impl From<BuildOptions> for AstSnapshotOptions {
             }
         } else {
             AstSnapshotOptions {
+                spans_enabled: options.enable_spans,
                 initial: options.enable_initial_ast_snapshot,
                 imports_resolved: options.enable_imports_resolved_ast_snapshot,
                 canonicalized: options.enable_canonicalized_ast_snapshot,
