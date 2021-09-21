@@ -39,12 +39,12 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let registers = input.get_registers();
 
         // Iterate over main function input variables and allocate new values
-        let asg_input = (*function).borrow().scope.resolve_input();
+        let asg_input = function.borrow().scope.resolve_input();
 
         if let Some(asg_input) = asg_input {
             let value = self.allocate_input_keyword(
                 cs,
-                &(*function).borrow().name.borrow().span,
+                &function.borrow().name.borrow().span,
                 asg_input.container_circuit,
                 input,
             )?;
@@ -52,7 +52,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             self.store(asg_input.container.borrow().id, value);
         }
 
-        match (*function).borrow().qualifier {
+        match function.borrow().qualifier {
             FunctionQualifier::SelfRef | FunctionQualifier::ConstSelfRef | FunctionQualifier::MutSelfRef => {
                 unimplemented!("cannot access self variable in main function")
             }
@@ -61,7 +61,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         let mut arguments = vec![];
 
-        for (_, input_variable) in (*function).borrow().arguments.iter() {
+        for (_, input_variable) in function.borrow().arguments.iter() {
             {
                 let input_variable = input_variable.get().borrow();
                 let name = input_variable.name.name.clone();
@@ -106,7 +106,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     // When not found - Error out.
                     (_, _, _) => {
                         return Err(CompilerError::function_input_not_found(
-                            (*function).borrow().name.borrow().name.to_string(),
+                            function.borrow().name.borrow().name.to_string(),
                             name,
                             &input_variable.name.span,
                         )
@@ -117,7 +117,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 // Store a new variable for every function input.
                 self.store(input_variable.id, input_value);
             }
-            arguments.push(Cell::new((*function).borrow().scope.context.alloc_expression(
+            arguments.push(Cell::new(function.borrow().scope.context.alloc_expression(
                 Expression::VariableRef(leo_asg::VariableRef {
                     parent: Cell::new(None),
                     span: Some(input_variable.get().borrow().name.span.clone()),
@@ -126,7 +126,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             )));
         }
 
-        let span = (*function).borrow().span.clone().unwrap_or_default();
+        let span = function.borrow().span.clone().unwrap_or_default();
         let result_value = self.enforce_function(cs, function, None, &arguments)?;
         let output = Output::new(&self.asg, registers, result_value, &span)?;
 

@@ -50,17 +50,17 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             None
         };
 
-        if (*function).borrow().arguments.len() != arguments.len() {
+        if function.borrow().arguments.len() != arguments.len() {
             return Err(CompilerError::function_input_not_found(
-                (*function).borrow().name.borrow().name.to_string(),
+                function.borrow().name.borrow().name.to_string(),
                 "arguments length invalid",
-                &(*function).borrow().span.clone().unwrap_or_default(),
+                &function.borrow().span.clone().unwrap_or_default(),
             )
             .into());
         }
 
         // Store input values as new variables in resolved program
-        for ((_, variable), input_expression) in (*function).borrow().arguments.iter().zip(arguments.iter()) {
+        for ((_, variable), input_expression) in function.borrow().arguments.iter().zip(arguments.iter()) {
             let input_value = self.enforce_expression(cs, input_expression.get())?;
             let variable = variable.get().borrow();
 
@@ -71,21 +71,17 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let mut results = vec![];
         let indicator = Boolean::constant(true);
 
-        let output = (*function).borrow().output.clone();
+        let output = function.borrow().output.clone();
 
         let mut result = self.enforce_statement(
             cs,
             &indicator,
-            (*function)
-                .borrow()
-                .body
-                .get()
-                .expect("attempted to call function header"),
+            function.borrow().body.get().expect("attempted to call function header"),
         )?;
 
         results.append(&mut result);
 
-        if (*function).borrow().qualifier == FunctionQualifier::MutSelfRef {
+        if function.borrow().qualifier == FunctionQualifier::MutSelfRef {
             if let (Some(self_var), Some(target)) = (self_var, target) {
                 let new_self = self
                     .get(self_var.borrow().id)
@@ -103,7 +99,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             cs,
             &output,
             results,
-            &(*function).borrow().span.clone().unwrap_or_default(),
+            &function.borrow().span.clone().unwrap_or_default(),
         )
     }
 }

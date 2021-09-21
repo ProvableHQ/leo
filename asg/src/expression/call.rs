@@ -83,13 +83,15 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
         value: &leo_ast::CallExpression,
         expected_type: Option<PartialType<'a>>,
     ) -> Result<CallExpression<'a>> {
-        let (target, function): (Option<&Expression>, Function) = match &*value.function {
+        let (target, function): (Option<&Expression>, Rc<RefCell<Function>>) = match &*value.function {
             leo_ast::Expression::Identifier(name) => (
                 None,
-                scope
-                    .resolve_function(&name.name)
-                    .ok_or_else(|| AsgError::unresolved_function(&name.name, &name.span))?
-                    .clone(),
+                Rc::new(RefCell::new(
+                    scope
+                        .resolve_function(&name.name)
+                        .ok_or_else(|| AsgError::unresolved_function(&name.name, &name.span))?
+                        .clone(),
+                )),
             ),
             leo_ast::Expression::Access(access) => match access {
                 leo_ast::AccessExpression::CircuitMember(leo_ast::accesses::CircuitMemberAccess {
@@ -126,7 +128,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                                     AsgError::circuit_member_mut_call_invalid(circuit_name, &name.name, span).into(),
                                 );
                             }
-                            (Some(target), (*body).clone())
+                            (Some(target), Rc::new(RefCell::new((*body).clone())))
                         }
                         CircuitMember::Variable(_) => {
                             return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
@@ -158,7 +160,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                                     AsgError::circuit_member_call_invalid(circuit_name, &name.name, span).into()
                                 );
                             }
-                            (None, (*body).clone())
+                            (None, Rc::new(RefCell::new((*body).clone())))
                         }
                         CircuitMember::Variable(_) => {
                             return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
@@ -169,7 +171,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     let target = <&Expression<'a>>::from_ast(scope, &**value, None)?;
 
                     let values = if let Some(function) = scope.resolve_function(access.name.as_ref()) {
-                        (Some(target), function.clone())
+                        (Some(target), Rc::new(RefCell::new(function.clone())))
                     } else {
                         // TODO put better error here
                         return Err(AsgError::illegal_ast_structure(
@@ -190,10 +192,12 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
 
                     let values = if let Some(function) = scope.resolve_function(access.name.as_ref()) {
                         if let Expression::NamedType(crate::NamedTypeExpression { named_type, .. }) = target {
-                            // this is a temporary hack to get correct output type till generics
-                            let _type_ = named_type.name.to_string();
+                            let function = Rc::new(RefCell::new(function.clone()));
 
-                            /* function.output = match type_.as_str() {
+                            // this is a temporary hack to get correct output type till generics
+                            let type_ = named_type.name.to_string();
+
+                            function.borrow_mut().output = match type_.as_str() {
                                 "u8" => Type::Integer(leo_ast::IntegerType::U8),
                                 "u16" => Type::Integer(leo_ast::IntegerType::U16),
                                 "u32" => Type::Integer(leo_ast::IntegerType::U32),
@@ -205,7 +209,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                                 "i64" => Type::Integer(leo_ast::IntegerType::I64),
                                 "i128" => Type::Integer(leo_ast::IntegerType::I128),
                                 _ => unimplemented!(),
-                            }; */
+                            };
                             (Some(target), function.clone())
                         } else {
                             return Err(AsgError::illegal_ast_structure(
@@ -242,14 +246,14 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
             }
         };
         if let Some(expected) = expected_type {
-            let output: Type = function.output.clone();
+            let output: Type = function.borrow().output.clone();
             if !expected.matches(&output) {
                 return Err(AsgError::unexpected_type(expected, output, &value.span).into());
             }
         }
-        if value.arguments.len() != function.arguments.len() {
+        if value.arguments.len() != function.borrow().arguments.len() {
             return Err(AsgError::unexpected_call_argument_count(
-                function.arguments.len(),
+                function.borrow().arguments.len(),
                 value.arguments.len(),
                 &value.span,
             )
@@ -259,7 +263,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
         let arguments = value
             .arguments
             .iter()
-            .zip(function.arguments.iter())
+            .zip(function.borrow().arguments.iter())
             .map(|(expr, (_, argument))| {
                 let argument = argument.get().borrow();
                 let converted = <&Expression<'a>>::from_ast(scope, expr, Some(argument.type_.clone().partial()))?;
@@ -270,14 +274,14 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
             })
             .collect::<Result<Vec<_>>>()?;
 
-        if function.is_test() {
+        if function.borrow().is_test() {
             return Err(AsgError::call_test_function(&value.span).into());
         }
         Ok(CallExpression {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             arguments,
-            function: Rc::new(RefCell::new(function)),
+            function,
             target: Cell::new(target),
         })
     }

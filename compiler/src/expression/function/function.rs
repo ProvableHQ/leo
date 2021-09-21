@@ -41,7 +41,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let name_unique = || {
             format!(
                 "function call {} {}:{}",
-                (*function).borrow().name.borrow().clone(),
+                function.borrow().name.borrow().clone(),
                 span.line_start,
                 span.col_start,
             )
