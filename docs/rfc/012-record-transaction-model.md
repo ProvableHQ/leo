@@ -205,10 +205,11 @@ or whether it should be explicitly passed to the entry point functions and to th
 The first approach is more concise, while the second approach is more explicit.
 Note that, in the second approach, we may want to enforce certain restrictions on the use of `input`,
 e.g. we may not want to allow a call `f(input, input)` even if the parameters of `f` both have the same circuit type as `input`.
-That is, even if we make the passing of `input` explicit,
-there is still something special about it;
-in essence, it still needs to be treated essentially like a global variable,
-i.e. in a single-threaded way.
+There is nothing inherently wrong with `f(input, input)`, i.e. with handling `input` by value,
+except that perhaps `input` is a relatively large structure,
+and duplicating it generates a (relatively) large number of R1CS constraints.
+Another idea is to pass `input` by (immutable) reference behind the scenes,
+analogously to how we pass `self` by mutable reference to functions with `mut self`.
 
 The treatment of output records is less clear at this point.
 As mentioned above, experimentation suggests that currently the output values of `main` are serialized into new records.
