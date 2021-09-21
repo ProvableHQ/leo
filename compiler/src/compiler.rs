@@ -503,10 +503,13 @@ impl<'a> Compiler<'a> {
                 value.parse().map_err(|_| AsgError::invalid_int(value, span))?,
             )),
             (Type::Array(inner, len), InputValue::Array(values)) => {
-                if values.len() != *len as usize {
-                    return Err(
-                        CompilerError::invalid_input_array_dimensions(*len as usize, values.len(), span).into(),
-                    );
+                if values.len() != len.unwrap() as usize {
+                    return Err(CompilerError::invalid_input_array_dimensions(
+                        len.unwrap() as usize,
+                        values.len(),
+                        span,
+                    )
+                    .into());
                 }
                 let mut out = Vec::with_capacity(values.len());
                 for value in values {

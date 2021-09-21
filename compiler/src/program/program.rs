@@ -288,7 +288,7 @@ fn asg_to_ir_type(type_: &AsgType) -> Type {
             IntegerType::I64 => Type::I64,
             IntegerType::I128 => Type::I128,
         },
-        AsgType::Array(inner, len) => Type::Array(Box::new(asg_to_ir_type(&*inner)), *len),
+        AsgType::Array(inner, len) => Type::Array(Box::new(asg_to_ir_type(&*inner)), Some(*len)),
         AsgType::Tuple(items) => Type::Tuple(items.iter().map(asg_to_ir_type).collect()),
         AsgType::Circuit(circuit) => {
             let members = circuit.members.borrow();
@@ -301,6 +301,6 @@ fn asg_to_ir_type(type_: &AsgType) -> Type {
                 .collect();
             Type::Tuple(members)
         }
-        AsgType::ArrayWithoutSize(inner) => todo!("0rphon"), //Type::ArrayWithoutSize(Box::new(asg_to_ir_type(&*inner))),
+        AsgType::ArrayWithoutSize(inner) => Type::Array(Box::new(asg_to_ir_type(&*inner)), None),
     }
 }
