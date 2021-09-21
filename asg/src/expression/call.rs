@@ -21,13 +21,16 @@ use crate::{
 pub use leo_ast::{BinaryOperation, Node as AstNode};
 use leo_errors::{AsgError, Result, Span};
 
-use std::cell::Cell;
+use std::{
+    cell::{Cell, RefCell},
+    rc::Rc,
+};
 
 #[derive(Clone)]
 pub struct CallExpression<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
-    pub function: Cell<&'a Function<'a>>,
+    pub function: Rc<RefCell<Function<'a>>>,
     pub target: Cell<Option<&'a Expression<'a>>>,
     pub arguments: Vec<Cell<&'a Expression<'a>>>,
 }
@@ -57,7 +60,7 @@ impl<'a> ExpressionNode<'a> for CallExpression<'a> {
     }
 
     fn get_type(&self) -> Option<Type<'a>> {
-        Some(self.function.get().output.clone())
+        Some(self.function.borrow().output.clone())
     }
 
     fn is_mut_ref(&self) -> bool {
@@ -80,12 +83,13 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
         value: &leo_ast::CallExpression,
         expected_type: Option<PartialType<'a>>,
     ) -> Result<CallExpression<'a>> {
-        let (target, function) = match &*value.function {
+        let (target, function): (Option<&Expression>, Function) = match &*value.function {
             leo_ast::Expression::Identifier(name) => (
                 None,
                 scope
                     .resolve_function(&name.name)
-                    .ok_or_else(|| AsgError::unresolved_function(&name.name, &name.span))?,
+                    .ok_or_else(|| AsgError::unresolved_function(&name.name, &name.span))?
+                    .clone(),
             ),
             leo_ast::Expression::Access(access) => match access {
                 leo_ast::AccessExpression::CircuitMember(leo_ast::accesses::CircuitMemberAccess {
@@ -122,7 +126,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                                     AsgError::circuit_member_mut_call_invalid(circuit_name, &name.name, span).into(),
                                 );
                             }
-                            (Some(target), *body)
+                            (Some(target), (*body).clone())
                         }
                         CircuitMember::Variable(_) => {
                             return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
@@ -154,16 +158,76 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                                     AsgError::circuit_member_call_invalid(circuit_name, &name.name, span).into()
                                 );
                             }
-                            (None, *body)
+                            (None, (*body).clone())
                         }
                         CircuitMember::Variable(_) => {
                             return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
                         }
                     }
                 }
+                leo_ast::AccessExpression::Value(leo_ast::accesses::ValueAccess { value, access, span }) => {
+                    let target = <&Expression<'a>>::from_ast(scope, &**value, None)?;
+
+                    let values = if let Some(function) = scope.resolve_function(access.name.as_ref()) {
+                        (Some(target), function.clone())
+                    } else {
+                        // TODO put better error here
+                        return Err(AsgError::illegal_ast_structure(
+                            "non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess as call target",
+                            span,
+                        )
+                        .into());
+                    };
+
+                    values
+                }
+                leo_ast::AccessExpression::Named(leo_ast::accesses::NamedTypeAccess {
+                    named_type,
+                    access,
+                    span,
+                }) => {
+                    let target = <&Expression<'a>>::from_ast(scope, &**named_type, None)?;
+
+                    let values = if let Some(function) = scope.resolve_function(access.name.as_ref()) {
+                        if let Expression::NamedType(crate::NamedTypeExpression { named_type, .. }) = target {
+                            // this is a temporary hack to get correct output type till generics
+                            let _type_ = named_type.name.to_string();
+
+                            /* function.output = match type_.as_str() {
+                                "u8" => Type::Integer(leo_ast::IntegerType::U8),
+                                "u16" => Type::Integer(leo_ast::IntegerType::U16),
+                                "u32" => Type::Integer(leo_ast::IntegerType::U32),
+                                "u64" => Type::Integer(leo_ast::IntegerType::U64),
+                                "u128" => Type::Integer(leo_ast::IntegerType::U128),
+                                "i8" => Type::Integer(leo_ast::IntegerType::I8),
+                                "i16" => Type::Integer(leo_ast::IntegerType::I16),
+                                "i32" => Type::Integer(leo_ast::IntegerType::I32),
+                                "i64" => Type::Integer(leo_ast::IntegerType::I64),
+                                "i128" => Type::Integer(leo_ast::IntegerType::I128),
+                                _ => unimplemented!(),
+                            }; */
+                            (Some(target), function.clone())
+                        } else {
+                            return Err(AsgError::illegal_ast_structure(
+                                "non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess as call target",
+                                span,
+                            )
+                            .into());
+                        }
+                    } else {
+                        // TODO put better error here
+                        return Err(AsgError::illegal_ast_structure(
+                            "non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess as call target",
+                            span,
+                        )
+                        .into());
+                    };
+
+                    values
+                }
                 _ => {
                     return Err(AsgError::illegal_ast_structure(
-                        "non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess as call target",
+                        "non Identifier/CircuitMemberAccess/CircuitStaticFunctionAccess/ValueAccess as call target",
                         access.span(),
                     )
                     .into());
@@ -213,7 +277,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             arguments,
-            function: Cell::new(function),
+            function: Rc::new(RefCell::new(function)),
             target: Cell::new(target),
         })
     }
@@ -224,17 +288,17 @@ impl<'a> Into<leo_ast::CallExpression> for &CallExpression<'a> {
         let target_function = if let Some(target) = self.target.get() {
             target.into()
         } else {
-            let circuit = self.function.get().circuit.get();
+            let circuit = self.function.borrow().circuit.get();
             if let Some(circuit) = circuit {
                 leo_ast::Expression::Access(leo_ast::AccessExpression::CircuitStaticFunction(
                     leo_ast::accesses::CircuitStaticFunctionAccess {
                         circuit: Box::new(leo_ast::Expression::Identifier(circuit.name.borrow().clone())),
-                        name: self.function.get().name.borrow().clone(),
+                        name: self.function.borrow().name.borrow().clone(),
                         span: self.span.clone().unwrap_or_default(),
                     },
                 ))
             } else {
-                leo_ast::Expression::Identifier(self.function.get().name.borrow().clone())
+                leo_ast::Expression::Identifier(self.function.borrow().name.borrow().clone())
             }
         };
         leo_ast::CallExpression {

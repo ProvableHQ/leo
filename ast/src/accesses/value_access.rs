@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Node};
+use crate::{Expression, Identifier, Node};
 use leo_errors::Span;
 
 use std::fmt;
@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ValueAccess {
     pub value: Box<Expression>,
-    pub access: Box<Expression>,
+    pub access: Identifier,
     pub span: Span,
 }
 

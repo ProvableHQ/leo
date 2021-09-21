@@ -241,7 +241,7 @@ impl Canonicalizer {
                     }
                     AccessExpression::Named(named_type_access) => AccessExpression::Named(NamedTypeAccess {
                         named_type: Box::new(self.canonicalize_expression(&named_type_access.named_type)),
-                        access: Box::new(self.canonicalize_expression(&named_type_access.access)),
+                        access: named_type_access.access.clone(),
                         span: named_type_access.span.clone(),
                     }),
                     AccessExpression::Tuple(tuple_access) => {
@@ -255,7 +255,7 @@ impl Canonicalizer {
                     }
                     AccessExpression::Value(value_access) => {
                         let value = Box::new(self.canonicalize_expression(&value_access.value));
-                        let access = Box::new(self.canonicalize_expression(&value_access.access));
+                        let access = value_access.access.clone();
 
                         AccessExpression::Value(ValueAccess {
                             value,

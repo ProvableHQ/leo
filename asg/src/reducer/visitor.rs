@@ -84,7 +84,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_value_access(&mut self, input: &ValueAccess<'a>) -> VisitResult { 
+    fn visit_value_access(&mut self, input: &ValueAccess<'a>) -> VisitResult {
         Default::default()
     }
 

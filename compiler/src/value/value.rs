@@ -18,15 +18,18 @@
 
 use crate::{Address, Char, FieldType, GroupType, Integer};
 use leo_asg::{Circuit, Identifier, Type};
-use leo_errors::{Result, Span};
+use leo_errors::{CompilerError, Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::{
     bits::Boolean,
+    integers::uint::UInt8,
     traits::{eq::ConditionalEqGadget, select::CondSelectGadget},
 };
 use snarkvm_r1cs::{ConstraintSystem, SynthesisError};
 use std::fmt;
+
+use tendril::StrTendril;
 
 #[derive(Clone, PartialEq, Eq)]
 pub struct ConstrainedCircuitMember<'a, F: PrimeField, G: GroupType<F>>(pub Identifier, pub ConstrainedValue<'a, F, G>);
@@ -40,6 +43,7 @@ pub enum ConstrainedValue<'a, F: PrimeField, G: GroupType<F>> {
     Field(FieldType<F>),
     Group(G),
     Integer(Integer),
+    Named(StrTendril),
 
     // Arrays
     Array(Vec<ConstrainedValue<'a, F, G>>),
@@ -61,6 +65,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedValue<'a, F, G> {
             ConstrainedValue::Field(_field) => Type::Field,
             ConstrainedValue::Group(_group) => Type::Group,
             ConstrainedValue::Integer(integer) => Type::Integer(integer.get_type()),
+            ConstrainedValue::Named(_named) => Type::Named,
 
             // Data type wrappers
             ConstrainedValue::Array(array) => {
@@ -81,6 +86,71 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedValue<'a, F, G> {
             ConstrainedValue::CircuitExpression(id, _members) => Type::Circuit(*id),
         })
     }
+
+    pub fn to_bits_le(&self, span: &Span) -> Result<Vec<Boolean>> {
+        use ConstrainedValue::*;
+
+        match self {
+            Address(_) => Err(CompilerError::to_bits_not_implemented_for_type("address", span).into()),
+            Boolean(_) => Err(CompilerError::to_bits_not_implemented_for_type("boolean", span).into()),
+            Char(_) => Err(CompilerError::to_bits_not_implemented_for_type("char", span).into()),
+            Field(_) => Err(CompilerError::to_bits_not_implemented_for_type("field", span).into()),
+            Group(_) => Err(CompilerError::to_bits_not_implemented_for_type("group", span).into()),
+            Integer(integer) => Ok(integer.to_bits_le()),
+            Named(_) => Err(CompilerError::to_bits_not_implemented_for_type("named", span).into()),
+            Array(_) => Err(CompilerError::to_bits_not_implemented_for_type("array", span).into()),
+            Tuple(_) => Err(CompilerError::to_bits_not_implemented_for_type("tuple", span).into()),
+            CircuitExpression(circ, _) => {
+                Err(CompilerError::to_bits_not_implemented_for_type(circ.name.borrow().name.to_string(), span).into())
+            }
+        }
+    }
+
+    pub fn from_bits_le(type_: &str, bits: &[Boolean], span: &Span) -> Result<Self> {
+        use snarkvm_gadgets::{
+            integers::{int::*, uint::*},
+            Integer as IntegerTrait,
+        };
+
+        match type_ {
+            "u8" => Ok(ConstrainedValue::Integer(Integer::U8(UInt8::from_bits_le(bits)))),
+            "u16" => Ok(ConstrainedValue::Integer(Integer::U16(UInt16::from_bits_le(bits)))),
+            "u32" => Ok(ConstrainedValue::Integer(Integer::U32(UInt32::from_bits_le(bits)))),
+            "u64" => Ok(ConstrainedValue::Integer(Integer::U64(UInt64::from_bits_le(bits)))),
+            "u128" => Ok(ConstrainedValue::Integer(Integer::U128(UInt128::from_bits_le(bits)))),
+            "i8" => Ok(ConstrainedValue::Integer(Integer::I8(Int8::from_bits_le(bits)))),
+            "i16" => Ok(ConstrainedValue::Integer(Integer::I16(Int16::from_bits_le(bits)))),
+            "i32" => Ok(ConstrainedValue::Integer(Integer::I32(Int32::from_bits_le(bits)))),
+            "i64" => Ok(ConstrainedValue::Integer(Integer::I64(Int64::from_bits_le(bits)))),
+            "i128" => Ok(ConstrainedValue::Integer(Integer::I128(Int128::from_bits_le(bits)))),
+            _ => Err(CompilerError::to_bits_not_implemented_for_type(type_, span).into()),
+        }
+    }
+
+    pub fn to_bytes(&self, span: &Span) -> Result<Vec<UInt8>> {
+        use ConstrainedValue::*;
+
+        match self {
+            Address(_) => Err(CompilerError::to_bytes_not_implemented_for_type("address", span).into()),
+            Boolean(_) => Err(CompilerError::to_bytes_not_implemented_for_type("boolean", span).into()),
+            Char(_) => Err(CompilerError::to_bytes_not_implemented_for_type("char", span).into()),
+            Field(_) => Err(CompilerError::to_bytes_not_implemented_for_type("field", span).into()),
+            Group(_) => Err(CompilerError::to_bytes_not_implemented_for_type("group", span).into()),
+            Integer(_) => Err(CompilerError::to_bytes_not_implemented_for_type("group", span).into()),
+            Named(_) => Err(CompilerError::to_bytes_not_implemented_for_type("named", span).into()),
+            Array(_) => Err(CompilerError::to_bytes_not_implemented_for_type("array", span).into()),
+            Tuple(_) => Err(CompilerError::to_bytes_not_implemented_for_type("tuple", span).into()),
+            CircuitExpression(circ, _) => {
+                Err(CompilerError::to_bytes_not_implemented_for_type(circ.name.borrow().name.to_string(), span).into())
+            }
+        }
+    }
+
+    pub fn from_bytes(type_: &str, _bytes: &[UInt8], span: &Span) -> Result<Self> {
+        match type_ {
+            _ => Err(CompilerError::to_bytes_not_implemented_for_type(type_, span).into()),
+        }
+    }
 }
 
 impl<'a, F: PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<'a, F, G> {
@@ -100,6 +170,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> fmt::Display for ConstrainedValue<'a, F
             ConstrainedValue::Field(ref value) => write!(f, "{}", value),
             ConstrainedValue::Group(ref value) => write!(f, "{}", value),
             ConstrainedValue::Integer(ref value) => write!(f, "{}", value),
+            ConstrainedValue::Named(ref value) => write!(f, "{}", value),
 
             // Data type wrappers
             ConstrainedValue::Array(ref array) => {

@@ -197,6 +197,7 @@ impl<'a> Scope<'a> {
             Field => Type::Field,
             Group => Type::Group,
             IntegerType(int_type) => Type::Integer(int_type.clone()),
+            Named => Type::Named,
             Array(sub_type, dimensions) => {
                 let mut item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
 

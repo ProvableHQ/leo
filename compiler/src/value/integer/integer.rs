@@ -19,7 +19,6 @@ use crate::IntegerTrait;
 use leo_asg::{ConstInt, IntegerType};
 use leo_ast::InputValue;
 use leo_errors::{CompilerError, Result, Span};
-
 use snarkvm_fields::{Field, PrimeField};
 use snarkvm_gadgets::{
     boolean::Boolean,
@@ -86,13 +85,13 @@ impl Integer {
         }
     }
 
-    pub fn get_bits(&self) -> Vec<Boolean> {
+    pub fn to_bits_le(&self) -> Vec<Boolean> {
         let integer = self;
         match_integer!(integer => integer.to_bits_le())
     }
 
     pub fn is_allocated(&self) -> bool {
-        self.get_bits()
+        self.to_bits_le()
             .into_iter()
             .any(|b| matches!(b, Boolean::Is(_) | Boolean::Not(_)))
     }

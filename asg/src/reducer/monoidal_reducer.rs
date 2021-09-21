@@ -76,8 +76,8 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         target.unwrap_or_default()
     }
 
-    fn reduce_named_access(&mut self, input: &NamedTypeAccess<'a>, named_type: T, access: T) -> T {
-        named_type.append(access)
+    fn reduce_named_access(&mut self, input: &NamedTypeAccess<'a>, named_type: T) -> T {
+        named_type
     }
 
     fn reduce_tuple_access(&mut self, input: &TupleAccess<'a>, tuple_ref: T) -> T {

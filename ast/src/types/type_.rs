@@ -32,6 +32,7 @@ pub enum Type {
     Field,
     Group,
     IntegerType(IntegerType),
+    Named,
 
     // Data type wrappers
     #[serde(serialize_with = "serialize_array")]
@@ -161,6 +162,7 @@ impl fmt::Display for Type {
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
+            Type::Named => write!(f, "named"),
             Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::SelfType => write!(f, "SelfType"),
             Type::Array(ref array, ref dimensions) => {

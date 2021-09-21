@@ -21,7 +21,7 @@ use crate::{
     logical::*,
     program::ConstrainedProgram,
     relational::*,
-    resolve_core_circuit,
+    resolve_core_circuit, resolve_core_function,
     value::{Address, Char, CharType, ConstrainedCircuitMember, ConstrainedValue, Integer},
     FieldType, GroupType,
 };
@@ -119,7 +119,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             Expression::Cast(_) => unimplemented!("casts not implemented"),
 
             // Named
-            Expression::NamedType(_) => unimplemented!(), // TODO not sure
+            Expression::NamedType(named) => self.enforce_named_type(cs, named, span),
             // LengthOf
             Expression::LengthOf(lengthof) => self.enforce_lengthof(cs, lengthof, span),
 
@@ -191,21 +191,33 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 arguments,
                 ..
             }) => {
-                if let Some(circuit) = function.get().circuit.get() {
+                if let Some(circuit) = function.borrow().circuit.get() {
                     let core_mapping = circuit.core_mapping.borrow();
                     if let Some(core_mapping) = core_mapping.as_deref() {
                         let core_circuit = resolve_core_circuit::<F, G>(core_mapping);
                         return self.enforce_core_circuit_call_expression(
                             cs,
                             &core_circuit,
-                            function.get(),
+                            function.clone(),
                             target.get(),
                             &arguments[..],
                             span,
                         );
                     }
+                } else if let Some(core_function) =
+                    resolve_core_function::<F, G>(&function.borrow().name.borrow().name.to_string())
+                {
+                    return self.enforce_core_function_call_expression(
+                        cs,
+                        &core_function,
+                        function.clone(),
+                        target.get(),
+                        &arguments[..],
+                        span,
+                    );
                 }
-                self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], span)
+
+                self.enforce_function_call_expression(cs, function.clone(), target.get(), &arguments[..], span)
             }
         }
     }

@@ -835,10 +835,43 @@ create_errors!(
         help: None,
     }
 
+    /// For when an length of call is used on non Arrays.
     @formatted
     lengthof_can_only_be_used_on_arrays {
         args: (),
         msg: "len() can only be called on an array value".to_string(),
+        help: None,
+    }
+
+    /// For when to bits is called on a type that does not implement it.
+    @formatted
+    to_bits_not_implemented_for_type {
+        args: (type_: impl Display),
+        msg: format!("the type `{}` does not implement the to_bits method", type_),
+        help: None,
+    }
+
+    /// For when from bits is called on a type that does not implement it.
+    @formatted
+    from_bits_not_implemented_for_type {
+        args: (type_: impl Display),
+        msg: format!("the type `{}` does not implement the from_bits method", type_),
+        help: None,
+    }
+
+    /// For when to bytes is called on a type that does not implement it.
+    @formatted
+    to_bytes_not_implemented_for_type {
+        args: (type_: impl Display),
+        msg: format!("the type `{}` does not implement the to_bytes method", type_),
+        help: None,
+    }
+
+    /// For when from bytes is called on a type that does not implement it.
+    @formatted
+    from_bytes_not_implemented_for_type {
+        args: (type_: impl Display),
+        msg: format!("the type `{}` does not implement the from_bytes method", type_),
         help: None,
     }
 );

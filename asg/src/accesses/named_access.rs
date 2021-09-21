@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
+use crate::{ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType, Scope, Type};
 use leo_errors::{AsgError, Result, Span};
 
 use std::cell::Cell;
@@ -24,7 +24,7 @@ pub struct NamedTypeAccess<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub named_type: Cell<&'a Expression<'a>>,
-    pub access: Cell<&'a Expression<'a>>,
+    pub access: Identifier,
 }
 
 impl<'a> Node for NamedTypeAccess<'a> {
@@ -70,8 +70,6 @@ impl<'a> FromAst<'a, leo_ast::NamedTypeAccess> for NamedTypeAccess<'a> {
         expected_type: Option<PartialType<'a>>,
     ) -> Result<NamedTypeAccess<'a>> {
         let named_type = <&'a Expression<'a>>::from_ast(scope, &*value.named_type, expected_type)?;
-        // TODO make expected type for this an whatever from_bits/bytes should return.
-        let access = <&'a Expression<'a>>::from_ast(scope, &*value.access, None)?;
 
         if let Some(type_) = named_type.get_type() {
             return Err(AsgError::unexpected_type(type_, "none", &value.span).into());
@@ -81,7 +79,7 @@ impl<'a> FromAst<'a, leo_ast::NamedTypeAccess> for NamedTypeAccess<'a> {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             named_type: Cell::new(named_type),
-            access: Cell::new(access),
+            access: value.access.clone(),
         })
     }
 }
@@ -90,7 +88,7 @@ impl<'a> Into<leo_ast::NamedTypeAccess> for &NamedTypeAccess<'a> {
     fn into(self) -> leo_ast::NamedTypeAccess {
         leo_ast::NamedTypeAccess {
             named_type: Box::new(self.named_type.get().into()),
-            access: Box::new(self.access.get().into()),
+            access: self.access.clone(),
             span: self.span.clone().unwrap_or_default(),
         }
     }

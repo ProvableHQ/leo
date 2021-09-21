@@ -29,6 +29,7 @@ pub enum Type<'a> {
     Field,
     Group,
     Integer(IntegerType),
+    Named,
 
     // Data type wrappers
     Array(Box<Type<'a>>, usize),
@@ -152,6 +153,7 @@ impl<'a> fmt::Display for Type<'a> {
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::Integer(sub_type) => sub_type.fmt(f),
+            Type::Named => write!(f, "named"),
             Type::Array(sub_type, len) => write!(f, "[{}; {}]", sub_type, len),
             Type::ArrayWithoutSize(sub_type) => write!(f, "[{}; _]", sub_type),
             Type::Tuple(sub_types) => {
@@ -219,6 +221,7 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
             Field => leo_ast::Type::Field,
             Group => leo_ast::Type::Group,
             Integer(int_type) => leo_ast::Type::IntegerType(int_type.clone()),
+            Named => leo_ast::Type::Named,
             Array(type_, len) => leo_ast::Type::Array(
                 Box::new(type_.as_ref().into()),
                 Some(leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {

@@ -19,7 +19,7 @@ use std::{
     rc::Rc,
 };
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreCircuit, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreFunction, CoreFunctionCall, GroupType};
 
 use leo_asg::{Expression, Function};
 use leo_errors::{Result, Span};
@@ -30,10 +30,10 @@ use snarkvm_r1cs::ConstraintSystem;
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Call a default core circuit function with arguments
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>, C: CoreCircuit<'a, F, G>>(
+    pub fn enforce_core_function_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        core_circuit: &C,
+        core_function: &CoreFunction,
         function: Rc<RefCell<Function<'a>>>,
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
@@ -48,7 +48,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             .collect::<Result<Vec<_>, _>>()?;
 
         // Call the core function
-        let return_value = core_circuit.call_function(cs, function, span, target_value, arguments)?;
+        let return_value = core_function.call_function(cs, function, span, target_value, arguments)?;
 
         Ok(return_value)
     }

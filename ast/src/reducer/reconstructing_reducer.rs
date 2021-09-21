@@ -174,11 +174,11 @@ pub trait ReconstructingReducer {
         &mut self,
         value_access: &NamedTypeAccess,
         named_type: Expression,
-        access: Expression,
+        access: Identifier,
     ) -> Result<NamedTypeAccess> {
         Ok(NamedTypeAccess {
             named_type: Box::new(named_type),
-            access: Box::new(access),
+            access,
             span: value_access.span.clone(),
         })
     }
@@ -195,11 +195,11 @@ pub trait ReconstructingReducer {
         &mut self,
         value_access: &ValueAccess,
         value: Expression,
-        access: Expression,
+        access: Identifier,
     ) -> Result<ValueAccess> {
         Ok(ValueAccess {
             value: Box::new(value),
-            access: Box::new(access),
+            access,
             span: value_access.span.clone(),
         })
     }

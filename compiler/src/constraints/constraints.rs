@@ -25,7 +25,7 @@ use leo_package::inputs::InputPairs;
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::{ConstraintSystem, TestConstraintSystem};
-use std::path::Path;
+use std::{cell::RefCell, path::Path, rc::Rc};
 
 pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
     cs: &mut CS,
@@ -40,7 +40,12 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
 
     let main = {
         let program = program;
-        program.functions.get("main").cloned()
+        program
+            .functions
+            .get("main")
+            .cloned()
+            .as_deref()
+            .map(|main| Rc::new(RefCell::new(main.clone())))
     };
 
     match main {
@@ -123,6 +128,7 @@ pub fn generate_test_constraints<'a, F: PrimeField, G: GroupType<F>>(
         input.parse_state(state_ast)?;
 
         // run test function on new program with input
+        let function = Rc::new(RefCell::new((*function).clone()));
         let result = resolved_program.enforce_main_function(
             cs, function, &input, // pass program input into every test
         );

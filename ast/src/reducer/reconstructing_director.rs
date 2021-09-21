@@ -188,7 +188,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_named_access(&mut self, named_access: &NamedTypeAccess) -> Result<NamedTypeAccess> {
         let named_type = self.reduce_expression(&named_access.named_type)?;
-        let access = self.reduce_expression(&named_access.access)?;
+        let access = self.reduce_identifier(&named_access.access)?;
 
         self.reducer.reduce_named_access(named_access, named_type, access)
     }
@@ -201,7 +201,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_value_access(&mut self, value_access: &ValueAccess) -> Result<ValueAccess> {
         let value = self.reduce_expression(&value_access.value)?;
-        let access = self.reduce_expression(&value_access.access)?;
+        let access = self.reduce_identifier(&value_access.access)?;
 
         self.reducer.reduce_value_access(value_access, value, access)
     }

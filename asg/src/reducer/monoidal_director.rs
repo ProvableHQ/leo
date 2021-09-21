@@ -139,9 +139,8 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
 
     pub fn reduce_named_access(&mut self, input: &NamedTypeAccess<'a>) -> T {
         let named_type = self.reduce_expression(input.named_type.get());
-        let access = self.reduce_expression(input.access.get());
 
-        self.reducer.reduce_named_access(input, named_type, access)
+        self.reducer.reduce_named_access(input, named_type)
     }
 
     pub fn reduce_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> T {
@@ -182,7 +181,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
     pub fn reduce_named_type_expression(&mut self, input: &NamedTypeExpression<'a>) -> T {
         self.reducer.reduce_named_type_expression(input)
     }
-    
+
     pub fn reduce_tuple_init(&mut self, input: &TupleInitExpression<'a>) -> T {
         let values = input.elements.iter().map(|e| self.reduce_expression(e.get())).collect();
 

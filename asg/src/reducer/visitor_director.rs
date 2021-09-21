@@ -171,7 +171,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
             x => x.into(),
         }
     }
-    
+
     pub fn visit_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_lengthof_expression(input) {
             VisitResult::VisitChildren => {
@@ -208,7 +208,6 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         match self.visitor.visit_named_access(input) {
             VisitResult::VisitChildren => {
                 self.visit_expression(&input.named_type)?;
-                self.visit_expression(&input.access)?;
                 Ok(())
             }
             x => x.into(),
@@ -229,7 +228,6 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         match self.visitor.visit_value_access(input) {
             VisitResult::VisitChildren => {
                 self.visit_expression(&input.target)?;
-                self.visit_expression(&input.access)?;
                 Ok(())
             }
             x => x.into(),

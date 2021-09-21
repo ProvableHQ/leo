@@ -25,6 +25,8 @@ use snarkvm_gadgets::{
 };
 use snarkvm_r1cs::ConstraintSystem;
 
+use std::{cell::RefCell, rc::Rc};
+
 pub struct Blake2s;
 
 fn unwrap_argument<F: PrimeField, G: GroupType<F>>(arg: ConstrainedValue<F, G>) -> Vec<UInt8> {
@@ -48,13 +50,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuit<'a, F, G> for Blake2s {
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         cs: &mut CS,
-        function: &'a Function<'a>,
+        function: Rc<RefCell<Function<'a>>>,
         span: &Span,
         target: Option<ConstrainedValue<'a, F, G>>,
         mut arguments: Vec<ConstrainedValue<'a, F, G>>,
     ) -> Result<ConstrainedValue<'a, F, G>> {
         assert_eq!(arguments.len(), 2); // asg enforced
-        assert!(function.name.borrow().name.as_ref() == "hash"); // asg enforced
+        assert!((*function).borrow().name.borrow().name.as_ref() == "hash"); // asg enforced
         assert!(target.is_none()); // asg enforced
         let input = unwrap_argument(arguments.remove(1));
         let seed = unwrap_argument(arguments.remove(0));

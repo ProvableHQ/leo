@@ -19,5 +19,8 @@
 pub mod core_circuit;
 pub use self::core_circuit::*;
 
+pub mod core_function;
+pub use self::core_function::*;
+
 pub mod function;
 pub use self::function::*;

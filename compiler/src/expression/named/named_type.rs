@@ -14,34 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Enforces a value access expression in a compiled Leo program.
+//! Enforces a lengthof operator in a compiled Leo program.
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::{Node, ValueAccess};
-use leo_errors::{CompilerError, Result};
+use leo_asg::NamedTypeExpression;
+use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
 
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    #[allow(clippy::too_many_arguments)]
-    pub fn enforce_value_access<CS: ConstraintSystem<F>>(
+    /// Enforce array expressions
+    pub fn enforce_named_type<CS: ConstraintSystem<F>>(
         &mut self,
-        cs: &mut CS,
-        access: &ValueAccess<'a>,
+        _cs: &mut CS,
+        named_type: &'a NamedTypeExpression<'a>,
+        _span: &Span,
     ) -> Result<ConstrainedValue<'a, F, G>> {
-        //todo: we can prob pass values by ref here to avoid copying the entire circuit on access
-        let target = access.target.get();
-        let target_value = self.enforce_expression(cs, target)?;
-
-        // TODO figure it out
-        match target_value {
-            _ => {
-                return Err(CompilerError::statement_array_assign_index_const(
-                    &target.span().cloned().unwrap_or_default(),
-                )
-                .into())
-            }
-        }
+        Ok(ConstrainedValue::Named(named_type.named_type.name.clone()))
     }
 }

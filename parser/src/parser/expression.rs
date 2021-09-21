@@ -461,41 +461,36 @@ impl ParserContext {
                         }));
                     }
                 }
-                Token::Dot => match expr {
-                    Expression::Value(_) => {
-                        if let Some(_) = self.eat_identifier() {
-                            // TODO Change this to parse to_bits expression
-                            /* expr = Expression::Access(AccessExpression::Value(ValueAccess {
-                                span: expr.span() + &ident.span,
-                                value: Box::new(expr),
-                                name: ident,
-                            })); */
-                            unimplemented!()
-                        } else {
-                            let next = self.peek()?;
-                            return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
+                Token::Dot => {
+                    if let Some(ident) = self.eat_identifier() {
+                        match expr {
+                            Expression::Value(_) => {
+                                expr = Expression::Access(AccessExpression::Value(ValueAccess {
+                                    span: expr.span() + &ident.span,
+                                    value: Box::new(expr),
+                                    access: ident,
+                                }));
+                            }
+                            _ => {
+                                expr = Expression::Access(AccessExpression::CircuitMember(CircuitMemberAccess {
+                                    span: expr.span() + &ident.span,
+                                    circuit: Box::new(expr),
+                                    name: ident,
+                                    type_: None,
+                                }));
+                            }
                         }
+                    } else if let Some((num, span)) = self.eat_int() {
+                        expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
+                            span: expr.span() + &span,
+                            tuple: Box::new(expr),
+                            index: num,
+                        }));
+                    } else {
+                        let next = self.peek()?;
+                        return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
                     }
-                    _ => {
-                        if let Some(ident) = self.eat_identifier() {
-                            expr = Expression::Access(AccessExpression::CircuitMember(CircuitMemberAccess {
-                                span: expr.span() + &ident.span,
-                                circuit: Box::new(expr),
-                                name: ident,
-                                type_: None,
-                            }));
-                        } else if let Some((num, span)) = self.eat_int() {
-                            expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
-                                span: expr.span() + &span,
-                                tuple: Box::new(expr),
-                                index: num,
-                            }));
-                        } else {
-                            let next = self.peek()?;
-                            return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
-                        }
-                    }
-                },
+                }
                 Token::LeftParen => {
                     let mut arguments = Vec::new();
                     let end_span;
@@ -518,18 +513,16 @@ impl ParserContext {
                     });
                 }
                 Token::DoubleColon => {
+                    let ident = self.expect_ident()?;
                     match expr {
                         Expression::NamedType(_) => {
-                            // TODO parse from_bits token here
-                            /* expr = Expression::Access(AccessExpression::Named(NamedTypeAccess {
+                            expr = Expression::Access(AccessExpression::Named(NamedTypeAccess {
                                 span: expr.span() + &ident.span,
                                 named_type: Box::new(expr),
-                                access: Box::new(),
-                            })) */
-                            unimplemented!()
+                                access: ident,
+                            }))
                         }
                         Expression::Identifier(_) => {
-                            let ident = self.expect_ident()?;
                             expr = Expression::Access(AccessExpression::CircuitStaticFunction(
                                 CircuitStaticFunctionAccess {
                                     span: expr.span() + &ident.span,

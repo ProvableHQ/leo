@@ -34,9 +34,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let named_type = access.named_type.get();
         let named_type_value = self.enforce_expression(cs, named_type)?;
 
-        let access = access.access.get();
-        let _access_value = self.enforce_expression(cs, access)?;
-
         // TODO
         match named_type_value {
             _ => {

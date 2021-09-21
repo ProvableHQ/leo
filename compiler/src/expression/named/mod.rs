@@ -14,32 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node};
-use leo_errors::Span;
-
-use std::fmt;
-
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct NamedTypeAccess {
-    pub named_type: Box<Expression>,
-    pub access: Identifier,
-    pub span: Span,
-}
-
-impl fmt::Display for NamedTypeAccess {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.named_type, self.access)
-    }
-}
-
-impl Node for NamedTypeAccess {
-    fn span(&self) -> &Span {
-        &self.span
-    }
-
-    fn set_span(&mut self, span: Span) {
-        self.span = span;
-    }
-}
+pub mod named_type;
+pub use self::named_type::*;

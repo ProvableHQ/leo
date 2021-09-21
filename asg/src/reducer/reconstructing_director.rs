@@ -155,9 +155,8 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
 
     pub fn reduce_named_access(&mut self, input: NamedTypeAccess<'a>) -> AccessExpression<'a> {
         let named_type = self.reduce_expression(input.named_type.get());
-        let access = self.reduce_expression(input.access.get());
 
-        self.reducer.reduce_named_access(input, named_type, access)
+        self.reducer.reduce_named_access(input, named_type)
     }
 
     pub fn reduce_tuple_access(&mut self, input: TupleAccess<'a>) -> AccessExpression<'a> {
@@ -168,9 +167,8 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
 
     pub fn reduce_value_access(&mut self, input: ValueAccess<'a>) -> AccessExpression<'a> {
         let target = self.reduce_expression(input.target.get());
-        let access = self.reduce_expression(input.access.get());
 
-        self.reducer.reduce_value_access(input, target, access)
+        self.reducer.reduce_value_access(input, target)
     }
 
     pub fn reduce_named_type_expression(&mut self, input: NamedTypeExpression<'a>) -> Expression<'a> {
