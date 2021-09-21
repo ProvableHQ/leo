@@ -412,10 +412,18 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'
 
 // Helper function to recursively filter keys from AST JSON
 fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
-    if let serde_json::value::Value::Object(map) = value {
-        map.remove(key);
-        for val in map.values_mut() {
-            remove_key_from_json(val, key);
+    match value {
+        serde_json::value::Value::Object(map) => {
+            map.remove(key);
+            for val in map.values_mut() {
+                remove_key_from_json(val, key);
+            }
         }
+        serde_json::value::Value::Array(values) => {
+            for val in values.iter_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        _ => (),
     }
 }
