@@ -10,7 +10,7 @@ DRAFT
 
 ## Summary
 
-This RFC proposes two things:
+This RFC proposes three things:
 
 1. The scalar types in Leo (integers, fields, etc.) can have static methods.
 2. The scalar types in Leo (integers, fields, etc.) can have static constants.
