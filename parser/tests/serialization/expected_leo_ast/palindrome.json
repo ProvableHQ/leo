@@ -1,0 +1,1232 @@
+{
+  "aliases": {},
+  "circuits": {},
+  "expected_input": [],
+  "functions": {
+    "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}": {
+      "annotations": [],
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "type_": null,
+              "value": {
+                "Value": {
+                  "Integer": [
+                    "U32",
+                    "20",
+                    {}
+                  ]
+                }
+              },
+              "variable_names": [
+                {
+                  "identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":11,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    const str_len = 20u32; // saving const for convenience\\\"}\"}",
+                  "mutable": false
+                }
+              ]
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "type_": null,
+              "value": {
+                "Value": {
+                  "Boolean": [
+                    "true",
+                    {}
+                  ]
+                }
+              },
+              "variable_names": [
+                {
+                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    let result = true;\\\"}\"}",
+                  "mutable": true
+                }
+              ]
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "type_": null,
+              "value": {
+                "Value": {
+                  "Integer": [
+                    "U8",
+                    "0",
+                    {}
+                  ]
+                }
+              },
+              "variable_names": [
+                {
+                  "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":9,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    let processed = 0u8;\\\"}\"}",
+                  "mutable": true
+                }
+              ]
+            }
+          },
+          {
+            "Iteration": {
+              "block": {
+                "statements": [
+                  {
+                    "Definition": {
+                      "declaration_type": "Let",
+                      "type_": null,
+                      "value": {
+                        "ArrayAccess": {
+                          "array": {
+                            "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":25,\\\"col_stop\\\":28,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
+                          },
+                          "index": {
+                            "Identifier": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":29,\\\"col_stop\\\":34,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
+                          }
+                        }
+                      },
+                      "variable_names": [
+                        {
+                          "identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}",
+                          "mutable": true
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "Conditional": {
+                      "block": {
+                        "statements": [
+                          {
+                            "Definition": {
+                              "declaration_type": "Let",
+                              "type_": null,
+                              "value": {
+                                "Value": {
+                                  "Integer": [
+                                    "U8",
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              },
+                              "variable_names": [
+                                {
+                                  "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"            let skipped = 0u8;\\\"}\"}",
+                                  "mutable": true
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "Definition": {
+                              "declaration_type": "Let",
+                              "type_": null,
+                              "value": {
+                                "Value": {
+                                  "Integer": [
+                                    "U8",
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              },
+                              "variable_names": [
+                                {
+                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"            let end_empty = 0u8;\\\"}\"}",
+                                  "mutable": true
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "Definition": {
+                              "declaration_type": "Let",
+                              "type_": null,
+                              "value": {
+                                "Value": {
+                                  "Char": {
+                                    "character": {
+                                      "Scalar": 32
+                                    }
+                                  }
+                                }
+                              },
+                              "variable_names": [
+                                {
+                                  "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"            let end_sym = ' ';\\\"}\"}",
+                                  "mutable": true
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "Iteration": {
+                              "block": {
+                                "statements": [
+                                  {
+                                    "Conditional": {
+                                      "block": {
+                                        "statements": [
+                                          {
+                                            "Assign": {
+                                              "assignee": {
+                                                "accesses": [],
+                                                "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":21,\\\"col_stop\\\":28,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
+                                              },
+                                              "operation": "Assign",
+                                              "value": {
+                                                "ArrayAccess": {
+                                                  "array": {
+                                                    "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
+                                                  },
+                                                  "index": {
+                                                    "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":35,\\\"col_stop\\\":38,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "condition": {
+                                        "Binary": {
+                                          "left": {
+                                            "Binary": {
+                                              "left": {
+                                                "Binary": {
+                                                  "left": {
+                                                    "ArrayAccess": {
+                                                      "array": {
+                                                        "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                      },
+                                                      "index": {
+                                                        "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                      }
+                                                    }
+                                                  },
+                                                  "op": "Ne",
+                                                  "right": {
+                                                    "Value": {
+                                                      "Char": {
+                                                        "character": {
+                                                          "Scalar": 32
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "op": "And",
+                                              "right": {
+                                                "Binary": {
+                                                  "left": {
+                                                    "Identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":39,\\\"col_stop\\\":46,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                  },
+                                                  "op": "Eq",
+                                                  "right": {
+                                                    "Identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":50,\\\"col_stop\\\":59,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "op": "And",
+                                          "right": {
+                                            "Binary": {
+                                              "left": {
+                                                "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":63,\\\"col_stop\\\":70,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                              },
+                                              "op": "Eq",
+                                              "right": {
+                                                "Value": {
+                                                  "Char": {
+                                                    "character": {
+                                                      "Scalar": 32
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "next": {
+                                        "Block": {
+                                          "statements": [
+                                            {
+                                              "Assign": {
+                                                "assignee": {
+                                                  "accesses": [],
+                                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
+                                                },
+                                                "operation": "Assign",
+                                                "value": {
+                                                  "Binary": {
+                                                    "left": {
+                                                      "Identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":33,\\\"col_stop\\\":42,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
+                                                    },
+                                                    "op": "Add",
+                                                    "right": {
+                                                      "Value": {
+                                                        "Implicit": [
+                                                          "1",
+                                                          {}
+                                                        ]
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            },
+                                            {
+                                              "Conditional": {
+                                                "block": {
+                                                  "statements": [
+                                                    {
+                                                      "Assign": {
+                                                        "assignee": {
+                                                          "accesses": [],
+                                                          "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
+                                                        },
+                                                        "operation": "Assign",
+                                                        "value": {
+                                                          "Binary": {
+                                                            "left": {
+                                                              "Identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":35,\\\"col_stop\\\":42,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
+                                                            },
+                                                            "op": "Add",
+                                                            "right": {
+                                                              "Value": {
+                                                                "Implicit": [
+                                                                  "1",
+                                                                  {}
+                                                                ]
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
+                                                },
+                                                "condition": {
+                                                  "Binary": {
+                                                    "left": {
+                                                      "ArrayAccess": {
+                                                        "array": {
+                                                          "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    if str[end] != ' ' {\\\"}\"}"
+                                                        },
+                                                        "index": {
+                                                          "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":28,\\\"col_stop\\\":31,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    if str[end] != ' ' {\\\"}\"}"
+                                                        }
+                                                      }
+                                                    },
+                                                    "op": "Ne",
+                                                    "right": {
+                                                      "Value": {
+                                                        "Char": {
+                                                          "character": {
+                                                            "Scalar": 32
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                },
+                                                "next": null
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "inclusive": false,
+                              "start": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                  },
+                                  "op": "Sub",
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": [
+                                        "1",
+                                        {}
+                                      ]
+                                    }
+                                  }
+                                }
+                              },
+                              "stop": {
+                                "Identifier": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":39,\\\"col_stop\\\":44,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                              },
+                              "variable": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                            }
+                          },
+                          {
+                            "Conditional": {
+                              "block": {
+                                "statements": [
+                                  {
+                                    "Console": {
+                                      "function": {
+                                        "Log": {
+                                          "parameters": [
+                                            {
+                                              "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":51,\\\"col_stop\\\":60,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
+                                            },
+                                            {
+                                              "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":62,\\\"col_stop\\\":69,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
+                                            }
+                                          ],
+                                          "string": [
+                                            {
+                                              "Scalar": 67
+                                            },
+                                            {
+                                              "Scalar": 111
+                                            },
+                                            {
+                                              "Scalar": 109
+                                            },
+                                            {
+                                              "Scalar": 112
+                                            },
+                                            {
+                                              "Scalar": 97
+                                            },
+                                            {
+                                              "Scalar": 114
+                                            },
+                                            {
+                                              "Scalar": 105
+                                            },
+                                            {
+                                              "Scalar": 110
+                                            },
+                                            {
+                                              "Scalar": 103
+                                            },
+                                            {
+                                              "Scalar": 58
+                                            },
+                                            {
+                                              "Scalar": 32
+                                            },
+                                            {
+                                              "Scalar": 123
+                                            },
+                                            {
+                                              "Scalar": 125
+                                            },
+                                            {
+                                              "Scalar": 32
+                                            },
+                                            {
+                                              "Scalar": 63
+                                            },
+                                            {
+                                              "Scalar": 32
+                                            },
+                                            {
+                                              "Scalar": 123
+                                            },
+                                            {
+                                              "Scalar": 125
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "Conditional": {
+                                      "block": {
+                                        "statements": [
+                                          {
+                                            "Assign": {
+                                              "assignee": {
+                                                "accesses": [],
+                                                "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":21,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
+                                              },
+                                              "operation": "Assign",
+                                              "value": {
+                                                "Binary": {
+                                                  "left": {
+                                                    "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":31,\\\"col_stop\\\":40,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
+                                                  },
+                                                  "op": "Eq",
+                                                  "right": {
+                                                    "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":44,\\\"col_stop\\\":51,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "condition": {
+                                        "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                if result {\\\"}\"}"
+                                      },
+                                      "next": null
+                                    }
+                                  },
+                                  {
+                                    "Assign": {
+                                      "assignee": {
+                                        "accesses": [],
+                                        "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
+                                      },
+                                      "operation": "Assign",
+                                      "value": {
+                                        "Binary": {
+                                          "left": {
+                                            "Identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":29,\\\"col_stop\\\":38,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
+                                          },
+                                          "op": "Add",
+                                          "right": {
+                                            "Value": {
+                                              "Implicit": [
+                                                "1",
+                                                {}
+                                              ]
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              },
+                              "condition": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":16,\\\"col_stop\\\":23,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"            if end_sym != ' ' {\\\"}\"}"
+                                  },
+                                  "op": "Ne",
+                                  "right": {
+                                    "Value": {
+                                      "Char": {
+                                        "character": {
+                                          "Scalar": 32
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "next": null
+                            }
+                          }
+                        ]
+                      },
+                      "condition": {
+                        "Binary": {
+                          "left": {
+                            "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":12,\\\"col_stop\\\":21,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"        if start_sym != ' ' {\\\"}\"}"
+                          },
+                          "op": "Ne",
+                          "right": {
+                            "Value": {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 32
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "next": null
+                    }
+                  }
+                ]
+              },
+              "inclusive": false,
+              "start": {
+                "Value": {
+                  "Implicit": [
+                    "0",
+                    {}
+                  ]
+                }
+              },
+              "stop": {
+                "Binary": {
+                  "left": {
+                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":22,\\\"col_stop\\\":29,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+                  },
+                  "op": "Div",
+                  "right": {
+                    "Value": {
+                      "Implicit": [
+                        "2",
+                        {}
+                      ]
+                    }
+                  }
+                }
+              },
+              "variable": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Log": {
+                  "parameters": [
+                    {
+                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":34,\\\"col_stop\\\":40,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"Result is: {}\\\\\\\", result);\\\"}\"}"
+                    }
+                  ],
+                  "string": [
+                    {
+                      "Scalar": 82
+                    },
+                    {
+                      "Scalar": 101
+                    },
+                    {
+                      "Scalar": 115
+                    },
+                    {
+                      "Scalar": 117
+                    },
+                    {
+                      "Scalar": 108
+                    },
+                    {
+                      "Scalar": 116
+                    },
+                    {
+                      "Scalar": 32
+                    },
+                    {
+                      "Scalar": 105
+                    },
+                    {
+                      "Scalar": 115
+                    },
+                    {
+                      "Scalar": 58
+                    },
+                    {
+                      "Scalar": 32
+                    },
+                    {
+                      "Scalar": 123
+                    },
+                    {
+                      "Scalar": 125
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Return": {
+              "expression": {
+                "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":12,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    return result;\\\"}\"}"
+              }
+            }
+          }
+        ]
+      },
+      "identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
+      "input": [
+        {
+          "Variable": {
+            "const_": false,
+            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
+            "mutable": true,
+            "type_": {
+              "Array": [
+                "Char",
+                [
+                  {
+                    "value": "20"
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "output": "Boolean"
+    },
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}": {
+      "annotations": [],
+      "block": {
+        "statements": [
+          {
+            "Return": {
+              "expression": {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":26,\\\"col_stop\\\":29,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
+                    }
+                  ],
+                  "function": {
+                    "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":25,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
+      "input": [
+        {
+          "Variable": {
+            "const_": false,
+            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
+            "mutable": true,
+            "type_": {
+              "Array": [
+                "Char",
+                [
+                  {
+                    "value": "20"
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "output": "Boolean"
+    },
+    "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}": {
+      "annotations": [
+        {
+          "arguments": [],
+          "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":51,\\\"line_stop\\\":51,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"@test\\\"}\"}"
+        }
+      ],
+      "block": {
+        "statements": [
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Call": {
+                    "arguments": [
+                      {
+                        "Value": {
+                          "String": [
+                            [
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              }
+                            ],
+                            {}
+                          ]
+                        }
+                      }
+                    ],
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"a           b   a   \\\\\\\"));\\\"}\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Call": {
+                    "arguments": [
+                      {
+                        "Value": {
+                          "String": [
+                            [
+                              {
+                                "Scalar": 128512
+                              },
+                              {
+                                "Scalar": 128512
+                              },
+                              {
+                                "Scalar": 128512
+                              },
+                              {
+                                "Scalar": 128512
+                              },
+                              {
+                                "Scalar": 128512
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 128512
+                              },
+                              {
+                                "Scalar": 128512
+                              },
+                              {
+                                "Scalar": 128512
+                              },
+                              {
+                                "Scalar": 128512
+                              },
+                              {
+                                "Scalar": 128512
+                              }
+                            ],
+                            {}
+                          ]
+                        }
+                      }
+                    ],
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"😀😀😀😀😀          😀😀😀😀😀\\\\\\\"));\\\"}\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Call": {
+                    "arguments": [
+                      {
+                        "Value": {
+                          "String": [
+                            [
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 111
+                              },
+                              {
+                                "Scalar": 114
+                              },
+                              {
+                                "Scalar": 114
+                              },
+                              {
+                                "Scalar": 111
+                              },
+                              {
+                                "Scalar": 119
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 111
+                              },
+                              {
+                                "Scalar": 114
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 114
+                              },
+                              {
+                                "Scalar": 111
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              }
+                            ],
+                            {}
+                          ]
+                        }
+                      }
+                    ],
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"borrow or rob       \\\\\\\"));\\\"}\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Call": {
+                    "arguments": [
+                      {
+                        "Value": {
+                          "String": [
+                            [
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              }
+                            ],
+                            {}
+                          ]
+                        }
+                      }
+                    ],
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"bbbb aaaa  aaaa bbbb\\\\\\\"));\\\"}\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Call": {
+                    "arguments": [
+                      {
+                        "Value": {
+                          "String": [
+                            [
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              }
+                            ],
+                            {}
+                          ]
+                        }
+                      }
+                    ],
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"aaaaaaaaaaaaaaaaaaaa\\\\\\\"));\\\"}\"}"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Call": {
+                    "arguments": [
+                      {
+                        "Value": {
+                          "String": [
+                            [
+                              {
+                                "Scalar": 116
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 99
+                              },
+                              {
+                                "Scalar": 111
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 99
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 116
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              }
+                            ],
+                            {}
+                          ]
+                        }
+                      }
+                    ],
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"taco cat            \\\\\\\"));\\\"}\"}"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "identifier": "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/palindrome/src/main.leo\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}",
+      "input": [],
+      "output": null
+    }
+  },
+  "global_consts": {},
+  "import_statements": [],
+  "imports": {},
+  "name": ""
+}

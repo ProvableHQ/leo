@@ -1,0 +1,308 @@
+{
+  "aliases": {},
+  "circuits": {
+    "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":21,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"circuit PedersenHash {\\\"}\"}": {
+      "circuit_name": "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":21,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"circuit PedersenHash {\\\"}\"}",
+      "core_mapping": null,
+      "members": [
+        {
+          "CircuitVariable": [
+            "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    parameters: [group; 256];\\\"}\"}",
+            {
+              "Array": [
+                "Group",
+                [
+                  {
+                    "value": "256"
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "CircuitFunction": {
+            "annotations": [],
+            "block": {
+              "statements": [
+                {
+                  "Return": {
+                    "expression": {
+                      "CircuitInit": {
+                        "members": [
+                          {
+                            "expression": {
+                              "Identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":35,\\\"col_stop\\\":45,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
+                            },
+                            "identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":23,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
+                          }
+                        ],
+                        "name": "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    function new(parameters: [group; 256]) -> Self {\\\"}\"}",
+            "input": [
+              {
+                "Variable": {
+                  "const_": false,
+                  "identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":18,\\\"col_stop\\\":28,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    function new(parameters: [group; 256]) -> Self {\\\"}\"}",
+                  "mutable": true,
+                  "type_": {
+                    "Array": [
+                      "Group",
+                      [
+                        {
+                          "value": "256"
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            ],
+            "output": "SelfType"
+          }
+        },
+        {
+          "CircuitFunction": {
+            "annotations": [],
+            "block": {
+              "statements": [
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "type_": "Group",
+                    "value": {
+                      "Value": {
+                        "Group": {
+                          "Single": [
+                            "0",
+                            {}
+                          ]
+                        }
+                      }
+                    },
+                    "variable_names": [
+                      {
+                        "identifier": "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"        let digest: group = 0group;\\\"}\"}",
+                        "mutable": true
+                      }
+                    ]
+                  }
+                },
+                {
+                  "Iteration": {
+                    "block": {
+                      "statements": [
+                        {
+                          "Conditional": {
+                            "block": {
+                              "statements": [
+                                {
+                                  "Assign": {
+                                    "assignee": {
+                                      "accesses": [],
+                                      "identifier": "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":17,\\\"col_stop\\\":23,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}"
+                                    },
+                                    "operation": "Add",
+                                    "value": {
+                                      "ArrayAccess": {
+                                        "array": {
+                                          "CircuitMemberAccess": {
+                                            "circuit": {
+                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":27,\\\"col_stop\\\":31,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}"
+                                            },
+                                            "name": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":32,\\\"col_stop\\\":42,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}",
+                                            "type_": null
+                                          }
+                                        },
+                                        "index": {
+                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":43,\\\"col_stop\\\":44,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            },
+                            "condition": {
+                              "ArrayAccess": {
+                                "array": {
+                                  "Identifier": "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
+                                },
+                                "index": {
+                                  "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
+                                }
+                              }
+                            },
+                            "next": null
+                          }
+                        }
+                      ]
+                    },
+                    "inclusive": false,
+                    "start": {
+                      "Value": {
+                        "Implicit": [
+                          "0",
+                          {}
+                        ]
+                      }
+                    },
+                    "stop": {
+                      "Value": {
+                        "Implicit": [
+                          "256",
+                          {}
+                        ]
+                      }
+                    },
+                    "variable": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"        for i in 0..256 {\\\"}\"}"
+                  }
+                },
+                {
+                  "Return": {
+                    "expression": {
+                      "Identifier": "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":16,\\\"col_stop\\\":22,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"        return digest;\\\"}\"}"
+                    }
+                  }
+                }
+              ]
+            },
+            "identifier": "{\"name\":\"hash\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":14,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}",
+            "input": [
+              {
+                "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":19,\\\"col_stop\\\":23,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}"
+              },
+              {
+                "Variable": {
+                  "const_": false,
+                  "identifier": "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":25,\\\"col_stop\\\":29,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}",
+                  "mutable": true,
+                  "type_": {
+                    "Array": [
+                      "Boolean",
+                      [
+                        {
+                          "value": "256"
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            ],
+            "output": "Group"
+          }
+        }
+      ]
+    }
+  },
+  "expected_input": [],
+  "functions": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}": {
+      "annotations": [],
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "type_": null,
+              "value": {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":40,\\\"col_stop\\\":50,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                    }
+                  ],
+                  "function": {
+                    "CircuitStaticFunctionAccess": {
+                      "circuit": {
+                        "Identifier": "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":22,\\\"col_stop\\\":34,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                      },
+                      "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":36,\\\"col_stop\\\":39,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                    }
+                  }
+                }
+              },
+              "variable_names": [
+                {
+                  "identifier": "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}",
+                  "mutable": false
+                }
+              ]
+            }
+          },
+          {
+            "Return": {
+              "expression": {
+                "Call": {
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"hash_input\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":26,\\\"col_stop\\\":36,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}"
+                    }
+                  ],
+                  "function": {
+                    "CircuitMemberAccess": {
+                      "circuit": {
+                        "Identifier": "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":12,\\\"col_stop\\\":20,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}"
+                      },
+                      "name": "{\"name\":\"hash\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":21,\\\"col_stop\\\":25,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}",
+                      "type_": null
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}",
+      "input": [
+        {
+          "Variable": {
+            "const_": false,
+            "identifier": "{\"name\":\"hash_input\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":15,\\\"col_stop\\\":25,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}",
+            "mutable": true,
+            "type_": {
+              "Array": [
+                "Boolean",
+                [
+                  {
+                    "value": "256"
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "Variable": {
+            "const_": true,
+            "identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":46,\\\"col_stop\\\":56,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/pedersen-hash/src/main.leo\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}",
+            "mutable": false,
+            "type_": {
+              "Array": [
+                "Group",
+                [
+                  {
+                    "value": "256"
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "output": "Group"
+    }
+  },
+  "global_consts": {},
+  "import_statements": [],
+  "imports": {},
+  "name": ""
+}

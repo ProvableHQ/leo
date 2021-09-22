@@ -19,6 +19,9 @@ use leo_ast::Ast;
 use leo_ast::Program;
 use leo_errors::{LeoError, Result};
 
+use std::fs::File;
+use std::io::BufReader;
+use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 
 fn to_ast(program_filepath: &Path) -> Result<Ast> {
@@ -44,7 +47,7 @@ fn test_serialize() {
     // Construct an ast from the given test file.
     let ast = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        program_filepath.push("tests/serialization/main.leo");
+        program_filepath.push("tests/serialization/leo/one_plus_one.leo");
 
         to_ast(&program_filepath).unwrap()
     };
@@ -53,10 +56,56 @@ fn test_serialize() {
     let serialized_ast: Program = serde_json::from_value(serde_json::to_value(ast.as_repr()).unwrap()).unwrap();
 
     // Load the expected ast.
-    let expected: Program = serde_json::from_str(include_str!("expected_leo_ast.json")).unwrap();
+    let expected: Program = serde_json::from_str(include_str!("./expected_leo_ast/one_plus_one.json")).unwrap();
 
     clean();
     assert_eq!(expected, serialized_ast);
+}
+
+#[test]
+#[cfg(not(feature = "ci_skip"))]
+fn serialize_no_span() {
+    setup();
+
+    let program_paths = vec![
+        "tests/serialization/leo/linear_regression.leo",
+        "tests/serialization/leo/palindrome.leo",
+        "tests/serialization/leo/pedersen_hash.leo",
+        "tests/serialization/leo/silly_sudoku.leo",
+    ];
+
+    let json_paths = vec![
+        "./expected_leo_ast/linear_regression.json",
+        "./expected_leo_ast/palindrome.json",
+        "./expected_leo_ast/pedersen_hash.json",
+        "./expected_leo_ast/silly_sudoku.json",
+    ];
+
+    for (program_path, json_path) in program_paths.into_iter().zip(json_paths) {
+        // Construct an ast from the given test file.
+        let ast = {
+            let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            program_filepath.push(program_path);
+            to_ast(&program_filepath).unwrap()
+        };
+
+        let json_reader = {
+            let mut json_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            json_filepath.push(json_path);
+            let file = File::open(json_filepath).expect("Failed to read expected ast file");
+            BufReader::new(file)
+        };
+
+        // Serializes the ast into JSON format.
+        let serialized_ast: serde_json::Value =
+            serde_json::from_value(serde_json::to_value(ast.as_repr()).unwrap()).unwrap();
+
+        // Load the expected ast.
+        let expected: serde_json::Value = serde_json::from_reader(json_reader).unwrap();
+
+        assert_eq!(expected, serialized_ast);
+    }
+    clean();
 }
 
 // TODO Renable when we don't write spans to snapshots.
@@ -112,7 +161,7 @@ fn test_generic_parser_error() {
 
     let error_result = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        program_filepath.push("tests/serialization/parser_error.leo");
+        program_filepath.push("tests/serialization/leo/parser_error.leo");
 
         to_ast(&program_filepath)
     }
