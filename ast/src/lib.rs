@@ -117,6 +117,26 @@ impl Ast {
             .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
     }
 
+    /// Serializes the ast into a JSON value and removes keys from object mappings before writing to a file.
+    pub fn to_json_file_without_keys(
+        &self,
+        mut path: std::path::PathBuf,
+        file_name: &str,
+        excluded_keys: &[&str],
+    ) -> Result<()> {
+        path.push(file_name);
+        let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
+        let writer = std::io::BufWriter::new(file);
+
+        let mut value = self.to_json_value().unwrap();
+        for key in excluded_keys {
+            remove_key_from_json(&mut value, key);
+        }
+
+        Ok(serde_json::to_writer_pretty(writer, &self.ast)
+            .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
+    }
+
     /// Deserializes the JSON string into a ast.
     pub fn from_json_string(json: &str) -> Result<Self> {
         let ast: Program = serde_json::from_str(json).map_err(|e| AstError::failed_to_read_json_string_to_ast(&e))?;
@@ -133,5 +153,23 @@ impl Ast {
 impl AsRef<Program> for Ast {
     fn as_ref(&self) -> &Program {
         &self.ast
+    }
+}
+
+// Helper function to recursively filter keys from AST JSON
+fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
+    match value {
+        serde_json::value::Value::Object(map) => {
+            map.remove(key);
+            for val in map.values_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        serde_json::value::Value::Array(values) => {
+            for val in values.iter_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        _ => (),
     }
 }

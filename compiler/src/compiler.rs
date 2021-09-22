@@ -247,9 +247,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
 
         if self.ast_snapshot_options.initial {
             if !self.ast_snapshot_options.spans_enabled {
-                let mut value = ast.to_json_value()?;
-                remove_key_from_json(&mut value, "span");
-                write_value_to_json_file(value, self.output_directory.clone(), "initial_ast.json")?;
+                ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
             } else {
                 ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
             }
@@ -263,9 +261,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
 
         if self.ast_snapshot_options.imports_resolved {
             if !self.ast_snapshot_options.spans_enabled {
-                let mut value = ast.to_json_value()?;
-                remove_key_from_json(&mut value, "span");
-                write_value_to_json_file(value, self.output_directory.clone(), "imports_resolved_ast.json")?;
+                ast.to_json_file_without_keys(self.output_directory.clone(), "imports_resolved.json", &["span"])?;
             } else {
                 ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
             }
@@ -276,9 +272,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
 
         if self.ast_snapshot_options.canonicalized {
             if !self.ast_snapshot_options.spans_enabled {
-                let mut value = ast.to_json_value()?;
-                remove_key_from_json(&mut value, "span");
-                write_value_to_json_file(value, self.output_directory.clone(), "canonicalization_ast.json")?;
+                ast.to_json_file_without_keys(self.output_directory.clone(), "canonicalization_ast.json", &["spans"])?;
             } else {
                 ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
             }
@@ -299,9 +293,11 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
                 .expect("Failed to produce type inference ast.");
 
             if !self.ast_snapshot_options.spans_enabled {
-                let mut value = new_ast.to_json_value()?;
-                remove_key_from_json(&mut value, "span");
-                write_value_to_json_file(value, self.output_directory.clone(), "type_inferenced_ast.json")?;
+                new_ast.to_json_file_without_keys(
+                    self.output_directory.clone(),
+                    "type_inferenced_ast.json",
+                    &["span"],
+                )?;
             } else {
                 new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
             }
@@ -413,31 +409,4 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstraintSynthesizer<F> for Compiler<'
 
         Ok(())
     }
-}
-
-// Helper function to recursively filter keys from AST JSON
-fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
-    match value {
-        serde_json::value::Value::Object(map) => {
-            map.remove(key);
-            for val in map.values_mut() {
-                remove_key_from_json(val, key);
-            }
-        }
-        serde_json::value::Value::Array(values) => {
-            for val in values.iter_mut() {
-                remove_key_from_json(val, key);
-            }
-        }
-        _ => (),
-    }
-}
-
-/// Serializes a JSON value (of the AST) into a JSON file.
-fn write_value_to_json_file(value: serde_json::Value, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
-    path.push(file_name);
-    let file = std::fs::File::create(&path).map_err(|e| AstError::failed_to_create_ast_json_file(&path, &e))?;
-    let writer = std::io::BufWriter::new(file);
-    Ok(serde_json::to_writer_pretty(writer, &value)
-        .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
 }
