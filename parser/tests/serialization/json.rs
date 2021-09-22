@@ -64,7 +64,7 @@ fn test_serialize() {
 
 #[test]
 #[cfg(not(feature = "ci_skip"))]
-fn serialize_no_span() {
+fn test_serialize_no_span() {
     setup();
 
     let program_paths = vec![
@@ -75,10 +75,10 @@ fn serialize_no_span() {
     ];
 
     let json_paths = vec![
-        "./expected_leo_ast/linear_regression.json",
-        "./expected_leo_ast/palindrome.json",
-        "./expected_leo_ast/pedersen_hash.json",
-        "./expected_leo_ast/silly_sudoku.json",
+        "tests/serialization/expected_leo_ast/linear_regression.json",
+        "tests/serialization/expected_leo_ast/palindrome.json",
+        "tests/serialization/expected_leo_ast/pedersen_hash.json",
+        "tests/serialization/expected_leo_ast/silly_sudoku.json",
     ];
 
     for (program_path, json_path) in program_paths.into_iter().zip(json_paths) {
@@ -97,8 +97,8 @@ fn serialize_no_span() {
         };
 
         // Serializes the ast into JSON format.
-        let serialized_ast: serde_json::Value =
-            serde_json::from_value(serde_json::to_value(ast.as_repr()).unwrap()).unwrap();
+        let mut serialized_ast: serde_json::Value = serde_json::to_value(ast.as_repr()).unwrap();
+        remove_key_from_json(&mut serialized_ast, "span");
 
         // Load the expected ast.
         let expected: serde_json::Value = serde_json::from_reader(json_reader).unwrap();
@@ -106,6 +106,25 @@ fn serialize_no_span() {
         assert_eq!(expected, serialized_ast);
     }
     clean();
+}
+
+// Helper function to recursively filter keys from AST JSON.
+// Redeclaring here since we don't want to make this public.
+fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
+    match value {
+        serde_json::value::Value::Object(map) => {
+            map.remove(key);
+            for val in map.values_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        serde_json::value::Value::Array(values) => {
+            for val in values.iter_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        _ => (),
+    }
 }
 
 // TODO Renable when we don't write spans to snapshots.

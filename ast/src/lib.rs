@@ -103,7 +103,10 @@ impl Ast {
         Ok(serde_json::to_string_pretty(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_string(&e))?)
     }
 
-    // Converts the ast into a JSON value
+    // Converts the ast into a JSON value.
+    // Note that there is no corresponding `from_json_value` function
+    // since we modify JSON values leaving them unable to be converted
+    // back into Programs.
     pub fn to_json_value(&self) -> Result<serde_json::Value> {
         Ok(serde_json::to_value(&self.ast).map_err(|e| AstError::failed_to_convert_ast_to_json_value(&e))?)
     }
@@ -133,7 +136,7 @@ impl Ast {
             remove_key_from_json(&mut value, key);
         }
 
-        Ok(serde_json::to_writer_pretty(writer, &self.ast)
+        Ok(serde_json::to_writer_pretty(writer, &value)
             .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
     }
 

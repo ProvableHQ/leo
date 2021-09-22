@@ -22,7 +22,7 @@ use crate::{
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, Program as AsgProgram};
 use leo_ast::{AstPass, Input, MainInput, Program as AstProgram};
-use leo_errors::{AstError, CompilerError, Result};
+use leo_errors::{CompilerError, Result};
 use leo_imports::ImportParser;
 use leo_input::LeoInputParser;
 use leo_package::inputs::InputPairs;
@@ -272,7 +272,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
 
         if self.ast_snapshot_options.canonicalized {
             if !self.ast_snapshot_options.spans_enabled {
-                ast.to_json_file_without_keys(self.output_directory.clone(), "canonicalization_ast.json", &["spans"])?;
+                ast.to_json_file_without_keys(self.output_directory.clone(), "canonicalization_ast.json", &["span"])?;
             } else {
                 ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
             }
