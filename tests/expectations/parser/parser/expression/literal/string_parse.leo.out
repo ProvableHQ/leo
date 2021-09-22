@@ -10,12 +10,13 @@ outputs:
           - Scalar: 105
           - Scalar: 110
           - Scalar: 103
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 9
-          path: ""
-          content: "\"string\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 9
+            path: ""
+            content: "\"string\""
   - Value:
       String:
         - - Scalar: 97
@@ -36,12 +37,13 @@ outputs:
           - Scalar: 105
           - Scalar: 110
           - Scalar: 103
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 21
-          path: ""
-          content: "\"another { } string\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 21
+            path: ""
+            content: "\"another { } string\""
   - Value:
       String:
         - - Scalar: 123
@@ -53,84 +55,93 @@ outputs:
           - Scalar: 59
           - Scalar: 32
           - Scalar: 97
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 12
-          path: ""
-          content: "\"{ ] [ ; a\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 12
+            path: ""
+            content: "\"{ ] [ ; a\""
   - Value:
       String:
         - - Scalar: 4090
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 10
-          path: ""
-          content: "\"\\u{FFA}\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 10
+            path: ""
+            content: "\"\\u{FFA}\""
   - Value:
       String:
         - - Scalar: 719610
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 12
-          path: ""
-          content: "\"\\u{afafa}\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 12
+            path: ""
+            content: "\"\\u{afafa}\""
   - Value:
       String:
         - - Scalar: 44975
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 11
-          path: ""
-          content: "\"\\u{afaf}\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 11
+            path: ""
+            content: "\"\\u{afaf}\""
   - Value:
       String:
         - - Scalar: 2810
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 10
-          path: ""
-          content: "\"\\u{afa}\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 10
+            path: ""
+            content: "\"\\u{afa}\""
   - Value:
       String:
         - - Scalar: 175
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 9
-          path: ""
-          content: "\"\\u{af}\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 9
+            path: ""
+            content: "\"\\u{af}\""
   - Value:
       String:
         - - Scalar: 10
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 8
-          path: ""
-          content: "\"\\u{a}\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 8
+            path: ""
+            content: "\"\\u{a}\""
   - Value:
       String:
         - - Scalar: 10
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 7
-          path: ""
-          content: "\"\\x0A\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 7
+            path: ""
+            content: "\"\\x0A\""
   - Value:
       String:
         - - Scalar: 127
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 7
-          path: ""
-          content: "\"\\x7F\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 7
+            path: ""
+            content: "\"\\x7F\""
   - Value:
       String:
         - - Scalar: 97
@@ -152,12 +163,13 @@ outputs:
           - Scalar: 32
           - Scalar: 32
           - Scalar: 0
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 28
-          path: ""
-          content: "\"aa \\\\ \\\"  \\n aa \\t \\r  \\0\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 28
+            path: ""
+            content: "\"aa \\\\ \\\"  \\n aa \\t \\r  \\0\""
   - Value:
       String:
         - - Scalar: 116
@@ -167,20 +179,22 @@ outputs:
           - Scalar: 32
           - Scalar: 128530
           - Scalar: 8364
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 15
-          path: ""
-          content: "\"test 😒€\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 15
+            path: ""
+            content: "\"test 😒€\""
   - Value:
       String:
         - - Scalar: 128557
           - Scalar: 128514
           - Scalar: 128536
-        - line_start: 1
-          line_stop: 1
-          col_start: 1
-          col_stop: 15
-          path: ""
-          content: "\"😭😂😘\""
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 15
+            path: ""
+            content: "\"😭😂😘\""

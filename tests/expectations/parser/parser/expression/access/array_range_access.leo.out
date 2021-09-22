@@ -21,12 +21,13 @@ outputs:
         Value:
           Implicit:
             - "1"
-            - line_start: 1
-              line_stop: 1
-              col_start: 3
-              col_stop: 4
-              path: ""
-              content: "x[1..]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 3
+                col_stop: 4
+                path: ""
+                content: "x[1..]"
       right: ~
       span:
         line_start: 1
@@ -43,12 +44,13 @@ outputs:
         Value:
           Implicit:
             - "1"
-            - line_start: 1
-              line_stop: 1
-              col_start: 5
-              col_stop: 6
-              path: ""
-              content: "x[..1]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 5
+                col_stop: 6
+                path: ""
+                content: "x[..1]"
       span:
         line_start: 1
         line_stop: 1
@@ -63,22 +65,24 @@ outputs:
         Value:
           Implicit:
             - "1"
-            - line_start: 1
-              line_stop: 1
-              col_start: 3
-              col_stop: 4
-              path: ""
-              content: "x[1..1]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 3
+                col_stop: 4
+                path: ""
+                content: "x[1..1]"
       right:
         Value:
           Implicit:
             - "1"
-            - line_start: 1
-              line_stop: 1
-              col_start: 6
-              col_stop: 7
-              path: ""
-              content: "x[1..1]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 6
+                col_stop: 7
+                path: ""
+                content: "x[1..1]"
       span:
         line_start: 1
         line_stop: 1
@@ -93,22 +97,24 @@ outputs:
         Value:
           Implicit:
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 3
-              col_stop: 4
-              path: ""
-              content: "x[0..100]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 3
+                col_stop: 4
+                path: ""
+                content: "x[0..100]"
       right:
         Value:
           Implicit:
             - "100"
-            - line_start: 1
-              line_stop: 1
-              col_start: 6
-              col_stop: 9
-              path: ""
-              content: "x[0..100]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 6
+                col_stop: 9
+                path: ""
+                content: "x[0..100]"
       span:
         line_start: 1
         line_stop: 1
@@ -127,12 +133,13 @@ outputs:
                 Value:
                   Implicit:
                     - "323452345"
-                    - line_start: 1
-                      line_stop: 1
-                      col_start: 3
-                      col_stop: 12
-                      path: ""
-                      content: "x[323452345.2345234523453453][323452345.2345234523453453]"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 3
+                        col_stop: 12
+                        path: ""
+                        content: "x[323452345.2345234523453453][323452345.2345234523453453]"
               index:
                 value: "2345234523453453"
               span:
@@ -155,12 +162,13 @@ outputs:
             Value:
               Implicit:
                 - "323452345"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 31
-                  col_stop: 40
-                  path: ""
-                  content: "x[323452345.2345234523453453][323452345.2345234523453453]"
+                - span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 31
+                    col_stop: 40
+                    path: ""
+                    content: "x[323452345.2345234523453453][323452345.2345234523453453]"
           index:
             value: "2345234523453453"
           span:
@@ -185,23 +193,25 @@ outputs:
           Integer:
             - U8
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 3
-              col_stop: 6
-              path: ""
-              content: "x[0u8..1u8]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 3
+                col_stop: 6
+                path: ""
+                content: "x[0u8..1u8]"
       right:
         Value:
           Integer:
             - U8
             - "1"
-            - line_start: 1
-              line_stop: 1
-              col_start: 8
-              col_stop: 11
-              path: ""
-              content: "x[0u8..1u8]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 8
+                col_stop: 11
+                path: ""
+                content: "x[0u8..1u8]"
       span:
         line_start: 1
         line_stop: 1
@@ -217,12 +227,13 @@ outputs:
           Integer:
             - U8
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 3
-              col_stop: 6
-              path: ""
-              content: "x[0u8..]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 3
+                col_stop: 6
+                path: ""
+                content: "x[0u8..]"
       right: ~
       span:
         line_start: 1
@@ -240,12 +251,13 @@ outputs:
           Integer:
             - U8
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 5
-              col_stop: 8
-              path: ""
-              content: "x[..0u8]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 5
+                col_stop: 8
+                path: ""
+                content: "x[..0u8]"
       span:
         line_start: 1
         line_stop: 1
