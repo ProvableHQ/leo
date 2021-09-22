@@ -29,23 +29,20 @@ Firstly we would have to modify both the ABNF and parsing of Leo to allow static
 The ABNF would look as follows:
 
 ```abnf
-; This is an existing old rule
+; This is an existing old rule.
 scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
-; This is an existing old rule
-circuit-type = identifier / self-type
-
 ; Add this rule.
-named-type = circuit-type / scalar-type ; new rule
+named-type = identifier / self-type / scalar-type
 
-; Modify this rule:
+; Modify this rule.
 postfix-expression = primary-expression
                    / postfix-expression "." natural
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / named-type "::" identifier function-arguments ; this used to be a circuit-type
-                   / named-type "::" identifier ; this is new to allow static members on
+                   / named-type "::" identifier function-arguments ; this used to be identifier-or-self-type
+                   / named-type "::" identifier ; this is new to allow member constants
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```
