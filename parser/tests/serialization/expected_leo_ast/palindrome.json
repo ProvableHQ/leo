@@ -3,7 +3,7 @@
   "circuits": {},
   "expected_input": [],
   "functions": {
-    "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}": {
+    "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}": {
       "annotations": [],
       "block": {
         "statements": [
@@ -22,7 +22,7 @@
               },
               "variable_names": [
                 {
-                  "identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":11,\\\"col_stop\\\":18,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    const str_len = 20u32; // saving const for convenience\\\"}\"}",
+                  "identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":11,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const str_len = 20u32; // saving const for convenience\\\"}\"}",
                   "mutable": false
                 }
               ]
@@ -42,7 +42,7 @@
               },
               "variable_names": [
                 {
-                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    let result = true;\\\"}\"}",
+                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = true;\\\"}\"}",
                   "mutable": true
                 }
               ]
@@ -63,7 +63,7 @@
               },
               "variable_names": [
                 {
-                  "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":9,\\\"col_stop\\\":18,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    let processed = 0u8;\\\"}\"}",
+                  "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":9,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let processed = 0u8;\\\"}\"}",
                   "mutable": true
                 }
               ]
@@ -80,16 +80,16 @@
                       "value": {
                         "ArrayAccess": {
                           "array": {
-                            "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":25,\\\"col_stop\\\":28,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
+                            "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":25,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
                           },
                           "index": {
-                            "Identifier": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":29,\\\"col_stop\\\":34,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
+                            "Identifier": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":29,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
                           }
                         }
                       },
                       "variable_names": [
                         {
-                          "identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}",
+                          "identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}",
                           "mutable": true
                         }
                       ]
@@ -114,7 +114,7 @@
                               },
                               "variable_names": [
                                 {
-                                  "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"            let skipped = 0u8;\\\"}\"}",
+                                  "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let skipped = 0u8;\\\"}\"}",
                                   "mutable": true
                                 }
                               ]
@@ -135,7 +135,7 @@
                               },
                               "variable_names": [
                                 {
-                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"            let end_empty = 0u8;\\\"}\"}",
+                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_empty = 0u8;\\\"}\"}",
                                   "mutable": true
                                 }
                               ]
@@ -156,7 +156,7 @@
                               },
                               "variable_names": [
                                 {
-                                  "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"            let end_sym = ' ';\\\"}\"}",
+                                  "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_sym = ' ';\\\"}\"}",
                                   "mutable": true
                                 }
                               ]
@@ -174,16 +174,16 @@
                                             "Assign": {
                                               "assignee": {
                                                 "accesses": [],
-                                                "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":21,\\\"col_stop\\\":28,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
+                                                "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":21,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
                                               },
                                               "operation": "Assign",
                                               "value": {
                                                 "ArrayAccess": {
                                                   "array": {
-                                                    "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
+                                                    "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
                                                   },
                                                   "index": {
-                                                    "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":35,\\\"col_stop\\\":38,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
+                                                    "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":35,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
                                                   }
                                                 }
                                               }
@@ -200,10 +200,10 @@
                                                   "left": {
                                                     "ArrayAccess": {
                                                       "array": {
-                                                        "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                        "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":20,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
                                                       },
                                                       "index": {
-                                                        "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                        "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
                                                       }
                                                     }
                                                   },
@@ -223,11 +223,11 @@
                                               "right": {
                                                 "Binary": {
                                                   "left": {
-                                                    "Identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":39,\\\"col_stop\\\":46,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                    "Identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":39,\\\"col_stop\\\":46,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
                                                   },
                                                   "op": "Eq",
                                                   "right": {
-                                                    "Identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":50,\\\"col_stop\\\":59,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                    "Identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":50,\\\"col_stop\\\":59,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
                                                   }
                                                 }
                                               }
@@ -237,7 +237,7 @@
                                           "right": {
                                             "Binary": {
                                               "left": {
-                                                "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":63,\\\"col_stop\\\":70,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
+                                                "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":63,\\\"col_stop\\\":70,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
                                               },
                                               "op": "Eq",
                                               "right": {
@@ -260,13 +260,13 @@
                                               "Assign": {
                                                 "assignee": {
                                                   "accesses": [],
-                                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
+                                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
                                                 },
                                                 "operation": "Assign",
                                                 "value": {
                                                   "Binary": {
                                                     "left": {
-                                                      "Identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":33,\\\"col_stop\\\":42,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
+                                                      "Identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":33,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
                                                     },
                                                     "op": "Add",
                                                     "right": {
@@ -289,13 +289,13 @@
                                                       "Assign": {
                                                         "assignee": {
                                                           "accesses": [],
-                                                          "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
+                                                          "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
                                                         },
                                                         "operation": "Assign",
                                                         "value": {
                                                           "Binary": {
                                                             "left": {
-                                                              "Identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":35,\\\"col_stop\\\":42,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
+                                                              "Identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":35,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
                                                             },
                                                             "op": "Add",
                                                             "right": {
@@ -317,10 +317,10 @@
                                                     "left": {
                                                       "ArrayAccess": {
                                                         "array": {
-                                                          "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    if str[end] != ' ' {\\\"}\"}"
+                                                          "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    if str[end] != ' ' {\\\"}\"}"
                                                         },
                                                         "index": {
-                                                          "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":28,\\\"col_stop\\\":31,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    if str[end] != ' ' {\\\"}\"}"
+                                                          "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":28,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    if str[end] != ' ' {\\\"}\"}"
                                                         }
                                                       }
                                                     },
@@ -350,7 +350,7 @@
                               "start": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
                                   },
                                   "op": "Sub",
                                   "right": {
@@ -364,9 +364,9 @@
                                 }
                               },
                               "stop": {
-                                "Identifier": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":39,\\\"col_stop\\\":44,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                "Identifier": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":39,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
                               },
-                              "variable": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                              "variable": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
                             }
                           },
                           {
@@ -379,10 +379,10 @@
                                         "Log": {
                                           "parameters": [
                                             {
-                                              "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":51,\\\"col_stop\\\":60,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
+                                              "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":51,\\\"col_stop\\\":60,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
                                             },
                                             {
-                                              "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":62,\\\"col_stop\\\":69,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
+                                              "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":62,\\\"col_stop\\\":69,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
                                             }
                                           ],
                                           "string": [
@@ -453,17 +453,17 @@
                                             "Assign": {
                                               "assignee": {
                                                 "accesses": [],
-                                                "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":21,\\\"col_stop\\\":27,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
+                                                "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":21,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
                                               },
                                               "operation": "Assign",
                                               "value": {
                                                 "Binary": {
                                                   "left": {
-                                                    "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":31,\\\"col_stop\\\":40,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
+                                                    "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":31,\\\"col_stop\\\":40,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
                                                   },
                                                   "op": "Eq",
                                                   "right": {
-                                                    "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":44,\\\"col_stop\\\":51,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
+                                                    "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":44,\\\"col_stop\\\":51,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
                                                   }
                                                 }
                                               }
@@ -472,7 +472,7 @@
                                         ]
                                       },
                                       "condition": {
-                                        "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                if result {\\\"}\"}"
+                                        "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if result {\\\"}\"}"
                                       },
                                       "next": null
                                     }
@@ -481,13 +481,13 @@
                                     "Assign": {
                                       "assignee": {
                                         "accesses": [],
-                                        "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
+                                        "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
                                       },
                                       "operation": "Assign",
                                       "value": {
                                         "Binary": {
                                           "left": {
-                                            "Identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":29,\\\"col_stop\\\":38,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
+                                            "Identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":29,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
                                           },
                                           "op": "Add",
                                           "right": {
@@ -507,7 +507,7 @@
                               "condition": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":16,\\\"col_stop\\\":23,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"            if end_sym != ' ' {\\\"}\"}"
+                                    "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":16,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if end_sym != ' ' {\\\"}\"}"
                                   },
                                   "op": "Ne",
                                   "right": {
@@ -529,7 +529,7 @@
                       "condition": {
                         "Binary": {
                           "left": {
-                            "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":12,\\\"col_stop\\\":21,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"        if start_sym != ' ' {\\\"}\"}"
+                            "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":12,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        if start_sym != ' ' {\\\"}\"}"
                           },
                           "op": "Ne",
                           "right": {
@@ -560,7 +560,7 @@
               "stop": {
                 "Binary": {
                   "left": {
-                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":22,\\\"col_stop\\\":29,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":22,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
                   },
                   "op": "Div",
                   "right": {
@@ -573,7 +573,7 @@
                   }
                 }
               },
-              "variable": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+              "variable": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
             }
           },
           {
@@ -582,7 +582,7 @@
                 "Log": {
                   "parameters": [
                     {
-                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":34,\\\"col_stop\\\":40,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"Result is: {}\\\\\\\", result);\\\"}\"}"
+                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":34,\\\"col_stop\\\":40,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"Result is: {}\\\\\\\", result);\\\"}\"}"
                     }
                   ],
                   "string": [
@@ -633,18 +633,18 @@
           {
             "Return": {
               "expression": {
-                "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":12,\\\"col_stop\\\":18,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    return result;\\\"}\"}"
+                "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":12,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return result;\\\"}\"}"
               }
             }
           }
         ]
       },
-      "identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
+      "identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
       "input": [
         {
           "Variable": {
             "const_": false,
-            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
+            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
             "mutable": true,
             "type_": {
               "Array": [
@@ -661,7 +661,7 @@
       ],
       "output": "Boolean"
     },
-    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}": {
       "annotations": [],
       "block": {
         "statements": [
@@ -671,11 +671,11 @@
                 "Call": {
                   "arguments": [
                     {
-                      "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":26,\\\"col_stop\\\":29,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
+                      "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":26,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
                     }
                   ],
                   "function": {
-                    "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":25,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
+                    "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
                   }
                 }
               }
@@ -683,12 +683,12 @@
           }
         ]
       },
-      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
       "input": [
         {
           "Variable": {
             "const_": false,
-            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
+            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
             "mutable": true,
             "type_": {
               "Array": [
@@ -705,11 +705,11 @@
       ],
       "output": "Boolean"
     },
-    "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}": {
+    "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}": {
       "annotations": [
         {
           "arguments": [],
-          "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":51,\\\"line_stop\\\":51,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"@test\\\"}\"}"
+          "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":51,\\\"line_stop\\\":51,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
         }
       ],
       "block": {
@@ -791,7 +791,7 @@
                       }
                     ],
                     "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"a           b   a   \\\\\\\"));\\\"}\"}"
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"a           b   a   \\\\\\\"));\\\"}\"}"
                     }
                   }
                 }
@@ -875,7 +875,7 @@
                       }
                     ],
                     "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"😀😀😀😀😀          😀😀😀😀😀\\\\\\\"));\\\"}\"}"
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"😀😀😀😀😀          😀😀😀😀😀\\\\\\\"));\\\"}\"}"
                     }
                   }
                 }
@@ -959,7 +959,7 @@
                       }
                     ],
                     "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"borrow or rob       \\\\\\\"));\\\"}\"}"
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"borrow or rob       \\\\\\\"));\\\"}\"}"
                     }
                   }
                 }
@@ -1043,7 +1043,7 @@
                       }
                     ],
                     "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"bbbb aaaa  aaaa bbbb\\\\\\\"));\\\"}\"}"
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"bbbb aaaa  aaaa bbbb\\\\\\\"));\\\"}\"}"
                     }
                   }
                 }
@@ -1127,7 +1127,7 @@
                       }
                     ],
                     "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"aaaaaaaaaaaaaaaaaaaa\\\\\\\"));\\\"}\"}"
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"aaaaaaaaaaaaaaaaaaaa\\\\\\\"));\\\"}\"}"
                     }
                   }
                 }
@@ -1211,7 +1211,7 @@
                       }
                     ],
                     "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"taco cat            \\\\\\\"));\\\"}\"}"
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"taco cat            \\\\\\\"));\\\"}\"}"
                     }
                   }
                 }
@@ -1220,7 +1220,7 @@
           }
         ]
       },
-      "identifier": "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"test\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}",
+      "identifier": "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}",
       "input": [],
       "output": null
     }
