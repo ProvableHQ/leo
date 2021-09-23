@@ -215,9 +215,7 @@ impl<'a> Program<'a> {
                 target,
                 arguments,
                 ..
-            }) => {
-                self.enforce_function_call(function.get(), target.get(), &arguments[..])
-            }
+            }) => self.enforce_function_call(function.get(), target.get(), &arguments[..]),
         }
     }
 }
