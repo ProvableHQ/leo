@@ -10,23 +10,23 @@ outputs:
     circuits: {}
     global_consts: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}":
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\\r\\\"}\"}":
         annotations: []
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\\r\\\"}\"}"
         input:
           - Variable:
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\\r\\\"}\"}"
               const_: false
               mutable: true
               type_:
-                CircuitOrAlias: "{\"name\":\"MyCircuit\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
+                CircuitOrAlias: "{\"name\":\"MyCircuit\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\\r\\\"}\"}"
               span:
                 line_start: 3
                 line_stop: 3
                 col_start: 12
                 col_stop: 13
                 path: ""
-                content: "function x(x: MyCircuit) {"
+                content: "function x(x: MyCircuit) {\r"
         output: ~
         block:
           statements:
@@ -40,14 +40,14 @@ outputs:
                       col_start: 12
                       col_stop: 14
                       path: ""
-                      content: "    return ();"
+                      content: "    return ();\r"
                 span:
                   line_start: 4
                   line_stop: 4
                   col_start: 5
                   col_stop: 14
                   path: ""
-                  content: "    return ();"
+                  content: "    return ();\r"
           span:
             line_start: 3
             line_stop: 5
