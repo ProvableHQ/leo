@@ -4,11 +4,20 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1694
-      num_constraints: 2719
-      at: f9a9bc8304df327c7b16f088b61ac518fb3a7b6457ccc35a1ab9eab4565a1981
-      bt: 045eba0fdd405714f788492fd5914b053e0ece622e9a542270d8cfe85c0ee291
-      ct: e8fa4a33a657c70a7cecc7e9b284157b369b7ea57879948e108daf93e778551c
+      num_private_variables: 1695
+      num_constraints: 2720
+      at: 8ad56e3b2980b88add6520eb4c4e4030f6ea6a7e42629aa8295a6a60a61a98f4
+      bt: 52728e6a879b6172076cd00c2897fa1ce82896d1eea6f5a8be03697259c0920f
+      ct: ea35d97bb42888c3b1e7935026cd0690e27e07477db3ae3da07b7280e3891fd4
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, [aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6]"
+      - "  aget &v4, [aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6], v2"
+      - "  store &v5, v4"
+      - "  eq &v6, v5, aleo1x0rh2cudq93fhukrsce8sgvcphddv4qs0clph64stpg0hstfds9qjvxcg6"
+      - "  retn v6"
+      - ""
     output:
       - input_file: inputs/index.in
         output:

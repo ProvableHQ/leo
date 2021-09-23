@@ -4,11 +4,23 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 95
-      num_constraints: 95
-      at: a57d02fa8b8a2336cc5c407e6a9489a3cb89357e3a3d966f18d8f0f86c21602f
-      bt: e0a9aa0cab882fb690b28137d24f271ccaa334521934a3badc07592a31b7be7f
-      ct: 7b8a2025971971c829b68fc994c6761496807e5b091ba4360d90fb6f35f4656e
+      num_private_variables: 96
+      num_constraints: 96
+      at: dd7eb060685c94def913327b205b993dea7e88392559c44bdde58fb16a977c3e
+      bt: 1bca8e18695437c76e0a121dc2573bbfef48f0b7f8d2227ac74209d50b6953e8
+      ct: e92db7709ab3fe90ecb7533771ca68141584d51d7916fef12a3360eccd6fc04e
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  call &v3, f1, v2"
+      - "  store &v4, v3"
+      - "  eq &v5, v2, v4"
+      - "  retn v5"
+      - "decl f1: <6>"
+      - "  store &v7, (v6)"
+      - "  tget &v8, v7, 0"
+      - "  retn v8"
+      - ""
     output:
       - input_file: func_circ.in
         output:
@@ -16,7 +28,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: bfd7751e8ea64c6d41af36d968f194a18a5411ac71932a67766f40448ce755f5
-    imports_resolved_ast: 58a6b067cffc10de35b10a84f7e200fe836890c758174c8126cc4a20417a4c24
-    canonicalized_ast: 58a6b067cffc10de35b10a84f7e200fe836890c758174c8126cc4a20417a4c24
-    type_inferenced_ast: 7b55011299b213dd63dae23315ad0029c6057c46a2ad53f30b28fbdfb5b72934
+    initial_ast: 46f4c4a1c4875e1649e005a6ab16c8574220216db3a258c0306739961f3da71a
+    imports_resolved_ast: 95d48fc1f087af95052f4f9b44d7082e281114294dc3c1ceb43272350e9740a8
+    canonicalized_ast: 95d48fc1f087af95052f4f9b44d7082e281114294dc3c1ceb43272350e9740a8
+    type_inferenced_ast: 4d584c11fc93456da36a475defd7f1d2ba08c59adfcbdc1bb4a49c56da278ef5

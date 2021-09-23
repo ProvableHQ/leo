@@ -4,11 +4,20 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 68
-      num_constraints: 51
-      at: 45fa182371664010950da6ec3fa6360de34dda5cb814b3c8bd119a09e86b5c77
-      bt: 4da3499799890924c2910625e052c6757e7cfd857ebbd18afd3d16b5bd0e9a73
-      ct: 183c15a7bf0d7c109b082a55e696874797e7ce685096881ce803f6bfa453a875
+      num_private_variables: 69
+      num_constraints: 52
+      at: 47e996b490319c573c3995abd4106b2741c4a3ddf2b137ec1a326741a5056cfd
+      bt: c5f0cc4085929ef2a6272ecc8956d26b61bab3d2cb8b14f5a80c2305230f41d0
+      ct: c412113831b6b8aa1154a93c041f86489ebea172b5c50a9cb700c9864dcd5c16
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  asget &v4, v2, 0, 4, 4"
+      - "  asset &v2, 0, 4, v3"
+      - "  store &v2, v2"
+      - "  ne &v5, v2, ['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']"
+      - "  retn v5"
+      - ""
     output:
       - input_file: inputs/string.in
         output:
@@ -22,7 +31,7 @@ outputs:
             out:
               type: bool
               value: "true"
-    initial_ast: f3c204e48bcf159d84b551a7af01a54b49a9cd6b0ba35ab8c3e68d50caf215e6
-    imports_resolved_ast: 5ec122e1aa6de65e377d6432406f1ec690290a69fa6aac3bfebec545717797ae
-    canonicalized_ast: f5e314dcfae2ffbe59756d4ae65d8d6f0078a2d2753ede2461e2a3dd010857ca
-    type_inferenced_ast: f9919236e4853a4bc75b59f915410ce2e14e9b05b1f3bb4201484008acfc1d07
+    initial_ast: 31368c00db496aab300d12b483d0d0f7aaed3fb98e64fb3bd211d9a7f75e3032
+    imports_resolved_ast: bec6d998e7224b0ee31084b341b8aa46f987b0bf8c701417e8685ed127e475dd
+    canonicalized_ast: 46cffa4d1f6ab66154816da9244a342e34f140b18fdaef74802f28eaddf0581e
+    type_inferenced_ast: 75f283e361f9b4b91c6f3649957101bde9009994e7b267e389b0db7300c4683f

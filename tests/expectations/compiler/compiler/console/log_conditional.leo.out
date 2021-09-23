@@ -4,11 +4,20 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 190
-      num_constraints: 190
-      at: a1a80b7c355e1fa32c2136c4dc7a0fd0670affbdda869a9161a3a69f396c6b9a
-      bt: fbf306d0d13bf3d40926ad7adc07f122cb8d065e7e5d55f3416ac30d7ebe7a7c
-      ct: 97e2acff1b76912c52107342393ec04a09af81353a25f7ce330b8492f41381cf
+      num_private_variables: 191
+      num_constraints: 191
+      at: ecd47c065e8196d1d033ff9f8aa9684638af6e9670515518bdcb6c6e499221e4
+      bt: fe097c672f848e8761bf568bddb39416588eedad7c66dac6c6240364eaa8b05a
+      ct: ba414224b78db082b606be682fda3c686bc4830095618e4dddc195bcafcb94a2
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  eq &v4, v2, v3"
+      - "  mask 1, v4"
+      - "    log INFO, \"\", v2, \"==\", v3, \"\""
+      - "  eq &v6, v2, v3"
+      - "  retn v6"
+      - ""
     output:
       - input_file: input/input_unequal.in
         output:
@@ -22,7 +31,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 389c0d4a68bf27db627b83d460a2947a2321a76fc73e727806a9fe8c7f63fe88
-    imports_resolved_ast: 08d50ccc2ca7866fac012b49f3188712c1df5c14be8c3dba5c50263a0fa01e5d
-    canonicalized_ast: 08d50ccc2ca7866fac012b49f3188712c1df5c14be8c3dba5c50263a0fa01e5d
-    type_inferenced_ast: cba95b7d8b28489bba40f6058992ce90ff655b4e513e36dddb4701bf46dbf43b
+    initial_ast: 74f3021e77c18638045b9aa8561f3b59cf7b579e1c8fd84d838afc391fec27f9
+    imports_resolved_ast: 350dfbfa520b9b13319c55d43a46866849b95312a539ba9d4f98a01eae2fc082
+    canonicalized_ast: 350dfbfa520b9b13319c55d43a46866849b95312a539ba9d4f98a01eae2fc082
+    type_inferenced_ast: 2ca13f6b0aebc8048a365d16e106b8c460a139906ae7b8164c26a668a4f44606

@@ -4,25 +4,41 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 924
-      num_constraints: 1310
-      at: f4c2d999e3cfce5433bbde762d8c826c8df8764b9223dd5d7147cd09810f25b7
-      bt: fa02e90dd0bde30bc5feab46c3ea4fae0493dc6808d56bc6a1d937eb17297981
-      ct: 8f6f484310918a186286820e4efd1e7494774c314e9e5c6f78bb60bdeae948f4
+      num_private_variables: 1914
+      num_constraints: 2558
+      at: 4736445d494d9b9a754b2eb5c91df5310290d0954417b5a89918f2bf1f4ae134
+      bt: 36a24962d91c3492840ab49513db6874c8e617cf8d1b985f756cd54843dac885
+      ct: 0132d343b82fee719c3af5146f4417ae3fa7c285f1b5e2aebe9ce2e4505cc336
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, [(1, 1), (2, 2), (3, 3)]"
+      - "  aget &v4, v3, v2"
+      - "  tget &v5, v4, 0"
+      - "  tset &v4, 0, 0"
+      - "  aset &v3, v2, v4"
+      - "  store &v3, v3"
+      - "  aget &v6, v3, v2"
+      - "  tget &v7, v6, 1"
+      - "  tset &v6, 1, 1"
+      - "  aset &v3, v2, v6"
+      - "  store &v3, v3"
+      - "  retn v3"
+      - ""
     output:
       - input_file: input/index1_tuple.in
         output:
           registers:
             r0:
               type: "[(u32, u32); 3]"
-              value: "\"(1, 1)(0, 1)(3, 3)\""
+              value: "[(1, 1), (0, 1), (3, 3)]"
       - input_file: input/index2_tuple.in
         output:
           registers:
             r0:
               type: "[(u32, u32); 3]"
-              value: "\"(1, 1)(2, 2)(0, 1)\""
-    initial_ast: 7ca87cb79f11b6342bc6db56d6b051c68bcedb798ba9eb88992dcfe0873ce139
-    imports_resolved_ast: be6617cf106d0228192d1e321a6444ffdbf4c0d0a77a617d1ea8f7aea52456b2
-    canonicalized_ast: be6617cf106d0228192d1e321a6444ffdbf4c0d0a77a617d1ea8f7aea52456b2
-    type_inferenced_ast: 27167759a3eb4f915968b45d63f25685a5d3e9f1e08bf09d0bc2481af51c8619
+              value: "[(1, 1), (2, 2), (0, 1)]"
+    initial_ast: 1cfc7bf633359df839152672870f19ed3b01f79f202237eaa4de9fb462288fb5
+    imports_resolved_ast: 359eee3b59d217b0127dc6093fb93caeb023fabdc04cfe1a82b12c5f74e6ed79
+    canonicalized_ast: 359eee3b59d217b0127dc6093fb93caeb023fabdc04cfe1a82b12c5f74e6ed79
+    type_inferenced_ast: 73bf87301da72637b79dbe94d261da5d4657be7be8aaec01306b824403be1644

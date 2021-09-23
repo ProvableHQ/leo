@@ -7,32 +7,32 @@ outputs:
     import_statements:
       - package_or_packages:
           Package:
-            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
+            name: "{\"name\":\"a\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b as bar;\\\\r\\\"}\"}"
             access:
               Symbol:
-                symbol: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
-                alias: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b as bar;\\\"}\"}"
+                symbol: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b as bar;\\\\r\\\"}\"}"
+                alias: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a.b as bar;\\\\r\\\"}\"}"
                 span:
                   line_start: 3
                   line_stop: 3
                   col_start: 10
                   col_stop: 18
                   path: ""
-                  content: import a.b as bar;
+                  content: "import a.b as bar;\r"
             span:
               line_start: 3
               line_stop: 3
               col_start: 8
               col_stop: 18
               path: ""
-              content: import a.b as bar;
+              content: "import a.b as bar;\r"
         span:
           line_start: 3
           line_stop: 3
           col_start: 8
           col_stop: 18
           path: ""
-          content: import a.b as bar;
+          content: "import a.b as bar;\r"
     imports: {}
     aliases: {}
     circuits: {}

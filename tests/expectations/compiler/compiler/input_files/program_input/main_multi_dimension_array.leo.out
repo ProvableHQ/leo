@@ -4,11 +4,28 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 223
-      num_constraints: 223
-      at: 87fe022f8971e90450cc219824d04ea84f08040429143393193aa2de0321759f
-      bt: 65e18f4e1e32d72f87d238401f8397b5d8ba20e7da7d50cc5930faa5673cdb77
-      ct: 389354117abccc4ef9f4822705889f64f1d16b7e0d2adae52005c7b91b0ccabb
+      num_private_variables: 224
+      num_constraints: 224
+      at: ccf19b025615a81b1f19967fd069c140849429e932a38b245cda98b9acea2191
+      bt: 57f1871a8d1ff309df7590b6b67374f185bb1b17d18e0bad3d75c9f537675e70
+      ct: b92d53399a71512b25b4ee9f35327fe8a8e658b444fcf397b0d8cd6790448ff5
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  log INFO, \"x: \", v2, \"\""
+      - "  store &v3, [[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0]]]"
+      - "  log INFO, \"y: \", [[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0]]], \"\""
+      - "  aget &v4, v2, 0"
+      - "  aget &v5, v4, 0"
+      - "  aget &v6, v5, 0"
+      - "  eq &v7, v6, 0"
+      - "  aget &v8, v2, 1"
+      - "  aget &v9, v8, 1"
+      - "  aget &v10, v9, 2"
+      - "  eq &v11, v10, 0"
+      - "  and &v12, v7, v11"
+      - "  retn v12"
+      - ""
     output:
       - input_file: input/main_multi_dimension_array.in
         output:
@@ -16,7 +33,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: f74b907c08c1bfd4d2afc9df5589bc2aed1923db5e858c5cc6046f5aed735cf2
-    imports_resolved_ast: 6d70609f85ed94459de8f43f955264c3261a8078dbf4bf528ce0088305d23b3c
-    canonicalized_ast: 9ad6397486392caa67aba505a6404fbfb824be83d6b548eaab6a301d1fca52b5
-    type_inferenced_ast: 0c8d039bf361d66861ccfd4c817408baef514b13b1542079a5d23301bdb0582a
+    initial_ast: a2646afd34522d62c921918c0110ee95c98b977a02485803031e49dba77f8e52
+    imports_resolved_ast: e9c42c1404e7c3b9c25650c4319686578689693a0eeb45ba2ece9bd5ed599610
+    canonicalized_ast: 587cdabd7e373af0397a3872412d9a26c22974828e17affbfcfd7edfc06577b4
+    type_inferenced_ast: d4d7b01c66ab7131d9c022cafd758427e0132c5e1bef7d337a276ce2c913e388

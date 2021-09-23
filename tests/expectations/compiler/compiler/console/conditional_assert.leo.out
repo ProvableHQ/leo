@@ -9,6 +9,17 @@ outputs:
       at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
       bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
       ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+    ir:
+      - "decl f0: <0>"
+      - "  store &v0, ((), (), (), ())"
+      - "  mask 2, v1"
+      - "    eq &v3, v1, true"
+      - "    assert v3"
+      - "  not &v2, v1"
+      - "  mask 2, v2"
+      - "    eq &v4, v1, false"
+      - "    assert v4"
+      - ""
     output:
       - input_file: cond.in
         output:
@@ -16,7 +27,7 @@ outputs:
       - input_file: cond_2.in
         output:
           registers: {}
-    initial_ast: a7b374e2c0a97af2160b5f6faeadb17a12e8908c1a7b3d251194e6867fd98f07
-    imports_resolved_ast: dabdcc765c43d9b60d2b4acae683e8d085a680ae2dd11c566786b7378d84d6e0
-    canonicalized_ast: dbcad56164992471e3ba9deca495baa44c052bb4cb023eb71eeb19f515b2b4c8
-    type_inferenced_ast: 436e5bacea4dae2b4fc635a43ef91cfcfaec6931673c32eb1e7a06efcb868ba4
+    initial_ast: 8507dee9c02420ec1c66752f50d7ca3f706ecef44b2a0be060fcd7176fb3c16b
+    imports_resolved_ast: cb953b1e492d7535b2631700e62c7d34be68ae4a77976915fea55a8a851282e4
+    canonicalized_ast: 6864a3fc104fff53a9f37acbfeffbea1460f71d0b1e898a48b82a19757f7813c
+    type_inferenced_ast: 680bb683d7303afa1c58f302270d7fe2f8f0d3ac796f4ccd38edd54da141a707

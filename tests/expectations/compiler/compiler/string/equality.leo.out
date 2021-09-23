@@ -4,11 +4,31 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 92
-      num_constraints: 75
-      at: c03384068dd2b9bd528c65e301960d5c4f61bf94949c9080f28a4bc57f81e856
-      bt: 7f653d4004b13eee112bbefcf900b0c8201524129423cdda82799c18fdcfb3f7
-      ct: bce0d8a64cf530613e693412358d17d231ec8516108ab4ee5a47ddf185a471fa
+      num_private_variables: 93
+      num_constraints: 76
+      at: 84a21bdc4f9391526dcf3cb4059dcc1a59cf949e2eeef4d9cccfab178f1316e9
+      bt: ba59a692157f3dcad68f3c947b402d06a55f328a984e847770d21d66a36ebebf
+      ct: 807a3b2b528e7c0e39eaa3d4278c6a046abb87b2c142143670fa374529d69314
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v4, ['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']"
+      - "  store &v5, ['G', 'o', 'o', 'd']"
+      - "  store &v6, [' ', 'd', 'o', 'g', '!']"
+      - "  ainit &v7, v5, v6"
+      - "  store &v8, v7"
+      - "  store &v9, false"
+      - "  store &v9, false"
+      - "  eq &v10, v4, v2"
+      - "  ne &v11, ['n', 'o', 'p', 'e'], v3"
+      - "  and &v12, v10, v11"
+      - "  asget &v13, v3, 1, 3, 2"
+      - "  eq &v14, ['e', 's'], v13"
+      - "  and &v15, v12, v14"
+      - "  eq &v16, v8, ['G', 'o', 'o', 'd', ' ', 'd', 'o', 'g', '!']"
+      - "  and &v17, v15, v16"
+      - "  retn v17"
+      - ""
     output:
       - input_file: inputs/string.in
         output:
@@ -22,7 +42,7 @@ outputs:
             out:
               type: bool
               value: "false"
-    initial_ast: 18cc23be73fed22f06b3bfdb93c1b92688131d4bbeb0d68ed8dc691c97f0c415
-    imports_resolved_ast: b688df7cfccd197ffec59397049fe7d3714c525a78674aa012a41c3326df747b
-    canonicalized_ast: ccc7e76d013ec888fb2f852204d6740e411aac19f586bc9cf334f77d9e69fe73
-    type_inferenced_ast: d97c86044424b1f50cdb8838fa8b6f8d1de75db74bd9ede46b443eeaab4eac28
+    initial_ast: 0ddf578fd4c2121376dba7b4fd47205daeb2549d827dd5528e3f8db03f3fdac1
+    imports_resolved_ast: 40ef6eddc7ea7470110b90c97693899efac771102fc3384d673f13dfdef3a64f
+    canonicalized_ast: 661bea55416239c75da138505d6d39b82a279aa386c18302f7be512aaebfdb6b
+    type_inferenced_ast: 662046d31ff646fd5c1c4a6f8b5490db6c968cb2ea8baa16bb9ce46b6f46d57f

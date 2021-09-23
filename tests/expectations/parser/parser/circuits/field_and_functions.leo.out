@@ -8,19 +8,19 @@ outputs:
     imports: {}
     aliases: {}
     circuits:
-      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
-        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\\r\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\\r\\\"}\"}"
         core_mapping: ~
         members:
           - CircuitVariable:
-              - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
+              - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x: u32,\\\\r\\\"}\"}"
               - IntegerType: U32
           - CircuitVariable:
-              - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    y: u32\\\"}\"}"
+              - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    y: u32\\\\r\\\"}\"}"
               - IntegerType: U32
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x() {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x() {\\\\r\\\"}\"}"
               input: []
               output: ~
               block:
@@ -35,14 +35,14 @@ outputs:
                             col_start: 16
                             col_stop: 18
                             path: ""
-                            content: "        return ();"
+                            content: "        return ();\r"
                       span:
                         line_start: 7
                         line_stop: 7
                         col_start: 9
                         col_stop: 18
                         path: ""
-                        content: "        return ();"
+                        content: "        return ();\r"
                 span:
                   line_start: 6
                   line_stop: 8
@@ -59,7 +59,7 @@ outputs:
                 content: "    function x() {\n         ...\n    }"
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function y() {\\\"}\"}"
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function y() {\\\\r\\\"}\"}"
               input: []
               output: ~
               block:
@@ -74,14 +74,14 @@ outputs:
                             col_start: 16
                             col_stop: 18
                             path: ""
-                            content: "        return ();"
+                            content: "        return ();\r"
                       span:
                         line_start: 10
                         line_stop: 10
                         col_start: 9
                         col_stop: 18
                         path: ""
-                        content: "        return ();"
+                        content: "        return ();\r"
                 span:
                   line_start: 9
                   line_stop: 11

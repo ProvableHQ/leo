@@ -4,11 +4,21 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 95
-      num_constraints: 127
-      at: 2cbb45563950440ec6b2ad12e378f1df49d6a12d4e773f0aa898f65f4eb109ff
-      bt: 7e12153373f45abf58e3b2954d1f1abfc951c7c1203e9e6c96fc37d9d25d8442
-      ct: 50977b6cd45450d9fddf5934d9167f889165f6ff117b03bb780bd6d89434daf4
+      num_private_variables: 159
+      num_constraints: 191
+      at: d0999412f7fab921a3b40e9d31820f435f41db447641be3df4c275ae3f4de5b1
+      bt: 76d11f466440413df91cc22ab101dbb9674c7d424b01478e69644d084823e8ce
+      ct: c920487b478d2a5b93630462c076996e2f8471196ec2f336fff82ad74055ed5c
+    ir:
+      - "decl f0: <0>"
+      - "  store &v2, ((v0, v1), (), (), ())"
+      - "  eq &v4, v3, 2"
+      - "  mask 1, v4"
+      - "    retn 3"
+      - "  not &v5, v4"
+      - "  mask 1, v5"
+      - "    retn 4"
+      - ""
     output:
       - input_file: input/integers.in
         output:
@@ -16,7 +26,7 @@ outputs:
             a:
               type: u32
               value: "4"
-    initial_ast: cf2d49dcd581c923b4ccfeb9c155de0e836fb8725c3c3af7abc5e6334231ba2f
-    imports_resolved_ast: cdcf08230c307f01d2e451b70ad6831dcf25f8edf3d619a1dce4102803376667
-    canonicalized_ast: cdcf08230c307f01d2e451b70ad6831dcf25f8edf3d619a1dce4102803376667
-    type_inferenced_ast: c7dfc3e3c55709915d7aa84ff1d9c211fc93e55bd280df82998640d9d847d57c
+    initial_ast: 901e0c6a7ee711a3105aa46e7bf1bf07bd59e5393072e3476805756d72951c3c
+    imports_resolved_ast: 43699c12c81b73143435334ec80f0f8bd2f8cff6cff3ddeede289fc7362f5c2b
+    canonicalized_ast: 43699c12c81b73143435334ec80f0f8bd2f8cff6cff3ddeede289fc7362f5c2b
+    type_inferenced_ast: 0d75534f0f05b495e2d8927e997d6c678a7b9339622a79cb2c10b52aaaaceb3f

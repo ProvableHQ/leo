@@ -4,11 +4,18 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 93
-      num_constraints: 93
-      at: 29988ea86584610f4511315204ed49c45d0303c44e0fb59c0df19dc048cee369
-      bt: 9bba1722080b8c396e72a645c5ca7dff2943c0b29a741569acdba3887e40c8af
-      ct: 4f89ea4838bc4544e2767b7dc68a1e0fa0649d7401bb7ae8292bd6aa654eda28
+      num_private_variables: 94
+      num_constraints: 94
+      at: 46fe54edf360df0fefcf547583b14eb6446e80a46fc87f68a2754f19e95494f5
+      bt: 9c4182c9955dae6f9b029de14a35d475d4187892eb8386c3d2a2c869f67d4b27
+      ct: 54619175eeb5dff7e1f1b17a1f2e092150c55c0e5a9a97661c135f7480030230
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  negate &v4, v2"
+      - "  eq &v5, v4, v3"
+      - "  retn v5"
+      - ""
     output:
       - input_file: i16.in
         output:
@@ -22,7 +29,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: ecbc2a7d13b6a8d1bf35f53a9d80c4aab380495ec93663410c390e5d6d4f602e
-    imports_resolved_ast: 60fad5dbf8bb2e165144aa4f7147847cc69cc7df13038796fa7ced2ef64ded5c
-    canonicalized_ast: 60fad5dbf8bb2e165144aa4f7147847cc69cc7df13038796fa7ced2ef64ded5c
-    type_inferenced_ast: 6edd46cbd3492565060c0da80b018c804c6e6209a70586c0fe0d21658bf1a778
+    initial_ast: ebe2a67ca24a7ae1679d8cdabb233c5688978de89216238444c93edf0b809280
+    imports_resolved_ast: b89cc9d4d934e72fcfe6830d4223b294dc63869a54a6db56814bdae7bd455481
+    canonicalized_ast: b89cc9d4d934e72fcfe6830d4223b294dc63869a54a6db56814bdae7bd455481
+    type_inferenced_ast: 2d0329cb8c5a2aa1a5f00aaf2eedee5af3e9821c78baedc8f83902da17220400

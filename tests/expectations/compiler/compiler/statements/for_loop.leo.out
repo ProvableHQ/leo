@@ -4,11 +4,26 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 512
-      num_constraints: 675
-      at: 5d537a7963ae43ff2b7b0222c18a237015c858d7203554574a785cd56d4d24c5
-      bt: 192ca0dd8a20d69b443b952a7226e8c82936fedd2c9735d2b792883a01e46e3b
-      ct: 04609638ad65317edb75529646b34f10a846b39b3ddb783e4aeceddde17b79f9
+      num_private_variables: 222
+      num_constraints: 286
+      at: 937c10d9215517acdefcf6d0f7759b666050df0acb2870ff4c6fcd2a4e4148fd
+      bt: f1f82f379028afd47388c4ba7dd5ffd0ec085288791d4de7354b0d527d46c1af
+      ct: 97cd623800bf1632d7a90a77938a42aecf9449f5c945d57cb5474fd32dc10bc3
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, 0"
+      - "  eq &v4, v2, 3"
+      - "  mask 3, v4"
+      - "    repeat 2, &v6, false, 0, 4"
+      - "      add &v7, v3, v6"
+      - "      store &v3, v7"
+      - "  eq &v8, v2, 3"
+      - "  pick &v9, v8, 6, 0"
+      - "  store &v10, v9"
+      - "  eq &v11, v10, v3"
+      - "  retn v11"
+      - ""
     output:
       - input_file: inputs/u32_3.in
         output:
@@ -16,7 +31,7 @@ outputs:
             a:
               type: bool
               value: "true"
-    initial_ast: a8e737bf2fcc5b5096dae768b52c04d56891a4eedd47640a0e1aea5fa4b5da1a
-    imports_resolved_ast: 46f86cc467af2e56c7c695269d0c373fe3a0ba708ddce3025ea577fb862a6130
-    canonicalized_ast: 22b0c532ccd649fec8276fe6179a5767f59391447343c39cbc1868fb24668972
-    type_inferenced_ast: b6796ecb4d41011610f93a2a3a9a315a29f00e13fb7936a37badb9b881f3db1f
+    initial_ast: 873e090788d4e2aabb556538bdc58524387f7cf444dc6ae80ffa8c46eca1dbec
+    imports_resolved_ast: ae82e4ec42f9cdb5d4dcc7ad0e2062ce0725aeb00cd1916ed62e0bf1a5bbc740
+    canonicalized_ast: eb5765fed349f30440a3d738bec0370786c5246d767dc345a0567fa2a84cc9a8
+    type_inferenced_ast: dc579fc33711913ebc14bac51c512a1a7dbe16df5f9bcc9d3f6a3011c6a63046

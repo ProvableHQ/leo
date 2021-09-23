@@ -8,15 +8,15 @@ outputs:
     imports: {}
     aliases: {}
     circuits:
-      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
-        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\\r\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\\r\\\"}\"}"
         core_mapping: ~
         members:
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(self) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(self) {\\\\r\\\"}\"}"
               input:
-                - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(self) {\\\"}\"}"
+                - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(self) {\\\\r\\\"}\"}"
               output: ~
               block:
                 statements:
@@ -30,14 +30,14 @@ outputs:
                             col_start: 16
                             col_stop: 18
                             path: ""
-                            content: "        return ();"
+                            content: "        return ();\r"
                       span:
                         line_start: 5
                         line_stop: 5
                         col_start: 9
                         col_stop: 18
                         path: ""
-                        content: "        return ();"
+                        content: "        return ();\r"
                 span:
                   line_start: 4
                   line_stop: 6

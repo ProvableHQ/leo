@@ -4,18 +4,26 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 36
-      num_constraints: 3
-      at: 25579220a31118007fe071d3083ad5a5503f7dc6bd4d51abf15f1a7778a99c86
-      bt: 8f5bf097224289e45b78e01a711900a993240585fe13744f9ab71a9c5c4d9111
-      ct: df019f90846f94966d481bfb6d579bee9c47d281176e210ccd973210afc957a1
+      num_private_variables: 70
+      num_constraints: 4
+      at: 2bfa66cf5bae7b7326e489c0be39e1a33f7a0ae9c0f85007c9c6280626e44823
+      bt: b863e2f23191c83e093e8b27d0d036b1eebe82000097e881a698348d3290163b
+      ct: 19488e9d1f6d0cfc9fb6e6e6048108b8717ceefc6d3ade9aa8b5e5d59da661c8
+    ir:
+      - "decl f0: <0>"
+      - "  store &v2, ((v0, v1), (), (), ())"
+      - "  store &v36, [v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32, v33, v34, v35]"
+      - "  log INFO, \"\", v36, \"\""
+      - "  eq &v37, v3, '\\u{0}'"
+      - "  retn (v36, v37)"
+      - ""
     output:
       - input_file: inputs/nonprinting.in
         output:
           registers:
             r0:
               type: "[char; 33]"
-              value: "\"\\u{0}\\u{1}\\u{2}\\u{3}\\u{4}\\u{5}\\u{6}\\u{7}\\u{8}\\t\\n\\u{b}\\u{c}\\r\\u{e}\\u{f}\\u{10}\\u{11}\\u{12}\\u{13}\\u{14}\\u{15}\\u{16}\\u{17}\\u{18}\\u{19}\\u{1a}\\u{1b}\\u{1c}\\u{1d}\\u{1e}\\u{1f} \""
+              value: "\\u{0}\\u{1}\\u{2}\\u{3}\\u{4}\\u{5}\\u{6}\\u{7}\\u{8}\\t\\n\\u{b}\\u{c}\\r\\u{e}\\u{f}\\u{10}\\u{11}\\u{12}\\u{13}\\u{14}\\u{15}\\u{16}\\u{17}\\u{18}\\u{19}\\u{1a}\\u{1b}\\u{1c}\\u{1d}\\u{1e}\\u{1f} "
             r1:
               type: bool
               value: "true"
