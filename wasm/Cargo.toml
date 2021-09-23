@@ -37,6 +37,10 @@ path = "../asg"
 version = "1.5.3"
 path = "../ast"
 
+[dependencies.leo-compiler]
+version = "1.5.3"
+path = "../compiler"
+
 [dependencies.leo-ast-passes]
 version = "1.5.3"
 path = "../ast-passes"

@@ -1,0 +1,25 @@
+{
+  "name": "parser-wasm-tests",
+  "version": "0.1.0",
+  "description": "Test Framework implementation for compiler tests in WASM",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc -p ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/aleohq/leo.git"
+  },
+  "author": "The Aleo Team <hello@aleo.org>",
+  "license": "GNU",
+  "bugs": {
+    "url": "https://github.com/aleohq/leo/issues"
+  },
+  "homepage": "https://github.com/aleohq/leo#readme",
+  "dependencies": {
+    "@types/js-yaml": "^4.0.3",
+    "@types/node": "^16.9.4",
+    "js-yaml": "^4.1.0",
+    "typescript": "^3.9.10"
+  }
+}
