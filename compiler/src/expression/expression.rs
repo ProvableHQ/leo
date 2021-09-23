@@ -191,33 +191,33 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 arguments,
                 ..
             }) => {
-                if let Some(circuit) = function.borrow().circuit.get() {
+                if let Some(circuit) = function.get().circuit.get() {
                     let core_mapping = circuit.core_mapping.borrow();
                     if let Some(core_mapping) = core_mapping.as_deref() {
                         let core_circuit = resolve_core_circuit::<F, G>(core_mapping);
                         return self.enforce_core_circuit_call_expression(
                             cs,
                             &core_circuit,
-                            function.clone(),
+                            function.get(),
                             target.get(),
                             &arguments[..],
                             span,
                         );
                     }
                 } else if let Some(core_function) =
-                    resolve_core_function::<F, G>(&function.borrow().name.borrow().name.to_string())
+                    resolve_core_function::<F, G>(&function.get().name.borrow().name.to_string())
                 {
                     return self.enforce_core_function_call_expression(
                         cs,
                         &core_function,
-                        function.clone(),
+                        function.get(),
                         target.get(),
                         &arguments[..],
                         span,
                     );
                 }
 
-                self.enforce_function_call_expression(cs, function.clone(), target.get(), &arguments[..], span)
+                self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], span)
             }
         }
     }

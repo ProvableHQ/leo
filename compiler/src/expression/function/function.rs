@@ -16,10 +16,7 @@
 
 //! Enforce a function call expression in a compiled Leo program.
 
-use std::{
-    cell::{Cell, RefCell},
-    rc::Rc,
-};
+use std::cell::Cell;
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
 use leo_asg::{Expression, Function};
@@ -33,7 +30,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub fn enforce_function_call_expression<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        function: Rc<RefCell<Function<'a>>>,
+        function: &'a Function<'a>,
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
         span: &Span,
@@ -41,7 +38,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let name_unique = || {
             format!(
                 "function call {} {}:{}",
-                function.borrow().name.borrow().clone(),
+                function.name.borrow().clone(),
                 span.line_start,
                 span.col_start,
             )

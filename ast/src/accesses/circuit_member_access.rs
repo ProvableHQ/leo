@@ -21,6 +21,8 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
+// TODO join this with value access
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CircuitMemberAccess {
     pub circuit: Box<Expression>,

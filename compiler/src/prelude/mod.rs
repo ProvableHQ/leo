@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{cell::RefCell, rc::Rc};
-
 pub mod bits;
 pub use bits::*;
 
@@ -36,7 +34,7 @@ pub trait CoreCircuit<'a, F: PrimeField, G: GroupType<F>>: Send + Sync {
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         cs: &mut CS,
-        function: Rc<RefCell<Function<'a>>>,
+        function: &'a Function<'a>,
         span: &Span,
         target: Option<ConstrainedValue<'a, F, G>>,
         arguments: Vec<ConstrainedValue<'a, F, G>>,
@@ -54,7 +52,7 @@ pub trait CoreFunctionCall<'a, F: PrimeField, G: GroupType<F>>: Send + Sync {
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         cs: &mut CS,
-        function: Rc<RefCell<Function<'a>>>,
+        function: &'a Function<'a>,
         span: &Span,
         target: Option<ConstrainedValue<'a, F, G>>,
         arguments: Vec<ConstrainedValue<'a, F, G>>,
@@ -72,7 +70,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreFunctionCall<'a, F, G> for CoreFunc
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         cs: &mut CS,
-        function: Rc<RefCell<Function<'a>>>,
+        function: &'a Function<'a>,
         span: &Span,
         target: Option<ConstrainedValue<'a, F, G>>,
         arguments: Vec<ConstrainedValue<'a, F, G>>,

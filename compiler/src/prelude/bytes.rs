@@ -23,21 +23,19 @@ use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::integers::uint::UInt8;
 use snarkvm_r1cs::ConstraintSystem;
 
-use std::{cell::RefCell, rc::Rc};
-
 pub struct ToBytes;
 
 impl<'a, F: PrimeField, G: GroupType<F>> CoreFunctionCall<'a, F, G> for ToBytes {
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         _cs: &mut CS,
-        function: Rc<RefCell<Function<'a>>>,
+        function:&'a Function<'a>,
         span: &Span,
         target: Option<ConstrainedValue<'a, F, G>>,
         arguments: Vec<ConstrainedValue<'a, F, G>>,
     ) -> Result<ConstrainedValue<'a, F, G>> {
         assert_eq!(arguments.len(), 0); // asg enforced
-        assert!((*function).borrow().name.borrow().name.as_ref() == "to_bytes"); // asg enforced
+        assert!(function.name.borrow().name.as_ref() == "to_bytes"); // asg enforced
         assert!(target.is_some()); // asg enforced
 
         let bytes = target.unwrap().to_bytes(span)?;
@@ -75,13 +73,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreFunctionCall<'a, F, G> for FromByte
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         _cs: &mut CS,
-        function: Rc<RefCell<Function<'a>>>,
+        function: &'a Function<'a>,
         span: &Span,
         target: Option<ConstrainedValue<'a, F, G>>,
         mut arguments: Vec<ConstrainedValue<'a, F, G>>,
     ) -> Result<ConstrainedValue<'a, F, G>> {
         assert_eq!(arguments.len(), 1); // asg enforced
-        assert!((*function).borrow().name.borrow().name.as_ref() == "from_bytes"); // asg enforced
+        assert!(function.name.borrow().name.as_ref() == "from_bytes"); // asg enforced
         assert!(target.is_some()); // asg enforced
 
         let type_ = match target {

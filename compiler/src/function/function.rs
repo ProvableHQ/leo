@@ -26,13 +26,11 @@ use snarkvm_fields::PrimeField;
 use snarkvm_gadgets::boolean::Boolean;
 use snarkvm_r1cs::ConstraintSystem;
 
-use std::{cell::RefCell, rc::Rc};
-
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     pub(crate) fn enforce_function<CS: ConstraintSystem<F>>(
         &mut self,
         cs: &mut CS,
-        function: Rc<RefCell<Function<'a>>>,
+        function: &'a Function<'a>,
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
     ) -> Result<ConstrainedValue<'a, F, G>> {
@@ -40,7 +38,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
         let self_var = if let Some(target) = &target_value {
             let self_var = function
-                .borrow()
                 .scope
                 .resolve_variable("self")
                 .expect("attempted to call static function from non-static context");
@@ -50,17 +47,17 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             None
         };
 
-        if function.borrow().arguments.len() != arguments.len() {
+        if function.arguments.len() != arguments.len() {
             return Err(CompilerError::function_input_not_found(
-                function.borrow().name.borrow().name.to_string(),
+                function.name.borrow().name.to_string(),
                 "arguments length invalid",
-                &function.borrow().span.clone().unwrap_or_default(),
+                &function.span.clone().unwrap_or_default(),
             )
             .into());
         }
 
         // Store input values as new variables in resolved program
-        for ((_, variable), input_expression) in function.borrow().arguments.iter().zip(arguments.iter()) {
+        for ((_, variable), input_expression) in function.arguments.iter().zip(arguments.iter()) {
             let input_value = self.enforce_expression(cs, input_expression.get())?;
             let variable = variable.get().borrow();
 
@@ -71,17 +68,17 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let mut results = vec![];
         let indicator = Boolean::constant(true);
 
-        let output = function.borrow().output.clone();
+        let output = function.output.clone();
 
         let mut result = self.enforce_statement(
             cs,
             &indicator,
-            function.borrow().body.get().expect("attempted to call function header"),
+            function.body.get().expect("attempted to call function header"),
         )?;
 
         results.append(&mut result);
 
-        if function.borrow().qualifier == FunctionQualifier::MutSelfRef {
+        if function.qualifier == FunctionQualifier::MutSelfRef {
             if let (Some(self_var), Some(target)) = (self_var, target) {
                 let new_self = self
                     .get(self_var.borrow().id)
@@ -99,7 +96,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             cs,
             &output,
             results,
-            &function.borrow().span.clone().unwrap_or_default(),
+            &function.span.clone().unwrap_or_default(),
         )
     }
 }

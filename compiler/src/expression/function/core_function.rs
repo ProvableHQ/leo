@@ -14,10 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{
-    cell::{Cell, RefCell},
-    rc::Rc,
-};
+use std::cell::Cell;
 
 use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreFunction, CoreFunctionCall, GroupType};
 
@@ -34,7 +31,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         &mut self,
         cs: &mut CS,
         core_function: &CoreFunction,
-        function: Rc<RefCell<Function<'a>>>,
+        function: &'a Function<'a>,
         target: Option<&'a Expression<'a>>,
         arguments: &[Cell<&'a Expression<'a>>],
         span: &Span,

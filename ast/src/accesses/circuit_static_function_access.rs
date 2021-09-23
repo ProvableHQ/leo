@@ -21,6 +21,8 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
+// TODO merge with named access
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CircuitStaticFunctionAccess {
     pub circuit: Box<Expression>,

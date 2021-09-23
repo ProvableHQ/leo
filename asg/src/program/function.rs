@@ -108,7 +108,7 @@ impl<'a> Function<'a> {
         let function = scope.context.alloc_function(Function {
             id: scope.context.get_id(),
             name: RefCell::new(value.identifier.clone()),
-            output,
+            output: output,
             arguments,
             circuit: Cell::new(None),
             body: Cell::new(None),

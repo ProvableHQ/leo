@@ -404,6 +404,7 @@ impl ParserContext {
     ///
     pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         self.expect(Token::Circuit)?;
+        // TODO here allow address, ints, booleans, groups
         let name = self.expect_ident()?;
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
