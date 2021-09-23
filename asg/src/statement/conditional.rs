@@ -70,7 +70,7 @@ impl<'a> Into<leo_ast::ConditionalStatement> for &ConditionalStatement<'a> {
                 Statement::Block(block) => block.into(),
                 _ => unimplemented!(),
             },
-            next: self.next.get().as_deref().map(|e| Box::new(e.into())),
+            next: self.next.get().map(|e| Box::new(e.into())),
             span: self.span.clone().unwrap_or_default(),
         }
     }
