@@ -70,7 +70,9 @@ impl<'a> ExpressionNode<'a> for CallExpression<'a> {
     }
 
     fn is_consty(&self) -> bool {
-        self.target.get().map(|x| x.is_consty()).unwrap_or(true) && self.arguments.iter().all(|x| x.get().is_consty())
+        // const functions not implemented in IR
+        // self.target.get().map(|x| x.is_consty()).unwrap_or(true) && self.arguments.iter().all(|x| x.get().is_consty())
+        false
     }
 }
 

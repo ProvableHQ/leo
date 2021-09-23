@@ -12,7 +12,7 @@ circuit Foo {
 
 function main() {
     const a = Foo { x: 1u32 };
-    const b = a.add_x(1u32);
+    let b = a.add_x(1u32);
 
     console.assert(b == 2u32);
 }

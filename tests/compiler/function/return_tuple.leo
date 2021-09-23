@@ -20,6 +20,6 @@ function tuples() -> ((u8, u8), u32) {
 }
 
 function main(a: u32) -> ((u8, u8), u32) {
-    const (t1, b) = tuples();
+    let (t1, b) = tuples();
     return (t1, a + b);
 }

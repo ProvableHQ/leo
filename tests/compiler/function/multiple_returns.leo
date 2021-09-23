@@ -9,7 +9,7 @@ function tuple() -> (bool, bool) {
 }
 
 function main(y: bool) -> bool {
-    const (a, b) = tuple();
+    let (a, b) = tuple();
 
     return a == true && b == false && y == true;
 }
