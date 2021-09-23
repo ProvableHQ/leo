@@ -37,6 +37,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install Rust Stable
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
       - name: Install wasm-pack
         run: npm install -g wasm-pack
       - name: Run wasm-pack
