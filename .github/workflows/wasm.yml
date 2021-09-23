@@ -1,4 +1,4 @@
-name: CI
+name: WASM Tests 
 on:
   pull_request:
     push:
@@ -14,7 +14,7 @@ env:
 
 jobs:
   test-wasm-parser:
-    name: Test Package ${{ matrix.os }}
+    name: Test WASM on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
