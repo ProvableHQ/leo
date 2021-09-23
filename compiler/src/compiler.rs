@@ -246,10 +246,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
         if self.ast_snapshot_options.initial {
-            if !self.ast_snapshot_options.spans_enabled {
-                ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
-            } else {
+            if self.ast_snapshot_options.spans_enabled {
                 ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
             }
         }
 
@@ -260,10 +260,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         )?;
 
         if self.ast_snapshot_options.imports_resolved {
-            if !self.ast_snapshot_options.spans_enabled {
-                ast.to_json_file_without_keys(self.output_directory.clone(), "imports_resolved.json", &["span"])?;
-            } else {
+            if self.ast_snapshot_options.spans_enabled {
                 ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "imports_resolved_ast.json", &["span"])?;
             }
         }
 
@@ -271,10 +271,10 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
         ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
 
         if self.ast_snapshot_options.canonicalized {
-            if !self.ast_snapshot_options.spans_enabled {
-                ast.to_json_file_without_keys(self.output_directory.clone(), "canonicalization_ast.json", &["span"])?;
-            } else {
+            if self.ast_snapshot_options.spans_enabled {
                 ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "canonicalization_ast.json", &["span"])?;
             }
         }
 
@@ -292,14 +292,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> Compiler<'a, F, G> {
                 .phase_ast(&self.program, &asg.clone().into_repr())
                 .expect("Failed to produce type inference ast.");
 
-            if !self.ast_snapshot_options.spans_enabled {
+            if self.ast_snapshot_options.spans_enabled {
+                new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
+            } else {
                 new_ast.to_json_file_without_keys(
                     self.output_directory.clone(),
                     "type_inferenced_ast.json",
                     &["span"],
                 )?;
-            } else {
-                new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
             }
         }
 
