@@ -2,9 +2,10 @@
   "name": "parser-wasm-tests",
   "version": "0.1.0",
   "description": "Test Framework implementation for compiler tests in WASM",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "compile": "tsc -p ./"
+    "compile": "tsc -p ./",
+    "test": "npm run compile && node dist/index.js"
   },
   "repository": {
     "type": "git",

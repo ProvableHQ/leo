@@ -18,7 +18,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as parser from '../../pkg/leo_wasm';
 import * as yaml from 'js-yaml';
-import {JSON_SCHEMA, CORE_SCHEMA, DEFAULT_SCHEMA} from 'js-yaml';
 
 // Path to the parser tests folder
 const TESTS_PATH: string = path.join(__dirname, '../../../tests/parser');
