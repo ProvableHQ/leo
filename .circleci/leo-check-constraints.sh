@@ -2,7 +2,7 @@
 
 cd ./project/examples/pedersen-hash
 
-export PEDERSEN_HASH_CONSTRAINTS=1539;
+export PEDERSEN_HASH_CONSTRAINTS=1542;
 
 # line that we're searching for is:
 # `Build Number of constraints - 1539`
