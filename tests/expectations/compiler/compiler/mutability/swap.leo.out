@@ -4,35 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 128
-      num_constraints: 128
-      at: dca2557ab853a4fe256b22d1de8eb86a1618f6cfad1fca553412c2a61d11de88
-      bt: a69fa67eec7bd0d0529395c16d00994756287753e167fe4d7b014e57d0ab547a
-      ct: b5cfc76ecbc4b5c55629e899e055435df5729cbd9fb50095a9a43ff3c3679522
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  store &v3, [1, 0]"
-      - "  call &v4, f1, v2, 0, 1"
-      - "  store &v5, v4"
-      - "  aget &v6, v5, 0"
-      - "  eq &v7, 1, v6"
-      - "  aget &v8, v5, 1"
-      - "  eq &v9, 0, v8"
-      - "  and &v10, v7, v9"
-      - "  retn v10"
-      - "decl f1: <11>"
-      - "  aget &v14, v11, v12"
-      - "  store &v15, v14"
-      - "  aget &v16, v11, v13"
-      - "  aget &v17, v11, v12"
-      - "  aset &v11, v12, v16"
-      - "  store &v11, v11"
-      - "  aget &v18, v11, v13"
-      - "  aset &v11, v13, v15"
-      - "  store &v11, v11"
-      - "  retn v11"
-      - ""
+      num_private_variables: 127
+      num_constraints: 127
+      at: e89e71bb78cba20472e8ebfaeb36e6a9564861cf2b14846eb695a5937149dbfb
+      bt: 16d04f802c27d778734e07a0126cae3f096bc4e2e0b4362fe5687a338f1dece5
+      ct: acfbc6fdb7a3696d43be3cd62939a9731cb8b11c215564c52b3c67343cbda41f
     output:
       - input_file: input/dummy.in
         output:
@@ -40,7 +16,7 @@ outputs:
             r0:
               type: bool
               value: "false"
-    initial_ast: 8a2bffcd4f366efcbf8c4e4a889456150b273ca268b3beb3b9a60644558976d7
-    imports_resolved_ast: 8a2bffcd4f366efcbf8c4e4a889456150b273ca268b3beb3b9a60644558976d7
-    canonicalized_ast: 8a2bffcd4f366efcbf8c4e4a889456150b273ca268b3beb3b9a60644558976d7
-    type_inferenced_ast: eb44209452102c6203a203e03ddc127bc1888adecf830d587e561b2b8530e540
+    initial_ast: abe0177ae796b70cfdd8c6d30fcd5a9d713e3d16fccfdf63853ea6f0a8a9df54
+    imports_resolved_ast: f242a960a1f738a38490e838a07774dbff06dbfd1720a7d540d2496c896f5492
+    canonicalized_ast: f242a960a1f738a38490e838a07774dbff06dbfd1720a7d540d2496c896f5492
+    type_inferenced_ast: 85d4d182db4ef32e4fbf510820c9cb7689498b14d465c2a94d8c38dc6161475e

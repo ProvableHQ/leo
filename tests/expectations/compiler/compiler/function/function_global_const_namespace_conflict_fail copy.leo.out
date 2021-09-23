@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373015]: a function named \"foo\" already exists in this scope\n    --> compiler-test:5:1\n     |\n   5 | const foo = 8u8;\n     | ^^^^^^^^^^^^^^^"

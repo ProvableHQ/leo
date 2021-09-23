@@ -132,6 +132,11 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
             } else {
                 return Err(AsgError::illegal_input_variable_reference(&value.span).into());
             }
+        } else if let Some(gc) = scope.resolve_global_const(&value.name) {
+            gc.variables
+                .iter()
+                .find(|&&v| v.borrow().name.name == value.name)
+                .unwrap()
         } else {
             match scope.resolve_variable(&value.name) {
                 Some(v) => v,

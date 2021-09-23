@@ -19,7 +19,7 @@ use leo_ast_passes::ImportResolver;
 use leo_errors::{ImportError, LeoError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};
-use std::{collections::HashMap, path::PathBuf};
+use std::path::PathBuf;
 
 /// Stores imported packages.
 ///
@@ -30,11 +30,11 @@ pub struct ImportParser {
     program_path: PathBuf,
     partial_imports: IndexSet<String>,
     imports: IndexMap<String, Program>,
-    pub imports_map: HashMap<String, String>,
+    pub imports_map: IndexMap<String, String>,
 }
 
 impl ImportParser {
-    pub fn new(program_path: PathBuf, imports_map: HashMap<String, String>) -> Self {
+    pub fn new(program_path: PathBuf, imports_map: IndexMap<String, String>) -> Self {
         ImportParser {
             program_path,
             partial_imports: Default::default(),
@@ -50,17 +50,21 @@ impl ImportResolver for ImportParser {
         if self.partial_imports.contains(&full_path) {
             return Err(ImportError::recursive_imports(full_path, span).into());
         }
+
         if let Some(program) = self.imports.get(&full_path) {
             return Ok(Some(program.clone()));
         }
+
         let path = self.program_path.clone();
         self.partial_imports.insert(full_path.clone());
         let mut imports = self.clone(); // Self::default() was previously
         let program = imports
             .parse_package(path, package_segments, span)
             .map_err(|x| -> LeoError { x })?;
+
         self.partial_imports.remove(&full_path);
         self.imports.insert(full_path, program.clone());
+
         Ok(Some(program))
     }
 }

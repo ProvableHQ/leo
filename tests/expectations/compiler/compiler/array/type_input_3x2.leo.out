@@ -4,18 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 96
-      num_constraints: 96
-      at: cdfd9d834430c71e1bac69e14f992e28f9362a2aae21bb6d03c702386099e275
-      bt: 57bf1f9bb5e733d04a0ccb226f8d487de61ac4f08a997405976cf8854e105e7f
-      ct: 0eb0af4085182af2cc7bd348dfa8c10c104c96fdc515cb6f8d88f9f836a94826
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  store &v3, [[0, 0], [0, 0], [0, 0]]"
-      - "  eq &v4, v2, [[0, 0], [0, 0], [0, 0]]"
-      - "  retn v4"
-      - ""
+      num_private_variables: 95
+      num_constraints: 95
+      at: 5884e806c47756fa1d12f47e5cc5249843d8de4e2fafcb373c5a0d67dfe22d69
+      bt: 983c734b40e342144d6b4d52e315da9ff9f97580f019f606403924bb977a5be7
+      ct: 49f0db71bd29b80dbe5f2f96573a5959b1df339c92350e16f111bade214037aa
     output:
       - input_file: input/input_tuple_3x2.in
         output:
@@ -23,7 +16,7 @@ outputs:
             x:
               type: bool
               value: "true"
-    initial_ast: 6710b414417441dd58978bf013b765a5f8964063094988f0093d75ad6b21a429
-    imports_resolved_ast: 6710b414417441dd58978bf013b765a5f8964063094988f0093d75ad6b21a429
-    canonicalized_ast: 6710b414417441dd58978bf013b765a5f8964063094988f0093d75ad6b21a429
-    type_inferenced_ast: 19cee779ed43c96561d413bc1aee2a80f7f8e90070f84db1b1f175e63ca6bdcf
+    initial_ast: 9f2080fab6a85294afa2423cd79482fb3d944c4afab7363e66a4086a120ad34d
+    imports_resolved_ast: 266d7ddeb032f20a481e8477ee3ef1c15a33cb2e0fc6f1edd88505a92b6f98c5
+    canonicalized_ast: 266d7ddeb032f20a481e8477ee3ef1c15a33cb2e0fc6f1edd88505a92b6f98c5
+    type_inferenced_ast: 76a31fb9c0d35124f8af084baf96d54d1578a3234e3672c7003043412b915549

@@ -4,18 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 512
-      num_constraints: 512
-      at: 2afb27056e1c0b6cd1b63c129dc6019b41e5edb3723a62eb1effcb457e2620ee
-      bt: fdc56783aefa65da086350fc50eb8e925dca79bee7644f0a1becce8afc17cb15
-      ct: 4ba33f6aa7149ab50f3b0cabe6e30c71718e3d2fba6eb619c3cc26bbb4db5238
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  store &v3, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
-      - "  eq &v4, v2, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
-      - "  retn v4"
-      - ""
+      num_private_variables: 511
+      num_constraints: 511
+      at: 61e8ee994e9e7edc1f84fa3cbe8c421ade231189b9ddf6a9a75eeef9915c20f7
+      bt: 2194515882da93c79fa24d47c40fddc44f0284da25da7b89efb935c0ea7382f8
+      ct: a0736e8c8f3bb1c39a147348754e53dfd31fd76a1df9cd9960472841bcc531df
     output:
       - input_file: inputs/address1.in
         output:
@@ -29,7 +22,7 @@ outputs:
             a:
               type: bool
               value: "false"
-    initial_ast: b7ae7c04c91cbbce0c6a7b193494f84aaf1a1e530dc6fc2ed3eb55f499a90da2
-    imports_resolved_ast: b7ae7c04c91cbbce0c6a7b193494f84aaf1a1e530dc6fc2ed3eb55f499a90da2
-    canonicalized_ast: b7ae7c04c91cbbce0c6a7b193494f84aaf1a1e530dc6fc2ed3eb55f499a90da2
-    type_inferenced_ast: db913c0119d7184465f2cc67309c21d94658a7373888e6c3d0f33a7e938be231
+    initial_ast: d9d5346dff8f825d58daabb3a4fe2fcd1471a3fb3c80e46e5583c4f6cdb12b2b
+    imports_resolved_ast: e5e91879622f5e63f1b465a8d1d99b9ad10e128d3b04493def195d81e5c728f3
+    canonicalized_ast: e5e91879622f5e63f1b465a8d1d99b9ad10e128d3b04493def195d81e5c728f3
+    type_inferenced_ast: 436fd5fbf72020d63c2f462dd271dbeeca6161c68f625e53ab5f827cda3d3d3e

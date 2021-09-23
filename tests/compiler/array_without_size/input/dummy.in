@@ -1,6 +1,7 @@
 [main]
 y: bool = true;
 n: bool = false;
+a: [char; 11] = "hello world";
 
 [registers]
 r0: bool = false;

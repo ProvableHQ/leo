@@ -24,6 +24,7 @@ use leo_package::{
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
 
+use indexmap::IndexMap;
 use std::{convert::TryFrom, path::PathBuf, time::Instant};
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -105,7 +106,7 @@ impl Command for Test {
                 output_directory.clone(),
                 thread_leaked_context(),
                 Some(self.compiler_options.clone().into()),
-                std::collections::HashMap::new(),
+                IndexMap::new(),
                 Some(self.compiler_options.clone().into()),
             )?;
 

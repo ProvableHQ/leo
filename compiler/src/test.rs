@@ -15,7 +15,6 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use std::{
-    collections::HashMap,
     fs,
     path::{Path, PathBuf},
 };
@@ -34,6 +33,7 @@ use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_eval::Evaluator;
 
 use crate::{compiler::Compiler, AstSnapshotOptions, Output};
+use indexmap::IndexMap;
 
 pub type TestCompiler = Compiler<'static>;
 
@@ -54,7 +54,7 @@ fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> T
         output_dir,
         make_test_context(),
         None,
-        HashMap::new(),
+        IndexMap::new(),
         theorem_options,
     )
 }

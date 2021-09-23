@@ -156,9 +156,13 @@ impl<'a> Function<'a> {
                 .insert("self".to_string(), self_variable);
         }
         for (name, argument) in self.arguments.iter() {
-            /* if self.scope.resolve_alias(name).is_some() {
-                return Err(AsgError::cannot_shadow_name("function input", name, "alias", &argument.get().borrow().name.span).into());
-            } */
+            if self.scope.resolve_global_const(name).is_some() {
+                return Err(AsgError::function_input_cannot_shadow_global_const(
+                    name,
+                    &argument.get().borrow().name.span,
+                )
+                .into());
+            }
 
             self.scope.variables.borrow_mut().insert(name.clone(), argument.get());
         }

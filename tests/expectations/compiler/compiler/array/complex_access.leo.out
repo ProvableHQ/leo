@@ -4,103 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 797
-      num_constraints: 839
-      at: 52c111e41978cb4469c35694ed1e92bf6f6c68f83ac7dfc028623187db49514a
-      bt: 251c7dd6886ee1710cdeac09eb0e7ff3bd5cbf5a0a5352b3239cf87bd2fe7ea3
-      ct: 25c3e75e62d533777156e620eb9d7fe1a7ec9d7d0a0a416cd5b3a0962ad0fa33
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  asget &v7, v2, 0, 3, 3"
-      - "  aget &v8, v7, v3"
-      - "  aset &v7, v3, 93"
-      - "  asset &v2, 0, 3, v7"
-      - "  store &v2, v2"
-      - "  asget &v9, v2, 2, 6, 4"
-      - "  aget &v10, v9, 1"
-      - "  aset &v9, 1, 87"
-      - "  asset &v2, 2, 6, v9"
-      - "  store &v2, v2"
-      - "  asget &v11, v2, 2, 6, 4"
-      - "  aget &v12, v11, 1"
-      - "  mul &v13, v12, 2"
-      - "  asget &v14, v2, 2, 6, 4"
-      - "  aget &v15, v14, 1"
-      - "  aset &v14, 1, v13"
-      - "  asset &v2, 2, 6, v14"
-      - "  store &v2, v2"
-      - "  asget &v16, v2, 2, 3, 1"
-      - "  asset &v2, 2, 3, [42]"
-      - "  store &v2, v2"
-      - "  asget &v17, v2, 6, 8, 2"
-      - "  aget &v18, v17, 0"
-      - "  aset &v17, 0, 43"
-      - "  asset &v2, 6, 8, v17"
-      - "  store &v2, v2"
-      - "  asget &v19, v2, 0, 1, 1"
-      - "  asget &v20, v19, 0, 1, 1"
-      - "  asset &v19, 0, 1, [200]"
-      - "  asset &v2, 0, 1, v19"
-      - "  store &v2, v2"
-      - "  asget &v21, v4, 0, 2, 2"
-      - "  aget &v22, v21, 0"
-      - "  aset &v21, 0, [1, 1, 1]"
-      - "  asset &v4, 0, 2, v21"
-      - "  store &v4, v4"
-      - "  asget &v23, v4, 1, 3, 2"
-      - "  aget &v24, v23, 1"
-      - "  asget &v25, v24, 1, 2, 1"
-      - "  aget &v26, v25, 0"
-      - "  aset &v25, 0, 126"
-      - "  asset &v24, 1, 2, v25"
-      - "  aset &v23, 1, v24"
-      - "  asset &v4, 1, 3, v23"
-      - "  store &v4, v4"
-      - "  asget &v27, v4, 1, 3, 2"
-      - "  aget &v28, v27, 0"
-      - "  aset &v27, 0, [42, 43, 44]"
-      - "  asset &v4, 1, 3, v27"
-      - "  store &v4, v4"
-      - "  asget &v29, v4, 0, 1, 1"
-      - "  aget &v30, v29, 0"
-      - "  aget &v31, v30, 0"
-      - "  add &v32, v31, 2"
-      - "  asget &v33, v4, 0, 1, 1"
-      - "  aget &v34, v33, 0"
-      - "  aget &v35, v34, 0"
-      - "  aset &v34, 0, v32"
-      - "  aset &v33, 0, v34"
-      - "  asset &v4, 0, 1, v33"
-      - "  store &v4, v4"
-      - "  asget &v36, v5, 0, 1, 1"
-      - "  aget &v37, v36, 0"
-      - "  tget &v38, v37, 1"
-      - "  tset &v37, 1, 1"
-      - "  aset &v36, 0, v37"
-      - "  asset &v5, 0, 1, v36"
-      - "  store &v5, v5"
-      - "  asget &v39, v6, 0, 3, 3"
-      - "  aget &v40, v39, 0"
-      - "  aset &v39, 0, [22, 22, 22, 22]"
-      - "  asset &v6, 0, 3, v39"
-      - "  store &v6, v6"
-      - "  asget &v41, v6, 0, 3, 3"
-      - "  aget &v42, v41, 0"
-      - "  aget &v43, v42, 0"
-      - "  aset &v42, 0, 33"
-      - "  aset &v41, 0, v42"
-      - "  asset &v6, 0, 3, v41"
-      - "  store &v6, v6"
-      - "  eq &v44, v2, [200, 93, 42, 174, 5, 6, 43, 8]"
-      - "  eq &v45, v4, [[3, 1, 1], [42, 43, 44], [7, 126, 9]]"
-      - "  and &v46, v44, v45"
-      - "  eq &v47, v5, [(0, 1)]"
-      - "  and &v48, v46, v47"
-      - "  eq &v49, v6, [[33, 22, 22, 22], [0, 0, 0, 0], [0, 0, 0, 0]]"
-      - "  and &v50, v48, v49"
-      - "  retn v50"
-      - ""
+      num_private_variables: 637
+      num_constraints: 662
+      at: 9f1bcfcac007139af57f04172704330d348767a9c51fe8ce15fb60f457fa6337
+      bt: b6500ddf37d10958fdc014dcb2f54b37a2c684f05b7f0aa4776556331db8c924
+      ct: a15c712d74487a80767116103c38fa7277066705d0c7f1f9902a6016466706f0
     output:
       - input_file: input/complex_access.in
         output:
@@ -109,6 +17,6 @@ outputs:
               type: bool
               value: "true"
     initial_ast: 843884ddf198fe566cea0f8e84a2902f720d6211c9d8bad98299eea4da846870
-    imports_resolved_ast: 843884ddf198fe566cea0f8e84a2902f720d6211c9d8bad98299eea4da846870
-    canonicalized_ast: c30721e60523bc31af9a9bf342d9b89bf92a26e3886394cc0c1a574560715bdf
-    type_inferenced_ast: c37f209961a9acff1d942af1e4a9a332123676f2bc581ca94604314f9d738a1e
+    imports_resolved_ast: 984f2f99c58550a478b8abd5d9f84e88052dbf1ed92b79d1de2d6d251148ddd7
+    canonicalized_ast: 1dee4c73f9faa33e13c2b98aecba1ce88ab110fde39b7a573e06969f8dbf84d5
+    type_inferenced_ast: 3bb764584aaa81586edbf85ae1e7ae0774d2e03599c04279f8451205b71e16a4

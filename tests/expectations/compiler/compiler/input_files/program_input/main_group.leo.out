@@ -9,18 +9,11 @@ outputs:
       at: df88b362955f00b8c41afd9e31c9e41e4b8254a71ea0f3f2f97d5b6b8b767415
       bt: df58aff07b131c34e977ffb5657bbd21852f59fd7e059117c419c3c6070a7053
       ct: 335cdfb09b13172262042abccf4560511666deaa63cc1b3f30dd35dcb554840f
-    ir:
-      - "decl f0: <0>"
-      - "  store &v0, ((), (), (), ())"
-      - "  log INFO, \"a: \", v1, \"\""
-      - "  log INFO, \"b: \", v2, \"\""
-      - "  log INFO, \"c: \", v3, \"\""
-      - ""
     output:
       - input_file: input/main_group.in
         output:
           registers: {}
-    initial_ast: 301cca70f81f90f9d76f276bf76842da17db8b358e77b8349eefec3fff69001f
-    imports_resolved_ast: 301cca70f81f90f9d76f276bf76842da17db8b358e77b8349eefec3fff69001f
-    canonicalized_ast: fdcf16668886052e6eee429b9dbdc7df222eba53095dbb1771de953a6e8189e8
-    type_inferenced_ast: abdf4bf591bccadbdbc94278635ebdd6d6fa39550bed4a2c6087d185c308ae05
+    initial_ast: 731684bc8e22a3bbde7816d4f9ddc4db9561244b81caff4ef23e90ab5949ef60
+    imports_resolved_ast: 5e4688eb85c3b64cc6e652aa9bcec7914f72fe70dc6509c411de8acfb0267845
+    canonicalized_ast: cb86c2b4d8c34bc237cee421b58d0781dc0775fd21605eb35aef7bdbbae02311
+    type_inferenced_ast: 2a7deafa9ac7933aba1ea9d49f10f694a3f05afe349e51d2edecf82a2ca5b9f9

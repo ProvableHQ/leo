@@ -33,7 +33,8 @@ pub struct Program {
     pub imports: IndexMap<Vec<String>, Program>,
     pub aliases: IndexMap<Identifier, Alias>,
     pub circuits: IndexMap<Identifier, Circuit>,
-    pub global_consts: IndexMap<String, DefinitionStatement>,
+    #[serde(with = "crate::common::global_consts_json")]
+    pub global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     pub functions: IndexMap<Identifier, Function>,
 }
 
@@ -87,9 +88,9 @@ impl Program {
         }
     }
 
-    pub fn set_core_mapping(&self, mapping: &str) {
+    pub fn set_core_mapping(&self, mapping: Option<&str>) {
         for (_, circuit) in self.circuits.iter() {
-            circuit.core_mapping.replace(Some(mapping.to_string()));
+            circuit.core_mapping.replace(mapping.map(str::to_string));
         }
     }
 

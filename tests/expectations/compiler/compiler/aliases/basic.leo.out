@@ -4,30 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 164
-      num_constraints: 166
-      at: 4bd20256a6751c7ba7710693dd241633fa88590772bf6beb2ef0fd863f9e0805
-      bt: 68c3d589111b53a9fd21fe5e1505cf95f7ab710f531948bbeff2c06511d62b43
-      ct: 1eba869a2ecba3f01ac96f1af602eb93881b713951788e3a63168b076a6db85f
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  store &v4, v2"
-      - "  store &v5, 2"
-      - "  store &v6, 3"
-      - "  add &v7, v4, v5"
-      - "  add &v8, v7, v6"
-      - "  store &v9, v8"
-      - "  eq &v10, v4, 1"
-      - "  eq &v11, v5, 2"
-      - "  and &v12, v10, v11"
-      - "  eq &v13, v6, 3"
-      - "  and &v14, v12, v13"
-      - "  eq &v15, v9, 6"
-      - "  and &v16, v14, v15"
-      - "  and &v17, v16, v3"
-      - "  retn v17"
-      - ""
+      num_private_variables: 163
+      num_constraints: 165
+      at: 2e4efaa1289da67c2193ecea16201f9597166a181e5d852d41661ad4b9f67844
+      bt: bf213d7a070672f468bd4696a2165494ea56abce861fa4448817d94420ce6f78
+      ct: e674d668d6c90bd7c273e33096d7eea5a052a6e14b2b43bad69c3e1c969faf72
     output:
       - input_file: inputs/basic.in
         output:
@@ -35,7 +16,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: d83b33119db295fa2ed7795c8e17d4073cabba5e90e9438cd53f3a9a77585f19
-    imports_resolved_ast: d83b33119db295fa2ed7795c8e17d4073cabba5e90e9438cd53f3a9a77585f19
-    canonicalized_ast: d83b33119db295fa2ed7795c8e17d4073cabba5e90e9438cd53f3a9a77585f19
-    type_inferenced_ast: 77be8ec74bc15f2a45e8bf29e7973bc0c721008fe5508dcc6d02b91aae3d84ee
+    initial_ast: 9f78c996da10363fb594947ca29fef29e35a7032761ce87f69f3ae454650d47e
+    imports_resolved_ast: 32e35e00fe92c3cd71959cacb44d76f19782e5fcdeb57b839f1ff6a37dee3964
+    canonicalized_ast: 32e35e00fe92c3cd71959cacb44d76f19782e5fcdeb57b839f1ff6a37dee3964
+    type_inferenced_ast: d6afa34bd1c84c58bb1920be76e893f16a0a7ba1a952493679d2e219b70ac13d

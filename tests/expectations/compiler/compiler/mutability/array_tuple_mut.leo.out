@@ -4,31 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 2
-      num_constraints: 2
-      at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
-      bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
-      ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  store &v3, [(1, 2)]"
-      - "  aget &v4, v3, 0"
-      - "  tget &v5, v4, 1"
-      - "  tset &v4, 1, 3"
-      - "  aset &v3, 0, v4"
-      - "  store &v3, v3"
-      - "  aget &v6, v3, 0"
-      - "  tget &v7, v6, 0"
-      - "  eq &v8, v7, 1"
-      - "  aget &v9, v3, 0"
-      - "  tget &v10, v9, 1"
-      - "  eq &v11, v10, 3"
-      - "  and &v12, v8, v11"
-      - "  eq &v13, v2, true"
-      - "  and &v14, v12, v13"
-      - "  retn v14"
-      - ""
+      num_private_variables: 1
+      num_constraints: 1
+      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
+      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
+      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
     output:
       - input_file: input/dummy.in
         output:
@@ -36,7 +16,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 54c7ae54dd877ec3ff81a46b4d3c062168fb052cdc2bd0e597f5f9cea3a892e2
-    imports_resolved_ast: 54c7ae54dd877ec3ff81a46b4d3c062168fb052cdc2bd0e597f5f9cea3a892e2
-    canonicalized_ast: 54c7ae54dd877ec3ff81a46b4d3c062168fb052cdc2bd0e597f5f9cea3a892e2
-    type_inferenced_ast: a9e1651be00aa9f73904f34581eb1826611684c71e0c678d64cd577cb312f6c8
+    initial_ast: 2a6e7d5838f323e53cb753dc3bae3a6e379ef0deeb0172c1c7df231cd700a5b6
+    imports_resolved_ast: 6041ac3a139680aa557e31a224b17059fda4e2d487fd19cf2d73776629f54955
+    canonicalized_ast: 6041ac3a139680aa557e31a224b17059fda4e2d487fd19cf2d73776629f54955
+    type_inferenced_ast: 340463e5aed430ed4f581ff5d7cc719520ef6e529f8d6fa619f36a6c980fe4b1

@@ -4,111 +4,103 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 7
+      num_private_variables: 6
       num_constraints: 4
-      at: cf880423d9723b74dbe4aede8642e72120c22f9a4bad8abf3fc701b2cf2c4d4a
-      bt: e69d1def145004ca7fbc23f70bcd75e371ac49ed1b6e6737aad1fa8339906661
-      ct: 894d3aff0088eadc5783fc4664793f49c0a9a92a11faeab3c121e6f9f3db8ceb
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  log INFO, \"\", v2, \"\""
-      - "  eq &v3, v2, 'z'"
-      - "  pick &v4, v3, 'x', v2"
-      - "  retn v4"
-      - ""
+      at: 2859fe6f24016b5634df2791da7de932e68ec32c73b5b573e0c39e968c7a4e12
+      bt: 8143508f19c8eee208a7fbbcfb833aeeace6ba0a761e41d028599d2237cc60fa
+      ct: d0c6feeed1e6b8d5c0e03dc9e25641b7fdc34ad912e2b1488296d4a99ed6cbf5
     output:
       - input_file: inputs/ascii.in
         output:
           registers:
             r:
               type: char
-              value: a
+              value: "'a'"
       - input_file: inputs/escaped_unicode1.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{f}"
+              value: "'\\u{f}'"
       - input_file: inputs/escaped_unicode2.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{e5}"
+              value: "'å'"
       - input_file: inputs/escaped_unicode3.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{4e0}"
+              value: "'Ӡ'"
       - input_file: inputs/escaped_unicode4.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{2764}"
+              value: "'\\u{2764}'"
       - input_file: inputs/escaped_unicode5.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{1f622}"
+              value: "'\\u{1f622}'"
       - input_file: inputs/escaped_unicode6.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{10001f}"
+              value: "'\\u{10001f}'"
       - input_file: inputs/escaped.in
         output:
           registers:
             r:
               type: char
-              value: "\\'"
+              value: "'\\''"
       - input_file: inputs/hex1.in
         output:
           registers:
             r:
               type: char
-              value: "*"
+              value: "'*'"
       - input_file: inputs/hex2.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{7f}"
+              value: "'\\u{7f}'"
       - input_file: inputs/unicode1.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{e00f}"
+              value: "'\\u{e00f}'"
       - input_file: inputs/unicode2.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{e5}"
+              value: "'å'"
       - input_file: inputs/unicode3.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{4e0}"
+              value: "'Ӡ'"
       - input_file: inputs/unicode4.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{2764}"
+              value: "'\\u{2764}'"
       - input_file: inputs/unicode5.in
         output:
           registers:
             r:
               type: char
-              value: "\\u{1f62d}"
-    initial_ast: 03110ac791a12790e59601d205e3311e812fd15dc115d2414934c0c9cc3264e0
-    imports_resolved_ast: 03110ac791a12790e59601d205e3311e812fd15dc115d2414934c0c9cc3264e0
-    canonicalized_ast: 03110ac791a12790e59601d205e3311e812fd15dc115d2414934c0c9cc3264e0
-    type_inferenced_ast: da30f5a4bdd0437f10b247e2139a060464129cce07fbd094b3b7c389886cc7c6
+              value: "'\\u{1f62d}'"
+    initial_ast: 6e1cf86d47e056682c6e51dcf0390eb34505b60d50de60970a688f237525bedf
+    imports_resolved_ast: e9012d76c33c37f3940fbc8f9d8fe83cb13d8b7bdaa5b8476180128f91132c71
+    canonicalized_ast: e9012d76c33c37f3940fbc8f9d8fe83cb13d8b7bdaa5b8476180128f91132c71
+    type_inferenced_ast: b19acb9ba2e6e5949839b5fe3d15f52f7187cadbb0602e44b03215f4181a6997

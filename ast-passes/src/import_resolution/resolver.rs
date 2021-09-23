@@ -16,6 +16,7 @@
 
 use leo_ast::Program;
 use leo_errors::{Result, Span};
+use leo_stdlib::resolve_stdlib_module;
 
 use indexmap::IndexMap;
 
@@ -43,8 +44,8 @@ impl<'a, T: ImportResolver> CoreImportResolver<'a, T> {
 
 impl<'a, T: ImportResolver> ImportResolver for CoreImportResolver<'a, T> {
     fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>> {
-        if !package_segments.is_empty() && package_segments.get(0).unwrap() == &"core" {
-            Ok(resolve_core_module(&*package_segments[1..].join("."))?)
+        if !package_segments.is_empty() && package_segments.get(0).unwrap() == &"std" {
+            Ok(Some(resolve_stdlib_module(&*package_segments[1..].join("."))?))
         } else {
             self.inner.resolve_package(package_segments, span)
         }
@@ -58,33 +59,5 @@ pub struct MockedImportResolver {
 impl ImportResolver for MockedImportResolver {
     fn resolve_package(&mut self, package_segments: &[&str], _span: &Span) -> Result<Option<Program>> {
         Ok(self.packages.get(&package_segments.join(".")).cloned())
-    }
-}
-
-// TODO: Remove this.
-pub fn load_ast(content: &str) -> Result<Program> {
-    // Parses the Leo file and constructs a grammar ast.
-    Ok(leo_parser::parse_ast("input.leo", content)?.into_repr())
-}
-
-// TODO: We should merge this with core
-// TODO: Make asg deep copy so we can cache resolved core modules
-// TODO: Figure out how to do headers without bogus returns
-pub fn resolve_core_module(module: &str) -> Result<Option<Program>> {
-    match module {
-        "unstable.blake2s" => {
-            let ast = load_ast(
-                r#"
-                circuit Blake2s {
-                    function hash(seed: [u8; 32], message: [u8; 32]) -> [u8; 32] {
-                        return [0; 32];
-                    }
-                }
-                "#,
-            )?;
-            ast.set_core_mapping("blake2s");
-            Ok(Some(ast))
-        }
-        _ => Ok(None),
     }
 }

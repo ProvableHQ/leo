@@ -110,7 +110,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
             Some(PartialType::Type(Type::ArrayWithoutSize(item))) => (Some(item.partial()), None),
             None => (None, None),
             Some(type_) => {
-                return Err(AsgError::unexpected_type(type_, "array", &value.span).into());
+                return Err(AsgError::unexpected_type("array", type_, &value.span).into());
             }
         };
 

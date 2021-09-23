@@ -4,18 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 58
-      num_constraints: 58
-      at: c125196c6f977ee802dc4606637626ac7784124546a47e3bdf2a04258af86e19
-      bt: 9dc35214acc747e35c7eb7fc92f09f81e628db744e7acaa39651a5ada8de8646
-      ct: 01bde22d4fb741f6f8503007d771bd8b644fa36dbe2a667827e6766a2b461546
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  lt &v5, v2, v3"
-      - "  eq &v6, v5, v4"
-      - "  retn v6"
-      - ""
+      num_private_variables: 57
+      num_constraints: 57
+      at: 6a0450b269677ab3f038f68befed6b3dd7e4471cba20c9b3cbb1987d11623de2
+      bt: 1c92f5790ff308be2d3a812b0b14b7445192b9b9fb271cabd8a18dc925deb34d
+      ct: 5a4c4f077603c1f7c4b31cf17fee281ab3cb7d2a9571be40a2f3a88577759477
     output:
       - input_file: u8_f.in
         output:
@@ -29,7 +22,7 @@ outputs:
             r0:
               type: bool
               value: "false"
-    initial_ast: 4cdfbc35223aab01f57a60801db4c4e1a859b13ffd53936ff38ab787e4a0a31a
-    imports_resolved_ast: 4cdfbc35223aab01f57a60801db4c4e1a859b13ffd53936ff38ab787e4a0a31a
-    canonicalized_ast: 4cdfbc35223aab01f57a60801db4c4e1a859b13ffd53936ff38ab787e4a0a31a
-    type_inferenced_ast: 8d30f92317b5b909c5ecb009a301b8bcbd4e512ccc5e5aaff91ac5a2f54e5242
+    initial_ast: 57691c69dc440d8028e25c3e4487c52a89c5b23ff2976faa8dac057b29170945
+    imports_resolved_ast: 46a664f390cfc95a0a6965e79a482817101cfbc1270bd0c2ac820681b154131d
+    canonicalized_ast: 46a664f390cfc95a0a6965e79a482817101cfbc1270bd0c2ac820681b154131d
+    type_inferenced_ast: 05b15ac61f963750578465522489e5b4a9b7160d7cf82c6d423927ee04d72d1c

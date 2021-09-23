@@ -2,14 +2,7 @@
 
 ## Authors
 
-- Max Bruce
-- Collin Chin
-- Alessandro Coglio
-- Eric McCarthy
-- Jon Pavlik
-- Damir Shamanaev
-- Damon Sicore
-- Howard Wu
+The Aleo Team.
 
 ## Status
 
@@ -118,7 +111,7 @@ In order to do something with the array, e.g. add all its elements and return th
 
 Thus, this RFC also proposed to extend Leo with such an operator.
 A possibility is `<expression>.length`, where `<expression>` is an expression of array type.
-A variation is `<expression>.length()`, if we want it look more like a built-in method on arrays.
+A variation is `<expression>.len()`, if we want it look more like a built-in method on arrays.
 Yet another option is `length(<expression>)`, which is more like a built-in function.
 A shorter name could be `len`, leading to the three possibilities
 `<expression>.len`, `<expression>.len()`, and `len(<expression>)`.

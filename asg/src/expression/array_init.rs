@@ -74,7 +74,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             Some(PartialType::Array(item, dims)) => (item.map(|x| *x), dims),
             None => (None, None),
             Some(type_) => {
-                return Err(AsgError::unexpected_type(type_, "array", &value.span).into());
+                return Err(AsgError::unexpected_type("array", type_, &value.span).into());
             }
         };
         let dimensions = value

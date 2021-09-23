@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373050]: a variable cannot be named `hi` as a function input or variable with that name already exists in this scope\n    --> compiler-test:4:11\n     |\n   4 |     const hi = 2u8;\n     |           ^^"

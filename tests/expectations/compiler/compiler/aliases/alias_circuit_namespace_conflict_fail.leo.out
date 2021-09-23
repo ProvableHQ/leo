@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373044]: a alias named \"Int\" already exists in this scope\n    --> compiler-test:6:9\n     |\n   6 | circuit Int {\n     |         ^^^"

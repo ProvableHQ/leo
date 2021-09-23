@@ -850,4 +850,11 @@ create_errors!(
         msg: format!("no implementation found for `{}`", operation),
         help: None,
     }
+
+    @formatted
+    lengthof_can_only_be_used_on_arrays {
+        args: (),
+        msg: "len() can only be called on an array value".to_string(),
+        help: None,
+    }
 );

@@ -44,7 +44,7 @@ use snarkvm_ir::{Group, Integer, Type, Value};
 use snarkvm_r1cs::ConstraintSystem;
 use std::{convert::TryFrom, fs, path::PathBuf};
 
-use std::collections::HashMap;
+use indexmap::IndexMap;
 
 thread_local! {
     static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
@@ -74,7 +74,7 @@ pub struct Compiler<'a> {
     context: AsgContext<'a>,
     asg: Option<AsgProgram<'a>>,
     options: CompilerOptions,
-    imports_map: HashMap<String, String>,
+    imports_map: IndexMap<String, String>,
     ast_snapshot_options: AstSnapshotOptions,
 }
 
@@ -88,7 +88,7 @@ impl<'a> Compiler<'a> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        imports_map: HashMap<String, String>,
+        imports_map: IndexMap<String, String>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Self {
         Self {
@@ -117,7 +117,7 @@ impl<'a> Compiler<'a> {
         output_directory: PathBuf,
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
-        imports_map: HashMap<String, String>,
+        imports_map: IndexMap<String, String>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Result<Self> {
         let mut compiler = Self::new(
@@ -167,7 +167,7 @@ impl<'a> Compiler<'a> {
         // Preform import resolution.
         ast = leo_ast_passes::Importer::do_pass(
             ast.into_repr(),
-            ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
+            &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
         )?;
 
         if self.ast_snapshot_options.imports_resolved {

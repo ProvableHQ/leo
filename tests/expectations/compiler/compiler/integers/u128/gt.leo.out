@@ -4,18 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 898
-      num_constraints: 898
-      at: d5db1a98b11c3554ec39e45136a1ceedf14e3bf25e220bec5e1dd8ae0476ec3a
-      bt: 2e95a34b58456f84382df2a7dcd7bf543f1e3aefd548603d0c8fa20724df66cf
-      ct: b1ddf3c556813b2f6a9eab938fa39198bfb5c4c2304c8c62ebc30a0b9b98db89
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  gt &v5, v2, v3"
-      - "  eq &v6, v5, v4"
-      - "  assert v6"
-      - ""
+      num_private_variables: 897
+      num_constraints: 897
+      at: f53fbab433e2588176ab0a5677a6d546a108e5a98abe79ccb5abbc57a4181afd
+      bt: 2005303715fb1fda8dbf03970acb45982b78b7c61034b172e9ea3cd363a013f8
+      ct: 8d7309bdb692a71de6c9efc246984ce389534e8fc31222a94d5217720c2d20e9
     output:
       - input_file: u128_g.in
         output:
@@ -23,7 +16,7 @@ outputs:
       - input_file: u128_f.in
         output:
           registers: {}
-    initial_ast: b0b7de8b98bee00c79009386d3ee549879e2b76bee73a79bc70bf15de4f62cd9
-    imports_resolved_ast: b0b7de8b98bee00c79009386d3ee549879e2b76bee73a79bc70bf15de4f62cd9
-    canonicalized_ast: b8415cdb9a2007793675a43363b8476cc44ef4af4aa567face4103626c4dbdb8
-    type_inferenced_ast: f7e4d8ec5f89b31a9beffd534f1eb06748dc36d383634584d02e52c2a614e8c1
+    initial_ast: 820ed988d142189cd95bfc559ded7f9de3a1327338e47844a7a2200d79af56a9
+    imports_resolved_ast: 4d7a916897bdba849b0e3bfe03497cc99ad2c778c994203e1a70e8eab25075dd
+    canonicalized_ast: eeae2a030d01c1d9a381fd0149a54149179fc8ffe988bc27923f112946a1d405
+    type_inferenced_ast: 1a33df8eab7752848d387f356ed22a3c5d2e9babd0d918a347e1c06a5b1fe5c8

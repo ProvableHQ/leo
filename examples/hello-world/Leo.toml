@@ -6,3 +6,7 @@ license = "LICENSE-MIT"
 
 [remote]
 author = "aleo"
+
+[target]
+curve = "bls12_377"
+proving_system = "groth16"

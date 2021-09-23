@@ -4,30 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 2
-      num_constraints: 2
-      at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
-      bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
-      ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  store &v3, [1, 2, 3]"
-      - "  asget &v4, v3, 0, 2, 2"
-      - "  asset &v3, 0, 2, [4, 5]"
-      - "  store &v3, v3"
-      - "  aget &v5, v3, 0"
-      - "  eq &v6, v5, 4"
-      - "  aget &v7, v3, 1"
-      - "  eq &v8, v7, 5"
-      - "  and &v9, v6, v8"
-      - "  aget &v10, v3, 2"
-      - "  eq &v11, v10, 3"
-      - "  and &v12, v9, v11"
-      - "  eq &v13, v2, true"
-      - "  and &v14, v12, v13"
-      - "  retn v14"
-      - ""
+      num_private_variables: 1
+      num_constraints: 1
+      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
+      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
+      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
     output:
       - input_file: input/dummy.in
         output:
@@ -35,7 +16,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 1ebd23a723117803e91c27da2c879d4543e4d08d78722dbfa3462edd78781eeb
-    imports_resolved_ast: 1ebd23a723117803e91c27da2c879d4543e4d08d78722dbfa3462edd78781eeb
-    canonicalized_ast: 1ebd23a723117803e91c27da2c879d4543e4d08d78722dbfa3462edd78781eeb
-    type_inferenced_ast: 0757609bc2f771bf10a64846b02f069acd411370e2cad44cdc173bc14144ecc2
+    initial_ast: 7d636b2e99784c858ee66e66497caaf184f7a9fa9340d0dd1d6618e6e4b6592e
+    imports_resolved_ast: 4da9957a4d736bd4bd54b7a4c9e1b2a1d47b45ccc54da4dd67c771e780bd328c
+    canonicalized_ast: 4da9957a4d736bd4bd54b7a4c9e1b2a1d47b45ccc54da4dd67c771e780bd328c
+    type_inferenced_ast: 23aebb7b4b7960031778b0a88006179be6151aa622c38be76946191c947c0301

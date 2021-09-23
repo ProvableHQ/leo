@@ -4,26 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 131
-      num_constraints: 132
-      at: b3ada0c31c62f1c65dcb30abd1150523a04595c8e3036c90cfc1e699096010ed
-      bt: 924e771098280d23eb9a4e820eecb960846c6d4a1034fe8c93e33be980bf60c1
-      ct: 8bd0372fc4264b0346fbf52549467895cf1630b761a036306b50e0076de22abe
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  store &v4, v2"
-      - "  store &v5, 2"
-      - "  add &v6, v4, v5"
-      - "  store &v7, v6"
-      - "  eq &v8, v4, 1"
-      - "  eq &v9, v5, 2"
-      - "  and &v10, v8, v9"
-      - "  eq &v11, v7, 3"
-      - "  and &v12, v10, v11"
-      - "  and &v13, v12, v3"
-      - "  retn v13"
-      - ""
+      num_private_variables: 130
+      num_constraints: 131
+      at: 543fa6d0af950bf301b03e1d060f09a396c2dc452933a3f54a9ef177bfda6180
+      bt: a46e57da3c684733a4f1736d56fe7952266ba68b2a23eebcb4ef933f4ebb41ff
+      ct: fd808ddd42dbcc9eb18899f0eb8a2bc1ee8e03f983ecec6daa77e2c2d9910d1e
     output:
       - input_file: inputs/basic.in
         output:
@@ -31,7 +16,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: a4a3b4b30742544a6dae3d76794504173c1cc64f217bd3feda033ce51512a670
-    imports_resolved_ast: a4a3b4b30742544a6dae3d76794504173c1cc64f217bd3feda033ce51512a670
-    canonicalized_ast: a4a3b4b30742544a6dae3d76794504173c1cc64f217bd3feda033ce51512a670
-    type_inferenced_ast: 508686ddeb2f8fad60d9ad58639b5a761e6c5f5b61e105803eb8a98d8065a2ad
+    initial_ast: 6349e2684562bad873bcf643e01eeb02039295bd41e2df77f1fefc7bb3f2d3bb
+    imports_resolved_ast: 2b00607e4a777539b2abb677ac95108208d03409adb6b672e00d26cada45b1e6
+    canonicalized_ast: 2b00607e4a777539b2abb677ac95108208d03409adb6b672e00d26cada45b1e6
+    type_inferenced_ast: f0a02b6b326925afb8b1f8fbdafb5686687e695eb4420010d2c8d1564ac0a7b2

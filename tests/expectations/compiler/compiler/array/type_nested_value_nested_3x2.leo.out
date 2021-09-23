@@ -4,21 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 144
-      num_constraints: 144
-      at: f5116f8f1aaab4f3f541c583d9e531bf2dbd984cf5d153c556fdeb09b20f7f31
-      bt: f1797bb230e9aa8e64831410f68e55fd69c0a6f4c37d6c5046ec4037a9856f6c
-      ct: 13625a7a6f122f17763bee41e9e6299d4bcb0e23fd5027bb4b0441c9299c5ee1
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  store &v3, [[0, 0], [0, 0], [0, 0]]"
-      - "  store &v4, [[0, 0], [0, 0], [0, 0]]"
-      - "  eq &v5, [[0, 0], [0, 0], [0, 0]], v2"
-      - "  eq &v6, v2, [[0, 0], [0, 0], [0, 0]]"
-      - "  and &v7, v5, v6"
-      - "  retn v7"
-      - ""
+      num_private_variables: 143
+      num_constraints: 143
+      at: f09e0b896fb2cb30fe4bbcf791b4695de26287361de6def1e75e861643d12714
+      bt: f97a8f270a0603d5674319afa5e572f5f146f02a36f9387f860a6cf1f8a786cc
+      ct: 88cc1bad895de526a15b231e1fe8065848e8008bda5e2662f7c9eec9a976ff98
     output:
       - input_file: input/type_nested_value_nested_3x2.in
         output:
@@ -26,7 +16,7 @@ outputs:
             x:
               type: bool
               value: "true"
-    initial_ast: be4830b76006521f89eab1ce091203a4e0e83669ca28d6a3689f1aeefb7eb3b8
-    imports_resolved_ast: be4830b76006521f89eab1ce091203a4e0e83669ca28d6a3689f1aeefb7eb3b8
-    canonicalized_ast: be4830b76006521f89eab1ce091203a4e0e83669ca28d6a3689f1aeefb7eb3b8
-    type_inferenced_ast: d316b946927952240a37e549b33766404080363bf899a2a9cbd6b12b133e174d
+    initial_ast: 6bacdd1d42bfa807910c0455c68213007d5ca8f15ee1f3c743d946bfbbff79b7
+    imports_resolved_ast: 2abfe6c0c9d3d0d643ddb315c21c3a79ae7f4ffdb8fb3b2d662d9b2487951374
+    canonicalized_ast: 2abfe6c0c9d3d0d643ddb315c21c3a79ae7f4ffdb8fb3b2d662d9b2487951374
+    type_inferenced_ast: 18da5bbd315adf557e0041af34f6853acf311095e56a249fa1aa734de8d4ab60

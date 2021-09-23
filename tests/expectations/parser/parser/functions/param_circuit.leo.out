@@ -19,7 +19,7 @@ outputs:
               const_: false
               mutable: true
               type_:
-                CircuitOrAlias: "{\"name\":\"MyCircuit\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
+                Identifier: "{\"name\":\"MyCircuit\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":15,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: MyCircuit) {\\\"}\"}"
               span:
                 line_start: 3
                 line_stop: 3

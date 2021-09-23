@@ -402,8 +402,20 @@ impl ParserContext {
     ///
     pub fn parse_postfix_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_primary_expression()?;
-        while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen, Token::DoubleColon]) {
+        while let Some(token) = self.eat_any(&[
+            Token::LeftSquare,
+            Token::Dot,
+            Token::LeftParen,
+            Token::DoubleColon,
+            Token::LengthOf,
+        ]) {
             match token.token {
+                Token::LengthOf => {
+                    expr = Expression::LengthOf(LengthOfExpression {
+                        span: expr.span().clone(),
+                        inner: Box::new(expr),
+                    })
+                }
                 Token::LeftSquare => {
                     if self.eat(Token::DotDot).is_some() {
                         let right = if self.peek_token().as_ref() != &Token::RightSquare {
@@ -727,6 +739,10 @@ impl ParserContext {
                 };
                 Expression::Identifier(ident)
             }
+            // Token::LengthOf => Expression::LengthOf(LengthOfExpression {
+            //     span,
+            //     inner: Box::new(self.parse_primary_expression()?),
+            // }),
             token => {
                 return Err(ParserError::unexpected_str(token, "expression", &span).into());
             }

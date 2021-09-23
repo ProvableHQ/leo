@@ -1,15 +1,6 @@
 name: Leo-ACL2
-on: 
-  pull_request:
-    push:
-      branches:
-        - master
-        - staging
-        - trying
-      paths-ignore:
-        - 'docs/**'
-        - 'documentation/**'
-env: 
+on: workflow_dispatch
+env:
   RUST_BACKTRACE: 1
 
 # This job can only be run on linux (Ubuntu)
@@ -37,60 +28,66 @@ jobs:
       - name: Pull tgc executable
         run: |
           mkdir acl2 && cd acl2;
-          wget $(curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/releases/latest \
-              | grep "browser_download_url.*.tgz"  \
-              | cut -d : -f 2,3 \
-              | tr -d \" \
-              | xargs)
+          wget $( curl -s https://api.github.com/repos/AleoHQ/leo-acl2-bin/releases/latest \
+                  | jq -r '.assets[0].browser_download_url' )
 
+          echo "Unpacking $(ls):"
           tar -xvzf $(ls)
-      
-      # Using the prepared ASTs and the pulled and unzipped tgc run theorem generation.
+
+      # Run theorem generation and checking using the prepared ASTs and the pulled and unzipped leo-acl2 tarball.
       - name: Run tgc over ASTs
         run: |
           canonicalization_errors=();
           type_inference_errors=();
+          num_dirs=0;
           for dir in `ls tmp/tgc`;
           do
             cd tmp/tgc/$dir; # enter the directory
+            num_dirs=$((num_dirs + 1));
             ./../../../acl2/tgc canonicalization initial_ast.json canonicalization_ast.json canonicalization-theorem.lisp > canonicalization_result.out || canonicalization_errors+=("$dir");
-            # Disabling Type inference for now
-            # ./../../../acl2/tgc type-inference canonicalization_ast.json type_inferenced_ast.json type-inference-theorem.lisp > type_inference_result.out || type_inference_errors+=("$dir");
+            ./../../../acl2/tgc type-inference canonicalization_ast.json type_inferenced_ast.json type-inference-theorem.lisp > type_inference_result.out || type_inference_errors+=("$dir");
             cd ../../..
           done;
 
+          echo "----------------"
+          echo "Ran tgc in ${num_dirs} directories."
+          echo "----------------"
           if [ ${#canonicalization_errors[@]} -eq 0 ]; then
             echo "Canonicalization - Success!"
           else
-            echo "Canonicalization Failures:";
+            echo "Canonicalization Failures (total: ${#canonicalization_errors[@]}):"
             for dir in ${canonicalization_errors[@]};
             do
-              echo $dir;
+              echo $dir
             done;
 
-            echo "Attaching logs:"
-            for dir in ${canonicalization_errors[@]};
-            do
-              cat tmp/tgc/$dir/canonicalization_result.out
-              cat tmp/tgc/$dir/canonicalization-theorem.lisp
-            done;
-            exit 1
+            #echo "Attaching logs:"
+            #for dir in ${canonicalization_errors[@]};
+            #do
+            # cat tmp/tgc/$dir/canonicalization_result.out
+            # cat tmp/tgc/$dir/canonicalization-theorem.lisp
+            #done;
           fi
 
+          echo "----------------"
           if [ ${#type_inference_errors[@]} -eq 0 ]; then
             echo "Type Inference - Success!"
           else
-            echo "Type Inference Failures:";
+            echo "Type Inference Failures (total: ${#type_inference_errors[@]}):"
             for dir in ${type_inference_errors[@]};
             do
-              echo $dir;
+              echo $dir
             done;
 
-            echo "Attaching logs:"
-            for dir in ${type_inference_errors[@]};
-            do
-              cat tmp/tgc/$dir/type_inference_result.out
-            done;
+            #echo "Attaching logs:"
+            #for dir in ${type_inference_errors[@]};
+            #do
+            # cat tmp/tgc/$dir/type_inference_result.out
+            #done;
+          fi
 
+          if [[ ${#canonicalization_errors[@]} -ne 0 || ${#type_inference_errors[@]} -ne 0 ]]; then
+            echo "----------------"
+            echo "Exiting with status 1 due to at least one tgc error."
             exit 1
           fi

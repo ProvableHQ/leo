@@ -55,3 +55,11 @@ version = "1.5.2"
 
 [dependencies.structopt]
 version = "0.3"
+
+# List of dependencies for errcov
+[dependencies.leo-errors]
+path = "../errors"
+version = "1.5.3"
+
+[dependencies.regex]
+version = "1.5"

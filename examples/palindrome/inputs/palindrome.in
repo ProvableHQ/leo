@@ -1,0 +1,5 @@
+[main]
+str: [char; 20] = "borrow   or rob     "; // char array can be defined as a string
+
+[registers]
+r0: bool = false;

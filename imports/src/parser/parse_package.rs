@@ -35,7 +35,10 @@ impl ImportParser {
             return self.parse_package(package.path(), remaining_segments, span);
         }
 
-        Self::parse_import_file(package, span)
+        let program = Self::parse_import_file(package, span)?;
+        let ast = leo_ast_passes::Importer::do_pass(program, self)?.into_repr();
+
+        Ok(ast)
     }
 
     ///
@@ -48,9 +51,9 @@ impl ImportParser {
         let package_name = segments[0];
 
         // Fetch a core package
-        let core_package = package_name.eq("core");
+        let core_package = package_name.eq("std");
         if core_package {
-            panic!("attempted to import core package from filesystem");
+            panic!("attempted to import std package from filesystem");
         }
 
         // Trim path if importing from another file

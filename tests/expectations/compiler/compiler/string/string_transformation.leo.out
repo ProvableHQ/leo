@@ -4,28 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 10
-      num_constraints: 8
-      at: 6904f63c63f844b99b057c129ae45ebb0b8661a85c44c9f92fbb76d123bb3ab3
-      bt: 909d161ad8eabc71e9eee5857da9affe6c934a516bde8e09c09e1a18537ea096
-      ct: 529d13cfa64187ef3af58b52a543cfe2d526df5b8ef795800a615c858d5eeb78
-    ir:
-      - "decl f0: <0>"
-      - "  store &v1, ((v0), (), (), ())"
-      - "  store &v3, ['\\u{2764}', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\\u{fffd}']"
-      - "  asget &v4, v3, 0, 2, 2"
-      - "  asset &v3, 0, 2, v2"
-      - "  store &v3, v3"
-      - "  store &v5, ['t', 'e', 's', 't', '1']"
-      - "  store &v6, [1, 2, 3, 4]"
-      - "  asget &v7, v6, 0, 2, 2"
-      - "  asset &v6, 0, 2, [10, 10]"
-      - "  store &v6, v6"
-      - "  eq &v8, v6, [10, 10, 3, 4]"
-      - "  eq &v9, v3, ['h', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\\u{fffd}']"
-      - "  and &v10, v8, v9"
-      - "  retn v10"
-      - ""
+      num_private_variables: 9
+      num_constraints: 7
+      at: 5f4cfa276f9e316a42c9292a4f149fcf3c301a4ca3dc14112b7d59e8ef1e002c
+      bt: c728f18e4b654023c5189f382573af92682099ed5c7c08e706604e6f1cb7d72d
+      ct: 74aca434b2a72f7215a0dbe138b708fb2c2857d95dc3bc4776903c90d5f47bb9
     output:
       - input_file: inputs/two.in
         output:
@@ -34,6 +17,6 @@ outputs:
               type: bool
               value: "true"
     initial_ast: cb6caa7598139ad4bdf20a4ace3eb443f83932c91606214227c192684efa2c33
-    imports_resolved_ast: cb6caa7598139ad4bdf20a4ace3eb443f83932c91606214227c192684efa2c33
-    canonicalized_ast: ef8938160ef517c3856d42b1c651877de6baaa791409cd92ea0552b8c82b228a
-    type_inferenced_ast: 313f5120e880583f9cced569d3afcfe7b893a8b9c58f521680037df4202e6d8c
+    imports_resolved_ast: f4d1dcc6d4d40c15e0255abf329ae68a32637fb36b274f5d17f090757de57984
+    canonicalized_ast: 941585ff9243bbd3b96d5653335d17ed20729bf2c4d9770fafdb85f6df80f20b
+    type_inferenced_ast: 8ee3a213e15295db78aa8bcef806341951dcc4c1aa8fa564c8eb22b134bbc2ee
