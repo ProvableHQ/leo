@@ -71,12 +71,14 @@ version = "0.4"
 #todo 0rphon
 [dependencies.snarkvm-ir]
 version = "0.7.7"
-path = "D:\\Work\\leo_repos\\snarkVM\\ir"
+git = "https://github.com/AleoHQ/snarkVM"
+branch = "ir-updates"
 
 #todo 0rphon
 [dependencies.snarkvm-r1cs]
 version = "0.7.9"
-path = "D:\\Work\\leo_repos\\snarkVM\\r1cs"
+git = "https://github.com/AleoHQ/snarkVM"
+branch = "ir-updates"
 
 [dependencies.bincode]
 version = "1.3"
@@ -109,12 +111,14 @@ version = "0.4"
 #todo 0rphon
 [dependencies.snarkvm-eval]
 version = "0.7.7"
-path = "D:\\Work\\leo_repos\\snarkVM\\eval"
+git = "https://github.com/AleoHQ/snarkVM"
+branch = "ir-updates"
 
 #todo 0rphon
 [dependencies.snarkvm-curves]
 version = "0.7.7"
-path = "D:\\Work\\leo_repos\\snarkVM\\curves"
+git = "https://github.com/AleoHQ/snarkVM"
+branch = "ir-updates"
 
 [dev-dependencies.rand_core]
 version = "0.6.3"
