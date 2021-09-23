@@ -87,13 +87,14 @@ impl<'a> ExpressionNode<'a> for CircuitAccess<'a> {
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::accesses::CircuitMemberAccess> for CircuitAccess<'a> {
+impl<'a> FromAst<'a, leo_ast::accesses::MemberAccess> for CircuitAccess<'a> {
     fn from_ast(
         scope: &'a Scope<'a>,
-        value: &leo_ast::accesses::CircuitMemberAccess,
+        value: &leo_ast::accesses::MemberAccess,
         expected_type: Option<PartialType<'a>>,
     ) -> Result<CircuitAccess<'a>> {
-        let target = <&'a Expression<'a>>::from_ast(scope, &*value.circuit, None)?;
+        let target = <&'a Expression<'a>>::from_ast(scope, &*value.inner, None)?;
+        // TODO handle other types
         let circuit = match target.get_type() {
             Some(Type::Circuit(circuit)) => circuit,
             x => {
@@ -156,13 +157,13 @@ impl<'a> FromAst<'a, leo_ast::accesses::CircuitMemberAccess> for CircuitAccess<'
     }
 }
 
-impl<'a> FromAst<'a, leo_ast::accesses::CircuitStaticFunctionAccess> for CircuitAccess<'a> {
+impl<'a> FromAst<'a, leo_ast::accesses::StaticAccess> for CircuitAccess<'a> {
     fn from_ast(
         scope: &Scope<'a>,
-        value: &leo_ast::accesses::CircuitStaticFunctionAccess,
+        value: &leo_ast::accesses::StaticAccess,
         expected_type: Option<PartialType>,
     ) -> Result<CircuitAccess<'a>> {
-        let circuit = match &*value.circuit {
+        let circuit = match &*value.inner {
             leo_ast::Expression::Identifier(name) => scope
                 .resolve_circuit(&name.name)
                 .ok_or_else(|| AsgError::unresolved_circuit(&name.name, &name.span))?,
@@ -199,24 +200,20 @@ impl<'a> FromAst<'a, leo_ast::accesses::CircuitStaticFunctionAccess> for Circuit
 impl<'a> Into<leo_ast::Expression> for &CircuitAccess<'a> {
     fn into(self) -> leo_ast::Expression {
         if let Some(target) = self.target.get() {
-            leo_ast::Expression::Access(leo_ast::AccessExpression::CircuitMember(
-                leo_ast::accesses::CircuitMemberAccess {
-                    circuit: Box::new(target.into()),
-                    name: self.member.clone(),
-                    span: self.span.clone().unwrap_or_default(),
-                    type_: None,
-                },
-            ))
+            leo_ast::Expression::Access(leo_ast::AccessExpression::Member(leo_ast::accesses::MemberAccess {
+                inner: Box::new(target.into()),
+                name: self.member.clone(),
+                span: self.span.clone().unwrap_or_default(),
+                type_: None,
+            }))
         } else {
-            leo_ast::Expression::Access(leo_ast::AccessExpression::CircuitStaticFunction(
-                leo_ast::accesses::CircuitStaticFunctionAccess {
-                    circuit: Box::new(leo_ast::Expression::Identifier(
-                        self.circuit.get().name.borrow().clone(),
-                    )),
-                    name: self.member.clone(),
-                    span: self.span.clone().unwrap_or_default(),
-                },
-            ))
+            leo_ast::Expression::Access(leo_ast::AccessExpression::Static(leo_ast::accesses::StaticAccess {
+                inner: Box::new(leo_ast::Expression::Identifier(
+                    self.circuit.get().name.borrow().clone(),
+                )),
+                name: self.member.clone(),
+                span: self.span.clone().unwrap_or_default(),
+            }))
         }
     }
 }

@@ -37,9 +37,6 @@ pub use self::expression::*;
 pub mod function;
 pub use self::function::*;
 
-pub mod named;
-pub use self::named::*;
-
 pub mod variable_ref;
 pub use self::variable_ref::*;
 

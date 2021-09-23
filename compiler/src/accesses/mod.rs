@@ -20,11 +20,5 @@ pub use array_access::*;
 pub mod circuit_access;
 pub use circuit_access::*;
 
-pub mod named_access;
-pub use named_access::*;
-
 pub mod tuple_access;
 pub use tuple_access::*;
-
-pub mod value_access;
-pub use value_access::*;

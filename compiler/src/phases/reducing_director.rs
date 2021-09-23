@@ -40,13 +40,12 @@ use leo_ast::{
     AssigneeAccess as AstAssignAccess, BinaryExpression as AstBinaryExpression, Block as AstBlockStatement,
     CallExpression as AstCallExpression, CastExpression as AstCastExpression, Char, CharValue as AstCharValue,
     Circuit as AstCircuit, CircuitImpliedVariableDefinition, CircuitInitExpression as AstCircuitInitExpression,
-    CircuitMember as AstCircuitMember, CircuitMemberAccess, CircuitStaticFunctionAccess,
-    ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
+    CircuitMember as AstCircuitMember, ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
     ConsoleFunction as AstConsoleFunction, ConsoleStatement as AstConsoleStatement,
     DefinitionStatement as AstDefinitionStatement, Expression as AstExpression,
     ExpressionStatement as AstExpressionStatement, Function as AstFunction, GroupTuple, GroupValue as AstGroupValue,
-    IterationStatement as AstIterationStatement, PositiveNumber, ReconstructingReducer,
-    ReturnStatement as AstReturnStatement, SpreadOrExpression, Statement as AstStatement,
+    IterationStatement as AstIterationStatement, MemberAccess, PositiveNumber, ReconstructingReducer,
+    ReturnStatement as AstReturnStatement, SpreadOrExpression, Statement as AstStatement, StaticAccess,
     TernaryExpression as AstTernaryExpression, TupleAccess as AstTupleAccess,
     TupleInitExpression as AstTupleInitExpression, Type as AstType, UnaryExpression as AstUnaryExpression,
     ValueExpression,
@@ -199,9 +198,9 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 })
                 .flatten();
             if let AstExpression::Access(ref access) = function {
-                if let AstAccessExpression::CircuitMember(mut circuit_member) = access.clone() {
+                if let AstAccessExpression::Member(mut circuit_member) = access.clone() {
                     circuit_member.type_ = function_type;
-                    function = AstExpression::Access(AstAccessExpression::CircuitMember(circuit_member));
+                    function = AstExpression::Access(AstAccessExpression::Member(circuit_member));
                 }
             }
         }
@@ -246,11 +245,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         self.ast_reducer.reduce_array_range_access(ast, array, left, right)
     }
 
-    pub fn reduce_circuit_member_access(
-        &mut self,
-        ast: &CircuitMemberAccess,
-        asg: &AsgCircuitAccess,
-    ) -> Result<CircuitMemberAccess> {
+    pub fn reduce_member_access(&mut self, ast: &MemberAccess, asg: &AsgCircuitAccess) -> Result<MemberAccess> {
         let type_ = if self.options.type_inference_enabled() {
             Some(leo_ast::Type::Identifier(asg.circuit.get().name.borrow().clone()))
         } else {
@@ -258,16 +253,12 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         };
 
         self.ast_reducer
-            .reduce_circuit_member_access(ast, *ast.circuit.clone(), ast.name.clone(), type_)
+            .reduce_member_access(ast, *ast.inner.clone(), ast.name.clone(), type_)
     }
 
-    pub fn reduce_circuit_static_fn_access(
-        &mut self,
-        ast: &CircuitStaticFunctionAccess,
-        _asg: &AsgCircuitAccess,
-    ) -> Result<CircuitStaticFunctionAccess> {
+    pub fn reduce_static_access(&mut self, ast: &StaticAccess, _asg: &AsgCircuitAccess) -> Result<StaticAccess> {
         self.ast_reducer
-            .reduce_circuit_static_fn_access(ast, *ast.circuit.clone(), ast.name.clone())
+            .reduce_static_access(ast, *ast.inner.clone(), ast.name.clone())
     }
 
     pub fn reduce_tuple_access(&mut self, ast: &AstTupleAccess, asg: &AsgTupleAccess) -> Result<AstTupleAccess> {
@@ -288,12 +279,12 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             (AstAccessExpression::ArrayRange(ast), AsgAccessExpression::ArrayRange(asg)) => self
                 .reduce_array_range_access(ast, asg)
                 .map(AstAccessExpression::ArrayRange),
-            (AstAccessExpression::CircuitMember(ast), AsgAccessExpression::Circuit(asg)) => self
-                .reduce_circuit_member_access(ast, asg)
-                .map(AstAccessExpression::CircuitMember),
-            (AstAccessExpression::CircuitStaticFunction(ast), AsgAccessExpression::Circuit(asg)) => self
-                .reduce_circuit_static_fn_access(ast, asg)
-                .map(AstAccessExpression::CircuitStaticFunction),
+            (AstAccessExpression::Member(ast), AsgAccessExpression::Circuit(asg)) => {
+                self.reduce_member_access(ast, asg).map(AstAccessExpression::Member)
+            }
+            (AstAccessExpression::Static(ast), AsgAccessExpression::Circuit(asg)) => {
+                self.reduce_static_access(ast, asg).map(AstAccessExpression::Static)
+            }
             (AstAccessExpression::Tuple(ast), AsgAccessExpression::Tuple(asg)) => {
                 self.reduce_tuple_access(ast, asg).map(AstAccessExpression::Tuple)
             }

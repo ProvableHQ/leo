@@ -142,44 +142,18 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_circuit_member_access(
+    fn reduce_member_access(
         &mut self,
-        circuit_member_access: &CircuitMemberAccess,
-        circuit: Expression,
+        member_access: &MemberAccess,
+        inner: Expression,
         name: Identifier,
         type_: Option<Type>,
-    ) -> Result<CircuitMemberAccess> {
-        Ok(CircuitMemberAccess {
-            circuit: Box::new(circuit),
+    ) -> Result<MemberAccess> {
+        Ok(MemberAccess {
+            inner: Box::new(inner),
             name,
-            span: circuit_member_access.span.clone(),
+            span: member_access.span.clone(),
             type_,
-        })
-    }
-
-    fn reduce_circuit_static_fn_access(
-        &mut self,
-        circuit_static_fn_access: &CircuitStaticFunctionAccess,
-        circuit: Expression,
-        name: Identifier,
-    ) -> Result<CircuitStaticFunctionAccess> {
-        Ok(CircuitStaticFunctionAccess {
-            circuit: Box::new(circuit),
-            name,
-            span: circuit_static_fn_access.span.clone(),
-        })
-    }
-
-    fn reduce_named_access(
-        &mut self,
-        value_access: &NamedTypeAccess,
-        named_type: Expression,
-        access: Identifier,
-    ) -> Result<NamedTypeAccess> {
-        Ok(NamedTypeAccess {
-            named_type: Box::new(named_type),
-            access,
-            span: value_access.span.clone(),
         })
     }
 
@@ -191,27 +165,16 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_value_access(
+    fn reduce_static_access(
         &mut self,
-        value_access: &ValueAccess,
+        static_access: &StaticAccess,
         value: Expression,
-        access: Identifier,
-    ) -> Result<ValueAccess> {
-        Ok(ValueAccess {
-            value: Box::new(value),
-            access,
-            span: value_access.span.clone(),
-        })
-    }
-
-    fn reduce_named_type(
-        &mut self,
-        named_type: &NamedTypeExpression,
-        named: Identifier,
-    ) -> Result<NamedTypeExpression> {
-        Ok(NamedTypeExpression {
-            named_type: named,
-            span: named_type.span.clone(),
+        name: Identifier,
+    ) -> Result<StaticAccess> {
+        Ok(StaticAccess {
+            inner: Box::new(value),
+            name,
+            span: static_access.span.clone(),
         })
     }
 

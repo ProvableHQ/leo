@@ -404,8 +404,18 @@ impl ParserContext {
     ///
     pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         self.expect(Token::Circuit)?;
-        // TODO here allow address, ints, booleans, groups
-        let name = self.expect_ident()?;
+        let name = if let Some(ident) = self.eat_identifier() {
+            ident
+        } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
+            Identifier {
+                name: scalar_type.token.to_string().into(),
+                span: scalar_type.span,
+            }
+        } else {
+            let next = self.peek()?;
+            return Err(ParserError::unexpected_str(&next.token, "ident", &next.span).into());
+        };
+
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
 

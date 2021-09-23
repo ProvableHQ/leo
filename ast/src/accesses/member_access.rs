@@ -21,22 +21,21 @@ use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
-// TODO merge with named access
-
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct CircuitStaticFunctionAccess {
-    pub circuit: Box<Expression>,
+pub struct MemberAccess {
+    pub inner: Box<Expression>,
     pub name: Identifier,
     pub span: Span,
+    pub type_: Option<crate::Type>,
 }
 
-impl fmt::Display for CircuitStaticFunctionAccess {
+impl fmt::Display for MemberAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}::{}", self.circuit, self.name)
+        write!(f, "{}.{}", self.inner, self.name)
     }
 }
 
-impl Node for CircuitStaticFunctionAccess {
+impl Node for MemberAccess {
     fn span(&self) -> &Span {
         &self.span
     }

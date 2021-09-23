@@ -29,7 +29,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreFunctionCall<'a, F, G> for ToBytes 
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         _cs: &mut CS,
-        function:&'a Function<'a>,
+        function: &'a Function<'a>,
         span: &Span,
         target: Option<ConstrainedValue<'a, F, G>>,
         arguments: Vec<ConstrainedValue<'a, F, G>>,

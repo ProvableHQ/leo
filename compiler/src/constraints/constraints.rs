@@ -40,10 +40,7 @@ pub fn generate_constraints<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSy
 
     let main = {
         let program = program;
-        program
-            .functions
-            .get("main")
-            .cloned()
+        program.functions.get("main").cloned()
     };
 
     match main {

@@ -160,19 +160,6 @@ pub trait ReconstructingReducerExpression<'a> {
         })
     }
 
-    fn reduce_named_access(
-        &mut self,
-        input: NamedTypeAccess<'a>,
-        named_type: &'a Expression<'a>,
-    ) -> AccessExpression<'a> {
-        AccessExpression::Named(NamedTypeAccess {
-            parent: input.parent,
-            named_type: Cell::new(named_type),
-            access: input.access,
-            span: input.span,
-        })
-    }
-
     fn reduce_tuple_access(&mut self, input: TupleAccess<'a>, tuple_ref: &'a Expression<'a>) -> AccessExpression<'a> {
         AccessExpression::Tuple(TupleAccess {
             parent: input.parent,
@@ -182,25 +169,8 @@ pub trait ReconstructingReducerExpression<'a> {
         })
     }
 
-    fn reduce_value_access(&mut self, input: ValueAccess<'a>, target: &'a Expression<'a>) -> AccessExpression<'a> {
-        AccessExpression::Value(ValueAccess {
-            parent: input.parent,
-            target: Cell::new(target),
-            access: input.access.clone(),
-            span: input.span,
-        })
-    }
-
     fn reduce_access_expression(&mut self, input: AccessExpression<'a>) -> Expression<'a> {
         Expression::Access(input)
-    }
-
-    fn reduce_named_type_expression(&mut self, input: NamedTypeExpression<'a>) -> Expression<'a> {
-        Expression::NamedType(NamedTypeExpression {
-            parent: input.parent,
-            named_type: input.named_type,
-            span: input.span,
-        })
     }
 
     fn reduce_constant(&mut self, input: Constant<'a>) -> Expression<'a> {

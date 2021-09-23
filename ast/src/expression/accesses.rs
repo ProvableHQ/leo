@@ -21,11 +21,9 @@ use crate::accesses::*;
 pub enum AccessExpression {
     Array(ArrayAccess),
     ArrayRange(ArrayRangeAccess),
-    CircuitMember(CircuitMemberAccess),
-    CircuitStaticFunction(CircuitStaticFunctionAccess),
-    Named(NamedTypeAccess),
+    Member(MemberAccess),
     Tuple(TupleAccess),
-    Value(ValueAccess),
+    Static(StaticAccess),
 }
 
 impl fmt::Display for AccessExpression {
@@ -35,11 +33,9 @@ impl fmt::Display for AccessExpression {
         match self {
             Array(access) => access.fmt(f),
             ArrayRange(access) => access.fmt(f),
-            CircuitMember(access) => access.fmt(f),
-            CircuitStaticFunction(access) => access.fmt(f),
-            Named(access) => access.fmt(f),
+            Member(access) => access.fmt(f),
             Tuple(access) => access.fmt(f),
-            Value(access) => access.fmt(f),
+            Static(access) => access.fmt(f),
         }
     }
 }
@@ -51,11 +47,9 @@ impl Node for AccessExpression {
         match &self {
             Array(access) => access.span(),
             ArrayRange(access) => access.span(),
-            CircuitMember(access) => access.span(),
-            CircuitStaticFunction(access) => access.span(),
-            Named(access) => access.span(),
+            Member(access) => access.span(),
             Tuple(access) => access.span(),
-            Value(access) => access.span(),
+            Static(access) => access.span(),
         }
     }
 
@@ -65,11 +59,9 @@ impl Node for AccessExpression {
         match self {
             Array(access) => access.set_span(span),
             ArrayRange(access) => access.set_span(span),
-            CircuitMember(access) => access.set_span(span),
-            CircuitStaticFunction(access) => access.set_span(span),
-            Named(access) => access.set_span(span),
+            Member(access) => access.set_span(span),
             Tuple(access) => access.set_span(span),
-            Value(access) => access.set_span(span),
+            Static(access) => access.set_span(span),
         }
     }
 }

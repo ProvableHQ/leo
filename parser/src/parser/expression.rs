@@ -463,23 +463,12 @@ impl ParserContext {
                 }
                 Token::Dot => {
                     if let Some(ident) = self.eat_identifier() {
-                        match expr {
-                            Expression::Value(_) => {
-                                expr = Expression::Access(AccessExpression::Value(ValueAccess {
-                                    span: expr.span() + &ident.span,
-                                    value: Box::new(expr),
-                                    access: ident,
-                                }));
-                            }
-                            _ => {
-                                expr = Expression::Access(AccessExpression::CircuitMember(CircuitMemberAccess {
-                                    span: expr.span() + &ident.span,
-                                    circuit: Box::new(expr),
-                                    name: ident,
-                                    type_: None,
-                                }));
-                            }
-                        }
+                        expr = Expression::Access(AccessExpression::Member(MemberAccess {
+                            span: expr.span() + &ident.span,
+                            inner: Box::new(expr),
+                            name: ident,
+                            type_: None,
+                        }));
                     } else if let Some((num, span)) = self.eat_int() {
                         expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
                             span: expr.span() + &span,
@@ -514,25 +503,11 @@ impl ParserContext {
                 }
                 Token::DoubleColon => {
                     let ident = self.expect_ident()?;
-                    match expr {
-                        Expression::NamedType(_) => {
-                            expr = Expression::Access(AccessExpression::Named(NamedTypeAccess {
-                                span: expr.span() + &ident.span,
-                                named_type: Box::new(expr),
-                                access: ident,
-                            }))
-                        }
-                        Expression::Identifier(_) => {
-                            expr = Expression::Access(AccessExpression::CircuitStaticFunction(
-                                CircuitStaticFunctionAccess {
-                                    span: expr.span() + &ident.span,
-                                    circuit: Box::new(expr),
-                                    name: ident,
-                                },
-                            ));
-                        }
-                        _ => unimplemented!(),
-                    }
+                    expr = Expression::Access(AccessExpression::Static(StaticAccess {
+                        span: expr.span() + &ident.span,
+                        inner: Box::new(expr),
+                        name: ident,
+                    }));
                 }
                 _ => unimplemented!(),
             }
@@ -767,11 +742,8 @@ impl ParserContext {
                 };
                 Expression::Identifier(ident)
             }
-            t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::NamedType(NamedTypeExpression {
-                named_type: Identifier {
-                    name: t.to_string().into(),
-                    span: span.clone(),
-                },
+            t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
+                name: t.to_string().into(),
                 span,
             }),
             token => {

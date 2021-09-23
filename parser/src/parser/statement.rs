@@ -45,8 +45,8 @@ impl ParserContext {
         let identifier;
         match expr {
             Expression::Access(access) => match access {
-                AccessExpression::CircuitMember(expr) => {
-                    identifier = Self::construct_assignee_access(*expr.circuit, accesses)?;
+                AccessExpression::Member(expr) => {
+                    identifier = Self::construct_assignee_access(*expr.inner, accesses)?;
                     accesses.push(AssigneeAccess::Member(expr.name));
                 }
                 AccessExpression::Tuple(expr) => {

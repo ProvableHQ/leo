@@ -22,19 +22,19 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub struct NamedTypeAccess {
-    pub named_type: Box<Expression>,
-    pub access: Identifier,
+pub struct StaticAccess {
+    pub inner: Box<Expression>,
+    pub name: Identifier,
     pub span: Span,
 }
 
-impl fmt::Display for NamedTypeAccess {
+impl fmt::Display for StaticAccess {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.named_type, self.access)
+        write!(f, "{}::{}", self.inner, self.name)
     }
 }
 
-impl Node for NamedTypeAccess {
+impl Node for StaticAccess {
     fn span(&self) -> &Span {
         &self.span
     }

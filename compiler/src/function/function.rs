@@ -92,11 +92,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         }
 
         // Conditionally select a result based on returned indicators
-        Self::conditionally_select_result(
-            cs,
-            &output,
-            results,
-            &function.span.clone().unwrap_or_default(),
-        )
+        Self::conditionally_select_result(cs, &output, results, &function.span.clone().unwrap_or_default())
     }
 }

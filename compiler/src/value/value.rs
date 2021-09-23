@@ -136,7 +136,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedValue<'a, F, G> {
             Char(_) => Err(CompilerError::to_bytes_not_implemented_for_type("char", span).into()),
             Field(_) => Err(CompilerError::to_bytes_not_implemented_for_type("field", span).into()),
             Group(_) => Err(CompilerError::to_bytes_not_implemented_for_type("group", span).into()),
-            Integer(_) => Err(CompilerError::to_bytes_not_implemented_for_type("group", span).into()),
+            Integer(_) => Err(CompilerError::to_bytes_not_implemented_for_type("int", span).into()),
             Named(_) => Err(CompilerError::to_bytes_not_implemented_for_type("named", span).into()),
             Array(_) => Err(CompilerError::to_bytes_not_implemented_for_type("array", span).into()),
             Tuple(_) => Err(CompilerError::to_bytes_not_implemented_for_type("tuple", span).into()),
@@ -147,9 +147,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedValue<'a, F, G> {
     }
 
     pub fn from_bytes(type_: &str, _bytes: &[UInt8], span: &Span) -> Result<Self> {
-        match type_ {
-            _ => Err(CompilerError::to_bytes_not_implemented_for_type(type_, span).into()),
-        }
+        Err(CompilerError::to_bytes_not_implemented_for_type(type_, span).into())
     }
 }
 

@@ -80,14 +80,12 @@ impl Canonicalizer {
                     })));
                 }
                 AssigneeAccess::Member(identifier) => {
-                    left = Box::new(Expression::Access(AccessExpression::CircuitMember(
-                        CircuitMemberAccess {
-                            circuit: left,
-                            name: identifier,
-                            span: span.clone(),
-                            type_: None,
-                        },
-                    )));
+                    left = Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                        inner: left,
+                        name: identifier,
+                        span: span.clone(),
+                        type_: None,
+                    })));
                 }
             }
         }
@@ -224,25 +222,11 @@ impl Canonicalizer {
                             span: array_range_access.span.clone(),
                         })
                     }
-                    AccessExpression::CircuitMember(circuit_member_access) => {
-                        AccessExpression::CircuitMember(CircuitMemberAccess {
-                            circuit: Box::new(self.canonicalize_expression(&circuit_member_access.circuit)),
-                            name: circuit_member_access.name.clone(),
-                            span: circuit_member_access.span.clone(),
-                            type_: None,
-                        })
-                    }
-                    AccessExpression::CircuitStaticFunction(circuit_static_func_access) => {
-                        AccessExpression::CircuitStaticFunction(CircuitStaticFunctionAccess {
-                            circuit: Box::new(self.canonicalize_expression(&circuit_static_func_access.circuit)),
-                            name: circuit_static_func_access.name.clone(),
-                            span: circuit_static_func_access.span.clone(),
-                        })
-                    }
-                    AccessExpression::Named(named_type_access) => AccessExpression::Named(NamedTypeAccess {
-                        named_type: Box::new(self.canonicalize_expression(&named_type_access.named_type)),
-                        access: named_type_access.access.clone(),
-                        span: named_type_access.span.clone(),
+                    AccessExpression::Member(member_access) => AccessExpression::Member(MemberAccess {
+                        inner: Box::new(self.canonicalize_expression(&member_access.inner)),
+                        name: member_access.name.clone(),
+                        span: member_access.span.clone(),
+                        type_: None,
                     }),
                     AccessExpression::Tuple(tuple_access) => {
                         let tuple = Box::new(self.canonicalize_expression(&tuple_access.tuple));
@@ -253,16 +237,11 @@ impl Canonicalizer {
                             span: tuple_access.span.clone(),
                         })
                     }
-                    AccessExpression::Value(value_access) => {
-                        let value = Box::new(self.canonicalize_expression(&value_access.value));
-                        let access = value_access.access.clone();
-
-                        AccessExpression::Value(ValueAccess {
-                            value,
-                            access,
-                            span: value_access.span.clone(),
-                        })
-                    }
+                    AccessExpression::Static(static_access) => AccessExpression::Static(StaticAccess {
+                        inner: Box::new(self.canonicalize_expression(&static_access.inner)),
+                        name: static_access.name.clone(),
+                        span: static_access.span.clone(),
+                    }),
                 };
 
                 return Expression::Access(access);

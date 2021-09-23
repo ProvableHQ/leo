@@ -108,18 +108,14 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                     ..
                 }) => self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), *length, span),
                 AccessExpression::Circuit(access) => self.enforce_circuit_access(cs, access),
-                AccessExpression::Named(access) => self.enforce_named_access(cs, access),
                 AccessExpression::Tuple(TupleAccess { tuple_ref, index, .. }) => {
                     self.enforce_tuple_access(cs, tuple_ref.get(), *index, span)
                 }
-                AccessExpression::Value(access) => self.enforce_value_access(cs, access),
             },
 
             // Cast
             Expression::Cast(_) => unimplemented!("casts not implemented"),
 
-            // Named
-            Expression::NamedType(named) => self.enforce_named_type(cs, named, span),
             // LengthOf
             Expression::LengthOf(lengthof) => self.enforce_lengthof(cs, lengthof, span),
 
