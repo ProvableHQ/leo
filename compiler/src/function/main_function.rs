@@ -17,6 +17,7 @@
 //! Enforces constraints on the main function of a compiled Leo program.
 
 use crate::program::Program;
+use leo_errors::CompilerError;
 
 use leo_asg::{Expression, Function, FunctionQualifier, InputCategory};
 use leo_errors::Result;
@@ -44,6 +45,16 @@ impl<'a> Program<'a> {
         let mut arguments = vec![];
 
         for (_, input_variable) in function.arguments.iter() {
+            let name = input_variable.get().borrow().name.name.clone();
+            if matches!(
+                (input.get(&name), input.get_constant(name.as_ref())),
+                (Some(_), Some(_))
+            ) {
+                return Err(
+                    CompilerError::double_input_declaration(name, &input_variable.get().borrow().name.span).into(),
+                );
+            }
+
             let category = if input_variable.get().borrow().const_ {
                 InputCategory::ConstInput
             } else {
