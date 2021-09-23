@@ -44,7 +44,7 @@ jobs:
           toolchain: stable
           override: true
       - name: Install wasm-pack
-        run: npm install -g wasm-pack
+        run: cargo install wasm-pack
       - name: Run wasm-pack
         run: wasm-pack build --dev --target nodejs
       - name: Install dependencies and run tests
