@@ -22,7 +22,7 @@ outputs:
             r:
               type: "[u8; 3]"
               value: "\"123\""
-    initial_ast: 67fa654fcfff8cf8dcb0f36da03037a57e44c1fb6431e750e609cebd69f58e2b
-    imports_resolved_ast: f691d32431bb875f13e647db5b6adbf6c2f44c726f29f8b09282bb42f07e6aae
-    canonicalized_ast: f691d32431bb875f13e647db5b6adbf6c2f44c726f29f8b09282bb42f07e6aae
-    type_inferenced_ast: 75152a0d3fa5c55ed74ae106f7dc699002db5e51d31a45cf4fb0b0b8bc6e6a06
+    initial_ast: ea38a274fff086a36778b44c5157bcb8f00501d2f1e19e783a34cf6157d12622
+    imports_resolved_ast: a8aa65d19fdccde9c4cf5e9113695b2dc870a4aa0e1ec09bead154aa692b37e6
+    canonicalized_ast: a8aa65d19fdccde9c4cf5e9113695b2dc870a4aa0e1ec09bead154aa692b37e6
+    type_inferenced_ast: 97edc8f6f6e87f4660085cfb8f3dcd76134baa7ac4928393ddff248840f460b9
