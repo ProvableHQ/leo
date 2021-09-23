@@ -13,13 +13,11 @@ outputs:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
       - "  store &v3, [[0, 0], [0, 0], [0, 0]]"
-      - "  ainitn &v4, 2, 0"
-      - "  ainitn &v5, 3, v4"
-      - "  store &v6, v5"
-      - "  eq &v7, v6, v2"
-      - "  eq &v8, v2, [[0, 0], [0, 0], [0, 0]]"
-      - "  and &v9, v7, v8"
-      - "  retn v9"
+      - "  store &v4, [[0, 0], [0, 0], [0, 0]]"
+      - "  eq &v5, [[0, 0], [0, 0], [0, 0]], v2"
+      - "  eq &v6, v2, [[0, 0], [0, 0], [0, 0]]"
+      - "  and &v7, v5, v6"
+      - "  retn v7"
       - ""
     output:
       - input_file: input/type_nested_value_nested_3x2.in
@@ -28,7 +26,7 @@ outputs:
             x:
               type: bool
               value: "true"
-    initial_ast: 6bacdd1d42bfa807910c0455c68213007d5ca8f15ee1f3c743d946bfbbff79b7
-    imports_resolved_ast: 6bacdd1d42bfa807910c0455c68213007d5ca8f15ee1f3c743d946bfbbff79b7
-    canonicalized_ast: 6bacdd1d42bfa807910c0455c68213007d5ca8f15ee1f3c743d946bfbbff79b7
-    type_inferenced_ast: 1b2a08879a8d42fafc9eecc12b89f0f36719e02205ee48bf6075475e71942132
+    initial_ast: be4830b76006521f89eab1ce091203a4e0e83669ca28d6a3689f1aeefb7eb3b8
+    imports_resolved_ast: be4830b76006521f89eab1ce091203a4e0e83669ca28d6a3689f1aeefb7eb3b8
+    canonicalized_ast: be4830b76006521f89eab1ce091203a4e0e83669ca28d6a3689f1aeefb7eb3b8
+    type_inferenced_ast: d316b946927952240a37e549b33766404080363bf899a2a9cbd6b12b133e174d

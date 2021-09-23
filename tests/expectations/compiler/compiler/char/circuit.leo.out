@@ -14,9 +14,9 @@ outputs:
       - "  store &v1, ((v0), (), (), ())"
       - "  store &v3, (v2)"
       - "  tget &v4, v3, 0"
-      - "  eq &v5, v4, a"
+      - "  eq &v5, v4, 'a'"
       - "  tget &v6, v3, 0"
-      - "  pick &v7, v5, a, v6"
+      - "  pick &v7, v5, 'a', v6"
       - "  store &v8, v7"
       - "  retn v8"
       - ""
@@ -26,91 +26,91 @@ outputs:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/escaped_unicode1.in
         output:
           registers:
             r:
               type: char
-              value: "'\\u{f}'"
+              value: "\\u{f}"
       - input_file: inputs/escaped_unicode2.in
         output:
           registers:
             r:
               type: char
-              value: "'å'"
+              value: "\\u{e5}"
       - input_file: inputs/escaped_unicode3.in
         output:
           registers:
             r:
               type: char
-              value: "'Ӡ'"
+              value: "\\u{4e0}"
       - input_file: inputs/escaped_unicode4.in
         output:
           registers:
             r:
               type: char
-              value: "'\\u{2764}'"
+              value: "\\u{2764}"
       - input_file: inputs/escaped_unicode5.in
         output:
           registers:
             r:
               type: char
-              value: "'\\u{1f622}'"
+              value: "\\u{1f622}"
       - input_file: inputs/escaped_unicode6.in
         output:
           registers:
             r:
               type: char
-              value: "'\\u{10001f}'"
+              value: "\\u{10001f}"
       - input_file: inputs/escaped.in
         output:
           registers:
             r:
               type: char
-              value: "'\\''"
+              value: "\\'"
       - input_file: inputs/hex1.in
         output:
           registers:
             r:
               type: char
-              value: "'*'"
+              value: "*"
       - input_file: inputs/hex2.in
         output:
           registers:
             r:
               type: char
-              value: "'\\u{7f}'"
+              value: "\\u{7f}"
       - input_file: inputs/unicode1.in
         output:
           registers:
             r:
               type: char
-              value: "'\\u{e00f}'"
+              value: "\\u{e00f}"
       - input_file: inputs/unicode2.in
         output:
           registers:
             r:
               type: char
-              value: "'å'"
+              value: "\\u{e5}"
       - input_file: inputs/unicode3.in
         output:
           registers:
             r:
               type: char
-              value: "'Ӡ'"
+              value: "\\u{4e0}"
       - input_file: inputs/unicode4.in
         output:
           registers:
             r:
               type: char
-              value: "'\\u{2764}'"
+              value: "\\u{2764}"
       - input_file: inputs/unicode5.in
         output:
           registers:
             r:
               type: char
-              value: "'\\u{1f62d}'"
+              value: "\\u{1f62d}"
     initial_ast: 0c2aeb5b47fc21f5aded4e3aebcdf55eb98c10c6b51a2a6dcb98490a96da0c97
     imports_resolved_ast: 0c2aeb5b47fc21f5aded4e3aebcdf55eb98c10c6b51a2a6dcb98490a96da0c97
     canonicalized_ast: 0c2aeb5b47fc21f5aded4e3aebcdf55eb98c10c6b51a2a6dcb98490a96da0c97

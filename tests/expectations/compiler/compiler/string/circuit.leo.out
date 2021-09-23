@@ -16,12 +16,12 @@ outputs:
       - "  call &v4, f1, v2"
       - "  store &v5, v4"
       - "  tget &v6, v3, 0"
-      - "  eq &v7, v6, [H, e, l, l, o, ,,  , W, o, r, l, d, !]"
-      - "  pick &v8, v7, v2, [a, b, c, d, e, f, g, h, j, k, l, m, n]"
+      - "  eq &v7, v6, ['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']"
+      - "  pick &v8, v7, v2, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n']"
       - "  store &v9, v8"
       - "  retn v9"
       - "decl f1: <10>"
-      - "  eq &v11, v10, [H, e, l, l, o, ,,  , W, o, r, l, d, !]"
+      - "  eq &v11, v10, ['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']"
       - "  retn v11"
       - ""
     output:
@@ -30,8 +30,8 @@ outputs:
           registers:
             out:
               type: "[char; 13]"
-              value: "\"Hello, World!\""
-    initial_ast: 3aa0745060289c1a1af4e66265f8a92a89caff1731dc70d8c6a59798152f1a38
-    imports_resolved_ast: 3aa0745060289c1a1af4e66265f8a92a89caff1731dc70d8c6a59798152f1a38
-    canonicalized_ast: a1acfd3169b8f72975cd7cc9ef2059cd8fb1ed5ea0a7f51911d3365b52375e36
-    type_inferenced_ast: 55d57669ceeb95e039cb000e3673f7590c2bd69bb67786057977d158ab77dbdb
+              value: "Hello, World!"
+    initial_ast: e70153b2a137634d7507a7d43584bc9091c552091aaebbb0aeabd5c8eb5bb163
+    imports_resolved_ast: e70153b2a137634d7507a7d43584bc9091c552091aaebbb0aeabd5c8eb5bb163
+    canonicalized_ast: b289f3ffde7f5609b466b5f7470e7eaf1f24743bd376b501c5a93172e60acacb
+    type_inferenced_ast: b1ce0c9db2782aaa36755457d33105c0cae5ab85e3cae5f5f95c48a2135d45b6

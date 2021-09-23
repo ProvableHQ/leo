@@ -24,14 +24,14 @@ outputs:
           registers:
             r:
               type: "[u8; 3]"
-              value: "\"321\""
+              value: "[3, 2, 1]"
       - input_file: input/registers_zeros.in
         output:
           registers:
             r:
               type: "[u8; 3]"
-              value: "\"123\""
-    initial_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
-    imports_resolved_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
-    canonicalized_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
-    type_inferenced_ast: f5cb6326028b3cf9187889be6ac5ed5bd095a570d45ae63c7285a09366fc6803
+              value: "[1, 2, 3]"
+    initial_ast: 0be8b1ae69b47120e915e48496c851f0f009afb8be8ac9455748bce866e56b42
+    imports_resolved_ast: 0be8b1ae69b47120e915e48496c851f0f009afb8be8ac9455748bce866e56b42
+    canonicalized_ast: 0be8b1ae69b47120e915e48496c851f0f009afb8be8ac9455748bce866e56b42
+    type_inferenced_ast: 2624d9490e2ab457d9951d885fecb9a650d18b1395816b2a905fd67692756d74

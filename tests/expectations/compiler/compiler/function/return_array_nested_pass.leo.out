@@ -19,13 +19,9 @@ outputs:
       - "  eq &v8, v3, true"
       - "  retn v8"
       - "decl f1: <9>"
-      - "  ainitn &v9, 2, 0"
-      - "  ainitn &v10, 3, v9"
-      - "  retn v10"
-      - "decl f2: <11>"
-      - "  ainitn &v11, 2, 0"
-      - "  ainitn &v12, 3, v11"
-      - "  retn v12"
+      - "  retn [[0, 0], [0, 0], [0, 0]]"
+      - "decl f2: <9>"
+      - "  retn [[0, 0], [0, 0], [0, 0]]"
       - ""
     output:
       - input_file: input/dummy.in
@@ -34,7 +30,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: e6ef0c39821512fd98748cd7d9da04102fff12d3f9332aeb815b36870a3ff0c5
-    imports_resolved_ast: e6ef0c39821512fd98748cd7d9da04102fff12d3f9332aeb815b36870a3ff0c5
-    canonicalized_ast: ed7a3f6a24fa1a3a9e7b4cc8c97ce09440fb9d46123a4e310e44afb58a1a1de6
-    type_inferenced_ast: a0aa0fb8a603954c8370d3520394910163acb807ec344d14b6a26f14f2912262
+    initial_ast: fd2e1c906d0999503d66a5c2a7ecca92a8635bba2954182695ddf5efc1346b0b
+    imports_resolved_ast: fd2e1c906d0999503d66a5c2a7ecca92a8635bba2954182695ddf5efc1346b0b
+    canonicalized_ast: f2bdc5e63b18fea49abfe4c2bce437da394c334bd6594420076a9876db7e5ae4
+    type_inferenced_ast: 9e6ab6c1e48bf40c8f2fd88af6d4c37da376714ea4f4eb717efb111bf5e7ab0d

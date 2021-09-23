@@ -14,7 +14,7 @@ outputs:
       - "  store &v1, ((v0), (), (), ())"
       - "  eq &v4, v2, v3"
       - "  mask 1, v4"
-      - "    log INFO, \"\", v2, \"==\", v3"
+      - "    log INFO, \"\", v2, \"==\", v3, \"\""
       - "  eq &v6, v2, v3"
       - "  retn v6"
       - ""
@@ -31,7 +31,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 389c0d4a68bf27db627b83d460a2947a2321a76fc73e727806a9fe8c7f63fe88
-    imports_resolved_ast: 389c0d4a68bf27db627b83d460a2947a2321a76fc73e727806a9fe8c7f63fe88
-    canonicalized_ast: 389c0d4a68bf27db627b83d460a2947a2321a76fc73e727806a9fe8c7f63fe88
-    type_inferenced_ast: d5fe9155615c6ca70430e6b33661214f14844a61d5064ad56d388fea147abfd7
+    initial_ast: 74f3021e77c18638045b9aa8561f3b59cf7b579e1c8fd84d838afc391fec27f9
+    imports_resolved_ast: 74f3021e77c18638045b9aa8561f3b59cf7b579e1c8fd84d838afc391fec27f9
+    canonicalized_ast: 74f3021e77c18638045b9aa8561f3b59cf7b579e1c8fd84d838afc391fec27f9
+    type_inferenced_ast: f084c87972136bcaf6379ea2a36bc4cb3cd02eb1b73e7034766b4e49d539b7c6

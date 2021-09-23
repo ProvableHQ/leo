@@ -13,7 +13,7 @@ outputs:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
       - "  store &v3, v2"
-      - "  repeat 2, &v4, 0, 3"
+      - "  repeat 2, &v4, false, 0, 3"
       - "    sub &v5, v3, 1"
       - "    store &v3, v5"
       - "  eq &v6, v3, 0"
@@ -26,7 +26,7 @@ outputs:
             a:
               type: bool
               value: "true"
-    initial_ast: 416faf733ca084378ca66e5900ab7ffdbb057312e358d6652d6260eff3670fc6
-    imports_resolved_ast: 416faf733ca084378ca66e5900ab7ffdbb057312e358d6652d6260eff3670fc6
-    canonicalized_ast: 2ec69f397b7c48bc222d812fe4afae7ea375048ceb798e17063f08ea9ccdd040
-    type_inferenced_ast: 8062f011312fc76f0f1d73a628292f38deb179974e1edd18af52ee7084279ab2
+    initial_ast: ca79d90785e4819500f8c8e3ec51526fda79fa0a762a535fdb2f272fcd95d4a6
+    imports_resolved_ast: ca79d90785e4819500f8c8e3ec51526fda79fa0a762a535fdb2f272fcd95d4a6
+    canonicalized_ast: 0ca690503146912edadfb8df50268b90e9b1dfa0d33944d9450bb7535d681b84
+    type_inferenced_ast: d7d300b3c5586d890ccd88810c6b762109b0700d15f3202ba237f2fe5d2819dd

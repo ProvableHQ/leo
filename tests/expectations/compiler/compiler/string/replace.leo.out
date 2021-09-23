@@ -15,7 +15,7 @@ outputs:
       - "  asget &v4, v2, 0, 4, 4"
       - "  asset &v2, 0, 4, v3"
       - "  store &v2, v2"
-      - "  ne &v5, v2, [H, e, l, l, o, ,,  , W, o, r, l, d, !]"
+      - "  ne &v5, v2, ['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']"
       - "  retn v5"
       - ""
     output:
@@ -31,7 +31,7 @@ outputs:
             out:
               type: bool
               value: "true"
-    initial_ast: f3c204e48bcf159d84b551a7af01a54b49a9cd6b0ba35ab8c3e68d50caf215e6
-    imports_resolved_ast: f3c204e48bcf159d84b551a7af01a54b49a9cd6b0ba35ab8c3e68d50caf215e6
-    canonicalized_ast: 91c83cb469e2c9d1b4f6835dd2d503d330c9cfdc7ee4693490cced2835caa4e7
-    type_inferenced_ast: d7f4ab6acb5c9569c42367d28c8af286c07147cb68a6ec31146b844ec257d2ac
+    initial_ast: 31368c00db496aab300d12b483d0d0f7aaed3fb98e64fb3bd211d9a7f75e3032
+    imports_resolved_ast: 31368c00db496aab300d12b483d0d0f7aaed3fb98e64fb3bd211d9a7f75e3032
+    canonicalized_ast: 80d37672371eec10f72ac4b106f79bd9830336556fdcbcd4a3857146f69a623d
+    type_inferenced_ast: f2c8799878db3be4474413ef9f711f54bacace7b4cbf79f1d0ea3e2c05f0ef82

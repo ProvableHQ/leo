@@ -21,7 +21,7 @@ outputs:
       - "  retn v9"
       - "decl f1: <10>"
       - "  store &v10, 0"
-      - "  repeat 2, &v11, 0, 10"
+      - "  repeat 2, &v11, false, 0, 10"
       - "    add &v12, v10, 1"
       - "    store &v10, v12"
       - "  retn v10"

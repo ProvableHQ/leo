@@ -13,12 +13,9 @@ outputs:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
       - "  store &v3, [[0, 0], [0, 0], [0, 0]]"
-      - "  ainitn &v4, 2, 0"
-      - "  ainitn &v5, 3, v4"
-      - "  store &v6, v5"
-      - "  eq &v7, [[0, 0], [0, 0], [0, 0]], v6"
-      - "  eq &v8, v7, v2"
-      - "  retn v8"
+      - "  store &v4, [[0, 0], [0, 0], [0, 0]]"
+      - "  eq &v5, true, v2"
+      - "  retn v5"
       - ""
     output:
       - input_file: input/dummy.in

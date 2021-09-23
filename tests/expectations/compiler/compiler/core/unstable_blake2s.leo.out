@@ -12,12 +12,13 @@ outputs:
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
-      - "  ainitn &v3, 32, 1"
-      - "  store &v4, v3"
-      - "  ccall &v5, 'blake2s', v4, v2"
-      - "  store &v6, v5"
-      - "  log INFO, \"Result: \", v6"
-      - "  retn v6"
+      - "  store &v3, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]"
+      - "  ccall &v4, 'blake2s', [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], v2"
+      - "  store &v5, v4"
+      - "  log INFO, \"Result: \", v5, \"\""
+      - "  retn v5"
+      - "decl f1: <6>"
+      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
       - ""
     output:
       - input_file: blake.in
@@ -26,3 +27,7 @@ outputs:
             r0:
               type: "[u8; 32]"
               value: "[213, 24, 235, 180, 216, 116, 28, 65, 88, 162, 204, 6, 23, 8, 66, 112, 214, 239, 242, 134, 165, 39, 172, 247, 65, 130, 155, 2, 97, 147, 14, 57]"
+    initial_ast: abb4b39b7b9f1acac163882a35622dec32caa6298e7155fd978f4373343f8129
+    imports_resolved_ast: c3d5a3ae294d26aacf7d2ff0081d8a74f7746e348b690a5e0d260582d8a5e922
+    canonicalized_ast: c3d5a3ae294d26aacf7d2ff0081d8a74f7746e348b690a5e0d260582d8a5e922
+    type_inferenced_ast: 84880a1c84bb67e687d5bea2861057b7e0c640f1ddb20122c27ad11e17bc24bc

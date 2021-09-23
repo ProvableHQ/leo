@@ -4,11 +4,27 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 129
-      num_constraints: 129
-      at: 3d05e65d63384d40f8e9badce0037b78ce2e18846d9edefaa9bc7a76af2a9e60
-      bt: 25af4128cd670015f61576b1a59afa3873cd5584fd5422b1ce629091ca9b7ce0
-      ct: f7fe29e5eac37611ff97ae6d2506967d9b946424522a1b6ac203fec85df7e787
+      num_private_variables: 130
+      num_constraints: 130
+      at: 5217c418de62e1fbc27fdb74d32989a3fe815afee9c60d34a14df4597c1a01e0
+      bt: 4f2d3f18bc91f7f7226c5ec205bd305bdb16d6140758791e38d263437e246abc
+      ct: e041d6951b74f36c394ec46d0d3cc3aa42cac97db3428a0541577479d6f57e5c
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v4, v2"
+      - "  store &v5, (v4)"
+      - "  store &v6, (v4)"
+      - "  eq &v7, v4, 1"
+      - "  tget &v8, v5, 0"
+      - "  eq &v9, v8, 1"
+      - "  and &v10, v7, v9"
+      - "  tget &v11, v6, 0"
+      - "  eq &v12, v11, 1"
+      - "  and &v13, v10, v12"
+      - "  and &v14, v13, v3"
+      - "  retn v14"
+      - ""
     output:
       - input_file: inputs/basic.in
         output:

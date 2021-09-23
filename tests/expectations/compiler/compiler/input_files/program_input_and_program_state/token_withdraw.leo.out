@@ -27,10 +27,9 @@ outputs:
       - "  tget &v32, v31, 2"
       - "  eq &v33, v32, 0"
       - "  and &v34, v30, v33"
-      - "  ainitn &v35, 32, 0"
-      - "  eq &v36, v19, v35"
-      - "  and &v37, v34, v36"
-      - "  retn v37"
+      - "  eq &v35, v19, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  and &v36, v34, v35"
+      - "  retn v36"
       - ""
     output:
       - input_file: input/token_withdraw.in
@@ -39,7 +38,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 6b051c3f9ce82efb30d3ba89764cc9c2607a126cb0cede72ad55ecda6c9d996d
-    imports_resolved_ast: 6b051c3f9ce82efb30d3ba89764cc9c2607a126cb0cede72ad55ecda6c9d996d
-    canonicalized_ast: 6b051c3f9ce82efb30d3ba89764cc9c2607a126cb0cede72ad55ecda6c9d996d
-    type_inferenced_ast: 3c04200d560739b0d551204b65e56abc11f26843b99aa0361362f61f0d6a3328
+    initial_ast: da97cce07c7c725a1f9f6a0f794c9dbeb192a7deeb2efb3509bbd95ac235d2e8
+    imports_resolved_ast: da97cce07c7c725a1f9f6a0f794c9dbeb192a7deeb2efb3509bbd95ac235d2e8
+    canonicalized_ast: da97cce07c7c725a1f9f6a0f794c9dbeb192a7deeb2efb3509bbd95ac235d2e8
+    type_inferenced_ast: 913a4a929edb67ac89589a90ead908fc8a8deae3636dc5260caafede202cc766

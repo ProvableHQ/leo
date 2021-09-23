@@ -12,7 +12,7 @@ outputs:
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
-      - "  log ERROR"
+      - "  log ERROR, \"hello error\""
       - "  eq &v3, v2, true"
       - "  retn v3"
       - ""
@@ -23,7 +23,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 2496cb4a0f1486bbacccee48e3b8b93999916e585e238a5c7d63c34235d15a36
-    imports_resolved_ast: 2496cb4a0f1486bbacccee48e3b8b93999916e585e238a5c7d63c34235d15a36
-    canonicalized_ast: 2496cb4a0f1486bbacccee48e3b8b93999916e585e238a5c7d63c34235d15a36
-    type_inferenced_ast: aa056968c0d635d56e2ad011db4df7fec65b62eb7b0ca8ec5c75ca8fca0f33eb
+    initial_ast: f7a70e5797e9ed36909815f47126f1409881517d55f07c6713071173404adaac
+    imports_resolved_ast: f7a70e5797e9ed36909815f47126f1409881517d55f07c6713071173404adaac
+    canonicalized_ast: f7a70e5797e9ed36909815f47126f1409881517d55f07c6713071173404adaac
+    type_inferenced_ast: fbe499b6b0886c68fd9c4786295c956b7d91e6315db5f5dcaeedc01e90e00c45

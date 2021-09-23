@@ -13,7 +13,7 @@ outputs:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
       - "  eq &v4, v3, true"
-      - "  eq &v5, v2, [😭, 😂, 👍, 😁, 😘]"
+      - "  eq &v5, v2, ['\\u{1f62d}', '\\u{1f602}', '\\u{1f44d}', '\\u{1f601}', '\\u{1f618}']"
       - "  and &v6, v4, v5"
       - "  retn v6"
       - ""
@@ -24,7 +24,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: a2b01e8b8d8311d8a890b0e008689dc890b104d2b6fcfc82a16e1e45975ea68b
-    imports_resolved_ast: a2b01e8b8d8311d8a890b0e008689dc890b104d2b6fcfc82a16e1e45975ea68b
-    canonicalized_ast: 8774633846aa1d61e6534c0e930777ba9452aa7368116928ba1188501d30a495
-    type_inferenced_ast: be4ce222d81884b156c4fd0567755685283f7502ab192fcfaf562f0b0737a2e0
+    initial_ast: d144b5675e3b507a9496b44eb64f1a6f0bfd32dbac0dac6e2eb9945ee8692bd6
+    imports_resolved_ast: d144b5675e3b507a9496b44eb64f1a6f0bfd32dbac0dac6e2eb9945ee8692bd6
+    canonicalized_ast: 87b7fefe93f2da0671c3813f7803580432383cb3f02813d78292274a49f20a04
+    type_inferenced_ast: 67658c03efa9443764a55fdefc3b285788a212c33d7a0b2b10e7dfccf1236eca

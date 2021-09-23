@@ -23,7 +23,7 @@ outputs:
       - input_file: u128_f.in
         output:
           registers: {}
-    initial_ast: 820ed988d142189cd95bfc559ded7f9de3a1327338e47844a7a2200d79af56a9
-    imports_resolved_ast: 820ed988d142189cd95bfc559ded7f9de3a1327338e47844a7a2200d79af56a9
-    canonicalized_ast: 3392a949832c1db83f1280df3ca8c03a4fbc0645a31325a055b63c9e44d50cdd
-    type_inferenced_ast: 5561d2a1ae0ff0c81d9cf1f4b9daf4ab75897efb06e87e8904492919f0d9f7f2
+    initial_ast: b0b7de8b98bee00c79009386d3ee549879e2b76bee73a79bc70bf15de4f62cd9
+    imports_resolved_ast: b0b7de8b98bee00c79009386d3ee549879e2b76bee73a79bc70bf15de4f62cd9
+    canonicalized_ast: b8415cdb9a2007793675a43363b8476cc44ef4af4aa567face4103626c4dbdb8
+    type_inferenced_ast: f7e4d8ec5f89b31a9beffd534f1eb06748dc36d383634584d02e52c2a614e8c1

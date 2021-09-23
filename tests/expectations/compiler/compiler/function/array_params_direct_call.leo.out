@@ -12,16 +12,13 @@ outputs:
     ir:
       - "decl f0: <0>"
       - "  store &v2, ((v0, v1), (), (), ())"
-      - "  ainitn &v4, 2, 0"
-      - "  store &v5, v4"
-      - "  call &v6, f1, v5"
-      - "  ainit &v7, v5"
-      - "  call &v8, f1, v7"
-      - "  asget &v9, v5, 0, 2, 2"
-      - "  call &v10, f1, v9"
-      - "  eq &v11, v3, true"
-      - "  retn v11"
-      - "decl f1: <12>"
+      - "  store &v4, [0, 0]"
+      - "  call &v5, f1, [0, 0]"
+      - "  call &v6, f1, [0, 0]"
+      - "  call &v7, f1, [0, 0]"
+      - "  eq &v8, v3, true"
+      - "  retn v8"
+      - "decl f1: <9>"
       - ""
     output:
       - input_file: input/dummy.in
@@ -30,7 +27,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 8541fbc5a256e744d4939e6e221565a0bada891ed6269eceb3a84b288bdeadcc
-    imports_resolved_ast: 8541fbc5a256e744d4939e6e221565a0bada891ed6269eceb3a84b288bdeadcc
-    canonicalized_ast: b43be48e63718566c98d68fb855f0de85845855b9eb80f7929205db537bc1da2
-    type_inferenced_ast: 558ac6d5261ca88b84d1a26447cf01b6e250fecc219441e0b4cb82d31c2e4dcc
+    initial_ast: 25a8cfff54c3af61f66e3f29d1e3293cf6121ff099e8516ee4958a42a668da5f
+    imports_resolved_ast: 25a8cfff54c3af61f66e3f29d1e3293cf6121ff099e8516ee4958a42a668da5f
+    canonicalized_ast: 2b41be9e4623902bbc34e5c09e4154e77e18952b5ede35a5fce5681c0e9e4ced
+    type_inferenced_ast: 793dd8410f207e37037e3e3651d13a53372eb70d4fa417e36dc06cc22ca9e340

@@ -12,10 +12,8 @@ outputs:
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
-      - "  ainitn &v3, 2, 0"
-      - "  ainitn &v4, 3, v3"
-      - "  eq &v5, v2, v4"
-      - "  retn v5"
+      - "  eq &v3, v2, [[0, 0], [0, 0], [0, 0]]"
+      - "  retn v3"
       - ""
     output:
       - input_file: input/six_zeros.in
@@ -30,7 +28,7 @@ outputs:
             x:
               type: bool
               value: "false"
-    initial_ast: aa24022f240400d709b97a44c143ce481109bb0a66926aa5c97cf2e2d06dea2a
-    imports_resolved_ast: aa24022f240400d709b97a44c143ce481109bb0a66926aa5c97cf2e2d06dea2a
-    canonicalized_ast: ace5006c27d2e3784fb73d52adc641f6285a041452ba0d23de5983c5eede1139
-    type_inferenced_ast: 611bc2fab64e417c9cfad3c59ca333561b8167a6fc7be957d972d96125e040ba
+    initial_ast: ad97a7ed36a712d00ff1a52925ad639a5bf3b32d02cbb254be8ff8148e7bcdd0
+    imports_resolved_ast: ad97a7ed36a712d00ff1a52925ad639a5bf3b32d02cbb254be8ff8148e7bcdd0
+    canonicalized_ast: 8cfaf331587b2aa4711e2bc4f304120fc3292042870804cfea3626e4d846659a
+    type_inferenced_ast: c1b5d19ef6ab5d6e2911314ed19194351084479f1d79dc8a3512cec5b207fb35

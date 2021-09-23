@@ -15,13 +15,12 @@ outputs:
       - "  store &v17, aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
       - "  tget &v18, v16, 2"
       - "  tget &v19, v18, 1"
-      - "  ainitn &v20, 32, 0"
-      - "  eq &v21, v19, v20"
-      - "  tget &v22, v16, 3"
-      - "  tget &v23, v22, 2"
-      - "  eq &v24, v23, 0"
-      - "  and &v25, v21, v24"
-      - "  retn v25"
+      - "  eq &v20, v19, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  tget &v21, v16, 3"
+      - "  tget &v22, v21, 2"
+      - "  eq &v23, v22, 0"
+      - "  and &v24, v20, v23"
+      - "  retn v24"
       - ""
     output:
       - input_file: input/dummy.in
@@ -30,7 +29,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 6fce132965ff40126f6175d2abe5b8598004e90cdb29c4707f7c63dbe1093474
-    imports_resolved_ast: 6fce132965ff40126f6175d2abe5b8598004e90cdb29c4707f7c63dbe1093474
-    canonicalized_ast: 6fce132965ff40126f6175d2abe5b8598004e90cdb29c4707f7c63dbe1093474
-    type_inferenced_ast: 75cff35e24806b8a66431668c319a96e95f5106a8fe513eb53abb264beab4390
+    initial_ast: f4516c4ecbe0da69c4e0f44e6782fa9e279509baf170b5a07e8ba6fbc7199568
+    imports_resolved_ast: f4516c4ecbe0da69c4e0f44e6782fa9e279509baf170b5a07e8ba6fbc7199568
+    canonicalized_ast: f4516c4ecbe0da69c4e0f44e6782fa9e279509baf170b5a07e8ba6fbc7199568
+    type_inferenced_ast: 9d5d90452dd23dc160413e7d4f8b610554f4e4d77856fa508492ffa4fa985832

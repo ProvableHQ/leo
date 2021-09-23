@@ -12,28 +12,19 @@ outputs:
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
-      - "  log INFO, \"x: \", v2"
-      - "  ainitn &v3, 3, 0"
-      - "  ainitn &v4, 2, v3"
-      - "  ainitn &v5, 2, v4"
-      - "  store &v6, v5"
-      - "  log INFO, \"y: \", v6"
-      - "  aget &v7, v2, 0"
-      - "  aget &v8, v7, 0"
-      - "  aget &v9, v8, 0"
-      - "  aget &v10, v6, 0"
-      - "  aget &v11, v10, 0"
-      - "  aget &v12, v11, 0"
-      - "  eq &v13, v9, v12"
-      - "  aget &v14, v2, 1"
-      - "  aget &v15, v14, 1"
-      - "  aget &v16, v15, 2"
-      - "  aget &v17, v6, 1"
-      - "  aget &v18, v17, 1"
-      - "  aget &v19, v18, 2"
-      - "  eq &v20, v16, v19"
-      - "  and &v21, v13, v20"
-      - "  retn v21"
+      - "  log INFO, \"x: \", v2, \"\""
+      - "  store &v3, [[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0]]]"
+      - "  log INFO, \"y: \", [[[0, 0, 0], [0, 0, 0]], [[0, 0, 0], [0, 0, 0]]], \"\""
+      - "  aget &v4, v2, 0"
+      - "  aget &v5, v4, 0"
+      - "  aget &v6, v5, 0"
+      - "  eq &v7, v6, 0"
+      - "  aget &v8, v2, 1"
+      - "  aget &v9, v8, 1"
+      - "  aget &v10, v9, 2"
+      - "  eq &v11, v10, 0"
+      - "  and &v12, v7, v11"
+      - "  retn v12"
       - ""
     output:
       - input_file: input/main_multi_dimension_array.in
@@ -42,7 +33,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: f74b907c08c1bfd4d2afc9df5589bc2aed1923db5e858c5cc6046f5aed735cf2
-    imports_resolved_ast: f74b907c08c1bfd4d2afc9df5589bc2aed1923db5e858c5cc6046f5aed735cf2
-    canonicalized_ast: f80f2c0fd5fa415c5ca0b8295d918a884ae8590f5f9760947ca5a0513f531f73
-    type_inferenced_ast: a866c7acc69cab458f8b6fe729b35cfd4fc66d578155382d130b24e2e092df8b
+    initial_ast: a2646afd34522d62c921918c0110ee95c98b977a02485803031e49dba77f8e52
+    imports_resolved_ast: a2646afd34522d62c921918c0110ee95c98b977a02485803031e49dba77f8e52
+    canonicalized_ast: 0159f747c1fcf2a1b65658c6df47661384dd8d5b79369f5a1414188d781b4eb6
+    type_inferenced_ast: 91eca7954ffed3c42b7c44ad0d8ec7fec9853ecb0546e05fa8d00c5a530fe6f7

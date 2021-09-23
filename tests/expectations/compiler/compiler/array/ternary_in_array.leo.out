@@ -4,11 +4,19 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 39
-      num_constraints: 39
-      at: 6f3ffff33f4e513211e7a55cc9edcab3bc2d2a146c2b280981308bb69165f86f
-      bt: adde6ad1b603a50c986ec99b6edcc972138bb6239e58a1b88e931bc0165b2e8e
-      ct: 867e3f6ee1f26af954e7868633a595d319267d91afc5d7e2074fe641fabde1d6
+      num_private_variables: 40
+      num_constraints: 40
+      at: 844715b8b73e68832549df3314806b7a53358ed7ef8f681b492ee93aa470ee4f
+      bt: fb138283fcc385fdccf704cb3e77748834930fb5f2014d689a63b4e5ae69db63
+      ct: 499fc284c9e261909d9aa0d9f67c83e71dc7490cf31f48e414e60aa7679d8bb9
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  asget &v3, v2, 0, 2, 2"
+      - "  store &v4, v3"
+      - "  eq &v5, v4, [1, 1]"
+      - "  retn v5"
+      - ""
     output:
       - input_file: input/three_ones.in
         output:

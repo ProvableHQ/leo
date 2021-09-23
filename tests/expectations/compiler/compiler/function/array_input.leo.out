@@ -12,12 +12,11 @@ outputs:
     ir:
       - "decl f0: <0>"
       - "  store &v2, ((v0, v1), (), (), ())"
-      - "  ainitn &v4, 1, 1"
-      - "  store &v5, v4"
-      - "  call &v6, f1, v5"
-      - "  eq &v7, v3, true"
-      - "  retn v7"
-      - "decl f1: <8>"
+      - "  store &v4, [1]"
+      - "  call &v5, f1, [1]"
+      - "  eq &v6, v3, true"
+      - "  retn v6"
+      - "decl f1: <7>"
       - ""
     output:
       - input_file: input/dummy.in
@@ -26,7 +25,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: e53134e16501c1dc8fcc1fa68e513aa486d6b4ee2c3ce762da4b45b8f06029d1
-    imports_resolved_ast: e53134e16501c1dc8fcc1fa68e513aa486d6b4ee2c3ce762da4b45b8f06029d1
-    canonicalized_ast: 9024b75cbe9df679b3b0473589f2a1698bfc340d125c9bd76562d9e92548b945
-    type_inferenced_ast: 5c1f49685a0e099ecd11607a35c6e67c97d5dec8551c153cd5789e07006b1318
+    initial_ast: 68edba0344b576317750648a6477e974d064afcfde0b9627fb81a39b7e4b73a2
+    imports_resolved_ast: 68edba0344b576317750648a6477e974d064afcfde0b9627fb81a39b7e4b73a2
+    canonicalized_ast: 48c9f7703fe9ebfca1c8c5833e7551096e960297efa071df42e34ca0470cd4e7
+    type_inferenced_ast: a042f124509b58e45401be864b4afe05e2c62a033d2abac597f18e6d2be4ad34

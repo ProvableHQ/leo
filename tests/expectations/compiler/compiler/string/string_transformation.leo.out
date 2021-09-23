@@ -4,11 +4,28 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 9
-      num_constraints: 7
-      at: 5f4cfa276f9e316a42c9292a4f149fcf3c301a4ca3dc14112b7d59e8ef1e002c
-      bt: c728f18e4b654023c5189f382573af92682099ed5c7c08e706604e6f1cb7d72d
-      ct: 74aca434b2a72f7215a0dbe138b708fb2c2857d95dc3bc4776903c90d5f47bb9
+      num_private_variables: 10
+      num_constraints: 8
+      at: 6904f63c63f844b99b057c129ae45ebb0b8661a85c44c9f92fbb76d123bb3ab3
+      bt: 909d161ad8eabc71e9eee5857da9affe6c934a516bde8e09c09e1a18537ea096
+      ct: 529d13cfa64187ef3af58b52a543cfe2d526df5b8ef795800a615c858d5eeb78
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, ['\\u{2764}', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\\u{fffd}']"
+      - "  asget &v4, v3, 0, 2, 2"
+      - "  asset &v3, 0, 2, v2"
+      - "  store &v3, v3"
+      - "  store &v5, ['t', 'e', 's', 't', '1']"
+      - "  store &v6, [1, 2, 3, 4]"
+      - "  asget &v7, v6, 0, 2, 2"
+      - "  asset &v6, 0, 2, [10, 10]"
+      - "  store &v6, v6"
+      - "  eq &v8, v6, [10, 10, 3, 4]"
+      - "  eq &v9, v3, ['h', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!', '\\u{fffd}']"
+      - "  and &v10, v8, v9"
+      - "  retn v10"
+      - ""
     output:
       - input_file: inputs/two.in
         output:

@@ -14,9 +14,8 @@ outputs:
       - "  store &v16, ((v0), (v1, v2, v3, v4, v5, v6, v7, v8, v9), (v10, v11), (v12, v13, v14, v15))"
       - "  tget &v17, v16, 2"
       - "  tget &v18, v17, 1"
-      - "  ainitn &v19, 32, 0"
-      - "  eq &v20, v18, v19"
-      - "  retn v20"
+      - "  eq &v19, v18, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn v19"
       - ""
     output:
       - input_file: input/dummy.in
@@ -25,7 +24,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: a155141331da2d7bdaa11ae738d6ca2e1d62d875c872b8b8213184d989cc8baa
-    imports_resolved_ast: a155141331da2d7bdaa11ae738d6ca2e1d62d875c872b8b8213184d989cc8baa
-    canonicalized_ast: a155141331da2d7bdaa11ae738d6ca2e1d62d875c872b8b8213184d989cc8baa
-    type_inferenced_ast: b4969327ce0ee30ab1526ce3b2479a7bf6efa38cb9616477f854cd28b1faf61a
+    initial_ast: 0bb19812775960a7d66b974a827d82085b2c1c7b564ef9325316afc70f691828
+    imports_resolved_ast: 0bb19812775960a7d66b974a827d82085b2c1c7b564ef9325316afc70f691828
+    canonicalized_ast: 0bb19812775960a7d66b974a827d82085b2c1c7b564ef9325316afc70f691828
+    type_inferenced_ast: 2a44d21fefc5950781693f2a976a7421e3ec72c7d2d2153301eff1e0fafab747

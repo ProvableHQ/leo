@@ -31,14 +31,14 @@ outputs:
           registers:
             r0:
               type: "[(u32, u32); 3]"
-              value: "\"(1, 1)(0, 1)(3, 3)\""
+              value: "[(1, 1), (0, 1), (3, 3)]"
       - input_file: input/index2_tuple.in
         output:
           registers:
             r0:
               type: "[(u32, u32); 3]"
-              value: "\"(1, 1)(2, 2)(0, 1)\""
-    initial_ast: 7ca87cb79f11b6342bc6db56d6b051c68bcedb798ba9eb88992dcfe0873ce139
-    imports_resolved_ast: 7ca87cb79f11b6342bc6db56d6b051c68bcedb798ba9eb88992dcfe0873ce139
-    canonicalized_ast: 7ca87cb79f11b6342bc6db56d6b051c68bcedb798ba9eb88992dcfe0873ce139
-    type_inferenced_ast: 26f6c295a4ab2515eadf95855c66e3fa29d158a43765baa87895fea42bb379d1
+              value: "[(1, 1), (2, 2), (0, 1)]"
+    initial_ast: 1cfc7bf633359df839152672870f19ed3b01f79f202237eaa4de9fb462288fb5
+    imports_resolved_ast: 1cfc7bf633359df839152672870f19ed3b01f79f202237eaa4de9fb462288fb5
+    canonicalized_ast: 1cfc7bf633359df839152672870f19ed3b01f79f202237eaa4de9fb462288fb5
+    type_inferenced_ast: ec2e11b8aa1e3fd3689b683264ba0bbc1cb83397759cf2ef93ddaf980d691a72

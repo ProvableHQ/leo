@@ -13,7 +13,7 @@ outputs:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
       - "  eq &v4, v3, true"
-      - "  eq &v5, v2, 👍"
+      - "  eq &v5, v2, '\\u{1f44d}'"
       - "  and &v6, v4, v5"
       - "  retn v6"
       - ""
@@ -24,7 +24,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 54251e3a72e7c6743344cb585df6b89aef0d5b965aa13d090e89044209bf647a
-    imports_resolved_ast: 54251e3a72e7c6743344cb585df6b89aef0d5b965aa13d090e89044209bf647a
-    canonicalized_ast: 54251e3a72e7c6743344cb585df6b89aef0d5b965aa13d090e89044209bf647a
-    type_inferenced_ast: b3a96fc8bbfda13b19f509c3ed5bed3908ca929219581c8d7b56bb7f81590770
+    initial_ast: f863e14755c46cffba3e052b2025478723aa49f07c7a335c5969f9c0566301cd
+    imports_resolved_ast: f863e14755c46cffba3e052b2025478723aa49f07c7a335c5969f9c0566301cd
+    canonicalized_ast: f863e14755c46cffba3e052b2025478723aa49f07c7a335c5969f9c0566301cd
+    type_inferenced_ast: 9760b7df61055bcc229f8fff942a77b9c8a2e42376720cf6388e6a07d528129d

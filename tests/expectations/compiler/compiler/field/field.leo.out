@@ -12,10 +12,10 @@ outputs:
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
-      - "  negate &v3, Field { negate: false, values: [1] }"
+      - "  negate &v3, [1]"
       - "  store &v4, v3"
       - "  add &v5, v4, v2"
-      - "  eq &v6, v5, Field { negate: false, values: [] }"
+      - "  eq &v6, v5, []"
       - "  retn v6"
       - ""
     output:
@@ -25,7 +25,7 @@ outputs:
             r:
               type: bool
               value: "true"
-    initial_ast: ab26194ed8eb600aca9329f95d1d34f567f8f23a7f3abf1bd374d68fedf835ab
-    imports_resolved_ast: ab26194ed8eb600aca9329f95d1d34f567f8f23a7f3abf1bd374d68fedf835ab
-    canonicalized_ast: ab26194ed8eb600aca9329f95d1d34f567f8f23a7f3abf1bd374d68fedf835ab
-    type_inferenced_ast: a129961f338ed15ef697362226422a48534480c0985c5023ea5183e9150cba07
+    initial_ast: 5e320de8c5ff930030264b64358e99d17426389c83d6804bd845cf67ed2a6c11
+    imports_resolved_ast: 5e320de8c5ff930030264b64358e99d17426389c83d6804bd845cf67ed2a6c11
+    canonicalized_ast: 5e320de8c5ff930030264b64358e99d17426389c83d6804bd845cf67ed2a6c11
+    type_inferenced_ast: 9e90cd5047dabd9434ddd3cf5158bcc8e1fe971c1d04328589b2164be218a40f

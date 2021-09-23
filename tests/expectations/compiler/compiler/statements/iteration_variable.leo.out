@@ -14,7 +14,7 @@ outputs:
       - "  store &v1, ((v0), (), (), ())"
       - "  store &v3, 2"
       - "  store &v4, v2"
-      - "  repeat 2, &v5, 0, 2"
+      - "  repeat 2, &v5, false, 0, 2"
       - "    sub &v6, v4, 1"
       - "    store &v4, v6"
       - "  eq &v7, v4, 1"
@@ -27,7 +27,7 @@ outputs:
             a:
               type: bool
               value: "true"
-    initial_ast: 038e16c427982d50e1f29bfb1ef4b9b5809592d431a167809641d2816255fe70
-    imports_resolved_ast: 038e16c427982d50e1f29bfb1ef4b9b5809592d431a167809641d2816255fe70
-    canonicalized_ast: 1d600ee2250660418ea73d55518937eac92695b6441fc2656de4568c4e7bed8c
-    type_inferenced_ast: 4f070f1df9bc5c1c7a5b4932b3348504b0a0b07df862e6ca027ee272208a5f79
+    initial_ast: 9f50126df0405a686f21051187c407e9428b41671426871da2cda264634508f3
+    imports_resolved_ast: 9f50126df0405a686f21051187c407e9428b41671426871da2cda264634508f3
+    canonicalized_ast: 3bda702f2be9ff89f516c685a3410c0a7f4a5009af9a42ba469b3ae41f92f51b
+    type_inferenced_ast: fb3f81b7ef19350b5b7891b093e4d8b8016c2885a4e291e4fd8eb4a2cb1e5929

@@ -12,20 +12,22 @@ outputs:
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
-      - "  store &v4, [H, e, l, l, o, ,,  , W, o, r, l, d, !]"
-      - "  store &v5, [G, o, o, d]"
-      - "  store &v6, [ , d, o, g, !]"
+      - "  store &v4, ['H', 'e', 'l', 'l', 'o', ',', ' ', 'W', 'o', 'r', 'l', 'd', '!']"
+      - "  store &v5, ['G', 'o', 'o', 'd']"
+      - "  store &v6, [' ', 'd', 'o', 'g', '!']"
       - "  ainit &v7, v5, v6"
       - "  store &v8, v7"
-      - "  eq &v9, v4, v2"
-      - "  ne &v10, [n, o, p, e], v3"
-      - "  and &v11, v9, v10"
-      - "  asget &v12, v3, 1, 3, 2"
-      - "  eq &v13, [e, s], v12"
-      - "  and &v14, v11, v13"
-      - "  eq &v15, v8, [G, o, o, d,  , d, o, g, !]"
-      - "  and &v16, v14, v15"
-      - "  retn v16"
+      - "  store &v9, false"
+      - "  store &v9, false"
+      - "  eq &v10, v4, v2"
+      - "  ne &v11, ['n', 'o', 'p', 'e'], v3"
+      - "  and &v12, v10, v11"
+      - "  asget &v13, v3, 1, 3, 2"
+      - "  eq &v14, ['e', 's'], v13"
+      - "  and &v15, v12, v14"
+      - "  eq &v16, v8, ['G', 'o', 'o', 'd', ' ', 'd', 'o', 'g', '!']"
+      - "  and &v17, v15, v16"
+      - "  retn v17"
       - ""
     output:
       - input_file: inputs/string.in
@@ -40,7 +42,7 @@ outputs:
             out:
               type: bool
               value: "false"
-    initial_ast: 18cc23be73fed22f06b3bfdb93c1b92688131d4bbeb0d68ed8dc691c97f0c415
-    imports_resolved_ast: 18cc23be73fed22f06b3bfdb93c1b92688131d4bbeb0d68ed8dc691c97f0c415
-    canonicalized_ast: 63331696106397640ace1c15d354979b8a05f25dd650465954cd1fd72124bae6
-    type_inferenced_ast: 83e3cba193c50f19049cdf4296d75187cfd9d6d9fa5276fd328c2e3acf0936e2
+    initial_ast: 0ddf578fd4c2121376dba7b4fd47205daeb2549d827dd5528e3f8db03f3fdac1
+    imports_resolved_ast: 0ddf578fd4c2121376dba7b4fd47205daeb2549d827dd5528e3f8db03f3fdac1
+    canonicalized_ast: c3c9a14e52f25bab4533fd8637de37d48e1cdc44283c6d846db1826f942d6c3a
+    type_inferenced_ast: a0666f0e72313f49fd084f42398c653822692fe75dfff3b547e34be8ed84f996

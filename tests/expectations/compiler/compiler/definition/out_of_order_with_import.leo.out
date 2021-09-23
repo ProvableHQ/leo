@@ -15,6 +15,8 @@ outputs:
       - "  eq &v3, v2, true"
       - "  retn v3"
       - "decl f1: <4>"
+      - "decl f2: <4>"
+      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
       - ""
     output:
       - input_file: input/dummy.in
