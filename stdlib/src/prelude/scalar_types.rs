@@ -17,7 +17,7 @@
 use super::CoreCircuitFuncCall;
 use crate::{ConstrainedValue, GroupType};
 use leo_asg::Function;
-use leo_errors::{CompilerError, Result, Span};
+use leo_errors::{Result, Span};
 
 use snarkvm_fields::PrimeField;
 use snarkvm_r1cs::ConstraintSystem;
@@ -42,7 +42,7 @@ macro_rules! scalar_type {
                         assert_eq!(arguments.len(), 0);
                         assert!(target.is_some());
 
-                        crate::common::bits::to_bits(target.unwrap(), function.output.clone(), span)
+                        crate::common::bits::to_bits(target.unwrap(), span)
                     }
                     ("from_bits", 1) => {
                         assert_eq!(arguments.len(), 1);
@@ -53,7 +53,7 @@ macro_rules! scalar_type {
                         assert_eq!(arguments.len(), 0);
                         assert!(target.is_some());
 
-                        crate::common::bytes::to_bytes(target.unwrap(), function.output.clone(), span)
+                        crate::common::bytes::to_bytes(target.unwrap(), span)
                     }
                     ("from_bytes", 1) => {
                         assert_eq!(arguments.len(), 1);
@@ -61,7 +61,7 @@ macro_rules! scalar_type {
 
                         crate::common::bytes::from_bytes(arguments.remove(0), function.output.clone(), span)
                     }
-                    _ => Err(CompilerError::unknown_built_in_method(function_name, "", span).into()),
+                    _ => unreachable!(),
                 }
             }
         }

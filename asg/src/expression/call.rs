@@ -94,7 +94,6 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     ..
                 }) => {
                     let target = <&Expression<'a>>::from_ast(scope, &**ast_value, None)?;
-                    // TODO deal with unwraps betters.
                     let circuit = match target.get_type() {
                         Some(Type::Address) => scope.resolve_circuit("address").unwrap(),
                         Some(Type::Boolean) => scope.resolve_circuit("bool").unwrap(),

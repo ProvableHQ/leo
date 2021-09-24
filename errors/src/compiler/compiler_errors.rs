@@ -874,12 +874,4 @@ create_errors!(
         msg: format!("the type `{}` does not implement the from_bytes method", type_),
         help: None,
     }
-
-    /// For when a user tries to call a method not on the built-in type.
-    @formatted
-    unknown_built_in_method {
-        args: (called: impl Display, type_: impl Display),
-        msg: format!("function `{}` does not exist on the built-in type `{}`", called, type_),
-        help: None,
-    }
 );

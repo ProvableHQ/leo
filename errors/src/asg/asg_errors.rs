@@ -468,6 +468,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to use an operator on the wrong type.
     @formatted
     operator_allowed_only_for_type {
         args: (operator: impl Display, type_: impl Display, received: impl Display),
