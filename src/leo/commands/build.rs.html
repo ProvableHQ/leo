@@ -235,21 +235,6 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -288,7 +273,7 @@
 
 <span class="doccomment">/// Compiler Options wrapper for Build command. Also used by other commands which</span>
 <span class="doccomment">/// require Build command output as their input.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BuildOptions</span> {
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Disable constant folding compiler optimization&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">disable_constant_folding</span>: <span class="ident">bool</span>,
@@ -306,21 +291,6 @@
     <span class="kw">pub</span> <span class="ident">enable_canonicalized_ast_snapshot</span>: <span class="ident">bool</span>,
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes AST snapshot after the type inference phase.&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">enable_type_inferenced_ast_snapshot</span>: <span class="ident">bool</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">BuildOptions</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">disable_constant_folding</span>: <span class="bool-val">false</span>,
-            <span class="ident">disable_code_elimination</span>: <span class="bool-val">false</span>,
-            <span class="ident">disable_all_optimizations</span>: <span class="bool-val">false</span>,
-            <span class="ident">enable_all_ast_snapshots</span>: <span class="bool-val">false</span>,
-            <span class="ident">enable_initial_ast_snapshot</span>: <span class="bool-val">false</span>,
-            <span class="ident">enable_imports_resolved_ast_snapshot</span>: <span class="bool-val">false</span>,
-            <span class="ident">enable_canonicalized_ast_snapshot</span>: <span class="bool-val">false</span>,
-            <span class="ident">enable_type_inferenced_ast_snapshot</span>: <span class="bool-val">false</span>,
-        }
-    }
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">BuildOptions</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CompilerOptions</span> {
