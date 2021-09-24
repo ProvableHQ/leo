@@ -30,7 +30,7 @@ impl<'a> Program<'a> {
 
         if let Some(asg_input) = asg_input {
             let output_value =
-                self.allocate_input_keyword(&function.name.borrow().span, &asg_input.container_circuit, input)?;
+                self.allocate_input_keyword(&function.name.borrow().span, asg_input.container_circuit, input)?;
             self.alloc_var(asg_input.container);
             self.store(asg_input.container, output_value);
         }

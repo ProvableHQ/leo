@@ -28,7 +28,7 @@ impl<'a> Program<'a> {
             .asg
             .functions
             .get("main")
-            .ok_or_else(|| CompilerError::no_main_function())?;
+            .ok_or_else(CompilerError::no_main_function)?;
         let secondary_functions: Vec<_> = asg
             .scope
             .get_functions()
@@ -49,7 +49,7 @@ impl<'a> Program<'a> {
             }))
             .collect();
 
-        self.enforce_function(&asg, &main, &secondary_functions, input)
+        self.enforce_function(&asg, main, &secondary_functions, input)
     }
 
     pub fn enforce_function(
@@ -71,7 +71,7 @@ impl<'a> Program<'a> {
             self.enforce_definition_statement(global_const)?;
         }
 
-        self.enforce_main_function(&function, input)?;
+        self.enforce_main_function(function, input)?;
         for function in secondary_functions.iter() {
             self.enforce_function_definition(*function)?;
         }

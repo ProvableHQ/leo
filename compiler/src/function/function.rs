@@ -79,11 +79,7 @@ impl<'a> Program<'a> {
 
         let core_mapping = if let Some(circuit) = function.circuit.get() {
             let core_mapping = circuit.core_mapping.borrow();
-            if let Some(core_mapping) = core_mapping.as_deref() {
-                Some(core_mapping.to_string())
-            } else {
-                None
-            }
+            core_mapping.as_deref().map(|core_mapping| core_mapping.to_string())
         } else {
             None
         };

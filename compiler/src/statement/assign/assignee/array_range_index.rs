@@ -41,11 +41,11 @@ impl<'a> Program<'a> {
         let start_value = start
             .map(|e| self.enforce_expression(e))
             .transpose()?
-            .unwrap_or_else(|| Value::Integer(Integer::U32(0)));
+            .unwrap_or(Value::Integer(Integer::U32(0)));
         let stop_value = stop
             .map(|e| self.enforce_expression(e))
             .transpose()?
-            .unwrap_or_else(|| Value::Integer(Integer::U32(length)));
+            .unwrap_or(Value::Integer(Integer::U32(length)));
         let slice_length: u32 = match (&start_value, &stop_value) {
             (Value::Integer(start), Value::Integer(stop)) => {
                 u32::try_from(*stop).map_err(|e| SnarkVMError::from(eyre!(e)))?

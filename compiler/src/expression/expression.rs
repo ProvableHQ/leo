@@ -40,7 +40,7 @@ pub fn decode_address(value: &str, span: &Span) -> Result<Vec<u8>> {
     if !value.starts_with("aleo") || value.len() != 63 {
         return Err(CompilerError::address_value_invalid_address(value, span).into());
     }
-    let data = bech32::decode(value.as_ref()).map_err(|_| CompilerError::address_value_invalid_address(value, span))?;
+    let data = bech32::decode(value).map_err(|_| CompilerError::address_value_invalid_address(value, span))?;
     let bytes = Vec::from_base32(&data.1).map_err(|_| CompilerError::address_value_invalid_address(value, span))?;
     Ok(bytes)
 }
