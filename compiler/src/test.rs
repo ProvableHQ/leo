@@ -14,8 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::fs::File;
+use std::io::Write;
 use std::{
-    fs,
+    fs::{self, create_dir_all},
     path::{Path, PathBuf},
 };
 
@@ -31,6 +33,7 @@ use leo_test_framework::{
 use serde_yaml::Value;
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_eval::Evaluator;
+use snarkvm_ir::{InputData, Program as IR_Program};
 
 use crate::{compiler::Compiler, AstSnapshotOptions, Output};
 use indexmap::IndexMap;
@@ -191,8 +194,9 @@ impl Namespace for CompileNamespace {
             let input_data = parsed
                 .process_input(&input_parsed, &compiled.header)
                 .map_err(|x| x.to_string())?;
-            // println!("{}", compiled);
-            // println!("{:?} {:?}", compiled.header, input_data);
+            if std::env::var("EMIT_IR").unwrap_or_default().trim() == "1" {
+                emit_ir(&test, &compiled, &input_data);
+            }
             let mut cs: CircuitSynthesizer<Bls12_377> = Default::default();
             let mut evaluator =
                 snarkvm_eval::SetupEvaluator::<_, snarkvm_eval::edwards_bls12::EdwardsGroupType, _>::new(&mut cs);
@@ -260,6 +264,29 @@ impl Namespace for CompileNamespace {
         };
         Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
     }
+}
+
+/// hacky way to emit IR for snarkVM tests
+fn emit_ir(test: &Test, compiled: &IR_Program, input_data: &InputData) {
+    let mut target_path = std::env::current_dir().unwrap().join("tests").join("ir");
+    target_path.push(
+        test.path
+            .into_iter()
+            .skip_while(|p| p.to_str().unwrap() != "..")
+            .collect::<PathBuf>()
+            .strip_prefix(Path::new("..").join("tests").join("compiler"))
+            .unwrap()
+            .to_path_buf(),
+    );
+    target_path.pop();
+    create_dir_all(&target_path).unwrap();
+    let writer = |extension, data: Vec<u8>| {
+        let mut f = File::create(target_path.join(format!("{}{}", test.name, extension))).unwrap();
+        f.write_all(&data).unwrap();
+    };
+    writer(".leo.ir", compiled.serialize().unwrap());
+    writer(".leo.ir.fmt", compiled.to_string().as_bytes().to_vec());
+    writer(".leo.ir.input", input_data.serialize().unwrap());
 }
 
 struct TestRunner;
