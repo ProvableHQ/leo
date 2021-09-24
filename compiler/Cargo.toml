@@ -141,4 +141,4 @@ ci_skip = [ "leo-ast/ci_skip" ]
 snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
 snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
 # snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
-# snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }
+# snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }

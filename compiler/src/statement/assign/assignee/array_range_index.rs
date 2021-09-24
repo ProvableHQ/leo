@@ -17,9 +17,12 @@
 //! Resolves assignees in a compiled Leo program.
 
 use crate::program::Program;
+use eyre::eyre;
 use leo_asg::{Expression, Type};
 use leo_errors::Result;
+use leo_errors::SnarkVMError;
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
+use std::convert::TryFrom;
 
 use super::ResolverContext;
 
@@ -43,8 +46,11 @@ impl<'a> Program<'a> {
             .map(|e| self.enforce_expression(e))
             .transpose()?
             .unwrap_or_else(|| Value::Integer(Integer::U32(length)));
-        let slice_length = match (&start_value, &stop_value) {
-            (Value::Integer(start), Value::Integer(stop)) => stop.get_unsigned() - start.get_unsigned(),
+        let slice_length: u32 = match (&start_value, &stop_value) {
+            (Value::Integer(start), Value::Integer(stop)) => {
+                u32::try_from(*stop).map_err(|e| SnarkVMError::from(eyre!(e)))?
+                    - u32::try_from(*start).map_err(|e| SnarkVMError::from(eyre!(e)))?
+            }
             _ => panic!("slice expected Integer"),
         };
         let input_var = context.input_register;
