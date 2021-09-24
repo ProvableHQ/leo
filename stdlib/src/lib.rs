@@ -46,7 +46,25 @@ pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
     for module in STDLIB.find("prelude/*.leo").unwrap() {
         // If on windows repalce \\ with / as all paths are stored in unix style.
         let path = module.path().to_str().unwrap_or("").replace("\\", "/");
-        let program = resolve_file(&path, None)?;
+        let mapping = match path.as_str() {
+            "prelude/address.leo" => Some("address"),
+            "prelude/bool.leo" => Some("bool"),
+            "prelude/char.leo" => Some("char"),
+            "prelude/field.leo" => Some("field"),
+            "prelude/group.leo" => Some("group"),
+            "prelude/u8.leo" => Some("u8"),
+            "prelude/u16.leo" => Some("u16"),
+            "prelude/u32.leo" => Some("u32"),
+            "prelude/u64.leo" => Some("u64"),
+            "prelude/u128.leo" => Some("u128"),
+            "prelude/i8.leo" => Some("i8"),
+            "prelude/i16.leo" => Some("i16"),
+            "prelude/i32.leo" => Some("i32"),
+            "prelude/i64.leo" => Some("i64"),
+            "prelude/i128.leo" => Some("i128"),
+            _ => None,
+        };
+        let program = resolve_file(&path, mapping)?;
 
         let removed_extension = path.replace(".leo", "");
         let mut parts: Vec<String> = vec![String::from("std")];

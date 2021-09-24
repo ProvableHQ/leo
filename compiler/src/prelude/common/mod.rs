@@ -14,10 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Methods to enforce function call expressions in a compiled Leo program.
+pub mod bits;
+pub use bits::*;
 
-pub mod core_circuit;
-pub use self::core_circuit::*;
-
-pub mod function;
-pub use self::function::*;
+pub mod bytes;
+pub use bytes::*;

@@ -94,9 +94,15 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     ..
                 }) => {
                     let target = <&Expression<'a>>::from_ast(scope, &**ast_value, None)?;
-                    // TODO got to make this work for other types
+                    // TODO deal with unwraps betters.
                     let circuit = match target.get_type() {
+                        Some(Type::Address) => scope.resolve_circuit("address").unwrap(),
+                        Some(Type::Boolean) => scope.resolve_circuit("bool").unwrap(),
+                        Some(Type::Char) => scope.resolve_circuit("char").unwrap(),
+                        Some(Type::Field) => scope.resolve_circuit("field").unwrap(),
+                        Some(Type::Group) => scope.resolve_circuit("group").unwrap(),
                         Some(Type::Circuit(circuit)) => circuit,
+                        Some(Type::Integer(int_type)) => scope.resolve_circuit(&int_type.to_string()).unwrap(),
                         type_ => {
                             return Err(AsgError::unexpected_type(
                                 "circuit",

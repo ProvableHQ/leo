@@ -1,0 +1,17 @@
+circuit char {
+    function to_bits(self) -> [bool; 8] {
+        return [false; 8];
+    }
+
+    function from_bits(bits: [bool; 8]) -> char {
+        return 'a';
+    }
+
+    function to_bytes(self) -> [u8; 8] {
+        return [0u8; 8];
+    }
+
+    function from_bytes(bytes: [u8; 8]) -> char {
+        return 'a';
+    }
+}

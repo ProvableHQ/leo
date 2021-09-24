@@ -21,7 +21,7 @@ use crate::{
     logical::*,
     program::ConstrainedProgram,
     relational::*,
-    resolve_core_circuit, resolve_core_function,
+    resolve_core_circuit,
     value::{Address, Char, CharType, ConstrainedCircuitMember, ConstrainedValue, Integer},
     FieldType, GroupType,
 };
@@ -200,17 +200,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                             span,
                         );
                     }
-                } else if let Some(core_function) =
-                    resolve_core_function::<F, G>(&function.get().name.borrow().name.to_string())
-                {
-                    return self.enforce_core_function_call_expression(
-                        cs,
-                        &core_function,
-                        function.get(),
-                        target.get(),
-                        &arguments[..],
-                        span,
-                    );
                 }
 
                 self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], span)

@@ -94,7 +94,6 @@ impl<'a> FromAst<'a, leo_ast::accesses::MemberAccess> for CircuitAccess<'a> {
         expected_type: Option<PartialType<'a>>,
     ) -> Result<CircuitAccess<'a>> {
         let target = <&'a Expression<'a>>::from_ast(scope, &*value.inner, None)?;
-        // TODO handle other types
         let circuit = match target.get_type() {
             Some(Type::Circuit(circuit)) => circuit,
             x => {

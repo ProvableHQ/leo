@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::CoreCircuit;
+use super::CoreCircuitFuncCall;
 use crate::{ConstrainedValue, GroupType, Integer};
 use leo_asg::Function;
 use leo_errors::{CompilerError, Result, Span};
@@ -44,7 +44,7 @@ fn unwrap_argument<F: PrimeField, G: GroupType<F>>(arg: ConstrainedValue<F, G>) 
     }
 }
 
-impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuit<'a, F, G> for Blake2s {
+impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuitFuncCall<'a, F, G> for Blake2s {
     fn call_function<CS: ConstraintSystem<F>>(
         &self,
         cs: &mut CS,
