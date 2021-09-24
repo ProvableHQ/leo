@@ -1,4 +1,8 @@
 {
+  "name": "",
+  "expected_input": [],
+  "import_statements": [],
+  "imports": {},
   "aliases": {},
   "circuits": {
     "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit PedersenHash {\\\"}\"}": {
@@ -23,33 +27,12 @@
         {
           "CircuitFunction": {
             "annotations": [],
-            "block": {
-              "statements": [
-                {
-                  "Return": {
-                    "expression": {
-                      "CircuitInit": {
-                        "members": [
-                          {
-                            "expression": {
-                              "Identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":35,\\\"col_stop\\\":45,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
-                            },
-                            "identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":23,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
-                          }
-                        ],
-                        "name": "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
-                      }
-                    }
-                  }
-                }
-              ]
-            },
             "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(parameters: [group; 256]) -> Self {\\\"}\"}",
             "input": [
               {
                 "Variable": {
-                  "const_": false,
                   "identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":18,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(parameters: [group; 256]) -> Self {\\\"}\"}",
+                  "const_": false,
                   "mutable": true,
                   "type_": {
                     "Array": [
@@ -64,17 +47,68 @@
                 }
               }
             ],
-            "output": "SelfType"
+            "output": "SelfType",
+            "block": {
+              "statements": [
+                {
+                  "Return": {
+                    "expression": {
+                      "CircuitInit": {
+                        "name": "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}",
+                        "members": [
+                          {
+                            "identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":23,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}",
+                            "expression": {
+                              "Identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":35,\\\"col_stop\\\":45,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
           }
         },
         {
           "CircuitFunction": {
             "annotations": [],
+            "identifier": "{\"name\":\"hash\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":14,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}",
+            "input": [
+              {
+                "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":19,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}"
+              },
+              {
+                "Variable": {
+                  "identifier": "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":25,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}",
+                  "const_": false,
+                  "mutable": true,
+                  "type_": {
+                    "Array": [
+                      "Boolean",
+                      [
+                        {
+                          "value": "256"
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            ],
+            "output": "Group",
             "block": {
               "statements": [
                 {
                   "Definition": {
                     "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let digest: group = 0group;\\\"}\"}"
+                      }
+                    ],
                     "type_": "Group",
                     "value": {
                       "Value": {
@@ -85,30 +119,52 @@
                           ]
                         }
                       }
-                    },
-                    "variable_names": [
-                      {
-                        "identifier": "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let digest: group = 0group;\\\"}\"}",
-                        "mutable": true
-                      }
-                    ]
+                    }
                   }
                 },
                 {
                   "Iteration": {
+                    "variable": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..256 {\\\"}\"}",
+                    "start": {
+                      "Value": {
+                        "Implicit": [
+                          "0",
+                          {}
+                        ]
+                      }
+                    },
+                    "stop": {
+                      "Value": {
+                        "Implicit": [
+                          "256",
+                          {}
+                        ]
+                      }
+                    },
+                    "inclusive": false,
                     "block": {
                       "statements": [
                         {
                           "Conditional": {
+                            "condition": {
+                              "ArrayAccess": {
+                                "array": {
+                                  "Identifier": "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
+                                },
+                                "index": {
+                                  "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
+                                }
+                              }
+                            },
                             "block": {
                               "statements": [
                                 {
                                   "Assign": {
-                                    "assignee": {
-                                      "accesses": [],
-                                      "identifier": "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":17,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}"
-                                    },
                                     "operation": "Add",
+                                    "assignee": {
+                                      "identifier": "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":17,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}",
+                                      "accesses": []
+                                    },
                                     "value": {
                                       "ArrayAccess": {
                                         "array": {
@@ -129,39 +185,11 @@
                                 }
                               ]
                             },
-                            "condition": {
-                              "ArrayAccess": {
-                                "array": {
-                                  "Identifier": "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
-                                },
-                                "index": {
-                                  "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
-                                }
-                              }
-                            },
                             "next": null
                           }
                         }
                       ]
-                    },
-                    "inclusive": false,
-                    "start": {
-                      "Value": {
-                        "Implicit": [
-                          "0",
-                          {}
-                        ]
-                      }
-                    },
-                    "stop": {
-                      "Value": {
-                        "Implicit": [
-                          "256",
-                          {}
-                        ]
-                      }
-                    },
-                    "variable": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..256 {\\\"}\"}"
+                    }
                   }
                 },
                 {
@@ -172,101 +200,22 @@
                   }
                 }
               ]
-            },
-            "identifier": "{\"name\":\"hash\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":14,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}",
-            "input": [
-              {
-                "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":19,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}"
-              },
-              {
-                "Variable": {
-                  "const_": false,
-                  "identifier": "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":25,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}",
-                  "mutable": true,
-                  "type_": {
-                    "Array": [
-                      "Boolean",
-                      [
-                        {
-                          "value": "256"
-                        }
-                      ]
-                    ]
-                  }
-                }
-              }
-            ],
-            "output": "Group"
+            }
           }
         }
       ]
     }
   },
-  "expected_input": [],
+  "global_consts": {},
   "functions": {
     "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}": {
       "annotations": [],
-      "block": {
-        "statements": [
-          {
-            "Definition": {
-              "declaration_type": "Const",
-              "type_": null,
-              "value": {
-                "Call": {
-                  "arguments": [
-                    {
-                      "Identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":40,\\\"col_stop\\\":50,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
-                    }
-                  ],
-                  "function": {
-                    "CircuitStaticFunctionAccess": {
-                      "circuit": {
-                        "Identifier": "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":22,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
-                      },
-                      "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":36,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
-                    }
-                  }
-                }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}",
-                  "mutable": false
-                }
-              ]
-            }
-          },
-          {
-            "Return": {
-              "expression": {
-                "Call": {
-                  "arguments": [
-                    {
-                      "Identifier": "{\"name\":\"hash_input\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":26,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}"
-                    }
-                  ],
-                  "function": {
-                    "CircuitMemberAccess": {
-                      "circuit": {
-                        "Identifier": "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":12,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}"
-                      },
-                      "name": "{\"name\":\"hash\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":21,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}",
-                      "type_": null
-                    }
-                  }
-                }
-              }
-            }
-          }
-        ]
-      },
       "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}",
       "input": [
         {
           "Variable": {
-            "const_": false,
             "identifier": "{\"name\":\"hash_input\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":15,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}",
+            "const_": false,
             "mutable": true,
             "type_": {
               "Array": [
@@ -282,8 +231,8 @@
         },
         {
           "Variable": {
-            "const_": true,
             "identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":46,\\\"col_stop\\\":56,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}",
+            "const_": true,
             "mutable": false,
             "type_": {
               "Array": [
@@ -298,11 +247,62 @@
           }
         }
       ],
-      "output": "Group"
+      "output": "Group",
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                }
+              ],
+              "type_": null,
+              "value": {
+                "Call": {
+                  "function": {
+                    "CircuitStaticFunctionAccess": {
+                      "circuit": {
+                        "Identifier": "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":22,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                      },
+                      "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":36,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":40,\\\"col_stop\\\":50,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Return": {
+              "expression": {
+                "Call": {
+                  "function": {
+                    "CircuitMemberAccess": {
+                      "circuit": {
+                        "Identifier": "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":12,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}"
+                      },
+                      "name": "{\"name\":\"hash\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":21,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}",
+                      "type_": null
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"hash_input\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":26,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
     }
-  },
-  "global_consts": {},
-  "import_statements": [],
-  "imports": {},
-  "name": ""
+  }
 }

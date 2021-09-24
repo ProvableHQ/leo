@@ -1,15 +1,90 @@
 {
+  "name": "",
+  "expected_input": [],
+  "import_statements": [],
+  "imports": {},
   "aliases": {},
   "circuits": {},
-  "expected_input": [],
+  "global_consts": {},
   "functions": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}": {
+      "annotations": [],
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
+      "input": [
+        {
+          "Variable": {
+            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
+            "const_": false,
+            "mutable": true,
+            "type_": {
+              "Array": [
+                "Char",
+                [
+                  {
+                    "value": "20"
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "output": "Boolean",
+      "block": {
+        "statements": [
+          {
+            "Return": {
+              "expression": {
+                "Call": {
+                  "function": {
+                    "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
+                  },
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":26,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
     "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}": {
       "annotations": [],
+      "identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
+      "input": [
+        {
+          "Variable": {
+            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
+            "const_": false,
+            "mutable": true,
+            "type_": {
+              "Array": [
+                "Char",
+                [
+                  {
+                    "value": "20"
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "output": "Boolean",
       "block": {
         "statements": [
           {
             "Definition": {
               "declaration_type": "Const",
+              "variable_names": [
+                {
+                  "mutable": false,
+                  "identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":11,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const str_len = 20u32; // saving const for convenience\\\"}\"}"
+                }
+              ],
               "type_": null,
               "value": {
                 "Value": {
@@ -19,18 +94,18 @@
                     {}
                   ]
                 }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":11,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const str_len = 20u32; // saving const for convenience\\\"}\"}",
-                  "mutable": false
-                }
-              ]
+              }
             }
           },
           {
             "Definition": {
               "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = true;\\\"}\"}"
+                }
+              ],
               "type_": null,
               "value": {
                 "Value": {
@@ -39,18 +114,18 @@
                     {}
                   ]
                 }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = true;\\\"}\"}",
-                  "mutable": true
-                }
-              ]
+              }
             }
           },
           {
             "Definition": {
               "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":9,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let processed = 0u8;\\\"}\"}"
+                }
+              ],
               "type_": null,
               "value": {
                 "Value": {
@@ -60,22 +135,48 @@
                     {}
                   ]
                 }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":9,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let processed = 0u8;\\\"}\"}",
-                  "mutable": true
-                }
-              ]
+              }
             }
           },
           {
             "Iteration": {
+              "variable": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}",
+              "start": {
+                "Value": {
+                  "Implicit": [
+                    "0",
+                    {}
+                  ]
+                }
+              },
+              "stop": {
+                "Binary": {
+                  "left": {
+                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":22,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+                  },
+                  "right": {
+                    "Value": {
+                      "Implicit": [
+                        "2",
+                        {}
+                      ]
+                    }
+                  },
+                  "op": "Div"
+                }
+              },
+              "inclusive": false,
               "block": {
                 "statements": [
                   {
                     "Definition": {
                       "declaration_type": "Let",
+                      "variable_names": [
+                        {
+                          "mutable": true,
+                          "identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
+                        }
+                      ],
                       "type_": null,
                       "value": {
                         "ArrayAccess": {
@@ -86,22 +187,39 @@
                             "Identifier": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":29,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}"
                           }
                         }
-                      },
-                      "variable_names": [
-                        {
-                          "identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let start_sym = str[start];\\\"}\"}",
-                          "mutable": true
-                        }
-                      ]
+                      }
                     }
                   },
                   {
                     "Conditional": {
+                      "condition": {
+                        "Binary": {
+                          "left": {
+                            "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":12,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        if start_sym != ' ' {\\\"}\"}"
+                          },
+                          "right": {
+                            "Value": {
+                              "Char": {
+                                "character": {
+                                  "Scalar": 32
+                                }
+                              }
+                            }
+                          },
+                          "op": "Ne"
+                        }
+                      },
                       "block": {
                         "statements": [
                           {
                             "Definition": {
                               "declaration_type": "Let",
+                              "variable_names": [
+                                {
+                                  "mutable": true,
+                                  "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let skipped = 0u8;\\\"}\"}"
+                                }
+                              ],
                               "type_": null,
                               "value": {
                                 "Value": {
@@ -111,18 +229,18 @@
                                     {}
                                   ]
                                 }
-                              },
-                              "variable_names": [
-                                {
-                                  "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let skipped = 0u8;\\\"}\"}",
-                                  "mutable": true
-                                }
-                              ]
+                              }
                             }
                           },
                           {
                             "Definition": {
                               "declaration_type": "Let",
+                              "variable_names": [
+                                {
+                                  "mutable": true,
+                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_empty = 0u8;\\\"}\"}"
+                                }
+                              ],
                               "type_": null,
                               "value": {
                                 "Value": {
@@ -132,18 +250,18 @@
                                     {}
                                   ]
                                 }
-                              },
-                              "variable_names": [
-                                {
-                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_empty = 0u8;\\\"}\"}",
-                                  "mutable": true
-                                }
-                              ]
+                              }
                             }
                           },
                           {
                             "Definition": {
                               "declaration_type": "Let",
+                              "variable_names": [
+                                {
+                                  "mutable": true,
+                                  "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_sym = ' ';\\\"}\"}"
+                                }
+                              ],
                               "type_": null,
                               "value": {
                                 "Value": {
@@ -153,44 +271,36 @@
                                     }
                                   }
                                 }
-                              },
-                              "variable_names": [
-                                {
-                                  "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":20,\\\"line_stop\\\":20,\\\"col_start\\\":17,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            let end_sym = ' ';\\\"}\"}",
-                                  "mutable": true
-                                }
-                              ]
+                              }
                             }
                           },
                           {
                             "Iteration": {
+                              "variable": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}",
+                              "start": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": [
+                                        "1",
+                                        {}
+                                      ]
+                                    }
+                                  },
+                                  "op": "Sub"
+                                }
+                              },
+                              "stop": {
+                                "Identifier": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":39,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                              },
+                              "inclusive": false,
                               "block": {
                                 "statements": [
                                   {
                                     "Conditional": {
-                                      "block": {
-                                        "statements": [
-                                          {
-                                            "Assign": {
-                                              "assignee": {
-                                                "accesses": [],
-                                                "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":21,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
-                                              },
-                                              "operation": "Assign",
-                                              "value": {
-                                                "ArrayAccess": {
-                                                  "array": {
-                                                    "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
-                                                  },
-                                                  "index": {
-                                                    "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":35,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        ]
-                                      },
                                       "condition": {
                                         "Binary": {
                                           "left": {
@@ -207,7 +317,6 @@
                                                       }
                                                     }
                                                   },
-                                                  "op": "Ne",
                                                   "right": {
                                                     "Value": {
                                                       "Char": {
@@ -216,30 +325,29 @@
                                                         }
                                                       }
                                                     }
-                                                  }
+                                                  },
+                                                  "op": "Ne"
                                                 }
                                               },
-                                              "op": "And",
                                               "right": {
                                                 "Binary": {
                                                   "left": {
                                                     "Identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":39,\\\"col_stop\\\":46,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
                                                   },
-                                                  "op": "Eq",
                                                   "right": {
                                                     "Identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":50,\\\"col_stop\\\":59,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
-                                                  }
+                                                  },
+                                                  "op": "Eq"
                                                 }
-                                              }
+                                              },
+                                              "op": "And"
                                             }
                                           },
-                                          "op": "And",
                                           "right": {
                                             "Binary": {
                                               "left": {
                                                 "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":63,\\\"col_stop\\\":70,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if str[end] != ' ' && skipped == processed && end_sym == ' ' {\\\"}\"}"
                                               },
-                                              "op": "Eq",
                                               "right": {
                                                 "Value": {
                                                   "Char": {
@@ -248,27 +356,51 @@
                                                     }
                                                   }
                                                 }
+                                              },
+                                              "op": "Eq"
+                                            }
+                                          },
+                                          "op": "And"
+                                        }
+                                      },
+                                      "block": {
+                                        "statements": [
+                                          {
+                                            "Assign": {
+                                              "operation": "Assign",
+                                              "assignee": {
+                                                "identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":21,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}",
+                                                "accesses": []
+                                              },
+                                              "value": {
+                                                "ArrayAccess": {
+                                                  "array": {
+                                                    "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
+                                                  },
+                                                  "index": {
+                                                    "Identifier": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":35,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_sym = str[end];\\\"}\"}"
+                                                  }
+                                                }
                                               }
                                             }
                                           }
-                                        }
+                                        ]
                                       },
                                       "next": {
                                         "Block": {
                                           "statements": [
                                             {
                                               "Assign": {
-                                                "assignee": {
-                                                  "accesses": [],
-                                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
-                                                },
                                                 "operation": "Assign",
+                                                "assignee": {
+                                                  "identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}",
+                                                  "accesses": []
+                                                },
                                                 "value": {
                                                   "Binary": {
                                                     "left": {
                                                       "Identifier": "{\"name\":\"end_empty\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":33,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    end_empty = end_empty + 1;\\\"}\"}"
                                                     },
-                                                    "op": "Add",
                                                     "right": {
                                                       "Value": {
                                                         "Implicit": [
@@ -276,42 +408,14 @@
                                                           {}
                                                         ]
                                                       }
-                                                    }
+                                                    },
+                                                    "op": "Add"
                                                   }
                                                 }
                                               }
                                             },
                                             {
                                               "Conditional": {
-                                                "block": {
-                                                  "statements": [
-                                                    {
-                                                      "Assign": {
-                                                        "assignee": {
-                                                          "accesses": [],
-                                                          "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
-                                                        },
-                                                        "operation": "Assign",
-                                                        "value": {
-                                                          "Binary": {
-                                                            "left": {
-                                                              "Identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":35,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
-                                                            },
-                                                            "op": "Add",
-                                                            "right": {
-                                                              "Value": {
-                                                                "Implicit": [
-                                                                  "1",
-                                                                  {}
-                                                                ]
-                                                              }
-                                                            }
-                                                          }
-                                                        }
-                                                      }
-                                                    }
-                                                  ]
-                                                },
                                                 "condition": {
                                                   "Binary": {
                                                     "left": {
@@ -324,7 +428,6 @@
                                                         }
                                                       }
                                                     },
-                                                    "op": "Ne",
                                                     "right": {
                                                       "Value": {
                                                         "Char": {
@@ -333,8 +436,38 @@
                                                           }
                                                         }
                                                       }
-                                                    }
+                                                    },
+                                                    "op": "Ne"
                                                   }
+                                                },
+                                                "block": {
+                                                  "statements": [
+                                                    {
+                                                      "Assign": {
+                                                        "operation": "Assign",
+                                                        "assignee": {
+                                                          "identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}",
+                                                          "accesses": []
+                                                        },
+                                                        "value": {
+                                                          "Binary": {
+                                                            "left": {
+                                                              "Identifier": "{\"name\":\"skipped\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":35,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                        skipped = skipped + 1;\\\"}\"}"
+                                                            },
+                                                            "right": {
+                                                              "Value": {
+                                                                "Implicit": [
+                                                                  "1",
+                                                                  {}
+                                                                ]
+                                                              }
+                                                            },
+                                                            "op": "Add"
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  ]
                                                 },
                                                 "next": null
                                               }
@@ -345,46 +478,34 @@
                                     }
                                   }
                                 ]
-                              },
-                              "inclusive": false,
-                              "start": {
-                                "Binary": {
-                                  "left": {
-                                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":25,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
-                                  },
-                                  "op": "Sub",
-                                  "right": {
-                                    "Value": {
-                                      "Implicit": [
-                                        "1",
-                                        {}
-                                      ]
-                                    }
-                                  }
-                                }
-                              },
-                              "stop": {
-                                "Identifier": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":39,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
-                              },
-                              "variable": "{\"name\":\"end\",\"span\":\"{\\\"line_start\\\":22,\\\"line_stop\\\":22,\\\"col_start\\\":17,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            for end in (str_len - 1)..start {\\\"}\"}"
+                              }
                             }
                           },
                           {
                             "Conditional": {
+                              "condition": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":16,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if end_sym != ' ' {\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Char": {
+                                        "character": {
+                                          "Scalar": 32
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "op": "Ne"
+                                }
+                              },
                               "block": {
                                 "statements": [
                                   {
                                     "Console": {
                                       "function": {
                                         "Log": {
-                                          "parameters": [
-                                            {
-                                              "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":51,\\\"col_stop\\\":60,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
-                                            },
-                                            {
-                                              "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":62,\\\"col_stop\\\":69,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
-                                            }
-                                          ],
                                           "string": [
                                             {
                                               "Scalar": 67
@@ -440,6 +561,14 @@
                                             {
                                               "Scalar": 125
                                             }
+                                          ],
+                                          "parameters": [
+                                            {
+                                              "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":51,\\\"col_stop\\\":60,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
+                                            },
+                                            {
+                                              "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":62,\\\"col_stop\\\":69,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                console.log(\\\\\\\"Comparing: {} ? {}\\\\\\\", start_sym, end_sym);\\\"}\"}"
+                                            }
                                           ]
                                         }
                                       }
@@ -447,49 +576,48 @@
                                   },
                                   {
                                     "Conditional": {
+                                      "condition": {
+                                        "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if result {\\\"}\"}"
+                                      },
                                       "block": {
                                         "statements": [
                                           {
                                             "Assign": {
-                                              "assignee": {
-                                                "accesses": [],
-                                                "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":21,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
-                                              },
                                               "operation": "Assign",
+                                              "assignee": {
+                                                "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":21,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}",
+                                                "accesses": []
+                                              },
                                               "value": {
                                                 "Binary": {
                                                   "left": {
                                                     "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":31,\\\"col_stop\\\":40,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
                                                   },
-                                                  "op": "Eq",
                                                   "right": {
                                                     "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":44,\\\"col_stop\\\":51,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                    result = (start_sym == end_sym);\\\"}\"}"
-                                                  }
+                                                  },
+                                                  "op": "Eq"
                                                 }
                                               }
                                             }
                                           }
                                         ]
                                       },
-                                      "condition": {
-                                        "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                if result {\\\"}\"}"
-                                      },
                                       "next": null
                                     }
                                   },
                                   {
                                     "Assign": {
-                                      "assignee": {
-                                        "accesses": [],
-                                        "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
-                                      },
                                       "operation": "Assign",
+                                      "assignee": {
+                                        "identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":17,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}",
+                                        "accesses": []
+                                      },
                                       "value": {
                                         "Binary": {
                                           "left": {
                                             "Identifier": "{\"name\":\"processed\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":29,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                processed = processed + 1;\\\"}\"}"
                                           },
-                                          "op": "Add",
                                           "right": {
                                             "Value": {
                                               "Implicit": [
@@ -497,94 +625,30 @@
                                                 {}
                                               ]
                                             }
-                                          }
+                                          },
+                                          "op": "Add"
                                         }
                                       }
                                     }
                                   }
                                 ]
                               },
-                              "condition": {
-                                "Binary": {
-                                  "left": {
-                                    "Identifier": "{\"name\":\"end_sym\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":16,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if end_sym != ' ' {\\\"}\"}"
-                                  },
-                                  "op": "Ne",
-                                  "right": {
-                                    "Value": {
-                                      "Char": {
-                                        "character": {
-                                          "Scalar": 32
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              },
                               "next": null
                             }
                           }
                         ]
                       },
-                      "condition": {
-                        "Binary": {
-                          "left": {
-                            "Identifier": "{\"name\":\"start_sym\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":12,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        if start_sym != ' ' {\\\"}\"}"
-                          },
-                          "op": "Ne",
-                          "right": {
-                            "Value": {
-                              "Char": {
-                                "character": {
-                                  "Scalar": 32
-                                }
-                              }
-                            }
-                          }
-                        }
-                      },
                       "next": null
                     }
                   }
                 ]
-              },
-              "inclusive": false,
-              "start": {
-                "Value": {
-                  "Implicit": [
-                    "0",
-                    {}
-                  ]
-                }
-              },
-              "stop": {
-                "Binary": {
-                  "left": {
-                    "Identifier": "{\"name\":\"str_len\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":22,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
-                  },
-                  "op": "Div",
-                  "right": {
-                    "Value": {
-                      "Implicit": [
-                        "2",
-                        {}
-                      ]
-                    }
-                  }
-                }
-              },
-              "variable": "{\"name\":\"start\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    for start in 0..(str_len / 2) {\\\"}\"}"
+              }
             }
           },
           {
             "Console": {
               "function": {
                 "Log": {
-                  "parameters": [
-                    {
-                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":34,\\\"col_stop\\\":40,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"Result is: {}\\\\\\\", result);\\\"}\"}"
-                    }
-                  ],
                   "string": [
                     {
                       "Scalar": 82
@@ -625,6 +689,11 @@
                     {
                       "Scalar": 125
                     }
+                  ],
+                  "parameters": [
+                    {
+                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":34,\\\"col_stop\\\":40,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"Result is: {}\\\\\\\", result);\\\"}\"}"
+                    }
                   ]
                 }
               }
@@ -638,72 +707,7 @@
             }
           }
         ]
-      },
-      "identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
-      "input": [
-        {
-          "Variable": {
-            "const_": false,
-            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":24,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}",
-            "mutable": true,
-            "type_": {
-              "Array": [
-                "Char",
-                [
-                  {
-                    "value": "20"
-                  }
-                ]
-              ]
-            }
-          }
-        }
-      ],
-      "output": "Boolean"
-    },
-    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}": {
-      "annotations": [],
-      "block": {
-        "statements": [
-          {
-            "Return": {
-              "expression": {
-                "Call": {
-                  "arguments": [
-                    {
-                      "Identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":26,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
-                    }
-                  ],
-                  "function": {
-                    "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":12,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
-                  }
-                }
-              }
-            }
-          }
-        ]
-      },
-      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
-      "input": [
-        {
-          "Variable": {
-            "const_": false,
-            "identifier": "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}",
-            "mutable": true,
-            "type_": {
-              "Array": [
-                "Char",
-                [
-                  {
-                    "value": "20"
-                  }
-                ]
-              ]
-            }
-          }
-        }
-      ],
-      "output": "Boolean"
+      }
     },
     "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}": {
       "annotations": [
@@ -712,6 +716,9 @@
           "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":51,\\\"line_stop\\\":51,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
         }
       ],
+      "identifier": "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}",
+      "input": [],
+      "output": null,
       "block": {
         "statements": [
           {
@@ -719,6 +726,9 @@
               "function": {
                 "Assert": {
                   "Call": {
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"a           b   a   \\\\\\\"));\\\"}\"}"
+                    },
                     "arguments": [
                       {
                         "Value": {
@@ -789,10 +799,7 @@
                           ]
                         }
                       }
-                    ],
-                    "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"a           b   a   \\\\\\\"));\\\"}\"}"
-                    }
+                    ]
                   }
                 }
               }
@@ -803,6 +810,9 @@
               "function": {
                 "Assert": {
                   "Call": {
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"😀😀😀😀😀          😀😀😀😀😀\\\\\\\"));\\\"}\"}"
+                    },
                     "arguments": [
                       {
                         "Value": {
@@ -873,10 +883,7 @@
                           ]
                         }
                       }
-                    ],
-                    "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"😀😀😀😀😀          😀😀😀😀😀\\\\\\\"));\\\"}\"}"
-                    }
+                    ]
                   }
                 }
               }
@@ -887,6 +894,9 @@
               "function": {
                 "Assert": {
                   "Call": {
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"borrow or rob       \\\\\\\"));\\\"}\"}"
+                    },
                     "arguments": [
                       {
                         "Value": {
@@ -957,10 +967,7 @@
                           ]
                         }
                       }
-                    ],
-                    "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"borrow or rob       \\\\\\\"));\\\"}\"}"
-                    }
+                    ]
                   }
                 }
               }
@@ -971,80 +978,80 @@
               "function": {
                 "Assert": {
                   "Call": {
-                    "arguments": [
-                      {
-                        "Value": {
-                          "String": [
-                            [
-                              {
-                                "Scalar": 98
-                              },
-                              {
-                                "Scalar": 98
-                              },
-                              {
-                                "Scalar": 98
-                              },
-                              {
-                                "Scalar": 98
-                              },
-                              {
-                                "Scalar": 32
-                              },
-                              {
-                                "Scalar": 97
-                              },
-                              {
-                                "Scalar": 97
-                              },
-                              {
-                                "Scalar": 97
-                              },
-                              {
-                                "Scalar": 97
-                              },
-                              {
-                                "Scalar": 32
-                              },
-                              {
-                                "Scalar": 32
-                              },
-                              {
-                                "Scalar": 97
-                              },
-                              {
-                                "Scalar": 97
-                              },
-                              {
-                                "Scalar": 97
-                              },
-                              {
-                                "Scalar": 97
-                              },
-                              {
-                                "Scalar": 32
-                              },
-                              {
-                                "Scalar": 98
-                              },
-                              {
-                                "Scalar": 98
-                              },
-                              {
-                                "Scalar": 98
-                              },
-                              {
-                                "Scalar": 98
-                              }
-                            ],
-                            {}
-                          ]
-                        }
-                      }
-                    ],
                     "function": {
                       "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"bbbb aaaa  aaaa bbbb\\\\\\\"));\\\"}\"}"
-                    }
+                    },
+                    "arguments": [
+                      {
+                        "Value": {
+                          "String": [
+                            [
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 97
+                              },
+                              {
+                                "Scalar": 32
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              },
+                              {
+                                "Scalar": 98
+                              }
+                            ],
+                            {}
+                          ]
+                        }
+                      }
+                    ]
                   }
                 }
               }
@@ -1055,6 +1062,9 @@
               "function": {
                 "Assert": {
                   "Call": {
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"aaaaaaaaaaaaaaaaaaaa\\\\\\\"));\\\"}\"}"
+                    },
                     "arguments": [
                       {
                         "Value": {
@@ -1125,10 +1135,7 @@
                           ]
                         }
                       }
-                    ],
-                    "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"aaaaaaaaaaaaaaaaaaaa\\\\\\\"));\\\"}\"}"
-                    }
+                    ]
                   }
                 }
               }
@@ -1139,6 +1146,9 @@
               "function": {
                 "Assert": {
                   "Call": {
+                    "function": {
+                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"taco cat            \\\\\\\"));\\\"}\"}"
+                    },
                     "arguments": [
                       {
                         "Value": {
@@ -1209,24 +1219,14 @@
                           ]
                         }
                       }
-                    ],
-                    "function": {
-                      "Identifier": "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":20,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(is_palindrome(\\\\\\\"taco cat            \\\\\\\"));\\\"}\"}"
-                    }
+                    ]
                   }
                 }
               }
             }
           }
         ]
-      },
-      "identifier": "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}",
-      "input": [],
-      "output": null
+      }
     }
-  },
-  "global_consts": {},
-  "import_statements": [],
-  "imports": {},
-  "name": ""
+  }
 }

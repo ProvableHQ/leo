@@ -1,17 +1,82 @@
 {
+  "name": "",
+  "expected_input": [],
+  "import_statements": [
+    {
+      "package_or_packages": {
+        "Package": {
+          "name": "{\"name\":\"lib\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import lib.SillySudoku;\\\"}\"}",
+          "access": {
+            "Symbol": {
+              "symbol": "{\"name\":\"SillySudoku\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":12,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import lib.SillySudoku;\\\"}\"}",
+              "alias": null
+            }
+          }
+        }
+      }
+    }
+  ],
+  "imports": {},
   "aliases": {},
   "circuits": {},
-  "expected_input": [],
+  "global_consts": {},
   "functions": {
     "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}": {
       "annotations": [],
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}",
+      "input": [
+        {
+          "Variable": {
+            "identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}",
+            "const_": false,
+            "mutable": true,
+            "type_": {
+              "Array": [
+                {
+                  "IntegerType": "U8"
+                },
+                [
+                  {
+                    "value": "3"
+                  },
+                  {
+                    "value": "3"
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "Variable": {
+            "identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":37,\\\"col_stop\\\":43,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}",
+            "const_": false,
+            "mutable": true,
+            "type_": {
+              "Array": [
+                {
+                  "IntegerType": "U8"
+                },
+                [
+                  {
+                    "value": "3"
+                  },
+                  {
+                    "value": "3"
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      ],
+      "output": "Boolean",
       "block": {
         "statements": [
           {
             "Console": {
               "function": {
                 "Log": {
-                  "parameters": [],
                   "string": [
                     {
                       "Scalar": 83
@@ -88,7 +153,8 @@
                     {
                       "Scalar": 46
                     }
-                  ]
+                  ],
+                  "parameters": []
                 }
               }
             }
@@ -97,17 +163,17 @@
             "Console": {
               "function": {
                 "Log": {
-                  "parameters": [
-                    {
-                      "Identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", puzzle);\\\"}\"}"
-                    }
-                  ],
                   "string": [
                     {
                       "Scalar": 123
                     },
                     {
                       "Scalar": 125
+                    }
+                  ],
+                  "parameters": [
+                    {
+                      "Identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", puzzle);\\\"}\"}"
                     }
                   ]
                 }
@@ -117,33 +183,32 @@
           {
             "Definition": {
               "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"sudoku\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}"
+                }
+              ],
               "type_": null,
               "value": {
                 "CircuitInit": {
+                  "name": "{\"name\":\"SillySudoku\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":18,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}",
                   "members": [
                     {
+                      "identifier": "{\"name\":\"puzzle_grid\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":32,\\\"col_stop\\\":43,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}",
                       "expression": {
                         "Identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":45,\\\"col_stop\\\":51,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}"
-                      },
-                      "identifier": "{\"name\":\"puzzle_grid\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":32,\\\"col_stop\\\":43,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}"
+                      }
                     }
-                  ],
-                  "name": "{\"name\":\"SillySudoku\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":18,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}"
+                  ]
                 }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"sudoku\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}",
-                  "mutable": true
-                }
-              ]
+              }
             }
           },
           {
             "Console": {
               "function": {
                 "Log": {
-                  "parameters": [],
                   "string": [
                     {
                       "Scalar": 67
@@ -220,7 +285,8 @@
                     {
                       "Scalar": 46
                     }
-                  ]
+                  ],
+                  "parameters": []
                 }
               }
             }
@@ -229,17 +295,17 @@
             "Console": {
               "function": {
                 "Log": {
-                  "parameters": [
-                    {
-                      "Identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", answer);\\\"}\"}"
-                    }
-                  ],
                   "string": [
                     {
                       "Scalar": 123
                     },
                     {
                       "Scalar": 125
+                    }
+                  ],
+                  "parameters": [
+                    {
+                      "Identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"{}\\\\\\\", answer);\\\"}\"}"
                     }
                   ]
                 }
@@ -249,14 +315,15 @@
           {
             "Definition": {
               "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = sudoku.solve(answer);\\\"}\"}"
+                }
+              ],
               "type_": null,
               "value": {
                 "Call": {
-                  "arguments": [
-                    {
-                      "Identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":31,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = sudoku.solve(answer);\\\"}\"}"
-                    }
-                  ],
                   "function": {
                     "CircuitMemberAccess": {
                       "circuit": {
@@ -265,26 +332,20 @@
                       "name": "{\"name\":\"solve\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":25,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = sudoku.solve(answer);\\\"}\"}",
                       "type_": null
                     }
-                  }
+                  },
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":31,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = sudoku.solve(answer);\\\"}\"}"
+                    }
+                  ]
                 }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = sudoku.solve(answer);\\\"}\"}",
-                  "mutable": true
-                }
-              ]
+              }
             }
           },
           {
             "Console": {
               "function": {
                 "Log": {
-                  "parameters": [
-                    {
-                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":38,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"The answer is {}.\\\\\\\", result);\\\"}\"}"
-                    }
-                  ],
                   "string": [
                     {
                       "Scalar": 84
@@ -337,6 +398,11 @@
                     {
                       "Scalar": 46
                     }
+                  ],
+                  "parameters": [
+                    {
+                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":38,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"The answer is {}.\\\\\\\", result);\\\"}\"}"
+                    }
                   ]
                 }
               }
@@ -350,13 +416,735 @@
             }
           }
         ]
-      },
-      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}",
+      }
+    },
+    "{\"name\":\"test_solve_pass\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_pass() {\\\"}\"}": {
+      "annotations": [
+        {
+          "arguments": [],
+          "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
+        }
+      ],
+      "identifier": "{\"name\":\"test_solve_pass\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_pass() {\\\"}\"}",
+      "input": [],
+      "output": null,
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let puzzle: [u8; (3, 3)] = [[0, 2, 0],\\\"}\"}"
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "IntegerType": "U8"
+                  },
+                  [
+                    {
+                      "value": "3"
+                    },
+                    {
+                      "value": "3"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "2",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "6",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "8",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "9",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let answer: [u8; (3, 3)] = [[1, 2, 3],\\\"}\"}"
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "IntegerType": "U8"
+                  },
+                  [
+                    {
+                      "value": "3"
+                    },
+                    {
+                      "value": "3"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "1",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "2",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "3",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "4",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "5",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "6",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "7",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "8",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "9",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
+                }
+              ],
+              "type_": null,
+              "value": {
+                "Call": {
+                  "function": {
+                    "Identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":18,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
+                  },
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
+                    },
+                    {
+                      "Identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":31,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Binary": {
+                    "left": {
+                      "Value": {
+                        "Boolean": [
+                          "true",
+                          {}
+                        ]
+                      }
+                    },
+                    "right": {
+                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":28,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(true == result);\\\"}\"}"
+                    },
+                    "op": "Eq"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "{\"name\":\"test_solve_fail\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_fail() {\\\"}\"}": {
+      "annotations": [
+        {
+          "arguments": [],
+          "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
+        }
+      ],
+      "identifier": "{\"name\":\"test_solve_fail\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_fail() {\\\"}\"}",
+      "input": [],
+      "output": null,
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let puzzle: [u8; (3, 3)] = [[0, 2, 0],\\\"}\"}"
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "IntegerType": "U8"
+                  },
+                  [
+                    {
+                      "value": "3"
+                    },
+                    {
+                      "value": "3"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "2",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "6",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "8",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "0",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":47,\\\"line_stop\\\":47,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let answer: [u8; (3, 3)] = [[1, 2, 3],\\\"}\"}"
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "IntegerType": "U8"
+                  },
+                  [
+                    {
+                      "value": "3"
+                    },
+                    {
+                      "value": "3"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "1",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "2",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "3",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "4",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "5",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "6",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "ArrayInline": {
+                          "elements": [
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "7",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "8",
+                                    {}
+                                  ]
+                                }
+                              }
+                            },
+                            {
+                              "Expression": {
+                                "Value": {
+                                  "Implicit": [
+                                    "8",
+                                    {}
+                                  ]
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
+                }
+              ],
+              "type_": null,
+              "value": {
+                "Call": {
+                  "function": {
+                    "Identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":18,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
+                  },
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
+                    },
+                    {
+                      "Identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":31,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Console": {
+              "function": {
+                "Assert": {
+                  "Binary": {
+                    "left": {
+                      "Value": {
+                        "Boolean": [
+                          "false",
+                          {}
+                        ]
+                      }
+                    },
+                    "right": {
+                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":29,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(false == result);\\\"}\"}"
+                    },
+                    "op": "Eq"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "{\"name\":\"test_solve_with_input\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":10,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_with_input(\\\"}\"}": {
+      "annotations": [
+        {
+          "arguments": [
+            "test_input"
+          ],
+          "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test(test_input)\\\"}\"}"
+        }
+      ],
+      "identifier": "{\"name\":\"test_solve_with_input\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":10,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_with_input(\\\"}\"}",
       "input": [
         {
           "Variable": {
+            "identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":5,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    puzzle: [u8; (3, 3)],\\\"}\"}",
             "const_": false,
-            "identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":15,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}",
             "mutable": true,
             "type_": {
               "Array": [
@@ -377,8 +1165,8 @@
         },
         {
           "Variable": {
+            "identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":5,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    answer: [u8; (3, 3)],\\\"}\"}",
             "const_": false,
-            "identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":37,\\\"col_stop\\\":43,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}",
             "mutable": true,
             "type_": {
               "Array": [
@@ -396,739 +1184,34 @@
               ]
             }
           }
-        }
-      ],
-      "output": "Boolean"
-    },
-    "{\"name\":\"test_solve_fail\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_fail() {\\\"}\"}": {
-      "annotations": [
+        },
         {
-          "arguments": [],
-          "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
-        }
-      ],
-      "block": {
-        "statements": [
-          {
-            "Definition": {
-              "declaration_type": "Let",
-              "type_": {
-                "Array": [
-                  {
-                    "IntegerType": "U8"
-                  },
-                  [
-                    {
-                      "value": "3"
-                    },
-                    {
-                      "value": "3"
-                    }
-                  ]
-                ]
-              },
-              "value": {
-                "ArrayInline": {
-                  "elements": [
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "2",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "6",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "8",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let puzzle: [u8; (3, 3)] = [[0, 2, 0],\\\"}\"}",
-                  "mutable": true
-                }
-              ]
-            }
-          },
-          {
-            "Definition": {
-              "declaration_type": "Let",
-              "type_": {
-                "Array": [
-                  {
-                    "IntegerType": "U8"
-                  },
-                  [
-                    {
-                      "value": "3"
-                    },
-                    {
-                      "value": "3"
-                    }
-                  ]
-                ]
-              },
-              "value": {
-                "ArrayInline": {
-                  "elements": [
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "1",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "2",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "3",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "4",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "5",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "6",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "7",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "8",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "8",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":47,\\\"line_stop\\\":47,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let answer: [u8; (3, 3)] = [[1, 2, 3],\\\"}\"}",
-                  "mutable": true
-                }
-              ]
-            }
-          },
-          {
-            "Definition": {
-              "declaration_type": "Let",
-              "type_": null,
-              "value": {
-                "Call": {
-                  "arguments": [
-                    {
-                      "Identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
-                    },
-                    {
-                      "Identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":31,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
-                    }
-                  ],
-                  "function": {
-                    "Identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":18,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
-                  }
-                }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}",
-                  "mutable": true
-                }
-              ]
-            }
-          },
-          {
-            "Console": {
-              "function": {
-                "Assert": {
-                  "Binary": {
-                    "left": {
-                      "Value": {
-                        "Boolean": [
-                          "false",
-                          {}
-                        ]
-                      }
-                    },
-                    "op": "Eq",
-                    "right": {
-                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":29,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(false == result);\\\"}\"}"
-                    }
-                  }
-                }
-              }
-            }
+          "Variable": {
+            "identifier": "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":5,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    expected: bool\\\"}\"}",
+            "const_": false,
+            "mutable": true,
+            "type_": "Boolean"
           }
-        ]
-      },
-      "identifier": "{\"name\":\"test_solve_fail\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_fail() {\\\"}\"}",
-      "input": [],
-      "output": null
-    },
-    "{\"name\":\"test_solve_pass\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_pass() {\\\"}\"}": {
-      "annotations": [
-        {
-          "arguments": [],
-          "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
         }
       ],
+      "output": null,
       "block": {
         "statements": [
           {
             "Definition": {
               "declaration_type": "Let",
-              "type_": {
-                "Array": [
-                  {
-                    "IntegerType": "U8"
-                  },
-                  [
-                    {
-                      "value": "3"
-                    },
-                    {
-                      "value": "3"
-                    }
-                  ]
-                ]
-              },
-              "value": {
-                "ArrayInline": {
-                  "elements": [
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "2",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "6",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "0",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "8",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "9",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                }
-              },
               "variable_names": [
                 {
-                  "identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let puzzle: [u8; (3, 3)] = [[0, 2, 0],\\\"}\"}",
-                  "mutable": true
+                  "mutable": true,
+                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":66,\\\"line_stop\\\":66,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
                 }
-              ]
-            }
-          },
-          {
-            "Definition": {
-              "declaration_type": "Let",
-              "type_": {
-                "Array": [
-                  {
-                    "IntegerType": "U8"
-                  },
-                  [
-                    {
-                      "value": "3"
-                    },
-                    {
-                      "value": "3"
-                    }
-                  ]
-                ]
-              },
-              "value": {
-                "ArrayInline": {
-                  "elements": [
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "1",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "2",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "3",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "4",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "5",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "6",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    },
-                    {
-                      "Expression": {
-                        "ArrayInline": {
-                          "elements": [
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "7",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "8",
-                                    {}
-                                  ]
-                                }
-                              }
-                            },
-                            {
-                              "Expression": {
-                                "Value": {
-                                  "Implicit": [
-                                    "9",
-                                    {}
-                                  ]
-                                }
-                              }
-                            }
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let answer: [u8; (3, 3)] = [[1, 2, 3],\\\"}\"}",
-                  "mutable": true
-                }
-              ]
-            }
-          },
-          {
-            "Definition": {
-              "declaration_type": "Let",
+              ],
               "type_": null,
               "value": {
                 "Call": {
-                  "arguments": [
-                    {
-                      "Identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
-                    },
-                    {
-                      "Identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":31,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
-                    }
-                  ],
                   "function": {
-                    "Identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":18,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
-                  }
-                }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}",
-                  "mutable": true
-                }
-              ]
-            }
-          },
-          {
-            "Console": {
-              "function": {
-                "Assert": {
-                  "Binary": {
-                    "left": {
-                      "Value": {
-                        "Boolean": [
-                          "true",
-                          {}
-                        ]
-                      }
-                    },
-                    "op": "Eq",
-                    "right": {
-                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":37,\\\"line_stop\\\":37,\\\"col_start\\\":28,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(true == result);\\\"}\"}"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        ]
-      },
-      "identifier": "{\"name\":\"test_solve_pass\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_pass() {\\\"}\"}",
-      "input": [],
-      "output": null
-    },
-    "{\"name\":\"test_solve_with_input\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":10,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_with_input(\\\"}\"}": {
-      "annotations": [
-        {
-          "arguments": [
-            "test_input"
-          ],
-          "name": "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test(test_input)\\\"}\"}"
-        }
-      ],
-      "block": {
-        "statements": [
-          {
-            "Definition": {
-              "declaration_type": "Let",
-              "type_": null,
-              "value": {
-                "Call": {
+                    "Identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":66,\\\"line_stop\\\":66,\\\"col_start\\\":18,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
+                  },
                   "arguments": [
                     {
                       "Identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":66,\\\"line_stop\\\":66,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
@@ -1136,32 +1219,15 @@
                     {
                       "Identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":66,\\\"line_stop\\\":66,\\\"col_start\\\":31,\\\"col_stop\\\":37,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
                     }
-                  ],
-                  "function": {
-                    "Identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":66,\\\"line_stop\\\":66,\\\"col_start\\\":18,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}"
-                  }
+                  ]
                 }
-              },
-              "variable_names": [
-                {
-                  "identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":66,\\\"line_stop\\\":66,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let result = main(puzzle, answer);\\\"}\"}",
-                  "mutable": true
-                }
-              ]
+              }
             }
           },
           {
             "Console": {
               "function": {
                 "Log": {
-                  "parameters": [
-                    {
-                      "Identifier": "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":68,\\\"line_stop\\\":68,\\\"col_start\\\":40,\\\"col_stop\\\":48,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"expected {}, got {}\\\\\\\", expected, result);\\\"}\"}"
-                    },
-                    {
-                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":68,\\\"line_stop\\\":68,\\\"col_start\\\":50,\\\"col_stop\\\":56,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"expected {}, got {}\\\\\\\", expected, result);\\\"}\"}"
-                    }
-                  ],
                   "string": [
                     {
                       "Scalar": 101
@@ -1220,6 +1286,14 @@
                     {
                       "Scalar": 125
                     }
+                  ],
+                  "parameters": [
+                    {
+                      "Identifier": "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":68,\\\"line_stop\\\":68,\\\"col_start\\\":40,\\\"col_stop\\\":48,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"expected {}, got {}\\\\\\\", expected, result);\\\"}\"}"
+                    },
+                    {
+                      "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":68,\\\"line_stop\\\":68,\\\"col_start\\\":50,\\\"col_stop\\\":56,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.log(\\\\\\\"expected {}, got {}\\\\\\\", expected, result);\\\"}\"}"
+                    }
                   ]
                 }
               }
@@ -1233,91 +1307,17 @@
                     "left": {
                       "Identifier": "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":70,\\\"line_stop\\\":70,\\\"col_start\\\":20,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(expected == result);\\\"}\"}"
                     },
-                    "op": "Eq",
                     "right": {
                       "Identifier": "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":70,\\\"line_stop\\\":70,\\\"col_start\\\":32,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    console.assert(expected == result);\\\"}\"}"
-                    }
+                    },
+                    "op": "Eq"
                   }
                 }
               }
             }
           }
         ]
-      },
-      "identifier": "{\"name\":\"test_solve_with_input\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":10,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_with_input(\\\"}\"}",
-      "input": [
-        {
-          "Variable": {
-            "const_": false,
-            "identifier": "{\"name\":\"puzzle\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":5,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    puzzle: [u8; (3, 3)],\\\"}\"}",
-            "mutable": true,
-            "type_": {
-              "Array": [
-                {
-                  "IntegerType": "U8"
-                },
-                [
-                  {
-                    "value": "3"
-                  },
-                  {
-                    "value": "3"
-                  }
-                ]
-              ]
-            }
-          }
-        },
-        {
-          "Variable": {
-            "const_": false,
-            "identifier": "{\"name\":\"answer\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":5,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    answer: [u8; (3, 3)],\\\"}\"}",
-            "mutable": true,
-            "type_": {
-              "Array": [
-                {
-                  "IntegerType": "U8"
-                },
-                [
-                  {
-                    "value": "3"
-                  },
-                  {
-                    "value": "3"
-                  }
-                ]
-              ]
-            }
-          }
-        },
-        {
-          "Variable": {
-            "const_": false,
-            "identifier": "{\"name\":\"expected\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":5,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    expected: bool\\\"}\"}",
-            "mutable": true,
-            "type_": "Boolean"
-          }
-        }
-      ],
-      "output": null
-    }
-  },
-  "global_consts": {},
-  "import_statements": [
-    {
-      "package_or_packages": {
-        "Package": {
-          "access": {
-            "Symbol": {
-              "alias": null,
-              "symbol": "{\"name\":\"SillySudoku\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":12,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import lib.SillySudoku;\\\"}\"}"
-            }
-          },
-          "name": "{\"name\":\"lib\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import lib.SillySudoku;\\\"}\"}"
-        }
       }
     }
-  ],
-  "imports": {},
-  "name": ""
+  }
 }
