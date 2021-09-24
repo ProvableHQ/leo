@@ -66,17 +66,9 @@ impl Default for Update {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct Config {
     pub update: Update,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            update: Update::default(),
-        }
-    }
 }
 
 impl Config {
