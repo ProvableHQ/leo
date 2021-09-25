@@ -57,22 +57,6 @@ pub struct BuildOptions {
     pub enable_type_inferenced_ast_snapshot: bool,
 }
 
-impl Default for BuildOptions {
-    fn default() -> Self {
-        Self {
-            disable_constant_folding: false,
-            disable_code_elimination: false,
-            disable_all_optimizations: false,
-            enable_spans: false,
-            enable_all_ast_snapshots: false,
-            enable_initial_ast_snapshot: false,
-            enable_imports_resolved_ast_snapshot: false,
-            enable_canonicalized_ast_snapshot: false,
-            enable_type_inferenced_ast_snapshot: false,
-        }
-    }
-}
-
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
         if options.disable_all_optimizations {

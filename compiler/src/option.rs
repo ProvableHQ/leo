@@ -43,15 +43,3 @@ pub struct AstSnapshotOptions {
     pub canonicalized: bool,
     pub type_inferenced: bool,
 }
-
-impl Default for AstSnapshotOptions {
-    fn default() -> Self {
-        Self {
-            spans_enabled: false,
-            initial: false,
-            imports_resolved: false,
-            canonicalized: false,
-            type_inferenced: false,
-        }
-    }
-}
