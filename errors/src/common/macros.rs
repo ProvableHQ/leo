@@ -42,14 +42,17 @@ macro_rules! create_errors {
             #[inline(always)]
             fn exit_code(&self) -> i32 {
                 match self {
-                    Self::FormattedError(formatted) => {
-                        formatted.exit_code()
-                    },
-                    Self::BacktracedError(backtraced) => {
-                        backtraced.exit_code()
-                    }
+                    Self::FormattedError(formatted) => formatted.exit_code(),
+                    Self::BacktracedError(backtraced) => backtraced.exit_code()
                 }
+            }
 
+            #[inline(always)]
+            fn error_code(&self) -> String {
+                match self {
+                    Self::FormattedError(formatted) => formatted.error_code(),
+                    Self::BacktracedError(backtraced) => backtraced.error_code()
+                }
             }
 
             #[inline(always)]

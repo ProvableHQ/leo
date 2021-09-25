@@ -16,7 +16,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import * as parser from '../../pkg/leo_wasm';
+import * as leo from '../../pkg/leo_wasm';
 import * as yaml from 'js-yaml';
 
 // Path to the parser tests folder
@@ -100,7 +100,7 @@ function test(filePath: string, outFile: string|null): TestResult[] {
     // and collect outputs to later compare to saved .out expectations.
     for (const sample of samples) {
         try {
-            outputs.push(JSON.parse(parser.parse(sample))); // Parser outputs JSON
+            outputs.push(JSON.parse(leo.parse(sample))); // Parser outputs JSON
             if (expectation === Expectation.Fail) { // If expectation was Fail and it passed
                 mismatches.push({
                     filePath,
@@ -110,6 +110,10 @@ function test(filePath: string, outFile: string|null): TestResult[] {
                 });
             } 
         } catch (error) {
+
+            console.log(error.code);
+            console.log(error.exitCode);
+
             outputs.push(error.toString());
             if (expectation === Expectation.Pass) { // If expectation was Pass and it failed
                 mismatches.push({

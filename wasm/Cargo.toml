@@ -45,8 +45,12 @@ path = "../ast-passes"
 version = "1.0"
 features = [ "derive" ]
 
+[dependencies.serde_json]
+version = "1.0"
+
 [dependencies.wasm-bindgen]
 version = "0.2"
+features = [ "serde-serialize" ]
 
 # Crate metadata
 

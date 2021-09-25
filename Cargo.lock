@@ -1459,6 +1459,7 @@ dependencies = [
  "leo-errors",
  "leo-parser",
  "serde",
+ "serde_json",
  "wasm-bindgen",
 ]
 

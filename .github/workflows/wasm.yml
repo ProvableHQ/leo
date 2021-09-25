@@ -1,4 +1,4 @@
-name: WASM Tests 
+name: WASM 
 on:
   pull_request:
     push:
@@ -14,14 +14,14 @@ env:
 
 jobs:
   test-wasm-parser:
-    name: Test WASM on ${{ matrix.os }}
+    name: Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         working-directory: wasm
     strategy:
       matrix:
-        os: [macOS-latest, windows-latest, ubuntu-latest]
+        os: [windows-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
