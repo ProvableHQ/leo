@@ -39,6 +39,7 @@ members = [
   "package",
   "parser",
   "state",
+  "stdlib",
   "synthesizer",
   "test-framework",
   "wasm"
@@ -76,6 +77,10 @@ version = "1.5.3"
 path = "./state"
 version = "1.5.3"
 
+[dependencies.leo-stdlib]
+path = "./stdlib"
+version = "1.5.3"
+
 [dependencies.leo-synthesizer]
 path = "./synthesizer"
 version = "1.5.3"
@@ -111,7 +116,7 @@ color-backtrace = "0.5.1"
 version = "2.0"
 
 [dependencies.dirs]
-version = "3.0.2"
+version = "4.0.0"
 
 [dependencies.console]
 version = "0.14.0"

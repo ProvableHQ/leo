@@ -20,6 +20,6 @@ outputs:
               type: u32
               value: "0"
     initial_ast: 659826ae1cff74192eca6a5936459d0ec78b73a389516602b4d04cf6b80b1004
-    imports_resolved_ast: 659826ae1cff74192eca6a5936459d0ec78b73a389516602b4d04cf6b80b1004
-    canonicalized_ast: 659826ae1cff74192eca6a5936459d0ec78b73a389516602b4d04cf6b80b1004
-    type_inferenced_ast: 9b105138d6298e591c2882c5162f18c4f0dc223ab4128e09ce35b44ad14d2269
+    imports_resolved_ast: f2b6d9e4af4e3f7177b5cd4cc65296e5edfb0b522a4f435a16c12043b55fb5ca
+    canonicalized_ast: f2b6d9e4af4e3f7177b5cd4cc65296e5edfb0b522a4f435a16c12043b55fb5ca
+    type_inferenced_ast: e47105df76da7c16b8db17178c9ef53b2059aa054154fa40db4e566891d353f2

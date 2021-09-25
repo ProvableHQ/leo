@@ -388,6 +388,9 @@ impl Token {
                     return (len, Some(Token::DotDotDot));
                 } else if let Some(len) = eat(input, "..") {
                     return (len, Some(Token::DotDot));
+                } else if let Some(len) = eat(input, ".len()") {
+                    // FIXME: remove this code once we allow method calls
+                    return (len, Some(Token::LengthOf));
                 }
                 return (1, Some(Token::Dot));
             }
@@ -516,7 +519,6 @@ impl Token {
                     "Self" => Token::BigSelf,
                     "self" => Token::LittleSelf,
                     "static" => Token::Static,
-                    "string" => Token::String,
                     "true" => Token::True,
                     "type" => Token::Type,
                     "u8" => Token::U8,

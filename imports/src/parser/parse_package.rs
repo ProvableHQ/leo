@@ -51,9 +51,9 @@ impl ImportParser {
         let package_name = segments[0];
 
         // Fetch a core package
-        let core_package = package_name.eq("core");
+        let core_package = package_name.eq("std");
         if core_package {
-            panic!("attempted to import core package from filesystem");
+            panic!("attempted to import std package from filesystem");
         }
 
         // Trim path if importing from another file

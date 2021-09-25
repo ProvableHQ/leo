@@ -31,7 +31,7 @@ Leaving import declarations aside for the moment since they are "meta" in some s
 (as they bring in names of entities declared elsewhere),
 it may make sense for any of the four kinds of declarations above to have built-in instances, i.e., we could have some built-in functions, circuit types, global constants, and type aliases. These features are why this RFC talks of built-in declarations, more broadly than just built-in type aliases that inspired it.
 
-The built-in status of the envisioned declarations will be done through explicitly declared core library files. Then these core library files must be explicitly imported. This way helps avoid unnecessary code bloat in the compilation, and any user asked for AST snapshots.
+The built-in status of the envisioned declarations will be done through explicitly declared standard library(stdlib) files. Then these stdlib files must expressly be imported, except the files found in stdlib/prelude/*. The ones found in the prelude are features determined to be helpful enough in standard programs and are auto-imported.
 
 ## Drawbacks
 
@@ -46,15 +46,7 @@ But it should not be much different from standard libraries/packages.
 
 Some alternative approaches are:
 
-1. Their names could be simply available in any program,
-   without any explicit declaration found anywhere for them.
-2. They could be declared in some core library files explicitly
- and be available in any program without explicitly importing them,
- like `java.lang.String` in Java or `std::Option` in Rust.
+1. Having all stdlib imports auto included.
+2. Require that all stdlib imports are explicitly imported.
 
-From a user's perspective, there is not a lot of difference between cases 1 and 2 above:
-in both cases, the names are available; the only difference is that in case 2, the user can see the declaration somewhere.
-
-Also, note that case 2 could be seen as having an implicit (i.e., built-in) import of the library/libraries in question. Again, imports are "meta" in this context, and what counts are the other kinds of declarations.
-
-In cases 2 and the decided upon design choice, a related but somewhat independent issue is whether those declarations have Leo definitions or not. The Leo library already includes functions like BLAKE2s that are not defined in Leo but rather "natively" in Rust/R1CS though some of this may be subject to change for native definitions(see the separate RFC on those).
+The differences between the two above approaches and the chosen one are just how many imports are imported explicitly.

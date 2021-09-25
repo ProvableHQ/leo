@@ -48,6 +48,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
             Expression::CircuitInit(e) => self.reduce_circuit_init(e),
             Expression::Ternary(e) => self.reduce_ternary_expression(e),
             Expression::Cast(e) => self.reduce_cast_expression(e),
+            Expression::LengthOf(e) => self.reduce_lengthof_expression(e),
             Expression::Constant(e) => self.reduce_constant(e),
             Expression::TupleAccess(e) => self.reduce_tuple_access(e),
             Expression::TupleInit(e) => self.reduce_tuple_init(e),
@@ -136,6 +137,12 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         let inner = self.reduce_expression(input.inner.get());
 
         self.reducer.reduce_cast_expression(input, inner)
+    }
+
+    pub fn reduce_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> T {
+        let inner = self.reduce_expression(input.inner.get());
+
+        self.reducer.reduce_lengthof_expression(input, inner)
     }
 
     pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
