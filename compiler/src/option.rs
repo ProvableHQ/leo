@@ -35,7 +35,7 @@ impl Default for CompilerOptions {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct AstSnapshotOptions {
     pub spans_enabled: bool,
     pub initial: bool,

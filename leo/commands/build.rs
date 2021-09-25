@@ -35,7 +35,7 @@ use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
-#[derive(StructOpt, Clone, Debug)]
+#[derive(StructOpt, Clone, Debug, Default)]
 pub struct BuildOptions {
     #[structopt(long, help = "Disable constant folding compiler optimization")]
     pub disable_constant_folding: bool,
