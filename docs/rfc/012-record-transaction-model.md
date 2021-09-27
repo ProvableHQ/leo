@@ -1,4 +1,4 @@
-# Leo RFC 012: Record and Transaction Model
+# Leo RFC 012: Improved Record and Transaction Model
 
 ## Authors
 
@@ -10,7 +10,7 @@ DRAFT
 
 ## Summary
 
-This RFC describes how Leo programs interact with the Aleo blockchain.
+This RFC describes an improved model for how Leo programs interact with the Aleo blockchain.
 The description is oriented to the Leo developer:
 it does not describe the zero-knowledge details,
 as the whole purpose of Leo is to enable developers
