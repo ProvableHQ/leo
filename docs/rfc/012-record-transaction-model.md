@@ -36,6 +36,7 @@ The computation of the new records from the old records
 is arbitrary and unknown to the blockchain;
 the blockchain only enforces that the old records satisfy known _death predicates_
 and that the new records satisfy known _birth predicates_.
+See the [Zexe paper](https://eprint.iacr.org/2018/962.pdf) for details.
 
 ### Aleo Blockchain
 
@@ -49,7 +50,7 @@ which may involve records owned by different parties
 
 One or both of the old records may be dummy,
 if only one old actual record is desired,
-or if new records are to be created "from nothing".
+or if new records are created "from nothing".
 One or both of the new records may be dummy,
 if only one new actual record is desired,
 or if old records just have to be consumed.
@@ -90,10 +91,10 @@ This is what 'corresponds' means, in that sentence.
 However, for the high-level purpose of this RFC, these are zero-knowledge details.
 
 In general, the `main` function takes some `const` and some non-`const` inputs (declared as parameters),
-and returns an output (declared as a return type), which may be a tuple to effectively represent multiple outputs.
+and returns an output (declared as a return type), which may be a tuple to represent "multiple" outputs.
 The `const` inputs are compiled into the zero-knowledge circuit,
 so they can be ignored for our purpose here,
-leaving the non-`const` inputs and the output for consideration.
+leaving only the non-`const` inputs and the output for consideration.
 
 The execution of `main` can be described as a mathematical function
 ```
