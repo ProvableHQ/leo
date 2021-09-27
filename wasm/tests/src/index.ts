@@ -110,10 +110,6 @@ function test(filePath: string, outFile: string|null): TestResult[] {
                 });
             } 
         } catch (error) {
-
-            console.log(error.code);
-            console.log(error.exitCode);
-
             outputs.push(error.toString());
             if (expectation === Expectation.Pass) { // If expectation was Pass and it failed
                 mismatches.push({
