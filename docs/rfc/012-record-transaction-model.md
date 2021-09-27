@@ -134,14 +134,12 @@ this is, roughly speaking, the assertion proved in zero-knowledge.
 
 ## Design
 
-### Proposed Leo Program Execution Model
+### Multiple Entry Points
 
-The current model described above seems adequate overall, but we need to:
-1. Clarify how Leo code reads old records and writes new records.
-2. Generalize from one entry point (i.e. the `main` function) to multiple entry points, in line with the smart contract paradigm.
+We propose to generalize from one entry point (i.e. the `main` function) to multiple entry points,
+in line with the smart contract paradigm.
 
-Generalizing from one `main` entry point to multiple ones is conceptually easy.
-It means that, instead of implicitly designating `main` as the only entry point,
+Instead of implicitly designating `main` as the only entry point,
 we need a mechanism to explicitly designate one or more Leo functions as entry points.
 
 A simple approach could be to use an annotation like `@entrypoint` to designate _entry point functions_:
@@ -170,7 +168,10 @@ entrypoint {
 }
 ```
 
-Now let us turn to the issue of clarifying how the Leo code reads old records and writes new records.
+In the rest of this design section we assume the annotation approach (i.e. `@entrypoint`) for concreteness,
+but that can be replaced as soon as we converge on a choice.
+
+### Proposed Leo Program Execution Model
 
 Given that records have a fixed structure with typed slots,
 their format could be described by a Leo circuit type,
