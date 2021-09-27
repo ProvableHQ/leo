@@ -249,21 +249,39 @@ to be called `input`, or some other predefined name.
 However, this is not a necessary restriction, and we may decide to demote that to a convention rather than a requirement.
 (Currently `input` is a keyword and its own kind of Leo expression, which slightly complicates the language.)
 
-### Proposed Leo Program Execution Model
+### Access to Transaction Input and Output Types
 
-We probably want `input` to be read-only,
-i.e. disallow assigning to an old record slot.
-Designating `input` as `const` does not seem right,
-as that designation normally means that it is compiled into the circuit.
-Instead, we could provide read-only access via member function (e.g. `payload()`, `balance()`),
+Currently the member variables of Leo circuit types are always accessible for both reading and writing.
+It is thus possible for a Leo program
+to read from the member variables of `TransactionInput`
+and to write to the member variables of `TransactionOutput`.
+Therefore, for an initial implementation,
+it suffices for these two circuit types to provide member variables for the needed slots.
+
+We might want the member variables of `TransactionInput` to be read-only.
+This is not necessary for the transaction model to work:
+so long as `TransactionInput` is properly initialized before calling the entry point,
+and that after the call the resulting `TransactionOutput` is used to create the transaction,
+there is no harm in the Leo program to modify the copy of `TransactionInput` passed to the program.
+Nonetheless, we may want to enforce this restriction to encourage good coding practices
+(unless we find a use case to the contrary).
+
+There is currently no mechanism in Leo to enforce that.
+Designating the transaction input as `const` is not right,
+as that designation normally means that the value is compiled into the circuit.
+
+We could provide read-only access via member function (e.g. `payload()`, `balance()`),
 but we still have to prohibit assignments to member variables (which is currently allowed on any circuit type).
 As an orthogonal and more generally useful feature,
 we could consider adding public/private access designations to Leo circuit members.
 Another approach is to avoid exposing the member variables,
 and just make the member functions available via an implicit import declaration.
-All of this needs to be thought through more carefully, in the broader context of the Leo language design;
-in any case, it should be clear that this can be made to work in some way,
-and that Leo programs can access the old records through the special `input` variables.
+All of this needs to be thought through more carefully, in the broader context of the Leo language design.
+
+If `TransactionInput` has member functions, it may also be useful for `TransactionOutput` to have member functions,
+presumably to create new instances and to set values of member variables.
+
+### Proposed Leo Program Execution Model
 
 One issue with the special `input` variable is whether it should be treated as a built-in global variable,
 or whether it should be explicitly passed to the entry point functions and to the non-entry-point functions called by them.
