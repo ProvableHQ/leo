@@ -29,7 +29,7 @@ export interface LeoError { text: string, code: string, exitCode: number }
 "#;
 
 /// Publicly accessible method.
-/// Parse the code and return an AST as JSON or an error object. asd
+/// Parse the code and return an AST as JSON or an error object.
 #[wasm_bindgen(method, catch)]
 pub fn parse(program: &str) -> Result<String, JsValue> {
     Ok(parse_program(program).map_err(error_to_value)?)
