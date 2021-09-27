@@ -242,7 +242,7 @@ impl<'a> Compiler<'a> {
         cs: CS,
         input: &leo_ast::Input,
     ) -> Result<CompilationData> {
-        let compiled = self.compile_ir(&input)?;
+        let compiled = self.compile_ir(input)?;
         self.compile_inner::<F, G, CS>(cs, input, compiled)
     }
 
@@ -252,13 +252,13 @@ impl<'a> Compiler<'a> {
         input: &leo_ast::Input,
         compiled: snarkvm_ir::Program,
     ) -> Result<CompilationData> {
-        let input_data = self.process_input(&input, &compiled.header)?;
+        let input_data = self.process_input(input, &compiled.header)?;
         let mut evaluator = snarkvm_eval::SetupEvaluator::<F, G, CS>::new(cs);
         let output = evaluator
             .evaluate(&compiled, &input_data)
             .map_err(|e| SnarkVMError::from(eyre!(e)))?;
 
-        let registers: Vec<_> = compiled.header.register_inputs.iter().map(|x| x.clone()).collect();
+        let registers: Vec<_> = compiled.header.register_inputs.to_vec();
         let output = Output::new(&registers[..], output, &Span::default())?;
 
         Ok(CompilationData {
@@ -399,10 +399,7 @@ impl<'a> Compiler<'a> {
                 // increment passed tests
                 passed += 1;
             } else {
-                // Set file location of error
-                let error = result.unwrap_err();
-
-                tracing::error!("{} failed due to error\n\n{}\n", full_test_name, error);
+                tracing::error!("{} failed due to error\n\n{}\n", full_test_name, result.unwrap_err());
 
                 // increment failed tests
                 failed += 1;

@@ -2688,7 +2688,7 @@ checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 [[package]]
 name = "snarkvm-algorithms"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "anyhow",
  "bitvec",
@@ -2715,7 +2715,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-curves"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "derivative",
  "rand 0.8.4",
@@ -2730,7 +2730,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-derives"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "proc-macro-crate 0.1.5",
  "proc-macro-error",
@@ -2742,7 +2742,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-dpc"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "anyhow",
  "base58",
@@ -2773,7 +2773,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-eval"
 version = "0.7.7"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "anyhow",
  "im",
@@ -2792,7 +2792,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-fields"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2807,7 +2807,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-gadgets"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2826,7 +2826,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ir"
 version = "0.7.7"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "anyhow",
  "bech32",
@@ -2839,7 +2839,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-marlin"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "blake2",
  "derivative",
@@ -2862,7 +2862,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-parameters"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "curl",
  "hex",
@@ -2874,7 +2874,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-polycommit"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2892,12 +2892,12 @@ dependencies = [
 [[package]]
 name = "snarkvm-profiler"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 
 [[package]]
 name = "snarkvm-r1cs"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "cfg-if 1.0.0",
  "fxhash",
@@ -2911,7 +2911,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-utilities"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#5e98ff9ff755a0a6b5c579301f7768ce95411f1f"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
 dependencies = [
  "anyhow",
  "bincode",
