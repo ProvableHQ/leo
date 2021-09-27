@@ -23,7 +23,7 @@ While Leo can be described as a regular programming language
 its purpose is to build applications for the Aleo blockchain.
 It is thus important to describe precisely how Leo programs operate in the Aleo blockchain.
 
-## Design
+## Background
 
 ### Zexe
 
@@ -131,6 +131,8 @@ such that the execution of the Leo program's `main`
 on those values and on the old records
 yields the new records, along with some value in `Output`;
 this is, roughly speaking, the assertion proved in zero-knowledge.
+
+## Design
 
 ### Proposed Leo Program Execution Model
 
