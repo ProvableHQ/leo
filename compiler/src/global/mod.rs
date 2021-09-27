@@ -14,16 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! Stores all defined names in a compiled Leo program.
+//! Module containing methods to enforce constraints in an Leo program
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::Variable;
-
-use snarkvm_fields::PrimeField;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn store_definition(&mut self, variable: &Variable, value: ConstrainedValue<'a, F, G>) {
-        let variable = variable.borrow();
-        self.store(variable.id, value);
-    }
-}
+pub mod global;
+pub use self::global::*;

@@ -4,11 +4,22 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 71
-      num_constraints: 71
-      at: a08e2e54701e419ba564483a59fb3f6cc30614b8a7c903f9ff6f4b85e63da5c6
-      bt: 65113b6e5dc0f7d88f04b7e60a519801a313d2e9d4129db502ccef0dfdb14988
-      ct: 7a28ca50094ed4577eef8066cf1a814affa63139e6cc3d7ccf8d65c69499de60
+      num_private_variables: 72
+      num_constraints: 72
+      at: 0900d254695bb8d2a5e8fb01f1127fc82066527b72c44e45898ce822f56902e1
+      bt: 45732d08efa3a2f1fd7f3cef8672c9198cc49f3af2d6dd948d5372368cf911c9
+      ct: 14159012c5c74f21802f7a74e3a7a19eed34a3fb06da5095afa741f2180ded03
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, [1, 1]"
+      - "  store &v4, [1, 1, 1]"
+      - "  store &v5, [1, 1, 1]"
+      - "  eq &v6, v2, [1, 1, 1]"
+      - "  eq &v7, [1, 1, 1], v2"
+      - "  and &v8, v6, v7"
+      - "  retn v8"
+      - ""
     output:
       - input_file: input/three_ones.in
         output:
@@ -16,7 +27,7 @@ outputs:
             x:
               type: bool
               value: "true"
-    initial_ast: 140097342b7a16fae8542da5d13eb9c2cb4e1b743fa226e345d815f62d0781bb
-    imports_resolved_ast: 691c76eae0533ac08a723ea21c999e9c8fafb71d81dd5a1ff5cf856d98b79cd9
-    canonicalized_ast: 691c76eae0533ac08a723ea21c999e9c8fafb71d81dd5a1ff5cf856d98b79cd9
-    type_inferenced_ast: 6bce331b2bcabd251d039695ea7821e39864bf37f9ba255ab743dddba26c6643
+    initial_ast: d99d1caaf0806f5a8f383e66ec0e033b0377bd3de22a311614a7e309531f3a0d
+    imports_resolved_ast: 83808eb684ace4d065f6e1737841cc9ecf402aa107bf85002bbf3275433329b1
+    canonicalized_ast: 83808eb684ace4d065f6e1737841cc9ecf402aa107bf85002bbf3275433329b1
+    type_inferenced_ast: 6e65bcefd87f584a556aeb33d112e133c3e6e4c120334786bda1403d547bdc9c

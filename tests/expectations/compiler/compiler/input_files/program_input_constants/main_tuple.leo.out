@@ -4,11 +4,24 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1
-      num_constraints: 1
-      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
-      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
-      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+      num_private_variables: 2
+      num_constraints: 2
+      at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
+      bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
+      ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  tget &v4, v2, 0"
+      - "  eq &v5, v4, 10"
+      - "  tget &v6, v2, 1"
+      - "  eq &v7, v6, true"
+      - "  and &v8, v5, v7"
+      - "  tget &v9, v2, 2"
+      - "  eq &v10, v9, 10"
+      - "  and &v11, v8, v10"
+      - "  retn v11"
+      - ""
     output:
       - input_file: input/main_tuple.in
         output:
@@ -16,7 +29,14 @@ outputs:
             r0:
               type: bool
               value: "true"
+<<<<<<< HEAD
     initial_ast: fab0be2fe0952c984aa7c5a632e950039c03475f1628289d8b95c36393f493d7
     imports_resolved_ast: 31b4349b2fa4ad108b4a85c03653f346169dfd2581e83a6008ebc79ca55c2fe4
     canonicalized_ast: 31b4349b2fa4ad108b4a85c03653f346169dfd2581e83a6008ebc79ca55c2fe4
     type_inferenced_ast: f96ac80d49c16367f984a75a93b9bd66106f27d013caaf8d3c5cea10943c0950
+=======
+    initial_ast: d1527af1be37b4bb124a35b45939793237245089847abe5b57a68232afb47a8b
+    imports_resolved_ast: 6b64bc8b87205c909e36f8b823ac1d6c7b864a683b87e163fbec041514fd01ad
+    canonicalized_ast: 6b64bc8b87205c909e36f8b823ac1d6c7b864a683b87e163fbec041514fd01ad
+    type_inferenced_ast: 38464d67c0a0a272459628cb822fabee8764453af57c90a6aa19284a4a6b8649
+>>>>>>> 4000928ef82b2a77b45389818965a8a6101e9d3f

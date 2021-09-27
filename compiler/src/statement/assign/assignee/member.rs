@@ -14,43 +14,48 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
-use leo_asg::Identifier;
-use leo_errors::{CompilerError, Result};
-
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
+use crate::program::Program;
+use leo_asg::{CircuitMember, Identifier, Type};
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 use super::ResolverContext;
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub(super) fn resolve_target_access_member<'b, CS: ConstraintSystem<F>>(
+impl<'a> Program<'a> {
+    pub(super) fn resolve_target_access_member<'b>(
         &mut self,
-        cs: &mut CS,
-        mut context: ResolverContext<'a, 'b, F, G>,
+        mut context: ResolverContext<'a, 'b>,
         name: &Identifier,
-    ) -> Result<()> {
-        if context.input.len() != 1 {
-            return Err(CompilerError::statement_array_assign_interior_index(&context.span).into());
-        }
-        match context.input.remove(0) {
-            ConstrainedValue::CircuitExpression(_variable, members) => {
-                // Modify the circuit variable in place
-                let matched_variable = members.iter_mut().find(|member| &member.0 == name);
+    ) -> Result<Value> {
+        let input_var = context.input_register;
 
-                match matched_variable {
-                    Some(member) => {
-                        context.input = vec![&mut member.1];
-                        self.resolve_target_access(cs, context)
-                    }
-                    None => {
-                        // Throw an error if the circuit variable does not exist in the circuit
-                        Err(CompilerError::statement_undefined_circuit_variable(name, &context.span).into())
-                    }
-                }
+        let (inner_type, index) = match &context.input_type {
+            Type::Circuit(circuit) => {
+                let members = circuit.members.borrow();
+                let (index, _, member) = members
+                    .get_full(name.name.as_ref())
+                    .expect("illegal member name in circuit member assignment");
+                let inner_type = match member {
+                    CircuitMember::Variable(type_) => type_.clone(),
+                    _ => panic!("attempt to assign to circuit function"),
+                };
+                (inner_type, index)
             }
-            // Throw an error if the circuit definition does not exist in the file
-            x => Err(CompilerError::undefined_circuit(x, &context.span).into()),
-        }
+            _ => panic!("illegal type in circuit member assignment"),
+        };
+
+        let out = self.alloc();
+        self.emit(Instruction::TupleIndexGet(QueryData {
+            destination: out,
+            values: vec![Value::Ref(input_var), Value::Integer(Integer::U32(index as u32))],
+        }));
+        context.input_register = out;
+        context.input_type = inner_type.clone();
+        let inner = self.resolve_target_access(context)?;
+        self.emit(Instruction::TupleIndexStore(QueryData {
+            destination: input_var,
+            values: vec![Value::Integer(Integer::U32(index as u32)), inner],
+        }));
+        Ok(Value::Ref(input_var))
     }
 }

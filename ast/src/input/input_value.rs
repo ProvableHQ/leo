@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayDimensions, Char, CharValue, GroupValue};
+use crate::{ArrayDimensions, Char, CharValue, GroupValue, IntegerType};
 use leo_errors::Span as AstSpan;
 use leo_input::{
     errors::InputParserError,
     expressions::{ArrayInitializerExpression, ArrayInlineExpression, Expression, StringExpression, TupleExpression},
-    types::{ArrayType, CharType, DataType, IntegerType, TupleType, Type},
+    types::{ArrayType, CharType, DataType, IntegerType as InputIntegerType, TupleType, Type},
     values::{
         Address, AddressValue, BooleanValue, CharValue as InputCharValue, FieldValue, GroupValue as InputGroupValue,
         IntegerValue, NumberValue, Value,
@@ -68,8 +68,8 @@ impl InputValue {
         Ok(InputValue::Char(CharValue { character, span }))
     }
 
-    fn from_number(integer_type: IntegerType, number: String) -> Self {
-        InputValue::Integer(integer_type, number)
+    fn from_number(integer_type: InputIntegerType, number: String) -> Self {
+        InputValue::Integer(integer_type.into(), number)
     }
 
     fn from_group(group: InputGroupValue) -> Self {
@@ -99,24 +99,24 @@ impl InputValue {
             (DataType::Integer(integer_type), Value::Integer(integer)) => {
                 match integer.clone() {
                     IntegerValue::Signed(signed) => {
-                        if let IntegerType::Signed(inner) = integer_type.clone() {
+                        if let InputIntegerType::Signed(inner) = integer_type.clone() {
                             let singed_type = signed.clone().type_;
                             if std::mem::discriminant(&inner) != std::mem::discriminant(&singed_type) {
                                 return Err(InputParserError::integer_type_mismatch(
                                     integer_type,
-                                    IntegerType::Signed(singed_type),
+                                    InputIntegerType::Signed(singed_type),
                                     integer.span(),
                                 ));
                             }
                         }
                     }
                     IntegerValue::Unsigned(unsigned) => {
-                        if let IntegerType::Unsigned(inner) = integer_type.clone() {
+                        if let InputIntegerType::Unsigned(inner) = integer_type.clone() {
                             let unsinged_type = unsigned.clone().type_;
                             if std::mem::discriminant(&inner) != std::mem::discriminant(&unsinged_type) {
                                 return Err(InputParserError::integer_type_mismatch(
                                     integer_type,
-                                    IntegerType::Unsigned(unsinged_type),
+                                    InputIntegerType::Unsigned(unsinged_type),
                                     integer.span(),
                                 ));
                             }

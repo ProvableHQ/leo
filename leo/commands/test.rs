@@ -16,10 +16,7 @@
 
 use super::build::BuildOptions;
 use crate::{commands::Command, context::Context};
-use leo_compiler::{
-    compiler::{thread_leaked_context, Compiler},
-    group::targets::edwards_bls12::EdwardsGroupType,
-};
+use leo_compiler::compiler::{thread_leaked_context, Compiler};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
@@ -28,7 +25,6 @@ use leo_package::{
 };
 
 use indexmap::IndexMap;
-use snarkvm_curves::edwards_bls12::Fq;
 use std::{convert::TryFrom, path::PathBuf, time::Instant};
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -104,7 +100,7 @@ impl Command for Test {
             };
 
             let timer = Instant::now();
-            let program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
+            let program = Compiler::parse_program_without_input(
                 package_name.clone(),
                 file_path,
                 output_directory.clone(),
@@ -115,7 +111,7 @@ impl Command for Test {
             )?;
 
             let temporary_program = program;
-            let (passed, failed) = temporary_program.compile_test_constraints(input_pairs)?;
+            let (passed, failed) = temporary_program.compile_test(input_pairs)?;
             let time_taken = timer.elapsed().as_millis();
 
             if failed == 0 {

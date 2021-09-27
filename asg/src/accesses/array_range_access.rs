@@ -29,7 +29,7 @@ pub struct ArrayRangeAccess<'a> {
     pub right: Cell<Option<&'a Expression<'a>>>,
     // this is either const(right) - const(left) OR the length inferred by type checking
     // special attention must be made to update this if semantic-altering changes are made to left or right.
-    pub length: usize,
+    pub length: u32,
 }
 
 impl<'a> Node for ArrayRangeAccess<'a> {
@@ -141,14 +141,14 @@ impl<'a> FromAst<'a, leo_ast::accesses::ArrayRangeAccess> for ArrayRangeAccess<'
             .transpose()?;
 
         let const_left = match left.map(|x| x.const_value()) {
-            Some(Some(ConstValue::Int(x))) => x.to_usize(),
+            Some(Some(ConstValue::Int(x))) => x.to_usize().map(|x| x as u32),
             None => Some(0),
             _ => None,
         };
         let const_right = match right.map(|x| x.const_value()) {
             Some(Some(ConstValue::Int(inner_value))) => {
-                let usize_value = inner_value.to_usize();
-                if let Some(inner_value) = usize_value {
+                let u32_value = inner_value.to_usize().map(|x| x as u32);
+                if let Some(inner_value) = u32_value {
                     if inner_value > parent_size {
                         let error_span = if let Some(right) = right {
                             right.span().cloned().unwrap_or_default()
@@ -167,7 +167,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::ArrayRangeAccess> for ArrayRangeAccess<'
                         }
                     }
                 }
-                usize_value
+                u32_value
             }
             None => Some(parent_size),
             _ => None,

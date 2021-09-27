@@ -4,11 +4,31 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1
-      num_constraints: 1
-      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
-      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
-      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+      num_private_variables: 2
+      num_constraints: 2
+      at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
+      bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
+      ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, [(1, 2)]"
+      - "  aget &v4, v3, 0"
+      - "  tget &v5, v4, 1"
+      - "  tset &v4, 1, 3"
+      - "  aset &v3, 0, v4"
+      - "  store &v3, v3"
+      - "  aget &v6, v3, 0"
+      - "  tget &v7, v6, 0"
+      - "  eq &v8, v7, 1"
+      - "  aget &v9, v3, 0"
+      - "  tget &v10, v9, 1"
+      - "  eq &v11, v10, 3"
+      - "  and &v12, v8, v11"
+      - "  eq &v13, v2, true"
+      - "  and &v14, v12, v13"
+      - "  retn v14"
+      - ""
     output:
       - input_file: input/dummy.in
         output:
@@ -16,7 +36,14 @@ outputs:
             r0:
               type: bool
               value: "true"
+<<<<<<< HEAD
     initial_ast: d5fa6bcebf6cca45feddf427775783e6533f2ef153ddaeb0484559c1bd5c4d0d
     imports_resolved_ast: d66fabbd3626cbd37b4e592309567b7a0926d1dcae2ed5b570482e2175f8320f
     canonicalized_ast: d66fabbd3626cbd37b4e592309567b7a0926d1dcae2ed5b570482e2175f8320f
     type_inferenced_ast: 7dfc51acd8c869227e0ade97430bf63191d66525cad6db13adde0667f4f7e7c9
+=======
+    initial_ast: 54c7ae54dd877ec3ff81a46b4d3c062168fb052cdc2bd0e597f5f9cea3a892e2
+    imports_resolved_ast: 217fa80e6d06ed61d9a2ebd581f73ec6611550723d7b275e81c3e02b21b3857c
+    canonicalized_ast: 217fa80e6d06ed61d9a2ebd581f73ec6611550723d7b275e81c3e02b21b3857c
+    type_inferenced_ast: d95405f6896c4ebe526a4dce1ebdd04f192622290e154d503b94adcd313177e4
+>>>>>>> 4000928ef82b2a77b45389818965a8a6101e9d3f

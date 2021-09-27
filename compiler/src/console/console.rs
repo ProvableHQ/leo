@@ -16,43 +16,22 @@
 
 //! Evaluates a macro in a compiled Leo program.
 
-use crate::{program::ConstrainedProgram, statement::get_indicator_value, GroupType};
+use crate::program::Program;
 use leo_asg::{ConsoleFunction, ConsoleStatement};
 use leo_errors::Result;
+use snarkvm_ir::LogLevel;
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn evaluate_console_function_call<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        indicator: &Boolean,
-        console: &ConsoleStatement<'a>,
-    ) -> Result<()> {
+impl<'a> Program<'a> {
+    pub fn evaluate_console_function_call(&mut self, console: &ConsoleStatement<'a>) -> Result<()> {
         match &console.function {
             ConsoleFunction::Assert(expression) => {
-                self.evaluate_console_assert(
-                    cs,
-                    indicator,
-                    expression.get(),
-                    &console.span.clone().unwrap_or_default(),
-                )?;
+                self.evaluate_console_assert(expression.get())?;
             }
             ConsoleFunction::Error(string) => {
-                let string = self.format(cs, string)?;
-
-                if get_indicator_value(indicator) {
-                    tracing::error!("{}", string);
-                }
+                self.emit_log(LogLevel::Error, string)?;
             }
             ConsoleFunction::Log(string) => {
-                let string = self.format(cs, string)?;
-
-                if get_indicator_value(indicator) {
-                    tracing::info!("{}", string);
-                }
+                self.emit_log(LogLevel::Info, string)?;
             }
         }
 

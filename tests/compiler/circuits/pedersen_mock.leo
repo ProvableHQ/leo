@@ -30,7 +30,7 @@ circuit PedersenHash {
 // The 'pedersen_hash' main function.
 function main(hash_input: [bool; 512]) -> bool {
     const parameters = [0u32; 512];
-    const pedersen = PedersenHash::new(parameters);
+    let pedersen = PedersenHash::new(parameters);
     let res = pedersen.hash(hash_input);
 
     return res == 0u32;

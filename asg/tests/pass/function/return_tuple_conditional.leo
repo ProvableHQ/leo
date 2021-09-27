@@ -11,5 +11,5 @@ function tuple_conditional () -> (
 }
 
 function main() {
-    const t = tuple_conditional();
+    let t = tuple_conditional();
 }

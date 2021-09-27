@@ -14,5 +14,5 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod program;
-pub use self::program::*;
+pub(crate) mod program;
+pub(crate) use self::program::*;

@@ -16,46 +16,32 @@
 
 //! Enforces a conditional expression in a compiled Leo program.
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::program::Program;
 use leo_asg::Expression;
-use leo_errors::{CompilerError, Result, Span};
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::select::CondSelectGadget;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     /// Enforce ternary conditional expression
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_conditional_expression<CS: ConstraintSystem<F>>(
+    pub fn enforce_conditional_expression(
         &mut self,
-        cs: &mut CS,
         conditional: &'a Expression<'a>,
         first: &'a Expression<'a>,
         second: &'a Expression<'a>,
-        span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>> {
-        let conditional_value = match self.enforce_expression(cs, conditional)? {
-            ConstrainedValue::Boolean(resolved) => resolved,
-            value => {
-                return Err(CompilerError::conditional_boolean_expression_fails_to_resolve_to_bool(value, span).into());
-            }
-        };
+    ) -> Result<Value> {
+        let conditional_value = self.enforce_expression(conditional)?;
 
-        let first_value = self.enforce_expression(cs, first)?;
+        let first_value = self.enforce_expression(first)?;
 
-        let second_value = self.enforce_expression(cs, second)?;
+        let second_value = self.enforce_expression(second)?;
 
-        let unique_namespace = cs.ns(|| {
-            format!(
-                "select {} or {} {}:{}",
-                first_value, second_value, span.line_start, span.col_start
-            )
-        });
+        let out = self.alloc();
+        self.emit(Instruction::Pick(QueryData {
+            destination: out,
+            values: vec![conditional_value, first_value, second_value],
+        }));
 
-        Ok(
-            ConstrainedValue::conditionally_select(unique_namespace, &conditional_value, &first_value, &second_value)
-                .map_err(|e| CompilerError::cannot_enforce_expression("conditional select", e, span))?,
-        )
+        Ok(Value::Ref(out))
     }
 }

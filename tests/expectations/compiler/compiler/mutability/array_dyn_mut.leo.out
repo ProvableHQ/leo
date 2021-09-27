@@ -4,25 +4,50 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1277
-      num_constraints: 1604
-      at: c5d2d5bbb85d0f7ba48170fdb652aff057db6d1babf378d8a548af874e0734ff
-      bt: 726f3c39d11da5bc8487b8b7228a55cb7819a47a9b674d41f9c756c6927fb55a
-      ct: 7c4917152b59cb9caa30bad7d5119a3e36c40f7a783fdb8ff602dd5447573cc7
+      num_private_variables: 1851
+      num_constraints: 2308
+      at: 6a5f8a1c8d41b7e759d1259a686595b6397c4a4b5a8e655f62e637db21ca7909
+      bt: 9a02f9052eb091bfced9221fda8900f1a0d1249b30bcc4b9e841d2defc978bc3
+      ct: 3300eecdc155247c334e5290e13cf9906b58cbc1c2984cd7d623372f1fbe4e50
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, [1, 2, 3]"
+      - "  sub &v4, v2, 1"
+      - "  aget &v5, v3, v4"
+      - "  aget &v6, v3, v2"
+      - "  add &v7, v5, v6"
+      - "  sub &v8, v2, 1"
+      - "  aget &v9, v3, v8"
+      - "  aset &v3, v8, v7"
+      - "  store &v3, v3"
+      - "  aget &v10, v3, v2"
+      - "  aset &v3, v2, 0"
+      - "  store &v3, v3"
+      - "  retn v3"
+      - ""
     output:
       - input_file: input/index1.in
         output:
           registers:
             r0:
               type: "[u32; 3]"
-              value: "\"303\""
+              value: "[3, 0, 3]"
       - input_file: input/index2.in
         output:
           registers:
             r0:
               type: "[u32; 3]"
+<<<<<<< HEAD
               value: "\"150\""
     initial_ast: c9521858d2ad51e9406757a91a38e64a02fc48080fd844a77e7551b92b9494a2
     imports_resolved_ast: 6cf3c2708dca039004bd72577e42cd1ef71c9dc4f26537a141013cc57c097e79
     canonicalized_ast: 31a1a6b7546c7e37988e08a70ac21744c6a5713999a6a8056eb8aa7a833732f3
     type_inferenced_ast: a4e003392d7b8ff0821717246baf000ea8f807dbc3e4e907b1c72f5a0e4fdc7b
+=======
+              value: "[1, 5, 0]"
+    initial_ast: 6b63d8344e131c35556493e180b12547070a574a2faa1dffd2e541753436f335
+    imports_resolved_ast: 470cacb2debd5095aefc3fda19c8e9e0148e8c71064acbaa1617885e6b7bb17a
+    canonicalized_ast: b87e2a4eae2203c4a18579553e1f163f04a0618ff0818c8ddc30fa2677990427
+    type_inferenced_ast: 393e549be4cb6265953c16b307a309a3d3f6cb2d3006b261ce60af47497329cd
+>>>>>>> 4000928ef82b2a77b45389818965a8a6101e9d3f

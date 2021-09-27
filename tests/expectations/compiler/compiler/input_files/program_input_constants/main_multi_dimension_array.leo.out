@@ -4,11 +4,31 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 223
-      num_constraints: 223
-      at: 87fe022f8971e90450cc219824d04ea84f08040429143393193aa2de0321759f
-      bt: 65e18f4e1e32d72f87d238401f8397b5d8ba20e7da7d50cc5930faa5673cdb77
-      ct: 389354117abccc4ef9f4822705889f64f1d16b7e0d2adae52005c7b91b0ccabb
+      num_private_variables: 224
+      num_constraints: 224
+      at: ccf19b025615a81b1f19967fd069c140849429e932a38b245cda98b9acea2191
+      bt: 57f1871a8d1ff309df7590b6b67374f185bb1b17d18e0bad3d75c9f537675e70
+      ct: b92d53399a71512b25b4ee9f35327fe8a8e658b444fcf397b0d8cd6790448ff5
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  aget &v4, v2, 0"
+      - "  aget &v5, v4, 0"
+      - "  aget &v6, v5, 0"
+      - "  aget &v7, v3, 0"
+      - "  aget &v8, v7, 0"
+      - "  aget &v9, v8, 0"
+      - "  eq &v10, v6, v9"
+      - "  aget &v11, v2, 1"
+      - "  aget &v12, v11, 1"
+      - "  aget &v13, v12, 2"
+      - "  aget &v14, v3, 1"
+      - "  aget &v15, v14, 1"
+      - "  aget &v16, v15, 2"
+      - "  eq &v17, v13, v16"
+      - "  and &v18, v10, v17"
+      - "  retn v18"
+      - ""
     output:
       - input_file: input/main_multi_dimension_array.in
         output:
@@ -16,7 +36,14 @@ outputs:
             r0:
               type: bool
               value: "true"
+<<<<<<< HEAD
     initial_ast: 6127a3a6067f141b9ee841012752a048aeced43e50b6efbba07aa679e71a05f5
     imports_resolved_ast: 914937230bb3cfd19d6734754e1ca3f6c00ccf579e03092af9d8dafb0fea9a0f
     canonicalized_ast: ef661295b58f80199e6f795bc4b5b13bb1a271d15c320f741b77da2d08fa2bc6
     type_inferenced_ast: 7f6e3d9c5aa2b7f108f5adab0b35264cf153655b9f26a2f2cce4e433b221d4b8
+=======
+    initial_ast: 3c202a4d58a233ae351f5c5138717c40eb75be9e1ffc934456fd788141525748
+    imports_resolved_ast: 89b6bedc7ef75b617eda04a63ebce75a918e76374e7f8729180d587e6381c312
+    canonicalized_ast: e711d2bb05d2e373c180d3c730d3169578cfef481640bc18024f51be15bfa579
+    type_inferenced_ast: 9d2bf603ec70ca912b3eb6b20e6086dd859a6b7a3b0f05f5095c52d741b788ac
+>>>>>>> 4000928ef82b2a77b45389818965a8a6101e9d3f

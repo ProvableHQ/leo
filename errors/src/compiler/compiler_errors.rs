@@ -330,12 +330,20 @@ create_errors!(
         help: None,
     }
 
-    /// For when the declared function input variable was expected to be a valid tuple
+    /// For when the declared function input variable was not defined
     /// in the input file.
     @formatted
     function_input_not_found {
         args: (function: impl Display, expected: impl Display),
         msg: format!("function `{}` input {} not found", function, expected),
+        help: None,
+    }
+
+    /// For when the declared function input register was not defined
+    @formatted
+    function_missing_input_register {
+        args: (expected: impl Display),
+        msg: format!("missing input '{}' for registers", expected),
         help: None,
     }
 
@@ -364,6 +372,14 @@ create_errors!(
             "Mismatched types. Expected register output type `{}`, found type `{}`.",
             left, right
         ),
+        help: None,
+    }
+
+    /// For when a circuit was passed as input
+    @formatted
+    circuit_as_input {
+        args: (),
+        msg: "input circuits not supported for input",
         help: None,
     }
 

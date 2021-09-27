@@ -24,7 +24,7 @@ pub struct ArrayInitExpression<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub element: Cell<&'a Expression<'a>>,
-    pub len: usize,
+    pub len: u32,
 }
 
 impl<'a> Node for ArrayInitExpression<'a> {
@@ -56,7 +56,7 @@ impl<'a> ExpressionNode<'a> for ArrayInitExpression<'a> {
 
     fn const_value(&self) -> Option<ConstValue<'a>> {
         let element = self.element.get().const_value()?;
-        Some(ConstValue::Array(vec![element; self.len]))
+        Some(ConstValue::Array(vec![element; self.len as usize]))
     }
 
     fn is_consty(&self) -> bool {
@@ -83,7 +83,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             .iter()
             .map(|x| {
                 Ok(x.value
-                    .parse::<usize>()
+                    .parse::<u32>()
                     .map_err(|_| AsgError::parse_dimension_error(&value.span))?)
             })
             .collect::<Result<Vec<_>>>()?;

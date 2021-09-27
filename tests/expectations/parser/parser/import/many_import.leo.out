@@ -7,10 +7,10 @@ outputs:
     import_statements:
       - package_or_packages:
           Packages:
-            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import test-import.( // local import\\\"}\"}"
+            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import test-import.( // local import\\\\r\\\"}\"}"
             accesses:
               - Symbol:
-                  symbol: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    Point,\\\"}\"}"
+                  symbol: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    Point,\\\\r\\\"}\"}"
                   alias: ~
                   span:
                     line_start: 4
@@ -18,9 +18,9 @@ outputs:
                     col_start: 5
                     col_stop: 10
                     path: ""
-                    content: "    Point,"
+                    content: "    Point,\r"
               - Symbol:
-                  symbol: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    foo,\\\"}\"}"
+                  symbol: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    foo,\\\\r\\\"}\"}"
                   alias: ~
                   span:
                     line_start: 5
@@ -28,7 +28,7 @@ outputs:
                     col_start: 5
                     col_stop: 8
                     path: ""
-                    content: "    foo,"
+                    content: "    foo,\r"
             span:
               line_start: 3
               line_stop: 5
@@ -45,10 +45,10 @@ outputs:
           content: "import test-import.( // local import\n         ...\n    foo,"
       - package_or_packages:
           Packages:
-            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.( // imports directory import\\\"}\"}"
+            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.( // imports directory import\\\\r\\\"}\"}"
             accesses:
               - Symbol:
-                  symbol: "{\"name\":\"Bar\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    Bar,\\\"}\"}"
+                  symbol: "{\"name\":\"Bar\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    Bar,\\\\r\\\"}\"}"
                   alias: ~
                   span:
                     line_start: 9
@@ -56,12 +56,12 @@ outputs:
                     col_start: 5
                     col_stop: 8
                     path: ""
-                    content: "    Bar,"
+                    content: "    Bar,\r"
               - Multiple:
-                  name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\"}\"}"
+                  name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\\r\\\"}\"}"
                   accesses:
                     - Symbol:
-                        symbol: "{\"name\":\"Baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\"}\"}"
+                        symbol: "{\"name\":\"Baz\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\\r\\\"}\"}"
                         alias: ~
                         span:
                           line_start: 10
@@ -69,9 +69,9 @@ outputs:
                           col_start: 10
                           col_stop: 13
                           path: ""
-                          content: "    baz.(Baz, Bazzar),"
+                          content: "    baz.(Baz, Bazzar),\r"
                     - Symbol:
-                        symbol: "{\"name\":\"Bazzar\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":15,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\"}\"}"
+                        symbol: "{\"name\":\"Bazzar\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":15,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    baz.(Baz, Bazzar),\\\\r\\\"}\"}"
                         alias: ~
                         span:
                           line_start: 10
@@ -79,22 +79,22 @@ outputs:
                           col_start: 15
                           col_stop: 21
                           path: ""
-                          content: "    baz.(Baz, Bazzar),"
+                          content: "    baz.(Baz, Bazzar),\r"
                   span:
                     line_start: 10
                     line_stop: 10
                     col_start: 5
                     col_stop: 21
                     path: ""
-                    content: "    baz.(Baz, Bazzar),"
+                    content: "    baz.(Baz, Bazzar),\r"
               - SubPackage:
-                  name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\"}\"}"
+                  name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\\r\\\"}\"}"
                   access:
                     SubPackage:
-                      name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\"}\"}"
+                      name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\\r\\\"}\"}"
                       access:
                         Symbol:
-                          symbol: "{\"name\":\"Bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\"}\"}"
+                          symbol: "{\"name\":\"Bat\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    bat.bat.Bat,\\\\r\\\"}\"}"
                           alias: ~
                           span:
                             line_start: 11
@@ -102,21 +102,21 @@ outputs:
                             col_start: 13
                             col_stop: 16
                             path: ""
-                            content: "    bat.bat.Bat,"
+                            content: "    bat.bat.Bat,\r"
                       span:
                         line_start: 11
                         line_stop: 11
                         col_start: 9
                         col_stop: 16
                         path: ""
-                        content: "    bat.bat.Bat,"
+                        content: "    bat.bat.Bat,\r"
                   span:
                     line_start: 11
                     line_stop: 11
                     col_start: 5
                     col_stop: 16
                     path: ""
-                    content: "    bat.bat.Bat,"
+                    content: "    bat.bat.Bat,\r"
             span:
               line_start: 8
               line_stop: 11

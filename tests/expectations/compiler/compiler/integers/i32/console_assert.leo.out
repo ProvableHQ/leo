@@ -9,11 +9,17 @@ outputs:
       at: 051151c1ab89f2c0ff0fe5d336668c3fcd6dc4744d1f5b8e135dcb7bf6a6195c
       bt: 6b92443726163ac0fc32f7c9edace0ec8369e793d24105d93d121cb0bd5c3128
       ct: 7cb2d3f0ccfb9a2e747c6a05bdb52812c4539c836ff62c4e555fac13ef2084d4
+    ir:
+      - "decl f0: <0>"
+      - "  store &v0, ((), (), (), ())"
+      - "  eq &v3, v1, v2"
+      - "  assert v3"
+      - ""
     output:
       - input_file: i32.in
         output:
           registers: {}
-    initial_ast: 6ba5c49aaa9ed5abf49a7f538392cb18905e6805b7d3780e5d6391adb7df6631
-    imports_resolved_ast: d61859a0c6e76f6a89bec704a8b4e7bb5bd21e8efe9238180a208ef086a9a407
-    canonicalized_ast: 1dba3c45ddd327661e17cdf2f5896eb19854487f3406342d1c0c9314fce782d9
-    type_inferenced_ast: 291cd09d139f6e44970bb8dac001c7182ddb1e0368bc90af0f72051bb756f004
+    initial_ast: a673761ac21740cccf745a7807fdb4215b154bd45fda200c2346ecd45939fe96
+    imports_resolved_ast: 91a02720cd6effb98c9940ad02b16ac2fdf74366bd0882dbec4f6fee8ea1a0a3
+    canonicalized_ast: 37bdbf8c3027582e1a943f93f4d14fda8d258d02ccb07663a8184038a843bb7f
+    type_inferenced_ast: 1e3175f46148d69dba2756a842840404c7569ceeb7e6a82bc979f916c2eccda9

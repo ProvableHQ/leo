@@ -9,6 +9,15 @@ outputs:
       at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
       bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
       ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
+    ir:
+      - "decl f0: <0>"
+      - "  store &v2, ((v0, v1), (), (), ())"
+      - "  tget &v3, v2, 0"
+      - "  tget &v4, v3, 0"
+      - "  tget &v5, v2, 0"
+      - "  tget &v6, v5, 1"
+      - "  retn (v4, v6)"
+      - ""
     output:
       - input_file: input/dummy.in
         output:
@@ -19,7 +28,14 @@ outputs:
             r1:
               type: bool
               value: "true"
+<<<<<<< HEAD
     initial_ast: c1aa5d88db21268b0ecde68697b33700888f893cbdd1fd3e0a44b10d73876455
     imports_resolved_ast: f0b6d40d2fa1f416a7bc1a92c57e7633f4ff9f4f0f5366ec1bc0314357b5830e
     canonicalized_ast: f0b6d40d2fa1f416a7bc1a92c57e7633f4ff9f4f0f5366ec1bc0314357b5830e
     type_inferenced_ast: 0445237dc9e971ea44e39d7deb977c5f4d38a2bb55b5bc7bfabebc3bbe5b3cf9
+=======
+    initial_ast: 209cec81904b8b8c77d8127369ff5c76fd664f8876ccb8cfeccc1d0804c2af6c
+    imports_resolved_ast: 3a42afc41bee014b15a5174562e9f96cddef8f5865b48230a95e42d6b20b5f64
+    canonicalized_ast: 3a42afc41bee014b15a5174562e9f96cddef8f5865b48230a95e42d6b20b5f64
+    type_inferenced_ast: 9e7a40fc6c8e127a33dc4651bfcf43829e732ad50aa8336cade428e8f396b5c7
+>>>>>>> 4000928ef82b2a77b45389818965a8a6101e9d3f

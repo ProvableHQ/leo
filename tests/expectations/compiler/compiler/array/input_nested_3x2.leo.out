@@ -4,11 +4,17 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 95
-      num_constraints: 95
-      at: 5884e806c47756fa1d12f47e5cc5249843d8de4e2fafcb373c5a0d67dfe22d69
-      bt: 983c734b40e342144d6b4d52e315da9ff9f97580f019f606403924bb977a5be7
-      ct: 49f0db71bd29b80dbe5f2f96573a5959b1df339c92350e16f111bade214037aa
+      num_private_variables: 96
+      num_constraints: 96
+      at: cdfd9d834430c71e1bac69e14f992e28f9362a2aae21bb6d03c702386099e275
+      bt: 57bf1f9bb5e733d04a0ccb226f8d487de61ac4f08a997405976cf8854e105e7f
+      ct: 0eb0af4085182af2cc7bd348dfa8c10c104c96fdc515cb6f8d88f9f836a94826
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  eq &v3, v2, [[0, 0], [0, 0], [0, 0]]"
+      - "  retn v3"
+      - ""
     output:
       - input_file: input/input_nested_3x2.in
         output:
@@ -16,7 +22,7 @@ outputs:
             x:
               type: bool
               value: "true"
-    initial_ast: 6d5be1a3d383ecafa89b5327d3a4b9bce9a459f6c0241cb01f408566ec4a1cc4
-    imports_resolved_ast: 1b2fa78c990dfcaaa8deffd18ce45ca76561da60d0dba1b3f7825f43ee0ac3ef
-    canonicalized_ast: 0a756dbc1859bfbdb6b98b587054bf548402da737df3b7e9c2318cb9bbcb4a67
-    type_inferenced_ast: 97199b96614f9e92928c536b34760c204383495ff1ea198a7593007de61619cc
+    initial_ast: f87ce054c866f9216a1c101045705eef76c40f693fb04fb7f7bc94a019491bf4
+    imports_resolved_ast: 57830e524444b2ad7a5ec3ed8d1fcb489771106835d0a5be3c1d414d65015dfc
+    canonicalized_ast: 21f4620699d729fe36c6e315ed0781bf5ba3f276a2b573a073134698c86f9989
+    type_inferenced_ast: 03480a6023117fb465a77f81f0c63d4171f2b193e119577a2f2d549da60d5f00

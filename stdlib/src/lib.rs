@@ -16,12 +16,12 @@
 
 #![doc = include_str!("../README.md")]
 
-pub mod common;
+/* pub mod common;
 pub use common::*;
 
 pub mod prelude;
 pub use prelude::*;
-
+ */
 use leo_ast::Program;
 use leo_errors::{ImportError, Result};
 

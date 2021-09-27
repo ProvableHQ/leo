@@ -16,70 +16,17 @@
 
 //! Enforces a relational `==` operator in a resolved Leo program.
 
-use crate::{enforce_and, value::ConstrainedValue, GroupType};
-use leo_errors::{CompilerError, Result, Span};
+use crate::Program;
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::{boolean::Boolean, traits::eq::EvaluateEqGadget};
-use snarkvm_r1cs::ConstraintSystem;
-
-pub fn evaluate_eq<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-    cs: &mut CS,
-    left: ConstrainedValue<'a, F, G>,
-    right: ConstrainedValue<'a, F, G>,
-    span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>> {
-    let namespace_string = format!("evaluate {} == {} {}:{}", left, right, span.line_start, span.col_start);
-    let constraint_result = match (left, right) {
-        (ConstrainedValue::Address(address_1), ConstrainedValue::Address(address_2)) => {
-            let unique_namespace = cs.ns(|| namespace_string);
-            address_1.evaluate_equal(unique_namespace, &address_2)
-        }
-        (ConstrainedValue::Boolean(bool_1), ConstrainedValue::Boolean(bool_2)) => {
-            let unique_namespace = cs.ns(|| namespace_string);
-            bool_1.evaluate_equal(unique_namespace, &bool_2)
-        }
-        (ConstrainedValue::Char(char_1), ConstrainedValue::Char(char_2)) => {
-            let unique_namespace = cs.ns(|| namespace_string);
-            char_1.evaluate_equal(unique_namespace, &char_2)
-        }
-        (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-            let unique_namespace = cs.ns(|| namespace_string);
-            num_1.evaluate_equal(unique_namespace, &num_2)
-        }
-        (ConstrainedValue::Field(field_1), ConstrainedValue::Field(field_2)) => {
-            let unique_namespace = cs.ns(|| namespace_string);
-            field_1.evaluate_equal(unique_namespace, &field_2)
-        }
-        (ConstrainedValue::Group(point_1), ConstrainedValue::Group(point_2)) => {
-            let unique_namespace = cs.ns(|| namespace_string);
-            point_1.evaluate_equal(unique_namespace, &point_2)
-        }
-        (ConstrainedValue::Array(arr_1), ConstrainedValue::Array(arr_2)) => {
-            let mut current = ConstrainedValue::Boolean(Boolean::constant(true));
-            for (i, (left, right)) in arr_1.into_iter().zip(arr_2.into_iter()).enumerate() {
-                let next = evaluate_eq(&mut cs.ns(|| format!("array[{}]", i)), left, right, span)?;
-
-                current = enforce_and(&mut cs.ns(|| format!("array result {}", i)), current, next, span)?;
-            }
-            return Ok(current);
-        }
-        (ConstrainedValue::Tuple(tuple_1), ConstrainedValue::Tuple(tuple_2)) => {
-            let mut current = ConstrainedValue::Boolean(Boolean::constant(true));
-
-            for (i, (left, right)) in tuple_1.into_iter().zip(tuple_2.into_iter()).enumerate() {
-                let next = evaluate_eq(&mut cs.ns(|| format!("tuple_index {}", i)), left, right, span)?;
-
-                current = enforce_and(&mut cs.ns(|| format!("array result {}", i)), current, next, span)?;
-            }
-            return Ok(current);
-        }
-        (val_1, val_2) => {
-            return Err(CompilerError::incompatible_types(format!("{} == {}", val_1, val_2,), span).into());
-        }
-    };
-
-    let boolean = constraint_result.map_err(|_| CompilerError::cannot_evaluate_expression("==", span))?;
-
-    Ok(ConstrainedValue::Boolean(boolean))
+impl<'a> Program<'a> {
+    pub fn evaluate_eq(&mut self, left: Value, right: Value) -> Result<Value> {
+        let output = self.alloc();
+        self.emit(Instruction::Eq(QueryData {
+            destination: output,
+            values: vec![left, right],
+        }));
+        Ok(Value::Ref(output))
+    }
 }

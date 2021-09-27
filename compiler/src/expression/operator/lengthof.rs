@@ -16,32 +16,44 @@
 
 //! Enforces a lengthof operator in a compiled Leo program.
 
-use crate::{
-    program::ConstrainedProgram,
-    value::{ConstrainedValue, Integer},
-    GroupType,
-};
-use leo_asg::{ConstInt, LengthOfExpression};
-use leo_errors::{Result, Span};
+use crate::program::Program;
+use snarkvm_eval::LEN_CORE;
+use snarkvm_ir::CallCoreData;
+use snarkvm_ir::{Instruction, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
+use leo_asg::LengthOfExpression;
+use leo_errors::Result;
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
+    // /// Enforce array expressions
+    // pub fn enforce_lengthof<CS: ConstraintSystem<F>>(
+    //     &mut self,
+    //     cs: &mut CS,
+    //     lengthof: &'a LengthOfExpression<'a>,
+    //     span: &Span,
+    // ) -> Result<ConstrainedValue<'a, F, G>> {
+    //     let value = self.enforce_expression(cs, lengthof.inner.get())?;
+
+    //     Ok(match value {
+    //         ConstrainedValue::Array(array) => {
+    //             ConstrainedValue::Integer(Integer::new(&ConstInt::U32(array.len() as u32)))
+    //         }
+    //         _ => return Err(leo_errors::CompilerError::lengthof_can_only_be_used_on_arrays(span).into()),
+    //     })
+    // }
+
     /// Enforce array expressions
-    pub fn enforce_lengthof<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        lengthof: &'a LengthOfExpression<'a>,
-        span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>> {
-        let value = self.enforce_expression(cs, lengthof.inner.get())?;
+    pub fn enforce_lengthof(&mut self, lengthof: &'a LengthOfExpression<'a>) -> Result<Value> {
+        let value = self.enforce_expression(lengthof.inner.get())?;
 
-        Ok(match value {
-            ConstrainedValue::Array(array) => {
-                ConstrainedValue::Integer(Integer::new(&ConstInt::U32(array.len() as u32)))
-            }
-            _ => return Err(leo_errors::CompilerError::lengthof_can_only_be_used_on_arrays(span).into()),
-        })
+        let out = self.alloc();
+
+        self.emit(Instruction::CallCore(CallCoreData {
+            destination: out,
+            identifier: LEN_CORE.to_string(),
+            arguments: vec![value],
+        }));
+
+        Ok(Value::Ref(out))
     }
 }

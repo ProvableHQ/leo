@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{InputValue, MainInput, ProgramInput, ProgramState, Record, Registers, State, StateLeaf};
+use crate::{ConstantInput, InputValue, MainInput, ProgramInput, ProgramState, Record, Registers, State, StateLeaf};
 use leo_input::{
     files::{File, TableOrSection},
     InputParserError,
@@ -104,6 +104,16 @@ impl Input {
     #[allow(clippy::ptr_arg)]
     pub fn get_constant(&self, name: &str) -> Option<Option<InputValue>> {
         self.program_input.get_constant(name)
+    }
+
+    /// Returns the main input values
+    pub fn get_main_inputs(&self) -> &MainInput {
+        &self.program_input.main
+    }
+
+    /// Returns the main input values
+    pub fn get_constant_inputs(&self) -> &ConstantInput {
+        &self.program_input.constants
     }
 
     /// Returns the runtime register input values

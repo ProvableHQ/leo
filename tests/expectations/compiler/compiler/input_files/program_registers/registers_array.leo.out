@@ -4,19 +4,24 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 64
-      num_constraints: 64
-      at: 2517dbbd3bc6f74f73a279bfe223141cdef8fce801edcc2972d568a815e43bcd
-      bt: 3a136bbbffaef5f4563e06a03444cfe5c512767d8c88a8be5b39034e18fe0081
-      ct: 60e36dc4bc844fe8285371cf70c955b79990f094bc50b3401dcac4cbede63e8d
+      num_private_variables: 128
+      num_constraints: 128
+      at: 72135cf2aa239eead37945a3de3c3da2e2269faad6520e0f39d569d436c72530
+      bt: b69c40cc3277ce8c8f9e895c3ad2bb1c4329338376ecebfa38de27e6f77f8d38
+      ct: 8199c11547b06fee4848349ef1354c749be2964bea2cb0131b622f4f341a7b56
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  retn v2"
+      - ""
     output:
       - input_file: input/array.in
         output:
           registers:
             r2:
               type: "[[u8; 4]; 2]"
-              value: "\"[0, 0, 0, 0][0, 0, 0, 0]\""
-    initial_ast: 010d0b94b6ddb74416025e35b34ce1c7feb5a768d8bf0f733c530f49b00f70c4
-    imports_resolved_ast: b7c76abcbcacc73930dcf9a50445d06a948233fb548bca3589f7fdbc23e8ce0d
-    canonicalized_ast: b7c76abcbcacc73930dcf9a50445d06a948233fb548bca3589f7fdbc23e8ce0d
-    type_inferenced_ast: 0e640b6211fd054d7949ef119134255314e3b0aa6d932606ee778c5d76282858
+              value: "[[0, 0, 0, 0], [0, 0, 0, 0]]"
+    initial_ast: 12eae7f45e69aeb2cbb86d0836f39b92de26af7fc8540ab23730487fe47f50bb
+    imports_resolved_ast: 35e2c9b16407d60160eb6434de5d3aeb81be43fdaffb2fbb604d863ae90f0e81
+    canonicalized_ast: 35e2c9b16407d60160eb6434de5d3aeb81be43fdaffb2fbb604d863ae90f0e81
+    type_inferenced_ast: eccf4cd520f2d82e3f6efd274f011cd18a6189059c555b1d22665a8b2bbaab1f

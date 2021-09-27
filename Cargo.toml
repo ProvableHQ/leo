@@ -102,6 +102,13 @@ default-features = false
 [dependencies.snarkvm-utilities]
 version = "0.7.6"
 
+#todo 0rphon
+[dependencies.snarkvm-eval]
+version = "0.7.7"
+# path = "D:\\Work\\leo_repos\\snarkVM\\eval"
+git = "https://github.com/AleoHQ/snarkVM"
+branch = "ir-updates"
+
 [dependencies.structopt]
 version = "0.3"
 
@@ -115,7 +122,7 @@ color-backtrace = "0.5.1"
 version = "2.0"
 
 [dependencies.dirs]
-version = "3.0.2"
+version = "4.0.0"
 
 [dependencies.console]
 version = "0.14.0"
@@ -204,3 +211,22 @@ opt-level = 0
 opt-level = 0
 debug-assertions = true
 debug = true
+
+# todo 0rphon
+[patch.crates-io]
+snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+# snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
+# snarkvm-fields = { path = "D:\\Work\\leo_repos\\snarkVM\\fields" }
+# snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }
+# snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }
+# snarkvm-gadgets = { path = "D:\\Work\\leo_repos\\snarkVM\\gadgets" }
+# snarkvm-parameters = { path = "D:\\Work\\leo_repos\\snarkVM\\parameters" }
+# snarkvm-dpc = { path = "D:\\Work\\leo_repos\\snarkVM\\dpc" }
+# snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }

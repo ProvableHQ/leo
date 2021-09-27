@@ -105,7 +105,6 @@ impl<E: PairingEngine> ConstraintSystem<E::Fr> for CircuitSynthesizer<E> {
         LC: FnOnce(LinearCombination<E::Fr>) -> LinearCombination<E::Fr>,
     {
         let index = self.constraints.insert(Default::default());
-
         push_constraints(a(LinearCombination::zero()), &mut self.constraints[index].at);
         push_constraints(b(LinearCombination::zero()), &mut self.constraints[index].bt);
         push_constraints(c(LinearCombination::zero()), &mut self.constraints[index].ct);

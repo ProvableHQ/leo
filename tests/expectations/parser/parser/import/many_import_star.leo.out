@@ -7,7 +7,7 @@ outputs:
     import_statements:
       - package_or_packages:
           Package:
-            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import test-import.*; // local import\\\"}\"}"
+            name: "{\"name\":\"test-import\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import test-import.*; // local import\\\\r\\\"}\"}"
             access:
               Star:
                 span:
@@ -16,24 +16,24 @@ outputs:
                   col_start: 20
                   col_stop: 21
                   path: ""
-                  content: import test-import.*; // local import
+                  content: "import test-import.*; // local import\r"
             span:
               line_start: 3
               line_stop: 3
               col_start: 8
               col_stop: 21
               path: ""
-              content: import test-import.*; // local import
+              content: "import test-import.*; // local import\r"
         span:
           line_start: 3
           line_stop: 3
           col_start: 8
           col_stop: 21
           path: ""
-          content: import test-import.*; // local import
+          content: "import test-import.*; // local import\r"
       - package_or_packages:
           Package:
-            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.*;         // imports directory import\\\"}\"}"
+            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.*;         // imports directory import\\\\r\\\"}\"}"
             access:
               Star:
                 span:
@@ -42,27 +42,27 @@ outputs:
                   col_start: 12
                   col_stop: 13
                   path: ""
-                  content: import bar.*;         // imports directory import
+                  content: "import bar.*;         // imports directory import\r"
             span:
               line_start: 5
               line_stop: 5
               col_start: 8
               col_stop: 13
               path: ""
-              content: import bar.*;         // imports directory import
+              content: "import bar.*;         // imports directory import\r"
         span:
           line_start: 5
           line_stop: 5
           col_start: 8
           col_stop: 13
           path: ""
-          content: import bar.*;         // imports directory import
+          content: "import bar.*;         // imports directory import\r"
       - package_or_packages:
           Package:
-            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\"}\"}"
+            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\\r\\\"}\"}"
             access:
               SubPackage:
-                name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\"}\"}"
+                name: "{\"name\":\"baz\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.baz.*;     // imports directory import\\\\r\\\"}\"}"
                 access:
                   Star:
                     span:
@@ -71,37 +71,37 @@ outputs:
                       col_start: 16
                       col_stop: 17
                       path: ""
-                      content: import bar.baz.*;     // imports directory import
+                      content: "import bar.baz.*;     // imports directory import\r"
                 span:
                   line_start: 6
                   line_stop: 6
                   col_start: 12
                   col_stop: 17
                   path: ""
-                  content: import bar.baz.*;     // imports directory import
+                  content: "import bar.baz.*;     // imports directory import\r"
             span:
               line_start: 6
               line_stop: 6
               col_start: 8
               col_stop: 17
               path: ""
-              content: import bar.baz.*;     // imports directory import
+              content: "import bar.baz.*;     // imports directory import\r"
         span:
           line_start: 6
           line_stop: 6
           col_start: 8
           col_stop: 17
           path: ""
-          content: import bar.baz.*;     // imports directory import
+          content: "import bar.baz.*;     // imports directory import\r"
       - package_or_packages:
           Package:
-            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
+            name: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\\r\\\"}\"}"
             access:
               SubPackage:
-                name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
+                name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\\r\\\"}\"}"
                 access:
                   SubPackage:
-                    name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\"}\"}"
+                    name: "{\"name\":\"bat\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import bar.bat.bat.*; // imports directory import\\\\r\\\"}\"}"
                     access:
                       Star:
                         span:
@@ -110,38 +110,38 @@ outputs:
                           col_start: 20
                           col_stop: 21
                           path: ""
-                          content: import bar.bat.bat.*; // imports directory import
+                          content: "import bar.bat.bat.*; // imports directory import\r"
                     span:
                       line_start: 7
                       line_stop: 7
                       col_start: 16
                       col_stop: 21
                       path: ""
-                      content: import bar.bat.bat.*; // imports directory import
+                      content: "import bar.bat.bat.*; // imports directory import\r"
                 span:
                   line_start: 7
                   line_stop: 7
                   col_start: 12
                   col_stop: 21
                   path: ""
-                  content: import bar.bat.bat.*; // imports directory import
+                  content: "import bar.bat.bat.*; // imports directory import\r"
             span:
               line_start: 7
               line_stop: 7
               col_start: 8
               col_stop: 21
               path: ""
-              content: import bar.bat.bat.*; // imports directory import
+              content: "import bar.bat.bat.*; // imports directory import\r"
         span:
           line_start: 7
           line_stop: 7
           col_start: 8
           col_stop: 21
           path: ""
-          content: import bar.bat.bat.*; // imports directory import
+          content: "import bar.bat.bat.*; // imports directory import\r"
       - package_or_packages:
           Package:
-            name: "{\"name\":\"car\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import car.*;         // imports directory import\\\"}\"}"
+            name: "{\"name\":\"car\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import car.*;         // imports directory import\\\\r\\\"}\"}"
             access:
               Star:
                 span:
@@ -150,21 +150,21 @@ outputs:
                   col_start: 12
                   col_stop: 13
                   path: ""
-                  content: import car.*;         // imports directory import
+                  content: "import car.*;         // imports directory import\r"
             span:
               line_start: 8
               line_stop: 8
               col_start: 8
               col_stop: 13
               path: ""
-              content: import car.*;         // imports directory import
+              content: "import car.*;         // imports directory import\r"
         span:
           line_start: 8
           line_stop: 8
           col_start: 8
           col_stop: 13
           path: ""
-          content: import car.*;         // imports directory import
+          content: "import car.*;         // imports directory import\r"
     imports: {}
     aliases: {}
     circuits: {}

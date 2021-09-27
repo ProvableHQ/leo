@@ -19,7 +19,13 @@
 /// with a unique error code.
 #[macro_export]
 macro_rules! create_errors {
-    (@step $_code:expr,) => {};
+    (@step $code:expr,) => {
+        #[inline(always)]
+        // Returns the number of unique exit codes that this error type can take on.
+        pub fn num_exit_codes() -> i32 {
+            $code
+        }
+    };
     ($(#[$error_type_docs:meta])* $error_type:ident, exit_code_mask: $exit_code_mask:expr, error_code_prefix: $error_code_prefix:expr, $($(#[$docs:meta])* @$formatted_or_backtraced_list:ident $names:ident { args: ($($arg_names:ident: $arg_types:ty$(,)?)*), msg: $messages:expr, help: $helps:expr, })*) => {
         #[allow(unused_imports)] // Allow unused for errors that only use formatted or backtraced errors.
         use crate::{BacktracedError, FormattedError, LeoErrorCode, Span};
@@ -62,6 +68,7 @@ macro_rules! create_errors {
                 $error_code_prefix.to_string()
             }
         }
+
 
         // Steps over the list of functions with an initial error code of 0.
         impl $error_type {
@@ -112,5 +119,4 @@ macro_rules! create_errors {
         // Steps the error code value by one and calls on the rest of the functions.
         create_errors!(@step $code + 1i32, $(($(#[$docs])* $formatted_or_backtraced_tail, $names($($tail_arg_names: $tail_arg_types,)*), $messages, $helps),)*);
     };
-
 }

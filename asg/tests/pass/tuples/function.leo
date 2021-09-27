@@ -3,7 +3,7 @@ function foo() -> (bool, bool) {
 }
 
 function main() {
-    const a = foo();
+    let a = foo();
 
     console.assert(a.0 == true);
     console.assert(a.1 == false);

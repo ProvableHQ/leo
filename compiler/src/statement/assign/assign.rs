@@ -16,52 +16,38 @@
 
 //! Enforces an assign statement in a compiled Leo program.
 
-use crate::{arithmetic::*, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::program::Program;
 use leo_asg::{AssignOperation, AssignStatement};
-use leo_errors::{CompilerError, Result, Span};
+use leo_errors::Result;
+use snarkvm_ir::Value;
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::{boolean::Boolean, traits::select::CondSelectGadget};
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_assign_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        indicator: &Boolean,
-        statement: &AssignStatement<'a>,
-    ) -> Result<()> {
+    pub fn enforce_assign_statement(&mut self, statement: &AssignStatement<'a>) -> Result<()> {
         // Get the name of the variable we are assigning to
-        let new_value = self.enforce_expression(cs, statement.value.get())?;
+        let new_value = self.enforce_expression(statement.value.get())?;
 
-        self.resolve_assign(cs, statement, new_value, indicator)?;
+        self.resolve_assign(statement, new_value)?;
 
         Ok(())
     }
 
-    pub(super) fn enforce_assign_operation<CS: ConstraintSystem<F>>(
-        cs: &mut CS,
-        condition: &Boolean,
-        scope: String,
+    pub(super) fn enforce_assign_operation(
+        &mut self,
         operation: &AssignOperation,
-        target: &mut ConstrainedValue<'a, F, G>,
-        new_value: ConstrainedValue<'a, F, G>,
-        span: &Span,
-    ) -> Result<()> {
+        target: Value,
+        new_value: Value,
+    ) -> Result<Value> {
         let new_value = match operation {
             AssignOperation::Assign => new_value,
-            AssignOperation::Add => enforce_add(cs, target.clone(), new_value, span)?,
-            AssignOperation::Sub => enforce_sub(cs, target.clone(), new_value, span)?,
-            AssignOperation::Mul => enforce_mul(cs, target.clone(), new_value, span)?,
-            AssignOperation::Div => enforce_div(cs, target.clone(), new_value, span)?,
-            AssignOperation::Pow => enforce_pow(cs, target.clone(), new_value, span)?,
+            AssignOperation::Add => self.evaluate_add(target, new_value)?,
+            AssignOperation::Sub => self.evaluate_sub(target, new_value)?,
+            AssignOperation::Mul => self.evaluate_mul(target, new_value)?,
+            AssignOperation::Div => self.evaluate_div(target, new_value)?,
+            AssignOperation::Pow => self.evaluate_pow(target, new_value)?,
             _ => unimplemented!("unimplemented assign operator"),
         };
-        let selected_value = ConstrainedValue::conditionally_select(cs.ns(|| scope), condition, &new_value, target)
-            .map_err(|_| CompilerError::statement_select_fail(new_value, target.clone(), span))?;
 
-        *target = selected_value;
-        Ok(())
+        Ok(new_value)
     }
 }

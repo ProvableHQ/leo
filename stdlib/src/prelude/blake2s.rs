@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use super::CoreCircuitFuncCall;
+use super::{CoreCircuitFuncCall, unwrap_u8_array_argument};
+
 use crate::{ConstrainedValue, GroupType, Integer};
 use leo_asg::Function;
 use leo_errors::{CompilerError, Result, Span};
@@ -26,23 +27,6 @@ use snarkvm_gadgets::{
 use snarkvm_r1cs::ConstraintSystem;
 
 pub struct Blake2s;
-
-fn unwrap_argument<F: PrimeField, G: GroupType<F>>(arg: ConstrainedValue<F, G>) -> Vec<UInt8> {
-    if let ConstrainedValue::Array(args) = arg {
-        assert_eq!(args.len(), 32); // asg enforced
-        args.into_iter()
-            .map(|item| {
-                if let ConstrainedValue::Integer(Integer::U8(item)) = item {
-                    item
-                } else {
-                    panic!("illegal non-u8 type in blake2s call");
-                }
-            })
-            .collect()
-    } else {
-        panic!("illegal non-array type in blake2s call");
-    }
-}
 
 impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuitFuncCall<'a, F, G> for Blake2s {
     fn call_function<CS: ConstraintSystem<F>>(
@@ -56,8 +40,8 @@ impl<'a, F: PrimeField, G: GroupType<F>> CoreCircuitFuncCall<'a, F, G> for Blake
         assert_eq!(arguments.len(), 2); // asg enforced
         assert!(function.name.borrow().name.as_ref() == "hash"); // asg enforced
         assert!(target.is_none()); // asg enforced
-        let input = unwrap_argument(arguments.remove(1));
-        let seed = unwrap_argument(arguments.remove(0));
+        let input = unwrap_u8_array_argument(arguments.remove(1));
+        let seed = unwrap_u8_array_argument(arguments.remove(0));
 
         let digest = Blake2sGadget::check_evaluation_gadget(cs.ns(|| "blake2s hash"), &seed[..], &input[..])
             .map_err(|e| CompilerError::cannot_enforce_expression("Blake2s check evaluation gadget", e, span))?;

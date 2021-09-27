@@ -4,11 +4,28 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 481
-      num_constraints: 547
-      at: 2f636d0f9b9af543c900753ff89b3eb0bd5cc4f81f8afc19c5cb0901b4b51b0a
-      bt: 86e567b4b178b61f7a2ae29ac78c6f60fc1b6c9cdfdbb6c896c8b059b68a90b6
-      ct: eb4c6eaa123567ee0a5b12a2812f90b4f532e657b59249aaad97092bd32cdbe9
+      num_private_variables: 480
+      num_constraints: 546
+      at: 032cbfe2f1a70afb3596966cdef50987b03e5b19b25fec363c7a6acad753d15f
+      bt: 9a34e1414e01b5651dc4cac26650ae8d54e87ff003850b5bd302f04dbdfd7d26
+      ct: 2d5baef65a3506fc8cceed465aa19537a406c4fbf4b4755d1d78d8aafa32e2c2
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, v2"
+      - "  eq &v4, v2, 3"
+      - "  eq &v5, v2, 5"
+      - "  or &v6, v4, v5"
+      - "  mask 6, v6"
+      - "    add &v8, v3, 1"
+      - "    store &v3, v8"
+      - "    eq &v9, v2, 3"
+      - "    mask 2, v9"
+      - "      add &v11, v3, 2"
+      - "      store &v3, v11"
+      - "  gt &v12, v3, v2"
+      - "  retn v12"
+      - ""
     output:
       - input_file: inputs/u32_3.in
         output:
@@ -28,7 +45,7 @@ outputs:
             a:
               type: bool
               value: "false"
-    initial_ast: ebf32d52f9b74643177b087221c52f994e439347407c948643b7261e107007ed
-    imports_resolved_ast: 957fea00248b0c95353fb52df73d641872b4a49b2c80904107e2a291199f63c5
-    canonicalized_ast: d70166c6f0d5164b75e7565a063e0a7e19d737e795d75b306ad45273e0135044
-    type_inferenced_ast: 64faf1b65dfb08aca0264eebd0ecc14edad60aa03e14020452f1e7131adafa9b
+    initial_ast: 8d0d6a148035d08edb7f3b6d4c6c31a09faa74e02e6274f742fb244614376e84
+    imports_resolved_ast: 5300efa58a272744c2bb7afaa7e2aef7d5f45721944c55f411b25ec1d787fb91
+    canonicalized_ast: e585375cb384d7e606898100b13768c9c67c68734198c83b16798e4a0c5fc79d
+    type_inferenced_ast: 5a6cf34e1792cd3be30d0daf4724341b83066164e7e4ae3407766008e6f75596

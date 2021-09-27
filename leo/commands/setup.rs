@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::build::{Build, BuildOptions};
+use crate::wrapper::CompilerWrapper;
 use crate::{commands::Command, context::Context};
-use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
 use leo_errors::{CliError, Result};
 use leo_package::outputs::{ProvingKeyFile, VerificationKeyFile};
 
@@ -44,11 +44,7 @@ pub struct Setup {
 
 impl Command for Setup {
     type Input = <Build as Command>::Output;
-    type Output = (
-        Compiler<'static, Fr, EdwardsGroupType>,
-        ProvingKey<Bls12_377>,
-        PreparedVerifyingKey<Bls12_377>,
-    );
+    type Output = (CompilerWrapper, ProvingKey<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Setup")
@@ -66,7 +62,8 @@ impl Command for Setup {
         let package_name = context.manifest()?.get_package_name();
 
         // Check if leo build failed
-        let (program, checksum_differs) = input;
+        let (program, input, checksum_differs) = input;
+        let constraint_compiler = CompilerWrapper(program, input);
 
         // Check if a proving key and verification key already exists
         let keys_exist = ProvingKeyFile::new(&package_name).exists_at(&path)
@@ -79,7 +76,7 @@ impl Command for Setup {
             // Run the program setup operation
             let rng = &mut thread_rng();
             let (proving_key, prepared_verifying_key) =
-                Groth16::<Bls12_377, Compiler<Fr, _>, Vec<Fr>>::setup(&program, rng)
+                Groth16::<Bls12_377, CompilerWrapper, Vec<Fr>>::setup(&constraint_compiler, rng)
                     .map_err(|_| CliError::unable_to_setup())?;
 
             // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
@@ -134,6 +131,6 @@ impl Command for Setup {
             (proving_key, prepared_verifying_key)
         };
 
-        Ok((program, proving_key, prepared_verifying_key))
+        Ok((constraint_compiler, proving_key, prepared_verifying_key))
     }
 }
