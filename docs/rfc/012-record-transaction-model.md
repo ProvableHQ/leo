@@ -281,87 +281,70 @@ All of this needs to be thought through more carefully, in the broader context o
 If `TransactionInput` has member functions, it may also be useful for `TransactionOutput` to have member functions,
 presumably to create new instances and to set values of member variables.
 
-### Proposed Leo Program Execution Model
+A somewhat related consideration is whether it should be allowed
+to make copies of the `TransactionInput` value passed to an entry point function.
+There is no harm in doing that: the model still works, as explained above.
+(Since a `TransactionInput` is a relatively large structure,
+there may be harm consisting in creating a relatively large number of R1CS constraints,
+but that may happen with user-defined types too, and is a separable problem.)
+Nonetheless, we may want to enforce a discipline of single-threadedness,
+which could also allow us to treat transaction input as an immutable reference behind the scenes,
+thus reducing the number of R1CS constraints.
 
-One issue with the special `input` variable is whether it should be treated as a built-in global variable,
-or whether it should be explicitly passed to the entry point functions and to the non-entry-point functions called by them.
-The first approach is more concise, while the second approach is more explicit.
-Note that, in the second approach, we may want to enforce certain restrictions on the use of `input`,
-e.g. we may not want to allow a call `f(input, input)` even if the parameters of `f` both have the same circuit type as `input`.
-There is nothing inherently wrong with `f(input, input)`, i.e. with handling `input` by value,
-except that perhaps `input` is a relatively large structure,
-and duplicating it generates a (relatively) large number of R1CS constraints.
-Another idea is to pass `input` by (immutable) reference behind the scenes,
-analogously to how we pass `self` by mutable reference to functions with `mut self`.
-
-The treatment of output records is less clear at this point.
-As mentioned above, experimentation suggests that currently the output values of `main` are serialized into new records.
-This is not "symmetric" with the treatment of input records.
-It may be preferable to require the Leo code to perform its own serialization of high-level data to output records,
-which would often be the inverse of the deserialization from input records.
-We could consider, for symmetry, to add a special `output` variable,
-also with a known circuit type,
-which contains (at least some of) the data in the output records, most notably the two payloads.
-(It may not contain all the data of the record because some slots
-have to be computed by the underlying zero-knowledge mechanisms,
-outside of the Leo code.)
-This `output` variable would have to be read/write, unlike `input`.
-Similarly to `input`, it could be either a built-in global variable
-or passed around functions by reference, in a single-threaded way.
-The single-threadedness is a more important requirement here,
-since the variable is read/write,
-i.e. it needs to be treated like a global variable,
-in the sense that there is a single instance of it.
-
-If we go the `output` variable route, a question is what happens with the outputs of the entry point functions
-(i.e. the values in `Output`, in the mathematical function described earlier).
-If all the output data is explicitly written into the output record by the Leo code,
-then perhaps the Leo entry point functions should always return `()`, i.e. "nothing",
-or perhaps they should be predicates, i.e. return `bool`,
-where `true` indicates a successful check (e.g. "yes, this private input yields this commitment when hashed")
-and `false` indicates a failed check.
-
-Another possibility is to require entry point functions to return records as outputs.
-More precisely, these may be smaller structures than records,
-because some of the slots of the records may only be calculated outside of Leo,
-but for the present discussion we will assume that Leo can calculate the whole records.
-As mentioned earlier, a transaction may generate 0, 1, or 2 new records.
-Correspondingly, we could require entry point functions to return results of one of the following types:
-```
-@entrypoint function ...(...) -> () // when no new records are created
-@entrypoint function ...(...) -> Record // when one new record is created
-@entrypoint function ...(...) -> (Record, Record) // when two new records are created
-// using an annotation for concreteness, but the point stands for the other options discussed
-```
-In other words, an entry point function can be now seen as a mathematical function
-```
-entrypoint : Record x Record x Inputs -> Record x Record
-```
-where one or both output records are dummy if the function creates less than two new records.
-
-The above constrains each entry point to always return the same number of records.
-Different entry point functions may return different numbers of records.
-If we want the same entry point function
-to return different numbers of records in different situations,
-then it could make sense to have a more general circuit type for the output of a transaction,
-which may contain 0, 1, or 2 records, and possibly other information as needed,
-and require entry point functions to uniformly return values of that type:
-```
-@entrypoint function ...(...) -> TransactionOutput // contains 0, 1, or 2 records
-```
-
-Earlier we discussed having a known and accessible circuit type for the `input` special variable.
-This type could be called `TransactionInput`, which mirrors `TransactionOutput`.
-In this case, it seems more natural to treat `input` not as a global variable,
-but as a parameter of entry functions;
-it could be the first parameter, required for every entry function that accesses the transaction input:
-```
-@entrypoint function ...(input: TransactionInput, ...) -> TransactionOutput
-```
-We could even drop `input` as a special keyword/expression altogether,
-and allow any name (but suggest a convention) for the `TransactionInput` parameter of entry point functions.
+Analogous considerations apply to `TransactionOutput`,
+namely whether it should be treated in a single-threaded way,
+i.e. effectively as a built-in global variable,
+which could enable compiler optimizations.
 
 ## Alternatives
 
-The 'Design' section above already outlines several alternatives to consider.
+The 'Design' section above still outlines certain alternatives to consider.
 Once we make some specific choices, we can move the other options to this section.
+
+### Built-in Global Variable for Transaction Input
+
+Instead of having explicit `TransactionInput` inputs in entry point functions,
+we could maintain the current approach of viewing `input` as a built-in global variable, of type `TransactionInput`.
+Everything else would be the same, except that `input` would be implicitly available.
+
+An advantage is that single-threadedness would be immediately guaranteed,
+if we wanted to enforced that as discussed above.
+
+On the other hand, explicating transaction inputs as entry point inputs makes the code more functional
+and simplifies certain aspects of the Leo compiler.
+
+### Built-in Global Variable for Transaction Output
+
+Instead of having explicit `TransactionOutput` outputs in entry point functions,
+we could introduce a built-in `output` global variable, of type `TransactionOutput`.
+
+This has similar advantages and disadvantages to the ones discussed above for `input` as a built-in global variable.
+
+In any case, we may want this `output` global variable alternative
+to go hand-in-hand with the `input` global variable alternative.
+That is, we either adopt both or none.
+The current treatment in Leo is asymmetric in this respect.
+
+### Implicit Serialization of Output Values
+
+Instead of having an explicit `TransactionOutput` type
+whose values describe exactly the output data for a transaction,
+we could keep something like the current model,
+in which an entry point function may return values of arbitrary types,
+which are implicitly serialized into output records.
+
+This may be a bit simpler for the beginning developer,
+but it also introduces less control on the output data.
+Futhermore, given that records have payloads of limited size,
+it is not difficult to write a program that attempts to produce too much data.
+
+In any case, if we were to go this route, there would be an asymmetry with the treatment of transaction inputs,
+unless we also allow `input` (by this we mean the value passed to an entry point function with the transaction inputs)
+to consist of arbitrary Leo types (subject to serialization size limitations).
+Note that this requires the Leo type of `input` to potentially vary across different programs
+(which appears to be the case in current Leo),
+which is more complicated than having some fixed types in the standard library.
+
+All in all, it seems that having `TransactionInput` and `TransactionOutput` types provides more explicit control.
+Furthermore, in the future the Leo standard library could provide serialization and deserialization tools
+that will make it easy to map between record slots and higher-level Leo types.
