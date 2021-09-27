@@ -132,6 +132,15 @@ on those values and on the old records
 yields the new records, along with some value in `Output`;
 this is, roughly speaking, the assertion proved in zero-knowledge.
 
+### Input and Output Files
+
+Currently the compilation of a Leo program involves:
+1. A `.in` file, containing `const` and non-`const` inputs.
+2. A `.state` file, containing transaction data.
+3. A `.out` file, containing results.
+
+The compilation takes the first two files as inputs and returns the third file as output.
+
 ## Design
 
 ### Multiple Entry Points
@@ -295,6 +304,14 @@ Analogous considerations apply to `TransactionOutput`,
 namely whether it should be treated in a single-threaded way,
 i.e. effectively as a built-in global variable,
 which could enable compiler optimizations.
+
+### Input and Output Files
+
+According to the new model proposed above, we should have just two files involved in the Leo compilation process:
+1. A `.in` file, from which the `TransactionInput` value is produced.
+2. A `.out` file, produced from the `TransactionOutput` returned by the program.
+
+There seems to be no longer a need for a `.state` file and for explicit registers.
 
 ## Alternatives
 
