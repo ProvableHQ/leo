@@ -171,12 +171,15 @@ entrypoint {
 In the rest of this design section we assume the annotation approach (i.e. `@entrypoint`) for concreteness,
 but that can be replaced as soon as we converge on a choice.
 
-### Proposed Leo Program Execution Model
+### Types for Transaction Inputs and Outputs
+
+We propose to add types for transaction inputs and outputs to the Leo standard library,
+and possibly include them in the prelude that is implicitly imported by every Leo program.
 
 Given that records have a fixed structure with typed slots,
-their format could be described by a Leo circuit type,
+their format could be described by a Leo circuit type, e.g. called `Record`,
 whose member variables correspond to the slots.
-The types of the slots would be fairly low-level,
+The types of the slots are fairly low-level,
 i.e. byte arrays (e.g. `u8[128]` for the payload)
 and unsigned integers (e.g. `u64` for the balance),
 because they must have a clear correspondence with the serialized form of records.
@@ -185,12 +188,23 @@ its own deserialization of the payload bytes into higher-level Leo values;
 standard serialization/deserialization libraries for Leo types may be provided for this,
 as an independent and more generally useful feature.
 
-It may make sense to have a circuit type for the special `input` variable,
-which includes two slots for the two old records.
-All these circuit types should be explicitly documented,
-and available to the Leo program.
+Given that a transaction input consists of two records and possibly additional information,
+it makes sense to also have a circuit type `TransactionInput`,
+which includes two `Record` slots and possibly additional slots.
 
-However, we probably want `input` to be read-only,
+Additionally, it makes sense to have a circuit type `TransactionOutput`
+that describes the output data of a transaction that is produced by the Leo program.
+This could also include two `Record` slots for the new records,
+or possibly "subsets" of records if the values of some record slots are calculated
+not by the Leo program but instead by the Leo CLI (i.e. build process).
+
+All these types should be documented, as part of the standard library.
+We will need to flesh out their exact definition,
+but we note that this is fairly easy to change when it is in the standard library.
+
+### Proposed Leo Program Execution Model
+
+We probably want `input` to be read-only,
 i.e. disallow assigning to an old record slot.
 Designating `input` as `const` does not seem right,
 as that designation normally means that it is compiled into the circuit.
