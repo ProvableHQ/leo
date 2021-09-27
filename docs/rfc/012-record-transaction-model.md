@@ -202,6 +202,53 @@ All these types should be documented, as part of the standard library.
 We will need to flesh out their exact definition,
 but we note that this is fairly easy to change when it is in the standard library.
 
+### Entry Point Input and Output Types
+
+We propose that each entry point function of a Leo program
+explicitly produce transaction outputs from transaction inputs
+by taking a `TransactionInput` input and returning a `TransactionOutput` output:
+```
+@entrypoint
+function ...(input: TransactionInput, ...) -> TransactionOutput { ... }
+```
+This way, the calculation of transaction outputs from transaction inputs is made functional and explicit.
+
+As special cases (both of which may apply to the same entry point):
+1. We could allow the `TransactionInput` input to be absent,
+   when an entry point does not need access the transaction input data,
+   e.g. when producing new records without consuming old records.
+2. We could allow the function output to be `()` instead of `TransactionOutput`,
+   when an entry point does not need to produce transaction outputs,
+   e.g. when consuming old records without producing new records.
+
+Compared to the current Leo program execution model (described earlier in the background section),
+`input` is made an explicit input here, instead of being like a built-in global variable.
+Furthermore, the output type is restricted to be `TransactionOutput` (or `()`),
+thus eliminating the implicit serialization and the asymmetry with the treatment of transaction inputs.
+There is still no restriction on the non-`TransactionInput` inputs of an entry point function;
+as noted earlier, they are existentially quantified in the zero-knowledge assertion.
+
+Thus, a Leo program entry point can be now described as a mathematical function
+```
+entrypoint : Record x Record x Inputs -> Record x Record
+```
+where `Output` is no longer present.
+(If `TransactionInput` includes additional data, besides the two old records, that may affect the transaction output,
+then we would need to add that to this mathematical model;
+however, the model above is sufficiently accurate for the current discussion.)
+
+We may require the `TransactionInput` input of an entry point function, if present,
+to be the first input of the function, for clarity and readability.
+A question is whether we should extend that requirement to non-entry-point functions
+that may be passed `TransactionInput` values.
+We note that none of these restrictions are necessary, though.
+A necessary restriction is that each entry point function takes at most one `TransactionInput` input.
+
+We may require the `TransactionInput` input of an entry point function, if present,
+to be called `input`, or some other predefined name.
+However, this is not a necessary restriction, and we may decide to demote that to a convention rather than a requirement.
+(Currently `input` is a keyword and its own kind of Leo expression, which slightly complicates the language.)
+
 ### Proposed Leo Program Execution Model
 
 We probably want `input` to be read-only,
