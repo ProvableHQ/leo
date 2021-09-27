@@ -14,7 +14,7 @@ This RFC proposes three things:
 
 1. The scalar types in Leo (integers, fields, etc.) can have static methods.
 2. The scalar types in Leo (integers, fields, etc.) can have static constants.
-3. Those values that have a scalar type can have methods directly on them.
+3. Expressions of scalar type can have instance methods called on them.
 
 ## Motivation
 
