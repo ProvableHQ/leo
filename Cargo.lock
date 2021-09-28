@@ -1527,9 +1527,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.102"
+version = "0.2.103"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2a5ac8f984bfcf3a823267e5fde638acc3325f6496633a5da6bb6eb2171e103"
+checksum = "dd8f7255a17a627354f321ef0055d63b898c6fb27eff628af4d1b66b7331edf6"
 
 [[package]]
 name = "libz-sys"
@@ -2002,9 +2002,9 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "pkg-config"
-version = "0.3.19"
+version = "0.3.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3831453b3449ceb48b6d9c7ad7c96d5ea673e9b470a1dc578c2ce6521230884c"
+checksum = "7c9b1041b4387893b91ee6746cddfc28516aff326a3519fb2adf820932c5e6cb"
 
 [[package]]
 name = "plotters"
@@ -2688,7 +2688,7 @@ checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 [[package]]
 name = "snarkvm-algorithms"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "anyhow",
  "bitvec",
@@ -2715,7 +2715,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-curves"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "derivative",
  "rand 0.8.4",
@@ -2730,7 +2730,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-derives"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "proc-macro-crate 0.1.5",
  "proc-macro-error",
@@ -2742,7 +2742,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-dpc"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "anyhow",
  "base58",
@@ -2773,7 +2773,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-eval"
 version = "0.7.7"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "anyhow",
  "im",
@@ -2792,7 +2792,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-fields"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2807,7 +2807,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-gadgets"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2826,7 +2826,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ir"
 version = "0.7.7"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "anyhow",
  "bech32",
@@ -2839,7 +2839,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-marlin"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "blake2",
  "derivative",
@@ -2862,7 +2862,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-parameters"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "curl",
  "hex",
@@ -2874,7 +2874,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-polycommit"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2892,12 +2892,12 @@ dependencies = [
 [[package]]
 name = "snarkvm-profiler"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 
 [[package]]
 name = "snarkvm-r1cs"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "cfg-if 1.0.0",
  "fxhash",
@@ -2911,7 +2911,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-utilities"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=master#800f2bf3aa29e5ef637a6922d5042da6d700c07b"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#7711b022f736da9ab2f9ba8d8d17d20695fc41b6"
 dependencies = [
  "anyhow",
  "bincode",
@@ -3120,9 +3120,9 @@ dependencies = [
 
 [[package]]
 name = "tinyvec"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5241dd6f21443a3606b432718b166d3cedc962fd4b8bea54a8bc7f514ebda986"
+checksum = "f83b2a3d4d9091d0abd7eba4dc2710b1718583bd4d8992e2190720ea38f391f7"
 dependencies = [
  "tinyvec_macros",
 ]

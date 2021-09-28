@@ -107,7 +107,7 @@ version = "0.7.6"
 version = "0.7.7"
 # path = "D:\\Work\\leo_repos\\snarkVM\\eval"
 git = "https://github.com/AleoHQ/snarkVM"
-branch = "master"
+branch = "feature/bits-bytes-ir-core-circuits"
 
 [dependencies.structopt]
 version = "0.3"
@@ -214,19 +214,11 @@ debug = true
 
 # todo 0rphon
 [patch.crates-io]
-snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-# snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
-# snarkvm-fields = { path = "D:\\Work\\leo_repos\\snarkVM\\fields" }
-# snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }
-# snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }
-# snarkvm-gadgets = { path = "D:\\Work\\leo_repos\\snarkVM\\gadgets" }
-# snarkvm-parameters = { path = "D:\\Work\\leo_repos\\snarkVM\\parameters" }
-# snarkvm-dpc = { path = "D:\\Work\\leo_repos\\snarkVM\\dpc" }
-# snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }
+snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-ir-core-circuits" }
+snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-ir-core-circuits" }
+snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-ir-core-circuits" }
+snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-ir-core-circuits" }
+snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-ir-core-circuits" }
+snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-ir-core-circuits" }
+snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-ir-core-circuits" }
+snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-ir-core-circuits" }

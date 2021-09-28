@@ -96,21 +96,32 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     ..
                 }) => {
                     let target = <&Expression<'a>>::from_ast(scope, &**ast_value, None)?;
-                    let circuit = match target.get_type() {
-                        Some(Type::Address) => scope.resolve_circuit("address").unwrap(),
-                        Some(Type::Boolean) => scope.resolve_circuit("bool").unwrap(),
-                        Some(Type::Char) => scope.resolve_circuit("char").unwrap(),
-                        Some(Type::Field) => scope.resolve_circuit("field").unwrap(),
-                        Some(Type::Group) => scope.resolve_circuit("group").unwrap(),
-                        Some(Type::Circuit(circuit)) => circuit,
-                        Some(Type::Integer(int_type)) => scope.resolve_circuit(&int_type.to_string()).unwrap(),
-                        type_ => {
+
+                    let type_ = target.get_type();
+                    let circuit = match type_ {
+                        // Set core mapping to function name and resolve core circuit when applicable.
+                        // Otherwise resolve regular circuit.
+                        Some(Type::Array(_, _)) | Some(Type::ArrayWithoutSize(_)) | Some(Type::Tuple(_)) | None => {
                             return Err(AsgError::unexpected_type(
                                 "circuit",
                                 type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                                 span,
                             )
                             .into());
+                        }
+                        Some(Type::Circuit(circuit)) => circuit,
+                        Some(Type::Integer(int_type)) => {
+                            let member = name.name.to_string();
+                            let mapping = Some(member);
+                            let circuit = scope.resolve_circuit(&int_type.to_string()).unwrap();
+                            circuit.core_mapping.replace(mapping);
+                            circuit
+                        }
+                        Some(type_) => {
+                            let mapping = Some(name.name.to_string());
+                            let circuit = scope.resolve_circuit(&type_.to_string()).unwrap();
+                            circuit.core_mapping.replace(mapping);
+                            circuit
                         }
                     };
                     let circuit_name = circuit.name.borrow().name.clone();
@@ -149,6 +160,22 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                         return Err(AsgError::unexpected_type("circuit", "unknown", span).into());
                     };
                     let circuit_name = circuit.name.borrow().name.clone();
+                    let type_str = circuit_name.as_ref();
+                    // If we are statically accessing a builtin circuit core function
+                    // Build the correct mapping name.
+                    match type_str {
+                        "address" | "bool" | "char" | "field" | "group" | "i8" | "i16" | "i32" | "i64" | "i128"
+                        | "u8" | "u16" | "u32" | "u64" | "u128" => {
+                            let member_name = name.name.as_ref();
+                            let mapping = match member_name {
+                                "from_bits" => Some(format!("{}_from_bits", type_str)),
+                                "from_bytes" => Some(format!("{}_from_bytes", type_str)),
+                                _ => Some(member_name.to_string()),
+                            };
+                            circuit.core_mapping.replace(mapping);
+                        }
+                        _ => {}
+                    }
 
                     let member = circuit.members.borrow();
                     let member = member

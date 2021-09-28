@@ -874,20 +874,4 @@ create_errors!(
         msg: format!("the type `{}` does not implement the from_bits method", type_),
         help: None,
     }
-
-    /// For when to bytes is called on a type that does not implement it.
-    @formatted
-    to_bytes_not_implemented_for_type {
-        args: (type_: impl Display),
-        msg: format!("the type `{}` does not implement the to_bytes method", type_),
-        help: None,
-    }
-
-    /// For when from bytes is called on a type that does not implement it.
-    @formatted
-    from_bytes_not_implemented_for_type {
-        args: (type_: impl Display),
-        msg: format!("the type `{}` does not implement the from_bytes method", type_),
-        help: None,
-    }
 );
