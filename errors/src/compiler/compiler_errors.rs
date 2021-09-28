@@ -835,6 +835,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when .len() method is used on non-array values/variables.
     @formatted
     lengthof_can_only_be_used_on_arrays {
         args: (),
@@ -842,6 +843,7 @@ create_errors!(
         help: None,
     }
 
+    /// For when equality operator is used on arrays with different sizes.
     @formatted
     array_sizes_must_match_in_eq {
         args: (lhs: impl Display, rhs: impl Display),
