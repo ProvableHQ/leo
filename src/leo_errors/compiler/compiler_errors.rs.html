@@ -842,6 +842,13 @@
 <span id="842">842</span>
 <span id="843">843</span>
 <span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -1008,7 +1015,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
-    <span class="doccomment">/// For when the operation has no implmentation on the type of variable received.</span>
+    <span class="doccomment">/// For when the operation has no implementation on the type of variable received.</span>
     @<span class="ident">formatted</span>
     <span class="ident">incompatible_types</span> {
         <span class="ident">args</span>: (<span class="ident">operation</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
@@ -1684,6 +1691,13 @@
     <span class="ident">lengthof_can_only_be_used_on_arrays</span> {
         <span class="ident">args</span>: (),
         <span class="ident">msg</span>: <span class="string">&quot;len() can only be called on an array value&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
+    @<span class="ident">formatted</span>
+    <span class="ident">array_sizes_must_match_in_eq</span> {
+        <span class="ident">args</span>: (<span class="ident">lhs</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">rhs</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;array sizes must match for comparison; left: {}, right: {}&quot;</span>, <span class="ident">lhs</span>, <span class="ident">rhs</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 );
