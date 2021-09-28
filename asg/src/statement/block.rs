@@ -17,9 +17,10 @@
 use crate::{FromAst, Node, PartialType, Scope, Statement};
 use leo_errors::{Result, Span};
 
+use serde::Serialize;
 use std::cell::Cell;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct BlockStatement<'a> {
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,

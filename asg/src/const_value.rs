@@ -26,7 +26,7 @@ use std::{
 use tendril::StrTendril;
 
 /// Constant integer values in a program.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
 pub enum ConstInt {
     I8(i8),
     I16(i16),
@@ -41,7 +41,7 @@ pub enum ConstInt {
 }
 
 /// Specifies how to calculate a group coordinate in a program.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum GroupCoordinate {
     /// Explicit field element number string.
     Number(BigInt),
@@ -95,7 +95,7 @@ impl Into<leo_ast::GroupCoordinate> for &GroupCoordinate {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum GroupValue {
     Single(BigInt),
     Tuple(GroupCoordinate, GroupCoordinate),
@@ -116,7 +116,7 @@ impl TryFrom<leo_ast::GroupValue> for GroupValue {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub enum CharValue {
     Scalar(char),
     NonScalar(u32),
@@ -148,12 +148,12 @@ impl From<leo_ast::CharValue> for CharValue {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Serialize)]
 pub enum ConstValue<'a> {
     Int(ConstInt),
     Group(GroupValue),
     Field(BigInt),
-    Address(StrTendril),
+    Address(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
     Boolean(bool),
     Char(CharValue),
 

@@ -38,8 +38,9 @@ use std::{
 };
 
 /// Stores the Leo program abstract semantic graph (ASG).
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct Program<'a> {
+    #[serde(skip)]
     pub context: AsgContext<'a>,
 
     /// The unique id of the program.

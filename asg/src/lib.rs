@@ -70,7 +70,7 @@ pub mod context;
 pub use context::*;
 
 pub use leo_ast::{Ast, Identifier};
-use leo_errors::Result;
+use leo_errors::{AsgError, Result};
 
 /// The abstract semantic graph (ASG) for a Leo program.
 ///
@@ -100,6 +100,25 @@ impl<'a> Asg<'a> {
 
     pub fn into_repr(self) -> Program<'a> {
         self.asg
+    }
+
+    /// Serializes the asg into a JSON string.
+    pub fn to_json_string(&self) -> Result<String> {
+        Ok(serde_json::to_string_pretty(&self.asg).map_err(|e| AsgError::failed_to_convert_asg_to_json_string(&e))?)
+    }
+
+    /// Serializes the asg into a JSON value.
+    pub fn to_json_value(&self) -> Result<serde_json::Value> {
+        Ok(serde_json::to_value(&self.asg).map_err(|e| AsgError::failed_to_convert_asg_to_json_value(&e))?)
+    }
+
+    /// Serializes the asg into a JSON file.
+    pub fn to_json_file(&self, mut path: std::path::PathBuf, file_name: &str) -> Result<()> {
+        path.push(file_name);
+        let file = std::fs::File::create(&path).map_err(|e| AsgError::failed_to_create_asg_json_file(&path, &e))?;
+        let writer = std::io::BufWriter::new(file);
+        Ok(serde_json::to_writer_pretty(writer, &self.asg)
+            .map_err(|e| AsgError::failed_to_write_asg_to_json_file(&path, &e))?)
     }
 }
 

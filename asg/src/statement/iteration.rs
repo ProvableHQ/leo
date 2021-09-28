@@ -19,9 +19,10 @@ use leo_ast::IntegerType;
 use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
 use leo_errors::{AsgError, Result, Span};
 
+use serde::Serialize;
 use std::cell::{Cell, RefCell};
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct IterationStatement<'a> {
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,

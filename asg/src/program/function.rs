@@ -27,7 +27,7 @@ use std::{
     fmt,
 };
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Serialize, PartialEq)]
 pub enum FunctionQualifier {
     SelfRef,
     ConstSelfRef,
@@ -35,7 +35,7 @@ pub enum FunctionQualifier {
     Static,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct Function<'a> {
     pub id: u32,
     pub name: RefCell<Identifier>,

@@ -16,6 +16,7 @@
 
 use crate::create_errors;
 
+use std::error::Error as ErrorArg;
 use std::fmt::{Debug, Display};
 
 create_errors!(

@@ -38,7 +38,7 @@ create_errors!(
     @backtraced
     failed_to_create_ast_json_file {
         args: (path: impl Debug, error: impl ErrorArg),
-        msg: format!("failed to creat ast json file `{:?}` {}", path, error),
+        msg: format!("failed to create ast json file `{:?}` {}", path, error),
         help: None,
     }
 

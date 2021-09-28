@@ -18,9 +18,10 @@ use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, 
 pub use leo_ast::UnaryOperation;
 use leo_errors::{AsgError, Result, Span};
 
+use serde::Serialize;
 use std::cell::Cell;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct UnaryExpression<'a> {
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,

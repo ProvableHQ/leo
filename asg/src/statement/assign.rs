@@ -22,9 +22,10 @@ pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
 use leo_errors::{AsgError, Result, Span};
 
+use serde::Serialize;
 use std::cell::Cell;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub enum AssignAccess<'a> {
     ArrayRange(Cell<Option<&'a Expression<'a>>>, Cell<Option<&'a Expression<'a>>>),
     ArrayIndex(Cell<&'a Expression<'a>>),
@@ -32,7 +33,7 @@ pub enum AssignAccess<'a> {
     Member(Identifier),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct AssignStatement<'a> {
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,

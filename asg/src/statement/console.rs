@@ -18,24 +18,25 @@ use crate::{CharValue, Expression, FromAst, Node, PartialType, Scope, Statement,
 use leo_ast::ConsoleFunction as AstConsoleFunction;
 use leo_errors::{Result, Span};
 
+use serde::Serialize;
 use std::cell::Cell;
 
 // TODO (protryon): Refactor to not require/depend on span
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct ConsoleArgs<'a> {
     pub string: Vec<CharValue>,
     pub parameters: Vec<Cell<&'a Expression<'a>>>,
     pub span: Span,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub enum ConsoleFunction<'a> {
     Assert(Cell<&'a Expression<'a>>),
     Error(ConsoleArgs<'a>),
     Log(ConsoleArgs<'a>),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct ConsoleStatement<'a> {
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,

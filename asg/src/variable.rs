@@ -14,13 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use std::cell::RefCell;
-
 use crate::{Expression, Statement, Type};
 use leo_ast::Identifier;
 
+use serde::Serialize;
+use std::cell::RefCell;
+
 /// Specifies how a program variable was declared.
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Serialize, PartialEq)]
 pub enum VariableDeclaration {
     Definition,
     IterationDefinition,
@@ -29,7 +30,7 @@ pub enum VariableDeclaration {
 }
 
 /// Stores information on a program variable.
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
 pub struct InnerVariable<'a> {
     pub id: u32,
     pub name: Identifier,
