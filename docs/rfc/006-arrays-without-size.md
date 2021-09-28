@@ -6,7 +6,7 @@ The Aleo Team.
 
 ## Status
 
-DRAFT
+IMPLEMENTED
 
 # Summary
 
@@ -149,3 +149,7 @@ None.
 # Alternatives
 
 None.
+
+# Implementation Decisions
+
+For the length of an array, we decided on `<expression>.len()`, where `<expression>` is any expression of array type.
