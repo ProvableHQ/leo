@@ -104,10 +104,10 @@ version = "0.7.6"
 
 #todo 0rphon
 [dependencies.snarkvm-eval]
-version = "0.7.7"
+version = "0.7.9"
 # path = "D:\\Work\\leo_repos\\snarkVM\\eval"
 git = "https://github.com/AleoHQ/snarkVM"
-branch = "master"
+branch = "ir-updates"
 
 [dependencies.structopt]
 version = "0.3"
@@ -214,14 +214,14 @@ debug = true
 
 # todo 0rphon
 [patch.crates-io]
-snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
 # snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
 # snarkvm-fields = { path = "D:\\Work\\leo_repos\\snarkVM\\fields" }
 # snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }
