@@ -383,7 +383,7 @@ impl ParserContext {
         let peeked = self.peek()?.clone();
         if peeked.token == Token::Function || peeked.token == Token::At {
             let function = self.parse_function_declaration()?;
-            Ok(CircuitMember::CircuitFunction(function.1))
+            Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
             return Err(ParserError::unexpected(
                 &peeked.token,
@@ -423,7 +423,6 @@ impl ParserContext {
             name.clone(),
             Circuit {
                 circuit_name: name,
-                core_mapping: std::cell::RefCell::new(None),
                 members,
             },
         ))
@@ -510,6 +509,7 @@ impl ParserContext {
                 output,
                 span: start + block.span.clone(),
                 block,
+                core_mapping: std::cell::RefCell::new(None),
             },
         ))
     }

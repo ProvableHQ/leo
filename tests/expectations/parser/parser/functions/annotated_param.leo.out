@@ -10,7 +10,7 @@ outputs:
     circuits: {}
     global_consts: {}
     functions:
-      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() {\\\\r\\\"}\"}":
+      "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() {\\\"}\"}":
         annotations:
           - span:
               line_start: 3
@@ -18,13 +18,14 @@ outputs:
               col_start: 1
               col_stop: 12
               path: ""
-              content: "@test(test)\r"
-            name: "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test(test)\\\\r\\\"}\"}"
+              content: "@test(test)"
+            name: "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test(test)\\\"}\"}"
             arguments:
               - test
-        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() {\\\\r\\\"}\"}"
+        identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() {\\\"}\"}"
         input: []
         output: ~
+        core_mapping: ~
         block:
           statements:
             - Return:
@@ -37,14 +38,14 @@ outputs:
                       col_start: 12
                       col_stop: 14
                       path: ""
-                      content: "    return ();\r"
+                      content: "    return ();"
                 span:
                   line_start: 5
                   line_stop: 5
                   col_start: 5
                   col_stop: 14
                   path: ""
-                  content: "    return ();\r"
+                  content: "    return ();"
           span:
             line_start: 4
             line_stop: 6

@@ -496,14 +496,15 @@ impl Canonicalizer {
                 let output = self.canonicalize_self_type(function.output.as_ref());
                 let block = self.canonicalize_block(&function.block);
 
-                return CircuitMember::CircuitFunction(Function {
+                return CircuitMember::CircuitFunction(Box::new(Function {
                     annotations: function.annotations.clone(),
                     identifier: function.identifier.clone(),
                     input,
                     output,
                     block,
+                    core_mapping: function.core_mapping.clone(),
                     span: function.span.clone(),
-                });
+                }));
             }
         }
 
@@ -715,20 +716,20 @@ impl ReconstructingReducer for Canonicalizer {
             input,
             output: new_output,
             block,
+            core_mapping: function.core_mapping.clone(),
             span: function.span.clone(),
         })
     }
 
     fn reduce_circuit(
         &mut self,
-        circuit: &Circuit,
+        _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
     ) -> Result<Circuit> {
         self.circuit_name = Some(circuit_name.clone());
         let circ = Circuit {
             circuit_name,
-            core_mapping: circuit.core_mapping.clone(),
             members: members
                 .iter()
                 .map(|member| self.canonicalize_circuit_member(member))

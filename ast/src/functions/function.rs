@@ -26,6 +26,7 @@ pub struct Function {
     pub identifier: Identifier,
     pub input: Vec<FunctionInput>,
     pub output: Option<Type>,
+    pub core_mapping: std::cell::RefCell<Option<String>>,
     pub block: Block,
     pub span: Span,
 }

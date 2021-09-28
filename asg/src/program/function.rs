@@ -44,6 +44,7 @@ pub struct Function<'a> {
     pub circuit: Cell<Option<&'a Circuit<'a>>>,
     pub span: Option<Span>,
     pub body: Cell<Option<&'a Statement<'a>>>,
+    pub core_mapping: RefCell<Option<String>>,
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
     pub annotations: Vec<Annotation>,
@@ -128,6 +129,7 @@ impl<'a> Function<'a> {
             circuit: Cell::new(None),
             body: Cell::new(None),
             qualifier,
+            core_mapping: value.core_mapping.clone(),
             scope: new_scope,
             span: Some(value.span.clone()),
             annotations: value.annotations.clone(),
@@ -222,6 +224,7 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
             input,
             block: body,
             output: Some((&output).into()),
+            core_mapping: self.core_mapping.clone(),
             span,
             annotations: self.annotations.clone(),
         }

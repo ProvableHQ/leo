@@ -1,0 +1,139 @@
+decl f0: <0>
+  store &v0, 8
+  store &v2, ((v1), (), (), ())
+  store &v4, (1, 0)
+  store &v5, ['h', 'e', 'l', 'l', 'o']
+  store &v6, ['h', 'e', 'l', 'l', 'o']
+  store &v7, 8
+  call &v8, f2
+  store &v9, v8
+  call &v10, f1
+  eq &v11, v10, 1
+  and &v12, v11, true
+  and &v13, v12, true
+  eq &v14, v13, v3
+  retn v14
+decl f1: <15>
+  retn 1
+decl f2: <15>
+  retn (3)
+decl f3: <15>
+  retn [false, false, false, false, false, false, false, false]
+decl f4: <16>
+  retn 0
+decl f5: <17>
+  retn [0]
+decl f6: <18>
+  retn 0
+decl f7: <19>
+  retn [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+decl f8: <20>
+  retn 0
+decl f9: <21>
+  retn [0, 0, 0, 0, 0, 0, 0, 0]
+decl f10: <22>
+  retn 0
+decl f11: <23>
+  retn [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+decl f12: <24>
+  retn 0
+decl f13: <25>
+  retn [0, 0, 0, 0]
+decl f14: <26>
+  retn 0
+decl f15: <27>
+  retn [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+decl f16: <28>
+  retn 0
+decl f17: <29>
+  retn [0, 0]
+decl f18: <30>
+  retn 0
+decl f19: <31>
+  retn [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+decl f20: <32>
+  retn 0
+decl f21: <33>
+  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+decl f22: <34>
+  retn 0
+decl f23: <35>
+  retn [false, false, false, false, false, false, false, false]
+decl f24: <36>
+  retn 0
+decl f25: <37>
+  retn [0, 0, 0, 0, 0, 0, 0, 0]
+decl f26: <38>
+  retn 0
+decl f27: <39>
+  retn [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+decl f28: <40>
+  retn 0
+decl f29: <41>
+  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+decl f30: <42>
+  retn 0
+decl f31: <43>
+  retn [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+decl f32: <44>
+  retn 0
+decl f33: <45>
+  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+decl f34: <46>
+  retn 0
+decl f35: <47>
+  retn [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+decl f36: <48>
+  retn 0
+decl f37: <49>
+  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+decl f38: <50>
+  retn 0
+decl f39: <51>
+  retn [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false]
+decl f40: <52>
+  retn 0
+decl f41: <53>
+  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+decl f42: <54>
+  retn 0
+decl f43: <55>
+  retn [false, false, false, false, false, false, false, false]
+decl f44: <56>
+  retn []group
+decl f45: <57>
+  retn [0, 0, 0, 0, 0, 0, 0, 0]
+decl f46: <58>
+  retn []group
+decl f47: <59>
+  retn [false, false, false, false, false, false, false, false]
+decl f48: <60>
+  retn []
+decl f49: <61>
+  retn [0, 0, 0, 0, 0, 0, 0, 0]
+decl f50: <62>
+  retn []
+decl f51: <63>
+  retn [false, false, false, false, false, false, false, false]
+decl f52: <64>
+  retn 'a'
+decl f53: <65>
+  retn [0, 0, 0, 0, 0, 0, 0, 0]
+decl f54: <66>
+  retn 'a'
+decl f55: <67>
+  retn [false, false, false, false, false, false, false, false]
+decl f56: <68>
+  retn false
+decl f57: <69>
+  retn [0, 0, 0, 0, 0, 0, 0, 0]
+decl f58: <70>
+  retn false
+decl f59: <71>
+  retn [false, false, false, false, false, false, false, false]
+decl f60: <72>
+  retn aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8
+decl f61: <73>
+  retn [0, 0, 0, 0, 0, 0, 0, 0]
+decl f62: <74>
+  retn aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8

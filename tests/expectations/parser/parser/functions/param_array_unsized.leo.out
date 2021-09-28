@@ -30,6 +30,7 @@ outputs:
                 path: ""
                 content: "function x(x: [u8; _]) {"
         output: ~
+        core_mapping: ~
         block:
           statements:
             - Return:

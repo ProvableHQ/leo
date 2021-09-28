@@ -33,7 +33,7 @@ use indexmap::IndexMap;
 
 static STDLIB: Dir = include_dir!(".");
 
-fn resolve_file(file: &str, mapping: Option<&str>) -> Result<Program> {
+fn resolve_file(file: &str, mapping: bool) -> Result<Program> {
     let resolved = STDLIB
         .get_file(&file)
         .ok_or_else(|| ImportError::no_such_stdlib_file(file))?
@@ -41,7 +41,9 @@ fn resolve_file(file: &str, mapping: Option<&str>) -> Result<Program> {
         .ok_or_else(|| ImportError::failed_to_read_stdlib_file(file))?;
 
     let ast = leo_parser::parse_ast(&file, resolved)?.into_repr();
-    ast.set_core_mapping(mapping);
+    if mapping {
+        ast.set_core_mapping();
+    }
 
     Ok(ast)
 }
@@ -52,7 +54,7 @@ pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
     for module in STDLIB.find("prelude/*.leo").unwrap() {
         // If on windows repalce \\ with / as all paths are stored in unix style.
         let path = module.path().to_str().unwrap_or("").replace("\\", "/");
-        let program = resolve_file(&path, None)?;
+        let program = resolve_file(&path, true)?;
 
         let removed_extension = path.replace(".leo", "");
         let mut parts: Vec<String> = vec![String::from("std")];
@@ -72,11 +74,5 @@ pub fn resolve_stdlib_module(module: &str) -> Result<Program> {
     let mut file_path = module.replace(".", "/");
     file_path.push_str(".leo");
 
-    let mapping = if module == "unstable.blake2s" {
-        Some("blake2s")
-    } else {
-        None
-    };
-
-    resolve_file(&file_path, mapping)
+    resolve_file(&file_path, true)
 }

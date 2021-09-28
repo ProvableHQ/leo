@@ -704,7 +704,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 )
             }
             (AstCircuitMember::CircuitFunction(ast_function), AsgCircuitMember::Function(asg_function)) => {
-                AstCircuitMember::CircuitFunction(self.reduce_function(ast_function, asg_function)?)
+                AstCircuitMember::CircuitFunction(Box::new(self.reduce_function(ast_function, asg_function)?))
             }
             _ => ast.clone(),
         };

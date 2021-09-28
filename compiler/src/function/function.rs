@@ -77,12 +77,7 @@ impl<'a> Program<'a> {
 
         let output = self.alloc();
 
-        let core_mapping = if let Some(circuit) = function.circuit.get() {
-            let core_mapping = circuit.core_mapping.borrow();
-            core_mapping.as_deref().map(|core_mapping| core_mapping.to_string())
-        } else {
-            None
-        };
+        let core_mapping = function.core_mapping.borrow().clone();
 
         if let Some(core_mapping) = core_mapping {
             self.emit(Instruction::CallCore(CallCoreData {

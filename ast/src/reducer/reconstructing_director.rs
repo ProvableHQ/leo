@@ -523,7 +523,9 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
                 self.reduce_identifier(identifier)?,
                 self.reduce_type(type_, &identifier.span)?,
             ),
-            CircuitMember::CircuitFunction(function) => CircuitMember::CircuitFunction(self.reduce_function(function)?),
+            CircuitMember::CircuitFunction(function) => {
+                CircuitMember::CircuitFunction(Box::new(self.reduce_function(function)?))
+            }
         };
 
         self.reducer.reduce_circuit_member(circuit_member, new)

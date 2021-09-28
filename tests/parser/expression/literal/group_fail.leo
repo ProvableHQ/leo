@@ -3,8 +3,6 @@ namespace: ParseExpression
 expectation: Fail
 */
 
-group
-
 ()group
 
 (123)group
