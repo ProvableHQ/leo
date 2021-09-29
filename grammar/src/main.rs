@@ -222,8 +222,3 @@ fn main() -> Result<()> {
 
     Ok(())
 }
-
-#[test]
-fn test_true() {
-    assert!(true);
-}

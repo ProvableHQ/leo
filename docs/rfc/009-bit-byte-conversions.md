@@ -6,7 +6,7 @@ The Aleo Team.
 
 ## Status
 
-DRAFT
+FINAL
 
 # Summary
 
