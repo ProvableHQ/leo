@@ -51,8 +51,7 @@ Thus, we first present a design for both characters and strings.
 We add a new scalar type, `char` for characters.
 In accord with Leo's strong typing,
 this new type is separate from all the other scalar types.
-Type casts (a future feature of Leo) will be needed
-to convert between `char` and other types.
+Explicit constructs will be needed to convert between `char` and other types.
 
 The set of values of type `char` is isomorphic to
 the set of Unicode code points from 0 to 10FFFF (both inclusive).
