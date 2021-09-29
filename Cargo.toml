@@ -104,7 +104,7 @@ version = "0.7.6"
 
 #todo 0rphon
 [dependencies.snarkvm-eval]
-version = "0.7.7"
+version = "0.7.9"
 # path = "D:\\Work\\leo_repos\\snarkVM\\eval"
 git = "https://github.com/AleoHQ/snarkVM"
 branch = "feature/bits-bytes-ir-core-circuits"

@@ -70,7 +70,7 @@ version = "0.4"
 
 #todo 0rphon
 [dependencies.snarkvm-ir]
-version = "0.7.7"
+version = "0.7.9"
 # path = "D:\\Work\\leo_repos\\snarkVM\\ir"
 git = "https://github.com/AleoHQ/snarkVM"
 branch = "feature/bits-bytes-ir-core-circuits"
@@ -108,13 +108,13 @@ version = "0.4"
 
 #todo 0rphon
 [dependencies.snarkvm-eval]
-version = "0.7.7"
+version = "0.7.9"
 # path = "D:\\Work\\leo_repos\\snarkVM\\eval"
 git = "https://github.com/AleoHQ/snarkVM"
 branch = "feature/bits-bytes-ir-core-circuits"
 
 [dependencies.snarkvm-curves]
-version = "0.7.7"
+version = "0.7.9"
 
 [dev-dependencies.rand_core]
 version = "0.6.3"
