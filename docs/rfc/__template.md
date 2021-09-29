@@ -1,24 +1,35 @@
-# Summary
+# Leo RFC xxx: Title
+
+## Author(s)
+
+## Summary
 
 What is the proposal?
 
-# Motivation
+## Motivation
 
 What problems does it solve? What is the background?
 
-# Design
+## Background (optional)
+
+Information useful to understand the design.
+
+## Design
 
 What are the details of proposal?
 
-# Drawbacks
+## Future Extensions (optional)
+
+What are possible future extensions of the design?
+
+## Drawbacks
 
 What problems does this solution bring in?
 
-# Effect on Ecosystem
+## Effect on Ecosystem
 
-How changes affect other projects and language ecosystem in general?
+How do the changes affect other projects and language ecosystem in general?
 
-# Alternatives
+## Alternatives
 
 What are the alternatives?
-
