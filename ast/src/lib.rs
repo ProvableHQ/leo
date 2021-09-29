@@ -135,6 +135,7 @@ impl Ast {
         for key in excluded_keys {
             remove_key_from_json(&mut value, key);
         }
+        value = normalize_json_value(value);
 
         Ok(serde_json::to_writer_pretty(writer, &value)
             .map_err(|e| AstError::failed_to_write_ast_to_json_file(&path, &e))?)
@@ -159,7 +160,7 @@ impl AsRef<Program> for Ast {
     }
 }
 
-// Helper function to recursively filter keys from AST JSON
+/// Helper function to recursively filter keys from AST JSON
 fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
     match value {
         serde_json::value::Value::Object(map) => {
@@ -174,5 +175,34 @@ fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
             }
         }
         _ => (),
+    }
+}
+
+/// Helper function to normalize AST JSON into a form compatible with tgc.
+/// This function will traverse the original JSON value and produce a new
+/// one under the following rules:
+/// 1. Remove empty object mappings from JSON arrays
+/// 2. If there are two elements in a JSON array and one is an empty object
+///     mapping and the other is not, then lift up the one that isn't
+fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Array(vec) => {
+            let orig_length = vec.len();
+            let mut new_vec: Vec<serde_json::Value> = vec
+                .into_iter()
+                .filter(|v| !matches!(v, serde_json::Value::Object(map) if map.is_empty()))
+                .map(normalize_json_value)
+                .collect();
+
+            if orig_length == 2 && new_vec.len() == 1 {
+                new_vec.pop().unwrap()
+            } else {
+                serde_json::Value::Array(new_vec)
+            }
+        }
+        serde_json::Value::Object(map) => {
+            serde_json::Value::Object(map.into_iter().map(|(k, v)| (k, normalize_json_value(v))).collect())
+        }
+        _ => value,
     }
 }
