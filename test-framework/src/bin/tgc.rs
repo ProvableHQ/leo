@@ -128,6 +128,8 @@ fn generate_asts(src_path: PathBuf, target_path: PathBuf, text: &str) -> Result<
 
     let mut ast = leo_parser::parse_ast(src_path.clone().into_os_string().into_string().unwrap(), text)?;
 
+    ast.to_json_file(target_path.clone(), "initial_ast_with_span.json")?;
+
     ast.to_json_file_without_keys(target_path.clone(), "initial_ast.json", &["span"])?;
 
     ast = leo_ast_passes::Importer::do_pass(ast.into_repr(), &mut ImportParser::new(src_path, Default::default()))?;

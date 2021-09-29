@@ -133,7 +133,7 @@ impl Ast {
 
         let mut value = self.to_json_value().unwrap();
         for key in excluded_keys {
-            remove_key_from_json(&mut value, key);
+            value = remove_key_from_json(value, key);
         }
         value = normalize_json_value(value);
 
@@ -161,20 +161,18 @@ impl AsRef<Program> for Ast {
 }
 
 /// Helper function to recursively filter keys from AST JSON
-fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
+fn remove_key_from_json(value: serde_json::Value, key: &str) -> serde_json::Value {
     match value {
-        serde_json::value::Value::Object(map) => {
-            map.remove(key);
-            for val in map.values_mut() {
-                remove_key_from_json(val, key);
-            }
+        serde_json::Value::Object(map) => serde_json::Value::Object(
+            map.into_iter()
+                .filter(|(k, _)| k != key)
+                .map(|(k, v)| (k, remove_key_from_json(v, key)))
+                .collect(),
+        ),
+        serde_json::Value::Array(values) => {
+            serde_json::Value::Array(values.into_iter().map(|v| remove_key_from_json(v, key)).collect())
         }
-        serde_json::value::Value::Array(values) => {
-            for val in values.iter_mut() {
-                remove_key_from_json(val, key);
-            }
-        }
-        _ => (),
+        _ => value,
     }
 }
 
