@@ -22,7 +22,7 @@ outputs:
             r0:
               type: "[(u32, u32); 3]"
               value: "\"(1, 1)(2, 2)(0, 1)\""
-    initial_ast: 54c39a3e4e0926399a8367e8e46fa20d85bd10c5234ec1a8fa907d8a65f0fc1d
-    imports_resolved_ast: 6af4a09d689adbb3a91754effc592158572f61b2ad0b501a6224830185c253a4
-    canonicalized_ast: 6af4a09d689adbb3a91754effc592158572f61b2ad0b501a6224830185c253a4
-    type_inferenced_ast: 0da78a0c76325e421a6c4d4b6c5df8057ff3fd05c4b312664ce224981a6f69db
+    initial_ast: 764090b28d2d27d66da56e7d0e91fd49b539c1632a0898af4d090d68bd669d47
+    imports_resolved_ast: 81875ad2ddf1eea4e75450da50c03f8192f116370411b95f445798530dc36167
+    canonicalized_ast: 81875ad2ddf1eea4e75450da50c03f8192f116370411b95f445798530dc36167
+    type_inferenced_ast: 65f0f6e402fa595e4960ac9c53d345fa89f605da6b7f71cd0140395c29557cc0

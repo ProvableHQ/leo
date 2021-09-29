@@ -16,7 +16,7 @@ outputs:
       - input_file: cond_2.in
         output:
           registers: {}
-    initial_ast: 7fdb2b2bf446c0ed03b156ed2d6cfd453c5ab8a223d2787b79b8d91ff4f25845
-    imports_resolved_ast: adfdbed74877a7b9ac68110eba18a1e26b25995680f676eefbd4c1a47405359c
-    canonicalized_ast: 2929fe2f93891386c9bf2eb2f2e278a9be8a203411976f7567b73fac3c7ccaba
-    type_inferenced_ast: 81d05869d348128593f61561baf52096ca70f45f85210e9b023f86229c49bbd6
+    initial_ast: 04736ecda6432ec9ed8d93f953ed14cb05a51daef3e7c103880523dc8ac55b43
+    imports_resolved_ast: 03bb5d9e63a69042c8230e1750b967f3daf7beadce5406efbdd8d398d4e4865e
+    canonicalized_ast: 982e819be10254f2fa25b379aef9bbec899047705cf18326a7f4e21c9108629a
+    type_inferenced_ast: d38a9c23e47a85c3f5433b77fa9a1eef110cca07b4abb43a6aa6dbca1d9b28b9
