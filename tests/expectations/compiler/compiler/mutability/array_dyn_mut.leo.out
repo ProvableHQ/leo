@@ -160,6 +160,6 @@ outputs:
               type: "[u32; 3]"
               value: "[1, 5, 0]"
     initial_ast: ba3b868de5bcad48b5eb6e5ae7f946f7292469d18b07bf743fd476987ff4e6cc
-    imports_resolved_ast: 2b19dbc83253244f0db8a395cdf37f10265aa5fff78820cb3a943a11de372e7c
-    canonicalized_ast: b039fb1a140ebdfa70fc4bf19c0bfcb7dab4b1ebf549a5cc653127efa15d4e02
-    type_inferenced_ast: 0064ca754f622f1d24a115c7a1c6d437054abb94ce6f0fdd01256ba9391fd727
+    imports_resolved_ast: 2b430aff319e95269baa83ebbfb6c1f27f4b1c5ee649d538d26c4e32249d9878
+    canonicalized_ast: 19a92596f6404d0d15b7929fd88f1c0d3d88e58c8fbdc261702d6d827979ebd1
+    type_inferenced_ast: 8b8edeb2ab30ea5260dd8d5160b77e356a703ed41d4e6ba8d65b292740bde2b5

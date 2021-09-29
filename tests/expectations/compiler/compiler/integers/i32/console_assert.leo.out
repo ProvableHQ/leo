@@ -140,6 +140,6 @@ outputs:
         output:
           registers: {}
     initial_ast: 56215005d618ec9f362cc6d0deccdaf003d6b44fe5436a560c4130a631698ef0
-    imports_resolved_ast: 46fbe1f44333679a1785fedd6e923846dc634efeb80e625932ef027790f4e56d
-    canonicalized_ast: 8fac88c5734be9dbc4a64198c6ad3510c7a0fbcfd4fb0fcc822dc2b86c30e485
-    type_inferenced_ast: 70e0ef7775eb8bcf11c3f02f35c703e4b0d1ff33b386f83f617bc3815b73e7b3
+    imports_resolved_ast: 039a01dc4c4c17ee02478655e4aca28eb70144d549285a78b67a16d418cf694d
+    canonicalized_ast: 24e0dc29089bd04826b1f7be6cd4e37e1353cfb217ded1ddd0440cfcab117e12
+    type_inferenced_ast: fdd5210d727e69b8690e1ea0546072a96d6f226b845656af36c3972208dba3ec

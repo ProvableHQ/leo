@@ -11,10 +11,10 @@ inputs:
 */
 
 function main(a: i128) -> bool {
-    let x_bits = 1i128.to_bits();
-    let a_bits = a.to_bits();
+    let x_bits = 1i128.to_bits_le();
+    let a_bits = a.to_bits_le();
 
-    let x = i128::from_bits(x_bits);
+    let x = i128::from_bits_le(x_bits);
 
     return x_bits == a_bits && x == a;
 }

@@ -23,6 +23,7 @@ use leo_errors::{AstError, Result, Span};
 /// Tuple array types and expressions error if a size of 0 is given.
 /// Compound operators become simple assignments.
 /// Functions missing output type return a empty tuple.
+#[derive(Default)]
 pub struct Canonicalizer {
     // If we are in a circuit keep track of the circuit name.
     circuit_name: Option<Identifier>,
@@ -34,15 +35,6 @@ impl AstPass for Canonicalizer {
         Ok(Ast::new(
             ReconstructingDirector::new(Self::default()).reduce_program(&ast)?,
         ))
-    }
-}
-
-impl Default for Canonicalizer {
-    fn default() -> Self {
-        Self {
-            circuit_name: None,
-            in_circuit: false,
-        }
     }
 }
 

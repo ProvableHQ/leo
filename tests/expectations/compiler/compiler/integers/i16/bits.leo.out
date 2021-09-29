@@ -12,11 +12,11 @@ outputs:
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
-      - "  ccall &v3, 'to_bits', 1"
+      - "  ccall &v3, 'to_bits_le', 1"
       - "  store &v4, v3"
-      - "  ccall &v5, 'to_bits', v2"
+      - "  ccall &v5, 'to_bits_le', v2"
       - "  store &v6, v5"
-      - "  ccall &v7, 'i16_from_bits', v4"
+      - "  ccall &v7, 'i16_from_bits_le', v4"
       - "  store &v8, v7"
       - "  eq &v9, v4, v6"
       - "  eq &v10, v8, v2"
@@ -150,7 +150,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 531acd027d1a600c7e657b39109fe5c694eb5e7475d65e319ca79b1e2b437c48
-    imports_resolved_ast: c9078650c178a7bddd1ba3fb0c2adc0a0a56f75ee881214113c8b701cfa847a7
-    canonicalized_ast: c9078650c178a7bddd1ba3fb0c2adc0a0a56f75ee881214113c8b701cfa847a7
-    type_inferenced_ast: 6d7e490e96983d40bfa8a00f483fa440faab3fe16858b9c79a590e6b5f75e328
+    initial_ast: 3cab8caa2dd617fb43ed2dea340dd7ae5a3f7d0721aefc0120f5959e8d39bc08
+    imports_resolved_ast: 4395fbb3f179293f65fda190b86f7639db029c7d9c086e498d3216ccb8b35d55
+    canonicalized_ast: 4395fbb3f179293f65fda190b86f7639db029c7d9c086e498d3216ccb8b35d55
+    type_inferenced_ast: 785c64def63687255560192ec231d8ae8a05a20cc3124c6a0b394ac0985756fd

@@ -11,10 +11,10 @@ inputs:
 */
 
 function main(a: i64) -> bool {
-    let x_bits = 1i64.to_bits();
-    let a_bits = a.to_bits();
+    let x_bits = 1i64.to_bits_le();
+    let a_bits = a.to_bits_le();
 
-    let x = i64::from_bits(x_bits);
+    let x = i64::from_bits_le(x_bits);
 
     return x_bits == a_bits && x == a;
 }

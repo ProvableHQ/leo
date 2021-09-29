@@ -942,9 +942,9 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
 name = "h2"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7f3675cfef6a30c8031cf9e6493ebdc3bb3272a3fea3923c4210d1830e6a472"
+checksum = "3b21b78895ff1ade3f8df6a9a77917f20dc8b46d0069dd5a3837cf1f507a70ee"
 dependencies = [
  "bytes",
  "fnv",
@@ -2688,7 +2688,7 @@ checksum = "1ecab6c735a6bb4139c0caafd0cc3635748bbb3acf4550e8138122099251f309"
 [[package]]
 name = "snarkvm-algorithms"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "anyhow",
  "bitvec",
@@ -2715,7 +2715,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-curves"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "derivative",
  "rand 0.8.4",
@@ -2730,7 +2730,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-derives"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "proc-macro-crate 0.1.5",
  "proc-macro-error",
@@ -2742,7 +2742,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-dpc"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "anyhow",
  "base58",
@@ -2773,7 +2773,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-eval"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "anyhow",
  "im",
@@ -2792,7 +2792,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-fields"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2807,7 +2807,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-gadgets"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2826,7 +2826,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ir"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "anyhow",
  "bech32",
@@ -2839,7 +2839,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-marlin"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "blake2",
  "derivative",
@@ -2862,7 +2862,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-parameters"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "curl",
  "hex",
@@ -2874,7 +2874,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-polycommit"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2892,12 +2892,12 @@ dependencies = [
 [[package]]
 name = "snarkvm-profiler"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 
 [[package]]
 name = "snarkvm-r1cs"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "cfg-if 1.0.0",
  "fxhash",
@@ -2911,7 +2911,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-utilities"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#86aef1f0de17991eca32f5e4c2cc7d9709ba653a"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=feature/bits-bytes-ir-core-circuits#4749b2cf0f97037aa3315c97db5e4e7f40297599"
 dependencies = [
  "anyhow",
  "bincode",

@@ -36,7 +36,7 @@ use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
-#[derive(StructOpt, Clone, Debug)]
+#[derive(StructOpt, Clone, Debug, Default)]
 pub struct BuildOptions {
     #[structopt(long, help = "Disable constant folding compiler optimization")]
     pub disable_constant_folding: bool,
@@ -54,21 +54,6 @@ pub struct BuildOptions {
     pub enable_canonicalized_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
     pub enable_type_inferenced_ast_snapshot: bool,
-}
-
-impl Default for BuildOptions {
-    fn default() -> Self {
-        Self {
-            disable_constant_folding: false,
-            disable_code_elimination: false,
-            disable_all_optimizations: false,
-            enable_all_ast_snapshots: false,
-            enable_initial_ast_snapshot: false,
-            enable_imports_resolved_ast_snapshot: false,
-            enable_canonicalized_ast_snapshot: false,
-            enable_type_inferenced_ast_snapshot: false,
-        }
-    }
 }
 
 impl From<BuildOptions> for CompilerOptions {

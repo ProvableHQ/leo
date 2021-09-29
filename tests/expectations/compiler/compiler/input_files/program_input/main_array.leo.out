@@ -144,6 +144,6 @@ outputs:
               type: bool
               value: "true"
     initial_ast: e1e83b12dc6de19d3f97b35a119b666182424f4e6c380cd80e34112759844fe6
-    imports_resolved_ast: 6c67dd732b0da1a6be2f078eff98ceb9b49c18bdaa778db123e231a26c07739a
-    canonicalized_ast: 6c67dd732b0da1a6be2f078eff98ceb9b49c18bdaa778db123e231a26c07739a
-    type_inferenced_ast: e9fe30d107f6fcec830521d5824475c8ab9763b8bbabb0f98807c58d93415908
+    imports_resolved_ast: a37ed683e61fb6297b27530c3f689aa179bd70b374fc9985755a1e64ae95b1a7
+    canonicalized_ast: a37ed683e61fb6297b27530c3f689aa179bd70b374fc9985755a1e64ae95b1a7
+    type_inferenced_ast: faa879bebdcbe92d1d80904cdc151745d1b5c5e3f3bbbfbcc7a90ea724e5fba1

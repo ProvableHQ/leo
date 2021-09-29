@@ -163,7 +163,7 @@ create_errors!(
         help: None,
     }
 
-    /// For when the operation has no implmentation on the type of variable received.
+    /// For when the operation has no implementation on the type of variable received.
     @formatted
     incompatible_types {
         args: (operation: impl Display),
@@ -856,22 +856,6 @@ create_errors!(
     lengthof_can_only_be_used_on_arrays {
         args: (),
         msg: "len() can only be called on an array value".to_string(),
-        help: None,
-    }
-
-    /// For when to bits is called on a type that does not implement it.
-    @formatted
-    to_bits_not_implemented_for_type {
-        args: (type_: impl Display),
-        msg: format!("the type `{}` does not implement the to_bits method", type_),
-        help: None,
-    }
-
-    /// For when from bits is called on a type that does not implement it.
-    @formatted
-    from_bits_not_implemented_for_type {
-        args: (type_: impl Display),
-        msg: format!("the type `{}` does not implement the from_bits method", type_),
         help: None,
     }
 );

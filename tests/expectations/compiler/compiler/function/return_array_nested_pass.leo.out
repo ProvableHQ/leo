@@ -151,6 +151,6 @@ outputs:
               type: bool
               value: "true"
     initial_ast: 798bf8166ba6d196ec75e61fcfc27b996d345b29635efce3a98e76779f58a343
-    imports_resolved_ast: 3da157a33e467b963eb69877696063899e62f4b799c4c8254f2a9afd74f64038
-    canonicalized_ast: 9460bee32609912f80909baf921a4c43fd86be21713a4ef2d01d6b9e52f42d08
-    type_inferenced_ast: 8298dd6701b8f2244f4757c55f7d03c8b924f400ec0f304ba931f45d7c1a3e9e
+    imports_resolved_ast: eb00b0fbcb994bb5d9d44e3340012e5bd814e73bbc06d5595734036c43d0c4dd
+    canonicalized_ast: c6ae9c9b3f611539f05fd2e8ac8618d819a8db475da15dda0e39d89a5f4c0411
+    type_inferenced_ast: 5427db1b3c787c19ff69c46258888516a93589728cf17f6e3a11b68bc77a6766
