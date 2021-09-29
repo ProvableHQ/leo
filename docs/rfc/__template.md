@@ -18,10 +18,6 @@ Information useful to understand the design.
 
 What are the details of proposal?
 
-## Future Extensions (optional)
-
-What are possible future extensions of the design?
-
 ## Drawbacks
 
 What problems does this solution bring in?
@@ -33,3 +29,7 @@ How do the changes affect other projects and language ecosystem in general?
 ## Alternatives
 
 What are the alternatives?
+
+## Future Extensions (optional)
+
+What are possible future extensions of the design?
