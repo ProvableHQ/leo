@@ -186,8 +186,9 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
             .iter()
             .zip(function.arguments.iter())
             .map(|(expr, (_, argument))| {
+                let argument_type = argument.get().borrow().type_.clone();
+                let converted = <&Expression<'a>>::from_ast(scope, expr, Some(argument_type.partial()))?;
                 let argument = argument.get().borrow();
-                let converted = <&Expression<'a>>::from_ast(scope, expr, Some(argument.type_.clone().partial()))?;
                 if argument.const_ && !converted.is_consty() {
                     return Err(AsgError::unexpected_nonconst(expr.span()).into());
                 }
