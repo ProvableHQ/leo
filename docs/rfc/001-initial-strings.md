@@ -345,28 +345,6 @@ We need more analysis to determine which approach is more efficient.
 The details of implementing other character and string operations in R1CS
 will be fleshed out as each operation is added.
 
-## Future Extensions
-
-As alluded to in the section about design above,
-for now, we are avoiding the introduction of a string type,
-isomorphic to but separate from character arrays,
-because we may want to introduce later a more flexible type of strings,
-in particular, one that supports resizing.
-This may be realized via a built-in or library circuit type
-that includes a character array and a fill index.
-This may be a special case of a built-in or library circuit type
-for resizable vectors,
-possibly realized via an array and a fill index.
-This hypothetical type of resizable vectors
-may have to be parameterized over the element type,
-requiring an extension of the Leo type system
-that is much more general than strings.
-
-Because of the above considerations,
-it seems premature to design a string type at this time,
-provided that the simple initial design described in the section above
-suffices to cover the initial use cases that motivate this RFC.
-
 ## Drawbacks
 
 This proposal does not appear to bring any real drawbacks,
@@ -420,3 +398,25 @@ However, many values of type `field` are not valid Unicode code points,
 and many field operations do not make sense for characters.
 Thus, having a separate type `char` for characters seems better,
 and more in accordance with Leo's strong typing.
+
+## Future Extensions
+
+As alluded to in the section about design above,
+for now, we are avoiding the introduction of a string type,
+isomorphic to but separate from character arrays,
+because we may want to introduce later a more flexible type of strings,
+in particular, one that supports resizing.
+This may be realized via a built-in or library circuit type
+that includes a character array and a fill index.
+This may be a special case of a built-in or library circuit type
+for resizable vectors,
+possibly realized via an array and a fill index.
+This hypothetical type of resizable vectors
+may have to be parameterized over the element type,
+requiring an extension of the Leo type system
+that is much more general than strings.
+
+Because of the above considerations,
+it seems premature to design a string type at this time,
+provided that the simple initial design described in the section above
+suffices to cover the initial use cases that motivate this RFC.
