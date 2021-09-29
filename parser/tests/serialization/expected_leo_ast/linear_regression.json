@@ -5,13 +5,13 @@
   "imports": {},
   "aliases": {},
   "circuits": {
-    "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"circuit Point {\\\"}\"}": {
-      "circuit_name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"circuit Point {\\\"}\"}",
+    "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Point {\\\"}\"}": {
+      "circuit_name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Point {\\\"}\"}",
       "core_mapping": null,
       "members": [
         {
           "CircuitVariable": [
-            "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    x: i32,\\\"}\"}",
+            "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x: i32,\\\"}\"}",
             {
               "IntegerType": "I32"
             }
@@ -19,7 +19,7 @@
         },
         {
           "CircuitVariable": [
-            "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    y: i32,\\\"}\"}",
+            "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    y: i32,\\\"}\"}",
             {
               "IntegerType": "I32"
             }
@@ -28,11 +28,11 @@
         {
           "CircuitFunction": {
             "annotations": [],
-            "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}",
+            "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}",
             "input": [
               {
                 "Variable": {
-                  "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}",
+                  "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}",
                   "const_": false,
                   "mutable": true,
                   "type_": {
@@ -42,7 +42,7 @@
               },
               {
                 "Variable": {
-                  "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}",
+                  "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}",
                   "const_": false,
                   "mutable": true,
                   "type_": {
@@ -58,14 +58,14 @@
                   "Return": {
                     "expression": {
                       "CircuitInit": {
-                        "name": "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}",
+                        "name": "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}",
                         "members": [
                           {
-                            "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}",
+                            "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}",
                             "expression": null
                           },
                           {
-                            "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}",
+                            "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}",
                             "expression": null
                           }
                         ]
@@ -79,17 +79,17 @@
         }
       ]
     },
-    "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":9,\\\"col_stop\\\":25,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"circuit LinearRegression {\\\"}\"}": {
-      "circuit_name": "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":9,\\\"col_stop\\\":25,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"circuit LinearRegression {\\\"}\"}",
+    "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":9,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit LinearRegression {\\\"}\"}": {
+      "circuit_name": "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":9,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit LinearRegression {\\\"}\"}",
       "core_mapping": null,
       "members": [
         {
           "CircuitVariable": [
-            "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":11,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    points: [Point; 5],\\\"}\"}",
+            "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    points: [Point; 5],\\\"}\"}",
             {
               "Array": [
                 {
-                  "Identifier": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    points: [Point; 5],\\\"}\"}"
+                  "Identifier": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    points: [Point; 5],\\\"}\"}"
                 },
                 [
                   {
@@ -103,17 +103,17 @@
         {
           "CircuitFunction": {
             "annotations": [],
-            "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}",
+            "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}",
             "input": [
               {
                 "Variable": {
-                  "identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":18,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}",
+                  "identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":18,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}",
                   "const_": false,
                   "mutable": true,
                   "type_": {
                     "Array": [
                       {
-                        "Identifier": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}"
+                        "Identifier": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}"
                       },
                       [
                         {
@@ -132,10 +132,10 @@
                   "Return": {
                     "expression": {
                       "CircuitInit": {
-                        "name": "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return Self { points };\\\"}\"}",
+                        "name": "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { points };\\\"}\"}",
                         "members": [
                           {
-                            "identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return Self { points };\\\"}\"}",
+                            "identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { points };\\\"}\"}",
                             "expression": null
                           }
                         ]
@@ -150,10 +150,10 @@
         {
           "CircuitFunction": {
             "annotations": [],
-            "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function slope(self) -> i32 { \\\"}\"}",
+            "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function slope(self) -> i32 { \\\"}\"}",
             "input": [
               {
-                "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function slope(self) -> i32 { \\\"}\"}"
+                "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function slope(self) -> i32 { \\\"}\"}"
               }
             ],
             "output": {
@@ -167,7 +167,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let num_points = 5i32;\\\"}\"}"
+                        "identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points = 5i32;\\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -187,7 +187,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let x_sum = 0i32; \\\"}\"}"
+                        "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum = 0i32; \\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -207,7 +207,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let y_sum = 0i32; \\\"}\"}"
+                        "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum = 0i32; \\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -227,7 +227,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let xy_sum = 0i32; \\\"}\"}"
+                        "identifier": "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let xy_sum = 0i32; \\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -247,7 +247,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let x2_sum = 0i32; \\\"}\"}"
+                        "identifier": "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x2_sum = 0i32; \\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -263,7 +263,7 @@
                 },
                 {
                   "Iteration": {
-                    "variable": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        for i in 0..5 {\\\"}\"}",
+                    "variable": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..5 {\\\"}\"}",
                     "start": {
                       "Value": {
                         "Implicit": "0"
@@ -281,7 +281,7 @@
                           "Assign": {
                             "operation": "Add",
                             "assignee": {
-                              "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                              "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
                               "accesses": []
                             },
                             "value": {
@@ -291,18 +291,18 @@
                                     "array": {
                                       "CircuitMemberAccess": {
                                         "circuit": {
-                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
+                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
                                         },
-                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
                                         "type_": null
                                       }
                                     },
                                     "index": {
-                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
+                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
                                     }
                                   }
                                 },
-                                "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                                "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
                                 "type_": null
                               }
                             }
@@ -312,7 +312,7 @@
                           "Assign": {
                             "operation": "Add",
                             "assignee": {
-                              "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}",
+                              "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}",
                               "accesses": []
                             },
                             "value": {
@@ -322,18 +322,18 @@
                                     "array": {
                                       "CircuitMemberAccess": {
                                         "circuit": {
-                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}"
+                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}"
                                         },
-                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}",
+                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}",
                                         "type_": null
                                       }
                                     },
                                     "index": {
-                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}"
+                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}"
                                     }
                                   }
                                 },
-                                "name": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}",
+                                "name": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}",
                                 "type_": null
                               }
                             }
@@ -343,7 +343,7 @@
                           "Assign": {
                             "operation": "Add",
                             "assignee": {
-                              "identifier": "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                              "identifier": "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
                               "accesses": []
                             },
                             "value": {
@@ -355,18 +355,18 @@
                                         "array": {
                                           "CircuitMemberAccess": {
                                             "circuit": {
-                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":23,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
+                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":23,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
                                             },
-                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":28,\\\"col_stop\\\":34,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":28,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
                                             "type_": null
                                           }
                                         },
                                         "index": {
-                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":35,\\\"col_stop\\\":36,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
+                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":35,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
                                         }
                                       }
                                     },
-                                    "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":38,\\\"col_stop\\\":39,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                                    "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":38,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
                                     "type_": null
                                   }
                                 },
@@ -377,18 +377,18 @@
                                         "array": {
                                           "CircuitMemberAccess": {
                                             "circuit": {
-                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":42,\\\"col_stop\\\":46,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
+                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":42,\\\"col_stop\\\":46,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
                                             },
-                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":47,\\\"col_stop\\\":53,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":47,\\\"col_stop\\\":53,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
                                             "type_": null
                                           }
                                         },
                                         "index": {
-                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":54,\\\"col_stop\\\":55,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
+                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":54,\\\"col_stop\\\":55,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
                                         }
                                       }
                                     },
-                                    "name": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":57,\\\"col_stop\\\":58,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                                    "name": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":57,\\\"col_stop\\\":58,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
                                     "type_": null
                                   }
                                 },
@@ -401,7 +401,7 @@
                           "Assign": {
                             "operation": "Add",
                             "assignee": {
-                              "identifier": "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                              "identifier": "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
                               "accesses": []
                             },
                             "value": {
@@ -413,18 +413,18 @@
                                         "array": {
                                           "CircuitMemberAccess": {
                                             "circuit": {
-                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":23,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
+                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":23,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
                                             },
-                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":28,\\\"col_stop\\\":34,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":28,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
                                             "type_": null
                                           }
                                         },
                                         "index": {
-                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":35,\\\"col_stop\\\":36,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
+                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":35,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
                                         }
                                       }
                                     },
-                                    "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":38,\\\"col_stop\\\":39,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                                    "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":38,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
                                     "type_": null
                                   }
                                 },
@@ -435,18 +435,18 @@
                                         "array": {
                                           "CircuitMemberAccess": {
                                             "circuit": {
-                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":42,\\\"col_stop\\\":46,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
+                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":42,\\\"col_stop\\\":46,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
                                             },
-                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":47,\\\"col_stop\\\":53,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":47,\\\"col_stop\\\":53,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
                                             "type_": null
                                           }
                                         },
                                         "index": {
-                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":54,\\\"col_stop\\\":55,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
+                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":54,\\\"col_stop\\\":55,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
                                         }
                                       }
                                     },
-                                    "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":57,\\\"col_stop\\\":58,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                                    "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":57,\\\"col_stop\\\":58,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
                                     "type_": null
                                   }
                                 },
@@ -465,7 +465,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                        "identifier": "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -474,10 +474,10 @@
                         "left": {
                           "Binary": {
                             "left": {
-                              "Identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":26,\\\"col_stop\\\":36,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                              "Identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":26,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                             },
                             "right": {
-                              "Identifier": "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":39,\\\"col_stop\\\":45,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                              "Identifier": "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":39,\\\"col_stop\\\":45,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                             },
                             "op": "Mul"
                           }
@@ -485,10 +485,10 @@
                         "right": {
                           "Binary": {
                             "left": {
-                              "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":50,\\\"col_stop\\\":55,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                              "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":50,\\\"col_stop\\\":55,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                             },
                             "right": {
-                              "Identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":58,\\\"col_stop\\\":63,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                              "Identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":58,\\\"col_stop\\\":63,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
                             },
                             "op": "Mul"
                           }
@@ -504,7 +504,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":13,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                        "identifier": "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":13,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -513,10 +513,10 @@
                         "left": {
                           "Binary": {
                             "left": {
-                              "Identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":28,\\\"col_stop\\\":38,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                              "Identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":28,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                             },
                             "right": {
-                              "Identifier": "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":41,\\\"col_stop\\\":47,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                              "Identifier": "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":41,\\\"col_stop\\\":47,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                             },
                             "op": "Mul"
                           }
@@ -524,10 +524,10 @@
                         "right": {
                           "Binary": {
                             "left": {
-                              "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":52,\\\"col_stop\\\":57,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                              "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":52,\\\"col_stop\\\":57,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                             },
                             "right": {
-                              "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":60,\\\"col_stop\\\":65,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                              "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":60,\\\"col_stop\\\":65,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
                             },
                             "op": "Mul"
                           }
@@ -543,17 +543,17 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
+                        "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
                       }
                     ],
                     "type_": null,
                     "value": {
                       "Binary": {
                         "left": {
-                          "Identifier": "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
+                          "Identifier": "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
                         },
                         "right": {
-                          "Identifier": "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":33,\\\"col_stop\\\":44,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
+                          "Identifier": "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":33,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
                         },
                         "op": "Div"
                       }
@@ -563,7 +563,7 @@
                 {
                   "Return": {
                     "expression": {
-                      "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":16,\\\"col_stop\\\":21,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return slope;\\\"}\"}"
+                      "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":16,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return slope;\\\"}\"}"
                     }
                   }
                 }
@@ -574,14 +574,14 @@
         {
           "CircuitFunction": {
             "annotations": [],
-            "identifier": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":14,\\\"col_stop\\\":20,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}",
+            "identifier": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":14,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}",
             "input": [
               {
-                "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":21,\\\"col_stop\\\":25,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}"
+                "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":21,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}"
               },
               {
                 "Variable": {
-                  "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}",
+                  "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}",
                   "const_": false,
                   "mutable": true,
                   "type_": {
@@ -601,7 +601,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":40,\\\"line_stop\\\":40,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let num_points = 5i32; \\\"}\"}"
+                        "identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":40,\\\"line_stop\\\":40,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points = 5i32; \\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -621,7 +621,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let x_sum = 0i32;\\\"}\"}"
+                        "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum = 0i32;\\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -641,7 +641,7 @@
                     "variable_names": [
                       {
                         "mutable": true,
-                        "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        let y_sum = 0i32;\\\"}\"}"
+                        "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum = 0i32;\\\"}\"}"
                       }
                     ],
                     "type_": null,
@@ -657,7 +657,7 @@
                 },
                 {
                   "Iteration": {
-                    "variable": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        for i in 0..5 {\\\"}\"}",
+                    "variable": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..5 {\\\"}\"}",
                     "start": {
                       "Value": {
                         "Implicit": "0"
@@ -675,7 +675,7 @@
                           "Assign": {
                             "operation": "Add",
                             "assignee": {
-                              "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                              "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
                               "accesses": []
                             },
                             "value": {
@@ -685,18 +685,18 @@
                                     "array": {
                                       "CircuitMemberAccess": {
                                         "circuit": {
-                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
+                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
                                         },
-                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
                                         "type_": null
                                       }
                                     },
                                     "index": {
-                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
+                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
                                     }
                                   }
                                 },
-                                "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                                "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
                                 "type_": null
                               }
                             }
@@ -706,7 +706,7 @@
                           "Assign": {
                             "operation": "Add",
                             "assignee": {
-                              "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}",
+                              "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}",
                               "accesses": []
                             },
                             "value": {
@@ -716,18 +716,18 @@
                                     "array": {
                                       "CircuitMemberAccess": {
                                         "circuit": {
-                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}"
+                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}"
                                         },
-                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}",
+                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}",
                                         "type_": null
                                       }
                                     },
                                     "index": {
-                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}"
+                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}"
                                     }
                                   }
                                 },
-                                "name": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}",
+                                "name": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}",
                                 "type_": null
                               }
                             }
@@ -744,15 +744,15 @@
                         "left": {
                           "Binary": {
                             "left": {
-                              "Identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":17,\\\"col_stop\\\":22,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
+                              "Identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":17,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
                             },
                             "right": {
                               "Binary": {
                                 "left": {
-                                  "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":25,\\\"col_stop\\\":30,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
+                                  "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":25,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
                                 },
                                 "right": {
-                                  "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":33,\\\"col_stop\\\":38,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
+                                  "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":33,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
                                 },
                                 "op": "Mul"
                               }
@@ -761,7 +761,7 @@
                           }
                         },
                         "right": {
-                          "Identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":42,\\\"col_stop\\\":52,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
+                          "Identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":42,\\\"col_stop\\\":52,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
                         },
                         "op": "Div"
                       }
@@ -777,13 +777,13 @@
   },
   "global_consts": {},
   "functions": {
-    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}": {
       "annotations": [],
-      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}",
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}",
       "input": [
         {
           "Variable": {
-            "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}",
+            "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}",
             "const_": false,
             "mutable": true,
             "type_": {
@@ -793,7 +793,7 @@
         },
         {
           "Variable": {
-            "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}",
+            "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}",
             "const_": false,
             "mutable": true,
             "type_": {
@@ -822,13 +822,13 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let points: [Point; 5] = [\\\"}\"}"
+                  "identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let points: [Point; 5] = [\\\"}\"}"
                 }
               ],
               "type_": {
                 "Array": [
                   {
-                    "Identifier": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":16,\\\"col_stop\\\":21,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let points: [Point; 5] = [\\\"}\"}"
+                    "Identifier": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":16,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let points: [Point; 5] = [\\\"}\"}"
                   },
                   [
                     {
@@ -843,14 +843,14 @@
                     {
                       "Expression": {
                         "CircuitInit": {
-                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}",
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}",
                           "members": [
                             {
-                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}",
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -862,11 +862,11 @@
                               }
                             },
                             {
-                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}",
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -884,14 +884,14 @@
                     {
                       "Expression": {
                         "CircuitInit": {
-                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}",
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}",
                           "members": [
                             {
-                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}",
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -903,11 +903,11 @@
                               }
                             },
                             {
-                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}",
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -925,14 +925,14 @@
                     {
                       "Expression": {
                         "CircuitInit": {
-                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}",
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}",
                           "members": [
                             {
-                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}",
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -944,11 +944,11 @@
                               }
                             },
                             {
-                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}",
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -966,14 +966,14 @@
                     {
                       "Expression": {
                         "CircuitInit": {
-                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}",
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}",
                           "members": [
                             {
-                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}",
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -985,11 +985,11 @@
                               }
                             },
                             {
-                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}",
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -1007,14 +1007,14 @@
                     {
                       "Expression": {
                         "CircuitInit": {
-                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}",
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}",
                           "members": [
                             {
-                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}",
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -1026,11 +1026,11 @@
                               }
                             },
                             {
-                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}",
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}",
                               "expression": {
                                 "Binary": {
                                   "left": {
-                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
                                   },
                                   "right": {
                                     "Value": {
@@ -1056,7 +1056,7 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                  "identifier": "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
                 }
               ],
               "type_": null,
@@ -1065,14 +1065,14 @@
                   "function": {
                     "CircuitStaticFunctionAccess": {
                       "circuit": {
-                        "Identifier": "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":13,\\\"col_stop\\\":29,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                        "Identifier": "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":13,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
                       },
-                      "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                      "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
                     }
                   },
                   "arguments": [
                     {
-                      "Identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":35,\\\"col_stop\\\":41,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                      "Identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":35,\\\"col_stop\\\":41,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
                     }
                   ]
                 }
@@ -1085,7 +1085,7 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
+                  "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
                 }
               ],
               "type_": null,
@@ -1094,9 +1094,9 @@
                   "function": {
                     "CircuitMemberAccess": {
                       "circuit": {
-                        "Identifier": "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
+                        "Identifier": "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
                       },
-                      "name": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":19,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}",
+                      "name": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":19,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}",
                       "type_": null
                     }
                   },
@@ -1111,7 +1111,7 @@
               "variable_names": [
                 {
                   "mutable": true,
-                  "identifier": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
+                  "identifier": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
                 }
               ],
               "type_": null,
@@ -1120,15 +1120,15 @@
                   "function": {
                     "CircuitMemberAccess": {
                       "circuit": {
-                        "Identifier": "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
+                        "Identifier": "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
                       },
-                      "name": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}",
+                      "name": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}",
                       "type_": null
                     }
                   },
                   "arguments": [
                     {
-                      "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
+                      "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
                     }
                   ]
                 }
@@ -1142,12 +1142,12 @@
                   "elements": [
                     {
                       "Expression": {
-                        "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":11,\\\"col_stop\\\":16,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  return [slope, offset];\\\"}\"}"
+                        "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":11,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  return [slope, offset];\\\"}\"}"
                       }
                     },
                     {
                       "Expression": {
-                        "Identifier": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":18,\\\"col_stop\\\":24,\\\"path\\\":\\\"/Users/pranav/work/Aleo/leo/examples/linear-regression/src/main.leo\\\",\\\"content\\\":\\\"  return [slope, offset];\\\"}\"}"
+                        "Identifier": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":18,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  return [slope, offset];\\\"}\"}"
                       }
                     }
                   ]

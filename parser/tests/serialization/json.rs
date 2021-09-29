@@ -99,6 +99,7 @@ fn test_serialize_no_span() {
         // Serializes the ast into JSON format.
         let mut serialized_ast: serde_json::Value = serde_json::to_value(ast.as_repr()).unwrap();
         remove_key_from_json(&mut serialized_ast, "span");
+        serialized_ast = normalize_json_value(serialized_ast);
 
         // Load the expected ast.
         let expected: serde_json::Value = serde_json::from_reader(json_reader).unwrap();
@@ -108,7 +109,7 @@ fn test_serialize_no_span() {
     clean();
 }
 
-// Helper function to recursively filter keys from AST JSON.
+// Helper functions to recursively filter keys from AST JSON.
 // Redeclaring here since we don't want to make this public.
 fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
     match value {
@@ -124,6 +125,31 @@ fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
             }
         }
         _ => (),
+    }
+}
+
+// Helper function to normalize AST
+// Redeclaring here because we don't want to make this public
+fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Array(vec) => {
+            let orig_length = vec.len();
+            let mut new_vec: Vec<serde_json::Value> = vec
+                .into_iter()
+                .filter(|v| !matches!(v, serde_json::Value::Object(map) if map.is_empty()))
+                .map(normalize_json_value)
+                .collect();
+
+            if orig_length == 2 && new_vec.len() == 1 {
+                new_vec.pop().unwrap()
+            } else {
+                serde_json::Value::Array(new_vec)
+            }
+        }
+        serde_json::Value::Object(map) => {
+            serde_json::Value::Object(map.into_iter().map(|(k, v)| (k, normalize_json_value(v))).collect())
+        }
+        _ => value,
     }
 }
 
