@@ -8,7 +8,7 @@ The Aleo Team.
 
 IMPLEMENTED
 
-# Summary
+## Summary
 
 The purpose of this proposal is to provide initial support for strings in Leo.
 Since strings are sequences of characters,
@@ -31,7 +31,7 @@ By not prescribing a new type for strings,
 this initial proposal leaves the door open
 to a future more flexible type of resizable strings.
 
-# Motivation
+## Motivation
 
 Strings (and characters) are common in programming languages.
 Use cases for Leo include
@@ -40,13 +40,13 @@ and more complex ones like Bech32 encoding,
 edit distance in strings representing proteins,
 and zero-knowledge proofs of occurrences or absences of patterns in textual logs.
 
-# Design
+## Design
 
 Since strings are sequences of characters,
 a design for strings inextricably also involves a design for characters.
 Thus, we first present a design for both characters and strings.
 
-## Characters
+### Characters
 
 We add a new scalar type, `char` for characters.
 In accord with Leo's strong typing,
@@ -145,7 +145,7 @@ function main() -> [char; 5] {
 }
 ```
 
-## Strings
+### Strings
 
 In this initial design proposal, we do not introduce any new type for strings.
 Instead, we rely on the fact that Leo already has arrays
@@ -243,7 +243,7 @@ function main() -> bool {
 }
 ```
 
-## Format Strings
+### Format Strings
 
 Leo currently supports format strings as their own entity,
 usable exclusively as first arguments of console print calls.
@@ -255,7 +255,7 @@ which will be interpreted as a format string
 according to the semantics of console print calls.
 The internal UTF-32 string will be translated to UTF-8 for output.
 
-## Circuit Types for Character and String Operations
+### Circuit Types for Character and String Operations
 
 The operations on characters and lists described earlier, e.g. `is_ascii`,
 are provided as static member functions of two new built-in or library circuit types `Char` and `String`.
@@ -275,7 +275,7 @@ and there is no string type as such for now, but we use character arrays for str
 In the future we may want all the Leo types to be circuit types of some sort,
 but that is a separate feature that would have to be designed and developed independently.
 
-## Input and Output of Literal Characters and Strings
+### Input and Output of Literal Characters and Strings
 
 Since UTF-8 is a standard encoding, it would make sense for
 the literal characters and strings in the `.in` file
@@ -287,7 +287,7 @@ then appears to be a single character.  If a parameter of type `[char; 10]`
 of a different size, the error message should explain that the
 size must be the number of codepoints needed to encode the string.
 
-## Compilation to R1CS
+### Compilation to R1CS
 
 So far, the discussion has been independent from R1CS
 (except for a brief reference when discussing the rationale behind the design).
@@ -367,20 +367,20 @@ it seems premature to design a string type at this time,
 provided that the simple initial design described in the section above
 suffices to cover the initial use cases that motivate this RFC.
 
-# Drawbacks
+## Drawbacks
 
 This proposal does not appear to bring any real drawbacks,
 other than making the language inevitably slightly more complex.
 But the need to support characters and strings justifies the extra complexity.
 
-# Effect on Ecosystem
+## Effect on Ecosystem
 
 With the ability of Leo programs to process strings,
 it may be useful to have external tools that convert Leo strings
 to/from common formats, e.g. UTF-8.
 See the discussion of input files in the design section.
 
-# Alternatives
+## Alternatives
 
 We could avoid the new `char` type altogether,
 and instead, rely on the existing `u32` to represent Unicode code points,
