@@ -91,6 +91,10 @@ impl<'a> Compiler<'a> {
         imports_map: IndexMap<String, String>,
         ast_snapshot_options: Option<AstSnapshotOptions>,
     ) -> Self {
+        // load static files
+        // TODO remove this once we implement a determinstic include_dir
+        leo_stdlib::static_include_stdlib();
+
         Self {
             program_name: package_name.clone(),
             main_file_path,
