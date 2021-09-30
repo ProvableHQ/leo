@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use leo_asg::*;
+use leo_ast::Ast;
+use leo_errors::Result;
+use leo_errors::Span;
 use std::fs::File;
 use std::io::Write;
 use std::{
     fs::{self, create_dir_all},
     path::{Path, PathBuf},
 };
-
-use leo_asg::*;
-use leo_errors::Result;
-use leo_errors::Span;
 
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
@@ -77,7 +77,8 @@ pub(crate) fn parse_program(
 fn hash_file(path: &str) -> String {
     use sha2::{Digest, Sha256};
     let mut file = fs::File::open(&Path::new(path)).unwrap();
-    dbg!(fs::read_to_string(path).expect("failed to string file"));
+    let ast = Ast::from_json_file(path.into()).expect("failed to read json into ast");
+    dbg!(ast);
     let mut hasher = Sha256::new();
     std::io::copy(&mut file, &mut hasher).unwrap();
     let hash = hasher.finalize();

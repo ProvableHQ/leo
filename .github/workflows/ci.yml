@@ -71,7 +71,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: -p leo-compiler
+          args: -p leo-compiler -- --nocapture
 
       - name: Print sccache stats
         run: sccache --show-stats
@@ -130,7 +130,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: -p leo-compiler
+          args: -p leo-compiler -- --nocapture
 
       - name: Print sccache stats
         run: sccache --show-stats
@@ -191,7 +191,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: -p leo-compiler
+          args: -p leo-compiler -- --nocapture
 
       - name: Print sccache stats
         run: sccache --show-stats
