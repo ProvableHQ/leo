@@ -120,6 +120,9 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -171,14 +174,17 @@
             <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
             <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
                 <span class="kw">match</span> <span class="self">self</span> {
-                    <span class="self">Self</span><span class="ident">::FormattedError</span>(<span class="ident">formatted</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">formatted</span>.<span class="ident">exit_code</span>()
-                    },
-                    <span class="self">Self</span><span class="ident">::BacktracedError</span>(<span class="ident">backtraced</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">backtraced</span>.<span class="ident">exit_code</span>()
-                    }
+                    <span class="self">Self</span><span class="ident">::FormattedError</span>(<span class="ident">formatted</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">formatted</span>.<span class="ident">exit_code</span>(),
+                    <span class="self">Self</span><span class="ident">::BacktracedError</span>(<span class="ident">backtraced</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">backtraced</span>.<span class="ident">exit_code</span>()
                 }
+            }
 
+            <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+            <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+                <span class="kw">match</span> <span class="self">self</span> {
+                    <span class="self">Self</span><span class="ident">::FormattedError</span>(<span class="ident">formatted</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">formatted</span>.<span class="ident">error_code</span>(),
+                    <span class="self">Self</span><span class="ident">::BacktracedError</span>(<span class="ident">backtraced</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">backtraced</span>.<span class="ident">error_code</span>()
+                }
             }
 
             <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>

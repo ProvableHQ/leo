@@ -33,6 +33,9 @@
 <span id="33">33</span>
 <span id="34">34</span>
 <span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -54,6 +57,9 @@
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">LeoErrorCode</span>: <span class="ident">Sized</span> {
     <span class="doccomment">/// Returns the error&#39;s exit code for the program.</span>
     <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;
+
+    <span class="doccomment">/// Returns the prefixed error identifier.</span>
+    <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
 
     <span class="doccomment">/// Returns the error&#39;s exit code mask, as to avoid conflicts.</span>
     <span class="kw">fn</span> <span class="ident">exit_code_mask</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span>;

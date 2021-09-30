@@ -18,5 +18,6 @@ sourcesIndex["leo_state"] = {"name":"","dirs":[{"name":"local_data_commitment","
 sourcesIndex["leo_stdlib"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["leo_synthesizer"] = {"name":"","files":["circuit_synthesizer.rs","lib.rs","serialized_circuit.rs","serialized_field.rs","serialized_index.rs","summarized_circuit.rs"]};
 sourcesIndex["leo_test_framework"] = {"name":"","files":["error.rs","fetch.rs","lib.rs","output.rs","runner.rs","test.rs"]};
+sourcesIndex["leo_wasm"] = {"name":"","files":["lib.rs"]};
 sourcesIndex["tgc"] = {"name":"","files":["tgc.rs"]};
 createSourceSidebar();

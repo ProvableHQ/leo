@@ -130,6 +130,24 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -242,6 +260,24 @@
 }
 
 <span class="kw">impl</span> <span class="ident">LeoError</span> {
+    <span class="doccomment">/// Implement error code for each type of Error. For the unsupported use a default value.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">error_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">use</span> <span class="ident">LeoError</span>::<span class="kw-2">*</span>;
+
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">AsgError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">AstError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">CliError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">CompilerError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">ImportError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">InputError</span>(<span class="ident">_error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Default::default</span>(), <span class="comment">// TODO migrate me, or not cause we want inputs to have 0 deps.</span>
+            <span class="ident">PackageError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">ParserError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
+            <span class="ident">SnarkVMError</span>(<span class="ident">_error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Default::default</span>(), <span class="comment">// TODO update once snarkvm implments a global top level error similar to LeoError.</span>
+            <span class="ident">StateError</span>(<span class="ident">error</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">error</span>.<span class="ident">error_code</span>(),
+        }
+    }
+
     <span class="doccomment">/// Implment exit code for each type of Error, even the ones that don&#39;t have one.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
         <span class="kw">use</span> <span class="ident">LeoError</span>::<span class="kw-2">*</span>;

@@ -849,6 +849,8 @@
 <span id="849">849</span>
 <span id="850">850</span>
 <span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -1687,6 +1689,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
+    <span class="doccomment">/// For when .len() method is used on non-array values/variables.</span>
     @<span class="ident">formatted</span>
     <span class="ident">lengthof_can_only_be_used_on_arrays</span> {
         <span class="ident">args</span>: (),
@@ -1694,6 +1697,7 @@
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
 
+    <span class="doccomment">/// For when equality operator is used on arrays with different sizes.</span>
     @<span class="ident">formatted</span>
     <span class="ident">array_sizes_must_match_in_eq</span> {
         <span class="ident">args</span>: (<span class="ident">lhs</span>: <span class="kw">impl</span> <span class="ident">Display</span>, <span class="ident">rhs</span>: <span class="kw">impl</span> <span class="ident">Display</span>),
