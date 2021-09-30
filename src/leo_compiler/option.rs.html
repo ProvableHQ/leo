@@ -42,6 +42,7 @@
 <span id="42">42</span>
 <span id="43">43</span>
 <span id="44">44</span>
+<span id="45">45</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -82,6 +83,7 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AstSnapshotOptions</span> {
+    <span class="kw">pub</span> <span class="ident">spans_enabled</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">initial</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">imports_resolved</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">canonicalized</span>: <span class="ident">bool</span>,

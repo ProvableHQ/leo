@@ -91,6 +91,9 @@
 <span id="91">91</span>
 <span id="92">92</span>
 <span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -120,7 +123,10 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GroupValue</span> {
-    <span class="ident">Single</span>(<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;leo_errors::common::tendril_json&quot;</span>)]</span> <span class="ident">StrTendril</span>, <span class="ident">Span</span>),
+    <span class="ident">Single</span>(
+        <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;leo_errors::common::tendril_json&quot;</span>)]</span> <span class="ident">StrTendril</span>,
+        <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;leo_errors::common::span_json&quot;</span>)]</span> <span class="ident">Span</span>,
+    ),
     <span class="ident">Tuple</span>(<span class="ident">GroupTuple</span>),
 }
 

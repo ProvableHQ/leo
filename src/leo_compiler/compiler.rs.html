@@ -389,6 +389,27 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -638,7 +659,11 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ast</span>: <span class="ident">leo_ast::Ast</span> <span class="op">=</span> <span class="ident">parse_ast</span>(<span class="self">self</span>.<span class="ident">main_file_path</span>.<span class="ident">to_str</span>().<span class="ident">unwrap_or_default</span>(), <span class="ident">program_string</span>)<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">initial</span> {
-            <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;initial_ast.json&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">spans_enabled</span> {
+                <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;initial_ast.json&quot;</span>)<span class="question-mark">?</span>;
+            } <span class="kw">else</span> {
+                <span class="ident">ast</span>.<span class="ident">to_json_file_without_keys</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;initial_ast.json&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;span&quot;</span>])<span class="question-mark">?</span>;
+            }
         }
 
         <span class="comment">// Preform import resolution.</span>
@@ -648,14 +673,22 @@
         )<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">imports_resolved</span> {
-            <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;imports_resolved_ast.json&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">spans_enabled</span> {
+                <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;imports_resolved_ast.json&quot;</span>)<span class="question-mark">?</span>;
+            } <span class="kw">else</span> {
+                <span class="ident">ast</span>.<span class="ident">to_json_file_without_keys</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;imports_resolved_ast.json&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;span&quot;</span>])<span class="question-mark">?</span>;
+            }
         }
 
         <span class="comment">// Preform canonicalization of AST always.</span>
         <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_ast_passes::Canonicalizer::do_pass</span>(<span class="ident">ast</span>.<span class="ident">into_repr</span>())<span class="question-mark">?</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">canonicalized</span> {
-            <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;canonicalization_ast.json&quot;</span>)<span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">spans_enabled</span> {
+                <span class="ident">ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;canonicalization_ast.json&quot;</span>)<span class="question-mark">?</span>;
+            } <span class="kw">else</span> {
+                <span class="ident">ast</span>.<span class="ident">to_json_file_without_keys</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;canonicalization_ast.json&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;span&quot;</span>])<span class="question-mark">?</span>;
+            }
         }
 
         <span class="comment">// Store the main program file.</span>
@@ -671,7 +704,16 @@
             <span class="kw">let</span> <span class="ident">new_ast</span> <span class="op">=</span> <span class="ident">TypeInferencePhase::default</span>()
                 .<span class="ident">phase_ast</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>, <span class="kw-2">&amp;</span><span class="ident">asg</span>.<span class="ident">clone</span>().<span class="ident">into_repr</span>())
                 .<span class="ident">expect</span>(<span class="string">&quot;Failed to produce type inference ast.&quot;</span>);
-            <span class="ident">new_ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;type_inferenced_ast.json&quot;</span>)<span class="question-mark">?</span>;
+
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">ast_snapshot_options</span>.<span class="ident">spans_enabled</span> {
+                <span class="ident">new_ast</span>.<span class="ident">to_json_file</span>(<span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(), <span class="string">&quot;type_inferenced_ast.json&quot;</span>)<span class="question-mark">?</span>;
+            } <span class="kw">else</span> {
+                <span class="ident">new_ast</span>.<span class="ident">to_json_file_without_keys</span>(
+                    <span class="self">self</span>.<span class="ident">output_directory</span>.<span class="ident">clone</span>(),
+                    <span class="string">&quot;type_inferenced_ast.json&quot;</span>,
+                    <span class="kw-2">&amp;</span>[<span class="string">&quot;span&quot;</span>],
+                )<span class="question-mark">?</span>;
+            }
         }
 
         <span class="macro">tracing::debug!</span>(<span class="string">&quot;ASG generation complete&quot;</span>);

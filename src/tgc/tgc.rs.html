@@ -163,16 +163,6 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
-<span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -290,40 +280,29 @@
             <span class="comment">// Do this to match test-framework ast bc of spans</span>
             <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">text</span>[<span class="ident">end_of_header</span> <span class="op">+</span> <span class="number">2</span>..];
             <span class="comment">// Write all files into the directory.</span>
-            <span class="kw">let</span> (<span class="ident">initial</span>, <span class="ident">imports_resolved</span>, <span class="ident">canonicalized</span>, <span class="ident">type_inferenced</span>) <span class="op">=</span> <span class="ident">generate_asts</span>(<span class="ident">cwd</span>, <span class="ident">text</span>)<span class="question-mark">?</span>;
-
-            <span class="ident">target</span>.<span class="ident">push</span>(<span class="string">&quot;initial_ast.json&quot;</span>);
-            <span class="ident">fs::write</span>(<span class="ident">target</span>.<span class="ident">clone</span>(), <span class="ident">initial</span>)<span class="question-mark">?</span>;
-            <span class="ident">target</span>.<span class="ident">pop</span>();
-
-            <span class="ident">target</span>.<span class="ident">push</span>(<span class="string">&quot;imports_resolved_ast.json&quot;</span>);
-            <span class="ident">fs::write</span>(<span class="ident">target</span>.<span class="ident">clone</span>(), <span class="ident">imports_resolved</span>)<span class="question-mark">?</span>;
-            <span class="ident">target</span>.<span class="ident">pop</span>();
-
-            <span class="ident">target</span>.<span class="ident">push</span>(<span class="string">&quot;canonicalization_ast.json&quot;</span>);
-            <span class="ident">fs::write</span>(<span class="ident">target</span>.<span class="ident">clone</span>(), <span class="ident">canonicalized</span>)<span class="question-mark">?</span>;
-            <span class="ident">target</span>.<span class="ident">pop</span>();
-
-            <span class="ident">target</span>.<span class="ident">push</span>(<span class="string">&quot;type_inferenced_ast.json&quot;</span>);
-            <span class="ident">fs::write</span>(<span class="ident">target</span>.<span class="ident">clone</span>(), <span class="ident">type_inferenced</span>)<span class="question-mark">?</span>;
+            <span class="ident">generate_asts</span>(<span class="ident">cwd</span>, <span class="ident">target</span>, <span class="ident">text</span>)<span class="question-mark">?</span>;
         }
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="doccomment">/// Do what Compiler does - prepare 3 stages of AST: initial, canonicalized and type_inferenced</span>
-<span class="kw">fn</span> <span class="ident">generate_asts</span>(<span class="ident">path</span>: <span class="ident">PathBuf</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">String</span>), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="doccomment">/// Do what Compiler does - prepare 3 stages of AST: initial, imports_resolved, canonicalized and type_inferenced</span>
+<span class="doccomment">/// Write these ASTs without Spans to JSON</span>
+<span class="kw">fn</span> <span class="ident">generate_asts</span>(<span class="ident">src_path</span>: <span class="ident">PathBuf</span>, <span class="ident">target_path</span>: <span class="ident">PathBuf</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">std::env::set_var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>, <span class="string">&quot;true&quot;</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_parser::parse_ast</span>(<span class="ident">path</span>.<span class="ident">clone</span>().<span class="ident">into_os_string</span>().<span class="ident">into_string</span>().<span class="ident">unwrap</span>(), <span class="ident">text</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">initial</span> <span class="op">=</span> <span class="ident">ast</span>.<span class="ident">to_json_string</span>()<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_parser::parse_ast</span>(<span class="ident">src_path</span>.<span class="ident">clone</span>().<span class="ident">into_os_string</span>().<span class="ident">into_string</span>().<span class="ident">unwrap</span>(), <span class="ident">text</span>)<span class="question-mark">?</span>;
 
-    <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_ast_passes::Importer::do_pass</span>(<span class="ident">ast</span>.<span class="ident">into_repr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ImportParser::new</span>(<span class="ident">path</span>, <span class="ident">Default::default</span>()))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">imports_resolved</span> <span class="op">=</span> <span class="ident">ast</span>.<span class="ident">to_json_string</span>()<span class="question-mark">?</span>;
+    <span class="ident">ast</span>.<span class="ident">to_json_file_without_keys</span>(<span class="ident">target_path</span>.<span class="ident">clone</span>(), <span class="string">&quot;initial_ast.json&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;span&quot;</span>])<span class="question-mark">?</span>;
+
+    <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_ast_passes::Importer::do_pass</span>(<span class="ident">ast</span>.<span class="ident">into_repr</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ImportParser::new</span>(<span class="ident">src_path</span>, <span class="ident">Default::default</span>()))<span class="question-mark">?</span>;
+
+    <span class="ident">ast</span>.<span class="ident">to_json_file_without_keys</span>(<span class="ident">target_path</span>.<span class="ident">clone</span>(), <span class="string">&quot;imports_resolved_ast.json&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;span&quot;</span>])<span class="question-mark">?</span>;
 
     <span class="ident">ast</span> <span class="op">=</span> <span class="ident">leo_ast_passes::Canonicalizer::do_pass</span>(<span class="ident">ast</span>.<span class="ident">into_repr</span>())<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">canonicalized</span> <span class="op">=</span> <span class="ident">ast</span>.<span class="ident">to_json_string</span>()<span class="question-mark">?</span>;
+
+    <span class="ident">ast</span>.<span class="ident">to_json_file_without_keys</span>(<span class="ident">target_path</span>.<span class="ident">clone</span>(), <span class="string">&quot;canonicalization_ast.json&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;span&quot;</span>])<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ti_ast</span> <span class="op">=</span> <span class="ident">ast</span>.<span class="ident">into_repr</span>();
     <span class="ident">ti_ast</span>.<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;test&quot;</span>.<span class="ident">to_string</span>(); <span class="comment">// Do this to match test-framework ast</span>
@@ -332,12 +311,13 @@
 
     <span class="kw">let</span> <span class="ident">type_inferenced</span> <span class="op">=</span> <span class="ident">TypeInferencePhase::default</span>()
         .<span class="ident">phase_ast</span>(<span class="kw-2">&amp;</span><span class="ident">ti_ast</span>, <span class="kw-2">&amp;</span><span class="ident">asg</span>.<span class="ident">clone</span>().<span class="ident">into_repr</span>())
-        .<span class="ident">expect</span>(<span class="string">&quot;Failed to produce type inference ast.&quot;</span>)
-        .<span class="ident">to_json_string</span>()<span class="question-mark">?</span>;
+        .<span class="ident">expect</span>(<span class="string">&quot;Failed to produce type inference ast.&quot;</span>);
+
+    <span class="ident">type_inferenced</span>.<span class="ident">to_json_file_without_keys</span>(<span class="ident">target_path</span>, <span class="string">&quot;type_inferenced_ast.json&quot;</span>, <span class="kw-2">&amp;</span>[<span class="string">&quot;span&quot;</span>])<span class="question-mark">?</span>;
 
     <span class="ident">std::env::remove_var</span>(<span class="string">&quot;LEO_TESTFRAMEWORK&quot;</span>);
 
-    <span class="prelude-val">Ok</span>((<span class="ident">initial</span>, <span class="ident">imports_resolved</span>, <span class="ident">canonicalized</span>, <span class="ident">type_inferenced</span>))
+    <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn</span> <span class="ident">handle_error</span>(<span class="ident">res</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span>) {

@@ -123,6 +123,15 @@
 <span id="123">123</span>
 <span id="124">124</span>
 <span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -248,6 +257,15 @@
         <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to resolve import: &#39;{}&#39;&quot;</span>, <span class="ident">name</span>),
         <span class="ident">help</span>: <span class="prelude-val">None</span>,
     }
+
+    <span class="doccomment">/// For when the AST fails to be represented as a JSON value.</span>
+    @<span class="ident">backtraced</span>
+    <span class="ident">failed_to_convert_ast_to_json_value</span> {
+        <span class="ident">args</span>: (<span class="ident">error</span>: <span class="kw">impl</span> <span class="ident">ErrorArg</span>),
+        <span class="ident">msg</span>: <span class="macro">format!</span>(<span class="string">&quot;failed to convert ast to a json value {}&quot;</span>, <span class="ident">error</span>),
+        <span class="ident">help</span>: <span class="prelude-val">None</span>,
+    }
+
 );
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="leo_errors" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

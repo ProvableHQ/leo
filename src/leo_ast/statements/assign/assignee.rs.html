@@ -89,7 +89,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AssigneeAccess</span> {
     <span class="ident">ArrayRange</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span>),
     <span class="ident">ArrayIndex</span>(<span class="ident">Expression</span>),
-    <span class="ident">Tuple</span>(<span class="ident">PositiveNumber</span>, <span class="ident">Span</span>),
+    <span class="ident">Tuple</span>(<span class="ident">PositiveNumber</span>, <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;leo_errors::common::span_json&quot;</span>)]</span> <span class="ident">Span</span>),
     <span class="ident">Member</span>(<span class="ident">Identifier</span>),
 }
 

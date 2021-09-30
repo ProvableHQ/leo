@@ -235,6 +235,10 @@
 <span id="235">235</span>
 <span id="236">236</span>
 <span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -281,6 +285,8 @@
     <span class="kw">pub</span> <span class="ident">disable_code_elimination</span>: <span class="ident">bool</span>,
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Disable all compiler optimizations&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">disable_all_optimizations</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Enable spans in AST snapshots.&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">enable_spans</span>: <span class="ident">bool</span>,
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes all AST snapshots for the different compiler phases.&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">enable_all_ast_snapshots</span>: <span class="ident">bool</span>,
     <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">help</span> <span class="op">=</span> <span class="string">&quot;Writes AST snapshot of the initial parse.&quot;</span>)]</span>
@@ -313,6 +319,7 @@
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">options</span>: <span class="ident">BuildOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="ident">options</span>.<span class="ident">enable_all_ast_snapshots</span> {
             <span class="ident">AstSnapshotOptions</span> {
+                <span class="ident">spans_enabled</span>: <span class="ident">options</span>.<span class="ident">enable_spans</span>,
                 <span class="ident">initial</span>: <span class="bool-val">true</span>,
                 <span class="ident">imports_resolved</span>: <span class="bool-val">true</span>,
                 <span class="ident">canonicalized</span>: <span class="bool-val">true</span>,
@@ -320,6 +327,7 @@
             }
         } <span class="kw">else</span> {
             <span class="ident">AstSnapshotOptions</span> {
+                <span class="ident">spans_enabled</span>: <span class="ident">options</span>.<span class="ident">enable_spans</span>,
                 <span class="ident">initial</span>: <span class="ident">options</span>.<span class="ident">enable_initial_ast_snapshot</span>,
                 <span class="ident">imports_resolved</span>: <span class="ident">options</span>.<span class="ident">enable_imports_resolved_ast_snapshot</span>,
                 <span class="ident">canonicalized</span>: <span class="ident">options</span>.<span class="ident">enable_canonicalized_ast_snapshot</span>,
