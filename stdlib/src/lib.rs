@@ -49,7 +49,6 @@ static PRELUDE: &[&str] = &[
 ];
 
 pub fn static_include_stdlib() {
-    dbg!("hello");
     // not iterating through prelude above since include_macro require explicit context
     let mut stdlib = STDLIB.lock().unwrap();
     stdlib.insert(
@@ -58,63 +57,63 @@ pub fn static_include_stdlib() {
     );
     stdlib.insert(
         "prelude/bool.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/bool.leo").to_string(),
     );
     stdlib.insert(
         "prelude/char.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/char.leo").to_string(),
     );
     stdlib.insert(
         "prelude/field.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/field.leo").to_string(),
     );
     stdlib.insert(
         "prelude/group.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/group.leo").to_string(),
     );
     stdlib.insert(
         "prelude/i8.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/i8.leo").to_string(),
     );
     stdlib.insert(
         "prelude/i16.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/i16.leo").to_string(),
     );
     stdlib.insert(
         "prelude/i32.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/i32.leo").to_string(),
     );
     stdlib.insert(
         "prelude/i64.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/i64.leo").to_string(),
     );
     stdlib.insert(
         "prelude/i128.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/i128.leo").to_string(),
     );
     stdlib.insert(
         "prelude/u8.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/u8.leo").to_string(),
     );
     stdlib.insert(
         "prelude/u16.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/u16.leo").to_string(),
     );
     stdlib.insert(
         "prelude/u32.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/u32.leo").to_string(),
     );
     stdlib.insert(
         "prelude/u64.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/u64.leo").to_string(),
     );
     stdlib.insert(
         "prelude/u128.leo".to_string(),
-        include_str!("./../prelude/address.leo").to_string(),
+        include_str!("./../prelude/u128.leo").to_string(),
     );
 
     stdlib.insert(
-        "prelude/u128.leo".to_string(),
+        "unstable/blake2s.leo".to_string(),
         include_str!("./../unstable/blake2s.leo").to_string(),
     );
 }
@@ -122,8 +121,6 @@ pub fn static_include_stdlib() {
 fn resolve_file(file: &str, mapping: bool) -> Result<Program> {
     let stdlib = STDLIB.lock().unwrap();
 
-    dbg!(file);
-    dbg!(stdlib.keys());
     let resolved = stdlib
         .get(&file.to_string())
         .ok_or_else(|| ImportError::no_such_stdlib_file(file))?;

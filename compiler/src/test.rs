@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_asg::*;
-use leo_ast::Ast;
-use leo_errors::Result;
-use leo_errors::Span;
 use std::fs::File;
 use std::io::Write;
 use std::{
     fs::{self, create_dir_all},
     path::{Path, PathBuf},
 };
+
+use leo_asg::*;
+use leo_errors::Result;
+use leo_errors::Span;
 
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
@@ -77,7 +77,6 @@ pub(crate) fn parse_program(
 fn hash_file(path: &str) -> String {
     use sha2::{Digest, Sha256};
     let mut file = fs::File::open(&Path::new(path)).unwrap();
-
     let mut hasher = Sha256::new();
     std::io::copy(&mut file, &mut hasher).unwrap();
     let hash = hasher.finalize();
@@ -244,9 +243,6 @@ impl Namespace for CompileNamespace {
         let imports_resolved_ast = hash_file("/tmp/output/imports_resolved_ast.json");
         let canonicalized_ast = hash_file("/tmp/output/canonicalization_ast.json");
         let type_inferenced_ast = hash_file("/tmp/output/type_inferenced_ast.json");
-        let ast =
-            Ast::from_json_file("/tmp/output/type_inferenced_ast.json".into()).expect("failed to read json into ast");
-        dbg!(ast);
 
         if fs::read_dir("/tmp/output").is_ok() {
             fs::remove_dir_all(Path::new("/tmp/output")).expect("Error failed to clean up output dir.");

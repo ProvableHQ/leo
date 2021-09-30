@@ -19,7 +19,6 @@ jobs:
     env:
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: 2G
-      TEST_FILTER: fmul
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -71,7 +70,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: -p leo-compiler -- --nocapture
+          args: --all
 
       - name: Print sccache stats
         run: sccache --show-stats
@@ -85,7 +84,6 @@ jobs:
     env:
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: 2G
-      TEST_FILTER: fmul
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -130,7 +128,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: -p leo-compiler -- --nocapture
+          args: --all
 
       - name: Print sccache stats
         run: sccache --show-stats
@@ -144,7 +142,6 @@ jobs:
     env:
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: 2G
-      TEST_FILTER: fmul
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -191,7 +188,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: -p leo-compiler -- --nocapture
+          args: --all
 
       - name: Print sccache stats
         run: sccache --show-stats
