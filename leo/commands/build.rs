@@ -17,7 +17,7 @@
 use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
-    AstSnapshotOptions, CompilerOptions,
+    AstSnapshotOptions, CompilerOptions, DEFAULT_INLINE_LIMIT,
 };
 use leo_errors::{CliError, Result};
 use leo_package::{
@@ -54,6 +54,12 @@ pub struct BuildOptions {
     pub enable_canonicalized_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
     pub enable_type_inferenced_ast_snapshot: bool,
+    #[structopt(
+        long,
+        default_value = "8",
+        help = "The maximum call depth that leo can attempt to inline"
+    )]
+    pub inline_limit: u32,
 }
 
 impl Default for BuildOptions {
@@ -67,6 +73,7 @@ impl Default for BuildOptions {
             enable_imports_resolved_ast_snapshot: false,
             enable_canonicalized_ast_snapshot: false,
             enable_type_inferenced_ast_snapshot: false,
+            inline_limit: DEFAULT_INLINE_LIMIT,
         }
     }
 }
@@ -77,11 +84,13 @@ impl From<BuildOptions> for CompilerOptions {
             CompilerOptions {
                 constant_folding_enabled: false,
                 dead_code_elimination_enabled: false,
+                inline_limit: DEFAULT_INLINE_LIMIT,
             }
         } else {
             CompilerOptions {
                 constant_folding_enabled: !options.disable_constant_folding,
                 dead_code_elimination_enabled: !options.disable_code_elimination,
+                inline_limit: options.inline_limit,
             }
         }
     }

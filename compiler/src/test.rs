@@ -200,7 +200,9 @@ impl Namespace for CompileNamespace {
             let mut cs: CircuitSynthesizer<Bls12_377> = Default::default();
             let mut evaluator =
                 snarkvm_eval::SetupEvaluator::<_, snarkvm_eval::edwards_bls12::EdwardsGroupType, _>::new(&mut cs);
-            let output = evaluator.evaluate(&compiled, &input_data).map_err(|e| e.to_string())?;
+            let output = evaluator
+                .evaluate(&compiled, &input_data)
+                .map_err(|e| e.to_string())?;
 
             let registers: Vec<_> = compiled.header.register_inputs.iter().map(|x| x.clone()).collect();
             let output = Output::new(&registers[..], output, &Span::default()).map_err(|e| e.to_string())?;

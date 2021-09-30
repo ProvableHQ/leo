@@ -73,7 +73,7 @@ version = "0.4"
 version = "0.7.9"
 # path = "D:\\Work\\leo_repos\\snarkVM\\ir"
 git = "https://github.com/AleoHQ/snarkVM"
-branch = "ir-updates"
+branch = "bounded-recursion"
 
 [dependencies.snarkvm-r1cs]
 version = "0.7.9"
@@ -111,7 +111,7 @@ version = "0.4"
 version = "0.7.9"
 # path = "D:\\Work\\leo_repos\\snarkVM\\eval"
 git = "https://github.com/AleoHQ/snarkVM"
-branch = "ir-updates"
+branch = "bounded-recursion"
 
 [dependencies.snarkvm-curves]
 version = "0.7.9"
@@ -138,7 +138,7 @@ default = [ ]
 ci_skip = [ "leo-ast/ci_skip" ]
 
 [patch.crates-io]
-snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
-snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "ir-updates" }
+snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
+snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
 # snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
 # snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }

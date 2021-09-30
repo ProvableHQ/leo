@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+pub const DEFAULT_INLINE_LIMIT: u32 = 8;
+
 ///
 /// Toggles compiler optimizations on the program.
 ///
@@ -21,6 +23,7 @@
 pub struct CompilerOptions {
     pub constant_folding_enabled: bool,
     pub dead_code_elimination_enabled: bool,
+    pub inline_limit: u32,
 }
 
 impl Default for CompilerOptions {
@@ -31,6 +34,7 @@ impl Default for CompilerOptions {
         CompilerOptions {
             constant_folding_enabled: true,
             dead_code_elimination_enabled: true,
+            inline_limit: DEFAULT_INLINE_LIMIT,
         }
     }
 }
