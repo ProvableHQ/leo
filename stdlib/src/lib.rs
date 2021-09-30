@@ -51,7 +51,8 @@ fn resolve_file(file: &str, mapping: bool) -> Result<Program> {
 pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
     let mut preludes: IndexMap<Vec<String>, Program> = IndexMap::new();
 
-    for module in STDLIB.find("prelude/*.leo").unwrap() {
+    let prelude = STDLIB.get_dir("prelude").unwrap();
+    for module in prelude.files().iter() {
         // If on windows repalce \\ with / as all paths are stored in unix style.
         let path = module.path().to_str().unwrap_or("").replace("\\", "/");
         let program = resolve_file(&path, true)?;
