@@ -7,10 +7,10 @@ outputs:
     import_statements:
       - package_or_packages:
           Package:
-            name: "{\"name\":\"a0-f\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a0-f.foo;\\\\r\\\"}\"}"
+            name: "{\"name\":\"a0-f\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a0-f.foo;\\\"}\"}"
             access:
               Symbol:
-                symbol: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a0-f.foo;\\\\r\\\"}\"}"
+                symbol: "{\"name\":\"foo\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":13,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a0-f.foo;\\\"}\"}"
                 alias: ~
                 span:
                   line_start: 3
@@ -18,27 +18,27 @@ outputs:
                   col_start: 13
                   col_stop: 16
                   path: ""
-                  content: "import a0-f.foo;\r"
+                  content: import a0-f.foo;
             span:
               line_start: 3
               line_stop: 3
               col_start: 8
               col_stop: 16
               path: ""
-              content: "import a0-f.foo;\r"
+              content: import a0-f.foo;
         span:
           line_start: 3
           line_stop: 3
           col_start: 8
           col_stop: 16
           path: ""
-          content: "import a0-f.foo;\r"
+          content: import a0-f.foo;
       - package_or_packages:
           Package:
-            name: "{\"name\":\"a-9\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a-9.bar;\\\\r\\\"}\"}"
+            name: "{\"name\":\"a-9\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":8,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a-9.bar;\\\"}\"}"
             access:
               Symbol:
-                symbol: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a-9.bar;\\\\r\\\"}\"}"
+                symbol: "{\"name\":\"bar\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":12,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import a-9.bar;\\\"}\"}"
                 alias: ~
                 span:
                   line_start: 4
@@ -46,27 +46,27 @@ outputs:
                   col_start: 12
                   col_stop: 15
                   path: ""
-                  content: "import a-9.bar;\r"
+                  content: import a-9.bar;
             span:
               line_start: 4
               line_stop: 4
               col_start: 8
               col_stop: 15
               path: ""
-              content: "import a-9.bar;\r"
+              content: import a-9.bar;
         span:
           line_start: 4
           line_stop: 4
           col_start: 8
           col_stop: 15
           path: ""
-          content: "import a-9.bar;\r"
+          content: import a-9.bar;
       - package_or_packages:
           Package:
-            name: "{\"name\":\"hello-world\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import hello-world.hello;\\\\r\\\"}\"}"
+            name: "{\"name\":\"hello-world\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":8,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import hello-world.hello;\\\"}\"}"
             access:
               Symbol:
-                symbol: "{\"name\":\"hello\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":20,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import hello-world.hello;\\\\r\\\"}\"}"
+                symbol: "{\"name\":\"hello\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":20,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"import hello-world.hello;\\\"}\"}"
                 alias: ~
                 span:
                   line_start: 5
@@ -74,21 +74,21 @@ outputs:
                   col_start: 20
                   col_stop: 25
                   path: ""
-                  content: "import hello-world.hello;\r"
+                  content: import hello-world.hello;
             span:
               line_start: 5
               line_stop: 5
               col_start: 8
               col_stop: 25
               path: ""
-              content: "import hello-world.hello;\r"
+              content: import hello-world.hello;
         span:
           line_start: 5
           line_stop: 5
           col_start: 8
           col_stop: 25
           path: ""
-          content: "import hello-world.hello;\r"
+          content: import hello-world.hello;
     imports: {}
     aliases: {}
     circuits: {}
