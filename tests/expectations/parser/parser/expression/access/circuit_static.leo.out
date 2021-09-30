@@ -105,12 +105,13 @@ outputs:
         Value:
           Implicit:
             - "1"
-            - line_start: 1
-              line_stop: 1
-              col_start: 6
-              col_stop: 7
-              path: ""
-              content: "x::y[1]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 6
+                col_stop: 7
+                path: ""
+                content: "x::y[1]"
       span:
         line_start: 1
         line_stop: 1
