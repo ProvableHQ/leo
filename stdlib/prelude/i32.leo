@@ -7,11 +7,11 @@ circuit i32 {
         return 0i32;
     }
 
-    function to_bytes_le(self) -> [i32; 32] {
-        return [0i32; 32];
+    function to_bytes_le(self) -> [u8; 4] {
+        return [0u8; 4];
     }
 
-    function from_bytes_le(bytes: [i32; 32]) -> i32 {
+    function from_bytes_le(bytes: [u8; 4]) -> i32 {
         return 0i32;
     }
 }

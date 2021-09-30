@@ -7,11 +7,11 @@ circuit u128 {
         return 0u128;
     }
 
-    function to_bytes_le(self) -> [u128; 16] {
-        return [0u128; 16];
+    function to_bytes_le(self) -> [u8; 16] {
+        return [0u8; 16];
     }
 
-    function from_bytes_le(bytes: [u128; 16]) -> u128 {
+    function from_bytes_le(bytes: [u8; 16]) -> u128 {
         return 0u128;
     }
 }

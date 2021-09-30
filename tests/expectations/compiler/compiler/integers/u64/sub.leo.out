@@ -60,7 +60,7 @@ outputs:
       - "decl f22: <28>"
       - "  retn 0"
       - "decl f23: <29>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0]"
       - "decl f24: <30>"
       - "  retn 0"
       - "decl f25: <31>"
@@ -68,7 +68,7 @@ outputs:
       - "decl f26: <32>"
       - "  retn 0"
       - "decl f27: <33>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0, 0, 0, 0, 0, 0, 0, 0]"
       - "decl f28: <34>"
       - "  retn 0"
       - "decl f29: <35>"
@@ -76,7 +76,7 @@ outputs:
       - "decl f30: <36>"
       - "  retn 0"
       - "decl f31: <37>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0, 0, 0, 0]"
       - "decl f32: <38>"
       - "  retn 0"
       - "decl f33: <39>"
@@ -84,7 +84,7 @@ outputs:
       - "decl f34: <40>"
       - "  retn 0"
       - "decl f35: <41>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0, 0]"
       - "decl f36: <42>"
       - "  retn 0"
       - "decl f37: <43>"
@@ -92,7 +92,7 @@ outputs:
       - "decl f38: <44>"
       - "  retn 0"
       - "decl f39: <45>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
       - "decl f40: <46>"
       - "  retn 0"
       - "decl f41: <47>"
@@ -144,6 +144,6 @@ outputs:
               type: bool
               value: "true"
     initial_ast: 3a415f958404b12d67e1ec38550eb95735a1617ba0fd782c9fb448781ad9eee6
-    imports_resolved_ast: 8335e0e321a2fec9ce8911881ac8bec7440593d970e571bc2705ceece86fbac6
-    canonicalized_ast: 8335e0e321a2fec9ce8911881ac8bec7440593d970e571bc2705ceece86fbac6
-    type_inferenced_ast: 2e851ca2dca2fa4e147f72e5a73825e1a4f1bdace6b11aac4125112021666d39
+    imports_resolved_ast: 3fde925c9fe63d2d2ffdca783ae6eee0101eff967e0ddb7612d4dfa2fced72c7
+    canonicalized_ast: 3fde925c9fe63d2d2ffdca783ae6eee0101eff967e0ddb7612d4dfa2fced72c7
+    type_inferenced_ast: f9b949500716983fdf2d40f0049e57399b11cd21db0f5a41df44484f33463401

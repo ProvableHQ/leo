@@ -7,11 +7,11 @@ circuit i16 {
         return 0i16;
     }
 
-    function to_bytes_le(self) -> [i16; 16] {
-        return [0i16; 16];
+    function to_bytes_le(self) -> [u8; 2] {
+        return [0u8; 2];
     }
 
-    function from_bytes_le(bytes: [i16; 16]) -> i16 {
+    function from_bytes_le(bytes: [u8; 2]) -> i16 {
         return 0i16;
     }
 }

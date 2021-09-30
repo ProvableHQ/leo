@@ -78,7 +78,7 @@ outputs:
       - "decl f22: <40>"
       - "  retn 0"
       - "decl f23: <41>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0]"
       - "decl f24: <42>"
       - "  retn 0"
       - "decl f25: <43>"
@@ -86,7 +86,7 @@ outputs:
       - "decl f26: <44>"
       - "  retn 0"
       - "decl f27: <45>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0, 0, 0, 0, 0, 0, 0, 0]"
       - "decl f28: <46>"
       - "  retn 0"
       - "decl f29: <47>"
@@ -94,7 +94,7 @@ outputs:
       - "decl f30: <48>"
       - "  retn 0"
       - "decl f31: <49>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0, 0, 0, 0]"
       - "decl f32: <50>"
       - "  retn 0"
       - "decl f33: <51>"
@@ -102,7 +102,7 @@ outputs:
       - "decl f34: <52>"
       - "  retn 0"
       - "decl f35: <53>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0, 0]"
       - "decl f36: <54>"
       - "  retn 0"
       - "decl f37: <55>"
@@ -110,7 +110,7 @@ outputs:
       - "decl f38: <56>"
       - "  retn 0"
       - "decl f39: <57>"
-      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
       - "decl f40: <58>"
       - "  retn 0"
       - "decl f41: <59>"
@@ -162,6 +162,6 @@ outputs:
               type: bool
               value: "true"
     initial_ast: 75f24068daeffdba04b42cc3cbcc03ba9499629a2c266cfef3b0ec4b43ddc5a0
-    imports_resolved_ast: d0f396c37e707691f8824e6d99c5b45834d114c9ad4cc6d930af6db306328a63
-    canonicalized_ast: d316cc4efde1dbb65e67af3142cc3eca78bd5a12dad73e0eff1d64b8b9d23e5e
-    type_inferenced_ast: b5b502542b76c85577b3ee85ed27480c4db3c9cd9ddc3e570a4db3b89d7fa554
+    imports_resolved_ast: 56603943abd03f8854e3e842dbd56d331bc093bc6fa8cbd0246d5daabdba696d
+    canonicalized_ast: 777a9f89bc221f5180ec27d13ab4c543ec98778c9e24fd7921e63c53d5afeea2
+    type_inferenced_ast: d8416bea3a97881973af9c46c0c65a2844d5d9a811a15212d155727af82ab687
