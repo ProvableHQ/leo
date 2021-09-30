@@ -68,6 +68,18 @@ fn test_ref_member_function_fail() {
 }
 
 #[test]
+fn test_mut_self_variable_fail() {
+    let program_string = include_str!("mut_self_variable_fail.leo");
+    load_asg(program_string).err().unwrap();
+}
+
+#[test]
+fn test_mut_self_variable_conditional_fail() {
+    let program_string = include_str!("mut_self_variable_conditional_fail.leo");
+    load_asg(program_string).err().unwrap();
+}
+
+#[test]
 fn test_member_static_function_invalid() {
     let program_string = include_str!("member_static_function_invalid.leo");
     load_asg(program_string).err().unwrap();
