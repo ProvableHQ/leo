@@ -18,10 +18,11 @@ otherwise, an informative message is shown to the user,
 who can try and increase the limit.
 Compilation may also fail
 if a circularity is detected before exceeding the limit.
+
 Future analyses may also recognize cases in which the recursion terminates,
 informing the user and setting or suggesting a sufficient limit.
 
-A similar approach could be also used for loops.
+A similar approach could be also used for loops in the future.
 User-configurable limits may be also appropriate for
 other compiler transformations that are known to terminate
 but could result in a very large number of R1CS constraints.
@@ -74,7 +75,7 @@ function main(a: u32) -> u32 {
 ### Constants and Variables
 
 A Leo program has two kinds of inputs: constants and variables;
-both come from input files (which represent blockchain records).
+both come from input files.
 They are passed as arguments to the `main` functions:
 the parameters marked with `const` receive the constant inputs,
 while the other parameters receive the variable inputs.
@@ -124,14 +125,6 @@ Circling back to the topic of Leo function inlining,
 it is the case that, due to the aforementioned partial evaluation,
 the `const` arguments of function calls have known values
 when the flattening transformations are carried out.
-
-## Design
-
-After exemplifying how inlining of recursive functions may terminate or not,
-we discuss our approach to avoid non-termination.
-Then we discuss future optimizations,
-and how the approach to avoid non-termination of recursion
-may be used for other features of the Leo language.
 
 ### Inlining Recursive Functions
 
@@ -339,6 +332,8 @@ function main() {
 
 ...
 ```
+
+## Design
 
 ### Configurable Limit
 
