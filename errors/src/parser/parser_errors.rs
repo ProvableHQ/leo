@@ -188,7 +188,7 @@ create_errors!(
     @formatted
     mut_self_parameter {
         args: (),
-        msg: "`mut self` is deprecated. Use `&self` if you would like to pass in a mutable reference to `self`",
+        msg: "`mut self` is deprecated. Use `ref self` if you would like to pass in a mutable reference to `self`",
         help: None,
     }
 );

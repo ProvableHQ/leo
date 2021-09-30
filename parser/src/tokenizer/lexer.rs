@@ -512,6 +512,7 @@ impl Token {
                     "input" => Token::Input,
                     "let" => Token::Let,
                     "mut" => Token::Mut,
+                    "ref" => Token::Ref,
                     "return" => Token::Return,
                     "Self" => Token::BigSelf,
                     "self" => Token::LittleSelf,
