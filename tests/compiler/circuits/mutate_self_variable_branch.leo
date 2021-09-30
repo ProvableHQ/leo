@@ -7,7 +7,7 @@ input_file: input/dummy.in
 circuit Foo {
     a: u8;
 
-    function set_a(mut self, condition: bool, new: u8) {
+    function set_a(ref self, condition: bool, new: u8) {
         if condition {
             self.a = new;
         }

@@ -8,7 +8,7 @@ circuit Foo {
   f: u8;
   y: (u8, u8);
 
-  function z (mut self) -> u16 {
+  function z (ref self) -> u16 {
     self.y.0 += 1u8;
     return 1u16;
   }
