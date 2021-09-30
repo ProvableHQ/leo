@@ -41,7 +41,8 @@ members = [
   "state",
   "stdlib",
   "synthesizer",
-  "test-framework"
+  "test-framework",
+  "wasm"
 ]
 
 [dependencies.leo-ast]

@@ -1526,7 +1526,32 @@ dependencies = [
  "structopt",
 ]
 
+name = "leo-wasm"
+version = "1.5.3"
+dependencies = [
+ "leo-asg",
+ "leo-ast",
+ "leo-ast-passes",
+ "leo-errors",
+ "leo-parser",
+ "serde",
+ "serde_json",
+ "wasm-bindgen",
+]
+
 [[package]]
+name = "lexical-core"
+version = "0.7.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6607c62aa161d23d17a9072cc5da0be67cdfc89d3afb1e8d9c842bebc2525ffe"
+dependencies = [
+ "arrayvec",
+ "bitflags",
+ "cfg-if 1.0.0",
+ "ryu",
+ "static_assertions",
+]
+
 name = "libc"
 version = "0.2.103"
 source = "registry+https://github.com/rust-lang/crates.io-index"
