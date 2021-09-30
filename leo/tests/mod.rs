@@ -20,7 +20,7 @@ use std::path::PathBuf;
 use crate::{
     commands::{
         package::{Login, Logout},
-        Build, Command, Prove, Run, Setup, Test, Update, UpdateAutomatic,
+        Build, Command, Prove, Run, Setup, Test,
     },
     context::{create_context, Context},
 };
@@ -176,6 +176,8 @@ pub fn login_incorrect_credentials_or_token() -> Result<()> {
 #[cfg(not(target_os = "macos"))]
 #[test]
 pub fn leo_update_and_update_automatic() -> Result<()> {
+    use crate::commands::{Update, UpdateAutomatic};
+
     let update = Update {
         list: true,
         studio: true,
