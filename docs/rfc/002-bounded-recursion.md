@@ -396,6 +396,32 @@ and the compiler can show to the user the trace of circular calls.
 
 This approach would readily reject the `forever` example given earlier.
 
+## Drawbacks
+
+This proposal does not appear to bring any real drawbacks,
+other than making the compiler inevitably more complex.
+But the benefits to support recursion justifies the extra complexity.
+
+## Effect on Ecosystem
+
+This proposal does not appear to have any direct effects on the ecosystem.
+It simply enables certain Leo programs to be written in a more natural style.
+
+## Alternatives
+
+An alternative approach is to treat recursion analogously to loops.
+That is, we could restrict the forms of allowed recursion
+to ones whose inlining is known to terminate at compile time.
+
+However, the configurable limit approach seems more flexible.
+It does not even preclude a termination analysis (discussed below).
+Furthermore, in practical terms,
+non-termination is not much different from excessively long computation.
+and the configurable limit approach may be uniformly suitable
+to avoid both non-termination and excessively long computation (discussed below).
+
+## Future Extensions
+
 ### Termination Analysis
 
 In general, a recursive function
@@ -420,7 +446,7 @@ in this example, the measure of the argument is the argument itself.
 (A relation is well-founded when
 it has no infinite strictly decreasing sequence;
 note that, in the factorial example,
-we are considering the relation on natural numbers only,
+we are considering the `<` relation on natural numbers only,
 not on all the integers).
 
 This property is undecidable in general,
@@ -490,28 +516,3 @@ Thus, we could consider using configurable limits
 not only for flattening transformations that may not otherwise terminate,
 but also for ones that may take a long time to do so.
 This is a broader topic that should be discussed in a separate RFC.
-
-## Drawbacks
-
-This proposal does not appear to bring any real drawbacks,
-other than making the compiler inevitably more complex.
-But the benefits to support recursion justifies the extra complexity.
-
-## Effect on Ecosystem
-
-This proposal does not appear to have any direct effects on the ecosystem.
-It simply enables certain Leo programs to be written in a more natural style.
-
-## Alternatives
-
-An alternative approach, hinted at in the above discussion about loops,
-is to take a similar approach to the current one for loops.
-That is, we could restrict the forms of allowed recursion
-to ones whose inlining is known to terminate at compile time.
-
-However, the configurable limit approach seems more flexible.
-It does not even preclude a termination analysis, as discussed earlier.
-Furthermore, in practical terms,
-non-termination is not much different from excessively long computation.
-and the configurable limit approach may be uniformly suitable
-to avoid both non-termination and excessively long computation.
