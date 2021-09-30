@@ -53,7 +53,7 @@ pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
 
     for module in STDLIB.find("prelude/*.leo").unwrap() {
         let path = module.path().to_str().unwrap_or("");
-        let program = resolve_file(&path, true)?;
+        let program = resolve_file(path, true)?;
 
         let removed_extension = path.replace(".leo", "");
         let mut parts: Vec<String> = vec![String::from("std")];

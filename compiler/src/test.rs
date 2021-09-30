@@ -77,6 +77,7 @@ pub(crate) fn parse_program(
 fn hash_file(path: &str) -> String {
     use sha2::{Digest, Sha256};
     let mut file = fs::File::open(&Path::new(path)).unwrap();
+    dbg!(fs::read_to_string(path).expect("failed to string file"));
     let mut hasher = Sha256::new();
     std::io::copy(&mut file, &mut hasher).unwrap();
     let hash = hasher.finalize();
