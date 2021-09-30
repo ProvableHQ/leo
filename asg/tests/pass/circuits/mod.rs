@@ -45,10 +45,10 @@ fn test_member_function() {
 }
 
 #[test]
-fn test_mut_member_function() {
+fn test_ref_member_function() {
     let program_string = r#"
         circuit Foo {
-            function echo(mut self, x: u32) -> u32 {
+            function echo(ref self, x: u32) -> u32 {
                 return x;
             }
         }
@@ -77,19 +77,19 @@ fn test_member_static_function() {
 
 #[test]
 fn test_mutate_self_variable() {
-    let program_string = include_str!("mut_self_variable.leo");
+    let program_string = include_str!("mutate_self_variable.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_mutate_self_variable_conditional() {
-    let program_string = include_str!("mut_self_variable_conditional.leo");
+    let program_string = include_str!("mutate_self_variable_conditional.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
 fn test_mutate_variable() {
-    let program_string = include_str!("mut_variable.leo");
+    let program_string = include_str!("mutate_variable.leo");
     load_asg(program_string).unwrap();
 }
 

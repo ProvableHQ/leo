@@ -1,7 +1,7 @@
 circuit Foo {
     a: u8;
 
-    function set_a(mut self, new: u8) {
+    function set_a(ref self, new: u8) {
         self.a = new;
         console.assert(self.a == new);
     }

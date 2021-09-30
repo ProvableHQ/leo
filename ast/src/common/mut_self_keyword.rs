@@ -20,20 +20,20 @@ use leo_errors::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// The `mut self` keyword can view and modify circuit values inside of a circuit function.
+/// The `ref self` keyword can view and modify circuit values inside of a circuit function.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(transparent)]
-pub struct MutSelfKeyword {
+pub struct RefSelfKeyword {
     pub identifier: Identifier,
 }
 
-impl fmt::Display for MutSelfKeyword {
+impl fmt::Display for RefSelfKeyword {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "mut self")
+        write!(f, "ref self")
     }
 }
 
-impl Node for MutSelfKeyword {
+impl Node for RefSelfKeyword {
     fn span(&self) -> &Span {
         &self.identifier.span
     }
