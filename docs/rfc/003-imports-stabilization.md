@@ -37,6 +37,26 @@ for different proving systems or curves. To make a foundation for these features
 imports need to be managed with include/exclude lists for allowed (compatible)
 proving systems and curves.
 
+## Background
+
+Leo supports the importing of packages, similarly to other languages.
+
+A Leo program consists of a main file,
+which may import additional packages (files),
+which may in turn import other packages.
+
+Imported packages may be local, i.e. found in the same project directory where the main file is.
+In that case, their package names match the directory structure.
+
+Packages may be also imported from the Aleo Package Manager (APM),
+which is a repository of Aleo packages, similar to `crates.io` in Rust.
+This RFC is focused on importing packages from the APM.
+
+Each package in the APM is uniquely identified by:
+* The author, who must have a registered account on the APM, with a unique username.
+* The package name, which is unique within each author's account.
+* The package version, which allows different versions of the same package to be treated like different packages.
+
 ## Design
 
 ### Leo Manifest - target section
