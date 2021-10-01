@@ -84,15 +84,23 @@ impl BacktracedError {
 
         code
     }
+
+    /// Gets a unique error identifier.
+    pub fn error_code(&self) -> String {
+        format!(
+            "E{error_type}{code_identifier:0>3}{exit_code:0>4}",
+            error_type = self.error_type,
+            code_identifier = self.code_identifier,
+            exit_code = self.exit_code,
+        )
+    }
 }
 
 impl fmt::Display for BacktracedError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let error_message = format!(
-            "Error [E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}",
-            error_type = self.error_type,
-            code_identifier = self.code_identifier,
-            exit_code = self.exit_code,
+            "Error [{error_code}]: {message}",
+            error_code = self.error_code(),
             message = self.message,
         );
 

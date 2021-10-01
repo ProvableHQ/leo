@@ -942,9 +942,9 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
 name = "h2"
-version = "0.3.4"
+version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7f3675cfef6a30c8031cf9e6493ebdc3bb3272a3fea3923c4210d1830e6a472"
+checksum = "6c06815895acec637cd6ed6e9662c935b866d20a106f8361892893a7d9234964"
 dependencies = [
  "bytes",
  "fnv",
@@ -1527,10 +1527,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "leo-wasm"
+version = "1.5.3"
+dependencies = [
+ "leo-asg",
+ "leo-ast",
+ "leo-ast-passes",
+ "leo-errors",
+ "leo-parser",
+ "serde",
+ "serde_json",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "libc"
-version = "0.2.102"
+version = "0.2.103"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2a5ac8f984bfcf3a823267e5fde638acc3325f6496633a5da6bb6eb2171e103"
+checksum = "dd8f7255a17a627354f321ef0055d63b898c6fb27eff628af4d1b66b7331edf6"
 
 [[package]]
 name = "libz-sys"
@@ -2003,9 +2017,9 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "pkg-config"
-version = "0.3.19"
+version = "0.3.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3831453b3449ceb48b6d9c7ad7c96d5ea673e9b470a1dc578c2ce6521230884c"
+checksum = "7c9b1041b4387893b91ee6746cddfc28516aff326a3519fb2adf820932c5e6cb"
 
 [[package]]
 name = "plotters"
@@ -2682,14 +2696,14 @@ checksum = "c307a32c1c5c437f38c7fd45d753050587732ba8628319fbdf12a7e289ccc590"
 
 [[package]]
 name = "smallvec"
-version = "1.6.1"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
+checksum = "1ecab6c735a6bb4139c0caafd0cc3635748bbb3acf4550e8138122099251f309"
 
 [[package]]
 name = "snarkvm-algorithms"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "anyhow",
  "bitvec",
@@ -2716,7 +2730,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-curves"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "derivative",
  "rand 0.8.4",
@@ -2731,7 +2745,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-derives"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "proc-macro-crate 0.1.5",
  "proc-macro-error",
@@ -2743,7 +2757,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-dpc"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "anyhow",
  "base58",
@@ -2774,7 +2788,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-eval"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "anyhow",
  "im",
@@ -2793,7 +2807,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-fields"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2808,7 +2822,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-gadgets"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2827,7 +2841,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ir"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "anyhow",
  "bech32",
@@ -2840,7 +2854,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-marlin"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "blake2",
  "derivative",
@@ -2863,7 +2877,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-parameters"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "curl",
  "hex",
@@ -2875,7 +2889,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-polycommit"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2893,12 +2907,12 @@ dependencies = [
 [[package]]
 name = "snarkvm-profiler"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 
 [[package]]
 name = "snarkvm-r1cs"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "cfg-if 1.0.0",
  "fxhash",
@@ -2912,7 +2926,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-utilities"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#ba7193e5f232117bd301b0261e957adea2bfd3b7"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=ir-updates#d87c3fb2927f85735ab71d4936927377945130dc"
 dependencies = [
  "anyhow",
  "bincode",
@@ -3121,9 +3135,9 @@ dependencies = [
 
 [[package]]
 name = "tinyvec"
-version = "1.4.0"
+version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5241dd6f21443a3606b432718b166d3cedc962fd4b8bea54a8bc7f514ebda986"
+checksum = "f83b2a3d4d9091d0abd7eba4dc2710b1718583bd4d8992e2190720ea38f391f7"
 dependencies = [
  "tinyvec_macros",
 ]

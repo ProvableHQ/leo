@@ -39,21 +39,10 @@ impl Default for CompilerOptions {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct AstSnapshotOptions {
     pub initial: bool,
     pub imports_resolved: bool,
     pub canonicalized: bool,
     pub type_inferenced: bool,
-}
-
-impl Default for AstSnapshotOptions {
-    fn default() -> Self {
-        Self {
-            initial: false,
-            imports_resolved: false,
-            canonicalized: false,
-            type_inferenced: false,
-        }
-    }
 }

@@ -8,13 +8,13 @@ outputs:
     imports: {}
     aliases: {}
     circuits:
-      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\\r\\\"}\"}":
-        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\\r\\\"}\"}"
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
         core_mapping: ~
         members:
           - CircuitFunction:
               annotations: []
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x() -> Self {\\\\r\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x() -> Self {\\\"}\"}"
               input: []
               output: SelfType
               block:
@@ -22,7 +22,7 @@ outputs:
                   - Return:
                       expression:
                         CircuitInit:
-                          name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self {};\\\\r\\\"}\"}"
+                          name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self {};\\\"}\"}"
                           members: []
                           span:
                             line_start: 5
@@ -30,14 +30,14 @@ outputs:
                             col_start: 16
                             col_stop: 23
                             path: ""
-                            content: "        return Self {};\r"
+                            content: "        return Self {};"
                       span:
                         line_start: 5
                         line_stop: 5
                         col_start: 9
                         col_stop: 23
                         path: ""
-                        content: "        return Self {};\r"
+                        content: "        return Self {};"
                 span:
                   line_start: 4
                   line_stop: 6
