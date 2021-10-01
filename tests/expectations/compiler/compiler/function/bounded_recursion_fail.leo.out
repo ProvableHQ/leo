@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "f#0: i#1: f#1: i#3: f#1: i#3: f#1: i#3: f#1: i#3: f#1: i#3: f#1: i#3: f#1: i#3: f#1: max inline limit hit"
