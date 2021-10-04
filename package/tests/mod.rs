@@ -17,7 +17,6 @@
 #![allow(clippy::module_inception)]
 
 pub mod initialize;
-pub mod manifest;
 
 use lazy_static::lazy_static;
 use std::{

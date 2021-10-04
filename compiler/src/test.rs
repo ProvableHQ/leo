@@ -35,7 +35,7 @@ use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_eval::Evaluator;
 use snarkvm_ir::{InputData, Program as IR_Program};
 
-use crate::{compiler::Compiler, AstSnapshotOptions, Output};
+use crate::{compiler::Compiler, Output, OutputOptions};
 use indexmap::IndexMap;
 
 pub type TestCompiler = Compiler<'static>;
@@ -46,7 +46,7 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
     new_context(allocator)
 }
 
-fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> TestCompiler {
+fn new_compiler(path: PathBuf, theorem_options: Option<OutputOptions>) -> TestCompiler {
     let program_name = "test".to_string();
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
@@ -64,7 +64,7 @@ fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> T
 
 pub(crate) fn parse_program(
     program_string: &str,
-    theorem_options: Option<AstSnapshotOptions>,
+    theorem_options: Option<OutputOptions>,
     cwd: Option<PathBuf>,
 ) -> Result<TestCompiler> {
     let mut compiler = new_compiler(cwd.unwrap_or_else(|| "compiler-test".into()), theorem_options);
@@ -122,11 +122,12 @@ impl Namespace for CompileNamespace {
 
         let parsed = parse_program(
             &test.content,
-            Some(AstSnapshotOptions {
-                initial: true,
-                imports_resolved: true,
-                canonicalized: true,
-                type_inferenced: true,
+            Some(OutputOptions {
+                ast_initial: true,
+                ast_imports_resolved: true,
+                ast_canonicalized: true,
+                ast_type_inferenced: true,
+                emit_ir: true,
             }),
             cwd,
         )

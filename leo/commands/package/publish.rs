@@ -20,6 +20,7 @@ use leo_errors::{CliError, Result};
 use leo_package::{
     outputs::OutputsDirectory,
     root::{ZipFile, AUTHOR_PLACEHOLDER},
+    PackageDirectory,
 };
 use leo_parser::KEYWORD_TOKENS;
 

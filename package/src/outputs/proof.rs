@@ -16,18 +16,9 @@
 
 //! The proof file.
 
-use crate::outputs::OUTPUTS_DIRECTORY_NAME;
-use leo_errors::{PackageError, Result};
+use crate::PackageFile;
 
 use serde::Deserialize;
-use std::{
-    borrow::Cow,
-    fs::{
-        File, {self},
-    },
-    io::Write,
-    path::Path,
-};
 
 pub static PROOF_FILE_EXTENSION: &str = ".proof";
 
@@ -42,53 +33,18 @@ impl ProofFile {
             package_name: package_name.to_string(),
         }
     }
+}
 
-    pub fn exists_at(&self, path: &Path) -> bool {
-        let path = self.setup_file_path(path);
-        path.exists()
+impl PackageFile for ProofFile {
+    type ParentDirectory = super::OutputsDirectory;
+
+    fn template(&self) -> String {
+        unimplemented!("PackageFile doesn't have a template.");
     }
+}
 
-    /// Reads the proof from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<String> {
-        let path = self.setup_file_path(path);
-
-        let string =
-            fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_proof_file(path.into_owned()))?;
-        Ok(string)
-    }
-
-    /// Writes the given proof to a file.
-    pub fn write_to(&self, path: &Path, proof: &[u8]) -> Result<()> {
-        let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(PackageError::io_error_proof_file)?;
-
-        file.write_all(proof).map_err(PackageError::io_error_proof_file)?;
-        tracing::info!("Saving proof... ({:?})", path);
-
-        Ok(())
-    }
-
-    /// Removes the proof at the given path if it exists. Returns `true` on success,
-    /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool> {
-        let path = self.setup_file_path(path);
-        if !path.exists() {
-            return Ok(false);
-        }
-
-        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_proof_file(path))?;
-        Ok(true)
-    }
-
-    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
-            }
-            path.to_mut()
-                .push(format!("{}{}", self.package_name, PROOF_FILE_EXTENSION));
-        }
-        path
+impl std::fmt::Display for ProofFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}.proof", self.package_name)
     }
 }

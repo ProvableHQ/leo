@@ -559,4 +559,44 @@ create_errors!(
         msg: format!("serialization failed: {}", error),
         help: None,
     }
+
+    /// For when creating a directory failed.
+    @backtraced
+    failed_to_create_directory {
+        args: (dirname: impl Display, error: impl ErrorArg),
+        msg: format!("failed to create directory: {}, error: {}", dirname, error),
+        help: None,
+    }
+
+    /// For when removing a directory failed.
+    @backtraced
+    failed_to_remove_directory {
+        args: (dirname: impl Display, error: impl ErrorArg),
+        msg: format!("failed to remove directory: {}, error: {}", dirname, error),
+        help: None,
+    }
+
+    /// For when file could not be read.
+    @backtraced
+    failed_to_read_file {
+        args: (path: impl Display, error: impl ErrorArg),
+        msg: format!("failed to read file: {}, error: {}", path, error),
+        help: None,
+    }
+
+    /// For when file failed to remove.
+    @backtraced
+    failed_to_remove_file {
+        args: (path: impl Display, error: impl ErrorArg),
+        msg: format!("failed to remove file: {}, error: {}", path, error),
+        help: None,
+    }
+
+    /// For when I/O operation failed.
+    @backtraced
+    io_error {
+        args: (file: impl Display, error: impl ErrorArg),
+        msg: format!("i/o operation failed, file: {}, error: {}", file, error),
+        help: None,
+    }
 );

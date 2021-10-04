@@ -22,28 +22,23 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::PackageDirectory;
+
 pub static SOURCE_DIRECTORY_NAME: &str = "src/";
 
 pub static SOURCE_FILE_EXTENSION: &str = ".leo";
 
 pub struct SourceDirectory;
 
+impl PackageDirectory for SourceDirectory {
+    const NAME: &'static str = "src/";
+}
+
 impl SourceDirectory {
-    /// Creates a directory at the provided path with the default directory name.
-    pub fn create(path: &Path) -> Result<()> {
-        let mut path = Cow::from(path);
-        if path.is_dir() && !path.ends_with(SOURCE_DIRECTORY_NAME) {
-            path.to_mut().push(SOURCE_DIRECTORY_NAME);
-        }
-
-        fs::create_dir_all(&path).map_err(PackageError::failed_to_create_source_directory)?;
-        Ok(())
-    }
-
     /// Returns a list of files in the source directory.
     pub fn files(path: &Path) -> Result<Vec<PathBuf>> {
         let mut path = Cow::from(path);
-        path.to_mut().push(SOURCE_DIRECTORY_NAME);
+        path.to_mut().push(Self::NAME);
 
         let directory = fs::read_dir(&path).map_err(PackageError::failed_to_read_inputs_directory)?;
 

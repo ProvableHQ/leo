@@ -20,8 +20,9 @@ use leo_compiler::compiler::{thread_leaked_context, Compiler};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
-    outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
+    outputs::OutputsDirectory,
+    source::{MainFile, SourceDirectory},
+    PackageDirectory, PackageFile,
 };
 
 use indexmap::IndexMap;
@@ -63,16 +64,17 @@ impl Command for Test {
         }
 
         let mut to_test: Vec<PathBuf> = Vec::new();
+        let main_file = MainFile::new(&package_name);
 
         // if -f flag was used, then we'll test only this files
         if !self.files.is_empty() {
             to_test.extend(self.files.iter().cloned());
 
         // if args were not passed - try main file
-        } else if MainFile::exists_at(&package_path) {
+        } else if main_file.exists_at(&package_path) {
             let mut file_path = package_path.clone();
-            file_path.push(SOURCE_DIRECTORY_NAME);
-            file_path.push(MAIN_FILENAME);
+            file_path.push(SourceDirectory::NAME);
+            file_path.push(main_file.to_string());
             to_test.push(file_path);
 
         // when no main file and no files marked - error
@@ -82,7 +84,7 @@ impl Command for Test {
 
         // Construct the path to the output directory;
         let mut output_directory = package_path.clone();
-        output_directory.push(OUTPUTS_DIRECTORY_NAME);
+        output_directory.push(OutputsDirectory::NAME);
 
         // Create the output directory
         OutputsDirectory::create(&package_path)?;

@@ -17,7 +17,7 @@
 //! Compiles a Leo program from a file path.
 
 use crate::{asg_group_coordinate_to_ir, decode_address, CompilerOptions, Output, OutputFile, Program};
-use crate::{AstSnapshotOptions, TypeInferencePhase};
+use crate::{OutputOptions, TypeInferencePhase};
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, CircuitMember, GroupValue, Program as AsgProgram};
 use leo_ast::AstPass;
@@ -42,6 +42,7 @@ use snarkvm_eval::{Evaluator, GroupType, PrimeField};
 use snarkvm_ir::InputData;
 use snarkvm_ir::{Group, Integer, Type, Value};
 use snarkvm_r1cs::ConstraintSystem;
+use std::io::Write;
 use std::{convert::TryFrom, fs, path::PathBuf};
 
 use indexmap::IndexMap;
@@ -75,7 +76,7 @@ pub struct Compiler<'a> {
     asg: Option<AsgProgram<'a>>,
     options: CompilerOptions,
     imports_map: IndexMap<String, String>,
-    ast_snapshot_options: AstSnapshotOptions,
+    output_options: OutputOptions,
 }
 
 impl<'a> Compiler<'a> {
@@ -89,7 +90,7 @@ impl<'a> Compiler<'a> {
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
         imports_map: IndexMap<String, String>,
-        ast_snapshot_options: Option<AstSnapshotOptions>,
+        output_options: Option<OutputOptions>,
     ) -> Self {
         Self {
             program_name: package_name.clone(),
@@ -100,7 +101,7 @@ impl<'a> Compiler<'a> {
             context,
             options: options.unwrap_or_default(),
             imports_map,
-            ast_snapshot_options: ast_snapshot_options.unwrap_or_default(),
+            output_options: output_options.unwrap_or_default(),
         }
     }
 
@@ -118,7 +119,7 @@ impl<'a> Compiler<'a> {
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
         imports_map: IndexMap<String, String>,
-        ast_snapshot_options: Option<AstSnapshotOptions>,
+        output_options: Option<OutputOptions>,
     ) -> Result<Self> {
         let mut compiler = Self::new(
             package_name,
@@ -127,7 +128,7 @@ impl<'a> Compiler<'a> {
             context,
             options,
             imports_map,
-            ast_snapshot_options,
+            output_options,
         );
 
         compiler.parse_program()?;
@@ -160,7 +161,7 @@ impl<'a> Compiler<'a> {
 
         let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
-        if self.ast_snapshot_options.initial {
+        if self.output_options.ast_initial {
             ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
         }
 
@@ -170,14 +171,14 @@ impl<'a> Compiler<'a> {
             &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
         )?;
 
-        if self.ast_snapshot_options.imports_resolved {
+        if self.output_options.ast_imports_resolved {
             ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
         }
 
         // Preform canonicalization of AST always.
         ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
 
-        if self.ast_snapshot_options.canonicalized {
+        if self.output_options.ast_canonicalized {
             ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
         }
 
@@ -190,7 +191,7 @@ impl<'a> Compiler<'a> {
         // Create a new symbol table from the program, imported_programs, and program_input.
         let asg = Asg::new(self.context, &self.program)?;
 
-        if self.ast_snapshot_options.type_inferenced {
+        if self.output_options.ast_type_inferenced {
             let new_ast = TypeInferencePhase::default()
                 .phase_ast(&self.program, &asg.clone().into_repr())
                 .expect("Failed to produce type inference ast.");
@@ -243,6 +244,26 @@ impl<'a> Compiler<'a> {
         input: &leo_ast::Input,
     ) -> Result<CompilationData> {
         let compiled = self.compile_ir(input)?;
+
+        if self.output_options.emit_ir {
+            let writer = |extension: &str, data: Vec<u8>| {
+                let mut f = std::fs::File::create(
+                    self.output_directory
+                        .clone()
+                        .join(format!("{}{}", self.program_name, extension)),
+                )
+                .unwrap();
+                f.write_all(&data).unwrap();
+            };
+
+            writer(".leo.ir", compiled.serialize().unwrap());
+            writer(".leo.ir.fmt", compiled.to_string().as_bytes().to_vec());
+            writer(
+                ".leo.ir.input",
+                self.process_input(input, &compiled.header)?.serialize().unwrap(),
+            );
+        }
+
         self.compile_inner::<F, G, CS>(cs, input, compiled)
     }
 

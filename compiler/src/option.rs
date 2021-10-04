@@ -36,9 +36,10 @@ impl Default for CompilerOptions {
 }
 
 #[derive(Clone, Default)]
-pub struct AstSnapshotOptions {
-    pub initial: bool,
-    pub imports_resolved: bool,
-    pub canonicalized: bool,
-    pub type_inferenced: bool,
+pub struct OutputOptions {
+    pub ast_initial: bool,
+    pub ast_imports_resolved: bool,
+    pub ast_canonicalized: bool,
+    pub ast_type_inferenced: bool,
+    pub emit_ir: bool,
 }

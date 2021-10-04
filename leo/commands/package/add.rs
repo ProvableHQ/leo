@@ -20,7 +20,7 @@
 
 use crate::{api::Fetch, commands::Command, context::Context};
 use leo_errors::{CliError, Result};
-use leo_package::imports::{ImportsDirectory, IMPORTS_DIRECTORY_NAME};
+use leo_package::{imports::ImportsDirectory, PackageDirectory};
 
 use std::{
     fs::{create_dir_all, File},
@@ -120,7 +120,7 @@ impl Command for Add {
         let mut path = context.dir()?;
         {
             ImportsDirectory::create(&path)?;
-            path.push(IMPORTS_DIRECTORY_NAME);
+            path.push(ImportsDirectory::NAME);
 
             // Dumb compatibility hack.
             // TODO: Remove once `leo add` functionality is discussed.
