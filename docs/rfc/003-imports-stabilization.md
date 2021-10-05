@@ -39,7 +39,7 @@ proving systems and curves.
 
 ## Background
 
-Leo supports the importing of packages, similarly to other languages.
+Leo supports packages and importing, similarly to other languages.
 
 A Leo program consists of a main file,
 which may import additional packages (files),
