@@ -35,7 +35,7 @@ const INT_TYPES: &[Token] = &[
     Token::Group,
 ];
 
-impl ParserContext {
+impl ParserContext<'_> {
     ///
     /// Returns an [`Expression`] AST node if the next token is an expression.
     /// Includes circuit init expressions.
@@ -210,7 +210,7 @@ impl ParserContext {
     /// binary relational expression: less than, less than or equals, greater than, greater than or equals.
     ///
     /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
-    ///    
+    ///
     pub fn parse_ordering_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_additive_expression()?;
         while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq])

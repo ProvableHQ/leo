@@ -34,15 +34,15 @@ pub struct Run {
     pub(crate) compiler_options: BuildOptions,
 }
 
-impl Command for Run {
-    type Input = <Prove as Command>::Output;
+impl<'a> Command<'a> for Run {
+    type Input = <Prove as Command<'a>>::Output;
     type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Verifying")
     }
 
-    fn prelude(&self, context: Context) -> Result<Self::Input> {
+    fn prelude(&self, context: Context<'a>) -> Result<Self::Input> {
         (Prove {
             skip_key_check: self.skip_key_check,
             compiler_options: self.compiler_options.clone(),
@@ -50,7 +50,7 @@ impl Command for Run {
         .execute(context)
     }
 
-    fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context<'a>, input: Self::Input) -> Result<Self::Output> {
         let (proof, prepared_verifying_key) = input;
 
         tracing::info!("Starting...");

@@ -18,19 +18,22 @@ use std::{borrow::Cow, unimplemented};
 
 use crate::{assert_no_whitespace, tokenizer::*, Token, KEYWORD_TOKENS};
 use leo_ast::*;
+use leo_errors::emitter::Handler;
 use leo_errors::{LeoError, ParserError, Result, Span};
 use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
-pub struct ParserContext {
+pub struct ParserContext<'a> {
+    #[allow(dead_code)]
+    handler: &'a Handler,
     tokens: Vec<SpannedToken>,
     end_span: Span,
     // true if parsing an expression for an if statement -- means circuit inits are not legal
     pub(crate) fuzzy_struct_state: bool,
 }
 
-impl Iterator for ParserContext {
+impl Iterator for ParserContext<'_> {
     type Item = SpannedToken;
 
     fn next(&mut self) -> Option<SpannedToken> {
@@ -38,18 +41,19 @@ impl Iterator for ParserContext {
     }
 }
 
-impl ParserContext {
+impl<'a> ParserContext<'a> {
     ///
     /// Returns a new [`ParserContext`] type given a vector of tokens.
     ///
-    pub fn new(mut tokens: Vec<SpannedToken>) -> Self {
+    pub fn new(handler: &'a Handler, mut tokens: Vec<SpannedToken>) -> Self {
         tokens.reverse();
         // todo: performance optimization here: drain filter
         tokens = tokens
             .into_iter()
             .filter(|x| !matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
             .collect();
-        ParserContext {
+        Self {
+            handler,
             end_span: tokens
                 .iter()
                 .find(|x| !x.span.content.trim().is_empty())

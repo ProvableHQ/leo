@@ -15,11 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{api::Api, config};
-use leo_errors::{CliError, Result};
-use leo_package::{
-    root::{LockFile, Manifest},
-    PackageFile,
-};
+use leo_errors::{emitter::Handler, CliError, Result};
+use leo_package::root::{LockFile, Manifest};
 
 use std::{convert::TryFrom, env::current_dir, path::PathBuf};
 
@@ -28,7 +25,10 @@ pub const PACKAGE_MANAGER_URL: &str = "https://api.aleo.pm/";
 /// Project context, manifest, current directory etc
 /// All the info that is relevant in most of the commands
 #[derive(Clone)]
-pub struct Context {
+pub struct Context<'a> {
+    /// Handler/Sink for error messages.
+    pub handler: &'a Handler,
+
     /// Api client for Aleo PM
     pub api: Api,
 
@@ -36,7 +36,7 @@ pub struct Context {
     pub path: Option<PathBuf>,
 }
 
-impl Context {
+impl Context<'_> {
     pub fn dir(&self) -> Result<PathBuf> {
         match &self.path {
             Some(path) => Ok(path.clone()),
@@ -61,19 +61,27 @@ impl Context {
 }
 
 /// Create a new context for the current directory.
-pub fn create_context(path: PathBuf, api_url: Option<String>) -> Result<Context> {
+pub fn create_context(handler: &Handler, path: PathBuf, api_url: Option<String>) -> Result<Context<'_>> {
     let token = config::read_token().ok();
 
     let api = Api::new(api_url.unwrap_or_else(|| PACKAGE_MANAGER_URL.to_string()), token);
 
-    Ok(Context { api, path: Some(path) })
+    Ok(Context {
+        handler,
+        api,
+        path: Some(path),
+    })
 }
 
 /// Returns project context.
-pub fn get_context(api_url: Option<String>) -> Result<Context> {
+pub fn get_context(handler: &Handler, api_url: Option<String>) -> Result<Context<'_>> {
     let token = config::read_token().ok();
 
     let api = Api::new(api_url.unwrap_or_else(|| PACKAGE_MANAGER_URL.to_string()), token);
 
-    Ok(Context { api, path: None })
+    Ok(Context {
+        handler,
+        api,
+        path: None,
+    })
 }

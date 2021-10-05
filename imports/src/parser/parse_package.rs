@@ -24,7 +24,7 @@ static SOURCE_FILE_EXTENSION: &str = ".leo";
 static SOURCE_DIRECTORY_NAME: &str = "src/";
 static IMPORTS_DIRECTORY_NAME: &str = "imports/";
 
-impl ImportParser {
+impl ImportParser<'_> {
     fn parse_package_access(
         &mut self,
         package: &DirEntry,
@@ -35,7 +35,7 @@ impl ImportParser {
             return self.parse_package(package.path(), remaining_segments, span);
         }
 
-        let program = Self::parse_import_file(package, span)?;
+        let program = Self::parse_import_file(self.handler, package, span)?;
         let ast = leo_ast_passes::Importer::do_pass(leo_ast_passes::Importer::new(self, ""), program)?.into_repr();
 
         Ok(ast)

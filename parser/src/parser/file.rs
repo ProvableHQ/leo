@@ -22,7 +22,7 @@ use crate::KEYWORD_TOKENS;
 
 use super::*;
 
-impl ParserContext {
+impl ParserContext<'_> {
     ///
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     ///

@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_asg::*;
+use leo_errors::emitter::Handler;
 use leo_errors::LeoError;
 use leo_parser::parse_ast;
 
@@ -28,7 +29,7 @@ fn load_asg(program_string: &str) -> Result<Program<'static>, LeoError> {
 }
 
 fn load_asg_imports<'a>(context: AsgContext<'a>, program_string: &str) -> Result<Program<'a>, LeoError> {
-    let ast = parse_ast(&TESTING_FILEPATH, program_string)?;
+    let ast = parse_ast(&Handler::default(), &TESTING_FILEPATH, program_string)?;
     Program::new(context, &ast.as_repr())
 }
 

@@ -25,7 +25,7 @@ use tracing::span::Span;
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Deploy {}
 
-impl Command for Deploy {
+impl<'a> Command<'a> for Deploy {
     type Input = ();
     type Output = ();
 
@@ -33,11 +33,11 @@ impl Command for Deploy {
         tracing::span!(tracing::Level::INFO, "Deploy")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         unimplemented!("Deploy command has not been implemented yet");
     }
 }
