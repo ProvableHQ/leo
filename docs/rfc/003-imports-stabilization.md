@@ -41,15 +41,21 @@ proving systems and curves.
 
 Leo supports packages and importing, similarly to other languages.
 
-A Leo program consists of a main file,
-which may import additional packages (files),
-which may in turn import other packages.
+A Leo _project_ consists of a `main.leo` file
+and zero or more additional `.leo` files;
+the latter may be organized in subdirectories.
+The content of each file is as defined by `file` in the ABNF grammar:
+it consists of types, functions, etc.
+Each non-main file forms a Leo _package_ (because it packages the types, functions, etc. that it defines),
+which can be referenced via its path, without the `.leo` extension and with `/` replaced by `.`
+(restrictions on the file and directory names derive from the definition of `package-name` in the ABNF grammar,
+and ensure that the package names can be resolved to file system paths).
+A Leo project also forms a package, which can be published in the Aleo Package Manager (APM),
+a repository of Aleo packages, similar to `crates.io` in Rust.
 
-Imported packages may be local, i.e. found in the same project directory where the main file is.
-In that case, their package names match the directory structure.
-
-Packages may be also imported from the Aleo Package Manager (APM),
-which is a repository of Aleo packages, similar to `crates.io` in Rust.
+The files in a Leo project can import entities (types, functions, etc.) from
+not only local packages (i.e. other files in the same project),
+but also packages in the APM.
 This RFC is focused on importing packages from the APM.
 
 Each package in the APM is uniquely identified by:
