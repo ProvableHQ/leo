@@ -142,6 +142,6 @@ outputs:
               type: "[[u8; 4]; 2]"
               value: "[[0, 0, 0, 0], [0, 0, 0, 0]]"
     initial_ast: ef0990720dc06d560b3eb028e9017f0634892515b31e5ef1f1cedf38911e13ae
-    imports_resolved_ast: abdcd05af38b015bea37ae9cb33ffc38ecd2ca339fd13fb0c71af36e8010f82f
-    canonicalized_ast: abdcd05af38b015bea37ae9cb33ffc38ecd2ca339fd13fb0c71af36e8010f82f
-    type_inferenced_ast: 96325ce9c3c13788bd1e9bc730d04355fd926f1254faaa900afd06da30b36a70
+    imports_resolved_ast: cdff8ab496d8273e90e1922a526c48ed572616896ea1350b021e3b20115414f9
+    canonicalized_ast: cdff8ab496d8273e90e1922a526c48ed572616896ea1350b021e3b20115414f9
+    type_inferenced_ast: 9cc5ddbee45057160b0cb54ded29ac199701dda387ad7fb423580438efdc52b4

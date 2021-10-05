@@ -159,6 +159,6 @@ outputs:
               type: "[(u32, u32); 3]"
               value: "[(1, 1), (2, 2), (0, 1)]"
     initial_ast: 9b212cce633868e2402117894ac37c7729f2f8ed44a90cd649d12d8244c5c1e8
-    imports_resolved_ast: ed3f669ec3ea0b684b12c546d91075341a8876b46e796f24f1c5686f575613b3
-    canonicalized_ast: ed3f669ec3ea0b684b12c546d91075341a8876b46e796f24f1c5686f575613b3
-    type_inferenced_ast: 45d6ad1226dc1f995b9fd4b14a495d83986d0fee3493f39ca8ad873920cc7bba
+    imports_resolved_ast: 12673509ade7ba834212453b8a73600e2ba42a5bc9626351680967798e99095c
+    canonicalized_ast: 12673509ade7ba834212453b8a73600e2ba42a5bc9626351680967798e99095c
+    type_inferenced_ast: 610beb80276e17f5c4a7318e2ced2828531c219f157ed6db1afe480b0803a29e

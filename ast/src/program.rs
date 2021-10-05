@@ -93,7 +93,9 @@ impl Program {
             for member in circuit.members.iter() {
                 if let CircuitMember::CircuitFunction(function) = member {
                     let mapping = match function.identifier.name.as_ref() {
+                        "to_bits_le" => Some(format!("{}_to_bits_le", circuit.circuit_name.name.to_string())),
                         "from_bits_le" => Some(format!("{}_from_bits_le", circuit.circuit_name.name.to_string())),
+                        "to_bytes_le" => Some(format!("{}_to_bytes_le", circuit.circuit_name.name.to_string())),
                         "from_bytes_le" => Some(format!("{}_from_bytes_le", circuit.circuit_name.name.to_string())),
                         _ => Some(function.identifier.name.to_string()),
                     };

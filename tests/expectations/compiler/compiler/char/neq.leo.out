@@ -228,6 +228,6 @@ outputs:
               type: char
               value: a
     initial_ast: efdecfb668e6ee0d381dd66ec345792cf6a910394e4d5f4f1931bef5d60c20e0
-    imports_resolved_ast: e199b9f5af73cd272b084e2d1553ed53126fc7d18c5aac31307e2f8fc19d963f
-    canonicalized_ast: e199b9f5af73cd272b084e2d1553ed53126fc7d18c5aac31307e2f8fc19d963f
-    type_inferenced_ast: 47dda33c489b71bf87bb2264f3dab4d5aaedf2207e067433dbf9d283f09fbbe9
+    imports_resolved_ast: a6b57eb74ffff0f41cc098c6b736ff9f722ba07341189d129efede06ee2e0d7d
+    canonicalized_ast: a6b57eb74ffff0f41cc098c6b736ff9f722ba07341189d129efede06ee2e0d7d
+    type_inferenced_ast: 29540e56e7a31d2b4ce4eedaef8d8537db010edaa1b19bcc73ab52ceebd08e4d
