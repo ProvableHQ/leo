@@ -72,9 +72,7 @@ exponential-expression = cast-expression
 ```
 There is no need to modify the `keyword` rule
 because it already includes `as` as one of the keywords.
-Note the use of `integer-type` in the `cast-expression` rule;
-an alternative is to use `type` there
-and check post-parsing that the type is in fact an integer one.
+Note the use of `integer-type` in the `cast-expression` rule.
 
 The above grammar rules imply that casts bind
 tighter than binary operators and looser than unary operators.
@@ -111,8 +109,7 @@ but cause errors when values are not representable in the new types;
 and _values-changing casts_,
 which never cause errors but may change the mathematical values.
 
-Based on discussion and consensus within the Leo team,
-this RFC proposes value-preserving casts;
+This RFC proposes value-preserving casts;
 value-changing casts are discussed in the 'Alternatives' section,
 for completeness.
 
@@ -129,7 +126,7 @@ When values are to be changed, separate (built-in) functions can be used,
 e.g. to mask bits and achieve the same effect as
 the value-changing casts discussed below.
 
-This approach Leo's treatment of potentially erroneous situations like integer overflows.
+This approach is consistent with Leo's treatment of potentially erroneous situations like integer overflows.
 The principle is that developers should explicitly use
 operations that may overflow if that is their intention,
 rather than having those situation possibly occur unexpectedly.
@@ -201,7 +198,7 @@ As mentioned above, an alternative semantics for casts is value-changing:
 10. `iN` to `uN`: re-interpret as unsigned
 Except for the 1st and 3rd cases, the value may change.
 
-This approach is common in other programming languages.
+This value-changing approach is common in other programming languages.
 However, it should be noted that other programming languages
 typically do not check for overflow in integer operations either
 (at least, not for production code).
