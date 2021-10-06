@@ -27,15 +27,17 @@ every non-negative integer that fits in 8 bits also fits in 16 bits.
 However, the ability to convert values between different (integer) types
 is a useful feature that is normally found in programming languages.
 
-## Design
+## Background
 
-### Background
-
-Recall that Leo supports the following _integer types_:
+Leo supports the following _integer types_:
 ```
 u8 u16 u32 u64 u128
 i8 i16 i32 i64 i128
 ```
+
+Those are for unsigned and signed integers of 8, 16, 32, 64, and 128 bits.
+
+## Design
 
 ### Scope
 
