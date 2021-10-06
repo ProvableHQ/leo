@@ -8,7 +8,7 @@ The Aleo Team.
 
 FINAL
 
-# Summary
+## Summary
 
 This proposal provides support for casts among integer types in Leo.
 The syntax is similar to Rust.
@@ -16,7 +16,7 @@ The semantics is _value-preserving_,
 i.e. the casts just serve to change types
 but cause errors when the mathematical values are not representable in the new types.
 
-# Motivation
+## Motivation
 
 Currently the Leo integer types are "siloed":
 arithmetic integer operations require operands of the same type
@@ -27,9 +27,9 @@ every non-negative integer that fits in 8 bits also fits in 16 bits.
 However, the ability to convert values between different (integer) types
 is a useful feature that is normally found in programming languages.
 
-# Design
+## Design
 
-## Background
+### Background
 
 Recall that Leo supports the following _integer types_:
 ```
@@ -37,7 +37,7 @@ u8 u16 u32 u64 u128
 i8 i16 i32 i64 i128
 ```
 
-## Scope
+### Scope
 
 This RFC proposes type casts between any two integer types,
 but not between two non-integer types
@@ -50,7 +50,7 @@ and with the same or larger size
 (e.g. from `u8` to `u16`).
 All the type casts must be explicit.
 
-## Syntax and Static Semantics
+### Syntax and Static Semantics
 
 The proposed syntax is
 ```
@@ -87,7 +87,7 @@ x + ((- y) as u8)
 This precedence is the same as in Rust:
 see [here](https://doc.rust-lang.org/stable/reference/expressions.html#expression-precedence).
 
-## Dynamic Semantics
+### Dynamic Semantics
 
 When the mathematical integer value of the expression
 is representable in the type that the expression is cast to,
@@ -161,7 +161,7 @@ let r_low16: u32 = r & 0xFFFF; // assuming we have bitwise ops and hex literals
 let s: u16 = r_low16 as u16; // no value change here
 ```
 
-## Compilation to R1CS
+### Compilation to R1CS
 
 It may be more efficient (in terms of number of R1CS constraints)
 to compile Leo casts as if they had a value-changing semantics.
@@ -174,17 +174,17 @@ because the compiler ensures that the cast values do not actually change given t
 and therefore the value-changing and value-preserving semantics are equivalent on the known inputs.
 The idea is that the R1CS constraints can have a "don't care" behavior on inputs that cause errors in Leo.
 
-# Drawbacks
+## Drawbacks
 
 This proposal does not appear to bring any drawbacks,
 other than making the language and compiler inevitably more complex.
 But the benefits to support type casts justifies the extra complexity.
 
-# Effect on Ecosystem
+## Effect on Ecosystem
 
 This proposal does not appear to have any direct effects on the ecosystem.
 
-# Alternatives
+## Alternatives
 
 As mentioned above, an alternative semantics for casts is value-changing:
  1. `uN` to `uM` with `N < M`: just change type of value.
