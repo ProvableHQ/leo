@@ -14,6 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 mod dotgraph;
+use dotgraph::{DotEdge, DotGraph, DotNode};
 
 use leo_asg::*;
 use leo_errors::Result;
+
+struct Dotify {}
+
+type M = (VecAppend<DotNode>, VecAppend<DotEdge>);
+impl<'a> MonoidalReducerExpression<'a, M> for Dotify {}
+
+impl<'a> MonoidalReducerStatement<'a, M> for Dotify {}
+
+impl<'a> MonoidalReducerProgram<'a, M> for Dotify {}
+
+impl<'a> AsgPass<'a> for Dotify {
+    type Input = Program<'a>;
+    type Output = ();
+
+    fn do_pass(asg: Self::Input) -> Self::Output {
+        let pass = Dotify {};
+        let mut director = MonoidalDirector::new(pass);
+        director.reduce_program(&asg);
+    }
+}

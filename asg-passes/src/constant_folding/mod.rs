@@ -46,7 +46,10 @@ impl<'a, 'b> StatementVisitor<'a> for ConstantFolding<'a, 'b> {}
 impl<'a, 'b> ProgramVisitor<'a> for ConstantFolding<'a, 'b> {}
 
 impl<'a, 'b> AsgPass<'a> for ConstantFolding<'a, 'b> {
-    fn do_pass(asg: Program<'a>) -> Result<Program<'a>> {
+    type Input = Program<'a>;
+    type Output = Result<Program<'a>>;
+
+    fn do_pass(asg: Self::Input) -> Self::Output {
         let pass = ConstantFolding { program: &asg };
         let mut director = VisitorDirector::new(pass);
         director.visit_program(&asg).ok();

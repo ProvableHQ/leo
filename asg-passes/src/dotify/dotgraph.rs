@@ -41,7 +41,7 @@ pub enum LabelType {
     Html,
 }
 
-struct DotGraph {
+pub struct DotGraph {
     id: String,
     graph: petgraph::Graph<DotNode, DotEdge>,
 }
