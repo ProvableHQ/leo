@@ -13,14 +13,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+mod dotgraph;
 
-#![doc = include_str!("../README.md")]
-pub mod dotify;
-pub use dotify::*;
-
-pub mod constant_folding;
-pub use constant_folding::*;
-
-pub mod dead_code_elimination;
-
-pub use dead_code_elimination::*;
+use leo_asg::*;
+use leo_errors::Result;

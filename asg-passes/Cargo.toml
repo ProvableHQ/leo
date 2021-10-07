@@ -28,3 +28,10 @@ version = "1.5.3"
 [dependencies.leo-errors]
 path = "../errors"
 version = "1.5.3"
+
+[dependencies.dot]
+version = "0.1.4"
+
+[dependencies.petgraph]
+version = "0.6.0"
+
