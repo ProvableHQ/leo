@@ -23,6 +23,9 @@ pub use set_append::*;
 mod vec_append;
 pub use vec_append::*;
 
+mod tuple_monoid;
+pub use tuple_monoid::*;
+
 pub trait Monoid: Default {
     fn append(self, other: Self) -> Self;
 
