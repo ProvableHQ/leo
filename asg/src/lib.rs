@@ -70,7 +70,7 @@ pub mod context;
 pub use context::*;
 
 pub use leo_ast::{Ast, Identifier};
-use leo_errors::{AsgError, Result};
+use leo_errors::Result;
 
 /// The abstract semantic graph (ASG) for a Leo program.
 ///
