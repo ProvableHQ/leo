@@ -16,7 +16,7 @@ circuit bool {
     }
 
     function to_bits_be(self) -> [bool; 1] {
-        return [false; 8];
+        return [false; 1];
     }
 
     function from_bits_be(bits: [bool; 1]) -> bool {
