@@ -1,17 +1,33 @@
 circuit field {
-    function to_bits_le(self) -> [bool; 8] {
-        return [false; 8];
+    function to_bits_le(self) -> [bool; 253] {
+        return [false; 253];
     }
 
-    function from_bits_le(bits: [bool; 8]) -> field {
+    function from_bits_le(bits: [bool; 253]) -> field {
         return 0field;
     }
 
-    function to_bytes_le(self) -> [u8; 8] {
-        return [0u8; 8];
+    function to_bytes_le(self) -> [u8; 32] {
+        return [0u8; 32];
     }
 
-    function from_bytes_le(bytes: [u8; 8]) -> field {
+    function from_bytes_le(bytes: [u8; 32]) -> field {
+        return 0field;
+    }
+
+    function to_bits_be(self) -> [bool; 253] {
+        return [false; 253];
+    }
+
+    function from_bits_be(bits: [bool; 253]) -> field {
+        return 0field;
+    }
+
+    function to_bytes_be(self) -> [u8; 32] {
+        return [0u8; 32];
+    }
+
+    function from_bytes_be(bytes: [u8; 32]) -> field {
         return 0field;
     }
 }

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::ImportParser;
-use leo_ast::Program;
+use leo_ast::{AstPass, Program};
 use leo_errors::{ImportError, Result, Span};
 
 use std::{fs, fs::DirEntry, path::PathBuf};
@@ -36,7 +36,7 @@ impl ImportParser {
         }
 
         let program = Self::parse_import_file(package, span)?;
-        let ast = leo_ast_passes::Importer::do_pass(program, self)?.into_repr();
+        let ast = leo_ast_passes::Importer::do_pass(leo_ast_passes::Importer::new(self, ""), program)?.into_repr();
 
         Ok(ast)
     }

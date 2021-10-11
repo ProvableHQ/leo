@@ -18,5 +18,5 @@ use crate::{Ast, Program};
 use leo_errors::Result;
 
 pub trait AstPass {
-    fn do_pass(asg: Program) -> Result<Ast>;
+    fn do_pass(self, asg: Program) -> Result<Ast>;
 }

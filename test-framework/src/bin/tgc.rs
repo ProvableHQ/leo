@@ -143,10 +143,13 @@ fn generate_asts(path: PathBuf, text: &str) -> Result<(String, String, String, S
     let mut ast = leo_parser::parse_ast(path.clone().into_os_string().into_string().unwrap(), text)?;
     let initial = ast.to_json_string()?;
 
-    ast = leo_ast_passes::Importer::do_pass(ast.into_repr(), &mut ImportParser::new(path, Default::default()))?;
+    ast = leo_ast_passes::Importer::do_pass(
+        leo_ast_passes::Importer::new(&mut ImportParser::new(path, Default::default()), "bls12_377"),
+        ast.into_repr(),
+    )?;
     let imports_resolved = ast.to_json_string()?;
 
-    ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
+    ast = leo_ast_passes::Canonicalizer::do_pass(leo_ast_passes::Canonicalizer::default(), ast.into_repr())?;
     let canonicalized = ast.to_json_string()?;
 
     let mut ti_ast = ast.into_repr();

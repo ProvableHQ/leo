@@ -170,8 +170,11 @@ impl<'a> Compiler<'a> {
 
         // Preform import resolution.
         ast = leo_ast_passes::Importer::do_pass(
+            leo_ast_passes::Importer::new(
+                &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
+                "bls12_377",
+            ),
             ast.into_repr(),
-            &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
         )?;
 
         if self.ast_snapshot_options.imports_resolved {
@@ -179,7 +182,7 @@ impl<'a> Compiler<'a> {
         }
 
         // Preform canonicalization of AST always.
-        ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
+        ast = leo_ast_passes::Canonicalizer::do_pass(leo_ast_passes::Canonicalizer::default(), ast.into_repr())?;
 
         if self.ast_snapshot_options.canonicalized {
             ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;

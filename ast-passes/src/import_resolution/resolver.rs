@@ -34,11 +34,12 @@ impl ImportResolver for NullImportResolver {
 
 pub struct CoreImportResolver<'a, T: ImportResolver> {
     inner: &'a mut T,
+    _curve: &'a str,
 }
 
 impl<'a, T: ImportResolver> CoreImportResolver<'a, T> {
-    pub fn new(inner: &'a mut T) -> Self {
-        CoreImportResolver { inner }
+    pub fn new(inner: &'a mut T, curve: &'a str) -> Self {
+        CoreImportResolver { inner, _curve: curve }
     }
 }
 
