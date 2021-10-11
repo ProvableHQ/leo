@@ -313,6 +313,47 @@ According to the new model proposed above, we should have just two files involve
 
 There seems to be no longer a need for a `.state` file and for explicit registers.
 
+### Multiple Transitions per Transaction
+
+This section has been added after a discussion about allowing Aleo transactions to carry out multiple transitions,
+where a _transition_ is the consumption of 0/1/2 records and the production of 0/1/2 records,
+what has been called a 'transaction' so far in the RFC.
+Once this reaches convergence, we may need to revise some of the preceding text in this RFC to conform to this extended model.
+For now, only this section discusses this extended model, for the purpose of reaching the aforementioned convergence.
+
+In the absence of constraints, we can think of the transitions that form a transaction
+being organized in a DAG (directed acyclic graph), as exemplified in the following illustration:
+
+![Transaction with Multiple Transitions](transaction1.png)
+
+This means that, in general, a transaction consumes _n_ records and produces _m_ records as its net effect,
+via the consumption and production of 0/1/2 records in the transitions that form the transaction.
+
+Thus, we need to generalize the proposed type `TransactionInput` to accommodate possibly more than 2 old records
+(e.g. A, B, C in the diagram above)
+which is a relatively simple extension.
+Furthermore, if the transitions have to be visible in the transaction submitted to the blockchain,
+the `TransactionOutput` type needs to be significantly extended:
+the 'output' of a transaction arguably consists just of the output records (e.g. H, I, J in the diagram above),
+which is insufficient to describe the transitions and their relations, including the internal records
+(e.g. D, E, F, G in the diagram above).
+This suggests that `TransactionOutput` should be probably renamed to be more descriptive of what it consists of,
+namely the transitions, the internal records, and the output records;
+the transitions could be listed in some sequence (topologically ordered),
+and the DAG connections would be expressed by referencing input and internal records.
+
+The above seems somewhat complicated.
+Given that the net effect of a transaction is to consume _n_ records and product _m_ records,
+it seems natural to ask whether it may be simpler to generalize the transaction model differently,
+namely by allowing _n_ input records and _m_ output records, without restricting _n_ and _m_ to not exceed 2.
+This is exemplified in the following illustration:
+
+![Transaction with Multiple Inputs/Outputs](transaction2.png)
+
+From the perspective of Leo language design, and for the purpose of describing the input/output behavior of a transaction,
+this latter extensions is a lot simpler and clearer than having multiple transitions in a transactions.
+However, there may be zero-knowledge considerations that make the multiple-transitions-per-transaction useful or necessary.
+
 ## Alternatives
 
 The 'Design' section above still outlines certain alternatives to consider.
