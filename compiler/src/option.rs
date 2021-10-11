@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub const DEFAULT_INLINE_LIMIT: u32 = 8;
+pub const DEFAULT_INLINE_LIMIT: u32 = 1000;
 
 ///
 /// Toggles compiler optimizations on the program.

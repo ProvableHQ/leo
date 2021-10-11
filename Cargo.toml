@@ -106,9 +106,9 @@ version = "0.7.6"
 #todo 0rphon
 [dependencies.snarkvm-eval]
 version = "0.7.9"
-# path = "D:\\Work\\leo_repos\\snarkVM\\eval"
-git = "https://github.com/AleoHQ/snarkVM"
-branch = "bounded-recursion"
+path = "D:\\Work\\leo_repos\\snarkVM\\eval"
+# git = "https://github.com/AleoHQ/snarkVM"
+# branch = "bounded-recursion"
 
 [dependencies.structopt]
 version = "0.3"
@@ -215,19 +215,19 @@ debug = true
 
 # todo 0rphon
 [patch.crates-io]
-snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
-snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
-snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
-snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
-snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
-snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
-snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
-snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
-# snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
-# snarkvm-fields = { path = "D:\\Work\\leo_repos\\snarkVM\\fields" }
-# snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }
-# snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }
-# snarkvm-gadgets = { path = "D:\\Work\\leo_repos\\snarkVM\\gadgets" }
-# snarkvm-parameters = { path = "D:\\Work\\leo_repos\\snarkVM\\parameters" }
-# snarkvm-dpc = { path = "D:\\Work\\leo_repos\\snarkVM\\dpc" }
-# snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }
+# snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
+# snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
+# snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
+# snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
+# snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
+# snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
+# snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
+# snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "bounded-recursion" }
+snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
+snarkvm-fields = { path = "D:\\Work\\leo_repos\\snarkVM\\fields" }
+snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }
+snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }
+snarkvm-gadgets = { path = "D:\\Work\\leo_repos\\snarkVM\\gadgets" }
+snarkvm-parameters = { path = "D:\\Work\\leo_repos\\snarkVM\\parameters" }
+snarkvm-dpc = { path = "D:\\Work\\leo_repos\\snarkVM\\dpc" }
+snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }

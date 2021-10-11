@@ -5,7 +5,7 @@ input_file: input/dummy.in
 */
 
 function x(const y: u32) {
-    if y < 999u32 {
+    if y < 9999u32 {
         x(y+1);
     }
 }
