@@ -1,4 +1,4 @@
-# Leo RFC 012: Improved Record and Transaction Model
+# Leo RFC 012: Improved Transaction Model
 
 ## Authors
 
