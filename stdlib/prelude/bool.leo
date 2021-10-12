@@ -1,9 +1,9 @@
 circuit bool {
-    function to_bits_le(self) -> [bool; 8] {
-        return [false; 8];
+    function to_bits_le(self) -> [bool; 1] {
+        return [false; 1];
     }
 
-    function from_bits_le(bits: [bool; 8]) -> bool {
+    function from_bits_le(bits: [bool; 1]) -> bool {
         return false;
     }
 

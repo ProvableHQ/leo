@@ -2,22 +2,22 @@
 namespace: Compile
 expectation: Pass
 inputs:
- - i8.in: |
+ - group.in: |
     [main]
-    a: i8 = 23;
+    a: group = 1;
     
     [registers]
     r0: bool = true;
 */
 
-function main(a: i8) -> bool {
-    let x_bits_le = 23i8.to_bits_le();
+function main(a: group) -> bool {
+    let x_bits_le = 1group.to_bits_le();
     let a_bits_le = a.to_bits_le();
-    let x_from_le = i8::from_bits_le(x_bits_le);
+    let x_from_le = group::from_bits_le(x_bits_le);
 
-    let x_bits_be = 23i8.to_bits_be();
+    let x_bits_be = 1group.to_bits_be();
     let a_bits_be = a.to_bits_be();
-    let x_from_be = i8::from_bits_be(x_bits_be);
+    let x_from_be = group::from_bits_be(x_bits_be);
 
     console.log("{}", x_from_le);
 
