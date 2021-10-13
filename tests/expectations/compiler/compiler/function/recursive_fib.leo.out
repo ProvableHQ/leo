@@ -1,0 +1,47 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 33
+      num_constraints: 33
+      at: a06eb411f53130890e49a9f69bddb47294f83d0589b68c415747223b23dee7ed
+      bt: d3062f2cf90527cdc167b4e2c3ac10f1a8d51edcefa4991ac3d62fee0d3553cc
+      ct: ba3a1dbda7521fc175cc7ea8b04f1d61a74268d3a43a5e30c3ee86ae6ff797d0
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  call &v3, f1, 5"
+      - "  store &v4, v3"
+      - "  eq &v5, v4, 3"
+      - "  retn v5"
+      - "decl f1: <6>"
+      - "  eq &v7, v6, 1"
+      - "  mask 1, v7"
+      - "    retn 0"
+      - "  not &v8, v7"
+      - "  mask 11, v8"
+      - "    eq &v9, v6, 2"
+      - "    mask 1, v9"
+      - "      retn 1"
+      - "    not &v10, v9"
+      - "    mask 6, v10"
+      - "      sub &v11, v6, 1"
+      - "      call &v12, f1, v11"
+      - "      sub &v13, v6, 2"
+      - "      call &v14, f1, v13"
+      - "      add &v15, v12, v14"
+      - "      retn v15"
+      - ""
+    output:
+      - input_file: input/fib.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+    initial_ast: c96ac8d1241e961c3013466c442f89c5c9646d3c73963aff6e13d8144842107f
+    imports_resolved_ast: c9c271a00850feeb926c3c57414c70338e9828f212dd89f47e198326925b5a0b
+    canonicalized_ast: c9c271a00850feeb926c3c57414c70338e9828f212dd89f47e198326925b5a0b
+    type_inferenced_ast: 77cfcc1f66d315dde95404ead5e1c3aeb021d0b75feb7961a253104fcdad2aef
