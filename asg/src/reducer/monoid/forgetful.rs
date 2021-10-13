@@ -14,36 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-mod bool_and;
-pub use bool_and::*;
+use super::*;
 
-mod set_append;
-pub use set_append::*;
+/// This monoid ignores all append operations
+pub struct Forgetful<T : Default>(pub T);
 
-mod vec_append;
-pub use vec_append::*;
+impl<T : Default> Default for Forgetful<T> {
+    fn default() -> Self {
+        Forgetful(T::default())
+    }
+}
 
-mod tuple;
-pub use tuple::*;
-
-mod forgetful;
-pub use forgetful::*;
-
-pub trait Monoid: Default {
-    fn append(self, other: Self) -> Self;
-
-    fn append_all(self, others: impl Iterator<Item = Self>) -> Self {
-        let mut current = self;
-        for item in others {
-            current = current.append(item);
-        }
-        current
+impl<T : Default> Monoid for Forgetful<T> {
+    fn append(mut self, _other: Self) -> Self {
+        self
     }
 
-    fn append_option(self, other: Option<Self>) -> Self {
-        match other {
-            None => self,
-            Some(other) => self.append(other),
-        }
+    fn append_all(mut self, _others: impl Iterator<Item = Self>) -> Self {
+        self
     }
 }
