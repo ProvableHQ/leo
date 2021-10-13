@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "f#0: i#1: unknown core call: i16_to_bytes_le"

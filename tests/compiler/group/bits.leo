@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Pass
+expectation: Fail
 inputs:
  - group.in: |
     [main]
@@ -18,8 +18,6 @@ function main(a: group) -> bool {
     let x_bits_be = 1group.to_bits_be();
     let a_bits_be = a.to_bits_be();
     let x_from_be = group::from_bits_be(x_bits_be);
-
-    console.log("{}", x_from_le);
 
     return x_bits_le == a_bits_le && x_from_le == a
         && x_bits_be == a_bits_be && x_from_be == a;

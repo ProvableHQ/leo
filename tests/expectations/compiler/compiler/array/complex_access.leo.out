@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 797
-      num_constraints: 839
-      at: 52c111e41978cb4469c35694ed1e92bf6f6c68f83ac7dfc028623187db49514a
-      bt: 251c7dd6886ee1710cdeac09eb0e7ff3bd5cbf5a0a5352b3239cf87bd2fe7ea3
-      ct: 25c3e75e62d533777156e620eb9d7fe1a7ec9d7d0a0a416cd5b3a0962ad0fa33
+      num_private_variables: 424
+      num_constraints: 424
+      at: cdbd72112dcb70bd4f928a19bf44a1c92c8f0d5ef625a153a306e0a58fdca8b4
+      bt: f7ab92679c60369131979024353194161bc05154918d73fe0a6c3eafbabba84a
+      ct: 18e404f698cd3c552389f15cdfba1cebd886906328db420b08671baf7127ae6c
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
@@ -117,7 +117,7 @@ outputs:
       - "decl f8: <58>"
       - "  retn aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
       - "decl f9: <59>"
-      - "  retn [false, false, false, false, false, false, false, false]"
+      - "  retn [false]"
       - "decl f10: <60>"
       - "  retn false"
       - "decl f11: <61>"
@@ -349,6 +349,6 @@ outputs:
               type: bool
               value: "true"
     initial_ast: c3981aebf2bf03ac3f729e4ab491da3f11295d065ca94810ca7e16e70c436af8
-    imports_resolved_ast: d28be53adc28c1087730d213f13b379ce79087b7c2185388cc712b7627e17027
-    canonicalized_ast: dd9254e529364f40ecedfb04aeb3a052809f80ce292d84108146d67362df5e70
-    type_inferenced_ast: fbee141bbe2ca98dbe834c5d4cfb361c730a5b9206dbd5b7fce782b60e92ffc1
+    imports_resolved_ast: e3535702d26b099148ae26eff20e0b36096573409519dd0703e092908a454084
+    canonicalized_ast: 1771dd0e1888dcfac988760b6101a6e4e10fc3737d4bf6c344f31073246765c6
+    type_inferenced_ast: 93cc4d6bd3dcbea399f1054b83ba28f87a41866c3f0258b43315dde27ddcefdf

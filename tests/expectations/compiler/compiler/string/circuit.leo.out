@@ -40,7 +40,7 @@ outputs:
       - "decl f9: <19>"
       - "  retn aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
       - "decl f10: <20>"
-      - "  retn [false, false, false, false, false, false, false, false]"
+      - "  retn [false]"
       - "decl f11: <21>"
       - "  retn false"
       - "decl f12: <22>"
@@ -272,6 +272,6 @@ outputs:
               type: "[char; 13]"
               value: "Hello, World!"
     initial_ast: 70861332278ce0ccdb94e5277d7497e7538b3a2893a4e7e1eaedc38764aed639
-    imports_resolved_ast: c96e79604ac05b0a6544f95fd2658a87806eba9e83e1b52ea1af86c880eddf7d
-    canonicalized_ast: 7c17fcddad4ea9f89eb5238f40ffefff00d32df03cb0d0fd93a8ce0e2db68192
-    type_inferenced_ast: d84a1b18e9d2fd3acbbfd6f056e95c9d4d5587f95034442c0c8fc42905f5bfb1
+    imports_resolved_ast: bedd529d170071264873bc681908e5f12a5f6844d3c48b08d0d67c5ce4916350
+    canonicalized_ast: 7c0e79268931243f067200f961e7459bfb1008ea5374ade5249d4fc88c0ac9fe
+    type_inferenced_ast: 5b5c9152f989234d8dec08c0b9073e6e25bc8442bdc9183267e5254661b2c4d5

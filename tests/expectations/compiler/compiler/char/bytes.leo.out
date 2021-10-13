@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "f#0: i#5: the type `char` does not implement the from_bytes_le method"

@@ -4,11 +4,11 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1851
-      num_constraints: 2308
-      at: 6a5f8a1c8d41b7e759d1259a686595b6397c4a4b5a8e655f62e637db21ca7909
-      bt: 9a02f9052eb091bfced9221fda8900f1a0d1249b30bcc4b9e841d2defc978bc3
-      ct: 3300eecdc155247c334e5290e13cf9906b58cbc1c2984cd7d623372f1fbe4e50
+      num_private_variables: 194
+      num_constraints: 196
+      at: e541704c7ea8f431a87faf85b350198a75b778e0d8d5265c70fddfe0af1f8b9c
+      bt: 142057459118f932fcff0c28b2ae03f15ee5d56f56218b207c08ec9b8b589ae2
+      ct: a4a14c404d1805e8103283b313f9aa11c4ef44d8540dd57894d03bfc4c54951a
     ir:
       - "decl f0: <0>"
       - "  store &v1, ((v0), (), (), ())"
@@ -42,7 +42,7 @@ outputs:
       - "decl f8: <18>"
       - "  retn aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
       - "decl f9: <19>"
-      - "  retn [false, false, false, false, false, false, false, false]"
+      - "  retn [false]"
       - "decl f10: <20>"
       - "  retn false"
       - "decl f11: <21>"
@@ -280,6 +280,6 @@ outputs:
               type: "[u32; 3]"
               value: "[1, 5, 0]"
     initial_ast: ba3b868de5bcad48b5eb6e5ae7f946f7292469d18b07bf743fd476987ff4e6cc
-    imports_resolved_ast: 35c04fe1dc0f97769ad710d9bfc3c406e83fcca759801bfd8e04662ec06b76b6
-    canonicalized_ast: 2143eea90db4d4ba6b2eadbc32834a65f156e0969d3a0d0ac223099cad414aed
-    type_inferenced_ast: 48aee987c383b0ab6f8332fdcb3b69a0a2ce47800feac4186fd5388e00b68eb7
+    imports_resolved_ast: 9eb175afbc8e23a09a9339eae21da0371e0fd3adbb93d15a331c7570aeba0fa1
+    canonicalized_ast: 5d7ae019ba952eb34c4a9ef59decf50c08832af9cf6d6f4dc2651b49e5bd22e5
+    type_inferenced_ast: 36af64bc3052cc455c64ef8e342baf66bb6d63f211bf1378f2c58f7310c7be2d

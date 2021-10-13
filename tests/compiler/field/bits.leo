@@ -1,14 +1,4 @@
-/*
-namespace: Compile
-expectation: Pass
-inputs:
- - field.in: |
-    [main]
-    a: field = 238;
-    
-    [registers]
-    r0: bool = true;
-*/
+
 
 function main(a: field) -> bool {
     let x_bits_le = 238field.to_bits_le();

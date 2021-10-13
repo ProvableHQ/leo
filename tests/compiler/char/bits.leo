@@ -1,14 +1,4 @@
-/*
-namespace: Compile
-expectation: Pass
-inputs:
- - char.in: |
-    [main]
-    a: char = 'a';
-    
-    [registers]
-    r0: bool = true;
-*/
+
 
 function main(a: char) -> bool {
     let x_bits_le = 'a'.to_bits_le();

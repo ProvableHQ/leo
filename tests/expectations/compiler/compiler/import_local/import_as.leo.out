@@ -35,7 +35,7 @@ outputs:
       - "decl f9: <13>"
       - "  retn aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
       - "decl f10: <14>"
-      - "  retn [false, false, false, false, false, false, false, false]"
+      - "  retn [false]"
       - "decl f11: <15>"
       - "  retn false"
       - "decl f12: <16>"
@@ -267,6 +267,6 @@ outputs:
               type: bool
               value: "true"
     initial_ast: 2796eabd5baaa6f39b94a2e705b2aa2c65727f3f87e99a25d8de67d542e35f30
-    imports_resolved_ast: 64f410d6d44552a65305e21e8aa7c8c1351550970cf1715b3baba7c7782369aa
-    canonicalized_ast: 06a7fa94fbf3148b561230fbec03469b79541a43503f11d83f8807f3a30975e4
-    type_inferenced_ast: 7af4a4b3a929b94297f6c5ea3c6a4bca8d14a5b2ffaff5f92e006e6faab6d9f1
+    imports_resolved_ast: 9d61f3f2933de55d0ba5cf5d2aeeb028c46e0f1d8029738183e9f6be6de3f1ee
+    canonicalized_ast: 1bce93c03e95cdee7657ac9cc8d074b400a6132881e2c354c1c0db4d9c5e5c1c
+    type_inferenced_ast: ec6ebb1dd1208b8672cac39475f17331073ec5d19a082137f68f7229518126ec

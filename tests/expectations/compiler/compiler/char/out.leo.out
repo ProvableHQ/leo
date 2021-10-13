@@ -33,7 +33,7 @@ outputs:
       - "decl f8: <12>"
       - "  retn aleo1qnr4dkkvkgfqph0vzc3y6z2eu975wnpz2925ntjccd5cfqxtyu8sta57j8"
       - "decl f9: <13>"
-      - "  retn [false, false, false, false, false, false, false, false]"
+      - "  retn [false]"
       - "decl f10: <14>"
       - "  retn false"
       - "decl f11: <15>"
@@ -349,6 +349,6 @@ outputs:
               type: char
               value: "\\u{1f62d}"
     initial_ast: 75114005b213ea0baf9226051202694c09d0d211d57efadfc2057f7a929b0de3
-    imports_resolved_ast: 580be3561d8d3a3b44ab9e7d3cd4173580a91065196390eddc1d506f8e5be85f
-    canonicalized_ast: 580be3561d8d3a3b44ab9e7d3cd4173580a91065196390eddc1d506f8e5be85f
-    type_inferenced_ast: df0931f68067d2b50b1955045b23647834dfd39742c0844f6cdcfe22e74d7612
+    imports_resolved_ast: f79f3d7de04a7d06d4ab4cccb8869b829c4e39c91c79e1256441b366c6ecb3d4
+    canonicalized_ast: f79f3d7de04a7d06d4ab4cccb8869b829c4e39c91c79e1256441b366c6ecb3d4
+    type_inferenced_ast: 3c0af5f6a1691a67644879728425da75461b5f581b9f768338613e3d5b831dd3
