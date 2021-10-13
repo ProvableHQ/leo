@@ -5,7 +5,7 @@ input_file: input/dummy.in
 */
 
 function inf(x: u32) {
-    inf(x+1);
+    inf(x);
 }
 
 function main() {
