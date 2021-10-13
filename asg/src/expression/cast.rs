@@ -23,6 +23,7 @@ use std::cell::Cell;
 
 #[derive(Clone, Serialize)]
 pub struct CastExpression<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub inner: Cell<&'a Expression<'a>>,
@@ -88,6 +89,7 @@ impl<'a> FromAst<'a, leo_ast::CastExpression> for CastExpression<'a> {
         let inner = <&Expression<'a>>::from_ast(scope, &*value.inner, None)?;
 
         Ok(CastExpression {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             inner: Cell::new(inner),

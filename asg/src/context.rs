@@ -29,7 +29,7 @@ impl<'a> AsgContextInner<'a> {
     pub fn new(arena: &'a Arena<ArenaNode<'a>>) -> &'a Self {
         match arena.alloc(ArenaNode::Inner(AsgContextInner {
             arena,
-            next_id: Cell::new(0),
+            next_id: Cell::new(1), // Reserve the value zero
         })) {
             ArenaNode::Inner(x) => x,
             _ => unimplemented!(),

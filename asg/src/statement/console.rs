@@ -24,6 +24,7 @@ use std::cell::Cell;
 // TODO (protryon): Refactor to not require/depend on span
 #[derive(Clone, Serialize)]
 pub struct ConsoleArgs<'a> {
+    pub id: u32,
     pub string: Vec<CharValue>,
     pub parameters: Vec<Cell<&'a Expression<'a>>>,
     pub span: Span,
@@ -38,6 +39,7 @@ pub enum ConsoleFunction<'a> {
 
 #[derive(Clone, Serialize)]
 pub struct ConsoleStatement<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub function: ConsoleFunction<'a>,
@@ -60,6 +62,7 @@ impl<'a> FromAst<'a, leo_ast::ConsoleArgs> for ConsoleArgs<'a> {
             parameters.push(Cell::new(<&Expression<'a>>::from_ast(scope, parameter, None)?));
         }
         Ok(ConsoleArgs {
+            id: scope.context.get_id(),
             string: value.string.iter().map(CharValue::from).collect::<Vec<_>>(),
             parameters,
             span: value.span.clone(),
@@ -84,6 +87,7 @@ impl<'a> FromAst<'a, leo_ast::ConsoleStatement> for ConsoleStatement<'a> {
         _expected_type: Option<PartialType<'a>>,
     ) -> Result<Self> {
         Ok(ConsoleStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             function: match &statement.function {

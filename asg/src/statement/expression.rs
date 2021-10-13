@@ -22,6 +22,7 @@ use std::cell::Cell;
 
 #[derive(Clone, Serialize)]
 pub struct ExpressionStatement<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub expression: Cell<&'a Expression<'a>>,
@@ -42,6 +43,7 @@ impl<'a> FromAst<'a, leo_ast::ExpressionStatement> for ExpressionStatement<'a> {
         let expression = <&Expression<'a>>::from_ast(scope, &statement.expression, None)?;
 
         Ok(ExpressionStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             expression: Cell::new(expression),

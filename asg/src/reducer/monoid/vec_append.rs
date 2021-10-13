@@ -16,7 +16,7 @@
 
 use super::*;
 
-pub struct VecAppend<T>(Vec<T>);
+pub struct VecAppend<T>(pub Vec<T>);
 
 impl<T> Default for VecAppend<T> {
     fn default() -> Self {

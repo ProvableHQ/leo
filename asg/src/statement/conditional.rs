@@ -22,6 +22,7 @@ use std::cell::Cell;
 
 #[derive(Clone, Serialize)]
 pub struct ConditionalStatement<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub condition: Cell<&'a Expression<'a>>,
@@ -54,6 +55,7 @@ impl<'a> FromAst<'a, leo_ast::ConditionalStatement> for ConditionalStatement<'a>
             .transpose()?;
 
         Ok(ConditionalStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             condition: Cell::new(condition),

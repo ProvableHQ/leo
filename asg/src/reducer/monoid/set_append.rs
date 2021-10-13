@@ -19,7 +19,7 @@ use super::*;
 use indexmap::IndexSet;
 use std::hash::Hash;
 
-pub struct SetAppend<T: Hash + Eq + 'static>(IndexSet<T>);
+pub struct SetAppend<T: Hash + Eq + 'static>(pub IndexSet<T>);
 
 impl<T: Hash + Eq + 'static> Default for SetAppend<T> {
     fn default() -> Self {

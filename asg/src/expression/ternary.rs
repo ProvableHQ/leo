@@ -22,6 +22,7 @@ use std::cell::Cell;
 
 #[derive(Clone, Serialize)]
 pub struct TernaryExpression<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub condition: Cell<&'a Expression<'a>>,
@@ -104,6 +105,7 @@ impl<'a> FromAst<'a, leo_ast::TernaryExpression> for TernaryExpression<'a> {
         }
 
         Ok(TernaryExpression {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             condition: Cell::new(<&Expression<'a>>::from_ast(

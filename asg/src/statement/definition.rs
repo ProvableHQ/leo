@@ -22,6 +22,7 @@ use std::cell::{Cell, RefCell};
 
 #[derive(Clone, Serialize)]
 pub struct DefinitionStatement<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub variables: Vec<&'a Variable<'a>>,
@@ -29,13 +30,14 @@ pub struct DefinitionStatement<'a> {
 }
 
 impl<'a> DefinitionStatement<'a> {
-    pub fn split(&self) -> Vec<(String, Self)> {
+    pub fn split(&self, scope: &'a Scope<'a>) -> Vec<(String, Self)> {
         self.variables
             .iter()
             .map(|variable| {
                 (
                     variable.borrow().name.name.to_string(),
                     DefinitionStatement {
+                        id: scope.context.get_id(),
                         parent: self.parent.clone(),
                         span: self.span.clone(),
                         variables: vec![variable],
@@ -149,6 +151,7 @@ impl<'a> FromAst<'a, leo_ast::DefinitionStatement> for &'a Statement<'a> {
         let statement = scope
             .context
             .alloc_statement(Statement::Definition(DefinitionStatement {
+                id: scope.context.get_id(),
                 parent: Cell::new(None),
                 span: Some(statement.span.clone()),
                 variables: variables.clone(),

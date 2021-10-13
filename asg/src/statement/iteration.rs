@@ -24,6 +24,7 @@ use std::cell::{Cell, RefCell};
 
 #[derive(Clone, Serialize)]
 pub struct IterationStatement<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub variable: &'a Variable<'a>,
@@ -75,6 +76,7 @@ impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {
             .insert(statement.variable.name.to_string(), variable);
 
         let statement = scope.context.alloc_statement(Statement::Iteration(IterationStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             variable,

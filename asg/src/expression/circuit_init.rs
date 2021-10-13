@@ -26,6 +26,7 @@ use std::cell::Cell;
 
 #[derive(Clone, Serialize)]
 pub struct CircuitInitExpression<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub circuit: Cell<&'a Circuit<'a>>,
@@ -146,6 +147,7 @@ impl<'a> FromAst<'a, leo_ast::CircuitInitExpression> for CircuitInitExpression<'
         }
 
         Ok(CircuitInitExpression {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             circuit: Cell::new(circuit),

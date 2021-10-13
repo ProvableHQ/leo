@@ -23,6 +23,7 @@ use std::cell::Cell;
 
 #[derive(Clone, Serialize)]
 pub struct BinaryExpression<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub operation: BinaryOperation,
@@ -222,6 +223,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
             (_, _) => (),
         }
         Ok(BinaryExpression {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             operation: value.op,

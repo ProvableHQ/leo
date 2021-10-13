@@ -35,6 +35,7 @@ pub enum AssignAccess<'a> {
 
 #[derive(Clone, Serialize)]
 pub struct AssignStatement<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub operation: AssignOperation,
@@ -201,6 +202,7 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
         let value = <&Expression<'a>>::from_ast(scope, &statement.value, target_type)?;
 
         let statement = scope.context.alloc_statement(Statement::Assign(AssignStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             operation: statement.operation,

@@ -23,6 +23,7 @@ use std::cell::Cell;
 
 #[derive(Clone, Serialize)]
 pub struct ArrayInlineExpression<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub elements: Vec<(Cell<&'a Expression<'a>>, bool)>, // bool = if spread
@@ -138,6 +139,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInlineExpression> for ArrayInlineExpression<'
         let mut len = 0;
 
         let output = ArrayInlineExpression {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             elements: value

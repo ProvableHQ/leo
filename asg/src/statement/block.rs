@@ -22,6 +22,7 @@ use std::cell::Cell;
 
 #[derive(Clone, Serialize)]
 pub struct BlockStatement<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub statements: Vec<Cell<&'a Statement<'a>>>,
@@ -47,6 +48,7 @@ impl<'a> FromAst<'a, leo_ast::Block> for BlockStatement<'a> {
             output.push(Cell::new(<&'a Statement<'a>>::from_ast(new_scope, item, None)?));
         }
         Ok(BlockStatement {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(statement.span.clone()),
             statements: output,

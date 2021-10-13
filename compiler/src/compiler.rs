@@ -47,6 +47,7 @@ use std::io::Write;
 use std::{convert::TryFrom, fs, path::PathBuf};
 
 use indexmap::IndexMap;
+use std::borrow::Borrow;
 
 thread_local! {
     static THREAD_GLOBAL_CONTEXT: AsgContext<'static> = {
@@ -246,15 +247,17 @@ impl<'a, 'b> Compiler<'a, 'b> {
     fn do_asg_passes(&mut self) -> Result<()> {
         assert!(self.asg.is_some());
 
-        if self.output_options.asg_initial {
-            //TODO: Implement
-            panic!("ASG snapshot not implemented yet");
+        if self.snapshot_options.initial_asg {
+            let asg = self.asg.take().unwrap();
+            let mut path = self.output_directory.clone();
+            path.push("initial_asg.dot");
+            self.asg = Some(leo_asg_passes::Dotify::do_pass((asg, "initial-asg".to_string(), path))?);
         }
 
         // Do constant folding.
         if self.options.constant_folding_enabled {
             let asg = self.asg.take().unwrap();
-            self.asg = Some(leo_asg_passes::ConstantFolding::do_pass(asg)?);
+            self.asg = Some(leo_asg_passes::ConstantFolding::do_pass((asg, &self.context))?);
 
             if self.output_options.asg_constants_folded {
                 //TODO

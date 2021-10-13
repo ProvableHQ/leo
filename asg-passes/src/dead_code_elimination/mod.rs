@@ -57,6 +57,7 @@ impl<'a> ReconstructingReducerStatement<'a> for DeadCodeElimination {
             statements.truncate(first_return + 1);
         }
         Statement::Block(BlockStatement {
+            id: input.id,
             parent: input.parent,
             span: input.span,
             statements: statements.into_iter().map(Cell::new).collect(),

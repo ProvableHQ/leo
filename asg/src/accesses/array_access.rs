@@ -23,6 +23,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct ArrayAccess<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub array: Cell<&'a Expression<'a>>,
