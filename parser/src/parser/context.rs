@@ -26,7 +26,7 @@ use tendril::format_tendril;
 /// May be converted into a [`Program`] AST by parsing all tokens.
 pub struct ParserContext<'a> {
     #[allow(dead_code)]
-    handler: &'a Handler,
+    pub(crate) handler: &'a Handler,
     tokens: Vec<SpannedToken>,
     end_span: Span,
     // true if parsing an expression for an if statement -- means circuit inits are not legal
@@ -64,6 +64,11 @@ impl<'a> ParserContext<'a> {
         }
     }
 
+    /// Returns the current token if there is one.
+    pub fn curr(&self) -> Option<&SpannedToken> {
+        self.tokens.last()
+    }
+
     ///
     /// Returns an unexpected end of function [`SyntaxError`].
     ///
@@ -82,7 +87,7 @@ impl<'a> ParserContext<'a> {
     /// Returns a reference to the next SpannedToken or error if it does not exist.
     ///
     pub fn peek(&self) -> Result<&SpannedToken> {
-        self.tokens.last().ok_or_else(|| self.eof())
+        self.curr().ok_or_else(|| self.eof())
     }
 
     ///
@@ -124,7 +129,7 @@ impl<'a> ParserContext<'a> {
     /// the next token does not exist.
     ///
     pub fn eat(&mut self, token: Token) -> Option<SpannedToken> {
-        if let Some(SpannedToken { token: inner, .. }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, .. }) = self.curr() {
             if &token == inner {
                 return self.tokens.pop();
             }
@@ -146,7 +151,7 @@ impl<'a> ParserContext<'a> {
     pub fn eat_identifier(&mut self) -> Option<Identifier> {
         if let Some(SpannedToken {
             token: Token::Ident(_), ..
-        }) = self.tokens.last()
+        }) = self.curr()
         {
             let token = self.tokens.pop().unwrap();
             if let SpannedToken {
@@ -283,7 +288,7 @@ impl<'a> ParserContext<'a> {
     pub fn eat_int(&mut self) -> Option<(PositiveNumber, Span)> {
         if let Some(SpannedToken {
             token: Token::Int(_), ..
-        }) = self.tokens.last()
+        }) = self.curr()
         {
             let token = self.tokens.pop().unwrap();
             if let SpannedToken {
@@ -304,7 +309,7 @@ impl<'a> ParserContext<'a> {
     /// the next token  does not exist.
     ///
     pub fn eat_any(&mut self, token: &[Token]) -> Option<SpannedToken> {
-        if let Some(SpannedToken { token: inner, .. }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, .. }) = self.curr() {
             if token.iter().any(|x| x == inner) {
                 return self.tokens.pop();
             }
@@ -316,7 +321,7 @@ impl<'a> ParserContext<'a> {
     /// Returns the span of the next token if it is equal to the given [`Token`], or error.
     ///
     pub fn expect(&mut self, token: Token) -> Result<Span> {
-        if let Some(SpannedToken { token: inner, span }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if &token == inner {
                 Ok(self.tokens.pop().unwrap().span)
             } else {
@@ -331,7 +336,7 @@ impl<'a> ParserContext<'a> {
     /// Returns the span of the next token if it is equal to one of the given [`Token`]s, or error.
     ///
     pub fn expect_oneof(&mut self, token: &[Token]) -> Result<SpannedToken> {
-        if let Some(SpannedToken { token: inner, span }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if token.iter().any(|x| x == inner) {
                 Ok(self.tokens.pop().unwrap())
             } else {
@@ -368,7 +373,7 @@ impl<'a> ParserContext<'a> {
     /// Returns the [`Identifier`] of the next token if it is an [`Identifier`], or error.
     ///
     pub fn expect_ident(&mut self) -> Result<Identifier> {
-        if let Some(SpannedToken { token: inner, span }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if let Token::Ident(_) = inner {
                 let token = self.tokens.pop().unwrap();
                 if let SpannedToken {
