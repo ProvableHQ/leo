@@ -17,28 +17,28 @@
 use petgraph::graph::{EdgeIndex, NodeIndex};
 use std::borrow::{Borrow, Cow};
 
-pub struct DotNode {
-    id: String,
-    shape: Option<(String, LabelType)>,
-    label: (String, LabelType),
-    style: dot::Style,
-    color: Option<(String, LabelType)>,
-}
-
-pub struct DotEdge {
-    start_idx: NodeIndex,
-    end_idx: NodeIndex,
-    label: (String, LabelType),
-    end_arrow: dot::ArrowShape,
-    start_arrow: dot::ArrowShape,
-    style: dot::Style,
-    color: Option<(String, LabelType)>,
-}
-
 pub enum LabelType {
     Label,
     Esc,
     Html,
+}
+
+pub struct DotNode {
+    pub id: String,
+    pub shape: Option<(String, LabelType)>,
+    pub label: (String, LabelType),
+    pub style: dot::Style,
+    pub color: Option<(String, LabelType)>,
+}
+
+pub struct DotEdge {
+    pub start_idx: NodeIndex,
+    pub end_idx: NodeIndex,
+    pub label: (String, LabelType),
+    pub end_arrow: dot::ArrowShape,
+    pub start_arrow: dot::ArrowShape,
+    pub style: dot::Style,
+    pub color: Option<(String, LabelType)>,
 }
 
 pub struct DotGraph {
@@ -47,18 +47,18 @@ pub struct DotGraph {
 }
 
 impl DotGraph {
-    fn new(id: String) -> Self {
+    pub fn new(id: String) -> Self {
         DotGraph {
             id,
             graph: petgraph::Graph::new(),
         }
     }
 
-    fn add_node(&mut self, node: DotNode) -> NodeIndex {
+    pub fn add_node(&mut self, node: DotNode) -> NodeIndex {
         self.graph.add_node(node)
     }
 
-    fn add_edge(&mut self, edge: DotEdge) -> EdgeIndex {
+    pub fn add_edge(&mut self, edge: DotEdge) -> EdgeIndex {
         self.graph.add_edge(edge.start_idx, edge.end_idx, edge)
     }
 }

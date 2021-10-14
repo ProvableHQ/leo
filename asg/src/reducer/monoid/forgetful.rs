@@ -17,20 +17,20 @@
 use super::*;
 
 /// This monoid ignores all append operations
-pub struct Forgetful<T : Default>(pub T);
+pub struct Fixed<T: Default>(pub T);
 
-impl<T : Default> Default for Forgetful<T> {
+impl<T: Default> Default for Fixed<T> {
     fn default() -> Self {
-        Forgetful(T::default())
+        Fixed(T::default())
     }
 }
 
-impl<T : Default> Monoid for Forgetful<T> {
-    fn append(mut self, _other: Self) -> Self {
+impl<T: Default> Monoid for Fixed<T> {
+    fn append(self, _other: Self) -> Self {
         self
     }
 
-    fn append_all(mut self, _others: impl Iterator<Item = Self>) -> Self {
+    fn append_all(self, _others: impl Iterator<Item = Self>) -> Self {
         self
     }
 }
