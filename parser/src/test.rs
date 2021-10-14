@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::{Expression, ExpressionStatement, Statement, ValueExpression};
-use leo_errors::Span;
+use leo_errors::{emitter::Handler, Span};
 use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
@@ -79,7 +79,8 @@ impl Namespace for ParseExpressionNamespace {
             )))
             .expect("serialization failed"));
         }
-        let mut tokens = ParserContext::new(tokenizer);
+        let handler = Handler::default();
+        let mut tokens = ParserContext::new(&handler, tokenizer);
 
         let parsed = tokens.parse_expression().map_err(|x| x.to_string())?;
         not_fully_consumed(&mut tokens)?;
@@ -107,7 +108,8 @@ impl Namespace for ParseStatementNamespace {
             }))
             .expect("serialization failed"));
         }
-        let mut tokens = ParserContext::new(tokenizer);
+        let handler = Handler::default();
+        let mut tokens = ParserContext::new(&handler, tokenizer);
 
         let parsed = tokens.parse_statement().map_err(|x| x.to_string())?;
         not_fully_consumed(&mut tokens)?;
@@ -125,7 +127,8 @@ impl Namespace for ParseNamespace {
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
         let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
-        let mut tokens = ParserContext::new(tokenizer);
+        let handler = Handler::default();
+        let mut tokens = ParserContext::new(&handler, tokenizer);
 
         let parsed = tokens.parse_program().map_err(|x| x.to_string())?;
         not_fully_consumed(&mut tokens)?;

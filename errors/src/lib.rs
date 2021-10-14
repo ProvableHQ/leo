@@ -149,5 +149,10 @@ impl LeoError {
     }
 }
 
+/// A fatal error. Used for the `Error` implementation.
+#[derive(Debug, Error)]
+#[error("An error occurred during compilation")]
+pub struct FatalError;
+
 /// A global result type for all Leo crates, that defaults the errors to be a LeoError.
 pub type Result<T, E = LeoError> = core::result::Result<T, E>;
