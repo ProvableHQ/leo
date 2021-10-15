@@ -128,7 +128,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
 fn generate_asts(handler: &Handler, src_path: PathBuf, target_path: PathBuf, text: &str) -> Result<(), LeoError> {
     std::env::set_var("LEO_TESTFRAMEWORK", "true");
 
-    let mut ast = leo_parser::parse_ast(&handler, src_path.clone().into_os_string().into_string().unwrap(), text)?;
+    let mut ast = leo_parser::parse_ast(handler, src_path.clone().into_os_string().into_string().unwrap(), text)?;
 
     ast.to_json_file_without_keys(target_path.clone(), "initial_ast.json", &["span"])?;
 

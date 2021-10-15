@@ -31,7 +31,7 @@ export interface LeoError { text: string, code: string, exitCode: number }
 /// Parse the code and return an AST as JSON or an error object.
 #[wasm_bindgen(method, catch)]
 pub fn parse(program: &str) -> Result<String, JsValue> {
-    Ok(Handler::with(|h| parse_program(h, program)).map_err(error_to_value)?)
+    Handler::with(|h| parse_program(h, program)).map_err(error_to_value)
 }
 
 /// Parse the program and pass the Canonicalization phase;
