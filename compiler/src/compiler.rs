@@ -83,6 +83,7 @@ pub struct Compiler<'a, 'b> {
 
 impl<'a, 'b> Compiler<'a, 'b> {
     /// Returns a new Leo program compiler.
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         handler: &'b Handler,
         package_name: String,
@@ -116,7 +117,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
     /// Parses and stores a program from the main file path.
     /// Parses and stores all imported programs.
     /// Performs type inference checking on the program and imported programs.
-    ///
+    #[allow(clippy::too_many_arguments)]
     pub fn parse_program_without_input(
         handler: &'b Handler,
         package_name: String,

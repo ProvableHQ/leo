@@ -18,7 +18,7 @@ use crate::ast::Rule;
 
 use pest::error::Error;
 
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 pub enum SyntaxError {
     #[error("aborting due to syntax error")]
     Error(Error<Rule>),

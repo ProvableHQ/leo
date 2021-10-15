@@ -30,7 +30,7 @@ use pest::{
 };
 use std::{num::ParseIntError, path::PathBuf, str::ParseBoolError};
 
-#[derive(Debug, Error)]
+#[derive(Clone, Debug, Error)]
 pub enum InputParserError {
     #[error("Program input value {} not found", _0)]
     InputNotFound(String),

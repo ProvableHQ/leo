@@ -17,6 +17,7 @@
 use super::LeoError;
 use core::default::Default;
 use std::cell::RefCell;
+use std::rc::Rc;
 
 /// Types that are sinks for compiler errors.
 pub trait Emitter {
@@ -30,6 +31,49 @@ pub struct StderrEmitter;
 impl Emitter for StderrEmitter {
     fn emit_err(&mut self, err: &LeoError) {
         eprintln!("{}", err);
+    }
+}
+
+/// A buffer of `LeoError`s.
+#[derive(Clone, Default, Debug)]
+pub struct ErrBuffer(Vec<LeoError>);
+
+impl ErrBuffer {
+    /// Push `err` to the buffer.
+    pub fn push(&mut self, err: &LeoError) {
+        self.0.push(err.clone());
+    }
+
+    /// Extract the underlying list of errors.
+    pub fn into_inner(self) -> Vec<LeoError> {
+        self.0
+    }
+
+    /// Returns all errors collected, concatenated, in this emitter.
+    pub fn to_string(&self) -> String {
+        self.0.iter().map(|e| e.to_string()).collect::<Vec<_>>().join("\n")
+    }
+}
+
+/// An `Emitter` that collects into a list.
+#[derive(Default, Clone)]
+pub struct BufferEmitter(Rc<RefCell<ErrBuffer>>);
+
+impl BufferEmitter {
+    /// Returns a new buffered emitter.
+    pub fn new() -> Self {
+        BufferEmitter(Rc::new(RefCell::new(<_>::default())))
+    }
+
+    /// Extracts all the errors collected in this emitter.
+    pub fn extract(&self) -> ErrBuffer {
+        self.0.borrow().clone()
+    }
+}
+
+impl Emitter for BufferEmitter {
+    fn emit_err(&mut self, err: &LeoError) {
+        self.0.borrow_mut().push(err);
     }
 }
 
@@ -70,6 +114,20 @@ impl Handler {
         Self { inner }
     }
 
+    /// Construct a `Handler` that will append to `buf`.
+    pub fn new_with_buf() -> (Self, BufferEmitter) {
+        let buf = BufferEmitter::default();
+        let handler = Self::new(Box::new(buf.clone()));
+        (handler, buf)
+    }
+
+    /// Runs `logic` provided a handler that collects all errors into the `String`,
+    /// or if there were none, returns some `T`.
+    pub fn with<T>(logic: impl for<'a> FnOnce(&'a Handler) -> Result<T, LeoError>) -> Result<T, ErrBuffer> {
+        let (handler, buf) = Handler::new_with_buf();
+        handler.extend_if_error(logic(&handler)).map_err(|_| buf.extract())
+    }
+
     /// Emit the error `err`.
     pub fn emit_err(&self, err: &LeoError) {
         self.inner.borrow_mut().emit_err(err);
@@ -90,5 +148,18 @@ impl Handler {
     /// Did we have any errors thus far?
     pub fn had_errors(&self) -> bool {
         self.err_count() > 0
+    }
+
+    /// Extend handler with `error` given `res = Err(error)`.
+    #[allow(clippy::result_unit_err)]
+    pub fn extend_if_error<T>(&self, res: Result<T, LeoError>) -> Result<T, ()> {
+        match res {
+            Ok(_) if self.had_errors() => Err(()),
+            Ok(x) => Ok(x),
+            Err(e) => {
+                self.emit_err(&e);
+                Err(())
+            }
+        }
     }
 }
