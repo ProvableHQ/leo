@@ -119,7 +119,7 @@ version = "2.0"
 version = "4.0.0"
 
 [dependencies.console]
-version = "0.14.0"
+version = "0.15.0"
 
 [dependencies.from-pest]
 version = "0.3.1"
