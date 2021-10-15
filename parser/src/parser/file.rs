@@ -49,7 +49,7 @@ impl ParserContext<'_> {
                     "test" => return Err(ParserError::test_function(&token.span).into()),
                     kw @ ("struct" | "class") => {
                         self.handler
-                            .emit_err(&ParserError::unexpected(kw, "circuit", &token.span).into());
+                            .emit_err(ParserError::unexpected(kw, "circuit", &token.span).into());
                         self.bump().unwrap();
                         let (id, circuit) = self.parse_circuit()?;
                         circuits.insert(id, circuit);

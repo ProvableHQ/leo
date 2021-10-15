@@ -27,12 +27,6 @@ pub enum SnarkVMError {
     SnarkVMError(#[from] ErrReport),
 }
 
-impl Clone for SnarkVMError {
-    fn clone(&self) -> Self {
-        todo!()
-    }
-}
-
 impl Default for SnarkVMError {
     fn default() -> Self {
         Self::SnarkVMError(eyre!("snarkvm error"))

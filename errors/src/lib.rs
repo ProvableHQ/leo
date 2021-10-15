@@ -68,7 +68,7 @@ use leo_input::InputParserError;
 
 /// The LeoError type that contains all sub error types.
 /// This allows a unified error type throughout the Leo crates.
-#[derive(Clone, Debug, Error)]
+#[derive(Debug, Error)]
 pub enum LeoError {
     /// Represents an ASG Error in a Leo Error.
     #[error(transparent)]

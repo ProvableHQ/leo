@@ -16,42 +16,51 @@
 
 use super::LeoError;
 use core::default::Default;
+use core::fmt;
 use std::cell::RefCell;
 use std::rc::Rc;
 
 /// Types that are sinks for compiler errors.
 pub trait Emitter {
     /// Emit the error `err`.
-    fn emit_err(&mut self, err: &LeoError);
+    fn emit_err(&mut self, err: LeoError);
 }
 
 /// A trivial `Emitter` using the standard error.
 pub struct StderrEmitter;
 
 impl Emitter for StderrEmitter {
-    fn emit_err(&mut self, err: &LeoError) {
+    fn emit_err(&mut self, err: LeoError) {
         eprintln!("{}", err);
     }
 }
 
 /// A buffer of `LeoError`s.
-#[derive(Clone, Default, Debug)]
+#[derive(Default, Debug)]
 pub struct ErrBuffer(Vec<LeoError>);
 
 impl ErrBuffer {
     /// Push `err` to the buffer.
-    pub fn push(&mut self, err: &LeoError) {
-        self.0.push(err.clone());
+    pub fn push(&mut self, err: LeoError) {
+        self.0.push(err);
     }
 
     /// Extract the underlying list of errors.
     pub fn into_inner(self) -> Vec<LeoError> {
         self.0
     }
+}
 
-    /// Returns all errors collected, concatenated, in this emitter.
-    pub fn to_string(&self) -> String {
-        self.0.iter().map(|e| e.to_string()).collect::<Vec<_>>().join("\n")
+impl fmt::Display for ErrBuffer {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut iter = self.0.iter();
+        if let Some(x) = iter.next() {
+            x.fmt(f)?;
+        }
+        for x in iter {
+            f.write_fmt(format_args!("\n{}", x))?;
+        }
+        Ok(())
     }
 }
 
@@ -67,12 +76,12 @@ impl BufferEmitter {
 
     /// Extracts all the errors collected in this emitter.
     pub fn extract(&self) -> ErrBuffer {
-        self.0.borrow().clone()
+        self.0.take()
     }
 }
 
 impl Emitter for BufferEmitter {
-    fn emit_err(&mut self, err: &LeoError) {
+    fn emit_err(&mut self, err: LeoError) {
         self.0.borrow_mut().push(err);
     }
 }
@@ -88,7 +97,7 @@ struct HandlerInner {
 
 impl HandlerInner {
     /// Emit the error `err`.
-    fn emit_err(&mut self, err: &LeoError) {
+    fn emit_err(&mut self, err: LeoError) {
         self.count = self.count.saturating_add(1);
         self.emitter.emit_err(err);
     }
@@ -129,15 +138,16 @@ impl Handler {
     }
 
     /// Emit the error `err`.
-    pub fn emit_err(&self, err: &LeoError) {
+    pub fn emit_err(&self, err: LeoError) {
         self.inner.borrow_mut().emit_err(err);
     }
 
     /// Emits the error `err`.
     /// This will immediately abort compilation.
-    pub fn fatal_err(&self, err: &LeoError) -> ! {
+    pub fn fatal_err(&self, err: LeoError) -> ! {
+        let code = err.exit_code();
         self.emit_err(err);
-        std::process::exit(err.exit_code());
+        std::process::exit(code);
     }
 
     /// The number of errors thus far.
@@ -157,7 +167,7 @@ impl Handler {
             Ok(_) if self.had_errors() => Err(()),
             Ok(x) => Ok(x),
             Err(e) => {
-                self.emit_err(&e);
+                self.emit_err(e);
                 Err(())
             }
         }

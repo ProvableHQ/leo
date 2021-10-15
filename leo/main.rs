@@ -233,7 +233,7 @@ fn try_execute_command(command: CommandOpts, context: context::Context) -> Resul
 fn handle_error<T>(handler: &Handler, res: Result<T>) -> T {
     match res {
         Ok(t) => t,
-        Err(err) => handler.fatal_err(&err),
+        Err(err) => handler.fatal_err(err),
     }
 }
 

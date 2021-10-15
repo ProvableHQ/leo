@@ -33,7 +33,7 @@ macro_rules! create_errors {
         use backtrace::Backtrace;
 
         // Generates the enum and implements from FormattedError and BacktracedErrors.
-        #[derive(Clone, Debug, Error)]
+        #[derive(Debug, Error)]
         $(#[$error_type_docs])*
         pub enum $error_type {
             #[error(transparent)]
