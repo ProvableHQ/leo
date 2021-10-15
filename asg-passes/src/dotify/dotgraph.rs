@@ -165,6 +165,6 @@ impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> 
 
     fn target(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> (NodeIndex, &'a DotNode) {
         let &(_, edge) = e;
-        (edge.start_idx, &self.graph[edge.end_idx])
+        (edge.end_idx, &self.graph[edge.end_idx])
     }
 }
