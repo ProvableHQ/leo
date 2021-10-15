@@ -37,7 +37,7 @@ impl Iterator for ParserContext<'_> {
     type Item = SpannedToken;
 
     fn next(&mut self) -> Option<SpannedToken> {
-        self.tokens.pop()
+        self.bump()
     }
 }
 
@@ -124,6 +124,11 @@ impl<'a> ParserContext<'a> {
         !self.tokens.is_empty()
     }
 
+    /// Advances the current token.
+    pub fn bump(&mut self) -> Option<SpannedToken> {
+        self.tokens.pop()
+    }
+
     ///
     /// Removes the next token if it exists and returns it, or [None] if
     /// the next token does not exist.
@@ -131,7 +136,7 @@ impl<'a> ParserContext<'a> {
     pub fn eat(&mut self, token: Token) -> Option<SpannedToken> {
         if let Some(SpannedToken { token: inner, .. }) = self.curr() {
             if &token == inner {
-                return self.tokens.pop();
+                return self.bump();
             }
         }
         None
@@ -153,11 +158,10 @@ impl<'a> ParserContext<'a> {
             token: Token::Ident(_), ..
         }) = self.curr()
         {
-            let token = self.tokens.pop().unwrap();
             if let SpannedToken {
                 token: Token::Ident(name),
                 span,
-            } = token
+            } = self.bump().unwrap()
             {
                 return Some(Identifier { name, span });
             } else {
@@ -290,11 +294,10 @@ impl<'a> ParserContext<'a> {
             token: Token::Int(_), ..
         }) = self.curr()
         {
-            let token = self.tokens.pop().unwrap();
             if let SpannedToken {
                 token: Token::Int(value),
                 span,
-            } = token
+            } = self.bump().unwrap()
             {
                 return Some((PositiveNumber { value }, span));
             } else {
@@ -311,7 +314,7 @@ impl<'a> ParserContext<'a> {
     pub fn eat_any(&mut self, token: &[Token]) -> Option<SpannedToken> {
         if let Some(SpannedToken { token: inner, .. }) = self.curr() {
             if token.iter().any(|x| x == inner) {
-                return self.tokens.pop();
+                return self.bump();
             }
         }
         None
@@ -323,7 +326,7 @@ impl<'a> ParserContext<'a> {
     pub fn expect(&mut self, token: Token) -> Result<Span> {
         if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if &token == inner {
-                Ok(self.tokens.pop().unwrap().span)
+                Ok(self.bump().unwrap().span)
             } else {
                 Err(ParserError::unexpected(inner, token, span).into())
             }
@@ -338,7 +341,7 @@ impl<'a> ParserContext<'a> {
     pub fn expect_oneof(&mut self, token: &[Token]) -> Result<SpannedToken> {
         if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if token.iter().any(|x| x == inner) {
-                Ok(self.tokens.pop().unwrap())
+                Ok(self.bump().unwrap())
             } else {
                 return Err(ParserError::unexpected(
                     inner,
@@ -375,11 +378,10 @@ impl<'a> ParserContext<'a> {
     pub fn expect_ident(&mut self) -> Result<Identifier> {
         if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if let Token::Ident(_) = inner {
-                let token = self.tokens.pop().unwrap();
                 if let SpannedToken {
                     token: Token::Ident(name),
                     span,
-                } = token
+                } = self.bump().unwrap()
                 {
                     Ok(Identifier { name, span })
                 } else {
