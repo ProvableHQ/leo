@@ -153,18 +153,19 @@ impl<'a> Processor<'a> {
 
                 // 1. leave only unique keys
                 // 2. map each rule into a link
-                // 3. join results as a list
+                // 3. sort the links so they don't keep changing order
+                // 4. join results as a list
                 // Note: GitHub only allows custom tags with 'user-content-' prefix
-                let keys = rules
+                let mut keyvec = rules
                     .into_iter()
                     .collect::<HashSet<_>>()
                     .into_iter()
                     .map(|tag| format!("[{}](#user-content-{})", &tag, tag))
-                    .collect::<Vec<String>>()
-                    .join(", ");
+                    .collect::<Vec<String>>();
+                keyvec.sort();
+                let keys = keyvec.join(", ");
 
                 self.append_str("```");
-
                 if !keys.is_empty() {
                     self.append_str(&format!("\nGo to: _{}_;\n", keys));
                 }
