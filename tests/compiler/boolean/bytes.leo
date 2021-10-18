@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Fail
+expectation: Pass
 inputs:
  - bool.in: |
     [main]

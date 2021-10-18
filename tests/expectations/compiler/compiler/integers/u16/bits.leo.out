@@ -24,7 +24,6 @@ outputs:
       - "  store &v12, v11"
       - "  ccall &v13, 'u16_from_bits_be', v10"
       - "  store &v14, v13"
-      - "  log INFO, \"\", v8, \"\""
       - "  eq &v15, v4, v6"
       - "  eq &v16, v8, v2"
       - "  and &v17, v15, v16"
@@ -281,7 +280,7 @@ outputs:
             r0:
               type: bool
               value: "false"
-    initial_ast: 35a5764a2de9605c457b0bc8445955badff061a4af279eb69a566c2c69fd56f8
-    imports_resolved_ast: 2c09e4d7417bdf9be0b4033b5b72ccdd0d2e017bd2705f9c4f1556a40d0cb626
-    canonicalized_ast: 2c09e4d7417bdf9be0b4033b5b72ccdd0d2e017bd2705f9c4f1556a40d0cb626
-    type_inferenced_ast: 0191a151ffb62b8f7a5b5e5ce07518ac74635990b3b6a8627b8592f207c789e5
+    initial_ast: 900b7c119c11999f27f29b3f6008fb07ce529ea0307d13036e3dfdec01e94666
+    imports_resolved_ast: 5d2f1fc48c92429dc4c9bf7766c594e86db1fbe0710e452bc2f98dff7e809297
+    canonicalized_ast: 5d2f1fc48c92429dc4c9bf7766c594e86db1fbe0710e452bc2f98dff7e809297
+    type_inferenced_ast: 960ed5822e58f0b320bde56d82b9dfbdbd1b5aa883ee406ba03e7b3cc02ce953

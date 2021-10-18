@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Fail
+expectation: Pass
 inputs:
  - address.in: |
     [main]
