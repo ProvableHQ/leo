@@ -82,14 +82,24 @@ impl ImportParser {
             .map_err(|error| ImportError::directory_error(error, &error_path, span))?;
 
         // Check if the imported package name is in the source directory.
-        let matched_source_entry = entries.into_iter().find(|entry| {
-            entry
-                .file_name()
-                .into_string()
-                .unwrap()
-                .trim_end_matches(SOURCE_FILE_EXTENSION)
-                .eq(package_name)
-        });
+        let source_entries: Vec<DirEntry> = entries
+            .into_iter()
+            .filter(|entry| {
+                entry
+                    .file_name()
+                    .into_string()
+                    .unwrap()
+                    .trim_end_matches(SOURCE_FILE_EXTENSION)
+                    .eq(package_name)
+            })
+            .collect();
+
+        if source_entries.len() > 1 {
+            let paths: Vec<PathBuf> = source_entries.into_iter().map(|entry| entry.path()).collect();
+            return Err(ImportError::conflicting_local_imports(paths, span).into());
+        }
+
+        let matched_source_entry = source_entries.get(0);
 
         if imports_directory.exists() {
             // Get a vector of all packages in the imports directory.
@@ -115,14 +125,14 @@ impl ImportParser {
             // Check if the package name was found in both the source and imports directory.
             match (matched_source_entry, matched_import_entry) {
                 (Some(_), Some(_)) => Err(ImportError::conflicting_imports(package_name, span).into()),
-                (Some(source_entry), None) => self.parse_package_access(&source_entry, &segments[1..], span),
+                (Some(source_entry), None) => self.parse_package_access(source_entry, &segments[1..], span),
                 (None, Some(import_entry)) => self.parse_package_access(&import_entry, &segments[1..], span),
                 (None, None) => Err(ImportError::unknown_package(package_name, span).into()),
             }
         } else {
             // Enforce local package access with no found imports directory
             match matched_source_entry {
-                Some(source_entry) => self.parse_package_access(&source_entry, &segments[1..], span),
+                Some(source_entry) => self.parse_package_access(source_entry, &segments[1..], span),
                 None => Err(ImportError::unknown_package(package_name, span).into()),
             }
         }
