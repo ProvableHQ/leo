@@ -36,7 +36,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         match context.input.remove(0) {
             ConstrainedValue::CircuitExpression(_variable, members) => {
                 // Modify the circuit variable in place
-                let matched_variable = members.iter_mut().find(|member| &member.0 == name);
+                let matched_variable = members.iter_mut().find(|member| member.0.matches(name));
 
                 match matched_variable {
                     Some(member) => {

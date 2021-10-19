@@ -66,6 +66,11 @@ impl Identifier {
             span,
         }
     }
+
+    /// Check if the Identifier name matches the other name
+    pub fn matches(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 
 impl<'ast> From<InputIdentifier<'ast>> for Identifier {
