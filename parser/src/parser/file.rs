@@ -485,8 +485,6 @@ impl ParserContext {
         let start = self.expect(Token::Function)?;
         let name = self.expect_ident()?;
 
-        println!("{}", name);
-
         self.expect(Token::LeftParen)?;
         let mut inputs = Vec::new();
         while self.eat(Token::RightParen).is_none() {
