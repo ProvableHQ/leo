@@ -21,6 +21,7 @@ use leo_errors::{Result, Span};
 use dot::{ArrowShape, Style};
 use dotgraph::{DotEdge, DotGraph, DotNode, LabelType};
 use petgraph::graph::NodeIndex;
+use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::fs::File;
 use std::path::PathBuf;
@@ -84,6 +85,14 @@ impl<'a, 'b> Dotify<'a, 'b> {
             "".to_string()
         }
     }
+
+    fn generate_type_info(typ: Option<Type<'a>>) -> String {
+        if let Some(typ) = typ {
+            format!("{:}", typ)
+        } else {
+            "None".to_string()
+        }
+    }
 }
 
 type M = Fixed<NodeIndex>;
@@ -94,10 +103,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         value
     }
 
-    fn reduce_array_access(&mut self, input: &ArrayAccessExpression<'a>, array: M, index: M) -> M {
+    fn reduce_array_access(&mut self, input: &'a ArrayAccessExpression<'a>, array: M, index: M) -> M {
         let label = format!(
-            "Array Access Expression\nNode ID: {:}\n\n{:}",
+            "Array Access Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -111,10 +121,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_array_init(&mut self, input: &ArrayInitExpression<'a>, element: M) -> M {
+    fn reduce_array_init(&mut self, input: &'a ArrayInitExpression<'a>, element: M) -> M {
         let label = format!(
-            "Array Init Expression\nNode ID: {:}\n\n{:}",
+            "Array Init Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -125,10 +136,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_array_inline(&mut self, input: &ArrayInlineExpression<'a>, elements: Vec<M>) -> M {
+    fn reduce_array_inline(&mut self, input: &'a ArrayInlineExpression<'a>, elements: Vec<M>) -> M {
         let label = format!(
-            "Array Inline Expression\nNode ID: {:}\n\n{:}",
+            "Array Inline Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -142,14 +154,15 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
 
     fn reduce_array_range_access(
         &mut self,
-        input: &ArrayRangeAccessExpression<'a>,
+        input: &'a ArrayRangeAccessExpression<'a>,
         array: M,
         left: Option<M>,
         right: Option<M>,
     ) -> M {
         let label = format!(
-            "Array Range Access Expression\nNode ID: {:}\n\n{:}",
+            "Array Range Access Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -168,10 +181,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_binary(&mut self, input: &BinaryExpression<'a>, left: M, right: M) -> M {
+    fn reduce_binary(&mut self, input: &'a BinaryExpression<'a>, left: M, right: M) -> M {
         let label = format!(
-            "Binary Expression\nNode ID: {:}\n\n{:}",
+            "Binary Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -185,10 +199,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_call(&mut self, input: &CallExpression<'a>, target: Option<M>, arguments: Vec<M>) -> M {
+    fn reduce_call(&mut self, input: &'a CallExpression<'a>, target: Option<M>, arguments: Vec<M>) -> M {
         let label = format!(
-            "Call Expression\nNode ID: {:}\n\n{:}",
+            "Call Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -204,10 +219,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_circuit_access(&mut self, input: &CircuitAccessExpression<'a>, target: Option<M>) -> M {
+    fn reduce_circuit_access(&mut self, input: &'a CircuitAccessExpression<'a>, target: Option<M>) -> M {
         let label = format!(
-            "Circuit Access Expression\nNode ID: {:}\n\n{:}",
+            "Circuit Access Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -219,10 +235,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_circuit_init(&mut self, input: &CircuitInitExpression<'a>, values: Vec<M>) -> M {
+    fn reduce_circuit_init(&mut self, input: &'a CircuitInitExpression<'a>, values: Vec<M>) -> M {
         let label = format!(
-            "Circuit Init Expression\nNode ID: {:}\n\n{:}",
+            "Circuit Init Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -234,10 +251,17 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_ternary_expression(&mut self, input: &TernaryExpression<'a>, condition: M, if_true: M, if_false: M) -> M {
+    fn reduce_ternary_expression(
+        &mut self,
+        input: &'a TernaryExpression<'a>,
+        condition: M,
+        if_true: M,
+        if_false: M,
+    ) -> M {
         let label = format!(
-            "Ternary Expression\nNode ID: {:}\n\n{:}",
+            "Ternary Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -254,10 +278,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_cast_expression(&mut self, input: &CastExpression<'a>, inner: M) -> M {
+    fn reduce_cast_expression(&mut self, input: &'a CastExpression<'a>, inner: M) -> M {
         let label = format!(
-            "Cast Expression\nNode ID: {:}\n\n{:}",
+            "Cast Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -267,10 +292,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_lengthof_expression(&mut self, input: &LengthOfExpression<'a>, inner: M) -> M {
+    fn reduce_lengthof_expression(&mut self, input: &'a LengthOfExpression<'a>, inner: M) -> M {
         let label = format!(
-            "LengthOf Expression\nNode ID: {:}\n\n{:}",
+            "LengthOf Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -280,21 +306,25 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_constant(&mut self, input: &Constant<'a>) -> M {
+    fn reduce_constant(&mut self, input: &'a Constant<'a>) -> M {
         //TODO: Are there children to reduce?
+        //TODO: Implement Display for ConstValue
         let label = format!(
-            "Constant\nNode ID: {:}\n\n{:}",
+            "Constant\nNode ID: {:}\nType: {:}\nValue: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
+            "TODO".to_string(),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         Fixed(start_idx)
     }
 
-    fn reduce_tuple_access(&mut self, input: &TupleAccessExpression<'a>, tuple_ref: M) -> M {
+    fn reduce_tuple_access(&mut self, input: &'a TupleAccessExpression<'a>, tuple_ref: M) -> M {
         let label = format!(
-            "Tuple Access Expression\nNode ID: {:}\n\n{:}",
+            "Tuple Access Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -304,10 +334,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_tuple_init(&mut self, input: &TupleInitExpression<'a>, values: Vec<M>) -> M {
+    fn reduce_tuple_init(&mut self, input: &'a TupleInitExpression<'a>, values: Vec<M>) -> M {
         let label = format!(
-            "Tuple Init Expression\nNode ID: {:}\n\n{:}",
+            "Tuple Init Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -319,10 +350,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_unary(&mut self, input: &UnaryExpression<'a>, inner: M) -> M {
+    fn reduce_unary(&mut self, input: &'a UnaryExpression<'a>, inner: M) -> M {
         let label = format!(
-            "Unary Expression\nNode ID: {:}\n\n{:}",
+            "Unary Expression\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -332,11 +364,12 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_variable_ref(&mut self, input: &VariableRef<'a>) -> M {
+    fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>) -> M {
         //TODO: Are there children to visit here?
         let label = format!(
-            "Variable Ref\nNode ID: {:}\n\n{:}",
+            "Variable Ref\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
+            Dotify::generate_type_info(input.get_type()),
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);

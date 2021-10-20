@@ -30,7 +30,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         element
     }
 
-    fn reduce_array_inline(&mut self, input: &ArrayInlineExpression<'a>, elements: Vec<T>) -> T {
+    fn reduce_array_inline(&mut self, input: &'a ArrayInlineExpression<'a>, elements: Vec<T>) -> T {
         T::default().append_all(elements.into_iter())
     }
 
@@ -38,7 +38,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         left.append(right)
     }
 
-    fn reduce_call(&mut self, input: &CallExpression<'a>, target: Option<T>, arguments: Vec<T>) -> T {
+    fn reduce_call(&mut self, input: &'a CallExpression<'a>, target: Option<T>, arguments: Vec<T>) -> T {
         target.unwrap_or_default().append_all(arguments.into_iter())
     }
 
@@ -46,11 +46,17 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         T::default().append_all(values.into_iter())
     }
 
-    fn reduce_ternary_expression(&mut self, input: &TernaryExpression<'a>, condition: T, if_true: T, if_false: T) -> T {
+    fn reduce_ternary_expression(
+        &mut self,
+        input: &'a TernaryExpression<'a>,
+        condition: T,
+        if_true: T,
+        if_false: T,
+    ) -> T {
         condition.append(if_true).append(if_false)
     }
 
-    fn reduce_cast_expression(&mut self, input: &CastExpression<'a>, inner: T) -> T {
+    fn reduce_cast_expression(&mut self, input: &'a CastExpression<'a>, inner: T) -> T {
         inner
     }
 
@@ -80,15 +86,15 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         tuple_ref
     }
 
-    fn reduce_tuple_init(&mut self, input: &TupleInitExpression<'a>, values: Vec<T>) -> T {
+    fn reduce_tuple_init(&mut self, input: &'a TupleInitExpression<'a>, values: Vec<T>) -> T {
         T::default().append_all(values.into_iter())
     }
 
-    fn reduce_unary(&mut self, input: &UnaryExpression<'a>, inner: T) -> T {
+    fn reduce_unary(&mut self, input: &'a UnaryExpression<'a>, inner: T) -> T {
         inner
     }
 
-    fn reduce_variable_ref(&mut self, input: &VariableRef<'a>) -> T {
+    fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>) -> T {
         T::default()
     }
 }

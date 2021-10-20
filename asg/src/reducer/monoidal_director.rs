@@ -66,7 +66,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_array_init(input, element)
     }
 
-    pub fn reduce_array_inline(&mut self, input: &ArrayInlineExpression<'a>) -> T {
+    pub fn reduce_array_inline(&mut self, input: &'a ArrayInlineExpression<'a>) -> T {
         let elements = input
             .elements
             .iter()
@@ -83,7 +83,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_binary(input, left, right)
     }
 
-    pub fn reduce_call(&mut self, input: &CallExpression<'a>) -> T {
+    pub fn reduce_call(&mut self, input: &'a CallExpression<'a>) -> T {
         let target = input.target.get().map(|e| self.reduce_expression(e));
         let arguments = input
             .arguments
@@ -104,7 +104,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_circuit_init(input, values)
     }
 
-    pub fn reduce_ternary_expression(&mut self, input: &TernaryExpression<'a>) -> T {
+    pub fn reduce_ternary_expression(&mut self, input: &'a TernaryExpression<'a>) -> T {
         let condition = self.reduce_expression(input.condition.get());
         let if_true = self.reduce_expression(input.if_true.get());
         let if_false = self.reduce_expression(input.if_false.get());
@@ -113,7 +113,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
             .reduce_ternary_expression(input, condition, if_true, if_false)
     }
 
-    pub fn reduce_cast_expression(&mut self, input: &CastExpression<'a>) -> T {
+    pub fn reduce_cast_expression(&mut self, input: &'a CastExpression<'a>) -> T {
         let inner = self.reduce_expression(input.inner.get());
 
         self.reducer.reduce_cast_expression(input, inner)
@@ -167,13 +167,13 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_tuple_init(input, values)
     }
 
-    pub fn reduce_unary(&mut self, input: &UnaryExpression<'a>) -> T {
+    pub fn reduce_unary(&mut self, input: &'a UnaryExpression<'a>) -> T {
         let inner = self.reduce_expression(input.inner.get());
 
         self.reducer.reduce_unary(input, inner)
     }
 
-    pub fn reduce_variable_ref(&mut self, input: &VariableRef<'a>) -> T {
+    pub fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>) -> T {
         self.reducer.reduce_variable_ref(input)
     }
 }
@@ -263,13 +263,13 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
         self.reducer.reduce_definition(input, value)
     }
 
-    pub fn reduce_expression_statement(&mut self, input: &ExpressionStatement<'a>) -> T {
+    pub fn reduce_expression_statement(&mut self, input: &'a ExpressionStatement<'a>) -> T {
         let value = self.reduce_expression(input.expression.get());
 
         self.reducer.reduce_expression_statement(input, value)
     }
 
-    pub fn reduce_iteration(&mut self, input: &IterationStatement<'a>) -> T {
+    pub fn reduce_iteration(&mut self, input: &'a IterationStatement<'a>) -> T {
         let start = self.reduce_expression(input.start.get());
         let stop = self.reduce_expression(input.stop.get());
         let body = self.reduce_statement(input.body.get());
@@ -277,7 +277,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
         self.reducer.reduce_iteration(input, start, stop, body)
     }
 
-    pub fn reduce_return(&mut self, input: &ReturnStatement<'a>) -> T {
+    pub fn reduce_return(&mut self, input: &'a ReturnStatement<'a>) -> T {
         let value = self.reduce_expression(input.expression.get());
 
         self.reducer.reduce_return(input, value)
