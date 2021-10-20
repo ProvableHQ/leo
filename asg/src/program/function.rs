@@ -47,6 +47,7 @@ pub struct Function<'a> {
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
     pub annotations: Vec<Annotation>,
+    pub is_const: bool,
 }
 
 impl<'a> fmt::Display for Function<'a> {
@@ -122,15 +123,16 @@ impl<'a> Function<'a> {
         }
         let function = scope.context.alloc_function(Function {
             id: scope.context.get_id(),
+            annotations: value.annotations.clone(),
+            body: Cell::new(None),
+            circuit: Cell::new(None),
+            is_const: value.is_const,
             name: RefCell::new(value.identifier.clone()),
+            span: Some(value.span.clone()),
+            scope: new_scope,
             output,
             arguments,
-            circuit: Cell::new(None),
-            body: Cell::new(None),
             qualifier,
-            scope: new_scope,
-            span: Some(value.span.clone()),
-            annotations: value.annotations.clone(),
         });
         function.scope.function.replace(Some(function));
 
@@ -219,11 +221,12 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
         let output: Type = self.output.clone();
         leo_ast::Function {
             identifier: self.name.borrow().clone(),
+            annotations: self.annotations.clone(),
+            output: Some((&output).into()),
+            is_const: self.is_const,
             input,
             block: body,
-            output: Some((&output).into()),
             span,
-            annotations: self.annotations.clone(),
         }
     }
 }

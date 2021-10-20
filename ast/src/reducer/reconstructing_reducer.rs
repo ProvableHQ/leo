@@ -475,6 +475,7 @@ pub trait ReconstructingReducer {
         identifier: Identifier,
         annotations: Vec<Annotation>,
         input: Vec<FunctionInput>,
+        is_const: bool,
         output: Option<Type>,
         block: Block,
     ) -> Result<Function> {
@@ -482,6 +483,7 @@ pub trait ReconstructingReducer {
             identifier,
             annotations,
             input,
+            is_const,
             output,
             block,
             span: function.span.clone(),

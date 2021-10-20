@@ -44,16 +44,23 @@ impl ParserContext {
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
                 }
+                Token::Const => {
+                    // If it's a const function and not a const definition
+                    if self.peek_token().as_ref() == &Token::Const {
+                        let (id, function) = self.parse_function_declaration()?;
+                        functions.insert(id, function);
+                        continue;
+                    }
+
+                    let (name, global_const) = self.parse_global_const_declaration()?;
+                    global_consts.insert(name, global_const);
+                }
                 Token::Function | Token::At => {
                     let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
                 }
                 Token::Ident(ident) if ident.as_ref() == "test" => {
                     return Err(ParserError::test_function(&token.span).into());
-                }
-                Token::Const => {
-                    let (name, global_const) = self.parse_global_const_declaration()?;
-                    global_consts.insert(name, global_const);
                 }
                 Token::Type => {
                     let (name, alias) = self.parse_type_alias()?;
@@ -472,8 +479,14 @@ impl ParserContext {
         while self.peek_token().as_ref() == &Token::At {
             annotations.push(self.parse_annotation()?);
         }
+
+        // Eat const modifier or get false.
+        let is_const = self.eat(Token::Const).is_some();
         let start = self.expect(Token::Function)?;
         let name = self.expect_ident()?;
+
+        println!("{}", name);
+
         self.expect(Token::LeftParen)?;
         let mut inputs = Vec::new();
         while self.eat(Token::RightParen).is_none() {
@@ -496,6 +509,7 @@ impl ParserContext {
                 annotations,
                 identifier: name,
                 input: inputs,
+                is_const,
                 output,
                 span: start + block.span.clone(),
                 block,

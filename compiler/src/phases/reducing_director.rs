@@ -688,6 +688,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             ast.identifier.clone(),
             ast.annotations.clone(),
             ast.input.clone(),
+            ast.is_const,
             output,
             block,
         )
