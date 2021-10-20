@@ -38,6 +38,7 @@ features = [ "derive", "rc" ]
 
 [dependencies.serde_json]
 version = "1.0"
+features = [ "preserve_order" ]
 
 [dependencies.tendril]
 version = "0.4"

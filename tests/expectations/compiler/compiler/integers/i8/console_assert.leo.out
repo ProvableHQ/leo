@@ -19,7 +19,7 @@ outputs:
       - input_file: i8.in
         output:
           registers: {}
-    initial_ast: 17b1eb126e8cb1e246f071e8ad20a25eee7a8abd80e3681e525439292221632c
-    imports_resolved_ast: bfcafd2c41e07efda1719e88c8ed24f0e0c690adecf205380eb8ac804fd7a8c5
-    canonicalized_ast: 9416b55880089e8ca46f09154f306e138362340b52dddb8b93f4bd23a6eac906
-    type_inferenced_ast: d9c163f4e000f3c96ace5e9147d693b6d843d9aa18f63a35177c7745e9549bd2
+    initial_ast: e2a747d71854c915b7ec8143e5a2522c64abb1ac971b10f63646806c48330c0c
+    imports_resolved_ast: 4111b88ee2439f09fa213ebe1aee411b0b3fd5545745988762c5f31aa94ff262
+    canonicalized_ast: 2cfac6ce73ea847246d0640e1fc53d685113cffef13ad3684ea554231adb4f85
+    type_inferenced_ast: 812707e0fa896e764c20cc922d6d2149cd57e7673817355248d5905a7d524dcc

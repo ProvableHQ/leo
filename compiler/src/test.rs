@@ -123,6 +123,7 @@ impl Namespace for CompileNamespace {
         let parsed = parse_program(
             &test.content,
             Some(AstSnapshotOptions {
+                spans_enabled: false,
                 initial: true,
                 imports_resolved: true,
                 canonicalized: true,

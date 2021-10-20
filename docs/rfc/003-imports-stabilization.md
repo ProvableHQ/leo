@@ -8,45 +8,71 @@ The Aleo Team.
 
 IMPLEMENTED
 
-# Summary
+## Summary
 
 This proposal aims to improve the import management system in Leo programs to
-make program environment more reproducible, predictable and compatible. To achieve
-that we suggest few changes to Leo CLI and Manifest:
+make the program environment more reproducible, predictable and compatible. To achieve
+that we suggest a few changes to the Leo CLI and Manifest:
 
-- add a "dependencies" section to Leo Manifest and add a command to pull those dependencies;
+- add a "dependencies" section to the Leo Manifest and add a command to pull those dependencies;
 - allow custom names for imports to manually resolve name conflicts;
 - add "curve" and "proving system" sections to the Manifest;
 - add "include" and "exclude" parameters for "proving system" and "curve";
-- add a lock file which would store imported dependencies and their relations;
+- add a lock file to store imported dependencies and their relations;
 
-# Motivation
+## Motivation
 
 The current design of imports does not provide any guarantees on what's stored
 in program imports and published with the program to Aleo Package Manager.
-When a dependency is "added," it is stored inside imports folder, and it is possible
+When a dependency is "added," it is stored inside the imports folder, and it is possible
 to manually edit and/or add packages in this folder.
 
-Also, imports are stored under the package name which makes it impossible to import
+Also, imports are stored under the package name, which makes it impossible to import
 two different packages with the same name.
 
-Another important detail in the scope of this proposal is that in future Leo
-programs will have the ability to be run with different proving systems
+Another important detail in the scope of this proposal is that, in the future, Leo
+programs will have the ability to run with different proving systems
 and curves, possibly creating incompatibility between programs written
 for different proving systems or curves. To make a foundation for these features,
 imports need to be managed with include/exclude lists for allowed (compatible)
 proving systems and curves.
 
-# Design
+## Background
 
-## Leo Manifest - target section
+Leo supports packages and importing, similarly to other languages.
 
-To lay the foundation for the future of the Leo ecosystem and start integrating
-information about programs compatibility we suggest adding two new fields to
+A Leo _project_ consists of a `main.leo` file
+and zero or more additional `.leo` files;
+the latter may be organized in subdirectories.
+The content of each file is as defined by `file` in the ABNF grammar:
+it consists of types, functions, etc.
+Each non-main file forms a Leo _package_ (because it packages the types, functions, etc. that it defines),
+which can be referenced via its path, without the `.leo` extension and with `/` replaced by `.`
+(restrictions on the file and directory names derive from the definition of `package-name` in the ABNF grammar,
+and ensure that the package names can be resolved to file system paths).
+A Leo project also forms a package, which can be published in the Aleo Package Manager (APM),
+a repository of Aleo packages, similar to `crates.io` in Rust.
+
+The files in a Leo project can import entities (types, functions, etc.) from
+not only local packages (i.e. other files in the same project),
+but also packages in the APM.
+This RFC is focused on importing packages from the APM.
+
+Each package in the APM is uniquely identified by:
+* The author, who must have a registered account on the APM, with a unique username.
+* The package name, which is unique within each author's account.
+* The package version, which allows different versions of the same package to be treated like different packages.
+
+## Design
+
+### Leo Manifest - target section
+
+To lay the foundation for the future of the Leo ecosystem and to start integrating
+information about programs compatibility, we suggest adding two new fields to
 the new `[target]` section of the Leo Manifest: `proving_system` and `curve`.
 
 Currently, the Leo compiler only supports `Groth16` for the proving system and `Bls12_377`
-for the curve, they are meant to be default values in Leo Manifest.
+for the curve, which are meant to be default values in Leo Manifest.
 
 ```toml
 [project]
@@ -60,11 +86,11 @@ curve = "Bls12_377"
 proving_system = "Groth16"
 ```
 
-These fields are meant to be used to determine whether imported program is
+These fields are meant to be used to determine whether the imported program is
 compatible to the original when support for different curves and proving systems
 is added.
 
-## Leo Manifest - dependencies
+### Leo Manifest - dependencies
 
 Dependencies section:
 
@@ -79,11 +105,11 @@ package = "package"
 version = "1.0"
 ```
 
-### Parameters description
+#### Parameters description
 
-`name` field sets the name of the dependency in Leo code. That way we allow
+The `name` field sets the name of the dependency in Leo code. That way we allow
 developer to resolve collisions in import names manually. So, for example,
-if a developer is adding `howard/silly-sudoku` package to his program, he
+if a developer is adding the `howard/silly-sudoku` package to his program, he
 might define its in-code name as `sudoku` and import it with that name:
 
 ```ts
@@ -94,27 +120,27 @@ import sudoku;
 version respectively. They are already used as arguments in `leo add`
 command, so these fields are already understood by the Leo developers.
 
-## Leo CLI
+### Leo CLI
 
-To support updated Manifest new command should be added to Leo CLI.
+To support updating the Manifest, a new command should be added to Leo CLI.
 
 ```bash
 # pull imports
 leo fetch
 ```
 
-## Imports Restructurization
+### Imports Restructurization
 
-One of the goals of proposed changes is to allow importing packages with the
+One of the goals of the proposed changes is to allow importing packages with the
 same name but different authors. This has to be solved not only on the
 language level but also on the level of storing program imports.
 
-We suggest using set of all 3 possible program identifiers for import
+We suggest using the set of all 3 possible program identifiers for the import
 folder name: `author-package@version`. Later it can be extended to
-include hash for version, but having the inital set already solves name
+include a hash for the version, but having the inital set already solves name
 collisions.
 
-So, updated imports would look like:
+So, the updated imports would look like:
 
 ```
 leo-program
@@ -131,8 +157,8 @@ leo-program
     └── main.leo
 ```
 
-This change would also affect the way imports are being processed on the ASG
-level, and we'd need to add an imports map as an argument to the Leo compiler.
+This change also affects the way imports are being processed on the ASG
+level, and we need to add an imports map as an argument to the Leo compiler.
 The Leo Manifest's dependencies sections needs to be parsed and passed as
 a hashmap to the compiler:
 
@@ -141,14 +167,14 @@ first-program  => author1-program@0.1.0
 second-program => author2-program2@1.0.4
 ```
 
-## Leo.lock
+### Leo.lock
 
-For imports map to be generated and read by the Leo binary and then by the Leo compiler,
-a lock file needs to be created. Lock file should be generated by the `leo fetch` command,
+For the imports map to be generated and read by the Leo binary and then by the Leo compiler,
+a lock file needs to be created. The lock file should be generated by the `leo fetch` command,
 which will pull the dependencies, process their manifests, and put the required information
 to the file in the root directory of the program called `Leo.lock`.
 
-Suggested structure of this file is similar to the Cargo.lock file:
+The suggested structure of this file is similar to the Cargo.lock file:
 
 ```
 [[package]]
@@ -176,10 +202,10 @@ field `dependencies`.
 The format described here allows the Leo binary to form an imports map which can be
 passed to the compiler.
 
-It is important to note that Leo.lock file is created only when a package has dependencies.
+It is important to note that the Leo.lock file is created only when a package has dependencies.
 For programs with no dependencies, a lock file is not required and not created.
 
-## Recursive Dependencies
+### Recursive Dependencies
 
 This improvement introduces recursive dependencies. To solve this case preemptively
 Leo CLI needs to check the dependency tree and throw an error when a recursive dependency
@@ -190,23 +216,23 @@ Later this solution can be improved by building a lock file containing all the
 information on program dependencies, and the file itself will have enough data
 to track and prevent recursion.
 
-# Drawbacks
+## Drawbacks
 
 This change might require the update of already published programs on Aleo PM due to
 Leo Manifest change. However it is possible to implement it in a backward-compatible
 way.
 
-It also introduces the danger of having recursive dependencies, this problem is addressed in the Design section above.
+It also introduces the danger of having recursive dependencies, but this problem is addressed in the Design section above.
 
-# Effect on Ecosystem
+## Effect on Ecosystem
 
-Proposed improvement provides safety inside Leo programs and should not affect
-ecosystem except for the tools which use Leo directly (such as Aleo Studio).
+The proposed improvement provides safety inside Leo programs and should not affect
+the ecosystem except for the tools which use Leo directly (such as Aleo Studio).
 
 It is possible that some of the proposed features will open new features on Aleo PM.
 
-# Alternatives
+## Alternatives
 
 Another approach to the stated cases is to keep everything as we have now but change
-the way programs are imported and stored and make names unique. Also, current
+the way programs are imported and stored and make names unique. Also, the current
 implementation provides some guarantees on import stablitity and consistency.

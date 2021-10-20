@@ -126,7 +126,7 @@ version = "2.0"
 version = "4.0.0"
 
 [dependencies.console]
-version = "0.14.0"
+version = "0.15.0"
 
 [dependencies.from-pest]
 version = "0.3.1"
@@ -148,7 +148,7 @@ version = "0.8"
 version = "0.6.3"
 
 [dependencies.reqwest]
-version = "0.11.4"
+version = "0.11.6"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
@@ -182,7 +182,7 @@ version = "0.12.1"
 version = "0.11.2"
 
 [dev-dependencies.assert_cmd]
-version = "2.0.1"
+version = "2.0.2"
 
 [dev-dependencies.test_dir]
 version = "0.1.0"
