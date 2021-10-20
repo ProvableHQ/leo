@@ -1613,7 +1613,7 @@ There are three kinds of print commands.
 
 <a name="console-statement"></a>
 ```abnf
-console-statement = %s"console" "." console-call
+console-statement = %s"console" "." console-call ";"
 ```
 
 Go to: _[console-call](#user-content-console-call)_;
