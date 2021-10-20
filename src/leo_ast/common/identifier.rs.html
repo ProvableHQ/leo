@@ -163,6 +163,11 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
 </pre><pre class="rust">
 <span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
@@ -232,6 +237,11 @@
             <span class="ident">span</span>,
         }
     }
+
+    <span class="doccomment">/// Check if the Identifier name matches the other name</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">name</span>
+    }
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">InputIdentifier</span><span class="op">&lt;</span><span class="lifetime">&#39;ast</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Identifier</span> {
@@ -256,7 +266,7 @@
 
 <span class="kw">impl</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Identifier</span> {
     <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">name</span>
+        <span class="self">self</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">name</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">span</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">span</span>
     }
 }
 
