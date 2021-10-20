@@ -1261,7 +1261,7 @@ Go to: _[array-construction](#user-content-array-construction)_;
 
 Circuit expressions construct circuit values.
 Each lists values for all the member variables (in any order);
-there must be at least one member variable.
+there may be zero or more member variables.
 A single identifier abbreviates
 a pair consisting of the same identifier separated by colon;
 note that, in the expansion, the left one denotes a member name,
@@ -1271,8 +1271,8 @@ so they are syntactically identical but semantically different.
 <a name="circuit-construction"></a>
 ```abnf
 circuit-construction = identifier-or-self-type "{"
-                       circuit-inline-element
-                       *( "," circuit-inline-element ) [ "," ]
+                       [ circuit-inline-element
+                         *( "," circuit-inline-element ) [ "," ] ]
                        "}"
 ```
 
