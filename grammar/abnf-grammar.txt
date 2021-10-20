@@ -972,7 +972,7 @@ assignment-statement = expression assignment-operator expression ";"
 ; Note that the console function names are identifiers, not keywords.
 ; There are three kinds of print commands.
 
-console-statement = %s"console" "." console-call
+console-statement = %s"console" "." console-call ";"
 
 console-call = assert-call
              / print-call
