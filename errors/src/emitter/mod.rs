@@ -188,6 +188,8 @@ mod tests {
 
     #[test]
     fn buffer_works() {
+        let count_err = |s: String| s.lines().filter(|l| l.contains("Error")).count();
+
         let res: Result<(), _> = Handler::with(|h| {
             let s = Span::default();
             assert_eq!(h.err_count(), 0);
@@ -197,21 +199,8 @@ mod tests {
             assert_eq!(h.err_count(), 2);
             Err(ParserError::spread_in_array_init(&s).into())
         });
-        assert_eq!(
-            res.unwrap_err().to_string(),
-            "\u{1b}[1;31m\
-            Error [EPAR0370002]: Cannot import empty list\
-            \u{1b}[0m\
-            \n    --> :0:0\n     |\n     |\n\
-            \u{1b}[1;31m\
-            Error [EPAR0370003]: unexpected EOF\
-            \u{1b}[0m\
-            \n    --> :0:0\n     |\n     |\n\
-            \u{1b}[1;31m\
-            Error [EPAR0370010]: illegal spread in array initializer\
-            \u{1b}[0m\
-            \n    --> :0:0\n     |\n     |"
-        );
+
+        assert_eq!(count_err(res.unwrap_err().to_string()), 3);
 
         let res: Result<(), _> = Handler::with(|h| {
             let s = Span::default();
@@ -219,16 +208,7 @@ mod tests {
             h.emit_err(ParserError::unexpected_eof(&s).into());
             Ok(())
         });
-        assert_eq!(
-            res.unwrap_err().to_string(),
-            "\u{1b}[1;31m\
-            Error [EPAR0370002]: Cannot import empty list\
-            \u{1b}[0m\
-            \n    --> :0:0\n     |\n     |\n\
-            \u{1b}[1;31m\
-            Error [EPAR0370003]: unexpected EOF\
-            \u{1b}[0m\n    --> :0:0\n     |\n     |"
-        );
+        assert_eq!(count_err(res.unwrap_err().to_string()), 2);
 
         let () = Handler::with(|_| Ok(())).unwrap();
     }
