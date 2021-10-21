@@ -19,7 +19,7 @@ outputs:
       - input_file: i64.in
         output:
           registers: {}
-    initial_ast: 9d08064e7ffe853ac3af84382a5e671b0ececc6b6b8e8cc21d1d24de2992b7a9
-    imports_resolved_ast: da8c3a36c7c0a0079e9a7ce164209499a96085c08940076d3e220b97e20a40e0
-    canonicalized_ast: 3ba93f0b6c9d191197b71865ba7dc773fc27648b2fc6cb99da1dddc69e588a80
-    type_inferenced_ast: e76a5dd04a50a809659971c58f8d5ede5a9b3b217c19e37486c0ca01e5760ce0
+    initial_ast: 6d758f9e3449cddb45fe1d50e84d040c65425b9663ef9e871099cb4b53ba0c57
+    imports_resolved_ast: 14786259ec19218ae3a1afc6a1090c9028ed33a940dfe40d14df0c03f643871b
+    canonicalized_ast: 017010a9efee44ee6c13c23e363de54dc564643568920bd85355fb2c5fc65f9b
+    type_inferenced_ast: fb895cc770f9e2fbc87b067b3dcbf232132c4b41775d475061c9d9230d7606e2

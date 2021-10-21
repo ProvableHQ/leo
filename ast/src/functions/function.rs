@@ -25,7 +25,7 @@ pub struct Function {
     pub annotations: Vec<Annotation>,
     pub identifier: Identifier,
     pub input: Vec<FunctionInput>,
-    pub is_const: bool,
+    pub const_: bool,
     pub output: Option<Type>,
     pub block: Block,
     pub span: Span,

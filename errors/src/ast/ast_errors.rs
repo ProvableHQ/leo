@@ -130,4 +130,12 @@ create_errors!(
         msg: "main function cannot be const",
         help: None,
     }
+
+    /// For when const function has non-const inputs or self.
+    @formatted
+    const_function_cannot_have_inputs {
+        args: (),
+        msg: "const function cannot have non-const input",
+        help: None,
+    }
 );

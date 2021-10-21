@@ -579,7 +579,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             identifier,
             annotations,
             inputs,
-            function.is_const,
+            function.const_,
             output,
             block,
         )

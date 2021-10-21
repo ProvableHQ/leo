@@ -16,6 +16,7 @@ outputs:
               annotations: []
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x() {\\\"}\"}"
               input: []
+              const_: false
               output: ~
               block:
                 statements:
@@ -55,6 +56,7 @@ outputs:
               annotations: []
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function y() {\\\"}\"}"
               input: []
+              const_: false
               output: ~
               block:
                 statements:
@@ -90,5 +92,45 @@ outputs:
                 col_stop: 6
                 path: ""
                 content: "    function y() {\n         ...\n    }"
+          - CircuitFunction:
+              annotations: []
+              identifier: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function z() {\\\"}\"}"
+              input: []
+              const_: true
+              output: ~
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        TupleInit:
+                          elements: []
+                          span:
+                            line_start: 11
+                            line_stop: 11
+                            col_start: 16
+                            col_stop: 18
+                            path: ""
+                            content: "        return ();"
+                      span:
+                        line_start: 11
+                        line_stop: 11
+                        col_start: 9
+                        col_stop: 18
+                        path: ""
+                        content: "        return ();"
+                span:
+                  line_start: 10
+                  line_stop: 12
+                  col_start: 24
+                  col_stop: 6
+                  path: ""
+                  content: "    const function z() {\n         ...\n    }"
+              span:
+                line_start: 10
+                line_stop: 12
+                col_start: 11
+                col_stop: 6
+                path: ""
+                content: "    const function z() {\n         ...\n    }"
     global_consts: {}
     functions: {}

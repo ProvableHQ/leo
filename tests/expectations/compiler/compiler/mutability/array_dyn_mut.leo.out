@@ -39,7 +39,7 @@ outputs:
             r0:
               type: "[u32; 3]"
               value: "[1, 5, 0]"
-    initial_ast: c1be2b710424518257928f3b787bd7b066f728f4f7e3a38a05af8cf20230e1cd
-    imports_resolved_ast: ca7b623ea9153c60587df2f3c58a7a6a1cd931353f8a7fe781cfdc727501f957
-    canonicalized_ast: ff75a73383d6d7e4b1cf50286a15b2ee9f7f49554053811c04674ff7e1cda410
-    type_inferenced_ast: 9a159ab4fab94c655249197cf65131633b1a1cca6bc674269f97acbc25aefe08
+    initial_ast: 125a370934d617c49dca61734825386924d07bd46c10bcc3dfe487d2d3d240b5
+    imports_resolved_ast: 1b31ccdee4dc44b609e801d7b4913340fda0c899e313c84fe68d9fc90be1bc6a
+    canonicalized_ast: a2aa8d1d3faaefef298e002caf66d12d252eef2cedc3afe7bc78c4e2ad5ba408
+    type_inferenced_ast: 9f84d512e996f6cc71c9cbfe1e3723d0408cef3970f2951679f2d505f8f90918

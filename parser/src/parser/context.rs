@@ -202,6 +202,19 @@ impl ParserContext {
     }
 
     ///
+    /// Returns `true` if the next token is Function or if it is a Const followed by Function.
+    /// Returns `false` otherwise.
+    ///
+    pub fn peek_is_function(&self) -> Result<bool> {
+        let first = &self.peek()?.token;
+        let next = &self.peek_next()?.token;
+        let is_func =
+            first == &Token::Function || first == &Token::At || (first == &Token::Const && next == &Token::Function);
+
+        Ok(is_func)
+    }
+
+    ///
     /// Removes the next two tokens if they are a pair of [`GroupCoordinate`] and returns them,
     /// or [None] if the next token is not a [`GroupCoordinate`].
     ///

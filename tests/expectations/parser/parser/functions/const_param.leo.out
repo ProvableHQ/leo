@@ -40,6 +40,7 @@ outputs:
                 col_stop: 27
                 path: ""
                 content: "function x(x: u32, const y: i32) {"
+        const_: false
         output: ~
         block:
           statements:
@@ -105,6 +106,7 @@ outputs:
                 col_stop: 27
                 path: ""
                 content: "function x(const x: u32, y: i32) {"
+        const_: false
         output: ~
         block:
           statements:

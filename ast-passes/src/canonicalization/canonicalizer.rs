@@ -491,7 +491,7 @@ impl Canonicalizer {
                 return CircuitMember::CircuitFunction(Function {
                     annotations: function.annotations.clone(),
                     identifier: function.identifier.clone(),
-                    is_const: function.is_const,
+                    const_: function.const_,
                     input,
                     output,
                     block,
@@ -694,7 +694,7 @@ impl ReconstructingReducer for Canonicalizer {
         identifier: Identifier,
         annotations: Vec<Annotation>,
         input: Vec<FunctionInput>,
-        is_const: bool,
+        const_: bool,
         output: Option<Type>,
         block: Block,
     ) -> Result<Function> {
@@ -703,15 +703,27 @@ impl ReconstructingReducer for Canonicalizer {
             _ => output,
         };
 
-        if function.is_main() && is_const {
-            return Err(AstError::main_cannot_be_const(&function.identifier.span).into());
+        if function.const_ {
+            if function.is_main() {
+                return Err(AstError::main_cannot_be_const(&function.identifier.span).into());
+            }
+
+            let non_const_input = function.input.iter().find(|a| {
+                a.get_variable()
+                    .map(|v| !v.const_)
+                    .unwrap_or(a.is_mut_self() || (a.is_self() && !a.is_const_self()))
+            });
+
+            if let Some(input) = non_const_input {
+                return Err(AstError::const_function_cannot_have_inputs(&input.span()).into());
+            }
         }
 
         Ok(Function {
             identifier,
             annotations,
             input,
-            is_const,
+            const_,
             output: new_output,
             block,
             span: function.span.clone(),

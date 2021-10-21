@@ -16,6 +16,7 @@ outputs:
               annotations: []
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x() -> Self {\\\"}\"}"
               input: []
+              const_: false
               output: SelfType
               block:
                 statements:

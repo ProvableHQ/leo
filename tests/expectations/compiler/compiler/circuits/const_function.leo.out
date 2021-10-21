@@ -1,0 +1,37 @@
+---
+namespace: Compile
+expectation: Pass
+outputs:
+  - circuit:
+      num_public_variables: 0
+      num_private_variables: 2
+      num_constraints: 2
+      at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
+      bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
+      ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, (1)"
+      - "  call &v4, f2, (1)"
+      - "  call &v5, f1, 1"
+      - "  eq &v6, v4, v5"
+      - "  eq &v7, v6, true"
+      - "  retn v7"
+      - "decl f1: <8>"
+      - "  retn v8"
+      - "decl f2: <9>"
+      - "  tget &v10, v9, 0"
+      - "  retn v10"
+      - ""
+    output:
+      - input_file: input/dummy.in
+        output:
+          registers:
+            r0:
+              type: bool
+              value: "true"
+    initial_ast: f681a288dcdc5e6f67f9d8e34a49d1f3a42141467d96c88cb81448a5e7e070db
+    imports_resolved_ast: 6d0cc6f63b5f1f51cdf57a2da5782276d580945cd139703519df31fc7fefcfa1
+    canonicalized_ast: 6d0cc6f63b5f1f51cdf57a2da5782276d580945cd139703519df31fc7fefcfa1
+    type_inferenced_ast: 57ee9803d1deb14f5830ed6a41263e97aff103d8dd4a3e4797de4ea0f5c32846

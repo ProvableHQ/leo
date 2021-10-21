@@ -47,7 +47,7 @@ pub struct Function<'a> {
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
     pub annotations: Vec<Annotation>,
-    pub is_const: bool,
+    pub const_: bool,
 }
 
 impl<'a> fmt::Display for Function<'a> {
@@ -126,7 +126,7 @@ impl<'a> Function<'a> {
             annotations: value.annotations.clone(),
             body: Cell::new(None),
             circuit: Cell::new(None),
-            is_const: value.is_const,
+            const_: value.const_,
             name: RefCell::new(value.identifier.clone()),
             span: Some(value.span.clone()),
             scope: new_scope,
@@ -223,7 +223,7 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
             identifier: self.name.borrow().clone(),
             annotations: self.annotations.clone(),
             output: Some((&output).into()),
-            is_const: self.is_const,
+            const_: self.const_,
             input,
             block: body,
             span,
