@@ -64,6 +64,23 @@ let x = u8::MAX; // A constant value on the scalar type
 let y = u8::to_bits(1u8); // A static method on the scalar type
 ```
 
+It also allows for static constants for circuits in general:
+
+```ts
+circuit Point {
+  static SLOPE: u32 = 3;
+  x: u32;
+  y: u32;
+
+  function new(x: u32, y: u32) -> Self {
+    return Self {
+      x,
+      y: y + Self::SLOPE
+    };
+  }
+}
+```
+
 ## Drawbacks
 
 This change adds more complexity to the language.
