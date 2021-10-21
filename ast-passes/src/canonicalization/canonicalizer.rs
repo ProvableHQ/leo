@@ -703,6 +703,10 @@ impl ReconstructingReducer for Canonicalizer {
             _ => output,
         };
 
+        if function.is_main() && is_const {
+            return Err(AstError::main_cannot_be_const(&function.identifier.span).into());
+        }
+
         Ok(Function {
             identifier,
             annotations,

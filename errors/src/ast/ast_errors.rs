@@ -122,4 +122,12 @@ create_errors!(
         msg: format!("failed to resolve import: '{}'", name),
         help: None,
     }
+
+    /// For when const function modifier is added to the main function.
+    @formatted
+    main_cannot_be_const {
+        args: (),
+        msg: "main function cannot be const",
+        help: None,
+    }
 );

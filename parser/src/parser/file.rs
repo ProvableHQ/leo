@@ -45,8 +45,10 @@ impl ParserContext {
                     circuits.insert(id, circuit);
                 }
                 Token::Const => {
-                    // If it's a const function and not a const definition
-                    if self.peek_token().as_ref() == &Token::Const {
+                    // Peek two next tokens: Const and X, if X is a Function, then parse it as a
+                    // constant function, else as a global const.
+                    let next_tokens = self.peek_multiple(2);
+                    if next_tokens.contains(&&Token::Function) {
                         let (id, function) = self.parse_function_declaration()?;
                         functions.insert(id, function);
                         continue;

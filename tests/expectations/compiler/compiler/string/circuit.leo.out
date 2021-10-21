@@ -31,7 +31,7 @@ outputs:
             out:
               type: "[char; 13]"
               value: "Hello, World!"
-    initial_ast: 3aa0745060289c1a1af4e66265f8a92a89caff1731dc70d8c6a59798152f1a38
-    imports_resolved_ast: 51a077846fa46a0623fcd57e547717ebc28d1fa97bec7f5205e7d48f986ffda5
-    canonicalized_ast: 559d13c93a8a8e0bef3e8db4e6f4a543aeca6dde6910ee6d136c43f9c73d1e6a
-    type_inferenced_ast: 67251b4a2e59336b16ebaa4c2f892a1595f426259a12a84d6cfd7da5626d82c5
+    initial_ast: c4bd7b055467ac376d469d3dfe1e0aa17010d8e7df96a0904d7c3cb5c05d7962
+    imports_resolved_ast: aa827304d6b8c45610700b5b52604e9c605cc8db32db930fb62ee656aec31d42
+    canonicalized_ast: 8168269c0423bebb134ce537bf376b6b985170d6508487796017b20268e69089
+    type_inferenced_ast: 9c66a1908b7d4e97544e7043197c81277dc24294b43302eb2b5a548e0ed648b5
