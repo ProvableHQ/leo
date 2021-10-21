@@ -150,9 +150,6 @@ impl<'a> Program<'a> {
             // Cast
             Expression::Cast(_) => unimplemented!("casts not implemented"),
 
-            // LengthOf
-            Expression::LengthOf(lengthof) => self.enforce_lengthof(lengthof),
-
             // Variables
             Expression::VariableRef(variable_ref) => self.evaluate_ref(variable_ref),
 

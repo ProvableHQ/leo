@@ -101,13 +101,16 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     let circuit = match type_ {
                         // Set core mapping to function name and resolve core circuit when applicable.
                         // Otherwise resolve regular circuit.
-                        Some(Type::Array(_, _)) | Some(Type::ArrayWithoutSize(_)) | Some(Type::Tuple(_)) | None => {
+                        Some(Type::Tuple(_)) | None => {
                             return Err(AsgError::unexpected_type(
                                 "circuit",
                                 type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                                 span,
                             )
                             .into());
+                        }
+                        Some(Type::Array(_, _)) | Some(Type::ArrayWithoutSize(_)) => {
+                            scope.resolve_circuit("array").unwrap()
                         }
                         Some(Type::Circuit(circuit)) => circuit,
                         Some(Type::Integer(int_type)) => scope.resolve_circuit(&int_type.to_string()).unwrap(),

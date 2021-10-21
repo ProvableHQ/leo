@@ -92,21 +92,19 @@ impl Program {
         for (_, circuit) in self.circuits.iter() {
             for member in circuit.members.iter() {
                 if let CircuitMember::CircuitFunction(function) = member {
-                    let mapping = match function.identifier.name.as_ref() {
-                        // bits/bytes le operations
-                        "to_bits_le" => Some(format!("{}_to_bits_le", circuit.circuit_name.name.to_string())),
-                        "from_bits_le" => Some(format!("{}_from_bits_le", circuit.circuit_name.name.to_string())),
-                        "to_bytes_le" => Some(format!("{}_to_bytes_le", circuit.circuit_name.name.to_string())),
-                        "from_bytes_le" => Some(format!("{}_from_bytes_le", circuit.circuit_name.name.to_string())),
-                        // bits/bytes be operations
-                        "to_bits_be" => Some(format!("{}_to_bits_be", circuit.circuit_name.name.to_string())),
-                        "from_bits_be" => Some(format!("{}_from_bits_be", circuit.circuit_name.name.to_string())),
-                        "to_bytes_be" => Some(format!("{}_to_bytes_be", circuit.circuit_name.name.to_string())),
-                        "from_bytes_be" => Some(format!("{}_from_bytes_be", circuit.circuit_name.name.to_string())),
-                        _ => Some(function.identifier.name.to_string()),
-                    };
-
-                    function.core_mapping.replace(mapping);
+                    if let Some(core_map) = function
+                        .annotations
+                        .iter()
+                        .find(|x| x.name.name.as_ref() == "CoreFunction")
+                    {
+                        function.core_mapping.replace(
+                            core_map
+                                .arguments
+                                .get(0)
+                                .or(Some(&function.identifier.name))
+                                .map(|f| f.to_string()),
+                        );
+                    }
                 }
             }
         }

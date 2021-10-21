@@ -32,6 +32,7 @@ lazy_static! {
 
 static PRELUDE: &[&str] = &[
     "prelude/address.leo",
+    "prelude/array.leo",
     "prelude/bool.leo",
     "prelude/char.leo",
     "prelude/field.leo",
@@ -54,6 +55,10 @@ pub fn static_include_stdlib() {
     stdlib.insert(
         "prelude/address.leo".to_string(),
         include_str!("./../prelude/address.leo").to_string(),
+    );
+    stdlib.insert(
+        "prelude/array.leo".to_string(),
+        include_str!("./../prelude/array.leo").to_string(),
     );
     stdlib.insert(
         "prelude/bool.leo".to_string(),
