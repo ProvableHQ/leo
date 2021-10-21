@@ -45,6 +45,15 @@ postfix-expression = primary-expression
                    / named-type "::" identifier ; this is new to allow member constants
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
+
+; Also need to add a new static member variable declaration rule to allow for static constant members.
+static-member-variable-declarations = static identifier ":" type = literal ";"
+
+; We then need to modify the circuit declartion rule.
+circuit-declaration = %s"circuit" identifier
+                      "{" [ static-member-variable-declarations ]
+                      [ member-variable-declarations ]
+                      *member-function-declaration "}"
 ```
 
 Now methods and static members would be first-class citizens of scalar types and their values. For example, the following could be done:
