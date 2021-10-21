@@ -9,6 +9,15 @@ outputs:
       at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
       bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
       ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
+    ir:
+      - "decl f0: <0>"
+      - "  store &v2, ((v0, v1), (), (), ())"
+      - "  tget &v3, v2, 0"
+      - "  tget &v4, v3, 0"
+      - "  tget &v5, v2, 0"
+      - "  tget &v6, v5, 1"
+      - "  retn (v4, v6)"
+      - ""
     output:
       - input_file: input/dummy.in
         output:

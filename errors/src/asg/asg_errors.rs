@@ -416,7 +416,7 @@ create_errors!(
     @formatted
     duplicate_alias_definition {
         args: (name: impl Display),
-        msg: format!("a alias named \"{}\" already exists in this scope", name),
+        msg: format!("an alias named \"{}\" already exists in this scope", name),
         help: None,
     }
 

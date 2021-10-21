@@ -9,7 +9,7 @@ function iteration() -> u32 {
 }
 
 function main() {
-    const total = iteration() + iteration();
+    let total = iteration() + iteration();
 
     console.assert(total == 20);
 }

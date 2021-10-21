@@ -14,5 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod definition;
-pub use self::definition::*;
+//! Enforces a relational `==` operator in a resolved Leo program.
+
+use crate::Program;
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, QueryData, Value};
+
+impl<'a> Program<'a> {
+    pub fn evaluate_ne(&mut self, left: Value, right: Value) -> Result<Value> {
+        let output = self.alloc();
+        self.emit(Instruction::Ne(QueryData {
+            destination: output,
+            values: vec![left, right],
+        }));
+        Ok(Value::Ref(output))
+    }
+}

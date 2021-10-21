@@ -9,6 +9,12 @@ outputs:
       at: 8111e478f64beb722ec96fbd80076cb73b735813b20e8f2ed6e3c21febceaae7
       bt: c2cfac5aa6e125cb6cde720b0598fef7933c4aa62926fe99405bf1c2829dd4ce
       ct: a3fa97a403ebea95a47d7ded7c01cee45af74afbfa876c203e4e96f6054b8815
+    ir:
+      - "decl f0: <0>"
+      - "  store &v0, ((), (), (), ())"
+      - "  eq &v3, v1, v2"
+      - "  assert v3"
+      - ""
     output:
       - input_file: i8.in
         output:

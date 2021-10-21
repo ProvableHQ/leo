@@ -103,6 +103,13 @@ default-features = false
 [dependencies.snarkvm-utilities]
 version = "0.7.6"
 
+#todo 0rphon replace once snarkvm releases and before merging staging to master.
+[dependencies.snarkvm-eval]
+version = "0.7.9"
+# path = "D:\\Work\\leo_repos\\snarkVM\\eval"
+git = "https://github.com/AleoHQ/snarkVM"
+branch = "master"
+
 [dependencies.structopt]
 version = "0.3"
 
@@ -205,3 +212,23 @@ opt-level = 0
 opt-level = 0
 debug-assertions = true
 debug = true
+
+# Remove on pr from staging to master once snarkvm does a release.
+[patch.crates-io]
+snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+
+# snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
+# snarkvm-fields = { path = "D:\\Work\\leo_repos\\snarkVM\\fields" }
+# snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }
+# snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }
+# snarkvm-gadgets = { path = "D:\\Work\\leo_repos\\snarkVM\\gadgets" }
+# snarkvm-parameters = { path = "D:\\Work\\leo_repos\\snarkVM\\parameters" }
+# snarkvm-dpc = { path = "D:\\Work\\leo_repos\\snarkVM\\dpc" }
+# snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }

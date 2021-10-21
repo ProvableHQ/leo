@@ -16,36 +16,48 @@
 
 //! Enforces constraints on a function in a compiled Leo program.
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::program::Program;
 
 use leo_asg::{Expression, Function, FunctionQualifier};
-use leo_errors::{CompilerError, Result};
+use leo_errors::CompilerError;
+use leo_errors::Result;
+use snarkvm_ir::{CallCoreData, CallData, Instruction, Integer, PredicateData, QueryData, Value};
 use std::cell::Cell;
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub(crate) fn enforce_function<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        function: &'a Function<'a>,
-        target: Option<&'a Expression<'a>>,
-        arguments: &[Cell<&'a Expression<'a>>],
-    ) -> Result<ConstrainedValue<'a, F, G>> {
-        let target_value = target.map(|target| self.enforce_expression(cs, target)).transpose()?;
-
-        let self_var = if let Some(target) = &target_value {
+impl<'a> Program<'a> {
+    pub(crate) fn enforce_function_definition(&mut self, function: &'a Function<'a>) -> Result<()> {
+        self.begin_function(function);
+        let statement = function
+            .body
+            .get()
+            .expect("attempted to build body for function header");
+        self.enforce_statement(statement)?;
+        // we are a mut self function with no explicit return
+        if function.qualifier == FunctionQualifier::MutSelfRef && function.output.is_unit() {
             let self_var = function
                 .scope
                 .resolve_variable("self")
-                .expect("attempted to call static function from non-static context");
-            self.store(self_var.borrow().id, target.clone());
-            Some(self_var)
-        } else {
-            None
-        };
+                .expect("missing self in mut self function");
+            let self_var_register = self.resolve_var(self_var);
+            let output = Value::Tuple(vec![Value::Ref(self_var_register), Value::Tuple(vec![])]);
+            self.emit(Instruction::Return(PredicateData { values: vec![output] }));
+        }
+        Ok(())
+    }
+
+    pub(crate) fn enforce_function_call(
+        &mut self,
+        function: &'a Function<'a>,
+        target: Option<&'a Expression<'a>>,
+        arguments: &[Cell<&'a Expression<'a>>],
+    ) -> Result<Value> {
+        let target_value = target.map(|target| self.enforce_expression(target)).transpose()?;
+
+        let mut ir_arguments = vec![];
+
+        if let Some(target) = target_value {
+            ir_arguments.push(target);
+        }
 
         if function.arguments.len() != arguments.len() {
             return Err(CompilerError::function_input_not_found(
@@ -57,41 +69,49 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         }
 
         // Store input values as new variables in resolved program
-        for ((_, variable), input_expression) in function.arguments.iter().zip(arguments.iter()) {
-            let input_value = self.enforce_expression(cs, input_expression.get())?;
-            let variable = variable.get().borrow();
+        for input_expression in arguments.iter() {
+            let input_value = self.enforce_expression(input_expression.get())?;
 
-            self.store(variable.id, input_value);
+            ir_arguments.push(input_value);
         }
 
-        // Evaluate every statement in the function and save all potential results
-        let mut results = vec![];
-        let indicator = Boolean::constant(true);
+        let output = self.alloc();
 
-        let output = function.output.clone();
+        let core_mapping = if let Some(circuit) = function.circuit.get() {
+            let core_mapping = circuit.core_mapping.borrow();
+            core_mapping.as_deref().map(|core_mapping| core_mapping.to_string())
+        } else {
+            None
+        };
 
-        let mut result = self.enforce_statement(
-            cs,
-            &indicator,
-            function.body.get().expect("attempted to call function header"),
-        )?;
-
-        results.append(&mut result);
+        if let Some(core_mapping) = core_mapping {
+            self.emit(Instruction::CallCore(CallCoreData {
+                destination: output,
+                identifier: core_mapping,
+                arguments: ir_arguments,
+            }));
+        } else {
+            self.emit(Instruction::Call(CallData {
+                destination: output,
+                index: self.resolve_function(function),
+                arguments: ir_arguments,
+            }));
+        }
 
         if function.qualifier == FunctionQualifier::MutSelfRef {
-            if let (Some(self_var), Some(target)) = (self_var, target) {
-                let new_self = self
-                    .get(self_var.borrow().id)
-                    .expect("no self variable found in mut self context")
-                    .clone();
-
-                if !self.resolve_mut_ref(cs, target, new_self, &indicator)? {
-                    // todo: we should report a warning for calling a mutable function on an effectively copied self (i.e. wasn't assignable `tempStruct {x: 5}.myMutSelfFunction()`)
-                }
-            }
+            let target = target.expect("missing target for mut self");
+            let out_target = self.alloc();
+            self.emit(Instruction::TupleIndexGet(QueryData {
+                destination: out_target,
+                values: vec![Value::Ref(output), Value::Integer(Integer::U32(0))],
+            }));
+            self.resolve_mut_ref(target, Value::Ref(out_target))?;
+            self.emit(Instruction::TupleIndexGet(QueryData {
+                destination: output,
+                values: vec![Value::Ref(output), Value::Integer(Integer::U32(1))],
+            }));
         }
 
-        // Conditionally select a result based on returned indicators
-        Self::conditionally_select_result(cs, &output, results, &function.span.clone().unwrap_or_default())
+        Ok(Value::Ref(output))
     }
 }

@@ -9,6 +9,13 @@ outputs:
       at: df88b362955f00b8c41afd9e31c9e41e4b8254a71ea0f3f2f97d5b6b8b767415
       bt: df58aff07b131c34e977ffb5657bbd21852f59fd7e059117c419c3c6070a7053
       ct: 335cdfb09b13172262042abccf4560511666deaa63cc1b3f30dd35dcb554840f
+    ir:
+      - "decl f0: <0>"
+      - "  store &v0, ((), (), (), ())"
+      - "  log INFO, \"a: \", v1, \"\""
+      - "  log INFO, \"b: \", v2, \"\""
+      - "  log INFO, \"c: \", v3, \"\""
+      - ""
     output:
       - input_file: input/main_group.in
         output:

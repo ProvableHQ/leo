@@ -19,7 +19,10 @@ use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use num_bigint::BigInt;
-use std::{convert::TryInto, fmt};
+use std::{
+    convert::{TryFrom, TryInto},
+    fmt,
+};
 use tendril::StrTendril;
 
 /// Constant integer values in a program.
@@ -41,7 +44,7 @@ pub enum ConstInt {
 #[derive(Clone, Debug, PartialEq)]
 pub enum GroupCoordinate {
     /// Explicit field element number string.
-    Number(StrTendril),
+    Number(BigInt),
 
     /// Attempt to recover with a sign high bit.
     SignHigh,
@@ -64,15 +67,19 @@ impl fmt::Display for GroupCoordinate {
     }
 }
 
-impl From<&leo_ast::GroupCoordinate> for GroupCoordinate {
-    fn from(other: &leo_ast::GroupCoordinate) -> GroupCoordinate {
+impl TryFrom<&leo_ast::GroupCoordinate> for GroupCoordinate {
+    type Error = AsgError;
+
+    fn try_from(other: &leo_ast::GroupCoordinate) -> Result<GroupCoordinate, AsgError> {
         use leo_ast::GroupCoordinate::*;
-        match other {
-            Number(value, _) => GroupCoordinate::Number(value.clone()),
+        Ok(match other {
+            Number(value, span) => {
+                GroupCoordinate::Number(value.parse().map_err(|_| AsgError::invalid_int(&value, span))?)
+            }
             SignHigh => GroupCoordinate::SignHigh,
             SignLow => GroupCoordinate::SignLow,
             Inferred => GroupCoordinate::Inferred,
-        }
+        })
     }
 }
 
@@ -80,7 +87,7 @@ impl Into<leo_ast::GroupCoordinate> for &GroupCoordinate {
     fn into(self) -> leo_ast::GroupCoordinate {
         use GroupCoordinate::*;
         match self {
-            Number(value) => leo_ast::GroupCoordinate::Number(value.clone(), Default::default()),
+            Number(value) => leo_ast::GroupCoordinate::Number(value.to_string().into(), Default::default()),
             SignHigh => leo_ast::GroupCoordinate::SignHigh,
             SignLow => leo_ast::GroupCoordinate::SignLow,
             Inferred => leo_ast::GroupCoordinate::Inferred,
@@ -90,17 +97,22 @@ impl Into<leo_ast::GroupCoordinate> for &GroupCoordinate {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum GroupValue {
-    Single(StrTendril),
+    Single(BigInt),
     Tuple(GroupCoordinate, GroupCoordinate),
 }
 
-impl From<leo_ast::GroupValue> for GroupValue {
-    fn from(other: leo_ast::GroupValue) -> Self {
+impl TryFrom<leo_ast::GroupValue> for GroupValue {
+    type Error = AsgError;
+
+    fn try_from(other: leo_ast::GroupValue) -> Result<Self, AsgError> {
         use leo_ast::GroupValue::*;
-        match other {
-            Single(value, _) => GroupValue::Single(value),
-            Tuple(value) => GroupValue::Tuple(GroupCoordinate::from(&value.x), GroupCoordinate::from(&value.y)),
-        }
+        Ok(match other {
+            Single(value, span) => GroupValue::Single(value.parse().map_err(|_| AsgError::invalid_int(&value, &span))?),
+            Tuple(value) => GroupValue::Tuple(
+                GroupCoordinate::try_from(&value.x)?,
+                GroupCoordinate::try_from(&value.y)?,
+            ),
+        })
     }
 }
 
@@ -342,7 +354,7 @@ impl<'a> ConstValue<'a> {
             ConstValue::Tuple(sub_consts) => {
                 Type::Tuple(sub_consts.iter().map(|x| x.get_type()).collect::<Option<Vec<Type>>>()?)
             }
-            ConstValue::Array(values) => Type::Array(Box::new(values.get(0)?.get_type()?), values.len()),
+            ConstValue::Array(values) => Type::Array(Box::new(values.get(0)?.get_type()?), values.len() as u32),
             ConstValue::Circuit(circuit, _) => Type::Circuit(circuit),
         })
     }

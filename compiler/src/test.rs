@@ -14,13 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use std::fs::File;
+use std::io::Write;
 use std::{
-    fs,
+    fs::{self, create_dir_all},
     path::{Path, PathBuf},
 };
 
 use leo_asg::*;
 use leo_errors::Result;
+use leo_errors::Span;
 
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit, SummarizedCircuit};
 use leo_test_framework::{
@@ -28,13 +31,14 @@ use leo_test_framework::{
     Test,
 };
 use serde_yaml::Value;
-use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
+use snarkvm_curves::bls12_377::Bls12_377;
+use snarkvm_eval::Evaluator;
+use snarkvm_ir::{InputData, Program as IR_Program};
 
-use crate::{compiler::Compiler, targets::edwards_bls12::EdwardsGroupType, AstSnapshotOptions, Output};
+use crate::{compiler::Compiler, AstSnapshotOptions, Output};
 use indexmap::IndexMap;
 
-pub type EdwardsTestCompiler = Compiler<'static, Fq, EdwardsGroupType>;
-// pub type EdwardsConstrainedValue = ConstrainedValue<'static, Fq, EdwardsGroupType>;
+pub type TestCompiler = Compiler<'static>;
 
 //convenience function for tests, leaks memory
 pub(crate) fn make_test_context() -> AsgContext<'static> {
@@ -42,12 +46,12 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
     new_context(allocator)
 }
 
-fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> EdwardsTestCompiler {
+fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> TestCompiler {
     let program_name = "test".to_string();
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
-    EdwardsTestCompiler::new(
+    TestCompiler::new(
         program_name,
         path,
         output_dir,
@@ -56,6 +60,18 @@ fn new_compiler(path: PathBuf, theorem_options: Option<AstSnapshotOptions>) -> E
         IndexMap::new(),
         theorem_options,
     )
+}
+
+pub(crate) fn parse_program(
+    program_string: &str,
+    theorem_options: Option<AstSnapshotOptions>,
+    cwd: Option<PathBuf>,
+) -> Result<TestCompiler> {
+    let mut compiler = new_compiler(cwd.unwrap_or_else(|| "compiler-test".into()), theorem_options);
+
+    compiler.parse_program_from_string(program_string)?;
+
+    Ok(compiler)
 }
 
 fn hash_file(path: &str) -> String {
@@ -68,29 +84,18 @@ fn hash_file(path: &str) -> String {
     format!("{:x}", hash)
 }
 
-pub(crate) fn parse_program(
-    program_string: &str,
-    theorem_options: Option<AstSnapshotOptions>,
-    cwd: Option<PathBuf>,
-) -> Result<EdwardsTestCompiler> {
-    let mut compiler = new_compiler(cwd.unwrap_or_else(|| "compiler-test".into()), theorem_options);
-
-    compiler.parse_program_from_string(program_string)?;
-
-    Ok(compiler)
-}
-
 struct CompileNamespace;
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, PartialEq)]
 struct OutputItem {
     pub input_file: String,
     pub output: Output,
 }
 
-#[derive(serde::Deserialize, serde::Serialize)]
+#[derive(serde::Deserialize, serde::Serialize, PartialEq)]
 struct CompileOutput {
     pub circuit: SummarizedCircuit,
+    pub ir: Vec<String>,
     pub output: Vec<OutputItem>,
     pub initial_ast: String,
     pub imports_resolved_ast: String,
@@ -181,13 +186,25 @@ impl Namespace for CompileNamespace {
         let mut output_items = vec![];
 
         let mut last_circuit = None;
+        let mut last_ir: Option<snarkvm_ir::Program> = None;
         for input in inputs {
-            let mut parsed = parsed.clone();
-            parsed
-                .parse_input(&input.1, Path::new("input"), &state, Path::new("state"))
+            let parsed = parsed.clone();
+            let input_parsed =
+                leo_parser::parse_program_input(&input.1, "input", &state, "state").map_err(|x| x.to_string())?;
+            let compiled = parsed.compile_ir(&input_parsed).map_err(|x| x.to_string())?;
+            let input_data = parsed
+                .process_input(&input_parsed, &compiled.header)
                 .map_err(|x| x.to_string())?;
+            if std::env::var("EMIT_IR").unwrap_or_default().trim() == "1" {
+                emit_ir(&test, &compiled, &input_data);
+            }
             let mut cs: CircuitSynthesizer<Bls12_377> = Default::default();
-            let output = parsed.compile_constraints(&mut cs).map_err(|x| x.to_string())?;
+            let mut evaluator =
+                snarkvm_eval::SetupEvaluator::<_, snarkvm_eval::edwards_bls12::EdwardsGroupType, _>::new(&mut cs);
+            let output = evaluator.evaluate(&compiled, &input_data).map_err(|e| e.to_string())?;
+
+            let registers: Vec<_> = compiled.header.register_inputs.iter().map(|x| x.clone()).collect();
+            let output = Output::new(&registers[..], output, &Span::default()).map_err(|e| e.to_string())?;
             let circuit: SummarizedCircuit = SerializedCircuit::from(cs).into();
 
             if circuit.num_constraints == 0 {
@@ -208,6 +225,14 @@ impl Namespace for CompileNamespace {
             } else {
                 last_circuit = Some(circuit);
             }
+            if let Some(last_ir) = last_ir.as_ref() {
+                if last_ir != &compiled {
+                    eprintln!("{}\n{}", last_ir, compiled);
+                    return Err("- IR changed on different input files".to_string());
+                }
+            } else {
+                last_ir = Some(compiled);
+            }
 
             output_items.push(OutputItem {
                 input_file: input.0,
@@ -226,6 +251,12 @@ impl Namespace for CompileNamespace {
 
         let final_output = CompileOutput {
             circuit: last_circuit.unwrap(),
+            ir: last_ir
+                .unwrap()
+                .to_string()
+                .split('\n')
+                .map(|x| x.to_string())
+                .collect::<Vec<String>>(),
             output: output_items,
             initial_ast,
             imports_resolved_ast,
@@ -234,6 +265,29 @@ impl Namespace for CompileNamespace {
         };
         Ok(serde_yaml::to_value(&final_output).expect("serialization failed"))
     }
+}
+
+/// hacky way to emit IR for snarkVM tests
+fn emit_ir(test: &Test, compiled: &IR_Program, input_data: &InputData) {
+    let mut target_path = std::env::current_dir().unwrap().join("tests").join("ir");
+    target_path.push(
+        test.path
+            .into_iter()
+            .skip_while(|p| p.to_str().unwrap() != "..")
+            .collect::<PathBuf>()
+            .strip_prefix(Path::new("..").join("tests").join("compiler"))
+            .unwrap()
+            .to_path_buf(),
+    );
+    target_path.pop();
+    create_dir_all(&target_path).unwrap();
+    let writer = |extension, data: Vec<u8>| {
+        let mut f = File::create(target_path.join(format!("{}{}", test.name, extension))).unwrap();
+        f.write_all(&data).unwrap();
+    };
+    writer(".leo.ir", compiled.serialize().unwrap());
+    writer(".leo.ir.fmt", compiled.to_string().as_bytes().to_vec());
+    writer(".leo.ir.input", input_data.serialize().unwrap());
 }
 
 struct TestRunner;

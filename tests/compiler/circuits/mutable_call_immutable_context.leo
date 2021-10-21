@@ -22,8 +22,8 @@ function my_fn() -> TestMe {
 }
 
 function main(y: bool) -> bool {
-    const t = TestMe {x: 6u8}.test_me();
-    const u = my_fn().test_me();
-    const v = TestMe::new().test_me();
+    let t = TestMe {x: 6u8}.test_me();
+    let u = my_fn().test_me();
+    let v = TestMe::new().test_me();
     return (v == 2u8) == y;
 }

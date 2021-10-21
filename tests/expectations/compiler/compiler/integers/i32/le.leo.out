@@ -4,11 +4,18 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 225
-      num_constraints: 225
-      at: 39f909848aee2ee744719f8692f58b9745aeaeededc431f1b06df839384bff07
-      bt: 4e75a3c5fd91239e6bf32d96c6a4a702e040e4a3bddcc282706ca76facb9e942
-      ct: d7067f500143a40e015fd1f4447a4ea5b9ee6ebdf007e08be51772a8a2b672c3
+      num_private_variables: 226
+      num_constraints: 226
+      at: a32cb70b19c0716e6674553d3ce507c877763f8889ddf2e093c1b77fef90eee6
+      bt: fb578c6585030929a1e52991c52609d59d880430c77ca67cb800ff0bca7beb48
+      ct: 5c4c29895605623daa2d6c270ec8a463882fc2900921961ca3a9d73ef91dbc16
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  le &v5, v2, v3"
+      - "  eq &v6, v5, v4"
+      - "  retn v6"
+      - ""
     output:
       - input_file: i32_l.in
         output:

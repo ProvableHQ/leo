@@ -4,11 +4,19 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 511
-      num_constraints: 511
-      at: bb121a0b56bee9895a337644cf8ece2f09dcf9113cd75c29f9bf26d635ba6d22
-      bt: 4a54bb6ffc0c9de1f8f349449b9071745f3db6985adb9b1d657e8aaa4309cc41
-      ct: a0736e8c8f3bb1c39a147348754e53dfd31fd76a1df9cd9960472841bcc531df
+      num_private_variables: 4200
+      num_constraints: 4200
+      at: 537769c36c7183e73983f10ec9d5224d8df52c60bd9e9933e27cf6a2d14af8a5
+      bt: c693d2f015efe7a9f7d695c7922db23c9636ec15c6c538f0fd84acf3dfa10baa
+      ct: ed53f8131478a290d66abed016afa6febb0b57fdda3587147682a5a263827645
+    ir:
+      - "decl f0: <0>"
+      - "  store &v16, ((v0), (v1, v2, v3, v4, v5, v6, v7, v8, v9), (v10, v11), (v12, v13, v14, v15))"
+      - "  tget &v17, v16, 2"
+      - "  tget &v18, v17, 1"
+      - "  eq &v19, v18, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      - "  retn v19"
+      - ""
     output:
       - input_file: input/dummy.in
         output:

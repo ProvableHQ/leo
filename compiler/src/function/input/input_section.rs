@@ -14,52 +14,56 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstrainedCircuitMember, ConstrainedProgram, ConstrainedValue, GroupType};
-use leo_asg::{Circuit, CircuitMember};
-use leo_ast::{Identifier, InputValue, Parameter};
-use leo_errors::{AsgError, Result};
+use crate::Program;
+use leo_asg::{Circuit, CircuitMember, InputCategory};
+use leo_errors::AsgError;
+use leo_errors::{Result, Span};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
+use snarkvm_ir::Value;
 
-use indexmap::IndexMap;
+use super::input_keyword::*;
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn allocate_input_section<CS: ConstraintSystem<F>>(
+impl<'a> Program<'a> {
+    pub fn allocate_input_section(
         &mut self,
-        cs: &mut CS,
-        identifier: Identifier,
+        name: &str,
+        span: &Span,
         expected_type: &'a Circuit<'a>,
-        section: IndexMap<Parameter, Option<InputValue>>,
-    ) -> Result<ConstrainedValue<'a, F, G>> {
-        let mut members = Vec::with_capacity(section.len());
-
+        origin: Vec<(String, leo_ast::Type)>,
+    ) -> Result<Vec<Value>> {
+        let mut value_out = vec![];
+        let category = match name {
+            RECORD_VARIABLE_NAME => InputCategory::StateRecord,
+            REGISTERS_VARIABLE_NAME => InputCategory::Register,
+            STATE_VARIABLE_NAME => InputCategory::PublicState,
+            STATE_LEAF_VARIABLE_NAME => InputCategory::StateLeaf,
+            _ => panic!("unknown input section: {}", name),
+        };
         // Allocate each section definition as a circuit member value
-        for (parameter, option) in section.into_iter() {
-            let section_members = expected_type.members.borrow();
-            let expected_type = match section_members.get(parameter.variable.name.as_ref()) {
-                Some(CircuitMember::Variable(inner)) => inner,
-                _ => continue, // present, but unused
-            };
-            let declared_type = self.asg.scope.resolve_ast_type(&parameter.type_, &parameter.span)?;
-            if !expected_type.is_assignable_from(&declared_type) {
-                return Err(AsgError::unexpected_type(expected_type, declared_type, &identifier.span).into());
+        let section_members = expected_type.members.borrow();
+
+        let mut names = Vec::with_capacity(origin.len());
+        for (name, type_) in origin {
+            let real_type = self.asg.scope.resolve_ast_type(&type_, span)?;
+
+            if let Some(member) = section_members.get(&name) {
+                let expected_type = match member {
+                    CircuitMember::Variable(inner) => inner,
+                    _ => continue, // present, but unused
+                };
+                if !real_type.is_assignable_from(expected_type) {
+                    return Err(
+                        AsgError::unexpected_type(&real_type.to_string(), expected_type.to_string(), span).into(),
+                    );
+                }
+                value_out.push(Value::Ref(self.alloc_input(category, &*name, expected_type.clone())));
+            } else {
+                value_out.push(Value::Ref(self.alloc_input(category, &*name, real_type)));
             }
-            let member_name = parameter.variable.clone();
-            let member_value = self.allocate_main_function_input(
-                cs,
-                &declared_type,
-                &parameter.variable.name,
-                option,
-                &parameter.span,
-            )?;
-            let member = ConstrainedCircuitMember(member_name, member_value);
-
-            members.push(member)
+            names.push(name);
         }
+        self.register_section_names(category, names);
 
-        // Return section as circuit expression
-
-        Ok(ConstrainedValue::CircuitExpression(expected_type, members))
+        Ok(value_out)
     }
 }

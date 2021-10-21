@@ -27,10 +27,8 @@ pub mod compiler;
 pub mod console;
 pub use console::*;
 
-pub mod constraints;
-pub use constraints::*;
-
-pub mod definition;
+pub mod global;
+pub use global::*;
 
 pub mod expression;
 pub use expression::*;
@@ -41,17 +39,11 @@ pub use function::*;
 pub mod output;
 pub use output::*;
 
-pub mod program;
-pub use program::*;
+pub(crate) mod program;
+pub(crate) use program::*;
 
 pub mod statement;
 pub use statement::*;
-
-pub mod prelude;
-pub use prelude::*;
-
-pub mod value;
-pub use value::*;
 
 pub mod phase;
 pub use phase::*;

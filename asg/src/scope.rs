@@ -204,7 +204,7 @@ impl<'a> Scope<'a> {
                     for dimension in dimensions.0.iter().rev() {
                         let dimension = dimension
                             .value
-                            .parse::<usize>()
+                            .parse::<u32>()
                             .map_err(|_| AsgError::parse_index_error(span))?;
                         item = Box::new(Type::Array(item, dimension));
                     }
@@ -231,5 +231,44 @@ impl<'a> Scope<'a> {
                 }
             }
         })
+    }
+
+    pub fn get_functions(&self) -> IndexMap<String, &Function<'a>> {
+        let mut functions = self
+            .functions
+            .borrow()
+            .iter()
+            .map(|(n, f)| (n.clone(), *f))
+            .collect::<IndexMap<String, &Function<'a>>>();
+        if let Some(parent) = &self.parent_scope.get() {
+            functions.extend(parent.get_functions())
+        }
+        functions
+    }
+
+    pub fn get_circuits(&self) -> IndexMap<String, &Circuit<'a>> {
+        let mut circuits = self
+            .circuits
+            .borrow()
+            .iter()
+            .map(|(n, f)| (n.clone(), *f))
+            .collect::<IndexMap<String, &Circuit<'a>>>();
+        if let Some(parent) = &self.parent_scope.get() {
+            circuits.extend(parent.get_circuits())
+        }
+        circuits
+    }
+
+    pub fn get_global_consts(&self) -> IndexMap<String, &DefinitionStatement<'a>> {
+        let mut global_consts = self
+            .global_consts
+            .borrow()
+            .iter()
+            .map(|(n, f)| (n.clone(), *f))
+            .collect::<IndexMap<String, &DefinitionStatement<'a>>>();
+        if let Some(parent) = &self.parent_scope.get() {
+            global_consts.extend(parent.get_global_consts())
+        }
+        global_consts
     }
 }

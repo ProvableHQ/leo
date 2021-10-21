@@ -7,6 +7,6 @@ function array_3x2_tuple() -> [u8; (3, 2)] {
 }
 
 function main() {
-    const a = array_3x2_nested();
-    const b = array_3x2_tuple();
+    let a = array_3x2_nested();
+    let b = array_3x2_tuple();
 }

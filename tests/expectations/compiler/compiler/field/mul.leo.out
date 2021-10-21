@@ -4,11 +4,18 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 6
-      num_constraints: 4
-      at: 7dcea624bdc7a6e6fb5f5e93395e84a96db66898779eb3f5595c4e30e3684f17
-      bt: c21a8e9f463d2fad68fd3a88904dd88f2a3dc7dcb01835357fa4ee457ef1673b
-      ct: 4b4ef106804964b8a1ee7c1dad3d4682d20a0d07f576130bfec9989b353bf596
+      num_private_variables: 7
+      num_constraints: 5
+      at: c8a335d793c91657b94b90c6cb57828786f03511c6f9a4e5abeb915017853085
+      bt: e1318383f3afc5a5012c1068ca96ade213aa653aff894abb6b12b9c49b5ac84d
+      ct: d7f9e1549c66937f961eddf8b769b2cecb12a342672f4b1636015a81e82e0708
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  mul &v5, v2, v3"
+      - "  eq &v6, v5, v4"
+      - "  retn v6"
+      - ""
     output:
       - input_file: inputs/fields.in
         output:

@@ -18,18 +18,15 @@
 
 use std::cell::Cell;
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::program::Program;
 use leo_asg::{
     ArrayAccessExpression, ArrayRangeAccessExpression, AssignAccess, AssignOperation, AssignStatement,
     CircuitAccessExpression, Expression, Node, TupleAccessExpression, Variable,
 };
 use leo_errors::Result;
+use snarkvm_ir::Value;
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     fn prepare_mut_access(
         out: &mut Vec<AssignAccess<'a>>,
         expr: &'a Expression<'a>,
@@ -71,13 +68,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
 
     // resolve a mutable reference from an expression
     // return false if no valid mutable reference, or Err(_) on more critical error
-    pub fn resolve_mut_ref<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        assignee: &'a Expression<'a>,
-        target_value: ConstrainedValue<'a, F, G>,
-        indicator: &Boolean,
-    ) -> Result<bool> {
+    pub fn resolve_mut_ref(&mut self, assignee: &'a Expression<'a>, target_value: Value) -> Result<bool> {
         let mut accesses = vec![];
         let target = Self::prepare_mut_access(&mut accesses, assignee)?;
         if target.is_none() {
@@ -86,7 +77,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
         let variable = target.unwrap();
 
         self.resolve_assign(
-            cs,
             &AssignStatement {
                 parent: Cell::new(None),
                 span: assignee.span().cloned(),
@@ -96,7 +86,6 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 value: Cell::new(assignee),
             },
             target_value,
-            indicator,
         )?;
 
         Ok(true)

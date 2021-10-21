@@ -4,11 +4,17 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 95
-      num_constraints: 95
-      at: 9273b9ab94dee8605c4f1e49fe99910f674468f5026b8d2c48ecaa4d8c006f3a
-      bt: a3614a9ddd1ae0fde16a61336aba5a02b44816b3e43e23c7b9663976319bcb8a
-      ct: 49f0db71bd29b80dbe5f2f96573a5959b1df339c92350e16f111bade214037aa
+      num_private_variables: 96
+      num_constraints: 96
+      at: 8b84997b0dad4895922d62ac6a2fbe62c5e08177b39d7d6d6e6acf57f77e0f65
+      bt: 72bd63fa2c144c7595ff79f81416f13877ea8b101bbc03f307013a0b23c387ef
+      ct: 0eb0af4085182af2cc7bd348dfa8c10c104c96fdc515cb6f8d88f9f836a94826
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  eq &v3, v2, [[1, 2], [3, 4], [5, 6]]"
+      - "  retn v3"
+      - ""
     output:
       - input_file: input/six_zeros.in
         output:

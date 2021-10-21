@@ -16,117 +16,149 @@
 
 //! Enforce constraints on an expression in a compiled Leo program.
 
-use crate::{
-    arithmetic::*,
-    logical::*,
-    program::ConstrainedProgram,
-    relational::*,
-    resolve_core_circuit,
-    value::{Address, Char, CharType, ConstrainedCircuitMember, ConstrainedValue, Integer},
-    FieldType, GroupType,
-};
-use leo_asg::{expression::*, ConstValue, Expression, Node};
+use crate::program::Program;
+use bech32::FromBase32;
+use leo_asg::{expression::*, CharValue, CircuitMember, ConstInt, ConstValue, Expression, GroupValue, Node};
+use leo_errors::CompilerError;
 use leo_errors::{Result, Span};
+use num_bigint::Sign;
+use snarkvm_ir::{Group, GroupCoordinate, Integer, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
+pub(crate) fn asg_group_coordinate_to_ir(coordinate: &leo_asg::GroupCoordinate) -> GroupCoordinate {
+    match coordinate {
+        leo_asg::GroupCoordinate::Number(parsed) => GroupCoordinate::Field(snarkvm_ir::Field {
+            values: parsed.magnitude().iter_u64_digits().collect(),
+            negate: parsed.sign() == Sign::Minus,
+        }),
+        leo_asg::GroupCoordinate::SignHigh => GroupCoordinate::SignHigh,
+        leo_asg::GroupCoordinate::SignLow => GroupCoordinate::SignLow,
+        leo_asg::GroupCoordinate::Inferred => GroupCoordinate::Inferred,
+    }
+}
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub(crate) fn enforce_const_value<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        value: &'a ConstValue<'a>,
-        span: &Span,
-    ) -> Result<ConstrainedValue<'a, F, G>> {
+pub fn decode_address(value: &str, span: &Span) -> Result<Vec<u8>> {
+    if !value.starts_with("aleo") || value.len() != 63 {
+        return Err(CompilerError::address_value_invalid_address(value, span).into());
+    }
+    let data = bech32::decode(value).map_err(|_| CompilerError::address_value_invalid_address(value, span))?;
+    let bytes = Vec::from_base32(&data.1).map_err(|_| CompilerError::address_value_invalid_address(value, span))?;
+    Ok(bytes)
+}
+
+impl<'a> Program<'a> {
+    pub(crate) fn enforce_const_value(&mut self, value: &ConstValue, span: &Span) -> Result<Value> {
         Ok(match value {
-            ConstValue::Address(value) => ConstrainedValue::Address(Address::constant(value.to_string(), span)?),
-            ConstValue::Boolean(value) => ConstrainedValue::Boolean(Boolean::Constant(*value)),
-            ConstValue::Char(value) => {
-                use leo_asg::CharValue::*;
-                match value {
-                    Scalar(scalar) => ConstrainedValue::Char(Char::constant(
-                        cs,
-                        CharType::Scalar(*scalar),
-                        format!("{}", *scalar as u32),
-                        span,
-                    )?),
-                    NonScalar(non_scalar) => ConstrainedValue::Char(Char::constant(
-                        cs,
-                        CharType::NonScalar(*non_scalar),
-                        format!("{}", *non_scalar),
-                        span,
-                    )?),
-                }
-            }
-            ConstValue::Field(value) => ConstrainedValue::Field(FieldType::constant(cs, value.to_string(), span)?),
-            ConstValue::Group(value) => ConstrainedValue::Group(G::constant(value, span)?),
-            ConstValue::Int(value) => ConstrainedValue::Integer(Integer::new(value)),
-            ConstValue::Tuple(values) => ConstrainedValue::Tuple(
+            ConstValue::Address(value) => Value::Address(decode_address(value.as_ref(), span)?),
+            ConstValue::Boolean(value) => Value::Boolean(*value),
+            ConstValue::Char(value) => Value::Char(match value {
+                CharValue::Scalar(x) => *x as u32,
+                CharValue::NonScalar(x) => *x,
+            }),
+            ConstValue::Field(parsed) => Value::Field(snarkvm_ir::Field {
+                values: parsed.magnitude().iter_u64_digits().collect(),
+                negate: parsed.sign() == Sign::Minus,
+            }),
+            ConstValue::Group(value) => match value {
+                GroupValue::Single(parsed) => Value::Group(Group::Single(snarkvm_ir::Field {
+                    values: parsed.magnitude().iter_u64_digits().collect(),
+                    negate: parsed.sign() == Sign::Minus,
+                })),
+                GroupValue::Tuple(left, right) => Value::Group(Group::Tuple(
+                    asg_group_coordinate_to_ir(left),
+                    asg_group_coordinate_to_ir(right),
+                )),
+            },
+            ConstValue::Int(value) => Value::Integer(match *value {
+                ConstInt::I8(x) => Integer::I8(x),
+                ConstInt::I16(x) => Integer::I16(x),
+                ConstInt::I32(x) => Integer::I32(x),
+                ConstInt::I64(x) => Integer::I64(x),
+                ConstInt::I128(x) => Integer::I128(x),
+                ConstInt::U8(x) => Integer::U8(x),
+                ConstInt::U16(x) => Integer::U16(x),
+                ConstInt::U32(x) => Integer::U32(x),
+                ConstInt::U64(x) => Integer::U64(x),
+                ConstInt::U128(x) => Integer::U128(x),
+            }),
+            ConstValue::Tuple(values) => Value::Tuple(
                 values
                     .iter()
-                    .map(|x| self.enforce_const_value(cs, x, span))
+                    .map(|x| self.enforce_const_value(x, span))
                     .collect::<Result<Vec<_>, _>>()?,
             ),
-            ConstValue::Array(values) => ConstrainedValue::Array(
+            ConstValue::Array(values) => Value::Array(
                 values
                     .iter()
-                    .map(|x| self.enforce_const_value(cs, x, span))
+                    .map(|x| self.enforce_const_value(x, span))
                     .collect::<Result<Vec<_>, _>>()?,
             ),
             ConstValue::Circuit(circuit, members) => {
-                let mut constrained_members = Vec::new();
-                for (_, (identifier, member)) in members.iter() {
-                    constrained_members.push(ConstrainedCircuitMember(
-                        identifier.clone(),
-                        self.enforce_const_value(cs, member, span)?,
-                    ));
-                }
+                let target_members = circuit.members.borrow();
+                let member_var_len = target_members
+                    .values()
+                    .filter(|x| matches!(x, CircuitMember::Variable(_)))
+                    .count();
 
-                ConstrainedValue::CircuitExpression(circuit, constrained_members)
+                let mut resolved_members = vec![None; member_var_len];
+
+                // type checking is already done in asg
+                for (name, inner) in members.iter() {
+                    let (index, _, target) = target_members
+                        .get_full(name)
+                        .expect("illegal name in asg circuit init expression");
+                    match target {
+                        CircuitMember::Variable(_type_) => {
+                            let variable_value = self.enforce_const_value(&inner.1, span)?;
+                            resolved_members[index] = Some(variable_value);
+                        }
+                        _ => return Err(CompilerError::expected_circuit_member(name, span).into()),
+                    }
+                }
+                Value::Tuple(
+                    resolved_members
+                        .into_iter()
+                        .map(|x| x.expect("missing circuit field"))
+                        .collect(),
+                )
             }
         })
     }
 
-    pub(crate) fn enforce_expression<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        expression: &'a Expression<'a>,
-    ) -> Result<ConstrainedValue<'a, F, G>> {
+    pub(crate) fn enforce_expression(&mut self, expression: &'a Expression<'a>) -> Result<Value> {
         let span = &expression.span().cloned().unwrap_or_default();
         match expression {
             // Cast
             Expression::Cast(_) => unimplemented!("casts not implemented"),
 
             // LengthOf
-            Expression::LengthOf(lengthof) => self.enforce_lengthof(cs, lengthof, span),
+            Expression::LengthOf(lengthof) => self.enforce_lengthof(lengthof),
 
             // Variables
             Expression::VariableRef(variable_ref) => self.evaluate_ref(variable_ref),
 
             // Values
-            Expression::Constant(Constant { value, .. }) => self.enforce_const_value(cs, value, span),
+            Expression::Constant(Constant { value, .. }) => self.enforce_const_value(value, span),
 
             // Binary operations
             Expression::Binary(BinaryExpression {
                 left, right, operation, ..
             }) => {
-                let (resolved_left, resolved_right) = self.enforce_binary_expression(cs, left.get(), right.get())?;
+                let (resolved_left, resolved_right) = self.enforce_binary_expression(left.get(), right.get())?;
 
                 match operation {
-                    BinaryOperation::Add => enforce_add(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Sub => enforce_sub(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Mul => enforce_mul(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Div => enforce_div(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Pow => enforce_pow(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Or => enforce_or(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::And => enforce_and(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Eq => evaluate_eq(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Ne => evaluate_not(evaluate_eq(cs, resolved_left, resolved_right, span)?, span),
-                    BinaryOperation::Ge => evaluate_ge(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Gt => evaluate_gt(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Le => evaluate_le(cs, resolved_left, resolved_right, span),
-                    BinaryOperation::Lt => evaluate_lt(cs, resolved_left, resolved_right, span),
+                    BinaryOperation::Add => self.evaluate_add(resolved_left, resolved_right),
+                    BinaryOperation::Sub => self.evaluate_sub(resolved_left, resolved_right),
+                    BinaryOperation::Mul => self.evaluate_mul(resolved_left, resolved_right),
+                    BinaryOperation::Div => self.evaluate_div(resolved_left, resolved_right),
+                    BinaryOperation::Pow => self.evaluate_pow(resolved_left, resolved_right),
+                    BinaryOperation::Or => self.evaluate_or(resolved_left, resolved_right),
+                    BinaryOperation::And => self.evaluate_and(resolved_left, resolved_right),
+                    BinaryOperation::Eq => self.evaluate_eq(resolved_left, resolved_right),
+                    BinaryOperation::Ne => self.evaluate_ne(resolved_left, resolved_right),
+                    BinaryOperation::Ge => self.evaluate_ge(resolved_left, resolved_right),
+                    BinaryOperation::Gt => self.evaluate_gt(resolved_left, resolved_right),
+                    BinaryOperation::Le => self.evaluate_le(resolved_left, resolved_right),
+                    BinaryOperation::Lt => self.evaluate_lt(resolved_left, resolved_right),
                     _ => unimplemented!("unimplemented binary operator"),
                 }
             }
@@ -134,10 +166,13 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             // Unary operations
             Expression::Unary(UnaryExpression { inner, operation, .. }) => match operation {
                 UnaryOperation::Negate => {
-                    let resolved_inner = self.enforce_expression(cs, inner.get())?;
-                    enforce_negate(cs, resolved_inner, span)
+                    let resolved_inner = self.enforce_expression(inner.get())?;
+                    self.evaluate_negate(resolved_inner)
                 }
-                UnaryOperation::Not => Ok(evaluate_not(self.enforce_expression(cs, inner.get())?, span)?),
+                UnaryOperation::Not => {
+                    let inner = self.enforce_expression(inner.get())?;
+                    Ok(self.evaluate_not(inner)?)
+                }
                 _ => unimplemented!("unimplemented unary operator"),
             },
 
@@ -146,17 +181,15 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 if_true,
                 if_false,
                 ..
-            }) => self.enforce_conditional_expression(cs, condition.get(), if_true.get(), if_false.get(), span),
+            }) => self.enforce_conditional_expression(condition.get(), if_true.get(), if_false.get()),
 
             // Arrays
-            Expression::ArrayInline(ArrayInlineExpression { elements, .. }) => {
-                self.enforce_array(cs, &elements[..], span)
-            }
+            Expression::ArrayInline(ArrayInlineExpression { elements, .. }) => self.enforce_array(&elements[..]),
             Expression::ArrayInit(ArrayInitExpression { element, len, .. }) => {
-                self.enforce_array_initializer(cs, element.get(), *len)
+                self.enforce_array_initializer(element.get(), *len)
             }
             Expression::ArrayAccess(ArrayAccessExpression { array, index, .. }) => {
-                self.enforce_array_access(cs, array.get(), index.get(), span)
+                self.enforce_array_access(array.get(), index.get())
             }
             Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
                 array,
@@ -164,17 +197,17 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 right,
                 length,
                 ..
-            }) => self.enforce_array_range_access(cs, array.get(), left.get(), right.get(), *length, span),
+            }) => self.enforce_array_range_access(array.get(), left.get(), right.get(), *length),
 
             // Tuples
-            Expression::TupleInit(TupleInitExpression { elements, .. }) => self.enforce_tuple(cs, &elements[..]),
+            Expression::TupleInit(TupleInitExpression { elements, .. }) => self.enforce_tuple(&elements[..]),
             Expression::TupleAccess(TupleAccessExpression { tuple_ref, index, .. }) => {
-                self.enforce_tuple_access(cs, tuple_ref.get(), *index, span)
+                self.enforce_tuple_access(tuple_ref.get(), *index)
             }
 
             // Circuits
-            Expression::CircuitInit(expr) => self.enforce_circuit(cs, expr, span),
-            Expression::CircuitAccess(expr) => self.enforce_circuit_access(cs, expr),
+            Expression::CircuitInit(expr) => self.enforce_circuit(expr, span),
+            Expression::CircuitAccess(expr) => self.enforce_circuit_access(expr),
 
             // Functions
             Expression::Call(CallExpression {
@@ -182,23 +215,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 target,
                 arguments,
                 ..
-            }) => {
-                if let Some(circuit) = function.get().circuit.get() {
-                    let core_mapping = circuit.core_mapping.borrow();
-                    if let Some(core_mapping) = core_mapping.as_deref() {
-                        let core_circuit = resolve_core_circuit::<F, G>(core_mapping);
-                        return self.enforce_core_circuit_call_expression(
-                            cs,
-                            &core_circuit,
-                            function.get(),
-                            target.get(),
-                            &arguments[..],
-                            span,
-                        );
-                    }
-                }
-                self.enforce_function_call_expression(cs, function.get(), target.get(), &arguments[..], span)
-            }
+            }) => self.enforce_function_call(function.get(), target.get(), &arguments[..]),
         }
     }
 }

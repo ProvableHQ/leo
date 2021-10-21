@@ -4,11 +4,44 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1
-      num_constraints: 1
-      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
-      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
-      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+      num_private_variables: 2
+      num_constraints: 2
+      at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
+      bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
+      ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  call &v3, f2, (6)"
+      - "  tget &v4, v3, 0"
+      - "  tget &v3, v3, 1"
+      - "  store &v5, v3"
+      - "  call &v6, f1"
+      - "  call &v7, f2, v6"
+      - "  tget &v8, v7, 0"
+      - "  tget &v7, v7, 1"
+      - "  store &v9, v7"
+      - "  call &v10, f3"
+      - "  call &v11, f2, v10"
+      - "  tget &v12, v11, 0"
+      - "  tget &v11, v11, 1"
+      - "  store &v13, v11"
+      - "  eq &v14, v13, 2"
+      - "  eq &v15, v14, v2"
+      - "  retn v15"
+      - "decl f1: <16>"
+      - "  retn (0)"
+      - "decl f2: <16>"
+      - "  tget &v17, v16, 0"
+      - "  add &v18, v17, 1"
+      - "  tget &v19, v16, 0"
+      - "  tset &v16, 0, v18"
+      - "  store &v16, v16"
+      - "  tget &v20, v16, 0"
+      - "  retn (v16, v20)"
+      - "decl f3: <21>"
+      - "  retn (1)"
+      - ""
     output:
       - input_file: input/dummy.in
         output:
@@ -16,7 +49,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 0c47d2db8962674e0f14a04e113cd36c626c83b8d6f74f8700f41279ec75eaa0
-    imports_resolved_ast: f24d0ff92ed24d8af38da56bed1c825cfdfa5db22f24bd36d03fca6f13553807
-    canonicalized_ast: 23f1d206faa7ab510a470d72abef629efecb64f69821f9e70347f7099466116d
-    type_inferenced_ast: 37cc19ffbdea2f8945eaa380ef54dcfff80a10e424cf9e16159880fa40f77fcd
+    initial_ast: de256780237ca4f862bd0c2d4240cf6ade93838b2692ff0162b07f81b4b3716c
+    imports_resolved_ast: 0a5fb99b8ea0021ab45fd107857fb0754d126627cac9923bf6d31862acb38c65
+    canonicalized_ast: 1d2fc1693a32118cb6e0a286b1532601aea4e56ab630689341c60d0266c76f9a
+    type_inferenced_ast: b335c714be98315e12f905e134ab4691a0125bca5152da080c797bb88fd4a397

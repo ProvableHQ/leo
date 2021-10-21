@@ -4,11 +4,19 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 12
-      num_constraints: 1
-      at: 336f487fe39f24aef980deaaf7d6dddcc0dbfa8f121c3470b05546c1ac13f87e
-      bt: ae35381db5558456a49acb22132b4930efd53b90eb2668df06c5d9c1a6b0ab9f
-      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+      num_private_variables: 13
+      num_constraints: 2
+      at: 64d95e4100e7b012baed8f887c89c2cda575d333a63ed2beacdc0ac173b5a6a0
+      bt: d207f5dc302482780048fda080032b12a7a6394da43deee116b85ee0e45a37d8
+      ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  ccall &v4, 'len', v2"
+      - "  eq &v5, v4, 11"
+      - "  eq &v6, v3, v5"
+      - "  retn v6"
+      - ""
     output:
       - input_file: input/dummy.in
         output:

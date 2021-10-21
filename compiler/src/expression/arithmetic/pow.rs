@@ -16,24 +16,17 @@
 
 //! Enforces an arithmetic `**` operator in a resolved Leo program.
 
-use crate::{value::ConstrainedValue, GroupType};
-use leo_errors::{CompilerError, Result, Span};
+use crate::Program;
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-pub fn enforce_pow<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-    cs: &mut CS,
-    left: ConstrainedValue<'a, F, G>,
-    right: ConstrainedValue<'a, F, G>,
-    span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>> {
-    match (left, right) {
-        (ConstrainedValue::Integer(num_1), ConstrainedValue::Integer(num_2)) => {
-            Ok(ConstrainedValue::Integer(num_1.pow(cs, num_2, span)?))
-        }
-        (val_1, val_2) => {
-            return Err(CompilerError::incompatible_types(format!("{} ** {}", val_1, val_2,), span).into());
-        }
+impl<'a> Program<'a> {
+    pub fn evaluate_pow(&mut self, left: Value, right: Value) -> Result<Value> {
+        let output = self.alloc();
+        self.emit(Instruction::Pow(QueryData {
+            destination: output,
+            values: vec![left, right],
+        }));
+        Ok(Value::Ref(output))
     }
 }

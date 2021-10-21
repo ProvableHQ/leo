@@ -9,6 +9,12 @@ outputs:
       at: 051151c1ab89f2c0ff0fe5d336668c3fcd6dc4744d1f5b8e135dcb7bf6a6195c
       bt: 6b92443726163ac0fc32f7c9edace0ec8369e793d24105d93d121cb0bd5c3128
       ct: 7cb2d3f0ccfb9a2e747c6a05bdb52812c4539c836ff62c4e555fac13ef2084d4
+    ir:
+      - "decl f0: <0>"
+      - "  store &v0, ((), (), (), ())"
+      - "  eq &v3, v1, v2"
+      - "  assert v3"
+      - ""
     output:
       - input_file: i32.in
         output:

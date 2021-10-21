@@ -4,11 +4,32 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 1
-      num_constraints: 1
-      at: 042610d0fd1fe6d6ac112138f8755752f44c7d2a00f1b5960574d6da5cda393f
-      bt: e97756698880ab7555a959a5fb5c6b4e15bd64612aa677adbfe2d0bd91f0a83c
-      ct: cf1cbb66a638b4860a516671fb74850e6ccf787fe6c4c8d29e9c04efe880bd05
+      num_private_variables: 2
+      num_constraints: 2
+      at: 401937c524c61a28b4fab76d7a1f85bb628850012af62362a0922610372faf92
+      bt: cdf9a9cee4f2edf55111a95ae60bde9801080f6bde638a5c79273a39a2f9f7f5
+      ct: 643d5437104296e21d906ecb15b2c96ad278f20cfc4af53b12bb6069bd853726
+    ir:
+      - "decl f0: <0>"
+      - "  store &v0, 8"
+      - "  store &v2, ((v1), (), (), ())"
+      - "  store &v4, (1, 0)"
+      - "  store &v5, ['h', 'e', 'l', 'l', 'o']"
+      - "  store &v6, ['h', 'e', 'l', 'l', 'o']"
+      - "  store &v7, 8"
+      - "  call &v8, f2"
+      - "  store &v9, v8"
+      - "  call &v10, f1"
+      - "  eq &v11, v10, 1"
+      - "  and &v12, v11, true"
+      - "  and &v13, v12, true"
+      - "  eq &v14, v13, v3"
+      - "  retn v14"
+      - "decl f1: <15>"
+      - "  retn 1"
+      - "decl f2: <15>"
+      - "  retn (3)"
+      - ""
     output:
       - input_file: input/dummy.in
         output:
@@ -16,7 +37,7 @@ outputs:
             r0:
               type: bool
               value: "true"
-    initial_ast: 97421e186f45da35279f9c08ee2275c934025740bed6b208e06b682e6ce44775
-    imports_resolved_ast: 4f915e66f58e0e984498ef07c55d81d58097d698bba230b9cf4b4acfe36cbb0a
-    canonicalized_ast: 98beb59ac8e2f359f8fbdaceccd5ac7577ac666309d3c3fa5a065d2e31d4a83f
-    type_inferenced_ast: fff3b8c5abc0699d023a02bd157944ed6b077e72ef07ed14de6104a82cd9a6d3
+    initial_ast: b3aff57ffbaf3cc72ccc4c9fcf83fa32a9b2f9508119ee4ff17fb85c5b44bec0
+    imports_resolved_ast: 05fc2244bde72e9d5964c6664f85d7a9ce5dc235eb185c7cf7e6019b97aadc23
+    canonicalized_ast: 539322b9fa481ebe06774f88b2318258babb54bea12084a987e336d791a65dc6
+    type_inferenced_ast: 6369743808703d2d0a6d3b08908ffef4b9363a572f80d5214da7b300153d4de4

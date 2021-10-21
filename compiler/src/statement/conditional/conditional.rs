@@ -16,95 +16,31 @@
 
 //! Methods to enforce constraints on statements in a compiled Leo program.
 
-use crate::{
-    program::ConstrainedProgram, value::ConstrainedValue, GroupType, IndicatorAndConstrainedValue, StatementResult,
-};
+use crate::{program::Program, StatementResult};
 use leo_asg::ConditionalStatement;
-use leo_errors::CompilerError;
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
-
-fn indicator_to_string(indicator: &Boolean) -> String {
-    indicator
-        .get_value()
-        .map(|b| b.to_string())
-        .unwrap_or_else(|| "[input]".to_string())
-}
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     /// Enforces a conditional statement with one or more branches.
     /// Due to R1CS constraints, we must evaluate every branch to properly construct the circuit.
     /// At program execution, we will pass an `indicator` bit down to all child statements within each branch.
     /// The `indicator` bit will select that branch while keeping the constraint system satisfied.
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_conditional_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        indicator: &Boolean,
-        statement: &ConditionalStatement<'a>,
-    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<'a, F, G>>> {
-        let span = statement.span.clone().unwrap_or_default();
+    pub fn enforce_conditional_statement(&mut self, statement: &ConditionalStatement<'a>) -> StatementResult<()> {
         // Inherit an indicator from a previous statement.
-        let outer_indicator = indicator;
+        let condition = self.enforce_expression(statement.condition.get())?;
+        let not_condition_var = self.alloc();
 
-        // Evaluate the conditional boolean as the inner indicator
-        let inner_indicator = match self.enforce_expression(cs, statement.condition.get())? {
-            ConstrainedValue::Boolean(resolved) => resolved,
-            value => {
-                return Err(CompilerError::conditional_boolean_expression_fails_to_resolve_to_bool(
-                    value.to_string(),
-                    &span,
-                )
-                .into());
-            }
-        };
-
-        // If outer_indicator && inner_indicator, then select branch 1
-        let outer_indicator_string = indicator_to_string(outer_indicator);
-        let inner_indicator_string = indicator_to_string(&inner_indicator);
-        let branch_1_name = format!(
-            "branch indicator 1 {} && {}",
-            outer_indicator_string, inner_indicator_string
-        );
-        let branch_1_indicator = Boolean::and(
-            &mut cs.ns(|| format!("branch 1 {}:{}", &span.line_start, &span.col_start)),
-            outer_indicator,
-            &inner_indicator,
-        )
-        .map_err(|_| CompilerError::statement_indicator_calculation(branch_1_name, &span))?;
-
-        let mut results = vec![];
-
-        // Evaluate branch 1
-        let mut branch_1_result = self.enforce_statement(cs, &branch_1_indicator, statement.result.get())?;
-
-        results.append(&mut branch_1_result);
-
-        // If outer_indicator && !inner_indicator, then select branch 2
-        let inner_indicator = inner_indicator.not();
-        let inner_indicator_string = indicator_to_string(&inner_indicator);
-        let branch_2_name = format!(
-            "branch indicator 2 {} && {}",
-            outer_indicator_string, inner_indicator_string
-        );
-        let branch_2_indicator = Boolean::and(
-            &mut cs.ns(|| format!("branch 2 {}:{}", &span.line_start, &span.col_start)),
-            outer_indicator,
-            &inner_indicator,
-        )
-        .map_err(|_| CompilerError::statement_indicator_calculation(branch_2_name, &span))?;
-
-        // Evaluate branch 2
-        let mut branch_2_result = match statement.next.get() {
-            Some(next) => self.enforce_statement(cs, &branch_2_indicator, next)?,
-            None => vec![],
-        };
-
-        results.append(&mut branch_2_result);
-
-        // We return the results of both branches and leave it up to the caller to select the appropriate return
-        Ok(results)
+        self.mask(condition.clone(), |program| {
+            program.enforce_statement(statement.result.get())
+        })?;
+        if let Some(next) = statement.next.get() {
+            self.emit(Instruction::Not(QueryData {
+                destination: not_condition_var,
+                values: vec![condition],
+            }));
+            self.mask(Value::Ref(not_condition_var), |program| program.enforce_statement(next))?;
+        }
+        Ok(())
     }
 }

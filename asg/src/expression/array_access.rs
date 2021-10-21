@@ -117,7 +117,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayAccessExpression> for ArrayAccessExpression<'
             // Only check index if array size is known.
             // Array out of bounds will be caught later if it really happens.
             if let Some(array_len) = array_len {
-                if index >= array_len {
+                if index >= array_len as usize {
                     return Err(
                         AsgError::array_index_out_of_bounds(index, &array.span().cloned().unwrap_or_default()).into(),
                     );

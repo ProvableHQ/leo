@@ -4,11 +4,29 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 319
-      num_constraints: 415
-      at: 910d51dc69b7ed7e2dfe1a786fad9b226b2ff30c7678f397cb8d8850fd76442e
-      bt: 3ae01a0af5534bca6ad67bd2609a5370a4982c7f6d17fb8c285054c3d08f9c4f
-      ct: 67836f65a02c595fcbf6d6a6d223a15e138d99a542390693ac4f582d073869e6
+      num_private_variables: 382
+      num_constraints: 510
+      at: 88be3efab913784f38f23cc874c7f14edf589bed352dc9126db56fb0f03f398b
+      bt: 5a911a72034489433028eb343fa90a0ebac4f22d9f0eac4889226a7c986467fe
+      ct: 86aebc71ce4db81f16d24d68b871efebb610108a3780939c85bf081d3f067768
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, 0"
+      - "  eq &v4, v2, 1"
+      - "  mask 1, v4"
+      - "    store &v3, 1"
+      - "  not &v5, v4"
+      - "  mask 6, v5"
+      - "    eq &v6, v2, 2"
+      - "    mask 1, v6"
+      - "      store &v3, 2"
+      - "    not &v7, v6"
+      - "    mask 1, v7"
+      - "      store &v3, 3"
+      - "  eq &v8, v3, v2"
+      - "  retn v8"
+      - ""
     output:
       - input_file: inputs/u32_3.in
         output:

@@ -16,19 +16,17 @@
 
 //! Enforces a logical `!` operator in a resolved Leo program.
 
-use crate::{value::ConstrainedValue, GroupType};
-use leo_errors::{CompilerError, Result, Span};
+use crate::Program;
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-
-pub fn evaluate_not<'a, F: PrimeField, G: GroupType<F>>(
-    value: ConstrainedValue<'a, F, G>,
-    span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>> {
-    match value {
-        ConstrainedValue::Boolean(boolean) => Ok(ConstrainedValue::Boolean(boolean.not())),
-        value => {
-            return Err(CompilerError::cannot_evaluate_expression(format!("!{}", value), span).into());
-        }
+impl<'a> Program<'a> {
+    pub fn evaluate_not(&mut self, inner: Value) -> Result<Value> {
+        let output = self.alloc();
+        self.emit(Instruction::Not(QueryData {
+            destination: output,
+            values: vec![inner],
+        }));
+        Ok(Value::Ref(output))
     }
 }

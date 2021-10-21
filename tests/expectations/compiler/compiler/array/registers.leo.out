@@ -4,24 +4,33 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 119
-      num_constraints: 143
-      at: 144d1bd1f6756ac172ddddf3ca5cf4358ba8fc053fd754b56a425ab6566af47a
-      bt: 43972815ec9d0ab821613fde2cd6a5df9ee42f50758a27a0fed6dc111b44f3ee
-      ct: 5ed7a755b881aa851f3d3e966a4bd18dd48ce59be71b4ada39c9c891f8297201
+      num_private_variables: 120
+      num_constraints: 144
+      at: 851974aa93d40a73c2f077384f7ccc6672ce067ee736068fc5f2f369018fa027
+      bt: 1d0c2a1b71ccce63f6b01b79af3763cf9b05633fbe4aa0852ce890663eec7ca9
+      ct: 299ee55938ff339f94d9fa8682e0b95e4fbd4b45d5fc3df91caaebdfdd4d3941
+    ir:
+      - "decl f0: <0>"
+      - "  store &v2, ((v0, v1), (), (), ())"
+      - "  tget &v4, v2, 0"
+      - "  tget &v5, v4, 0"
+      - "  eq &v6, v5, v3"
+      - "  pick &v7, v6, [3, 2, 1], [1, 2, 3]"
+      - "  retn v7"
+      - ""
     output:
       - input_file: input/registers_ones.in
         output:
           registers:
             r:
               type: "[u8; 3]"
-              value: "\"321\""
+              value: "[3, 2, 1]"
       - input_file: input/registers_zeros.in
         output:
           registers:
             r:
               type: "[u8; 3]"
-              value: "\"123\""
+              value: "[1, 2, 3]"
     initial_ast: 79cde17d95ee531315d6f4ae8dd0d7ebc5a5d0e22146de6db7e4c846b0833339
     imports_resolved_ast: bc1282be5ee2d81dd16a0a9958ccd19220f8e3478316e7f60fca1cc3880552c2
     canonicalized_ast: bc1282be5ee2d81dd16a0a9958ccd19220f8e3478316e7f60fca1cc3880552c2

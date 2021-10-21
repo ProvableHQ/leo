@@ -7,5 +7,5 @@ function tuples() -> ((u8, u8), u32) {
 }
 
 function main() {
-    const t = tuples();
+    let t = tuples();
 }

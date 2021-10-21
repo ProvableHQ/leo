@@ -4,102 +4,109 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 6
+      num_private_variables: 7
       num_constraints: 3
-      at: cc1286e0b6fa2e90fb6f0880431a7c1e2cc37a329fae3aff1c13f51036c66f12
-      bt: 02c492cb6df07172e56cffd0cfd902a8443921e1256a2d907bbabd30bf6b8f6d
-      ct: a1f8e2b168c0f2f28f0ca3f16ce9b25ba7f7c410cfd68b0912bf19c90b53f2a2
+      at: 27e285016f0cd27ac4cde3e5c675f9e72ea5d8a753af7fc25707f7be20921c60
+      bt: f91b8601243dbd0d25e7df8f34ff304ca78a295fdfafbe0102ec6ce4fcb3c0f0
+      ct: fe68b86a12c0b8c1585a656d7c4b8c47fbe19677b5da7ce0aae1d80dffb2a2ca
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  ne &v3, v2, 'a'"
+      - "  pick &v4, v3, 'a', 'Z'"
+      - "  retn v4"
+      - ""
     output:
       - input_file: inputs/ascii.in
         output:
           registers:
             r:
               type: char
-              value: "'Z'"
+              value: Z
       - input_file: inputs/escaped_unicode1.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/escaped_unicode2.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/escaped_unicode3.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/escaped_unicode4.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/escaped_unicode5.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/escaped_unicode6.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/escaped.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/hex1.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/hex2.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/unicode1.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/unicode2.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/unicode3.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/unicode4.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
       - input_file: inputs/unicode5.in
         output:
           registers:
             r:
               type: char
-              value: "'a'"
+              value: a
     initial_ast: deb875863472b0fa65f002c75732e5e6d87de3641bf799c13eeaa32bbba70705
     imports_resolved_ast: 19812cd50a6682613586cb11447a29295ef315639b6b536dc61e3bbce277c9f4
     canonicalized_ast: 19812cd50a6682613586cb11447a29295ef315639b6b536dc61e3bbce277c9f4

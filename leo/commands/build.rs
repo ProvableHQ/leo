@@ -17,7 +17,6 @@
 use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
-    group::targets::edwards_bls12::EdwardsGroupType,
     AstSnapshotOptions, CompilerOptions,
 };
 use leo_errors::{CliError, Result};
@@ -26,9 +25,11 @@ use leo_package::{
     outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
     source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
 };
+use leo_parser::parse_program_input;
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
 
-use snarkvm_curves::{bls12_377::Bls12_377, edwards_bls12::Fq};
+use snarkvm_curves::bls12_377::Bls12_377;
+use snarkvm_eval::edwards_bls12::EdwardsGroupType;
 use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -105,7 +106,7 @@ pub struct Build {
 
 impl Command for Build {
     type Input = ();
-    type Output = (Compiler<'static, Fq, EdwardsGroupType>, bool);
+    type Output = (Compiler<'static>, leo_ast::Input, bool);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Build")
@@ -166,15 +167,19 @@ impl Command for Build {
             Default::default()
         };
 
+        // parse the program input
+        let input = parse_program_input(
+            &input_string,
+            &input_path.to_str().unwrap(),
+            &state_string,
+            &state_path.to_str().unwrap(),
+        )?;
+
         // Load the program at `main_file_path`
-        let program = Compiler::<Fq, EdwardsGroupType>::parse_program_with_input(
+        let program = Compiler::parse_program_without_input(
             package_name.clone(),
             main_file_path,
             output_directory,
-            &input_string,
-            &input_path,
-            &state_string,
-            &state_path,
             thread_leaked_context(),
             Some(self.compiler_options.clone().into()),
             imports_map,
@@ -193,7 +198,7 @@ impl Command for Build {
                 namespaces: Default::default(),
             };
             let temporary_program = program.clone();
-            let output = temporary_program.compile_constraints(&mut cs)?;
+            let output = temporary_program.compile::<_, EdwardsGroupType, _>(&mut cs, &input)?;
 
             tracing::debug!("Compiled output - {:#?}", output);
             tracing::info!("Number of constraints - {:#?}", cs.num_constraints());
@@ -236,6 +241,6 @@ impl Command for Build {
 
         tracing::info!("Complete");
 
-        Ok((program, checksum_differs))
+        Ok((program, input, checksum_differs))
     }
 }

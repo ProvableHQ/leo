@@ -4,11 +4,18 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 383
-      num_constraints: 383
-      at: ec8cf3ea9e586d3c504b8b467b4404d213dd375aa2691f2b9a8670c879ffa24d
-      bt: 9b5ba17ea683af827718f9062b3102faa0be01b9f67022e2322db989bf90f057
-      ct: 6fe90b4e46834afeb215a4702281504d676eae391588e5b576f6e406f6ddd504
+      num_private_variables: 384
+      num_constraints: 384
+      at: 2361e9a198ac60a97875ac4121b5858bf29209d7b1b049d0dbe1a7580a3541c2
+      bt: 8e5fff0f53fcb73a20f7b913bd6761b81a45be23b823285733e2664e2bb5c748
+      ct: 2d5074926b7c2738f5549b6e9bc0c9c79439b691f55e18337bc1c5bce78395d0
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  store &v3, [[[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]]]"
+      - "  eq &v4, v2, [[[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]], [[0, 0], [0, 0], [0, 0]]]"
+      - "  retn v4"
+      - ""
     output:
       - input_file: input/type_tuple_value_nested_4x3x2.in
         output:

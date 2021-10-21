@@ -16,15 +16,14 @@
 
 //! Evaluates a formatted string in a compiled Leo program.
 
-use crate::{program::ConstrainedProgram, GroupType};
+use crate::program::Program;
 use leo_asg::{CharValue, ConsoleArgs};
-use leo_errors::{CompilerError, Result};
+use leo_errors::CompilerError;
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, LogData, LogLevel, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn format<CS: ConstraintSystem<F>>(&mut self, cs: &mut CS, args: &ConsoleArgs<'a>) -> Result<String> {
+impl<'a> Program<'a> {
+    pub fn emit_log(&mut self, log_level: LogLevel, args: &ConsoleArgs<'a>) -> Result<()> {
         let mut out = Vec::new();
         let mut in_container = false;
         let mut substring = String::new();
@@ -38,7 +37,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
                 CharValue::Scalar(scalar) => match scalar {
                     '{' if !in_container => {
-                        out.push(substring.clone());
+                        out.push(Value::Str(substring.clone()));
                         substring.clear();
                         in_container = true;
                     }
@@ -59,7 +58,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                                 .into());
                             }
                         };
-                        out.push(self.enforce_expression(cs, parameter.get())?.to_string());
+                        out.push(self.enforce_expression(parameter.get())?);
                         arg_index += 1;
                     }
                     '}' if !in_container => {
@@ -83,7 +82,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
                 }
             }
         }
-        out.push(substring);
+        out.push(Value::Str(substring));
 
         // Check that containers and parameters match
         if arg_index != args.parameters.len() {
@@ -95,6 +94,7 @@ impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
             .into());
         }
 
-        Ok(out.join(""))
+        self.emit(Instruction::Log(LogData { log_level, parts: out }));
+        Ok(())
     }
 }

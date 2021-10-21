@@ -4,11 +4,18 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 33
-      num_constraints: 33
-      at: 424965aff58c62dd2bf38daa6426a3edcc19aa86bff3842fe4e73f743d37e1cb
-      bt: 03d1b6a8fdf9f73f595cf97261f1bae81000c89364c7af58f4f7f04aba7bac30
-      ct: 2aae7d6631260dcaafbfe9709ade84e75f5172a9baad48e108e7264d5fc17cf6
+      num_private_variables: 34
+      num_constraints: 34
+      at: f63838e11a4127b159b16fa2944d71a4d86fcb79fd2711fb1e1365468df29828
+      bt: 321197b153b7b5ba5b7a6425985896c790571f228f49a2fdfbb0904819da2450
+      ct: ce250efa8eb24a9e6e675bcbbaaedf9b6041febdad29758cc012c865f13f71d8
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  eq &v5, v2, v3"
+      - "  eq &v6, v5, v4"
+      - "  retn v6"
+      - ""
     output:
       - input_file: u8_e.in
         output:

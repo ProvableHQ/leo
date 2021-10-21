@@ -4,11 +4,17 @@ expectation: Pass
 outputs:
   - circuit:
       num_public_variables: 0
-      num_private_variables: 25
-      num_constraints: 33
-      at: 00318b0f80b01b9e2d5a8154a536deb1545f04abd493a84071ef13dce1a9d92d
-      bt: 799ee4dc07f6320b8c3dcbd5ebdf6de8a4cf5af8b1edc45dbe5621c8a34fa38d
-      ct: 7b6ec9eacd65cfa47dfe7e73eb7c8fa4be804a9fb878fddf59fe5d06e7c04489
+      num_private_variables: 33
+      num_constraints: 41
+      at: 8a1de4918a021687e409936d8da3e31a9c9ee8b9cb6af8d3facb8c8615b332ea
+      bt: 64f8bb33239b95e48d91e1e89f0bae6d75482e89cecb82cff9815ad9ea2e2ec6
+      ct: 7ba09f6f4961917c35e363f3243bcd3a44939f4cf3a9cfd3760640fff0c72e34
+    ir:
+      - "decl f0: <0>"
+      - "  store &v1, ((v0), (), (), ())"
+      - "  pick &v4, v3, v2, 2"
+      - "  retn v4"
+      - ""
     output:
       - input_file: inputs/ternary_explicit_and_implicit.in
         output:
