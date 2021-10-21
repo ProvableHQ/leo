@@ -715,7 +715,7 @@ impl ReconstructingReducer for Canonicalizer {
             });
 
             if let Some(input) = non_const_input {
-                return Err(AstError::const_function_cannot_have_inputs(&input.span()).into());
+                return Err(AstError::const_function_cannot_have_inputs(input.span()).into());
             }
         }
 
