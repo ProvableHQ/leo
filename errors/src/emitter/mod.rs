@@ -173,3 +173,63 @@ impl Handler {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{ParserError, Span};
+
+    #[test]
+    fn fresh_no_errors() {
+        let handler = Handler::new(Box::new(BufferEmitter::new()));
+        assert_eq!(handler.err_count(), 0);
+        assert!(!handler.had_errors());
+    }
+
+    #[test]
+    fn buffer_works() {
+        let res: Result<(), _> = Handler::with(|h| {
+            let s = Span::default();
+            assert_eq!(h.err_count(), 0);
+            h.emit_err(ParserError::invalid_import_list(&s).into());
+            assert_eq!(h.err_count(), 1);
+            h.emit_err(ParserError::unexpected_eof(&s).into());
+            assert_eq!(h.err_count(), 2);
+            Err(ParserError::spread_in_array_init(&s).into())
+        });
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "\u{1b}[1;31m\
+            Error [EPAR0370002]: Cannot import empty list\
+            \u{1b}[0m\
+            \n    --> :0:0\n     |\n     |\n\
+            \u{1b}[1;31m\
+            Error [EPAR0370003]: unexpected EOF\
+            \u{1b}[0m\
+            \n    --> :0:0\n     |\n     |\n\
+            \u{1b}[1;31m\
+            Error [EPAR0370010]: illegal spread in array initializer\
+            \u{1b}[0m\
+            \n    --> :0:0\n     |\n     |"
+        );
+
+        let res: Result<(), _> = Handler::with(|h| {
+            let s = Span::default();
+            h.emit_err(ParserError::invalid_import_list(&s).into());
+            h.emit_err(ParserError::unexpected_eof(&s).into());
+            Ok(())
+        });
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "\u{1b}[1;31m\
+            Error [EPAR0370002]: Cannot import empty list\
+            \u{1b}[0m\
+            \n    --> :0:0\n     |\n     |\n\
+            \u{1b}[1;31m\
+            Error [EPAR0370003]: unexpected EOF\
+            \u{1b}[0m\n    --> :0:0\n     |\n     |"
+        );
+
+        let () = Handler::with(|_| Ok(())).unwrap();
+    }
+}
