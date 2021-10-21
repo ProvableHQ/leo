@@ -10,7 +10,7 @@ FINAL
 
 ## Summary
 
-This RFC proposes the addition of natively implemented global functions to perform conversions between Leo values and sequences of bits or bytes in big endian or little endian order. This RFC also proposes a future transition from these functions to methods associated to the types.
+This RFC proposes the addition of natively implemented scalar type methods to perform conversions between Leo values and sequences of bits or bytes in big endian or little endian order. This RFC also proposes a future transition from these functions to methods associated to the types.
 
 ## Motivation
 
@@ -69,6 +69,8 @@ For converting from bits and bytes this is represented as static call on a scala
 let u8_int = u8::from_bits([true, true, false, true, false, false, false, true]);
 ```
 
+### Implementation Details
+
 These functions are internally defined in the Leo language standard library associated with circuits. Later on during evaluation these methods are mapped to core calls. For example, the bits le functions for a u8 are defined on a u8 circuit as follows.
 
 ```ts
@@ -85,7 +87,7 @@ circuit u8 {
 
 Right now the blocks have dummy values defined on the Leo side. However, these values are never returned as the bodies are overwritten at evaluation time with native Rust code done from snarkVM. Note: in the future we will be able to declare function declarations without defining a body as per the native functions RFC.
 
-The goal of this RFC is to provide the above demonstrated methods on each Leo scalar type, i.e. integers, addresses, chars, fields, and groups.
+The goal of this RFC is to provide the above demonstrated methods on each Leo scalar type, i.e. integers, addresses, chars, fields, and groups for both bits and bytes in both be and le format.
 
 ## Drawbacks
 
