@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::Ast;
-// #[cfg(not(feature = "ci_skip"))]
+#[cfg(not(feature = "ci_skip"))]
 use leo_ast::Program;
 use leo_errors::{LeoError, Result};
 
@@ -40,7 +40,7 @@ fn clean() {
 }
 
 #[test]
-// #[cfg(not(feature = "ci_skip"))]
+#[cfg(not(feature = "ci_skip"))]
 fn test_serialize() {
     setup();
 
@@ -63,7 +63,7 @@ fn test_serialize() {
 }
 
 #[test]
-// #[cfg(not(feature = "ci_skip"))]
+#[cfg(not(feature = "ci_skip"))]
 fn test_serialize_no_span() {
     setup();
 
@@ -155,7 +155,7 @@ fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
 
 // TODO Renable when we don't write spans to snapshots.
 /* #[test]
-// #[cfg(not(feature = "ci_skip"))]
+#[cfg(not(feature = "ci_skip"))]
 fn test_deserialize() {
     setup();
 

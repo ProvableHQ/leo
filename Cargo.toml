@@ -223,11 +223,3 @@ snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "master"
 snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
 snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
 snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
-# snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
-# snarkvm-fields = { path = "D:\\Work\\leo_repos\\snarkVM\\fields" }
-# snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }
-# snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }
-# snarkvm-gadgets = { path = "D:\\Work\\leo_repos\\snarkVM\\gadgets" }
-# snarkvm-parameters = { path = "D:\\Work\\leo_repos\\snarkVM\\parameters" }
-# snarkvm-dpc = { path = "D:\\Work\\leo_repos\\snarkVM\\dpc" }
-# snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }
