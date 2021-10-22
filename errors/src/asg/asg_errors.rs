@@ -468,10 +468,19 @@ create_errors!(
         help: None,
     }
 
+    /// For when operator is used on an unsupported type.
     @formatted
     operator_allowed_only_for_type {
         args: (operator: impl Display, type_: impl Display, received: impl Display),
         msg: format!("operator '{}' is only allowed for type '{}', received: '{}'", operator, type_, received),
+        help: None,
+    }
+
+    /// For when `input` variable is accessed inside a const function.
+    @formatted
+    illegal_input_variable_reference_in_const_function {
+        args: (),
+        msg: "input access is illegal in const functions",
         help: None,
     }
 );

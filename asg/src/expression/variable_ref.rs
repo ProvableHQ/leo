@@ -128,6 +128,10 @@ impl<'a> FromAst<'a, leo_ast::Identifier> for &'a Expression<'a> {
     ) -> Result<&'a Expression<'a>> {
         let variable = if value.name.as_ref() == "input" {
             if let Some(input) = scope.resolve_input() {
+                if scope.resolve_current_function().map(|f| f.const_).unwrap_or_default() {
+                    return Err(AsgError::illegal_input_variable_reference_in_const_function(&value.span).into());
+                }
+
                 input.container
             } else {
                 return Err(AsgError::illegal_input_variable_reference(&value.span).into());
