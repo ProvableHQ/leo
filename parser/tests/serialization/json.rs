@@ -15,17 +15,20 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::Ast;
-#[cfg(not(feature = "ci_skip"))]
+// #[cfg(not(feature = "ci_skip"))]
 use leo_ast::Program;
 use leo_errors::{LeoError, Result};
 
+use std::fs::File;
+use std::io::BufReader;
+use std::iter::Iterator;
 use std::path::{Path, PathBuf};
 
 fn to_ast(program_filepath: &Path) -> Result<Ast> {
     let program_string = std::fs::read_to_string(program_filepath).expect("failed to open test");
 
     // Parses the Leo file and constructs a leo ast.
-    leo_parser::parse_ast("test", &program_string)
+    leo_parser::parse_ast("", &program_string)
 }
 
 fn setup() {
@@ -37,14 +40,14 @@ fn clean() {
 }
 
 #[test]
-#[cfg(not(feature = "ci_skip"))]
+// #[cfg(not(feature = "ci_skip"))]
 fn test_serialize() {
     setup();
 
     // Construct an ast from the given test file.
     let ast = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        program_filepath.push("tests/serialization/main.leo");
+        program_filepath.push("tests/serialization/leo/one_plus_one.leo");
 
         to_ast(&program_filepath).unwrap()
     };
@@ -53,15 +56,106 @@ fn test_serialize() {
     let serialized_ast: Program = serde_json::from_value(serde_json::to_value(ast.as_repr()).unwrap()).unwrap();
 
     // Load the expected ast.
-    let expected: Program = serde_json::from_str(include_str!("expected_leo_ast.json")).unwrap();
+    let expected: Program = serde_json::from_str(include_str!("./expected_leo_ast/one_plus_one.json")).unwrap();
 
     clean();
     assert_eq!(expected, serialized_ast);
 }
 
+#[test]
+// #[cfg(not(feature = "ci_skip"))]
+fn test_serialize_no_span() {
+    setup();
+
+    let program_paths = vec![
+        "tests/serialization/leo/linear_regression.leo",
+        "tests/serialization/leo/palindrome.leo",
+        "tests/serialization/leo/pedersen_hash.leo",
+        "tests/serialization/leo/silly_sudoku.leo",
+    ];
+
+    let json_paths = vec![
+        "tests/serialization/expected_leo_ast/linear_regression.json",
+        "tests/serialization/expected_leo_ast/palindrome.json",
+        "tests/serialization/expected_leo_ast/pedersen_hash.json",
+        "tests/serialization/expected_leo_ast/silly_sudoku.json",
+    ];
+
+    for (program_path, json_path) in program_paths.into_iter().zip(json_paths) {
+        // Construct an ast from the given test file.
+        let ast = {
+            let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            program_filepath.push(program_path);
+            to_ast(&program_filepath).unwrap()
+        };
+
+        let json_reader = {
+            let mut json_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+            json_filepath.push(json_path);
+            let file = File::open(json_filepath).expect("Failed to read expected ast file");
+            BufReader::new(file)
+        };
+
+        // Serializes the ast into JSON format.
+        let mut serialized_ast: serde_json::Value = serde_json::to_value(ast.as_repr()).unwrap();
+        remove_key_from_json(&mut serialized_ast, "span");
+        serialized_ast = normalize_json_value(serialized_ast);
+
+        // Load the expected ast.
+        let expected: serde_json::Value = serde_json::from_reader(json_reader).unwrap();
+
+        assert_eq!(expected, serialized_ast);
+    }
+    clean();
+}
+
+// Helper functions to recursively filter keys from AST JSON.
+// Redeclaring here since we don't want to make this public.
+fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
+    match value {
+        serde_json::value::Value::Object(map) => {
+            map.remove(key);
+            for val in map.values_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        serde_json::value::Value::Array(values) => {
+            for val in values.iter_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        _ => (),
+    }
+}
+
+// Helper function to normalize AST
+// Redeclaring here because we don't want to make this public
+fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Array(vec) => {
+            let orig_length = vec.len();
+            let mut new_vec: Vec<serde_json::Value> = vec
+                .into_iter()
+                .filter(|v| !matches!(v, serde_json::Value::Object(map) if map.is_empty()))
+                .map(normalize_json_value)
+                .collect();
+
+            if orig_length == 2 && new_vec.len() == 1 {
+                new_vec.pop().unwrap()
+            } else {
+                serde_json::Value::Array(new_vec)
+            }
+        }
+        serde_json::Value::Object(map) => {
+            serde_json::Value::Object(map.into_iter().map(|(k, v)| (k, normalize_json_value(v))).collect())
+        }
+        _ => value,
+    }
+}
+
 // TODO Renable when we don't write spans to snapshots.
 /* #[test]
-#[cfg(not(feature = "ci_skip"))]
+// #[cfg(not(feature = "ci_skip"))]
 fn test_deserialize() {
     setup();
 
@@ -112,7 +206,7 @@ fn test_generic_parser_error() {
 
     let error_result = {
         let mut program_filepath = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        program_filepath.push("tests/serialization/parser_error.leo");
+        program_filepath.push("tests/serialization/leo/parser_error.leo");
 
         to_ast(&program_filepath)
     }

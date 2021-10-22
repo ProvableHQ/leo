@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372013]: const function cannot have non-const input\n    --> compiler-test:4:26\n     |\n   4 |     const function set_a(mut self) {\n     |                          ^^^^^^^^"
+  - "Error [EAST0372014]: const function cannot have non-const input\n    --> compiler-test:4:26\n     |\n   4 |     const function set_a(mut self) {\n     |                          ^^^^^^^^"

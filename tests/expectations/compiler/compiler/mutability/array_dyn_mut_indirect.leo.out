@@ -38,7 +38,7 @@ outputs:
             r0:
               type: "[(u32, u32); 3]"
               value: "[(1, 1), (2, 2), (0, 1)]"
-    initial_ast: 3c8c2d29df07366b3abb738f6f55e3e1e453a428d97b897422d13bc8e007a69b
-    imports_resolved_ast: 1a08d08854665292fedc0d3915398099f1c42775cb2de5dd945424c91020373d
-    canonicalized_ast: 1a08d08854665292fedc0d3915398099f1c42775cb2de5dd945424c91020373d
-    type_inferenced_ast: 5410d82aa5516711548865102c6d30ace0323c3bc9530b2cc983c8a770190b78
+    initial_ast: 80bb51420ba9df107a1d4081639e3c90c5b959d2e9a3786465c6a5cfdb512509
+    imports_resolved_ast: 5fb86872d0e3922b37cdb6d1a3dc38b0e0888033a0f9cbbadd402f6d472ca22c
+    canonicalized_ast: 5fb86872d0e3922b37cdb6d1a3dc38b0e0888033a0f9cbbadd402f6d472ca22c
+    type_inferenced_ast: de78e41cf7ee4f93c288b3cfb1812e5b0ab166dd133fbbc67f9ec87fa1fa2de2

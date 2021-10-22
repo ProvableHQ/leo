@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [ECMP0376031]: Input array dimensions mismatch expected 2, found array dimensions 1\n    --> compiler-test:3:1\n     |\n   3 | function main(x: [i16; 2]) {\n   4 |      ...\n   5 | }\n     | ^"
+  - "Error [ECMP0376013]: Input array dimensions mismatch expected 2, found array dimensions 1\n    --> compiler-test:3:1\n     |\n   3 | function main(x: [i16; 2]) {\n   4 |      ...\n   5 | }\n     | ^"

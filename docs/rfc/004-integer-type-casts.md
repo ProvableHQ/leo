@@ -8,7 +8,7 @@ The Aleo Team.
 
 FINAL
 
-# Summary
+## Summary
 
 This proposal provides support for casts among integer types in Leo.
 The syntax is similar to Rust.
@@ -16,7 +16,7 @@ The semantics is _value-preserving_,
 i.e. the casts just serve to change types
 but cause errors when the mathematical values are not representable in the new types.
 
-# Motivation
+## Motivation
 
 Currently the Leo integer types are "siloed":
 arithmetic integer operations require operands of the same type
@@ -27,17 +27,19 @@ every non-negative integer that fits in 8 bits also fits in 16 bits.
 However, the ability to convert values between different (integer) types
 is a useful feature that is normally found in programming languages.
 
-# Design
-
 ## Background
 
-Recall that Leo supports the following _integer types_:
+Leo supports the following _integer types_:
 ```
 u8 u16 u32 u64 u128
 i8 i16 i32 i64 i128
 ```
 
-## Scope
+Those are for unsigned and signed integers of 8, 16, 32, 64, and 128 bits.
+
+## Design
+
+### Scope
 
 This RFC proposes type casts between any two integer types,
 but not between two non-integer types
@@ -50,7 +52,7 @@ and with the same or larger size
 (e.g. from `u8` to `u16`).
 All the type casts must be explicit.
 
-## Syntax and Static Semantics
+### Syntax and Static Semantics
 
 The proposed syntax is
 ```
@@ -70,9 +72,7 @@ exponential-expression = cast-expression
 ```
 There is no need to modify the `keyword` rule
 because it already includes `as` as one of the keywords.
-Note the use of `integer-type` in the `cast-expression` rule;
-an alternative is to use `type` there
-and check post-parsing that the type is in fact an integer one.
+Note the use of `integer-type` in the `cast-expression` rule.
 
 The above grammar rules imply that casts bind
 tighter than binary operators and looser than unary operators.
@@ -87,7 +87,7 @@ x + ((- y) as u8)
 This precedence is the same as in Rust:
 see [here](https://doc.rust-lang.org/stable/reference/expressions.html#expression-precedence).
 
-## Dynamic Semantics
+### Dynamic Semantics
 
 When the mathematical integer value of the expression
 is representable in the type that the expression is cast to,
@@ -109,8 +109,7 @@ but cause errors when values are not representable in the new types;
 and _values-changing casts_,
 which never cause errors but may change the mathematical values.
 
-Based on discussion and consensus within the Leo team,
-this RFC proposes value-preserving casts;
+This RFC proposes value-preserving casts;
 value-changing casts are discussed in the 'Alternatives' section,
 for completeness.
 
@@ -127,7 +126,7 @@ When values are to be changed, separate (built-in) functions can be used,
 e.g. to mask bits and achieve the same effect as
 the value-changing casts discussed below.
 
-This approach Leo's treatment of potentially erroneous situations like integer overflows.
+This approach is consistent with Leo's treatment of potentially erroneous situations like integer overflows.
 The principle is that developers should explicitly use
 operations that may overflow if that is their intention,
 rather than having those situation possibly occur unexpectedly.
@@ -161,7 +160,7 @@ let r_low16: u32 = r & 0xFFFF; // assuming we have bitwise ops and hex literals
 let s: u16 = r_low16 as u16; // no value change here
 ```
 
-## Compilation to R1CS
+### Compilation to R1CS
 
 It may be more efficient (in terms of number of R1CS constraints)
 to compile Leo casts as if they had a value-changing semantics.
@@ -174,17 +173,17 @@ because the compiler ensures that the cast values do not actually change given t
 and therefore the value-changing and value-preserving semantics are equivalent on the known inputs.
 The idea is that the R1CS constraints can have a "don't care" behavior on inputs that cause errors in Leo.
 
-# Drawbacks
+## Drawbacks
 
 This proposal does not appear to bring any drawbacks,
 other than making the language and compiler inevitably more complex.
 But the benefits to support type casts justifies the extra complexity.
 
-# Effect on Ecosystem
+## Effect on Ecosystem
 
 This proposal does not appear to have any direct effects on the ecosystem.
 
-# Alternatives
+## Alternatives
 
 As mentioned above, an alternative semantics for casts is value-changing:
  1. `uN` to `uM` with `N < M`: just change type of value.
@@ -199,7 +198,7 @@ As mentioned above, an alternative semantics for casts is value-changing:
 10. `iN` to `uN`: re-interpret as unsigned
 Except for the 1st and 3rd cases, the value may change.
 
-This approach is common in other programming languages.
+This value-changing approach is common in other programming languages.
 However, it should be noted that other programming languages
 typically do not check for overflow in integer operations either
 (at least, not for production code).

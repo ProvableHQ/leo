@@ -1,5 +1,0 @@
----
-namespace: Parse
-expectation: Fail
-outputs:
-  - "Error [EPAR0370006]: Cannot mix use of commas and semi-colons for circuit member variable declarations.\n    --> test:10:11\n     |\n  10 |     y: u32;\n     |           ^"

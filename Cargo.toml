@@ -103,7 +103,7 @@ default-features = false
 [dependencies.snarkvm-utilities]
 version = "0.7.6"
 
-#todo 0rphon
+#todo 0rphon replace once snarkvm releases and before merging staging to master.
 [dependencies.snarkvm-eval]
 version = "0.7.9"
 # path = "D:\\Work\\leo_repos\\snarkVM\\eval"
@@ -126,7 +126,7 @@ version = "2.0"
 version = "4.0.0"
 
 [dependencies.console]
-version = "0.14.0"
+version = "0.15.0"
 
 [dependencies.from-pest]
 version = "0.3.1"
@@ -148,7 +148,7 @@ version = "0.8"
 version = "0.6.3"
 
 [dependencies.reqwest]
-version = "0.11.4"
+version = "0.11.6"
 features = [ "blocking", "json", "multipart" ]
 
 [dependencies.self_update]
@@ -182,7 +182,7 @@ version = "0.12.1"
 version = "0.11.2"
 
 [dev-dependencies.assert_cmd]
-version = "2.0.1"
+version = "2.0.2"
 
 [dev-dependencies.test_dir]
 version = "0.1.0"
@@ -213,7 +213,7 @@ opt-level = 0
 debug-assertions = true
 debug = true
 
-# todo 0rphon
+# Remove on pr from staging to master once snarkvm does a release.
 [patch.crates-io]
 snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
 snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }

@@ -1,6 +1,0 @@
----
-namespace: ParseExpression
-expectation: Fail
-outputs:
-  - "Error [EPAR0370010]: illegal spread in array initializer\n    --> test:1:1\n     |\n   1 | [...0u8; 1]\n     | ^^^^^^^"
-  - "Error [EPAR0370010]: illegal spread in array initializer\n    --> test:1:1\n     |\n   1 | [...0; 1]\n     | ^^^^^"
