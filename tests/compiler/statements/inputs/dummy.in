@@ -1,5 +1,7 @@
 [main]
 k: bool = true;
+y: bool = true;
+n: bool = false;
 
 [registers]
 r0: bool = true;
