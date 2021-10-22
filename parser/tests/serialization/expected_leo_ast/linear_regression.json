@@ -1,0 +1,1162 @@
+{
+  "name": "",
+  "expected_input": [],
+  "import_statements": [],
+  "imports": {},
+  "aliases": {},
+  "circuits": {
+    "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Point {\\\"}\"}": {
+      "circuit_name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Point {\\\"}\"}",
+      "core_mapping": null,
+      "members": [
+        {
+          "CircuitVariable": [
+            "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":2,\\\"line_stop\\\":2,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x: i32,\\\"}\"}",
+            {
+              "IntegerType": "I32"
+            }
+          ]
+        },
+        {
+          "CircuitVariable": [
+            "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    y: i32,\\\"}\"}",
+            {
+              "IntegerType": "I32"
+            }
+          ]
+        },
+        {
+          "CircuitFunction": {
+            "annotations": [],
+            "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}",
+            "input": [
+              {
+                "Variable": {
+                  "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}",
+                  "const_": false,
+                  "mutable": true,
+                  "type_": {
+                    "IntegerType": "I32"
+                  }
+                }
+              },
+              {
+                "Variable": {
+                  "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}",
+                  "const_": false,
+                  "mutable": true,
+                  "type_": {
+                    "IntegerType": "I32"
+                  }
+                }
+              }
+            ],
+            "output": "SelfType",
+            "block": {
+              "statements": [
+                {
+                  "Return": {
+                    "expression": {
+                      "CircuitInit": {
+                        "name": "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}",
+                        "members": [
+                          {
+                            "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}",
+                            "expression": null
+                          },
+                          {
+                            "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}",
+                            "expression": null
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":9,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit LinearRegression {\\\"}\"}": {
+      "circuit_name": "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":9,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit LinearRegression {\\\"}\"}",
+      "core_mapping": null,
+      "members": [
+        {
+          "CircuitVariable": [
+            "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":5,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    points: [Point; 5],\\\"}\"}",
+            {
+              "Array": [
+                {
+                  "Identifier": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    points: [Point; 5],\\\"}\"}"
+                },
+                [
+                  {
+                    "value": "5"
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "CircuitFunction": {
+            "annotations": [],
+            "identifier": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}",
+            "input": [
+              {
+                "Variable": {
+                  "identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":18,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}",
+                  "const_": false,
+                  "mutable": true,
+                  "type_": {
+                    "Array": [
+                      {
+                        "Identifier": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}"
+                      },
+                      [
+                        {
+                          "value": "5"
+                        }
+                      ]
+                    ]
+                  }
+                }
+              }
+            ],
+            "output": "SelfType",
+            "block": {
+              "statements": [
+                {
+                  "Return": {
+                    "expression": {
+                      "CircuitInit": {
+                        "name": "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { points };\\\"}\"}",
+                        "members": [
+                          {
+                            "identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { points };\\\"}\"}",
+                            "expression": null
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "CircuitFunction": {
+            "annotations": [],
+            "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function slope(self) -> i32 { \\\"}\"}",
+            "input": [
+              {
+                "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function slope(self) -> i32 { \\\"}\"}"
+              }
+            ],
+            "output": {
+              "IntegerType": "I32"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points = 5i32;\\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Value": {
+                        "Integer": [
+                          "I32",
+                          "5"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum = 0i32; \\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Value": {
+                        "Integer": [
+                          "I32",
+                          "0"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum = 0i32; \\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Value": {
+                        "Integer": [
+                          "I32",
+                          "0"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let xy_sum = 0i32; \\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Value": {
+                        "Integer": [
+                          "I32",
+                          "0"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x2_sum = 0i32; \\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Value": {
+                        "Integer": [
+                          "I32",
+                          "0"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Iteration": {
+                    "variable": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":27,\\\"line_stop\\\":27,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..5 {\\\"}\"}",
+                    "start": {
+                      "Value": {
+                        "Implicit": "0"
+                      }
+                    },
+                    "stop": {
+                      "Value": {
+                        "Implicit": "5"
+                      }
+                    },
+                    "inclusive": false,
+                    "block": {
+                      "statements": [
+                        {
+                          "Assign": {
+                            "operation": "Add",
+                            "assignee": {
+                              "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                              "accesses": []
+                            },
+                            "value": {
+                              "CircuitMemberAccess": {
+                                "circuit": {
+                                  "ArrayAccess": {
+                                    "array": {
+                                      "CircuitMemberAccess": {
+                                        "circuit": {
+                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
+                                        },
+                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                                        "type_": null
+                                      }
+                                    },
+                                    "index": {
+                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
+                                    }
+                                  }
+                                },
+                                "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":28,\\\"line_stop\\\":28,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                                "type_": null
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Assign": {
+                            "operation": "Add",
+                            "assignee": {
+                              "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}",
+                              "accesses": []
+                            },
+                            "value": {
+                              "CircuitMemberAccess": {
+                                "circuit": {
+                                  "ArrayAccess": {
+                                    "array": {
+                                      "CircuitMemberAccess": {
+                                        "circuit": {
+                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}"
+                                        },
+                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}",
+                                        "type_": null
+                                      }
+                                    },
+                                    "index": {
+                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}"
+                                    }
+                                  }
+                                },
+                                "name": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":29,\\\"line_stop\\\":29,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y;\\\"}\"}",
+                                "type_": null
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Assign": {
+                            "operation": "Add",
+                            "assignee": {
+                              "identifier": "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                              "accesses": []
+                            },
+                            "value": {
+                              "Binary": {
+                                "left": {
+                                  "CircuitMemberAccess": {
+                                    "circuit": {
+                                      "ArrayAccess": {
+                                        "array": {
+                                          "CircuitMemberAccess": {
+                                            "circuit": {
+                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":23,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
+                                            },
+                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":28,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                                            "type_": null
+                                          }
+                                        },
+                                        "index": {
+                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":35,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
+                                        }
+                                      }
+                                    },
+                                    "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":38,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                                    "type_": null
+                                  }
+                                },
+                                "right": {
+                                  "CircuitMemberAccess": {
+                                    "circuit": {
+                                      "ArrayAccess": {
+                                        "array": {
+                                          "CircuitMemberAccess": {
+                                            "circuit": {
+                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":42,\\\"col_stop\\\":46,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
+                                            },
+                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":47,\\\"col_stop\\\":53,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                                            "type_": null
+                                          }
+                                        },
+                                        "index": {
+                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":54,\\\"col_stop\\\":55,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}"
+                                        }
+                                      }
+                                    },
+                                    "name": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":30,\\\"line_stop\\\":30,\\\"col_start\\\":57,\\\"col_stop\\\":58,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            xy_sum += self.points[i].x * self.points[i].y;\\\"}\"}",
+                                    "type_": null
+                                  }
+                                },
+                                "op": "Mul"
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Assign": {
+                            "operation": "Add",
+                            "assignee": {
+                              "identifier": "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                              "accesses": []
+                            },
+                            "value": {
+                              "Binary": {
+                                "left": {
+                                  "CircuitMemberAccess": {
+                                    "circuit": {
+                                      "ArrayAccess": {
+                                        "array": {
+                                          "CircuitMemberAccess": {
+                                            "circuit": {
+                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":23,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
+                                            },
+                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":28,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                                            "type_": null
+                                          }
+                                        },
+                                        "index": {
+                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":35,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
+                                        }
+                                      }
+                                    },
+                                    "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":38,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                                    "type_": null
+                                  }
+                                },
+                                "right": {
+                                  "CircuitMemberAccess": {
+                                    "circuit": {
+                                      "ArrayAccess": {
+                                        "array": {
+                                          "CircuitMemberAccess": {
+                                            "circuit": {
+                                              "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":42,\\\"col_stop\\\":46,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
+                                            },
+                                            "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":47,\\\"col_stop\\\":53,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                                            "type_": null
+                                          }
+                                        },
+                                        "index": {
+                                          "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":54,\\\"col_stop\\\":55,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}"
+                                        }
+                                      }
+                                    },
+                                    "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":31,\\\"line_stop\\\":31,\\\"col_start\\\":57,\\\"col_stop\\\":58,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x2_sum += self.points[i].x * self.points[i].x;\\\"}\"}",
+                                    "type_": null
+                                  }
+                                },
+                                "op": "Mul"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":13,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Binary": {
+                        "left": {
+                          "Binary": {
+                            "left": {
+                              "Identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":26,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                            },
+                            "right": {
+                              "Identifier": "{\"name\":\"xy_sum\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":39,\\\"col_stop\\\":45,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                            },
+                            "op": "Mul"
+                          }
+                        },
+                        "right": {
+                          "Binary": {
+                            "left": {
+                              "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":50,\\\"col_stop\\\":55,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                            },
+                            "right": {
+                              "Identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":33,\\\"line_stop\\\":33,\\\"col_start\\\":58,\\\"col_stop\\\":63,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let numerator = (num_points * xy_sum) - (x_sum * y_sum); \\\"}\"}"
+                            },
+                            "op": "Mul"
+                          }
+                        },
+                        "op": "Sub"
+                      }
+                    }
+                  }
+                },
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":13,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Binary": {
+                        "left": {
+                          "Binary": {
+                            "left": {
+                              "Identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":28,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                            },
+                            "right": {
+                              "Identifier": "{\"name\":\"x2_sum\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":41,\\\"col_stop\\\":47,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                            },
+                            "op": "Mul"
+                          }
+                        },
+                        "right": {
+                          "Binary": {
+                            "left": {
+                              "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":52,\\\"col_stop\\\":57,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                            },
+                            "right": {
+                              "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":34,\\\"line_stop\\\":34,\\\"col_start\\\":60,\\\"col_stop\\\":65,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let denominator = (num_points * x2_sum) - (x_sum * x_sum);\\\"}\"}"
+                            },
+                            "op": "Mul"
+                          }
+                        },
+                        "op": "Sub"
+                      }
+                    }
+                  }
+                },
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Binary": {
+                        "left": {
+                          "Identifier": "{\"name\":\"numerator\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":21,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
+                        },
+                        "right": {
+                          "Identifier": "{\"name\":\"denominator\",\"span\":\"{\\\"line_start\\\":35,\\\"line_stop\\\":35,\\\"col_start\\\":33,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let slope = numerator / denominator;\\\"}\"}"
+                        },
+                        "op": "Div"
+                      }
+                    }
+                  }
+                },
+                {
+                  "Return": {
+                    "expression": {
+                      "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":36,\\\"line_stop\\\":36,\\\"col_start\\\":16,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return slope;\\\"}\"}"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "CircuitFunction": {
+            "annotations": [],
+            "identifier": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":14,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}",
+            "input": [
+              {
+                "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":21,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}"
+              },
+              {
+                "Variable": {
+                  "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":39,\\\"line_stop\\\":39,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}",
+                  "const_": false,
+                  "mutable": true,
+                  "type_": {
+                    "IntegerType": "I32"
+                  }
+                }
+              }
+            ],
+            "output": {
+              "IntegerType": "I32"
+            },
+            "block": {
+              "statements": [
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":40,\\\"line_stop\\\":40,\\\"col_start\\\":13,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let num_points = 5i32; \\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Value": {
+                        "Integer": [
+                          "I32",
+                          "5"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let x_sum = 0i32;\\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Value": {
+                        "Integer": [
+                          "I32",
+                          "0"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Definition": {
+                    "declaration_type": "Let",
+                    "variable_names": [
+                      {
+                        "mutable": true,
+                        "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let y_sum = 0i32;\\\"}\"}"
+                      }
+                    ],
+                    "type_": null,
+                    "value": {
+                      "Value": {
+                        "Integer": [
+                          "I32",
+                          "0"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "Iteration": {
+                    "variable": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..5 {\\\"}\"}",
+                    "start": {
+                      "Value": {
+                        "Implicit": "0"
+                      }
+                    },
+                    "stop": {
+                      "Value": {
+                        "Implicit": "5"
+                      }
+                    },
+                    "inclusive": false,
+                    "block": {
+                      "statements": [
+                        {
+                          "Assign": {
+                            "operation": "Add",
+                            "assignee": {
+                              "identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                              "accesses": []
+                            },
+                            "value": {
+                              "CircuitMemberAccess": {
+                                "circuit": {
+                                  "ArrayAccess": {
+                                    "array": {
+                                      "CircuitMemberAccess": {
+                                        "circuit": {
+                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
+                                        },
+                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                                        "type_": null
+                                      }
+                                    },
+                                    "index": {
+                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}"
+                                    }
+                                  }
+                                },
+                                "name": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":45,\\\"line_stop\\\":45,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            x_sum += self.points[i].x;\\\"}\"}",
+                                "type_": null
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "Assign": {
+                            "operation": "Add",
+                            "assignee": {
+                              "identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":13,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}",
+                              "accesses": []
+                            },
+                            "value": {
+                              "CircuitMemberAccess": {
+                                "circuit": {
+                                  "ArrayAccess": {
+                                    "array": {
+                                      "CircuitMemberAccess": {
+                                        "circuit": {
+                                          "Identifier": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}"
+                                        },
+                                        "name": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":27,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}",
+                                        "type_": null
+                                      }
+                                    },
+                                    "index": {
+                                      "Identifier": "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}"
+                                    }
+                                  }
+                                },
+                                "name": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":46,\\\"line_stop\\\":46,\\\"col_start\\\":37,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            y_sum += self.points[i].y; \\\"}\"}",
+                                "type_": null
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "Return": {
+                    "expression": {
+                      "Binary": {
+                        "left": {
+                          "Binary": {
+                            "left": {
+                              "Identifier": "{\"name\":\"y_sum\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":17,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
+                            },
+                            "right": {
+                              "Binary": {
+                                "left": {
+                                  "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":25,\\\"col_stop\\\":30,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
+                                },
+                                "right": {
+                                  "Identifier": "{\"name\":\"x_sum\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":33,\\\"col_stop\\\":38,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
+                                },
+                                "op": "Mul"
+                              }
+                            },
+                            "op": "Sub"
+                          }
+                        },
+                        "right": {
+                          "Identifier": "{\"name\":\"num_points\",\"span\":\"{\\\"line_start\\\":48,\\\"line_stop\\\":48,\\\"col_start\\\":42,\\\"col_stop\\\":52,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return (y_sum - slope * x_sum) / num_points;\\\"}\"}"
+                        },
+                        "op": "Div"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "global_consts": {},
+  "functions": {
+    "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}": {
+      "annotations": [],
+      "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}",
+      "input": [
+        {
+          "Variable": {
+            "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}",
+            "const_": false,
+            "mutable": true,
+            "type_": {
+              "IntegerType": "I32"
+            }
+          }
+        },
+        {
+          "Variable": {
+            "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":24,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}",
+            "const_": false,
+            "mutable": true,
+            "type_": {
+              "IntegerType": "I32"
+            }
+          }
+        }
+      ],
+      "output": {
+        "Array": [
+          {
+            "IntegerType": "I32"
+          },
+          [
+            {
+              "value": "2"
+            }
+          ]
+        ]
+      },
+      "block": {
+        "statements": [
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let points: [Point; 5] = [\\\"}\"}"
+                }
+              ],
+              "type_": {
+                "Array": [
+                  {
+                    "Identifier": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":16,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let points: [Point; 5] = [\\\"}\"}"
+                  },
+                  [
+                    {
+                      "value": "5"
+                    }
+                  ]
+                ]
+              },
+              "value": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "CircuitInit": {
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}",
+                          "members": [
+                            {
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "1"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            },
+                            {
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "1"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "CircuitInit": {
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}",
+                          "members": [
+                            {
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "2"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            },
+                            {
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":56,\\\"line_stop\\\":56,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "2"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "CircuitInit": {
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}",
+                          "members": [
+                            {
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "3"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            },
+                            {
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "3"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "CircuitInit": {
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}",
+                          "members": [
+                            {
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "4"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            },
+                            {
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "4"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "CircuitInit": {
+                          "name": "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}",
+                          "members": [
+                            {
+                              "identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":16,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "5"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            },
+                            {
+                              "identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}",
+                              "expression": {
+                                "Binary": {
+                                  "left": {
+                                    "Identifier": "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
+                                  },
+                                  "right": {
+                                    "Value": {
+                                      "Implicit": "5"
+                                    }
+                                  },
+                                  "op": "Add"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":7,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                }
+              ],
+              "type_": null,
+              "value": {
+                "Call": {
+                  "function": {
+                    "CircuitStaticFunctionAccess": {
+                      "circuit": {
+                        "Identifier": "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":13,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                      },
+                      "name": "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":35,\\\"col_stop\\\":41,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
+                }
+              ],
+              "type_": null,
+              "value": {
+                "Call": {
+                  "function": {
+                    "CircuitMemberAccess": {
+                      "circuit": {
+                        "Identifier": "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":15,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}"
+                      },
+                      "name": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":19,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let slope = reg.slope();\\\"}\"}",
+                      "type_": null
+                    }
+                  },
+                  "arguments": []
+                }
+              }
+            }
+          },
+          {
+            "Definition": {
+              "declaration_type": "Let",
+              "variable_names": [
+                {
+                  "mutable": true,
+                  "identifier": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":7,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
+                }
+              ],
+              "type_": null,
+              "value": {
+                "Call": {
+                  "function": {
+                    "CircuitMemberAccess": {
+                      "circuit": {
+                        "Identifier": "{\"name\":\"reg\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":16,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
+                      },
+                      "name": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":20,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}",
+                      "type_": null
+                    }
+                  },
+                  "arguments": [
+                    {
+                      "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":27,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let offset = reg.offset(slope);\\\"}\"}"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "Return": {
+              "expression": {
+                "ArrayInline": {
+                  "elements": [
+                    {
+                      "Expression": {
+                        "Identifier": "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":11,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  return [slope, offset];\\\"}\"}"
+                      }
+                    },
+                    {
+                      "Expression": {
+                        "Identifier": "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":64,\\\"line_stop\\\":64,\\\"col_start\\\":18,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  return [slope, offset];\\\"}\"}"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

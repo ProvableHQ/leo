@@ -156,12 +156,13 @@ outputs:
               Value:
                 Implicit:
                   - "0"
-                  - line_start: 1
-                    line_stop: 1
-                    col_start: 3
-                    col_stop: 4
-                    path: ""
-                    content: "x[0] = y;"
+                  - span:
+                      line_start: 1
+                      line_stop: 1
+                      col_start: 3
+                      col_stop: 4
+                      path: ""
+                      content: "x[0] = y;"
         span:
           line_start: 1
           line_stop: 1
@@ -188,12 +189,13 @@ outputs:
                 Integer:
                   - U32
                   - "0"
-                  - line_start: 1
-                    line_stop: 1
-                    col_start: 3
-                    col_stop: 7
-                    path: ""
-                    content: "x[0u32] = y;"
+                  - span:
+                      line_start: 1
+                      line_stop: 1
+                      col_start: 3
+                      col_stop: 7
+                      path: ""
+                      content: "x[0u32] = y;"
         span:
           line_start: 1
           line_stop: 1
@@ -217,12 +219,13 @@ outputs:
         accesses:
           - Tuple:
               - value: "0"
-              - line_start: 1
-                line_stop: 1
-                col_start: 1
-                col_stop: 4
-                path: ""
-                content: x.0 = y;
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 1
+                  col_stop: 4
+                  path: ""
+                  content: x.0 = y;
         span:
           line_start: 1
           line_stop: 1
@@ -248,21 +251,23 @@ outputs:
               - Value:
                   Implicit:
                     - "1"
-                    - line_start: 1
-                      line_stop: 1
-                      col_start: 3
-                      col_stop: 4
-                      path: ""
-                      content: "x[1..2] = y;"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 3
+                        col_stop: 4
+                        path: ""
+                        content: "x[1..2] = y;"
               - Value:
                   Implicit:
                     - "2"
-                    - line_start: 1
-                      line_stop: 1
-                      col_start: 6
-                      col_stop: 7
-                      path: ""
-                      content: "x[1..2] = y;"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 6
+                        col_stop: 7
+                        path: ""
+                        content: "x[1..2] = y;"
         span:
           line_start: 1
           line_stop: 1
@@ -289,12 +294,13 @@ outputs:
               - Value:
                   Implicit:
                     - "2"
-                    - line_start: 1
-                      line_stop: 1
-                      col_start: 5
-                      col_stop: 6
-                      path: ""
-                      content: "x[..2] = y;"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 5
+                        col_stop: 6
+                        path: ""
+                        content: "x[..2] = y;"
         span:
           line_start: 1
           line_stop: 1
@@ -320,12 +326,13 @@ outputs:
               - Value:
                   Implicit:
                     - "2"
-                    - line_start: 1
-                      line_stop: 1
-                      col_start: 3
-                      col_stop: 4
-                      path: ""
-                      content: "x[2..] = y;"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 3
+                        col_stop: 4
+                        path: ""
+                        content: "x[2..] = y;"
               - ~
         span:
           line_start: 1
@@ -374,22 +381,24 @@ outputs:
         accesses:
           - Tuple:
               - value: "0"
-              - line_start: 1
-                line_stop: 1
-                col_start: 1
-                col_stop: 4
-                path: ""
-                content: "x.0[0][..] = y;"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 1
+                  col_stop: 4
+                  path: ""
+                  content: "x.0[0][..] = y;"
           - ArrayIndex:
               Value:
                 Implicit:
                   - "0"
-                  - line_start: 1
-                    line_stop: 1
-                    col_start: 5
-                    col_stop: 6
-                    path: ""
-                    content: "x.0[0][..] = y;"
+                  - span:
+                      line_start: 1
+                      line_stop: 1
+                      col_start: 5
+                      col_stop: 6
+                      path: ""
+                      content: "x.0[0][..] = y;"
           - ArrayRange:
               - ~
               - ~

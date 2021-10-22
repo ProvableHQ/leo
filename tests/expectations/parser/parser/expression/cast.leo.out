@@ -134,12 +134,13 @@ outputs:
   - Value:
       Implicit:
         - ""
-        - line_start: 0
-          line_stop: 0
-          col_start: 0
-          col_stop: 0
-          path: ""
-          content: ""
+        - span:
+            line_start: 0
+            line_stop: 0
+            col_start: 0
+            col_stop: 0
+            path: ""
+            content: ""
   - Cast:
       inner:
         Unary:

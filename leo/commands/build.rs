@@ -50,6 +50,8 @@ pub struct BuildOptions {
         help = "Writes all AST snapshots for the different compiler phases and emits IR."
     )]
     pub enable_all_snapshots: bool,
+    #[structopt(long, help = "Enable spans in AST snapshots.")]
+    pub enable_spans: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the import resolution phase.")]
@@ -82,6 +84,7 @@ impl From<BuildOptions> for OutputOptions {
     fn from(options: BuildOptions) -> Self {
         if options.enable_all_snapshots {
             OutputOptions {
+                spans_enabled: options.enable_spans,
                 ast_initial: true,
                 ast_imports_resolved: true,
                 ast_canonicalized: true,
@@ -90,6 +93,7 @@ impl From<BuildOptions> for OutputOptions {
             }
         } else {
             OutputOptions {
+                spans_enabled: options.enable_spans,
                 ast_initial: options.enable_initial_ast_snapshot,
                 ast_imports_resolved: options.enable_imports_resolved_ast_snapshot,
                 ast_canonicalized: options.enable_canonicalized_ast_snapshot,

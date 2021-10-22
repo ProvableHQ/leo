@@ -31,6 +31,11 @@ pub use self::macros::*;
 pub mod span;
 pub use self::span::Span;
 
+/// This module contains a custome serialize/deserialize
+/// implementation for Span.
+pub mod span_json;
+pub use self::span_json::*;
+
 /// This module contains information on how to serialize and
 /// deserialze StrTendril type.
 pub mod tendril_json;

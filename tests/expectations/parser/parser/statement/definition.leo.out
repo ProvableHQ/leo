@@ -1503,12 +1503,13 @@ outputs:
               - Scalar: 108
               - Scalar: 100
               - Scalar: 33
-            - line_start: 1
-              line_stop: 1
-              col_start: 20
-              col_stop: 35
-              path: ""
-              content: "let x: [char; _] = \"Hello, World!\";"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 20
+                col_stop: 35
+                path: ""
+                content: "let x: [char; _] = \"Hello, World!\";"
       span:
         line_start: 1
         line_stop: 1
@@ -1544,22 +1545,24 @@ outputs:
                         Value:
                           Implicit:
                             - "0"
-                            - line_start: 1
-                              line_stop: 1
-                              col_start: 25
-                              col_stop: 26
-                              path: ""
-                              content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                            - span:
+                                line_start: 1
+                                line_stop: 1
+                                col_start: 25
+                                col_stop: 26
+                                path: ""
+                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
                     - Expression:
                         Value:
                           Implicit:
                             - "0"
-                            - line_start: 1
-                              line_stop: 1
-                              col_start: 27
-                              col_stop: 28
-                              path: ""
-                              content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                            - span:
+                                line_start: 1
+                                line_stop: 1
+                                col_start: 27
+                                col_stop: 28
+                                path: ""
+                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
                   span:
                     line_start: 1
                     line_stop: 1
@@ -1574,22 +1577,24 @@ outputs:
                         Value:
                           Implicit:
                             - "0"
-                            - line_start: 1
-                              line_stop: 1
-                              col_start: 32
-                              col_stop: 33
-                              path: ""
-                              content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                            - span:
+                                line_start: 1
+                                line_stop: 1
+                                col_start: 32
+                                col_stop: 33
+                                path: ""
+                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
                     - Expression:
                         Value:
                           Implicit:
                             - "0"
-                            - line_start: 1
-                              line_stop: 1
-                              col_start: 34
-                              col_stop: 35
-                              path: ""
-                              content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
+                            - span:
+                                line_start: 1
+                                line_stop: 1
+                                col_start: 34
+                                col_stop: 35
+                                path: ""
+                                content: "let x: [[u8; 2]; 2] = [[0,0], [0,0]];"
                   span:
                     line_start: 1
                     line_stop: 1

@@ -138,12 +138,13 @@ outputs:
             Value:
               Implicit:
                 - "0"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 3
-                  col_stop: 4
-                  path: ""
-                  content: "x[0](x)"
+                - span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 3
+                    col_stop: 4
+                    path: ""
+                    content: "x[0](x)"
           span:
             line_start: 1
             line_stop: 1

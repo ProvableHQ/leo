@@ -37,6 +37,7 @@ impl Default for CompilerOptions {
 
 #[derive(Clone, Default)]
 pub struct OutputOptions {
+    pub spans_enabled: bool,
     pub ast_initial: bool,
     pub ast_imports_resolved: bool,
     pub ast_canonicalized: bool,
