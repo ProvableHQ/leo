@@ -44,15 +44,12 @@ impl ParserContext {
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
                 }
+                // Const functions share the first token with the global Const.
+                Token::Const if self.peek_is_function()? => {
+                    let (id, function) = self.parse_function_declaration()?;
+                    functions.insert(id, function);
+                }
                 Token::Const => {
-                    // Peek two next tokens: Const and X, if X is a Function, then parse it as a
-                    // constant function, else as a global const.
-                    if self.peek_is_function()? {
-                        let (id, function) = self.parse_function_declaration()?;
-                        functions.insert(id, function);
-                        continue;
-                    }
-
                     let (name, global_const) = self.parse_global_const_declaration()?;
                     global_consts.insert(name, global_const);
                 }

@@ -79,7 +79,7 @@ impl ParserContext {
     /// with number argument. Order of tokens is preserved.
     ///
     pub fn peek_multiple(&self, number: usize) -> Vec<&Token> {
-        self.tokens[self.tokens.len() - number..self.tokens.len()]
+        self.tokens[self.tokens.len() - number..]
             .iter()
             .rev()
             .map(|x| &x.token)
