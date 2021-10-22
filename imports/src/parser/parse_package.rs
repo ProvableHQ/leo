@@ -93,11 +93,11 @@ impl ImportParser {
         });
 
         let matched_source_entry = source_entries.next();
-        if let Some(conflict_path) = source_entries.next() {
+        if let Some(conflicting_path) = source_entries.next() {
             return Err(ImportError::conflicting_local_imports(
                 vec![
                     matched_source_entry.map_or("".into(), |e| e.path()),
-                    conflict_path.path(),
+                    conflicting_path.path(),
                 ],
                 span,
             )
