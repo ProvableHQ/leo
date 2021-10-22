@@ -75,18 +75,6 @@ impl ParserContext {
     }
 
     ///
-    /// Returns a Vec of references to the next tokens. Number of tokens is specified
-    /// with number argument. Order of tokens is preserved.
-    ///
-    pub fn peek_multiple(&self, number: usize) -> Vec<&Token> {
-        self.tokens[self.tokens.len() - number..]
-            .iter()
-            .rev()
-            .map(|x| &x.token)
-            .collect()
-    }
-
-    ///
     /// Returns a reference to the next SpannedToken or error if it does not exist.
     ///
     pub fn peek(&self) -> Result<&SpannedToken> {
