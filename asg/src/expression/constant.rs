@@ -187,9 +187,11 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     value: ConstValue::Int(ConstInt::parse(int_type, value, span)?),
                 }
             }
-            String(_str_type, _value) => {
-                unimplemented!("strings do not exist on ASG level")
-            }
+            String(str_type, span) => Constant {
+                parent: Cell::new(None),
+                span: Some(span.clone()),
+                value: ConstValue::Array(str_type.iter().map(|e| ConstValue::Char(e.into())).collect()),
+            },
         })
     }
 }
