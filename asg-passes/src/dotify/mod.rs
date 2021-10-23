@@ -21,7 +21,6 @@ use leo_errors::{Result, Span};
 use dot::{ArrowShape, Style};
 use dotgraph::{DotEdge, DotGraph, DotNode, LabelType};
 use petgraph::graph::NodeIndex;
-use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::fs::File;
 use std::path::PathBuf;
@@ -30,6 +29,7 @@ pub struct Dotify<'a, 'b> {
     graph: DotGraph,
     context: &'b AsgContext<'a>,
     id_map: HashMap<u32, NodeIndex>,
+    edges: Vec<(u32, u32, (String, LabelType), Option<(String, LabelType)>)>, // For edges that are meant to be added after entire ASG is traversed
 }
 
 impl<'a, 'b> Dotify<'a, 'b> {
@@ -38,6 +38,7 @@ impl<'a, 'b> Dotify<'a, 'b> {
             graph,
             context,
             id_map: HashMap::new(),
+            edges: Vec::new(),
         }
     }
 
@@ -47,6 +48,7 @@ impl<'a, 'b> Dotify<'a, 'b> {
             ref mut id_map,
             ref mut graph,
             context: _,
+            edges: _,
         } = self;
         *id_map.entry(id).or_insert_with(|| {
             let node = DotNode {
@@ -60,17 +62,33 @@ impl<'a, 'b> Dotify<'a, 'b> {
         })
     }
 
-    fn add_edge(&mut self, start_idx: NodeIndex, end_idx: NodeIndex, label: String) {
+    fn add_edge(
+        &mut self,
+        start_idx: NodeIndex,
+        end_idx: NodeIndex,
+        label: (String, LabelType),
+        color: Option<(String, LabelType)>,
+    ) {
         let edge = DotEdge {
             start_idx,
             end_idx,
-            label: (label, LabelType::Label),
+            label,
             end_arrow: ArrowShape::NoArrow,
             start_arrow: ArrowShape::NoArrow,
             style: Style::None,
-            color: None,
+            color,
         };
         self.graph.add_edge(edge);
+    }
+
+    fn add_remaining_edges(&mut self) {
+        // TODO make more idomatic
+        let mut edges = self.edges.drain(..).collect::<Vec<_>>();
+        for (start_id, end_id, label, color) in edges.drain(..) {
+            let start_idx = self.id_map.get(&start_id).unwrap(); // All nodes should have been added to ID map
+            let end_idx = self.id_map.get(&end_id).unwrap(); // All nodes should have been added to ID map
+            self.add_edge(*start_idx, *end_idx, label, color);
+        }
     }
 
     fn generate_span_info(span: &Option<Span>) -> String {
@@ -113,10 +131,29 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         let Fixed(end_idx) = array;
-        self.add_edge(start_idx, end_idx, "array".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("array".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         let Fixed(end_idx) = index;
-        self.add_edge(start_idx, end_idx, "index".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("index".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
 
         Fixed(start_idx)
     }
@@ -131,7 +168,21 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         let Fixed(end_idx) = element;
-        self.add_edge(start_idx, end_idx, "element".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("element".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
 
         Fixed(start_idx)
     }
@@ -146,7 +197,21 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in elements.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("element_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("element_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
+        }
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
         }
 
         Fixed(start_idx)
@@ -168,14 +233,38 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         let Fixed(end_idx) = array;
-        self.add_edge(start_idx, end_idx, "array".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("array".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         if let Some(Fixed(end_idx)) = left {
-            self.add_edge(start_idx, end_idx, "left".to_string());
+            self.add_edge(
+                start_idx,
+                end_idx,
+                ("left".to_string(), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
 
         if let Some(Fixed(end_idx)) = right {
-            self.add_edge(start_idx, end_idx, "right".to_string());
+            self.add_edge(
+                start_idx,
+                end_idx,
+                ("right".to_string(), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
+        }
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
         }
 
         Fixed(start_idx)
@@ -191,10 +280,29 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         let Fixed(end_idx) = left;
-        self.add_edge(start_idx, end_idx, "left".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("left".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         let Fixed(end_idx) = right;
-        self.add_edge(start_idx, end_idx, "right".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("right".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
 
         Fixed(start_idx)
     }
@@ -209,11 +317,30 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in arguments.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("argument_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("argument_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
 
         if let Some(Fixed(end_idx)) = target {
-            self.add_edge(start_idx, end_idx, "target".to_string())
+            self.add_edge(
+                start_idx,
+                end_idx,
+                ("target".to_string(), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            )
+        }
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
         }
 
         Fixed(start_idx)
@@ -229,7 +356,21 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         if let Some(Fixed(end_idx)) = target {
-            self.add_edge(start_idx, end_idx, "target".to_string());
+            self.add_edge(
+                start_idx,
+                end_idx,
+                ("target".to_string(), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
+        }
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
         }
 
         Fixed(start_idx)
@@ -245,7 +386,21 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in values.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("value_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("value_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
+        }
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
         }
 
         Fixed(start_idx)
@@ -267,13 +422,37 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         let Fixed(end_idx) = condition;
-        self.add_edge(start_idx, end_idx, "condition".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("condition".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         let Fixed(end_idx) = if_true;
-        self.add_edge(start_idx, end_idx, "if_true".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("if_true".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         let Fixed(end_idx) = if_false;
-        self.add_edge(start_idx, end_idx, "if_false".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("if_false".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
 
         Fixed(start_idx)
     }
@@ -287,7 +466,21 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = inner;
-        self.add_edge(start_idx, end_idx, "inner".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("inner".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
 
         Fixed(start_idx)
     }
@@ -301,7 +494,21 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = inner;
-        self.add_edge(start_idx, end_idx, "inner".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("inner".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
 
         Fixed(start_idx)
     }
@@ -317,6 +524,16 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
+
         Fixed(start_idx)
     }
 
@@ -329,7 +546,21 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = tuple_ref;
-        self.add_edge(start_idx, end_idx, "tuple_ref".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("tuple_ref".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
 
         Fixed(start_idx)
     }
@@ -344,7 +575,21 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in values.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("value_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("value_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
+        }
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
         }
 
         Fixed(start_idx)
@@ -359,7 +604,21 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = inner;
-        self.add_edge(start_idx, end_idx, "inner".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("inner".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
 
         Fixed(start_idx)
     }
@@ -373,6 +632,16 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotify<'a, 'b> {
             Dotify::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
+
+        if let Some(parent) = input.parent.get() {
+            self.edges.push((
+                input.id,
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ));
+        }
+
         Fixed(start_idx)
     }
 }
@@ -390,11 +659,21 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(id, label, LabelType::Esc);
 
         if let Some(Fixed(end_idx)) = left {
-            self.add_edge(start_idx, end_idx, "left".to_string());
+            self.add_edge(
+                start_idx,
+                end_idx,
+                ("left".to_string(), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
 
         if let Some(Fixed(end_idx)) = right {
-            self.add_edge(start_idx, end_idx, "right".to_string())
+            self.add_edge(
+                start_idx,
+                end_idx,
+                ("right".to_string(), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            )
         }
 
         Fixed(start_idx)
@@ -409,11 +688,21 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in accesses.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("access_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("access_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
 
         let Fixed(end_idx) = value;
-        self.add_edge(start_idx, end_idx, "value".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("value".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         Fixed(start_idx)
     }
@@ -427,7 +716,12 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in statements.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("statement_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("statement_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
 
         Fixed(start_idx)
@@ -448,13 +742,28 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         let Fixed(end_idx) = condition;
-        self.add_edge(start_idx, end_idx, "condition".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("condition".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         let Fixed(end_idx) = if_true;
-        self.add_edge(start_idx, end_idx, "if_true".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("if_true".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         if let Some(Fixed(end_idx)) = if_false {
-            self.add_edge(start_idx, end_idx, "condition".to_string());
+            self.add_edge(
+                start_idx,
+                end_idx,
+                ("condition".to_string(), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
 
         Fixed(start_idx)
@@ -465,7 +774,12 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in parameters.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("parameter_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("parameter_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
 
         Fixed(start_idx)
@@ -479,7 +793,12 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = argument;
-        self.add_edge(start_idx, end_idx, "argument".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("argument".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         Fixed(start_idx)
     }
@@ -492,7 +811,12 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = value;
-        self.add_edge(start_idx, end_idx, "value".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("value".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         Fixed(start_idx)
     }
@@ -505,7 +829,12 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = expression;
-        self.add_edge(start_idx, end_idx, "expression".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("expression".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         Fixed(start_idx)
     }
@@ -518,13 +847,28 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = start;
-        self.add_edge(start_idx, end_idx, "start".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("start".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         let Fixed(end_idx) = stop;
-        self.add_edge(start_idx, end_idx, "stop".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("stop".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         let Fixed(end_idx) = body;
-        self.add_edge(start_idx, end_idx, "body".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("body".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         Fixed(start_idx)
     }
@@ -537,7 +881,12 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotify<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = value;
-        self.add_edge(start_idx, end_idx, "value".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("value".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         Fixed(start_idx)
     }
@@ -553,7 +902,12 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = body;
 
-        self.add_edge(start_idx, end_idx, "body".to_string());
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("body".to_string(), LabelType::Label),
+            Some(("black".to_string(), LabelType::Label)),
+        );
 
         Fixed(start_idx)
     }
@@ -575,7 +929,12 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in members.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("member_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("member_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
 
         Fixed(start_idx)
@@ -586,12 +945,24 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotify<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in functions.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("function_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("function_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
 
         for (i, Fixed(end_idx)) in circuits.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("circuit_{:}", i));
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("circuit_{:}", i), LabelType::Label),
+                Some(("black".to_string(), LabelType::Label)),
+            );
         }
+
+        self.add_remaining_edges();
 
         Fixed(start_idx)
     }

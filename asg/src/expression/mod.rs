@@ -90,6 +90,28 @@ impl<'a> Expression<'a> {
     pub fn ptr_eq(&self, other: &Expression<'a>) -> bool {
         std::ptr::eq(self as *const Expression<'a>, other as *const Expression<'a>)
     }
+
+    pub fn get_id(&self) -> u32 {
+        use Expression::*;
+        match self {
+            VariableRef(x) => x.id,
+            Constant(x) => x.id,
+            Binary(x) => x.id,
+            Unary(x) => x.id,
+            Ternary(x) => x.id,
+            Cast(x) => x.id,
+            LengthOf(x) => x.id,
+            ArrayInline(x) => x.id,
+            ArrayInit(x) => x.id,
+            ArrayAccess(x) => x.id,
+            ArrayRangeAccess(x) => x.id,
+            TupleInit(x) => x.id,
+            TupleAccess(x) => x.id,
+            CircuitInit(x) => x.id,
+            CircuitAccess(x) => x.id,
+            Call(x) => x.id,
+        }
+    }
 }
 
 impl<'a> Node for Expression<'a> {
