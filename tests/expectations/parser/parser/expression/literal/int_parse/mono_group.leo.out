@@ -1,0 +1,1158 @@
+---
+namespace: ParseExpression
+expectation: Pass
+outputs:
+  - Value:
+      Group:
+        Single:
+          - "123"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 9
+              path: ""
+              content: 123group
+  - Value:
+      Implicit:
+        - "123"
+        - span:
+            line_start: 1
+            line_stop: 1
+            col_start: 1
+            col_stop: 4
+            path: ""
+            content: "123"
+  - Value:
+      Group:
+        Single:
+          - "456"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 9
+              path: ""
+              content: 456group
+  - Value:
+      Group:
+        Single:
+          - "87377802873778028737780287377802873778028737780287377802873778028737780287377802"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 86
+              path: ""
+              content: 87377802873778028737780287377802873778028737780287377802873778028737780287377802group
+  - Value:
+      Group:
+        Single:
+          - "8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 406
+              path: ""
+              content: 8737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802873778028737780287377802group
+  - Value:
+      Group:
+        Single:
+          - "340130024"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 340130024group
+  - Value:
+      Group:
+        Single:
+          - "158951116"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 158951116group
+  - Value:
+      Group:
+        Single:
+          - "155529659"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 155529659group
+  - Value:
+      Group:
+        Single:
+          - "642023166"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 642023166group
+  - Value:
+      Group:
+        Single:
+          - "228481736"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 228481736group
+  - Value:
+      Group:
+        Single:
+          - "469712960"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 469712960group
+  - Value:
+      Group:
+        Single:
+          - "929437719"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 929437719group
+  - Value:
+      Group:
+        Single:
+          - "721072814"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 721072814group
+  - Value:
+      Group:
+        Single:
+          - "363254789"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 363254789group
+  - Value:
+      Group:
+        Single:
+          - "906732565"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 906732565group
+  - Value:
+      Group:
+        Single:
+          - "288246391"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 288246391group
+  - Value:
+      Group:
+        Single:
+          - "724940549"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 724940549group
+  - Value:
+      Group:
+        Single:
+          - "487101620"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 487101620group
+  - Value:
+      Group:
+        Single:
+          - "261373583"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 261373583group
+  - Value:
+      Group:
+        Single:
+          - "891163927"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 891163927group
+  - Value:
+      Group:
+        Single:
+          - "743967544"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 743967544group
+  - Value:
+      Group:
+        Single:
+          - "8372586"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 13
+              path: ""
+              content: 8372586group
+  - Value:
+      Group:
+        Single:
+          - "461793278"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 461793278group
+  - Value:
+      Group:
+        Single:
+          - "806307045"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 806307045group
+  - Value:
+      Group:
+        Single:
+          - "122764546"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 122764546group
+  - Value:
+      Group:
+        Single:
+          - "356336181"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 356336181group
+  - Value:
+      Group:
+        Single:
+          - "158370903"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 158370903group
+  - Value:
+      Group:
+        Single:
+          - "774460877"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 774460877group
+  - Value:
+      Group:
+        Single:
+          - "557174131"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 557174131group
+  - Value:
+      Group:
+        Single:
+          - "492401267"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 492401267group
+  - Value:
+      Group:
+        Single:
+          - "893445620"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 893445620group
+  - Value:
+      Group:
+        Single:
+          - "957757048"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 957757048group
+  - Value:
+      Group:
+        Single:
+          - "721540649"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 721540649group
+  - Value:
+      Group:
+        Single:
+          - "390746493"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 390746493group
+  - Value:
+      Group:
+        Single:
+          - "211251725"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 211251725group
+  - Value:
+      Group:
+        Single:
+          - "938266114"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 938266114group
+  - Value:
+      Group:
+        Single:
+          - "156985870"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 156985870group
+  - Value:
+      Group:
+        Single:
+          - "703831126"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 703831126group
+  - Value:
+      Group:
+        Single:
+          - "729964155"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 729964155group
+  - Value:
+      Group:
+        Single:
+          - "988151305"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 988151305group
+  - Value:
+      Group:
+        Single:
+          - "320872435"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 320872435group
+  - Value:
+      Group:
+        Single:
+          - "719287167"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 719287167group
+  - Value:
+      Group:
+        Single:
+          - "152289486"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 152289486group
+  - Value:
+      Group:
+        Single:
+          - "740067975"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 740067975group
+  - Value:
+      Group:
+        Single:
+          - "728627816"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 728627816group
+  - Value:
+      Group:
+        Single:
+          - "385008978"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 385008978group
+  - Value:
+      Group:
+        Single:
+          - "553967635"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 553967635group
+  - Value:
+      Group:
+        Single:
+          - "71980713"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 14
+              path: ""
+              content: 71980713group
+  - Value:
+      Group:
+        Single:
+          - "519444716"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 519444716group
+  - Value:
+      Group:
+        Single:
+          - "116499965"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 116499965group
+  - Value:
+      Group:
+        Single:
+          - "717422268"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 717422268group
+  - Value:
+      Group:
+        Single:
+          - "18966279"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 14
+              path: ""
+              content: 18966279group
+  - Value:
+      Group:
+        Single:
+          - "22458638"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 14
+              path: ""
+              content: 22458638group
+  - Value:
+      Group:
+        Single:
+          - "857282620"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 857282620group
+  - Value:
+      Group:
+        Single:
+          - "920675898"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 920675898group
+  - Value:
+      Group:
+        Single:
+          - "762235516"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 762235516group
+  - Value:
+      Group:
+        Single:
+          - "469018377"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 469018377group
+  - Value:
+      Group:
+        Single:
+          - "199986521"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 199986521group
+  - Value:
+      Group:
+        Single:
+          - "536679358"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 536679358group
+  - Value:
+      Group:
+        Single:
+          - "591399452"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 591399452group
+  - Value:
+      Group:
+        Single:
+          - "83083158"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 14
+              path: ""
+              content: 83083158group
+  - Value:
+      Group:
+        Single:
+          - "599449051"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 599449051group
+  - Value:
+      Group:
+        Single:
+          - "445442318"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 445442318group
+  - Value:
+      Group:
+        Single:
+          - "585486590"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 585486590group
+  - Value:
+      Group:
+        Single:
+          - "209278800"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 209278800group
+  - Value:
+      Group:
+        Single:
+          - "873568117"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 873568117group
+  - Value:
+      Group:
+        Single:
+          - "664470940"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 664470940group
+  - Value:
+      Group:
+        Single:
+          - "465262783"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 465262783group
+  - Value:
+      Group:
+        Single:
+          - "605652874"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 605652874group
+  - Value:
+      Group:
+        Single:
+          - "376803940"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 376803940group
+  - Value:
+      Group:
+        Single:
+          - "965247040"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 965247040group
+  - Value:
+      Group:
+        Single:
+          - "598474509"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 598474509group
+  - Value:
+      Group:
+        Single:
+          - "845119918"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 845119918group
+  - Value:
+      Group:
+        Single:
+          - "648159133"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 648159133group
+  - Value:
+      Group:
+        Single:
+          - "669051032"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 669051032group
+  - Value:
+      Group:
+        Single:
+          - "800600261"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 800600261group
+  - Value:
+      Group:
+        Single:
+          - "434689764"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 434689764group
+  - Value:
+      Group:
+        Single:
+          - "520060080"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 520060080group
+  - Value:
+      Group:
+        Single:
+          - "804659385"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 804659385group
+  - Value:
+      Group:
+        Single:
+          - "537828058"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 537828058group
+  - Value:
+      Group:
+        Single:
+          - "716600292"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 716600292group
+  - Value:
+      Group:
+        Single:
+          - "387020273"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 387020273group
+  - Value:
+      Group:
+        Single:
+          - "199375617"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 199375617group
+  - Value:
+      Group:
+        Single:
+          - "680337189"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 680337189group
+  - Value:
+      Group:
+        Single:
+          - "818479931"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 818479931group
+  - Value:
+      Group:
+        Single:
+          - "893693281"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 893693281group
+  - Value:
+      Group:
+        Single:
+          - "87377802"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 14
+              path: ""
+              content: 87377802group
+  - Value:
+      Group:
+        Single:
+          - "84699261"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 14
+              path: ""
+              content: 84699261group
+  - Value:
+      Group:
+        Single:
+          - "292826090"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 292826090group
+  - Value:
+      Group:
+        Single:
+          - "569171405"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 569171405group
+  - Value:
+      Group:
+        Single:
+          - "387436237"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 387436237group
+  - Value:
+      Group:
+        Single:
+          - "150682190"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 150682190group
+  - Value:
+      Group:
+        Single:
+          - "888770419"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 888770419group
+  - Value:
+      Group:
+        Single:
+          - "824696431"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 824696431group
+  - Value:
+      Group:
+        Single:
+          - "765659803"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 765659803group
+  - Value:
+      Group:
+        Single:
+          - "270163693"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 270163693group
+  - Value:
+      Group:
+        Single:
+          - "427940240"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 427940240group
+  - Value:
+      Group:
+        Single:
+          - "504997332"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 504997332group
+  - Value:
+      Group:
+        Single:
+          - "337808338"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 337808338group
+  - Value:
+      Group:
+        Single:
+          - "907200008"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 907200008group
+  - Value:
+      Group:
+        Single:
+          - "757177889"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 757177889group
+  - Value:
+      Group:
+        Single:
+          - "696697188"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 696697188group
+  - Value:
+      Group:
+        Single:
+          - "41376051"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 14
+              path: ""
+              content: 41376051group
+  - Value:
+      Group:
+        Single:
+          - "496293518"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 496293518group
+  - Value:
+      Group:
+        Single:
+          - "251218820"
+          - span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 15
+              path: ""
+              content: 251218820group
