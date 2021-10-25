@@ -47,11 +47,11 @@ postfix-expression = primary-expression
                    / postfix-expression "[" [expression] ".." [expression] "]"
 
 ; Also need to add a new static member variable declaration rule to allow for static constant members.
-static-member-variable-declarations = static identifier ":" type = literal ";"
+member-constant-declaration = %s"static" %s"const" identifier ":" type = literal ";"
 
 ; We then need to modify the circuit declartion rule.
 circuit-declaration = %s"circuit" identifier
-                      "{" [ static-member-variable-declarations ]
+                      "{" *member-constant-declaration
                       [ member-variable-declarations ]
                       *member-function-declaration "}"
 ```
