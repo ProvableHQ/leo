@@ -30,7 +30,7 @@ path = "../input"
 version = "1.5.3"
 
 [dependencies.snarkvm-algorithms]
-version = "0.7.6"
+version = "0.7.9"
 
 [dependencies.snarkvm-curves]
 version = "0.7.9"
@@ -41,7 +41,7 @@ version = "0.7.9"
 features = [ "testnet1" ]
 
 [dependencies.snarkvm-utilities]
-version = "0.7.6"
+version = "0.7.9"
 
 [dependencies.indexmap]
 version = "1.7.0"
