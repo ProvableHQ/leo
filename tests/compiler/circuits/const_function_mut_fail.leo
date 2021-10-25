@@ -4,7 +4,8 @@ expectation: Fail
 */
 
 circuit Foo {
-    const function set_a(mut self) {
+    a: u8,
+    const function set_a(mut self, new: u8) {
         self.a = new;
     }
 }

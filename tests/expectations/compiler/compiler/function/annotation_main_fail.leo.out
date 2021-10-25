@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372015]: main function cannot have annotations\n    --> compiler-test:3:1\n     |\n   3 | @test\n   4 | function main() {\n     | ^^^^^^^^^^^^^"
+  - "Error [EASG0373056]: main function cannot have annotations\n    --> compiler-test:3:1\n     |\n   3 | @test\n   4 | function main() {\n     | ^^^^^^^^^^^^^"

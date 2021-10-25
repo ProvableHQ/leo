@@ -19,7 +19,7 @@ use crate::{
 };
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
-use leo_ast::FunctionInput;
+use leo_ast::{FunctionInput, Node};
 use leo_errors::{AsgError, Result, Span};
 
 use std::{
@@ -157,6 +157,40 @@ impl<'a> Function<'a> {
                 .borrow_mut()
                 .insert("self".to_string(), self_variable);
         }
+
+        if value.is_main() {
+            if let Some(annotation) = value.annotations.get(0) {
+                return Err(
+                    AsgError::main_cannot_have_annotations(&(&annotation.span + &value.identifier.span)).into(),
+                );
+            }
+        } else {
+            let illegal_annotations = value.annotations.iter().filter(|f| !f.is_test());
+            if let Some(annotation) = illegal_annotations.clone().next() {
+                return Err(AsgError::unsupported_annotation(
+                    &annotation.name,
+                    &(&annotation.span + &value.identifier.span),
+                )
+                .into());
+            }
+        }
+
+        if value.const_ {
+            if value.is_main() {
+                return Err(AsgError::main_cannot_be_const(&value.identifier.span).into());
+            }
+
+            let non_const_input = value.input.iter().find(|a| {
+                a.get_variable()
+                    .map(|v| !v.const_)
+                    .unwrap_or(a.is_mut_self() || (a.is_self() && !a.is_const_self()))
+            });
+
+            if let Some(input) = non_const_input {
+                return Err(AsgError::const_function_cannot_have_inputs(input.span()).into());
+            }
+        }
+
         for (name, argument) in self.arguments.iter() {
             if self.scope.resolve_global_const(name).is_some() {
                 return Err(AsgError::function_input_cannot_shadow_global_const(

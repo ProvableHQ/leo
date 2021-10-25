@@ -130,36 +130,4 @@ create_errors!(
         msg: format!("failed to convert ast to a json value {}", error),
         help: None,
     }
-
-    /// For when const function modifier is added to the main function.
-    @formatted
-    main_cannot_be_const {
-        args: (),
-        msg: "main function cannot be const",
-        help: None,
-    }
-
-    /// For when const function has non-const inputs or self.
-    @formatted
-    const_function_cannot_have_inputs {
-        args: (),
-        msg: "const function cannot have non-const input",
-        help: None,
-    }
-
-    /// For when `main` is annotated.
-    @formatted
-    main_cannot_have_annotations {
-        args: (),
-        msg: "main function cannot have annotations",
-        help: None,
-    }
-
-    /// For when unsupported annotation is added.
-    @formatted
-    unsupported_annotation {
-        args: (name: impl Display),
-        msg: format!("annotation `{}` does not exist", name),
-        help: None,
-    }
 );

@@ -4,8 +4,9 @@ expectation: Fail
 */
 
 circuit Foo {
-    const function set_a(a: b) {
-        self.a = new;
+    a: u8,
+    const function set_a(self, a: u8) {
+        self.a = a;
     }
 }
 

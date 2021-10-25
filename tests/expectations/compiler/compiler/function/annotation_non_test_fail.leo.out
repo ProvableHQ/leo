@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EAST0372016]: annotation `karamba` does not exist\n    --> compiler-test:6:1\n     |\n   6 | @karamba\n   7 | function annotated() {\n     | ^^^^^^^^^^^^^^^^^^"
+  - "Error [EASG0373057]: annotation `karamba` does not exist\n    --> compiler-test:6:1\n     |\n   6 | @karamba\n   7 | function annotated() {\n     | ^^^^^^^^^^^^^^^^^^"

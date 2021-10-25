@@ -703,39 +703,6 @@ impl ReconstructingReducer for Canonicalizer {
             _ => output,
         };
 
-        if function.is_main() {
-            if let Some(annotation) = function.annotations.get(0) {
-                return Err(
-                    AstError::main_cannot_have_annotations(&(&annotation.span + &function.identifier.span)).into(),
-                );
-            }
-        } else {
-            let illegal_annotations = function.annotations.iter().filter(|f| !f.is_test());
-            if let Some(annotation) = illegal_annotations.clone().next() {
-                return Err(AstError::unsupported_annotation(
-                    &annotation.name,
-                    &(&annotation.span + &function.identifier.span),
-                )
-                .into());
-            }
-        }
-
-        if function.const_ {
-            if function.is_main() {
-                return Err(AstError::main_cannot_be_const(&function.identifier.span).into());
-            }
-
-            let non_const_input = function.input.iter().find(|a| {
-                a.get_variable()
-                    .map(|v| !v.const_)
-                    .unwrap_or(a.is_mut_self() || (a.is_self() && !a.is_const_self()))
-            });
-
-            if let Some(input) = non_const_input {
-                return Err(AstError::const_function_cannot_have_inputs(input.span()).into());
-            }
-        }
-
         Ok(Function {
             identifier,
             annotations,
