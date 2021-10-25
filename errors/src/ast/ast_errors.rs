@@ -146,4 +146,20 @@ create_errors!(
         msg: "const function cannot have non-const input",
         help: None,
     }
+
+    /// For when `main` is annotated.
+    @formatted
+    main_cannot_have_annotations {
+        args: (),
+        msg: "main function cannot have annotations",
+        help: None,
+    }
+
+    /// For when unsupported annotation is added.
+    @formatted
+    unsupported_annotation {
+        args: (name: impl Display),
+        msg: format!("annotation `{}` does not exist", name),
+        help: None,
+    }
 );

@@ -187,7 +187,7 @@ impl<'a> Function<'a> {
     }
 
     pub fn is_test(&self) -> bool {
-        self.annotations.iter().any(|x| x.name.name.as_ref() == "test")
+        self.annotations.iter().any(|x| x.is_test())
     }
 }
 
