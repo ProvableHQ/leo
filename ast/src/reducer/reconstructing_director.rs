@@ -519,6 +519,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
     pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> Result<CircuitMember> {
         let new = match circuit_member {
+            CircuitMember::CircuitConst(identifier, type_, value) => CircuitMember::CircuitConst(
+                self.reduce_identifier(identifier)?,
+                self.reduce_type(type_, &identifier.span)?,
+                self.reduce_expression(value)?,
+            ),
             CircuitMember::CircuitVariable(identifier, type_) => CircuitMember::CircuitVariable(
                 self.reduce_identifier(identifier)?,
                 self.reduce_type(type_, &identifier.span)?,

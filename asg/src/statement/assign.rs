@@ -175,6 +175,8 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             })?;
 
                             let x = match &member {
+                                // TODO @gluax safe unwrap get_type
+                                CircuitMember::Const(value) => value.get_type().clone().unwrap(),
                                 CircuitMember::Variable(type_) => type_.clone(),
                                 CircuitMember::Function(_) => {
                                     return Err(AsgError::illegal_function_assign(&name.name, &statement.span).into());

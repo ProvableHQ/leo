@@ -41,6 +41,7 @@ impl<'a> Program<'a> {
                     .borrow()
                     .iter()
                     .flat_map(|(_, member)| match member {
+                        CircuitMember::Const(_) => None,
                         CircuitMember::Function(function) => Some(*function),
                         CircuitMember::Variable(_) => None,
                     })

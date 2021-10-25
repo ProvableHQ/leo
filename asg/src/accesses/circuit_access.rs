@@ -58,6 +58,7 @@ impl<'a> ExpressionNode<'a> for CircuitAccess<'a> {
             let members = self.circuit.get().members.borrow();
             let member = members.get(self.member.name.as_ref())?;
             match member {
+                CircuitMember::Const(value) => value.get_type(),
                 CircuitMember::Variable(type_) => Some(type_.clone()),
                 CircuitMember::Function(_) => None,
             }
@@ -158,7 +159,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::MemberAccess> for CircuitAccess<'a> {
 
 impl<'a> FromAst<'a, leo_ast::accesses::StaticAccess> for CircuitAccess<'a> {
     fn from_ast(
-        scope: &Scope<'a>,
+        scope: &'a Scope<'a>,
         value: &leo_ast::accesses::StaticAccess,
         expected_type: Option<PartialType>,
     ) -> Result<CircuitAccess<'a>> {
@@ -173,17 +174,6 @@ impl<'a> FromAst<'a, leo_ast::accesses::StaticAccess> for CircuitAccess<'a> {
 
         if let Some(expected_type) = expected_type {
             return Err(AsgError::unexpected_type("none", expected_type, &value.span).into());
-        }
-
-        if let Some(CircuitMember::Function(_)) = circuit.members.borrow().get(value.name.name.as_ref()) {
-            // okay
-        } else {
-            return Err(AsgError::unresolved_circuit_member(
-                &circuit.name.borrow().name,
-                &value.name.name,
-                &value.span,
-            )
-            .into());
         }
 
         Ok(CircuitAccess {

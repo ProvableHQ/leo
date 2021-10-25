@@ -14,13 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Function, Identifier, Type};
+use crate::{Expression, Function, Identifier, Type};
 
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CircuitMember {
+    // (const_name, const_type, const_expression)
+    CircuitConst(Identifier, Type, Expression),
     // (variable_name, variable_type)
     CircuitVariable(Identifier, Type),
     // (function)
@@ -30,6 +32,9 @@ pub enum CircuitMember {
 impl fmt::Display for CircuitMember {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            CircuitMember::CircuitConst(ref identifier, ref type_, ref value) => {
+                write!(f, "{}: {} = {}", identifier, type_, value)
+            }
             CircuitMember::CircuitVariable(ref identifier, ref type_) => write!(f, "{}: {}", identifier, type_),
             CircuitMember::CircuitFunction(ref function) => write!(f, "{}", function),
         }

@@ -476,6 +476,13 @@ impl Canonicalizer {
 
     fn canonicalize_circuit_member(&mut self, circuit_member: &CircuitMember) -> CircuitMember {
         match circuit_member {
+            CircuitMember::CircuitConst(identifier, type_, value) => {
+                return CircuitMember::CircuitConst(
+                    identifier.clone(),
+                    type_.clone(),
+                    self.canonicalize_expression(value),
+                );
+            }
             CircuitMember::CircuitVariable(_, _) => {}
             CircuitMember::CircuitFunction(function) => {
                 let input = function

@@ -318,10 +318,22 @@ impl ParserContext {
     pub fn parse_circuit_declaration(&mut self) -> Result<Vec<CircuitMember>> {
         let mut members = Vec::new();
         let peeked = &self.peek()?.token;
+        let mut last_constant =
+            matches!(peeked, &Token::Ident(_)) || peeked == &Token::Function || peeked == &Token::At;
         let mut last_variable = peeked == &Token::Function || peeked == &Token::At;
         let (mut semi_colons, mut commas) = (false, false);
         while self.eat(Token::RightCurly).is_none() {
-            if !last_variable {
+            if !last_constant {
+                let (const_, last_const, last_var) = self.parse_const_member_variable_declaration()?;
+                members.push(const_);
+
+                if last_const {
+                    last_constant = last_const;
+                }
+                if last_var {
+                    last_variable = last_var;
+                }
+            } else if !last_variable {
                 let (variable, last) = self.parse_member_variable_declaration()?;
 
                 members.push(variable);
@@ -353,6 +365,31 @@ impl ParserContext {
         }
 
         Ok(members)
+    }
+
+    ///
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
+    ///
+    pub fn parse_const_member_variable_declaration(&mut self) -> Result<(CircuitMember, bool, bool)> {
+        self.expect(Token::Static)?;
+        self.expect(Token::Const)?;
+
+        let name = self.expect_ident()?;
+        self.expect(Token::Colon)?;
+        let type_ = self.parse_type()?.0;
+
+        self.expect(Token::Assign)?;
+        let literal = self.parse_primary_expression()?;
+        self.expect(Token::Semicolon)?;
+
+        let peeked = &self.peek()?.token;
+        let last_variable = peeked == &Token::Function || peeked == &Token::At || peeked == &Token::RightCurly;
+
+        Ok((
+            CircuitMember::CircuitConst(name, type_, literal),
+            matches!(peeked, &Token::Ident(_)) || last_variable,
+            last_variable,
+        ))
     }
 
     ///

@@ -1,0 +1,39 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    import_statements: []
+    imports: {}
+    aliases: {}
+    circuits:
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
+        circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
+        members:
+          - CircuitConst:
+              - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const x: u32 = 2;\\\"}\"}"
+              - IntegerType: U32
+              - Value:
+                  Implicit:
+                    - "2"
+                    - line_start: 4
+                      line_stop: 4
+                      col_start: 27
+                      col_stop: 28
+                      path: ""
+                      content: "    static const x: u32 = 2;"
+          - CircuitConst:
+              - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const y: u32 = 5;\\\"}\"}"
+              - IntegerType: U32
+              - Value:
+                  Implicit:
+                    - "5"
+                    - line_start: 5
+                      line_stop: 5
+                      col_start: 27
+                      col_stop: 28
+                      path: ""
+                      content: "    static const y: u32 = 5;"
+    global_consts: {}
+    functions: {}

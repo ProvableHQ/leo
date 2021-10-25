@@ -362,6 +362,10 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
         input
     }
 
+    fn reduce_circuit_member_const(&mut self, input: CircuitMember<'a>) -> CircuitMember<'a> {
+        input
+    }
+
     fn reduce_circuit_member_variable(&mut self, input: CircuitMember<'a>) -> CircuitMember<'a> {
         input
     }

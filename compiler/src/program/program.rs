@@ -16,7 +16,9 @@
 
 //! An in memory store to keep track of defined names when constraining a Leo program.
 
-use leo_asg::{CircuitMember, Function, FunctionQualifier, InputCategory, IntegerType, Type as AsgType, Variable};
+use leo_asg::{
+    CircuitMember, ExpressionNode, Function, FunctionQualifier, InputCategory, IntegerType, Type as AsgType, Variable,
+};
 use snarkvm_ir::{Header, Instruction, MaskData, QueryData, RepeatData, SnarkVMVersion, Type, Value};
 
 use indexmap::IndexMap;
@@ -294,6 +296,7 @@ fn asg_to_ir_type(type_: &AsgType) -> Type {
             let members = members
                 .iter()
                 .flat_map(|(_, member)| match member {
+                    CircuitMember::Const(value) => value.get_type().as_ref().map(asg_to_ir_type),
                     CircuitMember::Variable(type_) => Some(asg_to_ir_type(type_)),
                     CircuitMember::Function(_) => None,
                 })
