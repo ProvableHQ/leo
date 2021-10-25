@@ -164,6 +164,11 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 .into());
             }
         };
+        if scope.resolve_current_function().map(|f| f.const_).unwrap_or_default() {
+            if !function.const_ {
+                return Err(AsgError::calling_non_const_in_const_context(&value.span).into());
+            }
+        }
         if let Some(expected) = expected_type {
             let output: Type = function.output.clone();
             if !expected.matches(&output) {

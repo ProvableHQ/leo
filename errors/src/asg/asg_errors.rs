@@ -483,4 +483,12 @@ create_errors!(
         msg: "input access is illegal in const functions",
         help: None,
     }
+
+    /// For when non-const function is called from a const context.
+    @formatted
+    calling_non_const_in_const_context {
+        args: (),
+        msg: "non-const functions cannot be called from const context",
+        help: None,
+    }
 );
