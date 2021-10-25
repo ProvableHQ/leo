@@ -156,14 +156,11 @@ impl<'a> Into<leo_ast::Circuit> for &Circuit<'a> {
             .borrow()
             .iter()
             .map(|(name, member)| match &member {
-                CircuitMember::Const(value) => {
-                    // TODO @gluax safe unwrap get_type
-                    leo_ast::CircuitMember::CircuitConst(
-                        Identifier::new((&**name).into()),
-                        value.get_type().as_ref().unwrap().into(),
-                        (*value).into(),
-                    )
-                }
+                CircuitMember::Const(value) => leo_ast::CircuitMember::CircuitConst(
+                    Identifier::new((&**name).into()),
+                    value.get_type().as_ref().unwrap().into(),
+                    (*value).into(),
+                ),
                 CircuitMember::Variable(type_) => {
                     leo_ast::CircuitMember::CircuitVariable(Identifier::new((&**name).into()), type_.into())
                 }

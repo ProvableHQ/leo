@@ -119,6 +119,9 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                         .get(name.name.as_ref())
                         .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
                     match member {
+                        CircuitMember::Const(_) => {
+                            return Err(AsgError::circuit_const_call(circuit_name, &name.name, span).into());
+                        }
                         CircuitMember::Function(body) => {
                             if body.qualifier == FunctionQualifier::Static {
                                 return Err(
@@ -130,10 +133,6 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                                 );
                             }
                             (Some(target), *body)
-                        }
-                        CircuitMember::Const(_) => {
-                            // TODO @gluax circut const call error
-                            return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
                         }
                         CircuitMember::Variable(_) => {
                             return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
@@ -159,6 +158,9 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                         .get(name.name.as_ref())
                         .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
                     match member {
+                        CircuitMember::Const(_) => {
+                            return Err(AsgError::circuit_const_call(circuit_name, &name.name, span).into());
+                        }
                         CircuitMember::Function(body) => {
                             if body.qualifier != FunctionQualifier::Static {
                                 return Err(
@@ -166,10 +168,6 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                                 );
                             }
                             (None, *body)
-                        }
-                        CircuitMember::Const(_) => {
-                            // TODO @gluax circut const call error
-                            return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
                         }
                         CircuitMember::Variable(_) => {
                             return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());

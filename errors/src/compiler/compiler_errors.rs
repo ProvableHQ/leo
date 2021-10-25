@@ -858,4 +858,12 @@ create_errors!(
         msg: "len() can only be called on an array value".to_string(),
         help: None,
     }
+
+    /// For when a circuit static const access was execpted.
+    @formatted
+    expected_circuit_static_const_access {
+        args: (),
+        msg: "A circuit static const access was expected".to_string(),
+        help: None,
+    }
 );

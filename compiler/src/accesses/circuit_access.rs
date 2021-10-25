@@ -18,19 +18,20 @@
 
 use crate::program::Program;
 use leo_asg::{CircuitAccess, CircuitMember};
-use leo_errors::Result;
+use leo_errors::{CompilerError, Result};
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_circuit_access(&mut self, expr: &CircuitAccess<'a>) -> Result<Value> {
-        // Todo @gluax replace the unimplemented with a compiler error.
         let members = expr.circuit.get().members.borrow();
         let target_value = match expr.target.get() {
             Some(target) => self.enforce_expression(target)?,
             None => match members.get(expr.member.name.as_ref()) {
                 Some(CircuitMember::Const(value)) => self.enforce_expression(value)?,
-                _ => unimplemented!(),
+                _ => {
+                    return Err(CompilerError::expected_circuit_static_const_access(expr.span.as_ref().unwrap()).into())
+                }
             },
         };
         /* let target = expr.target.get().expect("invalid static access");
