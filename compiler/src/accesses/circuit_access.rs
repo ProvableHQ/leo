@@ -28,14 +28,12 @@ impl<'a> Program<'a> {
         let target_value = match expr.target.get() {
             Some(target) => self.enforce_expression(target)?,
             None => match members.get(expr.member.name.as_ref()) {
-                Some(CircuitMember::Const(value)) => self.enforce_expression(value)?,
+                Some(CircuitMember::Const(value)) => Value::Tuple(vec![self.enforce_expression(value)?]),
                 _ => {
                     return Err(CompilerError::expected_circuit_static_const_access(expr.span.as_ref().unwrap()).into())
                 }
             },
         };
-        /* let target = expr.target.get().expect("invalid static access");
-        let target_value = self.enforce_expression(target)?; */
 
         let mut index = members
             .get_index_of(expr.member.name.as_ref())
