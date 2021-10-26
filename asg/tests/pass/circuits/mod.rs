@@ -48,7 +48,7 @@ fn test_member_function() {
 fn test_ref_member_function() {
     let program_string = r#"
         circuit Foo {
-            function echo(ref self, x: u32) -> u32 {
+            function echo(&self, x: u32) -> u32 {
                 return x;
             }
         }

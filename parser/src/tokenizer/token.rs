@@ -136,13 +136,12 @@ pub enum Token {
     In,
     Let,
     Mut,
-    Ref,
+    Ampersand, // Used for `Reference` and `BitAnd`
     Return,
     Static,
     Type,
 
     // Not yet in ABNF
-    // BitAnd,
     // BitAndEq,
     // BitOr,
     // BitOrEq,
@@ -190,7 +189,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::Input,
     Token::Let,
     Token::Mut,
-    Token::Ref,
+    Token::Ampersand,
     Token::Return,
     Token::BigSelf,
     Token::LittleSelf,
@@ -305,12 +304,11 @@ impl fmt::Display for Token {
             In => write!(f, "in"),
             Let => write!(f, "let"),
             Mut => write!(f, "mut"),
-            Ref => write!(f, "ref"),
+            Ampersand => write!(f, "&"), // Used for `Reference` and `BitAnd`
             Return => write!(f, "return"),
             Static => write!(f, "static"),
             Type => write!(f, "type"),
             Eof => write!(f, ""),
-            // BitAnd => write!(f, "&"),
             // BitAndEq => write!(f, "&="),
             // BitOr => write!(f, "|"),
             // BitOrEq => write!(f, "|="),

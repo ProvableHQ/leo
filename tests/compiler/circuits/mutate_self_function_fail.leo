@@ -8,7 +8,7 @@ circuit Foo {
 
     function bar() {}
 
-    function set_a(ref self, new: u8) {
+    function set_a(&self, new: u8) {
         self.bar = new;
     }
 }

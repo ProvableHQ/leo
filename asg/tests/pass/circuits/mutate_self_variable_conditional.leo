@@ -7,7 +7,7 @@ function main() {
 circuit Foo {
     a: u32;
 
-    function bar(ref self) {
+    function bar(&self) {
         if true {
             self.a = 5u32; // Mutating a variable inside a conditional statement should work.
         }

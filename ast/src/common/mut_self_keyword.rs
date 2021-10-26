@@ -20,7 +20,7 @@ use leo_errors::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// The `ref self` keyword can view and modify circuit values inside of a circuit function.
+/// The `&self` keyword can view and modify circuit values inside of a circuit function.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct RefSelfKeyword {
@@ -29,7 +29,7 @@ pub struct RefSelfKeyword {
 
 impl fmt::Display for RefSelfKeyword {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ref self")
+        write!(f, "&self")
     }
 }
 

@@ -7,7 +7,7 @@ input_file: input/dummy.in
 circuit Foo {
     x: u32
 
-    function foo(ref self) {
+    function foo(&self) {
         self.x = 10;
     }
 }

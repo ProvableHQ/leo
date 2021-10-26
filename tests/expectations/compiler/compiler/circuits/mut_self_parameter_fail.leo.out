@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370019]: `mut self` is deprecated. Use `ref self` if you would like to pass in a mutable reference to `self`\n    --> compiler-test:6:20\n     |\n   6 |     function set_a(mut self, new: u8) {\n     |                    ^^^^^^^^"
+  - "Error [EPAR0370019]: `mut self` is deprecated. Use `&self` if you would like to pass in a mutable reference to `self`\n    --> compiler-test:6:20\n     |\n   6 |     function set_a(mut self, new: u8) {\n     |                    ^^^^^^^^"

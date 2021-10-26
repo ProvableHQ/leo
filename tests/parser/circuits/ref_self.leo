@@ -4,7 +4,7 @@ expectation: Pass
 */
 
 circuit X {
-    function x(ref self) {
+    function x(&self) {
         return ();
     }
 }
