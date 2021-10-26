@@ -31,7 +31,7 @@ outputs:
             r:
               type: "[u8; 3]"
               value: "[1, 2, 3]"
-    initial_ast: 4e74124bc410534941ef9b79ffb64656d14e145b5a79fbd14419c1aef2f0ef69
-    imports_resolved_ast: db3d3efd3292a3bd16296822fbe5d0b51ccae3379d0307e8bb98b6ca062ea3cd
-    canonicalized_ast: db3d3efd3292a3bd16296822fbe5d0b51ccae3379d0307e8bb98b6ca062ea3cd
-    type_inferenced_ast: 81e91909dd86190f8bc2b3b0bcd949c78518b4540a7e8ed6d20ab541b8708345
+    initial_ast: c20e1c1fa1fb4e25624c6e6af75b5db1788bf07a52e7ea7b764a21d42f9fdb99
+    imports_resolved_ast: 9d05b5bdcaa8a6e3fa929198159f9abdc521837b05a2f4f4037eaa475145ffa4
+    canonicalized_ast: 9d05b5bdcaa8a6e3fa929198159f9abdc521837b05a2f4f4037eaa475145ffa4
+    type_inferenced_ast: cb21683b925b014d771635875553cc7c6a0a4f9c0173a387a468295b5133e45a

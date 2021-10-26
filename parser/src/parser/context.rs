@@ -75,12 +75,15 @@ impl ParserContext {
     }
 
     ///
-    /// Returns a reference to the next token or error if it does not exist.
+    /// Returns a reference to the next SpannedToken or error if it does not exist.
     ///
     pub fn peek(&self) -> Result<&SpannedToken> {
         self.tokens.last().ok_or_else(|| self.eof())
     }
 
+    ///
+    /// Returns a reference to the next Token.
+    ///
     pub fn peek_token(&self) -> Cow<'_, Token> {
         self.tokens
             .last()
@@ -184,6 +187,19 @@ impl ParserContext {
             Token::Int(value) => GroupCoordinate::Number(value.clone(), token.span.clone()),
             _ => return None,
         })
+    }
+
+    ///
+    /// Returns `true` if the next token is Function or if it is a Const followed by Function.
+    /// Returns `false` otherwise.
+    ///
+    pub fn peek_is_function(&self) -> Result<bool> {
+        let first = &self.peek()?.token;
+        let next = &self.peek_next()?.token;
+        let is_func =
+            first == &Token::Function || first == &Token::At || (first == &Token::Const && next == &Token::Function);
+
+        Ok(is_func)
     }
 
     ///

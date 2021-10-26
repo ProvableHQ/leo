@@ -161,7 +161,11 @@ impl<'a> Compiler<'a> {
         let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
         if self.ast_snapshot_options.initial {
-            ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
+            if self.ast_snapshot_options.spans_enabled {
+                ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
+            }
         }
 
         // Preform import resolution.
@@ -171,14 +175,22 @@ impl<'a> Compiler<'a> {
         )?;
 
         if self.ast_snapshot_options.imports_resolved {
-            ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
+            if self.ast_snapshot_options.spans_enabled {
+                ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "imports_resolved_ast.json", &["span"])?;
+            }
         }
 
         // Preform canonicalization of AST always.
         ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
 
         if self.ast_snapshot_options.canonicalized {
-            ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
+            if self.ast_snapshot_options.spans_enabled {
+                ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "canonicalization_ast.json", &["span"])?;
+            }
         }
 
         // Store the main program file.
@@ -194,7 +206,16 @@ impl<'a> Compiler<'a> {
             let new_ast = TypeInferencePhase::default()
                 .phase_ast(&self.program, &asg.clone().into_repr())
                 .expect("Failed to produce type inference ast.");
-            new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
+
+            if self.ast_snapshot_options.spans_enabled {
+                new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
+            } else {
+                new_ast.to_json_file_without_keys(
+                    self.output_directory.clone(),
+                    "type_inferenced_ast.json",
+                    &["span"],
+                )?;
+            }
         }
 
         tracing::debug!("ASG generation complete");

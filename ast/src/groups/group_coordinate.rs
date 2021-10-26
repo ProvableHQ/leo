@@ -26,7 +26,10 @@ use tendril::StrTendril;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GroupCoordinate {
-    Number(#[serde(with = "leo_errors::common::tendril_json")] StrTendril, Span),
+    Number(
+        #[serde(with = "leo_errors::common::tendril_json")] StrTendril,
+        #[serde(with = "leo_errors::common::span_json")] Span,
+    ),
     SignHigh,
     SignLow,
     Inferred,

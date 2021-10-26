@@ -22,7 +22,7 @@ outputs:
             a:
               type: u8
               value: "3"
-    initial_ast: 8eb489d084203ff568db699a97d68cb7be586b99269cd3caa5ed075735a89430
-    imports_resolved_ast: 9ec5d13c17041970f23312a0a07242773baae388682451b583b8162d53feae86
-    canonicalized_ast: 9ec5d13c17041970f23312a0a07242773baae388682451b583b8162d53feae86
-    type_inferenced_ast: 3e9864fb1e4003939ec04bba653e20a42a990fe435e4280fb8629eef9b0d20f6
+    initial_ast: 69a63f50ef42b6bfbaf24d2ed202c362534539db55f9515bb14ec8f55f85af5d
+    imports_resolved_ast: 8a2a206203e13d2e0bc1ba3aa642365d05c7aaee2b3c091540e0919adcc433ce
+    canonicalized_ast: 8a2a206203e13d2e0bc1ba3aa642365d05c7aaee2b3c091540e0919adcc433ce
+    type_inferenced_ast: ca1fbeb7a0de40f48edcb67548f3c669611344cd2ae5ea83ac4b4084bd21c359

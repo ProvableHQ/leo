@@ -11,6 +11,7 @@
       "annotations": [],
       "identifier": "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}",
       "input": [],
+      "const_": false,
       "output": {
         "IntegerType": "U8"
       },
@@ -26,12 +27,14 @@
                         "U8",
                         "1",
                         {
-                          "line_start": 2,
-                          "line_stop": 2,
-                          "col_start": 12,
-                          "col_stop": 15,
-                          "path": "",
-                          "content": "    return 1u8 + 1u8;"
+                          "span" : {
+                            "line_start": 2,
+                            "line_stop": 2,
+                            "col_start": 12,
+                            "col_stop": 15,
+                            "path": "",
+                            "content": "    return 1u8 + 1u8;"
+                          }
                         }
                       ]
                     }
@@ -42,12 +45,14 @@
                         "U8",
                         "1",
                         {
-                          "line_start": 2,
-                          "line_stop": 2,
-                          "col_start": 18,
-                          "col_stop": 21,
-                          "path": "",
-                          "content": "    return 1u8 + 1u8;"
+                          "span": {
+                            "line_start": 2,
+                            "line_stop": 2,
+                            "col_start": 18,
+                            "col_stop": 21,
+                            "path": "",
+                            "content": "    return 1u8 + 1u8;"
+                          }
                         }
                       ]
                     }

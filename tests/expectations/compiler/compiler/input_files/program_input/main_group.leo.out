@@ -20,7 +20,7 @@ outputs:
       - input_file: input/main_group.in
         output:
           registers: {}
-    initial_ast: 731684bc8e22a3bbde7816d4f9ddc4db9561244b81caff4ef23e90ab5949ef60
-    imports_resolved_ast: 5e4688eb85c3b64cc6e652aa9bcec7914f72fe70dc6509c411de8acfb0267845
-    canonicalized_ast: cb86c2b4d8c34bc237cee421b58d0781dc0775fd21605eb35aef7bdbbae02311
-    type_inferenced_ast: 2a7deafa9ac7933aba1ea9d49f10f694a3f05afe349e51d2edecf82a2ca5b9f9
+    initial_ast: 710b7d8f02def202096ecd214ca32e6e74797ce3804afa4e051f1863fa861905
+    imports_resolved_ast: 7598ec95aedb736a441469facb90a95f87e8c78165b7d0b0896993de8c3844c1
+    canonicalized_ast: 0e5a5dbb15b69eb17ce1984f10a301d41de04973e9882e4cbc65e49744bc2f38
+    type_inferenced_ast: 3987ad7ef16df5474778be34cad513c56be9a168a2516c363c15d8ef66101ccc

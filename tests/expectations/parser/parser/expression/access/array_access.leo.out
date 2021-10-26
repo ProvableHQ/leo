@@ -9,12 +9,13 @@ outputs:
         Value:
           Implicit:
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 3
-              col_stop: 4
-              path: ""
-              content: "x[0]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 3
+                col_stop: 4
+                path: ""
+                content: "x[0]"
       span:
         line_start: 1
         line_stop: 1
@@ -29,12 +30,13 @@ outputs:
         Value:
           Implicit:
             - "1"
-            - line_start: 1
-              line_stop: 1
-              col_start: 3
-              col_stop: 4
-              path: ""
-              content: "X[1]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 3
+                col_stop: 4
+                path: ""
+                content: "X[1]"
       span:
         line_start: 1
         line_stop: 1
@@ -50,12 +52,13 @@ outputs:
           Integer:
             - U8
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 3
-              col_stop: 6
-              path: ""
-              content: "x[0u8]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 3
+                col_stop: 6
+                path: ""
+                content: "x[0u8]"
       span:
         line_start: 1
         line_stop: 1
@@ -73,12 +76,13 @@ outputs:
               Integer:
                 - U8
                 - "1"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 3
-                  col_stop: 6
-                  path: ""
-                  content: "x[1u8][2u8]"
+                - span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 3
+                    col_stop: 6
+                    path: ""
+                    content: "x[1u8][2u8]"
           span:
             line_start: 1
             line_stop: 1
@@ -91,12 +95,13 @@ outputs:
           Integer:
             - U8
             - "2"
-            - line_start: 1
-              line_stop: 1
-              col_start: 8
-              col_stop: 11
-              path: ""
-              content: "x[1u8][2u8]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 8
+                col_stop: 11
+                path: ""
+                content: "x[1u8][2u8]"
       span:
         line_start: 1
         line_stop: 1
@@ -147,12 +152,13 @@ outputs:
             Value:
               Implicit:
                 - "0"
-                - line_start: 1
-                  line_stop: 1
-                  col_start: 3
-                  col_stop: 4
-                  path: ""
-                  content: "x[0]()"
+                - span:
+                    line_start: 1
+                    line_stop: 1
+                    col_start: 3
+                    col_stop: 4
+                    path: ""
+                    content: "x[0]()"
           span:
             line_start: 1
             line_stop: 1
@@ -185,12 +191,13 @@ outputs:
         Value:
           Implicit:
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 5
-              col_stop: 6
-              path: ""
-              content: "x()[0]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 5
+                col_stop: 6
+                path: ""
+                content: "x()[0]"
       span:
         line_start: 1
         line_stop: 1
