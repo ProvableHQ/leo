@@ -27,6 +27,7 @@ outputs:
                 col_stop: 19
                 path: ""
                 content: "function x(const y: u32) {"
+        const_: false
         output: ~
         block:
           statements:
@@ -40,12 +41,13 @@ outputs:
                         Integer:
                           - U32
                           - "5"
-                          - line_start: 4
-                            line_stop: 4
-                            col_start: 12
-                            col_stop: 16
-                            path: ""
-                            content: "    if y < 5u32 {"
+                          - span:
+                              line_start: 4
+                              line_stop: 4
+                              col_start: 12
+                              col_stop: 16
+                              path: ""
+                              content: "    if y < 5u32 {"
                     op: Lt
                     span:
                       line_start: 4
@@ -69,12 +71,13 @@ outputs:
                                     Value:
                                       Implicit:
                                         - "1"
-                                        - line_start: 5
-                                          line_stop: 5
-                                          col_start: 13
-                                          col_stop: 14
-                                          path: ""
-                                          content: "        x(y+1);"
+                                        - span:
+                                            line_start: 5
+                                            line_stop: 5
+                                            col_start: 13
+                                            col_stop: 14
+                                            path: ""
+                                            content: "        x(y+1);"
                                   op: Add
                                   span:
                                     line_start: 5
@@ -142,6 +145,7 @@ outputs:
                 col_stop: 16
                 path: ""
                 content: "function main(y: bool) -> bool {"
+        const_: false
         output: Boolean
         block:
           statements:
@@ -155,12 +159,13 @@ outputs:
                           Integer:
                             - U32
                             - "1"
-                            - line_start: 10
-                              line_stop: 10
-                              col_start: 7
-                              col_stop: 11
-                              path: ""
-                              content: "    x(1u32);"
+                            - span:
+                                line_start: 10
+                                line_stop: 10
+                                col_start: 7
+                                col_stop: 11
+                                path: ""
+                                content: "    x(1u32);"
                     span:
                       line_start: 10
                       line_stop: 10

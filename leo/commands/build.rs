@@ -76,6 +76,7 @@ impl Default for BuildOptions {
             enable_canonicalized_ast_snapshot: Default::default(),
             enable_type_inferenced_ast_snapshot: Default::default(),
             inline_limit: DEFAULT_INLINE_LIMIT,
+            enable_spans: Default::default(),
         }
     }
 }
