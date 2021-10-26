@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CharValue",""],["ConstInt","Constant integer values in a program."],["ConstValue",""],["GroupCoordinate","Specifies how to calculate a group coordinate in a program."],["GroupValue",""]]});
+initSidebarItems({"enum":[["CharValue",""],["ConstInt","Constant integer values in a program."],["ConstValue",""],["GroupCoordinate","Specifies how to calculate a group coordinate in a program."],["GroupValue",""]],"macro":[["const_int_bimap",""],["const_int_biop",""],["const_int_map",""],["const_int_op",""]]});

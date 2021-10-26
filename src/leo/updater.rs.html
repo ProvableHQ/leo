@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo&#x2F;updater.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>updater.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../leo/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `leo&#x2F;updater.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>updater.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../leo/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -110,8 +110,7 @@
 <span id="110">110</span>
 <span id="111">111</span>
 <span id="112">112</span>
-</pre><pre class="rust">
-<span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
 <span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
@@ -127,7 +126,7 @@
 <span class="comment">// You should have received a copy of the GNU General Public License</span>
 <span class="comment">// along with the Leo library. If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::config::Config</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::config::Config</span>;
 <span class="kw">use</span> <span class="ident">leo_errors</span>::{<span class="ident">CliError</span>, <span class="prelude-ty">Result</span>};
 
 <span class="kw">use</span> <span class="ident">colored::Colorize</span>;
@@ -144,8 +143,8 @@
     <span class="doccomment">/// Show all available releases for `leo`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_available_releases</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">releases</span> <span class="op">=</span> <span class="ident">github::ReleaseList::configure</span>()
-            .<span class="ident">repo_owner</span>(<span class="self">Self</span><span class="ident">::LEO_REPO_OWNER</span>)
-            .<span class="ident">repo_name</span>(<span class="self">Self</span><span class="ident">::LEO_REPO_NAME</span>)
+            .<span class="ident">repo_owner</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_OWNER</span>)
+            .<span class="ident">repo_name</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_NAME</span>)
             .<span class="ident">build</span>()
             .<span class="ident">map_err</span>(<span class="ident">CliError::self_update_error</span>)<span class="question-mark">?</span>
             .<span class="ident">fetch</span>()
@@ -165,9 +164,9 @@
     <span class="doccomment">/// Update `leo` to the latest release.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_to_latest_release</span>(<span class="ident">show_output</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Status</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">github::Update::configure</span>()
-            .<span class="ident">repo_owner</span>(<span class="self">Self</span><span class="ident">::LEO_REPO_OWNER</span>)
-            .<span class="ident">repo_name</span>(<span class="self">Self</span><span class="ident">::LEO_REPO_NAME</span>)
-            .<span class="ident">bin_name</span>(<span class="self">Self</span><span class="ident">::LEO_BIN_NAME</span>)
+            .<span class="ident">repo_owner</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_OWNER</span>)
+            .<span class="ident">repo_name</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_NAME</span>)
+            .<span class="ident">bin_name</span>(<span class="ident"><span class="self">Self</span>::LEO_BIN_NAME</span>)
             .<span class="ident">current_version</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>))
             .<span class="ident">show_download_progress</span>(<span class="ident">show_output</span>)
             .<span class="ident">no_confirm</span>(<span class="bool-val">true</span>)
@@ -183,9 +182,9 @@
     <span class="doccomment">/// Check if there is an available update for `leo` and return the newest release.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_available</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">updater</span> <span class="op">=</span> <span class="ident">github::Update::configure</span>()
-            .<span class="ident">repo_owner</span>(<span class="self">Self</span><span class="ident">::LEO_REPO_OWNER</span>)
-            .<span class="ident">repo_name</span>(<span class="self">Self</span><span class="ident">::LEO_REPO_NAME</span>)
-            .<span class="ident">bin_name</span>(<span class="self">Self</span><span class="ident">::LEO_BIN_NAME</span>)
+            .<span class="ident">repo_owner</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_OWNER</span>)
+            .<span class="ident">repo_name</span>(<span class="ident"><span class="self">Self</span>::LEO_REPO_NAME</span>)
+            .<span class="ident">bin_name</span>(<span class="ident"><span class="self">Self</span>::LEO_BIN_NAME</span>)
             .<span class="ident">current_version</span>(<span class="macro">env!</span>(<span class="string">&quot;CARGO_PKG_VERSION&quot;</span>))
             .<span class="ident">build</span>()
             .<span class="ident">map_err</span>(<span class="ident">CliError::self_update_error</span>)<span class="question-mark">?</span>;
@@ -206,14 +205,14 @@
 
         <span class="kw">if</span> <span class="ident">config</span>.<span class="ident">update</span>.<span class="ident">automatic</span> {
             <span class="comment">// If the auto update configuration is on, attempt to update the version.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">status</span>) <span class="op">=</span> <span class="self">Self</span><span class="ident">::update_to_latest_release</span>(<span class="bool-val">false</span>) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">status</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::update_to_latest_release</span>(<span class="bool-val">false</span>) {
                 <span class="kw">if</span> <span class="ident">status</span>.<span class="ident">updated</span>() {
                     <span class="macro">tracing::info!</span>(<span class="string">&quot;Successfully updated to {}&quot;</span>, <span class="ident">status</span>.<span class="ident">version</span>());
                 }
             }
         } <span class="kw">else</span> {
             <span class="comment">// If the auto update configuration is off, notify the user to update leo.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">latest_version</span>) <span class="op">=</span> <span class="self">Self</span><span class="ident">::update_available</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">latest_version</span>) <span class="op">=</span> <span class="ident"><span class="self">Self</span>::update_available</span>() {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">message</span> <span class="op">=</span> <span class="string">&quot;🟢 A new version is available! Run&quot;</span>.<span class="ident">bold</span>().<span class="ident">green</span>().<span class="ident">to_string</span>();
                 <span class="ident">message</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="string">&quot; `leo update` &quot;</span>.<span class="ident">bold</span>().<span class="ident">white</span>();
                 <span class="ident">message</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;to update to v{}.&quot;</span>, <span class="ident">latest_version</span>).<span class="ident">bold</span>().<span class="ident">green</span>();
@@ -223,7 +222,7 @@
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="leo" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

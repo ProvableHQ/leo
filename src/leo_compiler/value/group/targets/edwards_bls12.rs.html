@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler&#x2F;src&#x2F;value&#x2F;group&#x2F;targets&#x2F;edwards_bls12.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>edwards_bls12.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script src="../../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../../leo_compiler/index.html'><div class='logo-container rust-logo'><img src='../../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `compiler&#x2F;src&#x2F;value&#x2F;group&#x2F;targets&#x2F;edwards_bls12.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>edwards_bls12.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script src="../../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../../leo_compiler/index.html'><div class='logo-container rust-logo'><img src='../../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -556,8 +556,7 @@
 <span id="556">556</span>
 <span id="557">557</span>
 <span id="558">558</span>
-</pre><pre class="rust">
-<span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
+</pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
 <span class="comment">// The Leo library is free software: you can redistribute it and/or modify</span>
@@ -612,7 +611,7 @@
 
 <span class="kw">impl</span> <span class="ident">GroupType</span><span class="op">&lt;</span><span class="ident">Fq</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EdwardsGroupType</span> {
     <span class="kw">fn</span> <span class="ident">constant</span>(<span class="ident">group</span>: <span class="kw-2">&amp;</span><span class="ident">GroupValue</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">Self</span><span class="ident">::edwards_affine_from_value</span>(<span class="ident">group</span>, <span class="ident">span</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::edwards_affine_from_value</span>(<span class="ident">group</span>, <span class="ident">span</span>)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="ident">EdwardsGroupType::Constant</span>(<span class="ident">value</span>))
     }
@@ -696,8 +695,8 @@
 <span class="kw">impl</span> <span class="ident">EdwardsGroupType</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edwards_affine_from_value</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">GroupValue</span>, <span class="ident">span</span>: <span class="kw-2">&amp;</span><span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">EdwardsAffine</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">GroupValue::Single</span>(<span class="ident">number</span>, ..) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::edwards_affine_from_single</span>(<span class="ident">number</span>, <span class="ident">span</span>),
-            <span class="ident">GroupValue::Tuple</span>(<span class="ident">x</span>, <span class="ident">y</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::edwards_affine_from_tuple</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">span</span>),
+            <span class="ident">GroupValue::Single</span>(<span class="ident">number</span>, ..) <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::edwards_affine_from_single</span>(<span class="ident">number</span>, <span class="ident">span</span>),
+            <span class="ident">GroupValue::Tuple</span>(<span class="ident">x</span>, <span class="ident">y</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::edwards_affine_from_tuple</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">span</span>),
         }
     }
 
@@ -729,7 +728,7 @@
 
         <span class="kw">match</span> (<span class="ident">x</span>, <span class="ident">y</span>) {
             <span class="comment">// (x, y)</span>
-            (<span class="ident">GroupCoordinate::Number</span>(<span class="ident">x_string</span>), <span class="ident">GroupCoordinate::Number</span>(<span class="ident">y_string</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::edwards_affine_from_pair</span>(
+            (<span class="ident">GroupCoordinate::Number</span>(<span class="ident">x_string</span>), <span class="ident">GroupCoordinate::Number</span>(<span class="ident">y_string</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::edwards_affine_from_pair</span>(
                 <span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">x_string</span>),
                 <span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">y_string</span>),
                 <span class="ident">span</span>,
@@ -738,27 +737,27 @@
             ),
             <span class="comment">// (x, +)</span>
             (<span class="ident">GroupCoordinate::Number</span>(<span class="ident">x_string</span>), <span class="ident">GroupCoordinate::SignHigh</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">Self</span><span class="ident">::edwards_affine_from_x_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">x_string</span>), <span class="ident">span</span>, <span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="ident">span</span>)
+                <span class="ident"><span class="self">Self</span>::edwards_affine_from_x_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">x_string</span>), <span class="ident">span</span>, <span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="ident">span</span>)
             }
             <span class="comment">// (x, -)</span>
             (<span class="ident">GroupCoordinate::Number</span>(<span class="ident">x_string</span>), <span class="ident">GroupCoordinate::SignLow</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">Self</span><span class="ident">::edwards_affine_from_x_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">x_string</span>), <span class="ident">span</span>, <span class="prelude-val">Some</span>(<span class="bool-val">false</span>), <span class="ident">span</span>)
+                <span class="ident"><span class="self">Self</span>::edwards_affine_from_x_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">x_string</span>), <span class="ident">span</span>, <span class="prelude-val">Some</span>(<span class="bool-val">false</span>), <span class="ident">span</span>)
             }
             <span class="comment">// (x, _)</span>
             (<span class="ident">GroupCoordinate::Number</span>(<span class="ident">x_string</span>), <span class="ident">GroupCoordinate::Inferred</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">Self</span><span class="ident">::edwards_affine_from_x_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">x_string</span>), <span class="ident">span</span>, <span class="prelude-val">None</span>, <span class="ident">span</span>)
+                <span class="ident"><span class="self">Self</span>::edwards_affine_from_x_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">x_string</span>), <span class="ident">span</span>, <span class="prelude-val">None</span>, <span class="ident">span</span>)
             }
             <span class="comment">// (+, y)</span>
             (<span class="ident">GroupCoordinate::SignHigh</span>, <span class="ident">GroupCoordinate::Number</span>(<span class="ident">y_string</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">Self</span><span class="ident">::edwards_affine_from_y_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">y_string</span>), <span class="ident">span</span>, <span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="ident">span</span>)
+                <span class="ident"><span class="self">Self</span>::edwards_affine_from_y_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">y_string</span>), <span class="ident">span</span>, <span class="prelude-val">Some</span>(<span class="bool-val">true</span>), <span class="ident">span</span>)
             }
             <span class="comment">// (-, y)</span>
             (<span class="ident">GroupCoordinate::SignLow</span>, <span class="ident">GroupCoordinate::Number</span>(<span class="ident">y_string</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">Self</span><span class="ident">::edwards_affine_from_y_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">y_string</span>), <span class="ident">span</span>, <span class="prelude-val">Some</span>(<span class="bool-val">false</span>), <span class="ident">span</span>)
+                <span class="ident"><span class="self">Self</span>::edwards_affine_from_y_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">y_string</span>), <span class="ident">span</span>, <span class="prelude-val">Some</span>(<span class="bool-val">false</span>), <span class="ident">span</span>)
             }
             <span class="comment">// (_, y)</span>
             (<span class="ident">GroupCoordinate::Inferred</span>, <span class="ident">GroupCoordinate::Number</span>(<span class="ident">y_string</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">Self</span><span class="ident">::edwards_affine_from_y_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">y_string</span>), <span class="ident">span</span>, <span class="prelude-val">None</span>, <span class="ident">span</span>)
+                <span class="ident"><span class="self">Self</span>::edwards_affine_from_y_str</span>(<span class="ident">number_string_typing</span>(<span class="kw-2">&amp;</span><span class="ident">y_string</span>), <span class="ident">span</span>, <span class="prelude-val">None</span>, <span class="ident">span</span>)
             }
             <span class="comment">// Invalid</span>
             (<span class="ident">x</span>, <span class="ident">y</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -878,7 +877,7 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Err</span>(<span class="ident">SynthesisError::AssignmentMissing</span>),
         }<span class="question-mark">?</span>;
 
-        <span class="self">Self</span><span class="ident">::edwards_affine_from_value</span>(<span class="kw-2">&amp;</span><span class="ident">group_value</span>, <span class="kw-2">&amp;</span><span class="ident">Span::default</span>()).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">SynthesisError::AssignmentMissing</span>)
+        <span class="ident"><span class="self">Self</span>::edwards_affine_from_value</span>(<span class="kw-2">&amp;</span><span class="ident">group_value</span>, <span class="kw-2">&amp;</span><span class="ident">Span::default</span>()).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">SynthesisError::AssignmentMissing</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">allocated</span><span class="op">&lt;</span><span class="ident">CS</span>: <span class="ident">ConstraintSystem</span><span class="op">&lt;</span><span class="ident">Fq</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">cs</span>: <span class="ident">CS</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">EdwardsBls12Gadget</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
@@ -908,7 +907,7 @@
         <span class="ident">value_gen</span>: <span class="ident">Fn</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">EdwardsBls12Gadget</span> <span class="kw">as</span> <span class="ident">AllocGadget</span><span class="op">&lt;</span><span class="ident">Affine</span><span class="op">&lt;</span><span class="ident">EdwardsParameters</span><span class="op">&gt;</span>, <span class="ident">Fq</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc</span>(<span class="ident">cs</span>, <span class="op">|</span><span class="op">|</span> {
-            <span class="self">Self</span><span class="ident">::alloc_helper</span>(<span class="ident">value_gen</span>)
+            <span class="ident"><span class="self">Self</span>::alloc_helper</span>(<span class="ident">value_gen</span>)
         })<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="ident">EdwardsGroupType::Allocated</span>(<span class="ident">Box::new</span>(<span class="ident">value</span>)))
@@ -919,7 +918,7 @@
         <span class="ident">value_gen</span>: <span class="ident">Fn</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">SynthesisError</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">EdwardsBls12Gadget</span> <span class="kw">as</span> <span class="ident">AllocGadget</span><span class="op">&lt;</span><span class="ident">Affine</span><span class="op">&lt;</span><span class="ident">EdwardsParameters</span><span class="op">&gt;</span>, <span class="ident">Fq</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::alloc_input</span>(<span class="ident">cs</span>, <span class="op">|</span><span class="op">|</span> {
-            <span class="self">Self</span><span class="ident">::alloc_helper</span>(<span class="ident">value_gen</span>)
+            <span class="ident"><span class="self">Self</span>::alloc_helper</span>(<span class="ident">value_gen</span>)
         })<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="ident">EdwardsGroupType::Allocated</span>(<span class="ident">Box::new</span>(<span class="ident">value</span>)))
@@ -1096,11 +1095,11 @@
     <span class="kw">fn</span> <span class="ident">one</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">one</span> <span class="op">=</span> <span class="ident">edwards_affine_one</span>();
 
-        <span class="self">Self</span><span class="ident">::Constant</span>(<span class="ident">one</span>)
+        <span class="ident"><span class="self">Self</span>::Constant</span>(<span class="ident">one</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">is_one</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">Self</span><span class="ident">::one</span>())
+        <span class="self">self</span>.<span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::one</span>())
     }
 }
 
@@ -1115,7 +1114,7 @@
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="leo_compiler" data-search-index-js="../../../../../search-index.js" data-search-js="../../../../../search.js"></div>
     <script src="../../../../../main.js"></script><script src="../../../../../source-script.js"></script><script src="../../../../../source-files.js"></script>
 </body></html>
