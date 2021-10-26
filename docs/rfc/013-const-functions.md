@@ -62,7 +62,7 @@ the evaluation involves the bounded recursion analysis described in a separate R
 ASTs for function declarations are extended with a boolean flag `const_`.
 
 If a `const` function has a non-`const` parameter,
-an AST error occurs.
+an ASG error occurs.
 
 If the body of a `const` function references the `input` variable or calls a non-`const` function,
 an ASG error occurs.
