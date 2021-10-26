@@ -10,5 +10,7 @@ circuit Foo {
 }
 
 function main(y: bool) -> bool {
-    return (Foo::x == 4u32) && (Foo::y == 23u32) == y;
+    let z = Foo::x + 32;
+    return (Foo::x == 4u32) && (Foo::y == 23u32) &&
+        (z == 36u32) == y;
 }

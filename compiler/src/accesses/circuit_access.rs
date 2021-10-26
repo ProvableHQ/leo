@@ -25,19 +25,20 @@ impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_circuit_access(&mut self, expr: &CircuitAccess<'a>) -> Result<Value> {
         let members = expr.circuit.get().members.borrow();
-        let target_value = match expr.target.get() {
-            Some(target) => self.enforce_expression(target)?,
+        let (target_value, mut index) = match expr.target.get() {
+            Some(target) => {
+                let index = members
+                    .get_index_of(expr.member.name.as_ref())
+                    .expect("missing member from struct");
+                (self.enforce_expression(target)?, index)
+            }
             None => match members.get(expr.member.name.as_ref()) {
-                Some(CircuitMember::Const(value)) => Value::Tuple(vec![self.enforce_expression(value)?]),
+                Some(CircuitMember::Const(value)) => (Value::Tuple(vec![self.enforce_expression(value)?]), 0),
                 _ => {
                     return Err(CompilerError::expected_circuit_static_const_access(expr.span.as_ref().unwrap()).into())
                 }
             },
         };
-
-        let mut index = members
-            .get_index_of(expr.member.name.as_ref())
-            .expect("missing member from struct");
 
         if let Some(category) = expr.circuit.get().input_type() {
             index = self.input_index(category, expr.member.name.as_ref());

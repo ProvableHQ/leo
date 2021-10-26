@@ -27,6 +27,18 @@ pub enum CircuitMember<'a> {
     Function(&'a Function<'a>),
 }
 
+impl<'a> CircuitMember<'a> {
+    pub fn get_type(&self) -> Option<Type<'a>> {
+        use CircuitMember::*;
+
+        match self {
+            Const(expr) => expr.get_type(),
+            Variable(type_) => Some(type_.clone()),
+            Function(function) => Some(function.output.clone()),
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Circuit<'a> {
     pub id: u32,
