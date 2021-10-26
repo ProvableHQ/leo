@@ -179,8 +179,13 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_static_access(&mut self, static_access: &StaticAccess) -> Result<StaticAccess> {
         let value = self.reduce_expression(&static_access.inner)?;
         let name = self.reduce_identifier(&static_access.name)?;
+        let type_ = static_access
+            .type_
+            .as_ref()
+            .map(|type_| self.reduce_type(type_, &static_access.span))
+            .transpose()?;
 
-        self.reducer.reduce_static_access(static_access, value, name)
+        self.reducer.reduce_static_access(static_access, value, type_, name)
     }
 
     pub fn reduce_access(&mut self, access: &AccessExpression) -> Result<AccessExpression> {

@@ -230,6 +230,7 @@ impl Canonicalizer {
                     AccessExpression::Static(static_access) => AccessExpression::Static(StaticAccess {
                         inner: Box::new(self.canonicalize_expression(&static_access.inner)),
                         name: static_access.name.clone(),
+                        type_: self.canonicalize_self_type(static_access.type_.as_ref()),
                         span: static_access.span.clone(),
                     }),
                 };

@@ -143,6 +143,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     inner: ast_value,
                     name,
                     span,
+                    ..
                 }) => {
                     let circuit = if let leo_ast::Expression::Identifier(circuit_name) = &**ast_value {
                         scope
@@ -242,6 +243,7 @@ impl<'a> Into<leo_ast::CallExpression> for &CallExpression<'a> {
                 leo_ast::Expression::Access(leo_ast::AccessExpression::Static(leo_ast::accesses::StaticAccess {
                     inner: Box::new(leo_ast::Expression::Identifier(circuit.name.borrow().clone())),
                     name: self.function.get().name.borrow().clone(),
+                    type_: None,
                     span: self.span.clone().unwrap_or_default(),
                 }))
             } else {

@@ -206,6 +206,7 @@ impl<'a> Into<leo_ast::Expression> for &CircuitAccess<'a> {
                     self.circuit.get().name.borrow().clone(),
                 )),
                 name: self.member.clone(),
+                type_: None,
                 span: self.span.clone().unwrap_or_default(),
             }))
         }

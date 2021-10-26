@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Identifier, Node};
+use crate::{Expression, Identifier, Node, Type};
 use leo_errors::Span;
 
 use std::fmt;
@@ -25,6 +25,7 @@ use serde::{Deserialize, Serialize};
 pub struct StaticAccess {
     pub inner: Box<Expression>,
     pub name: Identifier,
+    pub type_: Option<Type>,
     pub span: Span,
 }
 
