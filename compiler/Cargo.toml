@@ -69,7 +69,7 @@ version = "0.7.9"
 default-features = false
 
 [dependencies.snarkvm-fields]
-version = "0.7.7"
+version = "0.7.9"
 default-features = false
 
 [dependencies.snarkvm-dpc]
@@ -77,16 +77,16 @@ version = "0.7.9"
 default-features = false
 
 [dependencies.snarkvm-gadgets]
-version = "0.7.8"
+version = "0.7.9"
 default-features = false
 features = [ "curves" ]
 
 [dependencies.snarkvm-r1cs]
-version = "0.7.8"
+version = "0.7.9"
 default-features = false
 
 [dependencies.snarkvm-utilities]
-version = "0.7.6"
+version = "0.7.9"
 
 [dependencies.bincode]
 version = "1.3"
