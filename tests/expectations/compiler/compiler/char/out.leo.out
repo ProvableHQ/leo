@@ -108,7 +108,7 @@ outputs:
             r:
               type: char
               value: "\\u{1f62d}"
-    initial_ast: b52f25912734ca1e8a869c6a70c526b5253b499e006b753ae7805c50d9b7239d
-    imports_resolved_ast: ccacbba2e0f2cc150247369ab83931ba8bbd1c86404747aa582f95172b73e39d
-    canonicalized_ast: ccacbba2e0f2cc150247369ab83931ba8bbd1c86404747aa582f95172b73e39d
-    type_inferenced_ast: 941b0229280fb4db43b93db05c87955027e8e977cbd24f0b3e5e45dfe8f4d1cd
+    initial_ast: ff218301e681d42cbb9c3415c0eb32e04c48827d0bf35f77a107b8f1b73a52fa
+    imports_resolved_ast: a5aca5c85fcf24fb65e4d4fea142a0bf05ea678969f110919171a21aa6ef6179
+    canonicalized_ast: a5aca5c85fcf24fb65e4d4fea142a0bf05ea678969f110919171a21aa6ef6179
+    type_inferenced_ast: 3a5f1783c24d62e7c799c2092a47423f427827330daf45b48d2eb0348d3dea4c

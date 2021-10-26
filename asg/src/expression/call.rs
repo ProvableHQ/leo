@@ -70,9 +70,7 @@ impl<'a> ExpressionNode<'a> for CallExpression<'a> {
     }
 
     fn is_consty(&self) -> bool {
-        // const functions not implemented in IR
-        // self.target.get().map(|x| x.is_consty()).unwrap_or(true) && self.arguments.iter().all(|x| x.get().is_consty())
-        false
+        self.function.get().const_
     }
 }
 
@@ -166,6 +164,9 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 .into());
             }
         };
+        if scope.resolve_current_function().map(|f| f.const_).unwrap_or_default() && !function.const_ {
+            return Err(AsgError::calling_non_const_in_const_context(&value.span).into());
+        }
         if let Some(expected) = expected_type {
             let output: Type = function.output.clone();
             if !expected.matches(&output) {

@@ -29,6 +29,7 @@ outputs:
                 col_stop: 13
                 path: ""
                 content: "function x(x: [u8; 12]) {"
+        const_: false
         output: ~
         block:
           statements:

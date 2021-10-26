@@ -999,7 +999,7 @@ annotation = annotation-name
 ; Additionally, functions inside circuits
 ; may start with a `mut self` or `const self` or `self` parameter.
 
-function-declaration = *annotation %s"function" identifier
+function-declaration = *annotation [ %s"const" ] %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
                        block
 

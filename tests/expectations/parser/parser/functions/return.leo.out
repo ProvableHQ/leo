@@ -14,6 +14,7 @@ outputs:
         annotations: []
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() -> u32 {\\\"}\"}"
         input: []
+        const_: false
         output:
           IntegerType: U32
         block:

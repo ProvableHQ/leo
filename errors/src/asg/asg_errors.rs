@@ -468,10 +468,59 @@ create_errors!(
         help: None,
     }
 
+    /// For when operator is used on an unsupported type.
     @formatted
     operator_allowed_only_for_type {
         args: (operator: impl Display, type_: impl Display, received: impl Display),
         msg: format!("operator '{}' is only allowed for type '{}', received: '{}'", operator, type_, received),
+        help: None,
+    }
+
+    /// For when `input` variable is accessed inside a const function.
+    @formatted
+    illegal_input_variable_reference_in_const_function {
+        args: (),
+        msg: "input access is illegal in const functions",
+        help: None,
+    }
+
+    /// For when non-const function is called from a const context.
+    @formatted
+    calling_non_const_in_const_context {
+        args: (),
+        msg: "non-const functions cannot be called from const context",
+        help: None,
+    }
+
+    /// For when const function modifier is added to the main function.
+    @formatted
+    main_cannot_be_const {
+        args: (),
+        msg: "main function cannot be const",
+        help: None,
+    }
+
+    /// For when const function has non-const inputs or self.
+    @formatted
+    const_function_cannot_have_inputs {
+        args: (),
+        msg: "const function cannot have non-const input",
+        help: None,
+    }
+
+    /// For when `main` is annotated.
+    @formatted
+    main_cannot_have_annotations {
+        args: (),
+        msg: "main function cannot have annotations",
+        help: None,
+    }
+
+    /// For when unsupported annotation is added.
+    @formatted
+    unsupported_annotation {
+        args: (name: impl Display),
+        msg: format!("annotation `{}` does not exist", name),
         help: None,
     }
 );

@@ -69,6 +69,18 @@ impl FunctionInput {
         }
     }
 
+    ///
+    /// Returns Option with FunctionInputVariable if the input is a variable.
+    /// Returns None otherwise.
+    ///
+    pub fn get_variable(&self) -> Option<&FunctionInputVariable> {
+        if let FunctionInput::Variable(var) = self {
+            Some(var)
+        } else {
+            None
+        }
+    }
+
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             FunctionInput::SelfKeyword(keyword) => write!(f, "{}", keyword),

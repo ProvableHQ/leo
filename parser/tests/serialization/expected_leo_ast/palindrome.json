@@ -29,6 +29,7 @@
           }
         }
       ],
+      "const_": false,
       "output": "Boolean",
       "block": {
         "statements": [
@@ -73,6 +74,7 @@
           }
         }
       ],
+      "const_": false,
       "output": "Boolean",
       "block": {
         "statements": [
@@ -693,6 +695,7 @@
       ],
       "identifier": "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":52,\\\"line_stop\\\":52,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}",
       "input": [],
+      "const_": false,
       "output": null,
       "block": {
         "statements": [

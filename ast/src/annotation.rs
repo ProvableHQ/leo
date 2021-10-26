@@ -27,3 +27,10 @@ pub struct Annotation {
     #[serde(with = "crate::common::vec_tendril_json")]
     pub arguments: Vec<StrTendril>,
 }
+
+impl Annotation {
+    /// Check whether annotaion is test.
+    pub fn is_test(&self) -> bool {
+        self.name.name.as_ref() == "test"
+    }
+}

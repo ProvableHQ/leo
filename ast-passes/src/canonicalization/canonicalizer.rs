@@ -491,6 +491,7 @@ impl Canonicalizer {
                 return CircuitMember::CircuitFunction(Function {
                     annotations: function.annotations.clone(),
                     identifier: function.identifier.clone(),
+                    const_: function.const_,
                     input,
                     output,
                     block,
@@ -693,6 +694,7 @@ impl ReconstructingReducer for Canonicalizer {
         identifier: Identifier,
         annotations: Vec<Annotation>,
         input: Vec<FunctionInput>,
+        const_: bool,
         output: Option<Type>,
         block: Block,
     ) -> Result<Function> {
@@ -705,6 +707,7 @@ impl ReconstructingReducer for Canonicalizer {
             identifier,
             annotations,
             input,
+            const_,
             output: new_output,
             block,
             span: function.span.clone(),

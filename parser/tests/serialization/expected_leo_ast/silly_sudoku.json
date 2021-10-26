@@ -70,6 +70,7 @@
           }
         }
       ],
+      "const_": false,
       "output": "Boolean",
       "block": {
         "statements": [
@@ -427,6 +428,7 @@
       ],
       "identifier": "{\"name\":\"test_solve_pass\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_pass() {\\\"}\"}",
       "input": [],
+      "const_": false,
       "output": null,
       "block": {
         "statements": [
@@ -726,6 +728,7 @@
       ],
       "identifier": "{\"name\":\"test_solve_fail\",\"span\":\"{\\\"line_start\\\":42,\\\"line_stop\\\":42,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_fail() {\\\"}\"}",
       "input": [],
+      "const_": false,
       "output": null,
       "block": {
         "statements": [
@@ -1080,6 +1083,7 @@
           }
         }
       ],
+      "const_": false,
       "output": null,
       "block": {
         "statements": [

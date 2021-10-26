@@ -51,6 +51,7 @@
                 }
               }
             ],
+            "const_": false,
             "output": "SelfType",
             "block": {
               "statements": [
@@ -125,6 +126,7 @@
                 }
               }
             ],
+            "const_": false,
             "output": "SelfType",
             "block": {
               "statements": [
@@ -156,6 +158,7 @@
                 "SelfKeyword": "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":19,\\\"line_stop\\\":19,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function slope(self) -> i32 { \\\"}\"}"
               }
             ],
+            "const_": false,
             "output": {
               "IntegerType": "I32"
             },
@@ -590,6 +593,7 @@
                 }
               }
             ],
+            "const_": false,
             "output": {
               "IntegerType": "I32"
             },
@@ -802,6 +806,7 @@
           }
         }
       ],
+      "const_": false,
       "output": {
         "Array": [
           {

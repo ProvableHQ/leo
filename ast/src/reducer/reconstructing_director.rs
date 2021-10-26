@@ -574,7 +574,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let block = self.reduce_block(&function.block)?;
 
-        self.reducer
-            .reduce_function(function, identifier, annotations, inputs, output, block)
+        self.reducer.reduce_function(
+            function,
+            identifier,
+            annotations,
+            inputs,
+            function.const_,
+            output,
+            block,
+        )
     }
 }
