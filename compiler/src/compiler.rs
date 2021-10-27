@@ -256,7 +256,7 @@ impl<'a> Compiler<'a> {
 
         program.enforce_program(input)?;
 
-        Ok(program.render())
+        Ok(program.render(&self.options))
     }
 
     pub fn compile<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -388,7 +388,7 @@ impl<'a> Compiler<'a> {
         // run test function on new program with input
         let mut temporary_program = program.clone();
         temporary_program.enforce_function(&program.asg, function, &secondary_functions, &input)?;
-        Ok((input, temporary_program.render(), output_file_name))
+        Ok((input, temporary_program.render(&self.options), output_file_name))
     }
 
     pub fn compile_test(&self, input: InputPairs) -> Result<(u32, u32)> {
@@ -412,12 +412,7 @@ impl<'a> Compiler<'a> {
         let mut failed = 0;
 
         for (test_name, function) in tests.into_iter() {
-            let mut cs = CircuitSynthesizer::<Bls12_377> {
-                constraints: Default::default(),
-                public_variables: Default::default(),
-                private_variables: Default::default(),
-                namespaces: Default::default(),
-            };
+            let mut cs = CircuitSynthesizer::<Bls12_377>::default();
             let full_test_name = format!("{}::{}", program_name, test_name);
 
             let result = match self.compile_ir_test(&program, function, &input) {

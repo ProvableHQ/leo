@@ -17,7 +17,7 @@
 use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
-    CompilerOptions, OutputOptions,
+    CompilerOptions, OutputOptions, DEFAULT_INLINE_LIMIT,
 };
 use leo_errors::{CliError, Result};
 use leo_package::{
@@ -37,7 +37,7 @@ use tracing::span::Span;
 
 /// Compiler Options wrapper for Build command. Also used by other commands which
 /// require Build command output as their input.
-#[derive(StructOpt, Clone, Debug, Default)]
+#[derive(StructOpt, Clone, Debug)]
 pub struct BuildOptions {
     #[structopt(long, help = "Disable constant folding compiler optimization.")]
     pub disable_constant_folding: bool,
@@ -60,8 +60,32 @@ pub struct BuildOptions {
     pub enable_canonicalized_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
     pub enable_type_inferenced_ast_snapshot: bool,
+    #[structopt(
+        long,
+        default_value = "1000",
+        help = "The maximum call depth that leo can attempt to inline"
+    )]
+    pub inline_limit: u32,
     #[structopt(long, help = "Writes formatted and raw IR.")]
     pub emit_ir: bool,
+}
+
+impl Default for BuildOptions {
+    fn default() -> Self {
+        Self {
+            disable_constant_folding: Default::default(),
+            disable_code_elimination: Default::default(),
+            disable_all_optimizations: Default::default(),
+            enable_all_snapshots: Default::default(),
+            enable_initial_ast_snapshot: Default::default(),
+            enable_imports_resolved_ast_snapshot: Default::default(),
+            enable_canonicalized_ast_snapshot: Default::default(),
+            enable_type_inferenced_ast_snapshot: Default::default(),
+            inline_limit: DEFAULT_INLINE_LIMIT,
+            enable_spans: Default::default(),
+            emit_ir: Default::default(),
+        }
+    }
 }
 
 impl From<BuildOptions> for CompilerOptions {
@@ -70,11 +94,13 @@ impl From<BuildOptions> for CompilerOptions {
             CompilerOptions {
                 constant_folding_enabled: false,
                 dead_code_elimination_enabled: false,
+                inline_limit: DEFAULT_INLINE_LIMIT,
             }
         } else {
             CompilerOptions {
                 constant_folding_enabled: !options.disable_constant_folding,
                 dead_code_elimination_enabled: !options.disable_code_elimination,
+                inline_limit: options.inline_limit,
             }
         }
     }
@@ -200,12 +226,7 @@ impl Command for Build {
 
         // Generate the program on the constraint system and verify correctness
         {
-            let mut cs = CircuitSynthesizer::<Bls12_377> {
-                constraints: Default::default(),
-                public_variables: Default::default(),
-                private_variables: Default::default(),
-                namespaces: Default::default(),
-            };
+            let mut cs = CircuitSynthesizer::<Bls12_377>::default();
             let temporary_program = program.clone();
             let output = temporary_program.compile::<_, EdwardsGroupType, _>(&mut cs, &input)?;
 

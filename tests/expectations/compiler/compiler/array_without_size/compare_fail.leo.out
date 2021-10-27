@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "f#0: i#2: array sizes must match for comparison; left: 2, right: 3"
+  - "f#0 i#2: array sizes must match for comparison; left: 2, right: 3"
