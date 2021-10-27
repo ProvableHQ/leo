@@ -23,8 +23,15 @@ use petgraph::graph::NodeIndex;
 type M = Fixed<NodeIndex>;
 
 impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
-    fn reduce_expression(&mut self, _input: &'a Expression<'a>, value: M) -> M {
-        // Bubble up value since `Expression` is an enum
+    fn reduce_expression(&mut self, input: &'a Expression<'a>, value: M) -> M {
+        if let Some(parent) = input.get_parent() {
+            self.edges.push((
+                input.get_id(),
+                parent.get_id(),
+                ("parent".to_string(), LabelType::Label),
+                Some(("red".to_string(), LabelType::Label)),
+            ))
+        }
         value
     }
 
@@ -53,15 +60,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             Some(("black".to_string(), LabelType::Label)),
         );
 
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
-
         Fixed(start_idx)
     }
 
@@ -82,15 +80,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             Some(("black".to_string(), LabelType::Label)),
         );
 
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
-
         Fixed(start_idx)
     }
 
@@ -110,15 +99,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
                 (format!("element_{:}", i), LabelType::Label),
                 Some(("black".to_string(), LabelType::Label)),
             );
-        }
-
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
         }
 
         Fixed(start_idx)
@@ -165,15 +145,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             );
         }
 
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
-
         Fixed(start_idx)
     }
 
@@ -201,15 +172,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             ("right".to_string(), LabelType::Label),
             Some(("black".to_string(), LabelType::Label)),
         );
-
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
 
         Fixed(start_idx)
     }
@@ -241,15 +203,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             )
         }
 
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
-
         Fixed(start_idx)
     }
 
@@ -271,15 +224,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             );
         }
 
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
-
         Fixed(start_idx)
     }
 
@@ -299,15 +243,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
                 (format!("value_{:}", i), LabelType::Label),
                 Some(("black".to_string(), LabelType::Label)),
             );
-        }
-
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
         }
 
         Fixed(start_idx)
@@ -352,15 +287,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             Some(("black".to_string(), LabelType::Label)),
         );
 
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
-
         Fixed(start_idx)
     }
 
@@ -379,15 +305,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             ("inner".to_string(), LabelType::Label),
             Some(("black".to_string(), LabelType::Label)),
         );
-
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
 
         Fixed(start_idx)
     }
@@ -408,15 +325,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             Some(("black".to_string(), LabelType::Label)),
         );
 
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
-
         Fixed(start_idx)
     }
 
@@ -431,15 +339,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             Dotifier::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
-
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
 
         Fixed(start_idx)
     }
@@ -459,15 +358,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             ("tuple_ref".to_string(), LabelType::Label),
             Some(("black".to_string(), LabelType::Label)),
         );
-
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
 
         Fixed(start_idx)
     }
@@ -490,15 +380,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             );
         }
 
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
-
         Fixed(start_idx)
     }
 
@@ -518,15 +399,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             Some(("black".to_string(), LabelType::Label)),
         );
 
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
-
         Fixed(start_idx)
     }
 
@@ -539,15 +411,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             Dotifier::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
-
-        if let Some(parent) = input.parent.get() {
-            self.edges.push((
-                input.id,
-                parent.get_id(),
-                ("parent".to_string(), LabelType::Label),
-                Some(("red".to_string(), LabelType::Label)),
-            ));
-        }
 
         Fixed(start_idx)
     }

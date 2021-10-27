@@ -23,8 +23,19 @@ use petgraph::graph::NodeIndex;
 type M = Fixed<NodeIndex>;
 
 impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
-    fn reduce_statement(&mut self, _input: &'a Statement<'a>, value: M) -> M {
-        // Just bubble up value as `Statement` is an enum
+    fn reduce_statement(&mut self, input: &'a Statement<'a>, value: M) -> M {
+        if !input.is_empty() {
+            if let Some(parent) = input.get_parent() {
+                if !parent.is_empty() {
+                    self.edges.push((
+                        input.get_id(),
+                        parent.get_id(),
+                        ("parent".to_string(), LabelType::Label),
+                        Some(("red".to_string(), LabelType::Label)),
+                    ))
+                }
+            }
+        }
         value
     }
 
@@ -63,7 +74,6 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
-        //TODO: parent
         //TODO: operation
         //TODO: target_variable
 
@@ -93,7 +103,6 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
             input.id,
             Dotifier::generate_span_info(&input.span)
         );
-        //TODO: parent
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
         for (i, Fixed(end_idx)) in statements.iter().enumerate() {
@@ -121,8 +130,6 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
             Dotifier::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
-
-        // TODO: parent
 
         let Fixed(end_idx) = condition;
         self.add_edge(
@@ -174,7 +181,6 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
             input.id,
             Dotifier::generate_span_info(&input.span)
         );
-        //TODO: parent
         //TODO: console function type
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = argument;
@@ -194,7 +200,6 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
             input.id,
             Dotifier::generate_span_info(&input.span)
         );
-        //TODO: parent
         //TODO: variables
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = value;
@@ -214,7 +219,6 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
             input.id,
             Dotifier::generate_span_info(&input.span)
         );
-        //TODO: parent
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = expression;
         self.add_edge(
@@ -235,7 +239,6 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         );
         //TODO: variable
         //TODO: inclusive
-        //TODO: Parent
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = start;
         self.add_edge(
@@ -270,7 +273,6 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
             input.id,
             Dotifier::generate_span_info(&input.span)
         );
-        // TODO: parent
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = value;
         self.add_edge(

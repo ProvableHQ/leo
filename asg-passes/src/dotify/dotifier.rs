@@ -79,12 +79,19 @@ impl<'a, 'b> Dotifier<'a, 'b> {
     }
 
     pub fn add_remaining_edges(&mut self) {
-        // TODO make more idomatic
-        let mut edges = self.edges.drain(..).collect::<Vec<_>>();
-        for (start_id, end_id, label, color) in edges.drain(..) {
-            let start_idx = self.id_map.get(&start_id).unwrap().clone(); // All nodes should have been added to ID map
-            let end_idx = self.id_map.get(&end_id).unwrap().clone(); // All nodes should have been added to ID map
-            self.add_edge(start_idx, end_idx, label, color);
+        for (start_id, end_id, label, color) in self.edges.drain(..) {
+            let start_idx = self.id_map.get(&start_id).unwrap(); // All nodes should have been added to ID map
+            let end_idx = self.id_map.get(&end_id).unwrap(); // All nodes should have been added to ID map
+            let edge = DotEdge {
+                start_idx: *start_idx,
+                end_idx: *end_idx,
+                label,
+                end_arrow: ArrowShape::NoArrow,
+                start_arrow: ArrowShape::NoArrow,
+                style: Style::None,
+                color,
+            };
+            self.graph.add_edge(edge);
         }
     }
 

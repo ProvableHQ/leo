@@ -60,6 +60,42 @@ pub enum Statement<'a> {
     Empty(Option<Span>),
 }
 
+impl<'a> Statement<'a> {
+    pub fn is_empty(&self) -> bool {
+        matches!(self, Statement::Empty(_))
+    }
+
+    pub fn get_parent(&self) -> Option<&'a Statement<'a>> {
+        use Statement::*;
+        match self {
+            Return(s) => s.parent.get(),
+            Definition(s) => s.parent.get(),
+            Assign(s) => s.parent.get(),
+            Conditional(s) => s.parent.get(),
+            Iteration(s) => s.parent.get(),
+            Console(s) => s.parent.get(),
+            Expression(s) => s.parent.get(),
+            Block(s) => s.parent.get(),
+            Empty(_s) => panic!("Method `get_parent` cannot be invoked on an Empty statement"),
+        }
+    }
+
+    pub fn get_id(&self) -> u32 {
+        use Statement::*;
+        match self {
+            Return(s) => s.id,
+            Definition(s) => s.id,
+            Assign(s) => s.id,
+            Conditional(s) => s.id,
+            Iteration(s) => s.id,
+            Console(s) => s.id,
+            Expression(s) => s.id,
+            Block(s) => s.id,
+            Empty(_s) => panic!("Method `get_id` cannot be invoked on an Empty statement"),
+        }
+    }
+}
+
 impl<'a> Node for Statement<'a> {
     fn span(&self) -> Option<&Span> {
         use Statement::*;
