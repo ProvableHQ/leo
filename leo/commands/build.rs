@@ -17,13 +17,14 @@
 use crate::{commands::Command, context::Context};
 use leo_compiler::{
     compiler::{thread_leaked_context, Compiler},
-    AstSnapshotOptions, CompilerOptions,
+    CompilerOptions, OutputOptions,
 };
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
-    outputs::{ChecksumFile, CircuitFile, OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
+    outputs::{ChecksumFile, CircuitFile, OutputsDirectory},
+    source::MainFile,
+    PackageDirectory, PackageFile,
 };
 use leo_parser::parse_program_input;
 use leo_synthesizer::{CircuitSynthesizer, SerializedCircuit};
@@ -38,16 +39,19 @@ use tracing::span::Span;
 /// require Build command output as their input.
 #[derive(StructOpt, Clone, Debug, Default)]
 pub struct BuildOptions {
-    #[structopt(long, help = "Disable constant folding compiler optimization")]
+    #[structopt(long, help = "Disable constant folding compiler optimization.")]
     pub disable_constant_folding: bool,
-    #[structopt(long, help = "Disable dead code elimination compiler optimization")]
+    #[structopt(long, help = "Disable dead code elimination compiler optimization.")]
     pub disable_code_elimination: bool,
-    #[structopt(long, help = "Disable all compiler optimizations")]
+    #[structopt(long, help = "Disable all compiler optimizations.")]
     pub disable_all_optimizations: bool,
+    #[structopt(
+        long,
+        help = "Writes all AST snapshots for the different compiler phases and emits IR."
+    )]
+    pub enable_all_snapshots: bool,
     #[structopt(long, help = "Enable spans in AST snapshots.")]
     pub enable_spans: bool,
-    #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
-    pub enable_all_ast_snapshots: bool,
     #[structopt(long, help = "Writes AST snapshot of the initial parse.")]
     pub enable_initial_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the import resolution phase.")]
@@ -56,6 +60,8 @@ pub struct BuildOptions {
     pub enable_canonicalized_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
     pub enable_type_inferenced_ast_snapshot: bool,
+    #[structopt(long, help = "Writes formatted and raw IR.")]
+    pub emit_ir: bool,
 }
 
 impl From<BuildOptions> for CompilerOptions {
@@ -74,23 +80,25 @@ impl From<BuildOptions> for CompilerOptions {
     }
 }
 
-impl From<BuildOptions> for AstSnapshotOptions {
+impl From<BuildOptions> for OutputOptions {
     fn from(options: BuildOptions) -> Self {
-        if options.enable_all_ast_snapshots {
-            AstSnapshotOptions {
+        if options.enable_all_snapshots {
+            OutputOptions {
                 spans_enabled: options.enable_spans,
-                initial: true,
-                imports_resolved: true,
-                canonicalized: true,
-                type_inferenced: true,
+                ast_initial: true,
+                ast_imports_resolved: true,
+                ast_canonicalized: true,
+                ast_type_inferenced: true,
+                emit_ir: true,
             }
         } else {
-            AstSnapshotOptions {
+            OutputOptions {
                 spans_enabled: options.enable_spans,
-                initial: options.enable_initial_ast_snapshot,
-                imports_resolved: options.enable_imports_resolved_ast_snapshot,
-                canonicalized: options.enable_canonicalized_ast_snapshot,
-                type_inferenced: options.enable_type_inferenced_ast_snapshot,
+                ast_initial: options.enable_initial_ast_snapshot,
+                ast_imports_resolved: options.enable_imports_resolved_ast_snapshot,
+                ast_canonicalized: options.enable_canonicalized_ast_snapshot,
+                ast_type_inferenced: options.enable_type_inferenced_ast_snapshot,
+                emit_ir: options.emit_ir,
             }
         }
     }
@@ -135,12 +143,14 @@ impl Command for Build {
 
         // Construct the path to the output directory.
         let mut output_directory = package_path.clone();
-        output_directory.push(OUTPUTS_DIRECTORY_NAME);
+        output_directory.push(OutputsDirectory::NAME);
 
         tracing::info!("Starting...");
 
+        let main_file = MainFile::new(&package_name);
+
         // Compile the main.leo file along with constraints
-        if !MainFile::exists_at(&package_path) {
+        if !main_file.exists_at(&package_path) {
             return Err(CliError::package_main_file_not_found().into());
         }
 
@@ -149,8 +159,7 @@ impl Command for Build {
 
         // Construct the path to the main file in the source directory
         let mut main_file_path = package_path.clone();
-        main_file_path.push(SOURCE_DIRECTORY_NAME);
-        main_file_path.push(MAIN_FILENAME);
+        main_file_path.push(main_file.filename());
 
         // Load the input file at `package_name.in`
         let (input_string, input_path) = InputFile::new(&package_name).read_from(&path)?;
@@ -210,7 +219,7 @@ impl Command for Build {
 
             // Write serialized circuit to circuit `.json` file.
             let circuit_file = CircuitFile::new(&package_name);
-            circuit_file.write_to(&path, json)?;
+            circuit_file.write_to(&path, json.as_bytes())?;
 
             // Check that we can read the serialized circuit file
             // let serialized = circuit_file.read_from(&package_path)?;
@@ -234,7 +243,7 @@ impl Command for Build {
         // If checksum differs, compile the program
         if checksum_differs {
             // Write the new checksum to the output directory
-            checksum_file.write_to(&path, program_checksum)?;
+            checksum_file.write_to(&path, program_checksum.as_bytes())?;
 
             tracing::debug!("Checksum saved ({:?})", path);
         }

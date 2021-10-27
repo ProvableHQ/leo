@@ -14,9 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod directory;
-pub use directory::*;
-
 pub mod input;
 pub use input::*;
 
@@ -25,3 +22,57 @@ pub use pairs::*;
 
 pub mod state;
 pub use state::*;
+
+use leo_errors::{PackageError, Result};
+
+use std::{
+    fs,
+    fs::ReadDir,
+    path::{Path, PathBuf},
+};
+
+use crate::PackageDirectory;
+
+pub struct InputsDirectory;
+
+impl PackageDirectory for InputsDirectory {
+    const NAME: &'static str = "inputs/";
+}
+
+impl InputsDirectory {
+    /// Returns a list of files in the input directory.
+    pub fn files(path: &Path) -> Result<Vec<PathBuf>> {
+        let mut path = path.to_owned();
+        path.push(InputsDirectory::NAME);
+
+        let directory = fs::read_dir(&path).map_err(PackageError::failed_to_read_inputs_directory)?;
+        let mut file_paths = Vec::new();
+        parse_file_paths(directory, &mut file_paths)?;
+
+        Ok(file_paths)
+    }
+}
+
+fn parse_file_paths(directory: ReadDir, file_paths: &mut Vec<PathBuf>) -> Result<()> {
+    for file_entry in directory.into_iter() {
+        let file_entry = file_entry.map_err(PackageError::failed_to_get_input_file_entry)?;
+        let file_path = file_entry.path();
+
+        // Verify that the entry is structured as a valid file or directory
+        let file_type = file_entry
+            .file_type()
+            .map_err(|e| PackageError::failed_to_get_input_file_type(file_path.as_os_str().to_owned(), e))?;
+        if file_type.is_dir() {
+            let directory = fs::read_dir(&file_path).map_err(PackageError::failed_to_read_inputs_directory)?;
+
+            parse_file_paths(directory, file_paths)?;
+            continue;
+        } else if !file_type.is_file() {
+            return Err(PackageError::invalid_input_file_type(file_path.as_os_str().to_owned(), file_type).into());
+        }
+
+        file_paths.push(file_path);
+    }
+
+    Ok(())
+}

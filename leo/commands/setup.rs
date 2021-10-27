@@ -18,7 +18,10 @@ use super::build::{Build, BuildOptions};
 use crate::wrapper::CompilerWrapper;
 use crate::{commands::Command, context::Context};
 use leo_errors::{CliError, Result};
-use leo_package::outputs::{ProvingKeyFile, VerificationKeyFile};
+use leo_package::{
+    outputs::{ProvingKeyFile, VerificationKeyFile},
+    PackageFile,
+};
 
 use snarkvm_algorithms::{
     snark::groth16::{Groth16, PreparedVerifyingKey, ProvingKey, VerifyingKey},
@@ -82,7 +85,7 @@ impl Command for Setup {
             // TODO (howardwu): Convert parameters to a 'proving key' struct for serialization.
             // Write the proving key file to the output directory
             let proving_key_file = ProvingKeyFile::new(&package_name);
-            tracing::info!("Saving proving key ({:?})", proving_key_file.full_path(&path));
+            tracing::info!("Saving proving key ({:?})", proving_key_file.file_path(&path));
             let mut proving_key_bytes = vec![];
             proving_key
                 .write_le(&mut proving_key_bytes)
@@ -92,7 +95,7 @@ impl Command for Setup {
 
             // Write the verification key file to the output directory
             let verification_key_file = VerificationKeyFile::new(&package_name);
-            tracing::info!("Saving verification key ({:?})", verification_key_file.full_path(&path));
+            tracing::info!("Saving verification key ({:?})", verification_key_file.file_path(&path));
             let mut verification_key = vec![];
             proving_key
                 .vk

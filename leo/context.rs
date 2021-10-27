@@ -16,7 +16,10 @@
 
 use crate::{api::Api, config};
 use leo_errors::{CliError, Result};
-use leo_package::root::{LockFile, Manifest};
+use leo_package::{
+    root::{LockFile, Manifest},
+    PackageFile,
+};
 
 use std::{convert::TryFrom, env::current_dir, path::PathBuf};
 
@@ -53,7 +56,7 @@ impl Context {
 
     /// Check if lock file exists.
     pub fn lock_file_exists(&self) -> Result<bool> {
-        Ok(LockFile::exists_at(&self.dir()?))
+        Ok(LockFile::new().exists_at(&self.dir()?))
     }
 }
 
