@@ -16,19 +16,12 @@
 
 //! The `program.in` file.
 
-use crate::inputs::INPUTS_DIRECTORY_NAME;
+use crate::PackageFile;
 
 use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
-use std::{
-    borrow::Cow,
-    fs::{
-        File, {self},
-    },
-    io::Write,
-    path::Path,
-};
+use std::{borrow::Cow, fs, path::Path};
 
 pub static INPUT_FILE_EXTENSION: &str = ".in";
 
@@ -37,40 +30,8 @@ pub struct InputFile {
     pub package_name: String,
 }
 
-impl InputFile {
-    pub fn new(package_name: &str) -> Self {
-        Self {
-            package_name: package_name.to_string(),
-        }
-    }
-
-    pub fn filename(&self) -> String {
-        format!("{}{}{}", INPUTS_DIRECTORY_NAME, self.package_name, INPUT_FILE_EXTENSION)
-    }
-
-    pub fn exists_at(&self, path: &Path) -> bool {
-        let path = self.setup_file_path(path);
-        path.exists()
-    }
-
-    /// Reads the program input variables from the given file path if it exists.
-    pub fn read_from<'a>(&self, path: &'a Path) -> Result<(String, Cow<'a, Path>)> {
-        let path = self.setup_file_path(path);
-
-        let input = fs::read_to_string(&path)
-            .map_err(|_| PackageError::failed_to_read_input_file(path.clone().into_owned()))?;
-        Ok((input, path))
-    }
-
-    /// Writes the standard input format to a file.
-    pub fn write_to(self, path: &Path) -> Result<()> {
-        let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(PackageError::io_error_input_file)?;
-
-        file.write_all(self.template().as_bytes())
-            .map_err(PackageError::io_error_input_file)?;
-        Ok(())
-    }
+impl PackageFile for InputFile {
+    type ParentDirectory = super::InputsDirectory;
 
     fn template(&self) -> String {
         format!(
@@ -85,16 +46,27 @@ r0: u32 = 0;
             self.package_name
         )
     }
+}
 
-    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            if !path.ends_with(INPUTS_DIRECTORY_NAME) {
-                path.to_mut().push(INPUTS_DIRECTORY_NAME);
-            }
-            path.to_mut()
-                .push(format!("{}{}", self.package_name, INPUT_FILE_EXTENSION));
+impl std::fmt::Display for InputFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}.in", self.package_name)
+    }
+}
+
+impl InputFile {
+    pub fn new(package_name: &str) -> Self {
+        Self {
+            package_name: package_name.to_string(),
         }
-        path
+    }
+
+    /// Reads the program input variables from the given file path if it exists.
+    pub fn read_from<'a>(&self, path: &'a Path) -> Result<(String, Cow<'a, Path>)> {
+        let path = self.file_path(path);
+
+        let input = fs::read_to_string(&path)
+            .map_err(|_| PackageError::failed_to_read_input_file(path.clone().into_owned()))?;
+        Ok((input, path))
     }
 }

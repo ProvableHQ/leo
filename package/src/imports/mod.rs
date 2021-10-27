@@ -14,5 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod directory;
-pub use directory::*;
+use leo_errors::{PackageError, Result};
+
+use crate::PackageDirectory;
+
+use std::{borrow::Cow, fs, path::Path};
+
+pub struct ImportsDirectory;
+
+impl PackageDirectory for ImportsDirectory {
+    const NAME: &'static str = "imports/";
+}
+
+impl ImportsDirectory {
+    /// Removes an imported package in the imports directory at the provided path.
+    pub fn remove_import(path: &Path, package_name: &str) -> Result<()> {
+        let mut path = Cow::from(path);
+        if path.is_dir() && !path.ends_with(Self::NAME) {
+            path.to_mut().push(Self::NAME);
+        }
+
+        path.to_mut().push(package_name);
+
+        if !path.exists() || !path.is_dir() {
+            return Err(PackageError::import_does_not_exist(package_name).into());
+        }
+
+        fs::remove_dir_all(&path).map_err(PackageError::failed_to_remove_imports_directory)?;
+
+        Ok(())
+    }
+}

@@ -14,47 +14,60 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The verification key file.
-
 use crate::PackageFile;
 
-use leo_errors::{PackageError, Result};
-
 use serde::Deserialize;
+use std::fmt;
 
-pub static VERIFICATION_KEY_FILE_EXTENSION: &str = ".lvk";
-
+/// Enum to handle all 3 types of snapshots.
 #[derive(Deserialize)]
-pub struct VerificationKeyFile {
-    pub package_name: String,
+pub enum IrSnapshot {
+    Formatted,
+    Input,
+    Raw,
 }
 
-impl VerificationKeyFile {
-    pub fn new(package_name: &str) -> Self {
+/// Display Snapshot file extension.
+impl fmt::Display for IrSnapshot {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Formatted => ".leo.ir.fmt",
+                Self::Input => ".leo.ir.input",
+                Self::Raw => ".leo.ir",
+            }
+        )
+    }
+}
+
+/// IR Snapshot File wrapper, handles file logic.
+#[derive(Deserialize)]
+pub struct IrSnapshotFile {
+    pub package_name: String,
+    pub snapshot: IrSnapshot,
+}
+
+impl IrSnapshotFile {
+    pub fn new(package_name: &str, snapshot: IrSnapshot) -> Self {
         Self {
             package_name: package_name.to_string(),
+            snapshot,
         }
-    }
-
-    /// Reads the verification key from the given file path if it exists.
-    pub fn read_from(&self, path: &std::path::Path) -> Result<Vec<u8>> {
-        let path = self.file_path(path);
-        let bytes =
-            std::fs::read(&path).map_err(|_| PackageError::failed_to_read_verification_key_file(path.into_owned()))?;
-        Ok(bytes)
     }
 }
 
-impl PackageFile for VerificationKeyFile {
+impl PackageFile for IrSnapshotFile {
     type ParentDirectory = super::OutputsDirectory;
 
     fn template(&self) -> String {
-        unimplemented!("PackageFile doesn't have a template.");
+        unimplemented!("IRSnapshotFile doesn't have a template.");
     }
 }
 
-impl std::fmt::Display for VerificationKeyFile {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}.lvk", self.package_name)
+impl fmt::Display for IrSnapshotFile {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}{}", self.package_name, self.snapshot)
     }
 }

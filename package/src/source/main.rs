@@ -16,55 +16,17 @@
 
 //! The `main.leo` file.
 
-use crate::source::directory::SOURCE_DIRECTORY_NAME;
-use leo_errors::{PackageError, Result};
+use crate::PackageFile;
 
 use serde::Deserialize;
-use std::{borrow::Cow, fs::File, io::Write, path::Path};
-
-pub static MAIN_FILENAME: &str = "main.leo";
 
 #[derive(Deserialize)]
 pub struct MainFile {
     pub package_name: String,
 }
 
-impl MainFile {
-    pub fn new(package_name: &str) -> Self {
-        Self {
-            package_name: package_name.to_string(),
-        }
-    }
-
-    pub fn filename() -> String {
-        format!("{}{}", SOURCE_DIRECTORY_NAME, MAIN_FILENAME)
-    }
-
-    pub fn exists_at(path: &Path) -> bool {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.to_mut().push(SOURCE_DIRECTORY_NAME);
-            }
-            path.to_mut().push(MAIN_FILENAME);
-        }
-        path.exists()
-    }
-
-    pub fn write_to(self, path: &Path) -> Result<()> {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            if !path.ends_with(SOURCE_DIRECTORY_NAME) {
-                path.to_mut().push(SOURCE_DIRECTORY_NAME);
-            }
-            path.to_mut().push(MAIN_FILENAME);
-        }
-
-        let mut file = File::create(&path).map_err(PackageError::io_error_main_file)?;
-        Ok(file
-            .write_all(self.template().as_bytes())
-            .map_err(PackageError::io_error_main_file)?)
-    }
+impl PackageFile for MainFile {
+    type ParentDirectory = super::SourceDirectory;
 
     fn template(&self) -> String {
         format!(
@@ -76,5 +38,19 @@ function main(a: u32, b: u32) -> u32 {{
 "#,
             self.package_name
         )
+    }
+}
+
+impl std::fmt::Display for MainFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "main.leo")
+    }
+}
+
+impl MainFile {
+    pub fn new(package_name: &str) -> Self {
+        Self {
+            package_name: package_name.to_string(),
+        }
     }
 }
