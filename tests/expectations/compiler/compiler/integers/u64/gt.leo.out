@@ -263,7 +263,7 @@ outputs:
       - input_file: u64_f.in
         output:
           registers: {}
-    initial_ast: 51256b989da61f37f84e637ebc892a543fe037a01b20644cd89110c4dfdc67a6
-    imports_resolved_ast: 4e244831593f76854c6f3a5310501f905ebb3b0e2b3fe1e51836ff6fd99fd1f4
-    canonicalized_ast: 82e2f81105943bf740187517454203d75e7f882b65c41240c856051005ae1458
-    type_inferenced_ast: 2f0b77a0c802972bb418a7b2af8785e9350b48c3185ee990cc5d2ed5b0486917
+    initial_ast: c0b6aaf40610f2246be9921bcf4cb8ad22aafb7914124f07f60fb1d96b2e2f25
+    imports_resolved_ast: 84ec1effe466d73b69e1ca91fd3f2ed14de69b95c6da418f4866e97fccdf21d4
+    canonicalized_ast: 8729bd105590924349d71d671e4e5eb6ba8f8fae62523628fc4bacd198cf7253
+    type_inferenced_ast: 251236e749335c3ac8408230354a13ed01be2878ce702fc41c93167eb69cd0b1

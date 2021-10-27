@@ -19,6 +19,9 @@ pub trait LeoErrorCode: Sized {
     /// Returns the error's exit code for the program.
     fn exit_code(&self) -> i32;
 
+    /// Returns the prefixed error identifier.
+    fn error_code(&self) -> String;
+
     /// Returns the error's exit code mask, as to avoid conflicts.
     fn exit_code_mask() -> i32;
 

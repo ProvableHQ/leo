@@ -66,6 +66,11 @@ impl Identifier {
             span,
         }
     }
+
+    /// Check if the Identifier name matches the other name
+    pub fn matches(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 
 impl<'ast> From<InputIdentifier<'ast>> for Identifier {
@@ -90,7 +95,7 @@ impl fmt::Debug for Identifier {
 
 impl PartialEq for Identifier {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
+        self.name == other.name && self.span == other.span
     }
 }
 

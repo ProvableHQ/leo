@@ -1,0 +1,168 @@
+---
+namespace: Serialize
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    import_statements: []
+    imports: {}
+    aliases: {}
+    circuits:
+      "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit PedersenHash {\\\"}\"}":
+        circuit_name: "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit PedersenHash {\\\"}\"}"
+        members:
+          - CircuitVariable:
+              - "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    parameters: [group; 256];\\\"}\"}"
+              - Array:
+                  - Group
+                  - - value: "256"
+          - CircuitFunction:
+              annotations: []
+              identifier: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(parameters: [group; 256]) -> Self {\\\"}\"}"
+              input:
+                - Variable:
+                    identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":18,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(parameters: [group; 256]) -> Self {\\\"}\"}"
+                    const_: false
+                    mutable: true
+                    type_:
+                      Array:
+                        - Group
+                        - - value: "256"
+              const_: false
+              output: SelfType
+              core_mapping: ~
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        CircuitInit:
+                          name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
+                          members:
+                            - identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":23,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
+                              expression:
+                                Identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":35,\\\"col_stop\\\":45,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
+          - CircuitFunction:
+              annotations: []
+              identifier: "{\"name\":\"hash\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":14,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}"
+              input:
+                - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":19,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}"
+                - Variable:
+                    identifier: "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":25,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function hash(self, bits: [bool; 256]) -> group {\\\"}\"}"
+                    const_: false
+                    mutable: true
+                    type_:
+                      Array:
+                        - Boolean
+                        - - value: "256"
+              const_: false
+              output: Group
+              core_mapping: ~
+              block:
+                statements:
+                  - Definition:
+                      declaration_type: Let
+                      variable_names:
+                        - mutable: true
+                          identifier: "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":13,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        let digest: group = 0group;\\\"}\"}"
+                      type_: Group
+                      value:
+                        Value:
+                          Group:
+                            Single: "0"
+                  - Iteration:
+                      variable: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        for i in 0..256 {\\\"}\"}"
+                      start:
+                        Value:
+                          Implicit: "0"
+                      stop:
+                        Value:
+                          Implicit: "256"
+                      inclusive: false
+                      block:
+                        statements:
+                          - Conditional:
+                              condition:
+                                Access:
+                                  Array:
+                                    array:
+                                      Identifier: "{\"name\":\"bits\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
+                                    index:
+                                      Identifier: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":21,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"            if bits[i] {\\\"}\"}"
+                              block:
+                                statements:
+                                  - Assign:
+                                      operation: Add
+                                      assignee:
+                                        identifier: "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":17,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}"
+                                        accesses: []
+                                      value:
+                                        Access:
+                                          Array:
+                                            array:
+                                              Access:
+                                                Member:
+                                                  inner:
+                                                    Identifier: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":27,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}"
+                                                  name: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":32,\\\"col_stop\\\":42,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}"
+                                                  type_: ~
+                                            index:
+                                              Identifier: "{\"name\":\"i\",\"span\":\"{\\\"line_start\\\":15,\\\"line_stop\\\":15,\\\"col_start\\\":43,\\\"col_stop\\\":44,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"                digest += self.parameters[i];\\\"}\"}"
+                              next: ~
+                  - Return:
+                      expression:
+                        Identifier: "{\"name\":\"digest\",\"span\":\"{\\\"line_start\\\":18,\\\"line_stop\\\":18,\\\"col_start\\\":16,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return digest;\\\"}\"}"
+    global_consts: {}
+    functions:
+      "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}":
+        annotations: []
+        identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}"
+        input:
+          - Variable:
+              identifier: "{\"name\":\"hash_input\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":15,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}"
+              const_: false
+              mutable: true
+              type_:
+                Array:
+                  - Boolean
+                  - - value: "256"
+          - Variable:
+              identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":23,\\\"line_stop\\\":23,\\\"col_start\\\":46,\\\"col_stop\\\":56,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(hash_input: [bool; 256], const parameters: [group; 256]) -> group {\\\"}\"}"
+              const_: true
+              mutable: false
+              type_:
+                Array:
+                  - Group
+                  - - value: "256"
+        const_: false
+        output: Group
+        core_mapping: ~
+        block:
+          statements:
+            - Definition:
+                declaration_type: Const
+                variable_names:
+                  - mutable: false
+                    identifier: "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":11,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                type_: ~
+                value:
+                  Call:
+                    function:
+                      Access:
+                        Static:
+                          inner:
+                            Identifier: "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":22,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                          name: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":36,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                    arguments:
+                      - Identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":40,\\\"col_stop\\\":50,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+            - Return:
+                expression:
+                  Call:
+                    function:
+                      Access:
+                        Member:
+                          inner:
+                            Identifier: "{\"name\":\"pedersen\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":12,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}"
+                          name: "{\"name\":\"hash\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":21,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}"
+                          type_: ~
+                    arguments:
+                      - Identifier: "{\"name\":\"hash_input\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":26,\\\"col_stop\\\":36,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return pedersen.hash(hash_input);\\\"}\"}"

@@ -8,12 +8,13 @@ outputs:
           Integer:
             - U8
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 2
-              col_stop: 5
-              path: ""
-              content: "[0u8; 1]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 2
+                col_stop: 5
+                path: ""
+                content: "[0u8; 1]"
       dimensions:
         - value: "1"
       span:
@@ -28,12 +29,13 @@ outputs:
         Value:
           Implicit:
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 2
-              col_stop: 3
-              path: ""
-              content: "[0; 1]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 2
+                col_stop: 3
+                path: ""
+                content: "[0; 1]"
       dimensions:
         - value: "1"
       span:
@@ -48,12 +50,13 @@ outputs:
         Value:
           Implicit:
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 2
-              col_stop: 3
-              path: ""
-              content: "[0; (1)]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 2
+                col_stop: 3
+                path: ""
+                content: "[0; (1)]"
       dimensions:
         - value: "1"
       span:
@@ -68,12 +71,13 @@ outputs:
         Value:
           Implicit:
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 2
-              col_stop: 3
-              path: ""
-              content: "[0; (1, 2)]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 2
+                col_stop: 3
+                path: ""
+                content: "[0; (1, 2)]"
       dimensions:
         - value: "1"
         - value: "2"
@@ -89,12 +93,13 @@ outputs:
         Value:
           Implicit:
             - "0"
-            - line_start: 1
-              line_stop: 1
-              col_start: 2
-              col_stop: 3
-              path: ""
-              content: "[0; (1, 2, 3)]"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 2
+                col_stop: 3
+                path: ""
+                content: "[0; (1, 2, 3)]"
       dimensions:
         - value: "1"
         - value: "2"
@@ -115,12 +120,13 @@ outputs:
                 Value:
                   Implicit:
                     - "0"
-                    - line_start: 1
-                      line_stop: 1
-                      col_start: 4
-                      col_stop: 5
-                      path: ""
-                      content: "[[[0; 3]; 2]; 1]"
+                    - span:
+                        line_start: 1
+                        line_stop: 1
+                        col_start: 4
+                        col_stop: 5
+                        path: ""
+                        content: "[[[0; 3]; 2]; 1]"
               dimensions:
                 - value: "3"
               span:

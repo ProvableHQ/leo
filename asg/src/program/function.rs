@@ -19,7 +19,7 @@ use crate::{
 };
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
-use leo_ast::FunctionInput;
+use leo_ast::{FunctionInput, Node};
 use leo_errors::{AsgError, Result, Span};
 
 use std::{
@@ -48,6 +48,7 @@ pub struct Function<'a> {
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
     pub annotations: Vec<Annotation>,
+    pub const_: bool,
 }
 
 impl<'a> fmt::Display for Function<'a> {
@@ -123,16 +124,17 @@ impl<'a> Function<'a> {
         }
         let function = scope.context.alloc_function(Function {
             id: scope.context.get_id(),
+            annotations: value.annotations.clone(),
+            body: Cell::new(None),
+            circuit: Cell::new(None),
+            const_: value.const_,
             name: RefCell::new(value.identifier.clone()),
+            span: Some(value.span.clone()),
+            scope: new_scope,
             output,
             arguments,
-            circuit: Cell::new(None),
-            body: Cell::new(None),
             qualifier,
             core_mapping: value.core_mapping.clone(),
-            scope: new_scope,
-            span: Some(value.span.clone()),
-            annotations: value.annotations.clone(),
         });
         function.scope.function.replace(Some(function));
 
@@ -157,6 +159,40 @@ impl<'a> Function<'a> {
                 .borrow_mut()
                 .insert("self".to_string(), self_variable);
         }
+
+        if value.is_main() {
+            if let Some(annotation) = value.annotations.get(0) {
+                return Err(
+                    AsgError::main_cannot_have_annotations(&(&annotation.span + &value.identifier.span)).into(),
+                );
+            }
+        } else {
+            let illegal_annotations = value.annotations.iter().filter(|f| !f.is_test());
+            if let Some(annotation) = illegal_annotations.clone().next() {
+                return Err(AsgError::unsupported_annotation(
+                    &annotation.name,
+                    &(&annotation.span + &value.identifier.span),
+                )
+                .into());
+            }
+        }
+
+        if value.const_ {
+            if value.is_main() {
+                return Err(AsgError::main_cannot_be_const(&value.identifier.span).into());
+            }
+
+            let non_const_input = value.input.iter().find(|a| {
+                a.get_variable()
+                    .map(|v| !v.const_)
+                    .unwrap_or(a.is_mut_self() || (a.is_self() && !a.is_const_self()))
+            });
+
+            if let Some(input) = non_const_input {
+                return Err(AsgError::const_function_cannot_have_inputs(input.span()).into());
+            }
+        }
+
         for (name, argument) in self.arguments.iter() {
             if self.scope.resolve_global_const(name).is_some() {
                 return Err(AsgError::function_input_cannot_shadow_global_const(
@@ -187,7 +223,7 @@ impl<'a> Function<'a> {
     }
 
     pub fn is_test(&self) -> bool {
-        self.annotations.iter().any(|x| x.name.name.as_ref() == "test")
+        self.annotations.iter().any(|x| x.is_test())
     }
 }
 
@@ -221,12 +257,13 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
         let output: Type = self.output.clone();
         leo_ast::Function {
             identifier: self.name.borrow().clone(),
+            annotations: self.annotations.clone(),
+            output: Some((&output).into()),
+            const_: self.const_,
             input,
             block: body,
-            output: Some((&output).into()),
             core_mapping: self.core_mapping.clone(),
             span,
-            annotations: self.annotations.clone(),
         }
     }
 }

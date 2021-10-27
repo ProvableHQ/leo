@@ -70,6 +70,11 @@ impl FormattedError {
     pub fn exit_code(&self) -> i32 {
         self.backtrace.exit_code()
     }
+
+    /// Returns an error identifier.
+    pub fn error_code(&self) -> String {
+        self.backtrace.error_code()
+    }
 }
 
 impl fmt::Display for FormattedError {
@@ -96,10 +101,8 @@ impl fmt::Display for FormattedError {
         let underlined = underline(self.span.col_start, self.span.col_stop);
 
         let error_message = format!(
-            "Error [E{error_type}{code_identifier:0>3}{exit_code:0>4}]: {message}",
-            error_type = self.backtrace.error_type,
-            code_identifier = self.backtrace.code_identifier,
-            exit_code = self.backtrace.exit_code,
+            "Error [{error_code}]: {message}",
+            error_code = self.error_code(),
             message = self.backtrace.message,
         );
 

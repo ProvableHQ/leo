@@ -261,7 +261,7 @@ outputs:
             r2:
               type: "[[u8; 4]; 2]"
               value: "[[0, 0, 0, 0], [0, 0, 0, 0]]"
-    initial_ast: ef0990720dc06d560b3eb028e9017f0634892515b31e5ef1f1cedf38911e13ae
-    imports_resolved_ast: 6ff66c8d4899dd877dab6d53d7c0edcbd65e11efa918eac9bfa071c68a2caa56
-    canonicalized_ast: 6ff66c8d4899dd877dab6d53d7c0edcbd65e11efa918eac9bfa071c68a2caa56
-    type_inferenced_ast: 261cb1c1266bb7d4e5622d255f38cb15b0cd88c554371ecd83a77aba41308363
+    initial_ast: 9ce26b1321949d7b5decdea387fd9736c294c8865e0e0e8ec705a81b7a0bdb5f
+    imports_resolved_ast: 2ebfaadf37ffdedfc9588afd64c42f7b2136e0f467a9e87d5062ccda2ff2a924
+    canonicalized_ast: 2ebfaadf37ffdedfc9588afd64c42f7b2136e0f467a9e87d5062ccda2ff2a924
+    type_inferenced_ast: 64ef98fd433c9145dd78103c82029d70fed90356414ae83913157804af184e3b

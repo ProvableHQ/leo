@@ -27,6 +27,7 @@ outputs:
                 col_stop: 13
                 path: ""
                 content: "function x(x: MyCircuit) {"
+        const_: false
         output: ~
         core_mapping: ~
         block:

@@ -187,7 +187,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     value: ConstValue::Int(ConstInt::parse(int_type, value, span)?),
                 }
             }
-            String(_str_type, _value) => {
+            String(_str_type, _span) => {
                 unimplemented!("strings do not exist on ASG level")
             }
         })
