@@ -18,11 +18,10 @@ use crate::{Circuit, CircuitMember, Identifier, Scope, Type, Variable};
 use leo_errors::Span;
 
 use indexmap::IndexMap;
-use serde::Serialize;
 use std::cell::RefCell;
 
 /// Stores program input values as ASG nodes.
-#[derive(Clone, Copy, Serialize)]
+#[derive(Clone, Copy)]
 pub struct Input<'a> {
     pub registers: &'a Circuit<'a>,
     pub state: &'a Circuit<'a>,

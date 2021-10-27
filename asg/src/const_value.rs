@@ -26,7 +26,7 @@ use std::{
 use tendril::StrTendril;
 
 /// Constant integer values in a program.
-#[derive(Clone, Debug, Serialize, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ConstInt {
     I8(i8),
     I16(i16),
@@ -41,7 +41,7 @@ pub enum ConstInt {
 }
 
 /// Specifies how to calculate a group coordinate in a program.
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum GroupCoordinate {
     /// Explicit field element number string.
     Number(BigInt),
@@ -95,7 +95,7 @@ impl Into<leo_ast::GroupCoordinate> for &GroupCoordinate {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum GroupValue {
     Single(BigInt),
     Tuple(GroupCoordinate, GroupCoordinate),
@@ -116,14 +116,14 @@ impl TryFrom<leo_ast::GroupValue> for GroupValue {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum CharValue {
     Scalar(char),
     NonScalar(u32),
 }
 
 impl fmt::Display for CharValue {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             CharValue::Scalar(s) => write!(f, "Scalar({:})", s),
             CharValue::NonScalar(n) => write!(f, "NonScalar({:})", n),
@@ -157,12 +157,12 @@ impl From<leo_ast::CharValue> for CharValue {
     }
 }
 
-#[derive(Clone, PartialEq, Serialize)]
+#[derive(Clone, PartialEq)]
 pub enum ConstValue<'a> {
     Int(ConstInt),
     Group(GroupValue),
     Field(BigInt),
-    Address(#[serde(with = "leo_errors::common::tendril_json")] StrTendril),
+    Address(StrTendril),
     Boolean(bool),
     Char(CharValue),
 

@@ -21,10 +21,9 @@ use crate::{
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};
-use serde::Serialize;
 use std::cell::Cell;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct CircuitInitExpression<'a> {
     pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,

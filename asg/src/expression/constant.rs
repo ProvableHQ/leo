@@ -21,10 +21,9 @@ use crate::{
 use leo_errors::{AsgError, Result, Span};
 use std::convert::TryInto;
 
-use serde::Serialize;
 use std::cell::Cell;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct Constant<'a> {
     pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,

@@ -17,10 +17,9 @@
 use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Type, Variable};
 use leo_errors::{AsgError, Result, Span};
 
-use serde::Serialize;
 use std::cell::{Cell, RefCell};
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct DefinitionStatement<'a> {
     pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,

@@ -17,10 +17,9 @@
 use crate::{Identifier, Node, Scope, Type};
 use leo_errors::{Result, Span};
 
-use serde::Serialize;
 use std::cell::RefCell;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct Alias<'a> {
     pub id: u32,
     pub name: RefCell<Identifier>,

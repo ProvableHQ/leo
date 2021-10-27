@@ -246,7 +246,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
     fn do_asg_passes(&mut self) -> Result<()> {
         assert!(self.asg.is_some());
 
-        if self.snapshot_options.initial_asg {
+        if self.output_options.asg_initial {
             let mut path = self.output_directory.clone();
             path.push("initial_asg.dot");
             self.asg = Some(leo_asg_passes::Dotifier::do_pass((
@@ -262,7 +262,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
             let asg = self.asg.take().unwrap();
             self.asg = Some(leo_asg_passes::ConstantFolding::do_pass((asg, &self.context))?);
 
-            if self.snapshot_options.constants_folded {
+            if self.output_options.asg_constants_folded {
                 let mut path = self.output_directory.clone();
                 path.push("constants_folded_asg.dot");
                 self.asg = Some(leo_asg_passes::Dotifier::do_pass((
@@ -279,7 +279,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
             let asg = self.asg.take().unwrap();
             self.asg = Some(leo_asg_passes::DeadCodeElimination::do_pass(asg)?);
 
-            if self.output_options.dead_code_eliminated {
+            if self.output_options.asg_dead_code_eliminated {
                 let mut path = self.output_directory.clone();
                 path.push("dead_code_eliminated.dot");
                 self.asg = Some(leo_asg_passes::Dotifier::do_pass((

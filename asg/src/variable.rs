@@ -17,11 +17,10 @@
 use crate::{Expression, Statement, Type};
 use leo_ast::Identifier;
 
-use serde::Serialize;
 use std::cell::RefCell;
 
 /// Specifies how a program variable was declared.
-#[derive(Clone, Copy, Serialize, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum VariableDeclaration {
     Definition,
     IterationDefinition,
@@ -30,7 +29,7 @@ pub enum VariableDeclaration {
 }
 
 /// Stores information on a program variable.
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct InnerVariable<'a> {
     pub id: u32,
     pub name: Identifier,

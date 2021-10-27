@@ -35,7 +35,9 @@ impl Annotation {
     pub fn is_valid_annotation(&self) -> bool {
         ALLOWED_ANNOTATIONS.iter().any(|name| self.name.name.as_ref() == *name)
     }
-    
+}
+
+impl fmt::Display for Annotation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "@{:}(", self.name)?;
         for tendril in &self.arguments {

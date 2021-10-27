@@ -45,9 +45,7 @@ pub use return_::*;
 use crate::{FromAst, Node, PartialType, Scope};
 use leo_errors::{Result, Span};
 
-use serde::Serialize;
-
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub enum Statement<'a> {
     Return(ReturnStatement<'a>),
     Definition(DefinitionStatement<'a>),

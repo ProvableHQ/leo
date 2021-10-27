@@ -21,10 +21,9 @@ use crate::{
 pub use leo_ast::{BinaryOperation, Node as AstNode};
 use leo_errors::{AsgError, Result, Span};
 
-use serde::Serialize;
 use std::cell::Cell;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct CallExpression<'a> {
     pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,

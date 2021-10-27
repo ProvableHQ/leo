@@ -19,10 +19,9 @@ use leo_ast::IntegerType;
 use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
 use leo_errors::{AsgError, Result, Span};
 
-use serde::Serialize;
 use std::cell::{Cell, RefCell};
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct IterationStatement<'a> {
     pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,

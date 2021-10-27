@@ -17,10 +17,9 @@
 use crate::{ConstValue, Expression, ExpressionNode, FromAst, Node, PartialType, Scope, Type};
 use leo_errors::{AsgError, Result, Span};
 
-use serde::Serialize;
 use std::cell::Cell;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct ArrayInitExpression<'a> {
     pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,

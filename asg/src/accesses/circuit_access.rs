@@ -20,7 +20,6 @@ use crate::{
 
 use leo_errors::{AsgError, Result, Span};
 
-use serde::Serialize;
 use std::cell::Cell;
 
 #[derive(Clone)]

@@ -18,10 +18,9 @@ use crate::{Expression, ExpressionNode, FromAst, Function, Identifier, Node, Sco
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
-use serde::Serialize;
 use std::cell::RefCell;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub enum CircuitMember<'a> {
     Const(&'a Expression<'a>),
     Variable(Type<'a>),

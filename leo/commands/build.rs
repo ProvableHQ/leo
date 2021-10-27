@@ -101,7 +101,7 @@ impl Default for BuildOptions {
             emit_ir: Default::default(),
         }
     }
-    }
+}
 
 impl From<BuildOptions> for CompilerOptions {
     fn from(options: BuildOptions) -> Self {
@@ -136,7 +136,7 @@ impl From<BuildOptions> for OutputOptions {
         };
 
         if options.enable_all_ast_snapshots {
-            out_options.ast_initial =  true;
+            out_options.ast_initial = true;
             out_options.ast_imports_resolved = true;
             out_options.ast_canonicalized = true;
             out_options.ast_type_inferenced = true;
@@ -149,15 +149,15 @@ impl From<BuildOptions> for OutputOptions {
         }
 
         if options.enable_all_snapshots {
-           out_options.spans_enabled = options.enable_spans;
-           out_options.ast_initial =  true;
-           out_options.ast_imports_resolved = true;
-           out_options.ast_canonicalized = true;
-           out_options.ast_type_inferenced = true;
-           out_options.asg_initial = true;
-           out_options.asg_constants_folded = true;
-           out_options.asg_dead_code_eliminated = true;
-           out_options.emit_ir = true;
+            out_options.spans_enabled = options.enable_spans;
+            out_options.ast_initial = true;
+            out_options.ast_imports_resolved = true;
+            out_options.ast_canonicalized = true;
+            out_options.ast_type_inferenced = true;
+            out_options.asg_initial = true;
+            out_options.asg_constants_folded = true;
+            out_options.asg_dead_code_eliminated = true;
+            out_options.emit_ir = true;
         }
 
         out_options

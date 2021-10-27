@@ -18,13 +18,11 @@ use crate::{Alias, AsgContext, Circuit, DefinitionStatement, Function, Input, Ty
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
-use serde::Serialize;
 use std::cell::{Cell, RefCell};
 
 /// An abstract data type that track the current bindings for variables, functions, and circuits.
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct Scope<'a> {
-    #[serde(skip)]
     pub context: AsgContext<'a>,
 
     /// The unique id of the scope.

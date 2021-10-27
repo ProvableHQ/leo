@@ -17,10 +17,9 @@
 use crate::{BlockStatement, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
 use leo_errors::{Result, Span};
 
-use serde::Serialize;
 use std::cell::Cell;
 
-#[derive(Clone, Serialize)]
+#[derive(Clone)]
 pub struct ConditionalStatement<'a> {
     pub id: u32,
     pub parent: Cell<Option<&'a Statement<'a>>>,
