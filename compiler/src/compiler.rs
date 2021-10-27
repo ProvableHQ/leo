@@ -249,7 +249,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
         if self.snapshot_options.initial_asg {
             let mut path = self.output_directory.clone();
             path.push("initial_asg.dot");
-            self.asg = Some(leo_asg_passes::Dotify::do_pass((
+            self.asg = Some(leo_asg_passes::Dotifier::do_pass((
                 self.asg.take().unwrap(),
                 &self.context,
                 "initial_asg".to_string(),
@@ -265,7 +265,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
             if self.snapshot_options.constants_folded {
                 let mut path = self.output_directory.clone();
                 path.push("constants_folded_asg.dot");
-                self.asg = Some(leo_asg_passes::Dotify::do_pass((
+                self.asg = Some(leo_asg_passes::Dotifier::do_pass((
                     self.asg.take().unwrap(),
                     &self.context,
                     "constants_folded_asg".to_string(),
@@ -282,7 +282,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
             if self.output_options.dead_code_eliminated {
                 let mut path = self.output_directory.clone();
                 path.push("dead_code_eliminated.dot");
-                self.asg = Some(leo_asg_passes::Dotify::do_pass((
+                self.asg = Some(leo_asg_passes::Dotifier::do_pass((
                     self.asg.take().unwrap(),
                     &self.context,
                     "dead_code_eliminated_asg".to_string(),

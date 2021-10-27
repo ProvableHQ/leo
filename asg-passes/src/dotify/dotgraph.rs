@@ -168,3 +168,13 @@ impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> 
         (edge.end_idx, &self.graph[edge.end_idx])
     }
 }
+
+trait LabelGen {
+    fn generate_label() -> DotNode;
+}
+
+impl<'a> LabelGen for dyn leo_asg::ExpressionNode<'a> {
+    fn generate_label() -> DotNode {
+        todo!()
+    }
+}
