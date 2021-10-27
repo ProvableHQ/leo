@@ -2705,7 +2705,7 @@ checksum = "1ecab6c735a6bb4139c0caafd0cc3635748bbb3acf4550e8138122099251f309"
 [[package]]
 name = "snarkvm-algorithms"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "anyhow",
  "bitvec",
@@ -2732,7 +2732,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-curves"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "derivative",
  "rand 0.8.4",
@@ -2747,7 +2747,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-derives"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "proc-macro-crate 0.1.5",
  "proc-macro-error",
@@ -2759,7 +2759,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-dpc"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "anyhow",
  "base58",
@@ -2790,7 +2790,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-eval"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "anyhow",
  "im",
@@ -2809,7 +2809,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-fields"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2824,7 +2824,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-gadgets"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2843,7 +2843,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-ir"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "anyhow",
  "bech32",
@@ -2856,7 +2856,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-marlin"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "blake2",
  "derivative",
@@ -2879,7 +2879,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-parameters"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "curl",
  "hex",
@@ -2891,7 +2891,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-polycommit"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "derivative",
  "digest 0.9.0",
@@ -2909,12 +2909,12 @@ dependencies = [
 [[package]]
 name = "snarkvm-profiler"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 
 [[package]]
 name = "snarkvm-r1cs"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "cfg-if 1.0.0",
  "fxhash",
@@ -2928,7 +2928,7 @@ dependencies = [
 [[package]]
 name = "snarkvm-utilities"
 version = "0.7.9"
-source = "git+https://github.com/AleoHQ/snarkVM?branch=bounded-recursion#68434ea2bd7f60a00bb2f18df812b11e75db8c98"
+source = "git+https://github.com/AleoHQ/snarkVM?branch=master#601d1349d3ab8a0cf6d571d4dbdc0a4dbdbabc9f"
 dependencies = [
  "anyhow",
  "bincode",
