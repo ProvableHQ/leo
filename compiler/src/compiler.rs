@@ -412,12 +412,7 @@ impl<'a> Compiler<'a> {
         let mut failed = 0;
 
         for (test_name, function) in tests.into_iter() {
-            let mut cs = CircuitSynthesizer::<Bls12_377> {
-                constraints: Default::default(),
-                public_variables: Default::default(),
-                private_variables: Default::default(),
-                namespaces: Default::default(),
-            };
+            let mut cs = CircuitSynthesizer::<Bls12_377>::default();
             let full_test_name = format!("{}::{}", program_name, test_name);
 
             let result = match self.compile_ir_test(&program, function, &input) {
