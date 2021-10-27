@@ -18,6 +18,7 @@ use crate::Identifier;
 use leo_errors::Span;
 
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use tendril::StrTendril;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -33,5 +34,13 @@ const ALLOWED_ANNOTATIONS: &[&str] = &["test"];
 impl Annotation {
     pub fn is_valid_annotation(&self) -> bool {
         ALLOWED_ANNOTATIONS.iter().any(|name| self.name.name.as_ref() == *name)
+    }
+    
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "@{:}(", self.name)?;
+        for tendril in &self.arguments {
+            write!(f, "{:},", tendril)?;
+        }
+        write!(f, ")")
     }
 }

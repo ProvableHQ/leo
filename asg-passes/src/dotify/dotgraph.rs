@@ -59,7 +59,8 @@ impl DotGraph {
     }
 
     pub fn add_edge(&mut self, edge: DotEdge) -> EdgeIndex {
-        self.graph.add_edge(edge.start_idx, edge.end_idx, edge)
+        // Prevents duplicate edges
+        self.graph.update_edge(edge.start_idx, edge.end_idx, edge)
     }
 }
 

@@ -329,13 +329,11 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_constant(&mut self, input: &'a Constant<'a>) -> M {
-        //TODO: Are there children to reduce?
-        //TODO: Implement Display for ConstValue
         let label = format!(
             "Constant\nNode ID: {:}\nType: {:}\nValue: {:}\n\n{:}",
             input.id,
             Dotifier::generate_type_info(input.get_type()),
-            "TODO".to_string(),
+            input.value,
             Dotifier::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
@@ -402,8 +400,46 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>) -> M {
-        //TODO: Are there children to visit here?
+    fn reduce_variable(&mut self, input: &'a Variable<'a>) -> M {
+        let inner_var = input.borrow();
+        let label = format!(
+            "Variable\nNode ID: {:}\n\nName: {:}\nType: {:}\nMutable: {:}\nConst: {:}\nDeclaration: {:}",
+            inner_var.id,
+            inner_var.name,
+            inner_var.type_,
+            inner_var.mutable,
+            inner_var.const_,
+            match inner_var.declaration {
+                VariableDeclaration::Definition => "Definition",
+                VariableDeclaration::IterationDefinition => "IterationDefinition",
+                VariableDeclaration::Parameter => "Parameter",
+                VariableDeclaration::Input => "Input",
+            },
+        );
+        let start_idx = self.add_or_get_node(inner_var.id, label, LabelType::Esc);
+
+        for reference in &inner_var.references {
+            self.edges.push((
+                inner_var.id,
+                reference.get_id(),
+                ("reference".to_string(), LabelType::Label),
+                Some(("navy".to_string(), LabelType::Label)),
+            ));
+        }
+
+        for assignment in &inner_var.assignments {
+            self.edges.push((
+                inner_var.id,
+                assignment.get_id(),
+                ("assignment".to_string(), LabelType::Label),
+                Some(("goldenrod".to_string(), LabelType::Label)),
+            ));
+        }
+
+        Fixed(start_idx)
+    }
+
+    fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>, variable: M) -> M {
         let label = format!(
             "Variable Ref\nNode ID: {:}\nType: {:}\n\n{:}",
             input.id,
@@ -411,6 +447,14 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             Dotifier::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
+
+        let Fixed(end_idx) = variable;
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("variable".to_string(), LabelType::Label),
+            Some(("brown".to_string(), LabelType::Label)),
+        );
 
         Fixed(start_idx)
     }

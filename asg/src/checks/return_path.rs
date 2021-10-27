@@ -51,7 +51,13 @@ impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
         BoolAnd(false)
     }
 
-    fn reduce_assign(&mut self, input: &AssignStatement, accesses: Vec<BoolAnd>, value: BoolAnd) -> BoolAnd {
+    fn reduce_assign(
+        &mut self,
+        input: &AssignStatement,
+        variable: BoolAnd,
+        accesses: Vec<BoolAnd>,
+        value: BoolAnd,
+    ) -> BoolAnd {
         BoolAnd(false)
     }
 
@@ -93,7 +99,7 @@ impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
         BoolAnd(false)
     }
 
-    fn reduce_definition(&mut self, input: &DefinitionStatement, value: BoolAnd) -> BoolAnd {
+    fn reduce_definition(&mut self, input: &DefinitionStatement, variables: Vec<BoolAnd>, value: BoolAnd) -> BoolAnd {
         BoolAnd(false)
     }
 
@@ -104,6 +110,7 @@ impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
     fn reduce_iteration(
         &mut self,
         input: &IterationStatement,
+        variable: BoolAnd,
         start: BoolAnd,
         stop: BoolAnd,
         body: BoolAnd,

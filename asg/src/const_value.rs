@@ -122,6 +122,15 @@ pub enum CharValue {
     NonScalar(u32),
 }
 
+impl fmt::Display for CharValue {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            CharValue::Scalar(s) => write!(f, "Scalar({:})", s),
+            CharValue::NonScalar(n) => write!(f, "NonScalar({:})", n),
+        }
+    }
+}
+
 impl From<&leo_ast::Char> for CharValue {
     fn from(other: &leo_ast::Char) -> Self {
         use leo_ast::Char::*;
@@ -164,6 +173,23 @@ pub enum ConstValue<'a> {
 
     // Error sentinel value
     Err,
+}
+
+impl<'a> fmt::Display for ConstValue<'a> {
+    //TODO: Finish formatting
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ConstValue::Int(_) => write!(f, "Int"),
+            ConstValue::Group(_) => write!(f, "Group"),
+            ConstValue::Field(_) => write!(f, "Field"),
+            ConstValue::Address(_) => write!(f, "Address"),
+            ConstValue::Boolean(b) => write!(f, "{:}", b),
+            ConstValue::Char(c) => write!(f, "{:}", c),
+            ConstValue::Tuple(_) => write!(f, "Tuple"),
+            ConstValue::Array(_) => write!(f, "Array"),
+            ConstValue::Circuit(_, _) => write!(f, "Circuit"),
+        }
+    }
 }
 
 macro_rules! const_int_op {

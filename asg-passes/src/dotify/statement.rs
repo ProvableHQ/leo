@@ -40,9 +40,17 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_assign_access(&mut self, input: &AssignAccess<'a>, left: Option<M>, right: Option<M>) -> M {
-        // TODO: Monoidal reducer might need to be rewritter for this
         let id = self.context.get_id();
-        let label = format!("Assign Access\nNode ID: {:}", id,);
+        let label = format!(
+            "Assign Access: {:}\nNode ID: {:}",
+            match input {
+                AssignAccess::ArrayRange(_, _) => "Array Range",
+                AssignAccess::ArrayIndex(_) => "Array Index",
+                AssignAccess::Tuple(_) => "Tuple",
+                AssignAccess::Member(_) => "Member",
+            },
+            id,
+        );
         let start_idx = self.add_or_get_node(id, label, LabelType::Esc);
 
         if let Some(Fixed(end_idx)) = left {
@@ -66,16 +74,22 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_assign(&mut self, input: &AssignStatement<'a>, accesses: Vec<M>, value: M) -> M {
+    fn reduce_assign(&mut self, input: &AssignStatement<'a>, variable: M, accesses: Vec<M>, value: M) -> M {
         let label = format!(
-            "Assign Statement\nNode ID: {:}\n\n{:}",
+            "Assign Statement\nNode ID: {:}\n\nOperation: {:}\n\n{:}",
             input.id,
+            input.operation.as_ref(),
             Dotifier::generate_span_info(&input.span)
         );
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
 
-        //TODO: operation
-        //TODO: target_variable
+        let Fixed(end_idx) = variable;
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("variable".to_string(), LabelType::Label),
+            Some(("olive".to_string(), LabelType::Label)),
+        );
 
         for (i, Fixed(end_idx)) in accesses.iter().enumerate() {
             self.add_edge(
@@ -160,9 +174,9 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_formatted_string(&mut self, input: &ConsoleArgs<'a>, parameters: Vec<M>) -> M {
-        let label = format!("Console Args\nNode ID: {:}", input.id,);
+        //TODO: Implement Display for CharValue, don't use debug
+        let label = format!("Console Args\nNode ID: {:}\n\nString: {:?}", input.id, input.string);
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
-        //TODO: string
         for (i, Fixed(end_idx)) in parameters.iter().enumerate() {
             self.add_edge(
                 start_idx,
@@ -177,11 +191,16 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_console(&mut self, input: &ConsoleStatement<'a>, argument: M) -> M {
         let label = format!(
-            "Console Statement\nNode ID: {:}\n\n{:}",
+            "Console Statement\nNode ID: {:}\n\nFunction Type: {:}\n\n{:}",
             input.id,
+            match input.function {
+                ConsoleFunction::Assert(_) => "Assert",
+                ConsoleFunction::Error(_) => "Error",
+                ConsoleFunction::Log(_) => "Log",
+            },
             Dotifier::generate_span_info(&input.span)
         );
-        //TODO: console function type
+
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
         let Fixed(end_idx) = argument;
         self.add_edge(
@@ -194,14 +213,23 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_definition(&mut self, input: &DefinitionStatement<'a>, value: M) -> M {
+    fn reduce_definition(&mut self, input: &DefinitionStatement<'a>, variables: Vec<M>, value: M) -> M {
         let label = format!(
             "Definition Statement\nNode ID: {:}\n\n{:}",
             input.id,
             Dotifier::generate_span_info(&input.span)
         );
-        //TODO: variables
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
+
+        for (i, Fixed(end_idx)) in variables.iter().enumerate() {
+            self.add_edge(
+                start_idx,
+                *end_idx,
+                (format!("variable_{:}", i), LabelType::Label),
+                Some(("olive".to_string(), LabelType::Label)),
+            );
+        }
+
         let Fixed(end_idx) = value;
         self.add_edge(
             start_idx,
@@ -231,15 +259,22 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_iteration(&mut self, input: &IterationStatement<'a>, start: M, stop: M, body: M) -> M {
+    fn reduce_iteration(&mut self, input: &IterationStatement<'a>, variable: M, start: M, stop: M, body: M) -> M {
         let label = format!(
-            "Iteration Statement\nNode ID: {:}\n\n{:}",
+            "Iteration Statement\nNode ID: {:}\n\nInclusive: {:}\n\n{:}",
             input.id,
+            input.inclusive,
             Dotifier::generate_span_info(&input.span)
         );
-        //TODO: variable
-        //TODO: inclusive
         let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
+        let Fixed(end_idx) = variable;
+        self.add_edge(
+            start_idx,
+            end_idx,
+            ("variable".to_string(), LabelType::Label),
+            Some(("olive".to_string(), LabelType::Label)),
+        );
+
         let Fixed(end_idx) = start;
         self.add_edge(
             start_idx,

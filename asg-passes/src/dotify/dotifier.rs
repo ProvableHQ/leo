@@ -22,11 +22,13 @@ use dot::{ArrowShape, Style};
 use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
 
+type LabelInfo = (String, LabelType);
+type ColorInfo = Option<(String, LabelType)>;
 pub struct Dotifier<'a, 'b> {
     pub graph: DotGraph,
     pub context: &'b AsgContext<'a>,
     pub id_map: HashMap<u32, NodeIndex>,
-    pub edges: Vec<(u32, u32, (String, LabelType), Option<(String, LabelType)>)>, // For edges that are meant to be added after entire ASG is traversed
+    pub edges: Vec<(u32, u32, LabelInfo, ColorInfo)>, // For edges that are meant to be added after entire ASG is traversed
 }
 
 impl<'a, 'b> Dotifier<'a, 'b> {
@@ -59,18 +61,12 @@ impl<'a, 'b> Dotifier<'a, 'b> {
         })
     }
 
-    pub fn add_edge(
-        &mut self,
-        start_idx: NodeIndex,
-        end_idx: NodeIndex,
-        label: (String, LabelType),
-        color: Option<(String, LabelType)>,
-    ) {
+    pub fn add_edge(&mut self, start_idx: NodeIndex, end_idx: NodeIndex, label: LabelInfo, color: ColorInfo) {
         let edge = DotEdge {
             start_idx,
             end_idx,
             label,
-            end_arrow: ArrowShape::NoArrow,
+            end_arrow: ArrowShape::Normal(dot::Fill::Filled, dot::Side::Both),
             start_arrow: ArrowShape::NoArrow,
             style: Style::None,
             color,
@@ -86,7 +82,7 @@ impl<'a, 'b> Dotifier<'a, 'b> {
                 start_idx: *start_idx,
                 end_idx: *end_idx,
                 label,
-                end_arrow: ArrowShape::NoArrow,
+                end_arrow: ArrowShape::Normal(dot::Fill::Filled, dot::Side::Both),
                 start_arrow: ArrowShape::NoArrow,
                 style: Style::None,
                 color,

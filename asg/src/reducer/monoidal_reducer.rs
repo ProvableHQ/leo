@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{accesses::*, expression::*, program::*, statement::*, Monoid};
+use crate::{accesses::*, expression::*, program::*, statement::*, Monoid, Variable};
 
 #[allow(unused_variables)]
 pub trait MonoidalReducerExpression<'a, T: Monoid> {
@@ -94,8 +94,12 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         inner
     }
 
-    fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>) -> T {
+    fn reduce_variable(&mut self, input: &'a Variable<'a>) -> T {
         T::default()
+    }
+
+    fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>, variable: T) -> T {
+        T::default().append(variable)
     }
 }
 
@@ -110,8 +114,8 @@ pub trait MonoidalReducerStatement<'a, T: Monoid>: MonoidalReducerExpression<'a,
         left.unwrap_or_default().append_option(right)
     }
 
-    fn reduce_assign(&mut self, input: &AssignStatement<'a>, accesses: Vec<T>, value: T) -> T {
-        T::default().append_all(accesses.into_iter()).append(value)
+    fn reduce_assign(&mut self, input: &AssignStatement<'a>, variable: T, accesses: Vec<T>, value: T) -> T {
+        variable.append_all(accesses.into_iter()).append(value)
     }
 
     fn reduce_block(&mut self, input: &BlockStatement<'a>, statements: Vec<T>) -> T {
@@ -136,16 +140,16 @@ pub trait MonoidalReducerStatement<'a, T: Monoid>: MonoidalReducerExpression<'a,
         argument
     }
 
-    fn reduce_definition(&mut self, input: &DefinitionStatement<'a>, value: T) -> T {
-        value
+    fn reduce_definition(&mut self, input: &DefinitionStatement<'a>, variables: Vec<T>, value: T) -> T {
+        T::default().append_all(variables.into_iter()).append(value)
     }
 
     fn reduce_expression_statement(&mut self, input: &ExpressionStatement<'a>, expression: T) -> T {
         expression
     }
 
-    fn reduce_iteration(&mut self, input: &IterationStatement<'a>, start: T, stop: T, body: T) -> T {
-        start.append(stop).append(body)
+    fn reduce_iteration(&mut self, input: &IterationStatement<'a>, variable: T, start: T, stop: T, body: T) -> T {
+        variable.append(start).append(stop).append(body)
     }
 
     fn reduce_return(&mut self, input: &ReturnStatement<'a>, value: T) -> T {
@@ -155,8 +159,8 @@ pub trait MonoidalReducerStatement<'a, T: Monoid>: MonoidalReducerExpression<'a,
 
 #[allow(unused_variables)]
 pub trait MonoidalReducerProgram<'a, T: Monoid>: MonoidalReducerStatement<'a, T> {
-    fn reduce_function(&mut self, input: &'a Function<'a>, body: T) -> T {
-        body
+    fn reduce_function(&mut self, input: &'a Function<'a>, arguments: Vec<T>, body: T) -> T {
+        T::default().append_all(arguments.into_iter()).append(body)
     }
 
     fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>, function: Option<T>) -> T {
@@ -167,10 +171,24 @@ pub trait MonoidalReducerProgram<'a, T: Monoid>: MonoidalReducerStatement<'a, T>
         T::default().append_all(members.into_iter())
     }
 
-    fn reduce_program(&mut self, input: &Program, imported_modules: Vec<T>, functions: Vec<T>, circuits: Vec<T>) -> T {
+    fn reduce_alias(&mut self, input: &'a Alias<'a>) -> T {
+        T::default()
+    }
+
+    fn reduce_program(
+        &mut self,
+        input: &Program,
+        imported_modules: Vec<T>,
+        aliases: Vec<T>,
+        functions: Vec<T>,
+        global_consts: Vec<T>,
+        circuits: Vec<T>,
+    ) -> T {
         T::default()
             .append_all(imported_modules.into_iter())
+            .append_all(aliases.into_iter())
             .append_all(functions.into_iter())
+            .append_all(global_consts.into_iter())
             .append_all(circuits.into_iter())
     }
 }

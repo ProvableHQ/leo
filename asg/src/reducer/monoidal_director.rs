@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{accesses::*, expression::*, program::*, statement::*};
+use crate::{accesses::*, expression::*, program::*, statement::*, Variable};
 
 use std::marker::PhantomData;
 
@@ -173,8 +173,13 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_unary(input, inner)
     }
 
+    pub fn reduce_variable(&mut self, input: &'a Variable<'a>) -> T {
+        self.reducer.reduce_variable(input)
+    }
+
     pub fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>) -> T {
-        self.reducer.reduce_variable_ref(input)
+        let var = self.reduce_variable(input.variable);
+        self.reducer.reduce_variable_ref(input, var)
     }
 }
 
@@ -209,6 +214,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
     }
 
     pub fn reduce_assign(&mut self, input: &AssignStatement<'a>) -> T {
+        let variable = self.reduce_variable(input.target_variable.get());
         let accesses = input
             .target_accesses
             .iter()
@@ -216,7 +222,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
             .collect();
         let value = self.reduce_expression(input.value.get());
 
-        self.reducer.reduce_assign(input, accesses, value)
+        self.reducer.reduce_assign(input, variable, accesses, value)
     }
 
     pub fn reduce_block(&mut self, input: &BlockStatement<'a>) -> T {
@@ -258,9 +264,10 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
     }
 
     pub fn reduce_definition(&mut self, input: &DefinitionStatement<'a>) -> T {
+        let variables = input.variables.iter().map(|e| self.reduce_variable(e)).collect();
         let value = self.reduce_expression(input.value.get());
 
-        self.reducer.reduce_definition(input, value)
+        self.reducer.reduce_definition(input, variables, value)
     }
 
     pub fn reduce_expression_statement(&mut self, input: &'a ExpressionStatement<'a>) -> T {
@@ -270,11 +277,12 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
     }
 
     pub fn reduce_iteration(&mut self, input: &'a IterationStatement<'a>) -> T {
+        let variable = self.reduce_variable(input.variable);
         let start = self.reduce_expression(input.start.get());
         let stop = self.reduce_expression(input.stop.get());
         let body = self.reduce_statement(input.body.get());
 
-        self.reducer.reduce_iteration(input, start, stop, body)
+        self.reducer.reduce_iteration(input, variable, start, stop, body)
     }
 
     pub fn reduce_return(&mut self, input: &'a ReturnStatement<'a>) -> T {
@@ -286,9 +294,14 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
 
 impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R> {
     pub fn reduce_function(&mut self, input: &'a Function<'a>) -> T {
+        let arguments = input
+            .arguments
+            .iter()
+            .map(|(_, var)| self.reduce_variable(var.get()))
+            .collect();
         let body = input.body.get().map(|s| self.reduce_statement(s)).unwrap_or_default();
 
-        self.reducer.reduce_function(input, body)
+        self.reducer.reduce_function(input, arguments, body)
     }
 
     pub fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>) -> T {
@@ -311,16 +324,30 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
         self.reducer.reduce_circuit(input, members)
     }
 
+    pub fn reduce_alias(&mut self, input: &'a Alias<'a>) -> T {
+        self.reducer.reduce_alias(input)
+    }
+
     pub fn reduce_program(&mut self, input: &Program<'a>) -> T {
         let imported_modules = input
             .imported_modules
             .iter()
             .map(|(_, import)| self.reduce_program(import))
             .collect();
+        let aliases = input
+            .aliases
+            .iter()
+            .map(|(_, import)| self.reduce_alias(import))
+            .collect();
         let functions = input.functions.iter().map(|(_, f)| self.reduce_function(f)).collect();
+        let global_consts = input
+            .global_consts
+            .iter()
+            .map(|(_, import)| self.reduce_definition(import))
+            .collect();
         let circuits = input.circuits.iter().map(|(_, c)| self.reduce_circuit(c)).collect();
 
         self.reducer
-            .reduce_program(input, imported_modules, functions, circuits)
+            .reduce_program(input, imported_modules, aliases, functions, global_consts, circuits)
     }
 }
