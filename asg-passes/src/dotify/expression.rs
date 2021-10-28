@@ -32,7 +32,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_array_access(&mut self, input: &'a ArrayAccessExpression<'a>, array: M, index: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -51,7 +51,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_array_init(&mut self, input: &'a ArrayInitExpression<'a>, element: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -67,7 +67,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_array_inline(&mut self, input: &'a ArrayInlineExpression<'a>, elements: Vec<M>) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -90,7 +90,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         right: Option<M>,
     ) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
             ("Length", input.length.to_string()),
         ];
@@ -115,7 +115,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_binary(&mut self, input: &'a BinaryExpression<'a>, left: M, right: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -134,7 +134,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_call(&mut self, input: &'a CallExpression<'a>, target: Option<M>, arguments: Vec<M>) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -155,7 +155,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_circuit_access(&mut self, input: &'a CircuitAccessExpression<'a>, target: Option<M>) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -172,7 +172,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_circuit_init(&mut self, input: &'a CircuitInitExpression<'a>, values: Vec<M>) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -195,7 +195,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         if_false: M,
     ) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -217,7 +217,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_cast_expression(&mut self, input: &'a CastExpression<'a>, inner: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -232,7 +232,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_lengthof_expression(&mut self, input: &'a LengthOfExpression<'a>, inner: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -247,7 +247,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_constant(&mut self, input: &'a Constant<'a>) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
             ("Value", format!("{:}", input.value)),
         ];
@@ -261,7 +261,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_tuple_access(&mut self, input: &'a TupleAccessExpression<'a>, tuple_ref: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -276,7 +276,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_tuple_init(&mut self, input: &'a TupleInitExpression<'a>, values: Vec<M>) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -293,7 +293,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_unary(&mut self, input: &'a UnaryExpression<'a>, inner: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 
@@ -310,7 +310,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         let inner_var = input.borrow();
 
         let labels = vec![
-            ("Node ID", inner_var.id.to_string()),
+            ("NodeID", inner_var.id.to_string()),
             ("Name", inner_var.name.to_string()),
             ("Type", Dotifier::generate_type_info(Some(inner_var.type_.clone()))),
             ("Mutable", format!("{:}", inner_var.mutable)),
@@ -344,7 +344,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>, variable: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
         ];
 

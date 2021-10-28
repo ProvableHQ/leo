@@ -98,7 +98,7 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_alias(&mut self, input: &'a Alias<'a>) -> M {
-        let labels = vec![("Node ID", input.id.to_string())];
+        let labels = vec![("NodeID", input.id.to_string())];
         let start_idx = self.add_or_get_node(input.id, "Alias".to_string(), labels);
 
         Fixed(start_idx)
@@ -113,7 +113,7 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
         global_consts: Vec<M>,
         circuits: Vec<M>,
     ) -> M {
-        let labels = vec![("Node ID", input.id.to_string()), ("Name", input.name.clone())];
+        let labels = vec![("NodeID", input.id.to_string()), ("Name", input.name.clone())];
 
         let start_idx = self.add_or_get_node(input.id, "Program".to_string(), labels);
 

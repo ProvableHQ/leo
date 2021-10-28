@@ -66,10 +66,10 @@ impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> f
     }
 
     fn node_label(&'a self, n: &(NodeIndex, &'a DotNode)) -> dot::LabelText<'a> {
-        let mut label = String::new();
+        let mut label = n.1.name.clone();
         for (key, value) in &n.1.labels {
             if !self.filter_keys.contains(&String::from(*key)) {
-                label.push_str(format!("{:}: {:}\n", key, value).as_str())
+                label.push_str(format!("\n{:}: {:}", key, value).as_str())
             }
         }
         dot::LabelText::escaped(label)

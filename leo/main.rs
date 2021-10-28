@@ -350,9 +350,15 @@ mod cli_tests {
 
         let build_path = &Some(path.join("setup-test"));
 
-        assert!(run_cmd("leo build --enable-canonicalized-ast-snapshot", build_path).is_ok());
-        assert!(run_cmd("leo build --enable-imports-resolved-ast-snapshot", build_path).is_ok());
         assert!(run_cmd("leo build --enable-initial-ast-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-imports-resolved-ast-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-canonicalized-ast-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-type-inferenced-ast-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-all-ast-snapshots", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-initial-asg-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-constants-folded-asg-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-dead-code-eliminated-asg-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-all-asg-snapshots", build_path).is_ok());
         assert!(run_cmd("leo build --enable-all-snapshots", build_path).is_ok());
         assert!(run_cmd("leo build --emit-ir", build_path).is_ok());
     }

@@ -38,7 +38,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         let id = self.context.get_id();
 
         let labels = vec![
-            ("Node ID", id.to_string()),
+            ("NodeID", id.to_string()),
             (
                 "Access Type",
                 match input {
@@ -66,7 +66,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_assign(&mut self, input: &AssignStatement<'a>, variable: M, accesses: Vec<M>, value: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Operation", input.operation.as_ref().to_string()),
         ];
 
@@ -88,7 +88,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_block(&mut self, input: &BlockStatement<'a>, statements: Vec<M>) -> M {
-        let mut labels = vec![("Node ID", input.id.to_string())];
+        let mut labels = vec![("NodeID", input.id.to_string())];
 
         Dotifier::add_span_info(&mut labels, &input.span);
 
@@ -108,7 +108,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         if_true: M,
         if_false: Option<M>,
     ) -> M {
-        let mut labels = vec![("Node ID", input.id.to_string())];
+        let mut labels = vec![("NodeID", input.id.to_string())];
 
         Dotifier::add_span_info(&mut labels, &input.span);
 
@@ -130,7 +130,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
     fn reduce_formatted_string(&mut self, input: &ConsoleArgs<'a>, parameters: Vec<M>) -> M {
         //TODO: Implement Display for CharValue, don't use debug
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("String", format!("{:?}", input.string)),
         ];
 
@@ -146,7 +146,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_console(&mut self, input: &ConsoleStatement<'a>, argument: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             (
                 "FunctionType",
                 match input.function {
@@ -168,7 +168,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_definition(&mut self, input: &DefinitionStatement<'a>, variables: Vec<M>, value: M) -> M {
-        let mut labels = vec![("Node ID", input.id.to_string())];
+        let mut labels = vec![("NodeID", input.id.to_string())];
         Dotifier::add_span_info(&mut labels, &input.span);
 
         let start_idx = self.add_or_get_node(input.id, "DefinitionStatement".to_string(), labels);
@@ -184,7 +184,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_expression_statement(&mut self, input: &ExpressionStatement<'a>, expression: M) -> M {
-        let mut labels = vec![("Node ID", input.id.to_string())];
+        let mut labels = vec![("NodeID", input.id.to_string())];
         Dotifier::add_span_info(&mut labels, &input.span);
 
         let start_idx = self.add_or_get_node(input.id, "ExpressionStatement".to_string(), labels);
@@ -196,7 +196,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
     fn reduce_iteration(&mut self, input: &IterationStatement<'a>, variable: M, start: M, stop: M, body: M) -> M {
         let mut labels = vec![
-            ("Node ID", input.id.to_string()),
+            ("NodeID", input.id.to_string()),
             ("Inclusive", input.inclusive.to_string()),
         ];
 
@@ -219,7 +219,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_return(&mut self, input: &ReturnStatement<'a>, value: M) -> M {
-        let mut labels = vec![("Node ID", input.id.to_string())];
+        let mut labels = vec![("NodeID", input.id.to_string())];
         Dotifier::add_span_info(&mut labels, &input.span);
 
         let start_idx = self.add_or_get_node(input.id, "ReturnStatement".to_string(), labels);
