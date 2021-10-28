@@ -17,6 +17,7 @@ outputs:
         const_: false
         output:
           IntegerType: U32
+        core_mapping: ~
         block:
           statements:
             - Return:

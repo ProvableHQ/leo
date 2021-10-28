@@ -16,6 +16,7 @@ outputs:
         input: []
         const_: false
         output: ~
+        core_mapping: ~
         block:
           statements:
             - Expression:
@@ -70,6 +71,7 @@ outputs:
                 content: "function main(y: bool) -> bool {"
         const_: false
         output: Boolean
+        core_mapping: ~
         block:
           statements:
             - Expression:

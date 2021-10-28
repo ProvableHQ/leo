@@ -53,7 +53,6 @@ impl<'a> Input<'a> {
             id: scope.context.get_id(),
             name: RefCell::new(Identifier::new(name.into())),
             members: RefCell::new(IndexMap::new()),
-            core_mapping: RefCell::new(None),
             scope,
             span: Some(Span::default()),
         })
@@ -82,7 +81,6 @@ impl<'a> Input<'a> {
             id: scope.context.get_id(),
             name: RefCell::new(Identifier::new(CONTAINER_PSEUDO_CIRCUIT.into())),
             members: RefCell::new(container_members),
-            core_mapping: RefCell::new(None),
             scope: input_scope,
             span: Some(Span::default()),
         });

@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::*;
-use crate::{expression::*, program::*, statement::*};
+use crate::{accesses::*, expression::*, program::*, statement::*};
 
 use std::{cell::Cell, marker::PhantomData};
 
@@ -51,19 +51,16 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
     pub fn visit_expression(&mut self, input: &Cell<&'a Expression<'a>>) -> ConcreteVisitResult {
         match self.visitor.visit_expression(input) {
             VisitResult::VisitChildren => match input.get() {
-                Expression::ArrayAccess(e) => self.visit_array_access(e),
                 Expression::ArrayInit(e) => self.visit_array_init(e),
                 Expression::ArrayInline(e) => self.visit_array_inline(e),
-                Expression::ArrayRangeAccess(e) => self.visit_array_range_access(e),
                 Expression::Binary(e) => self.visit_binary(e),
                 Expression::Call(e) => self.visit_call(e),
-                Expression::CircuitAccess(e) => self.visit_circuit_access(e),
                 Expression::CircuitInit(e) => self.visit_circuit_init(e),
                 Expression::Ternary(e) => self.visit_ternary_expression(e),
                 Expression::Cast(e) => self.visit_cast_expression(e),
+                Expression::Access(e) => self.visit_access_expression(e),
                 Expression::LengthOf(e) => self.visit_lengthof_expression(e),
                 Expression::Constant(e) => self.visit_constant(e),
-                Expression::TupleAccess(e) => self.visit_tuple_access(e),
                 Expression::TupleInit(e) => self.visit_tuple_init(e),
                 Expression::Unary(e) => self.visit_unary(e),
                 Expression::VariableRef(e) => self.visit_variable_ref(e),
@@ -80,17 +77,6 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
             result
         } else {
             Ok(())
-        }
-    }
-
-    pub fn visit_array_access(&mut self, input: &ArrayAccessExpression<'a>) -> ConcreteVisitResult {
-        match self.visitor.visit_array_access(input) {
-            VisitResult::VisitChildren => {
-                self.visit_expression(&input.array)?;
-                self.visit_expression(&input.index)?;
-                Ok(())
-            }
-            x => x.into(),
         }
     }
 
@@ -116,18 +102,6 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    pub fn visit_array_range_access(&mut self, input: &ArrayRangeAccessExpression<'a>) -> ConcreteVisitResult {
-        match self.visitor.visit_array_range_access(input) {
-            VisitResult::VisitChildren => {
-                self.visit_expression(&input.array)?;
-                self.visit_opt_expression(&input.left)?;
-                self.visit_opt_expression(&input.right)?;
-                Ok(())
-            }
-            x => x.into(),
-        }
-    }
-
     pub fn visit_binary(&mut self, input: &BinaryExpression<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_binary(input) {
             VisitResult::VisitChildren => {
@@ -146,16 +120,6 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
                 for argument in input.arguments.iter() {
                     self.visit_expression(argument)?;
                 }
-                Ok(())
-            }
-            x => x.into(),
-        }
-    }
-
-    pub fn visit_circuit_access(&mut self, input: &CircuitAccessExpression<'a>) -> ConcreteVisitResult {
-        match self.visitor.visit_circuit_access(input) {
-            VisitResult::VisitChildren => {
-                self.visit_opt_expression(&input.target)?;
                 Ok(())
             }
             x => x.into(),
@@ -196,6 +160,17 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
+    pub fn visit_array_access(&mut self, input: &ArrayAccess<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_array_access(input) {
+            VisitResult::VisitChildren => {
+                self.visit_expression(&input.array)?;
+                self.visit_expression(&input.index)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
+    }
+
     pub fn visit_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_lengthof_expression(input) {
             VisitResult::VisitChildren => {
@@ -206,11 +181,29 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    pub fn visit_constant(&mut self, input: &Constant<'a>) -> ConcreteVisitResult {
-        self.visitor.visit_constant(input).into()
+    pub fn visit_array_range_access(&mut self, input: &ArrayRangeAccess<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_array_range_access(input) {
+            VisitResult::VisitChildren => {
+                self.visit_expression(&input.array)?;
+                self.visit_opt_expression(&input.left)?;
+                self.visit_opt_expression(&input.right)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
     }
 
-    pub fn visit_tuple_access(&mut self, input: &TupleAccessExpression<'a>) -> ConcreteVisitResult {
+    pub fn visit_circuit_access(&mut self, input: &CircuitAccess<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_circuit_access(input) {
+            VisitResult::VisitChildren => {
+                self.visit_opt_expression(&input.target)?;
+                Ok(())
+            }
+            x => x.into(),
+        }
+    }
+
+    pub fn visit_tuple_access(&mut self, input: &TupleAccess<'a>) -> ConcreteVisitResult {
         match self.visitor.visit_tuple_access(input) {
             VisitResult::VisitChildren => {
                 self.visit_expression(&input.tuple_ref)?;
@@ -218,6 +211,21 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
             }
             x => x.into(),
         }
+    }
+
+    pub fn visit_access_expression(&mut self, input: &AccessExpression<'a>) -> ConcreteVisitResult {
+        use AccessExpression::*;
+
+        match input {
+            Array(a) => self.visit_array_access(a),
+            ArrayRange(a) => self.visit_array_range_access(a),
+            Circuit(a) => self.visit_circuit_access(a),
+            Tuple(a) => self.visit_tuple_access(a),
+        }
+    }
+
+    pub fn visit_constant(&mut self, input: &Constant<'a>) -> ConcreteVisitResult {
+        self.visitor.visit_constant(input).into()
     }
 
     pub fn visit_tuple_init(&mut self, input: &TupleInitExpression<'a>) -> ConcreteVisitResult {

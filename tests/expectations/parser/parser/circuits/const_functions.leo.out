@@ -10,7 +10,6 @@ outputs:
     circuits:
       "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
         circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
-        core_mapping: ~
         members:
           - CircuitVariable:
               - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x: u32\\\"}\"}"
@@ -21,6 +20,7 @@ outputs:
               input: []
               const_: true
               output: ~
+              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -62,6 +62,7 @@ outputs:
                 - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function x(self) { \\\"}\"}"
               const_: true
               output: ~
+              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -103,6 +104,7 @@ outputs:
                 - ConstSelfKeyword: "{\"name\":\"const self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":22,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function c(const self) { \\\"}\"}"
               const_: true
               output: ~
+              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -157,6 +159,7 @@ outputs:
                       content: "    const function b(const self, x: u32) {"
               const_: true
               output: ~
+              core_mapping: ~
               block:
                 statements:
                   - Return:
@@ -211,6 +214,7 @@ outputs:
                       content: "    const function b(const self, const x: u32) {"
               const_: true
               output: ~
+              core_mapping: ~
               block:
                 statements:
                   - Return:

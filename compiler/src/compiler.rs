@@ -92,6 +92,10 @@ impl<'a> Compiler<'a> {
         imports_map: IndexMap<String, String>,
         output_options: Option<OutputOptions>,
     ) -> Self {
+        // load static files
+        // TODO remove this once we implement a determinstic include_dir
+        leo_stdlib::static_include_stdlib();
+
         Self {
             program_name: package_name.clone(),
             main_file_path,
@@ -171,8 +175,11 @@ impl<'a> Compiler<'a> {
 
         // Preform import resolution.
         ast = leo_ast_passes::Importer::do_pass(
+            leo_ast_passes::Importer::new(
+                &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
+                "bls12_377",
+            ),
             ast.into_repr(),
-            &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
         )?;
 
         if self.output_options.ast_imports_resolved {
@@ -184,7 +191,7 @@ impl<'a> Compiler<'a> {
         }
 
         // Preform canonicalization of AST always.
-        ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
+        ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
 
         if self.output_options.ast_canonicalized {
             if self.output_options.spans_enabled {

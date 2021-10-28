@@ -44,25 +44,29 @@ impl ParserContext {
     pub fn construct_assignee_access(expr: Expression, accesses: &mut Vec<AssigneeAccess>) -> Result<Identifier> {
         let identifier;
         match expr {
-            Expression::CircuitMemberAccess(expr) => {
-                identifier = Self::construct_assignee_access(*expr.circuit, accesses)?;
-                accesses.push(AssigneeAccess::Member(expr.name));
-            }
-            Expression::TupleAccess(expr) => {
-                identifier = Self::construct_assignee_access(*expr.tuple, accesses)?;
-                accesses.push(AssigneeAccess::Tuple(expr.index, expr.span));
-            }
-            Expression::ArrayRangeAccess(expr) => {
-                identifier = Self::construct_assignee_access(*expr.array, accesses)?;
-                accesses.push(AssigneeAccess::ArrayRange(
-                    expr.left.map(|x| *x),
-                    expr.right.map(|x| *x),
-                ));
-            }
-            Expression::ArrayAccess(expr) => {
-                identifier = Self::construct_assignee_access(*expr.array, accesses)?;
-                accesses.push(AssigneeAccess::ArrayIndex(*expr.index));
-            }
+            Expression::Access(access) => match access {
+                AccessExpression::Member(expr) => {
+                    identifier = Self::construct_assignee_access(*expr.inner, accesses)?;
+                    accesses.push(AssigneeAccess::Member(expr.name));
+                }
+                AccessExpression::Tuple(expr) => {
+                    identifier = Self::construct_assignee_access(*expr.tuple, accesses)?;
+                    accesses.push(AssigneeAccess::Tuple(expr.index, expr.span));
+                }
+                AccessExpression::ArrayRange(expr) => {
+                    identifier = Self::construct_assignee_access(*expr.array, accesses)?;
+                    accesses.push(AssigneeAccess::ArrayRange(
+                        expr.left.map(|x| *x),
+                        expr.right.map(|x| *x),
+                    ));
+                }
+                AccessExpression::Array(expr) => {
+                    identifier = Self::construct_assignee_access(*expr.array, accesses)?;
+                    accesses.push(AssigneeAccess::ArrayIndex(*expr.index));
+                }
+                _ => return Err(ParserError::invalid_assignment_target(access.span()).into()),
+            },
+
             Expression::Identifier(id) => identifier = id,
             _ => return Err(ParserError::invalid_assignment_target(expr.span()).into()),
         }

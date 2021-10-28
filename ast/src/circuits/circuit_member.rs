@@ -24,7 +24,7 @@ pub enum CircuitMember {
     // (variable_name, variable_type)
     CircuitVariable(Identifier, Type),
     // (function)
-    CircuitFunction(Function),
+    CircuitFunction(Box<Function>),
 }
 
 impl fmt::Display for CircuitMember {

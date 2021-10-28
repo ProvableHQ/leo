@@ -45,6 +45,10 @@ version = "1.5.3"
 path = "../state"
 version = "1.5.3"
 
+[dependencies.leo-stdlib]
+path = "../stdlib"
+version = "1.5.3"
+
 [dependencies.leo-asg]
 path = "../asg"
 version = "1.5.3"

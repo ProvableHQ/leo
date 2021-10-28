@@ -204,7 +204,7 @@ impl Namespace for CompileNamespace {
                 snarkvm_eval::SetupEvaluator::<_, snarkvm_eval::edwards_bls12::EdwardsGroupType, _>::new(&mut cs);
             let output = evaluator.evaluate(&compiled, &input_data).map_err(|e| e.to_string())?;
 
-            let registers: Vec<_> = compiled.header.register_inputs.iter().map(|x| x.clone()).collect();
+            let registers: Vec<_> = compiled.header.register_inputs.to_vec();
             let output = Output::new(&registers[..], output, &Span::default()).map_err(|e| e.to_string())?;
             let circuit: SummarizedCircuit = SerializedCircuit::from(cs).into();
 
@@ -273,7 +273,7 @@ fn emit_ir(test: &Test, compiled: &IR_Program, input_data: &InputData) {
     let mut target_path = std::env::current_dir().unwrap().join("tests").join("ir");
     target_path.push(
         test.path
-            .into_iter()
+            .iter()
             .skip_while(|p| p.to_str().unwrap() != "..")
             .collect::<PathBuf>()
             .strip_prefix(Path::new("..").join("tests").join("compiler"))

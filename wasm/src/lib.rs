@@ -32,7 +32,7 @@ export interface LeoError { text: string, code: string, exitCode: number }
 /// Parse the code and return an AST as JSON or an error object.
 #[wasm_bindgen(method, catch)]
 pub fn parse(program: &str) -> Result<String, JsValue> {
-    Ok(parse_program(program).map_err(error_to_value)?)
+    parse_program(program).map_err(error_to_value)
 }
 
 /// Parse the program and pass the Canonicalization phase;
@@ -40,7 +40,7 @@ pub fn parse(program: &str) -> Result<String, JsValue> {
 /// snarkvm is solved.
 fn parse_program(program: &str) -> leo_errors::Result<String> {
     let ast = leo_parser::parse_ast("", program)?;
-    let ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?.to_json_string()?;
+    let ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?.to_json_string()?;
 
     Ok(ast)
 }

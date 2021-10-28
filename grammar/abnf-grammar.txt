@@ -658,6 +658,19 @@ character-type = %s"char"
 
 scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
+; Circuit and Alias types are denoted by identifiers and the keyword `Self`.
+; The latter is only allowed inside a circuit definition,
+; to denote the circuit being defined.
+
+self-type = %s"Self"
+
+circuit-or-alias-type = identifier / self-type
+
+; A type that represents the combination of scalar types
+; and circuit, alias and self types.
+
+named-type = circuit-or-alias-type / scalar-type
+
 ; A tuple type consists of zero, two, or more component types.
 
 tuple-type = "(" [ type 1*( "," type ) ] ")"
@@ -821,7 +834,8 @@ postfix-expression = primary-expression
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / identifier-or-self-type "::" identifier function-arguments
+                   / named-type "::" identifier function-arguments
+                   / named-type "::" identifier
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 

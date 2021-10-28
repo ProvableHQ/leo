@@ -10,7 +10,6 @@ outputs:
     circuits:
       "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
         circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
-        core_mapping: ~
         members:
           - CircuitFunction:
               annotations: []
@@ -19,6 +18,7 @@ outputs:
                 - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(self) {\\\"}\"}"
               const_: false
               output: ~
+              core_mapping: ~
               block:
                 statements:
                   - Return:

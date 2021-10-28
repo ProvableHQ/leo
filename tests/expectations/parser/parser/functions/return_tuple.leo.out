@@ -19,6 +19,7 @@ outputs:
           Tuple:
             - IntegerType: U32
             - IntegerType: U32
+        core_mapping: ~
         block:
           statements:
             - Return:

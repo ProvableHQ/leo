@@ -31,6 +31,7 @@ outputs:
                 content: "function x(x: [u8; 12]) {"
         const_: false
         output: ~
+        core_mapping: ~
         block:
           statements:
             - Return:

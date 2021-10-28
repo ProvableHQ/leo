@@ -15,18 +15,19 @@ outputs:
         content: "-x"
   - Unary:
       inner:
-        CircuitMemberAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x.y\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x.y\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 2
-            col_stop: 5
-            path: ""
-            content: "-x.y"
-          type_: ~
+        Access:
+          Member:
+            inner:
+              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x.y\\\"}\"}"
+            name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x.y\\\"}\"}"
+            span:
+              line_start: 1
+              line_stop: 1
+              col_start: 2
+              col_stop: 5
+              path: ""
+              content: "-x.y"
+            type_: ~
       op: Negate
       span:
         line_start: 1
@@ -37,17 +38,18 @@ outputs:
         content: "-x.y"
   - Unary:
       inner:
-        CircuitStaticFunctionAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x::y\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x::y\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 2
-            col_stop: 6
-            path: ""
-            content: "-x::y"
+        Access:
+          Static:
+            inner:
+              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":2,\\\"col_stop\\\":3,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x::y\\\"}\"}"
+            name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"-x::y\\\"}\"}"
+            span:
+              line_start: 1
+              line_stop: 1
+              col_start: 2
+              col_stop: 6
+              path: ""
+              content: "-x::y"
       op: Negate
       span:
         line_start: 1

@@ -1,0 +1,36 @@
+---
+namespace: Serialize
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    import_statements: []
+    imports: {}
+    aliases: {}
+    circuits: {}
+    global_consts: {}
+    functions:
+      "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}":
+        annotations: []
+        identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}"
+        input: []
+        const_: false
+        output:
+          IntegerType: U8
+        core_mapping: ~
+        block:
+          statements:
+            - Return:
+                expression:
+                  Binary:
+                    left:
+                      Value:
+                        Integer:
+                          - U8
+                          - "1"
+                    right:
+                      Value:
+                        Integer:
+                          - U8
+                          - "1"
+                    op: Add

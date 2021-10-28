@@ -25,6 +25,7 @@ outputs:
         input: []
         const_: false
         output: ~
+        core_mapping: ~
         block:
           statements:
             - Return:

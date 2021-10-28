@@ -31,10 +31,8 @@ pub struct Canonicalizer {
 }
 
 impl AstPass for Canonicalizer {
-    fn do_pass(ast: Program) -> Result<Ast> {
-        Ok(Ast::new(
-            ReconstructingDirector::new(Self::default()).reduce_program(&ast)?,
-        ))
+    fn do_pass(self, ast: Program) -> Result<Ast> {
+        Ok(Ast::new(ReconstructingDirector::new(self).reduce_program(&ast)?))
     }
 }
 
@@ -50,34 +48,34 @@ impl Canonicalizer {
         for access in accesses.iter() {
             match self.canonicalize_assignee_access(access) {
                 AssigneeAccess::ArrayIndex(index) => {
-                    left = Box::new(Expression::ArrayAccess(ArrayAccessExpression {
+                    left = Box::new(Expression::Access(AccessExpression::Array(ArrayAccess {
                         array: left,
                         index: Box::new(index),
                         span: span.clone(),
-                    }));
+                    })));
                 }
                 AssigneeAccess::ArrayRange(start, stop) => {
-                    left = Box::new(Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                    left = Box::new(Expression::Access(AccessExpression::ArrayRange(ArrayRangeAccess {
                         array: left,
                         left: start.map(Box::new),
                         right: stop.map(Box::new),
                         span: span.clone(),
-                    }));
+                    })));
                 }
                 AssigneeAccess::Tuple(positive_number, _) => {
-                    left = Box::new(Expression::TupleAccess(TupleAccessExpression {
+                    left = Box::new(Expression::Access(AccessExpression::Tuple(TupleAccess {
                         tuple: left,
                         index: positive_number,
                         span: span.clone(),
-                    }));
+                    })));
                 }
                 AssigneeAccess::Member(identifier) => {
-                    left = Box::new(Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
-                        circuit: left,
+                    left = Box::new(Expression::Access(AccessExpression::Member(MemberAccess {
+                        inner: left,
                         name: identifier,
                         span: span.clone(),
                         type_: None,
-                    }));
+                    })));
                 }
             }
         }
@@ -184,6 +182,61 @@ impl Canonicalizer {
                 });
             }
 
+            Expression::Access(access) => {
+                let access = match access {
+                    AccessExpression::Array(array_access) => {
+                        let array = Box::new(self.canonicalize_expression(&array_access.array));
+                        let index = Box::new(self.canonicalize_expression(&array_access.index));
+
+                        AccessExpression::Array(ArrayAccess {
+                            array,
+                            index,
+                            span: array_access.span.clone(),
+                        })
+                    }
+                    AccessExpression::ArrayRange(array_range_access) => {
+                        let array = Box::new(self.canonicalize_expression(&array_range_access.array));
+                        let left = array_range_access
+                            .left
+                            .as_ref()
+                            .map(|left| Box::new(self.canonicalize_expression(left)));
+                        let right = array_range_access
+                            .right
+                            .as_ref()
+                            .map(|right| Box::new(self.canonicalize_expression(right)));
+
+                        AccessExpression::ArrayRange(ArrayRangeAccess {
+                            array,
+                            left,
+                            right,
+                            span: array_range_access.span.clone(),
+                        })
+                    }
+                    AccessExpression::Member(member_access) => AccessExpression::Member(MemberAccess {
+                        inner: Box::new(self.canonicalize_expression(&member_access.inner)),
+                        name: member_access.name.clone(),
+                        span: member_access.span.clone(),
+                        type_: None,
+                    }),
+                    AccessExpression::Tuple(tuple_access) => {
+                        let tuple = Box::new(self.canonicalize_expression(&tuple_access.tuple));
+
+                        AccessExpression::Tuple(TupleAccess {
+                            tuple,
+                            index: tuple_access.index.clone(),
+                            span: tuple_access.span.clone(),
+                        })
+                    }
+                    AccessExpression::Static(static_access) => AccessExpression::Static(StaticAccess {
+                        inner: Box::new(self.canonicalize_expression(&static_access.inner)),
+                        name: static_access.name.clone(),
+                        span: static_access.span.clone(),
+                    }),
+                };
+
+                return Expression::Access(access);
+            }
+
             Expression::ArrayInline(array_inline) => {
                 let elements = array_inline
                     .elements
@@ -214,36 +267,6 @@ impl Canonicalizer {
                 });
             }
 
-            Expression::ArrayAccess(array_access) => {
-                let array = Box::new(self.canonicalize_expression(&array_access.array));
-                let index = Box::new(self.canonicalize_expression(&array_access.index));
-
-                return Expression::ArrayAccess(ArrayAccessExpression {
-                    array,
-                    index,
-                    span: array_access.span.clone(),
-                });
-            }
-
-            Expression::ArrayRangeAccess(array_range_access) => {
-                let array = Box::new(self.canonicalize_expression(&array_range_access.array));
-                let left = array_range_access
-                    .left
-                    .as_ref()
-                    .map(|left| Box::new(self.canonicalize_expression(left)));
-                let right = array_range_access
-                    .right
-                    .as_ref()
-                    .map(|right| Box::new(self.canonicalize_expression(right)));
-
-                return Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
-                    array,
-                    left,
-                    right,
-                    span: array_range_access.span.clone(),
-                });
-            }
-
             Expression::TupleInit(tuple_init) => {
                 let elements = tuple_init
                     .elements
@@ -254,16 +277,6 @@ impl Canonicalizer {
                 return Expression::TupleInit(TupleInitExpression {
                     elements,
                     span: tuple_init.span.clone(),
-                });
-            }
-
-            Expression::TupleAccess(tuple_access) => {
-                let tuple = Box::new(self.canonicalize_expression(&tuple_access.tuple));
-
-                return Expression::TupleAccess(TupleAccessExpression {
-                    tuple,
-                    index: tuple_access.index.clone(),
-                    span: tuple_access.span.clone(),
                 });
             }
 
@@ -281,21 +294,6 @@ impl Canonicalizer {
                         .map(|member| self.canonicalize_circuit_implied_variable_definition(member))
                         .collect(),
                     span: circuit_init.span.clone(),
-                });
-            }
-            Expression::CircuitMemberAccess(circuit_member_access) => {
-                return Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
-                    circuit: Box::new(self.canonicalize_expression(&circuit_member_access.circuit)),
-                    name: circuit_member_access.name.clone(),
-                    span: circuit_member_access.span.clone(),
-                    type_: None,
-                });
-            }
-            Expression::CircuitStaticFunctionAccess(circuit_static_func_access) => {
-                return Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression {
-                    circuit: Box::new(self.canonicalize_expression(&circuit_static_func_access.circuit)),
-                    name: circuit_static_func_access.name.clone(),
-                    span: circuit_static_func_access.span.clone(),
                 });
             }
             Expression::Call(call) => {
@@ -488,15 +486,16 @@ impl Canonicalizer {
                 let output = self.canonicalize_self_type(function.output.as_ref());
                 let block = self.canonicalize_block(&function.block);
 
-                return CircuitMember::CircuitFunction(Function {
+                return CircuitMember::CircuitFunction(Box::new(Function {
                     annotations: function.annotations.clone(),
                     identifier: function.identifier.clone(),
                     const_: function.const_,
                     input,
                     output,
                     block,
+                    core_mapping: function.core_mapping.clone(),
                     span: function.span.clone(),
-                });
+                }));
             }
         }
 
@@ -710,20 +709,20 @@ impl ReconstructingReducer for Canonicalizer {
             const_,
             output: new_output,
             block,
+            core_mapping: function.core_mapping.clone(),
             span: function.span.clone(),
         })
     }
 
     fn reduce_circuit(
         &mut self,
-        circuit: &Circuit,
+        _circuit: &Circuit,
         circuit_name: Identifier,
         members: Vec<CircuitMember>,
     ) -> Result<Circuit> {
         self.circuit_name = Some(circuit_name.clone());
         let circ = Circuit {
             circuit_name,
-            core_mapping: circuit.core_mapping.clone(),
             members: members
                 .iter()
                 .map(|member| self.canonicalize_circuit_member(member))

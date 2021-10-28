@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    ArrayDimensions, CircuitImpliedVariableDefinition, GroupValue, Identifier, IntegerType, Node, PositiveNumber,
-    SpreadOrExpression,
+    ArrayDimensions, CircuitImpliedVariableDefinition, GroupValue, Identifier, IntegerType, Node, SpreadOrExpression,
 };
 
 use leo_errors::Span;
@@ -24,28 +23,20 @@ use leo_errors::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+mod accesses;
+pub use accesses::*;
 mod binary;
 pub use binary::*;
 mod unary;
 pub use unary::*;
 mod ternary;
 pub use ternary::*;
-mod array_access;
-pub use array_access::*;
-mod array_range_access;
-pub use array_range_access::*;
 mod array_inline;
 pub use array_inline::*;
 mod array_init;
 pub use array_init::*;
-mod tuple_access;
-pub use tuple_access::*;
 mod tuple_init;
 pub use tuple_init::*;
-mod circuit_static_function_access;
-pub use circuit_static_function_access::*;
-mod circuit_member_access;
-pub use circuit_member_access::*;
 mod circuit_init;
 pub use circuit_init::*;
 mod value;
@@ -66,19 +57,16 @@ pub enum Expression {
     Unary(UnaryExpression),
     Ternary(TernaryExpression),
     Cast(CastExpression),
+    Access(AccessExpression),
+
     LengthOf(LengthOfExpression),
 
     ArrayInline(ArrayInlineExpression),
     ArrayInit(ArrayInitExpression),
-    ArrayAccess(ArrayAccessExpression),
-    ArrayRangeAccess(ArrayRangeAccessExpression),
 
     TupleInit(TupleInitExpression),
-    TupleAccess(TupleAccessExpression),
 
     CircuitInit(CircuitInitExpression),
-    CircuitMemberAccess(CircuitMemberAccessExpression),
-    CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression),
 
     Call(CallExpression),
 }
@@ -94,15 +82,11 @@ impl Node for Expression {
             Ternary(n) => n.span(),
             ArrayInline(n) => n.span(),
             ArrayInit(n) => n.span(),
-            ArrayAccess(n) => n.span(),
-            ArrayRangeAccess(n) => n.span(),
             TupleInit(n) => n.span(),
-            TupleAccess(n) => n.span(),
             CircuitInit(n) => n.span(),
-            CircuitMemberAccess(n) => n.span(),
-            CircuitStaticFunctionAccess(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
+            Access(n) => n.span(),
             LengthOf(n) => n.span(),
         }
     }
@@ -117,15 +101,11 @@ impl Node for Expression {
             Ternary(n) => n.set_span(span),
             ArrayInline(n) => n.set_span(span),
             ArrayInit(n) => n.set_span(span),
-            ArrayAccess(n) => n.set_span(span),
-            ArrayRangeAccess(n) => n.set_span(span),
             TupleInit(n) => n.set_span(span),
-            TupleAccess(n) => n.set_span(span),
             CircuitInit(n) => n.set_span(span),
-            CircuitMemberAccess(n) => n.set_span(span),
-            CircuitStaticFunctionAccess(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
+            Access(n) => n.set_span(span),
             LengthOf(n) => n.set_span(span),
         }
     }
@@ -142,15 +122,11 @@ impl fmt::Display for Expression {
             Ternary(n) => n.fmt(f),
             ArrayInline(n) => n.fmt(f),
             ArrayInit(n) => n.fmt(f),
-            ArrayAccess(n) => n.fmt(f),
-            ArrayRangeAccess(n) => n.fmt(f),
             TupleInit(n) => n.fmt(f),
-            TupleAccess(n) => n.fmt(f),
             CircuitInit(n) => n.fmt(f),
-            CircuitMemberAccess(n) => n.fmt(f),
-            CircuitStaticFunctionAccess(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
+            Access(n) => n.fmt(f),
             LengthOf(n) => n.fmt(f),
         }
     }

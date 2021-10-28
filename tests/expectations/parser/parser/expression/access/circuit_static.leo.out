@@ -2,62 +2,67 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - CircuitStaticFunctionAccess:
-      circuit:
-        Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y\\\"}\"}"
-      name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 5
-        path: ""
-        content: "x::y"
-  - CircuitStaticFunctionAccess:
-      circuit:
-        Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"X::Y\\\"}\"}"
-      name: "{\"name\":\"Y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"X::Y\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 5
-        path: ""
-        content: "X::Y"
-  - CircuitStaticFunctionAccess:
-      circuit:
-        CircuitStaticFunctionAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y::z\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y::z\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 5
-            path: ""
-            content: "x::y::z"
-      name: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y::z\\\"}\"}"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: "x::y::z"
+  - Access:
+      Static:
+        inner:
+          Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y\\\"}\"}"
+        name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y\\\"}\"}"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: "x::y"
+  - Access:
+      Static:
+        inner:
+          Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"X::Y\\\"}\"}"
+        name: "{\"name\":\"Y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"X::Y\\\"}\"}"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 5
+          path: ""
+          content: "X::Y"
+  - Access:
+      Static:
+        inner:
+          Access:
+            Static:
+              inner:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y::z\\\"}\"}"
+              name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y::z\\\"}\"}"
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 1
+                col_stop: 5
+                path: ""
+                content: "x::y::z"
+        name: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y::z\\\"}\"}"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: ""
+          content: "x::y::z"
   - Call:
       function:
-        CircuitStaticFunctionAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 5
-            path: ""
-            content: "x::y()"
+        Access:
+          Static:
+            inner:
+              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
+            name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
+            span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 5
+              path: ""
+              content: "x::y()"
       arguments: []
       span:
         line_start: 1
@@ -66,56 +71,60 @@ outputs:
         col_stop: 7
         path: ""
         content: "x::y()"
-  - TupleAccess:
-      tuple:
-        CircuitStaticFunctionAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y.0\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y.0\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 5
-            path: ""
-            content: "x::y.0"
-      index:
-        value: "0"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 7
-        path: ""
-        content: "x::y.0"
-  - ArrayAccess:
-      array:
-        CircuitStaticFunctionAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y[1]\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y[1]\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 5
-            path: ""
-            content: "x::y[1]"
-      index:
-        Value:
-          Implicit:
-            - "1"
-            - span:
+  - Access:
+      Tuple:
+        tuple:
+          Access:
+            Static:
+              inner:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y.0\\\"}\"}"
+              name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y.0\\\"}\"}"
+              span:
                 line_start: 1
                 line_stop: 1
-                col_start: 6
-                col_stop: 7
+                col_start: 1
+                col_stop: 5
+                path: ""
+                content: "x::y.0"
+        index:
+          value: "0"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 7
+          path: ""
+          content: "x::y.0"
+  - Access:
+      Array:
+        array:
+          Access:
+            Static:
+              inner:
+                Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y[1]\\\"}\"}"
+              name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y[1]\\\"}\"}"
+              span:
+                line_start: 1
+                line_stop: 1
+                col_start: 1
+                col_stop: 5
                 path: ""
                 content: "x::y[1]"
-      span:
-        line_start: 1
-        line_stop: 1
-        col_start: 1
-        col_stop: 8
-        path: ""
-        content: "x::y[1]"
+        index:
+          Value:
+            Implicit:
+              - "1"
+              - span:
+                  line_start: 1
+                  line_stop: 1
+                  col_start: 6
+                  col_stop: 7
+                  path: ""
+                  content: "x::y[1]"
+        span:
+          line_start: 1
+          line_stop: 1
+          col_start: 1
+          col_stop: 8
+          path: ""
+          content: "x::y[1]"

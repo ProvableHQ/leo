@@ -377,7 +377,7 @@ impl ParserContext {
         let peeked = self.peek()?.clone();
         if self.peek_is_function()? {
             let function = self.parse_function_declaration()?;
-            Ok(CircuitMember::CircuitFunction(function.1))
+            Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
             return Err(ParserError::unexpected(
                 &peeked.token,
@@ -398,7 +398,18 @@ impl ParserContext {
     ///
     pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
         self.expect(Token::Circuit)?;
-        let name = self.expect_ident()?;
+        let name = if let Some(ident) = self.eat_identifier() {
+            ident
+        } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
+            Identifier {
+                name: scalar_type.token.to_string().into(),
+                span: scalar_type.span,
+            }
+        } else {
+            let next = self.peek()?;
+            return Err(ParserError::unexpected_str(&next.token, "ident", &next.span).into());
+        };
+
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
 
@@ -406,7 +417,6 @@ impl ParserContext {
             name.clone(),
             Circuit {
                 circuit_name: name,
-                core_mapping: std::cell::RefCell::new(None),
                 members,
             },
         ))
@@ -498,6 +508,7 @@ impl ParserContext {
                 output,
                 span: start + block.span.clone(),
                 block,
+                core_mapping: std::cell::RefCell::new(None),
             },
         ))
     }

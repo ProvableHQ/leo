@@ -14,16 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{expression::*, program::*, statement::*, Monoid};
+use crate::{accesses::*, expression::*, program::*, statement::*, Monoid};
 
 #[allow(unused_variables)]
 pub trait MonoidalReducerExpression<'a, T: Monoid> {
     fn reduce_expression(&mut self, input: &'a Expression<'a>, value: T) -> T {
         value
-    }
-
-    fn reduce_array_access(&mut self, input: &ArrayAccessExpression<'a>, array: T, index: T) -> T {
-        array.append(index)
     }
 
     fn reduce_array_init(&mut self, input: &ArrayInitExpression<'a>, element: T) -> T {
@@ -34,26 +30,12 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         T::default().append_all(elements.into_iter())
     }
 
-    fn reduce_array_range_access(
-        &mut self,
-        input: &ArrayRangeAccessExpression<'a>,
-        array: T,
-        left: Option<T>,
-        right: Option<T>,
-    ) -> T {
-        array.append_option(left).append_option(right)
-    }
-
     fn reduce_binary(&mut self, input: &BinaryExpression<'a>, left: T, right: T) -> T {
         left.append(right)
     }
 
     fn reduce_call(&mut self, input: &CallExpression<'a>, target: Option<T>, arguments: Vec<T>) -> T {
         target.unwrap_or_default().append_all(arguments.into_iter())
-    }
-
-    fn reduce_circuit_access(&mut self, input: &CircuitAccessExpression<'a>, target: Option<T>) -> T {
-        target.unwrap_or_default()
     }
 
     fn reduce_circuit_init(&mut self, input: &CircuitInitExpression<'a>, values: Vec<T>) -> T {
@@ -68,6 +50,10 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         inner
     }
 
+    fn reduce_array_access(&mut self, input: &ArrayAccess<'a>, array: T, index: T) -> T {
+        array.append(index)
+    }
+
     fn reduce_lengthof_expression(&mut self, input: &LengthOfExpression<'a>, inner: T) -> T {
         inner
     }
@@ -76,7 +62,21 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         T::default()
     }
 
-    fn reduce_tuple_access(&mut self, input: &TupleAccessExpression<'a>, tuple_ref: T) -> T {
+    fn reduce_array_range_access(
+        &mut self,
+        input: &ArrayRangeAccess<'a>,
+        array: T,
+        left: Option<T>,
+        right: Option<T>,
+    ) -> T {
+        array.append_option(left).append_option(right)
+    }
+
+    fn reduce_circuit_access(&mut self, input: &CircuitAccess<'a>, target: Option<T>) -> T {
+        target.unwrap_or_default()
+    }
+
+    fn reduce_tuple_access(&mut self, input: &TupleAccess<'a>, tuple_ref: T) -> T {
         tuple_ref
     }
 

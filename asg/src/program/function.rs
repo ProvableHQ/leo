@@ -44,6 +44,7 @@ pub struct Function<'a> {
     pub circuit: Cell<Option<&'a Circuit<'a>>>,
     pub span: Option<Span>,
     pub body: Cell<Option<&'a Statement<'a>>>,
+    pub core_mapping: RefCell<Option<String>>,
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
     pub annotations: Vec<Annotation>,
@@ -133,6 +134,7 @@ impl<'a> Function<'a> {
             output,
             arguments,
             qualifier,
+            core_mapping: value.core_mapping.clone(),
         });
         function.scope.function.replace(Some(function));
 
@@ -260,6 +262,7 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
             const_: self.const_,
             input,
             block: body,
+            core_mapping: self.core_mapping.clone(),
             span,
         }
     }

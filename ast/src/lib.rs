@@ -22,6 +22,9 @@
 
 #![doc = include_str!("../README.md")]
 
+pub mod accesses;
+pub use self::accesses::*;
+
 pub mod aliases;
 pub use self::aliases::*;
 

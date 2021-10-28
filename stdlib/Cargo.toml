@@ -20,10 +20,6 @@ edition = "2018"
 [lib]
 path = "src/lib.rs"
 
-[dependencies]
-indexmap = "1.7.0"
-include_dir = "0.6.1"
-
 [dependencies.leo-ast]
 path = "../ast"
 version = "1.5.3"
@@ -35,3 +31,9 @@ version = "1.5.3"
 [dependencies.leo-parser]
 path = "../parser"
 version = "1.5.3"
+
+[dependencies.indexmap]
+version = "1.7.0"
+
+[dependencies.lazy_static]
+version = "1.4.0"

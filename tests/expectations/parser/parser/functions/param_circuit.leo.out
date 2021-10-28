@@ -29,6 +29,7 @@ outputs:
                 content: "function x(x: MyCircuit) {"
         const_: false
         output: ~
+        core_mapping: ~
         block:
           statements:
             - Return:
