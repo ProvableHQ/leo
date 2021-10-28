@@ -24,6 +24,7 @@ use snarkvm_ir::Value;
 impl<'a> Program<'a> {
     pub(crate) fn enforce_index(&mut self, index: &'a Expression<'a>, span: &Span) -> Result<Value> {
         match self.enforce_expression(index)? {
+            value @ Value::Ref(_) => Ok(value),
             value @ Value::Integer(_) => Ok(value),
             value => Err(CompilerError::invalid_index_expression(value, span).into()),
         }

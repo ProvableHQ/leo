@@ -17,10 +17,9 @@
 
 //! The `README.md` file.
 
-use leo_errors::{PackageError, Result};
+use crate::PackageFile;
 
 use serde::Deserialize;
-use std::{borrow::Cow, fs::File, io::Write, path::Path};
 
 pub static README_FILENAME: &str = "README.md";
 
@@ -35,31 +34,10 @@ impl README {
             package_name: package_name.to_string(),
         }
     }
+}
 
-    pub fn package_name(&self) -> String {
-        self.package_name.clone()
-    }
-
-    pub fn exists_at(path: &Path) -> bool {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            path.to_mut().push(README_FILENAME);
-        }
-        path.exists()
-    }
-
-    pub fn write_to(self, path: &Path) -> Result<()> {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            path.to_mut().push(README_FILENAME);
-        }
-
-        let mut file = File::create(&path).map_err(PackageError::io_error_readme_file)?;
-
-        file.write_all(self.template().as_bytes())
-            .map_err(PackageError::io_error_readme_file)?;
-        Ok(())
-    }
+impl PackageFile for README {
+    type ParentDirectory = super::RootDirectory;
 
     fn template(&self) -> String {
         format!(
@@ -86,5 +64,11 @@ leo build -d
 ",
             self.package_name
         )
+    }
+}
+
+impl std::fmt::Display for README {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "README.md")
     }
 }

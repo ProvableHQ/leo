@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Pass
+expectation: Fail
 inputs:
  - u16.in: |
     [main]

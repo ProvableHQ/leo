@@ -11,7 +11,7 @@ outputs:
     global_consts: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: [u8; 12]) {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(x: [u8; 12]) {\\\"}\"}"
         input:
           - Variable:
@@ -29,6 +29,7 @@ outputs:
                 col_stop: 13
                 path: ""
                 content: "function x(x: [u8; 12]) {"
+        const_: false
         output: ~
         core_mapping: ~
         block:

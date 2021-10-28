@@ -17,12 +17,13 @@ outputs:
               - Value:
                   Implicit:
                     - "10"
-                    - line_start: 4
-                      line_stop: 4
-                      col_start: 26
-                      col_stop: 28
-                      path: ""
-                      content: "    static const a: u8 = 10;"
+                    - span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 26
+                        col_stop: 28
+                        path: ""
+                        content: "    static const a: u8 = 10;"
           - CircuitVariable:
               - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x: u32,\\\"}\"}"
               - IntegerType: U32
@@ -30,9 +31,10 @@ outputs:
               - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    y: u32\\\"}\"}"
               - IntegerType: U32
           - CircuitFunction:
-              annotations: []
+              annotations: {}
               identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x() {\\\"}\"}"
               input: []
+              const_: false
               output: ~
               core_mapping: ~
               block:
@@ -70,9 +72,10 @@ outputs:
                 path: ""
                 content: "    function x() {\n         ...\n    }"
           - CircuitFunction:
-              annotations: []
+              annotations: {}
               identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function y() {\\\"}\"}"
               input: []
+              const_: false
               output: ~
               core_mapping: ~
               block:

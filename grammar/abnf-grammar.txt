@@ -791,7 +791,7 @@ array-expression = array-construction
 
 ; Circuit expressions construct circuit values.
 ; Each lists values for all the member variables (in any order);
-; there must be at least one member variable.
+; there may be zero or more member variables.
 ; A single identifier abbreviates
 ; a pair consisting of the same identifier separated by colon;
 ; note that, in the expansion, the left one denotes a member name,
@@ -799,8 +799,8 @@ array-expression = array-construction
 ; so they are syntactically identical but semantically different.
 
 circuit-construction = identifier-or-self-type "{"
-                       circuit-inline-element
-                       *( "," circuit-inline-element ) [ "," ]
+                       [ circuit-inline-element
+                         *( "," circuit-inline-element ) [ "," ] ]
                        "}"
 
 circuit-inline-element = identifier ":" expression / identifier
@@ -986,7 +986,7 @@ assignment-statement = expression assignment-operator expression ";"
 ; Note that the console function names are identifiers, not keywords.
 ; There are three kinds of print commands.
 
-console-statement = %s"console" "." console-call
+console-statement = %s"console" "." console-call ";"
 
 console-call = assert-call
              / print-call
@@ -1013,7 +1013,7 @@ annotation = annotation-name
 ; Additionally, functions inside circuits
 ; may start with a `mut self` or `const self` or `self` parameter.
 
-function-declaration = *annotation %s"function" identifier
+function-declaration = *annotation [ %s"const" ] %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
                        block
 

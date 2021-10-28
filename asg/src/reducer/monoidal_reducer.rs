@@ -54,10 +54,6 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         array.append(index)
     }
 
-    fn reduce_lengthof_expression(&mut self, input: &LengthOfExpression<'a>, inner: T) -> T {
-        inner
-    }
-
     fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
         T::default()
     }

@@ -1,6 +1,6 @@
 /*
 namespace: Compile
-expectation: Pass
+expectation: Fail
 inputs:
  - i128.in: |
     [main]

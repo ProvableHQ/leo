@@ -23,6 +23,8 @@ use snarkvm_ir::{Header, Instruction, MaskData, QueryData, RepeatData, SnarkVMVe
 
 use indexmap::IndexMap;
 
+use crate::CompilerOptions;
+
 #[derive(Clone, Debug)]
 struct Input {
     name: String,
@@ -240,7 +242,7 @@ impl<'a> Program<'a> {
             .collect()
     }
 
-    pub fn render(self) -> snarkvm_ir::Program {
+    pub fn render(self, compiler_options: &CompilerOptions) -> snarkvm_ir::Program {
         let main_inputs = self.prepare_inputs(InputCategory::MainInput);
         let constant_inputs = self.prepare_inputs(InputCategory::ConstInput);
         let register_inputs = self.prepare_inputs(InputCategory::Register);
@@ -265,6 +267,7 @@ impl<'a> Program<'a> {
                 public_states,
                 private_record_states,
                 private_leaf_states,
+                inline_limit: compiler_options.inline_limit,
             },
         }
     }

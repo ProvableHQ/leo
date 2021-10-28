@@ -405,20 +405,8 @@ impl ParserContext {
         // the ABNF states. Rather the primary expression already
         // handle those. The ABNF is more specific for language reasons.
         let mut expr = self.parse_primary_expression()?;
-        while let Some(token) = self.eat_any(&[
-            Token::LeftSquare,
-            Token::Dot,
-            Token::LeftParen,
-            Token::DoubleColon,
-            Token::LengthOf,
-        ]) {
+        while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen, Token::DoubleColon]) {
             match token.token {
-                Token::LengthOf => {
-                    expr = Expression::LengthOf(LengthOfExpression {
-                        span: expr.span().clone(),
-                        inner: Box::new(expr),
-                    })
-                }
                 Token::LeftSquare => {
                     if self.eat(Token::DotDot).is_some() {
                         let right = if self.peek_token().as_ref() != &Token::RightSquare {

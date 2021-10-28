@@ -80,10 +80,6 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> VisitResult {
-        Default::default()
-    }
-
     fn visit_constant(&mut self, input: &Constant<'a>) -> VisitResult {
         Default::default()
     }

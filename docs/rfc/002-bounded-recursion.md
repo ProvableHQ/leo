@@ -8,7 +8,7 @@ The Aleo Team.
 
 FINAL
 
-# Summary
+## Summary
 
 This proposal provides support for recursion in Leo,
 via a user-configurable limit to the allowed depth of the recursion.
@@ -18,15 +18,16 @@ otherwise, an informative message is shown to the user,
 who can try and increase the limit.
 Compilation may also fail
 if a circularity is detected before exceeding the limit.
+
 Future analyses may also recognize cases in which the recursion terminates,
 informing the user and setting or suggesting a sufficient limit.
 
-A similar approach could be also used for loops.
+A similar approach could be also used for loops in the future.
 User-configurable limits may be also appropriate for
 other compiler transformations that are known to terminate
 but could result in a very large number of R1CS constraints.
 
-# Motivation
+## Motivation
 
 Leo currently allows functions to call other functions,
 but recursion is disallowed:
@@ -34,9 +35,9 @@ a function cannot call itself, directly or indirectly.
 However, recursion is a natural programming idiom in some cases,
 compared to iteration (i.e. loops).
 
-# Background
+## Background
 
-## Function Inlining
+### Function Inlining
 
 Since R1CS are flat collections of constraints,
 compiling Leo to R1CS involves _flattening_ the Leo code:
@@ -71,10 +72,10 @@ function main(a: u32) -> u32 {
 }
 ```
 
-## Constants and Variables
+### Constants and Variables
 
 A Leo program has two kinds of inputs: constants and variables;
-both come from input files (which represent blockchain records).
+both come from input files.
 They are passed as arguments to the `main` functions:
 the parameters marked with `const` receive the constant inputs,
 while the other parameters receive the variable inputs.
@@ -125,15 +126,7 @@ it is the case that, due to the aforementioned partial evaluation,
 the `const` arguments of function calls have known values
 when the flattening transformations are carried out.
 
-# Design
-
-After exemplifying how inlining of recursive functions may terminate or not,
-we discuss our approach to avoid non-termination.
-Then we discuss future optimizations,
-and how the approach to avoid non-termination of recursion
-may be used for other features of the Leo language.
-
-## Inlining Recursive Functions
+### Inlining Recursive Functions
 
 In the presence of recursion,
 attempting to exhaustively inline function calls does not terminate in general.
@@ -340,7 +333,9 @@ function main() {
 ...
 ```
 
-## Configurable Limit
+## Design
+
+### Configurable Limit
 
 Our proposed approach to avoid non-termination
 when inlining recursive functions is to
@@ -388,7 +383,7 @@ as discussed later.
 In Aleo Studio, this compiler option is presumably specified
 via GUI preferences and build configurations.
 
-## Circularity Detection
+### Circularity Detection
 
 Besides the depth of the inlining call stack,
 the compiler could also keep track of
@@ -401,7 +396,33 @@ and the compiler can show to the user the trace of circular calls.
 
 This approach would readily reject the `forever` example given earlier.
 
-## Termination Analysis
+## Drawbacks
+
+This proposal does not appear to bring any real drawbacks,
+other than making the compiler inevitably more complex.
+But the benefits to support recursion justifies the extra complexity.
+
+## Effect on Ecosystem
+
+This proposal does not appear to have any direct effects on the ecosystem.
+It simply enables certain Leo programs to be written in a more natural style.
+
+## Alternatives
+
+An alternative approach is to treat recursion analogously to loops.
+That is, we could restrict the forms of allowed recursion
+to ones whose inlining is known to terminate at compile time.
+
+However, the configurable limit approach seems more flexible.
+It does not even preclude a termination analysis (discussed below).
+Furthermore, in practical terms,
+non-termination is not much different from excessively long computation.
+and the configurable limit approach may be uniformly suitable
+to avoid both non-termination and excessively long computation (discussed below).
+
+## Future Extensions
+
+### Termination Analysis
 
 In general, a recursive function
 (a generic kind of function, not necessarily a Leo function)
@@ -425,7 +446,7 @@ in this example, the measure of the argument is the argument itself.
 (A relation is well-founded when
 it has no infinite strictly decreasing sequence;
 note that, in the factorial example,
-we are considering the relation on natural numbers only,
+we are considering the `<` relation on natural numbers only,
 not on all the integers).
 
 This property is undecidable in general,
@@ -460,7 +481,7 @@ If the recognition fails,
 the compiler falls back to inlining until
 either inlining terminates or the limit is reached.
 
-## Application to Loops
+### Application to Loops
 
 Loops are conceptually not different from recursion.
 Loops and recursion are two ways to repeat computations,
@@ -483,7 +504,7 @@ which in particular would readily recognize
 the currently allowed loop forms to terminate.
 All of this should be the topic of a separate RFC.
 
-## Application to Potentially Slow Transformations
+### Application to Potentially Slow Transformations
 
 Some flattening transformations in the Leo compiler are known to terminate,
 but they may take an excessively long time to do so.
@@ -495,28 +516,3 @@ Thus, we could consider using configurable limits
 not only for flattening transformations that may not otherwise terminate,
 but also for ones that may take a long time to do so.
 This is a broader topic that should be discussed in a separate RFC.
-
-# Drawbacks
-
-This proposal does not appear to bring any real drawbacks,
-other than making the compiler inevitably more complex.
-But the benefits to support recursion justifies the extra complexity.
-
-# Effect on Ecosystem
-
-This proposal does not appear to have any direct effects on the ecosystem.
-It simply enables certain Leo programs to be written in a more natural style.
-
-# Alternatives
-
-An alternative approach, hinted at in the above discussion about loops,
-is to take a similar approach to the current one for loops.
-That is, we could restrict the forms of allowed recursion
-to ones whose inlining is known to terminate at compile time.
-
-However, the configurable limit approach seems more flexible.
-It does not even preclude a termination analysis, as discussed earlier.
-Furthermore, in practical terms,
-non-termination is not much different from excessively long computation.
-and the configurable limit approach may be uniformly suitable
-to avoid both non-termination and excessively long computation.

@@ -16,18 +16,11 @@
 
 //! The verification key file.
 
-use crate::outputs::OUTPUTS_DIRECTORY_NAME;
+use crate::PackageFile;
+
 use leo_errors::{PackageError, Result};
 
 use serde::Deserialize;
-use std::{
-    borrow::Cow,
-    fs::{
-        File, {self},
-    },
-    io::Write,
-    path::Path,
-};
 
 pub static VERIFICATION_KEY_FILE_EXTENSION: &str = ".lvk";
 
@@ -43,55 +36,25 @@ impl VerificationKeyFile {
         }
     }
 
-    pub fn full_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
-        self.setup_file_path(path)
-    }
-
-    pub fn exists_at(&self, path: &Path) -> bool {
-        let path = self.setup_file_path(path);
-        path.exists()
-    }
-
     /// Reads the verification key from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<Vec<u8>> {
-        let path = self.setup_file_path(path);
-
+    pub fn read_from(&self, path: &std::path::Path) -> Result<Vec<u8>> {
+        let path = self.file_path(path);
         let bytes =
-            fs::read(&path).map_err(|_| PackageError::failed_to_read_verification_key_file(path.into_owned()))?;
+            std::fs::read(&path).map_err(|_| PackageError::failed_to_read_verification_key_file(path.into_owned()))?;
         Ok(bytes)
     }
+}
 
-    /// Writes the given verification key to a file.
-    pub fn write_to<'a>(&self, path: &'a Path, verification_key: &[u8]) -> Result<Cow<'a, Path>> {
-        let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(PackageError::io_error_verification_key_file)?;
+impl PackageFile for VerificationKeyFile {
+    type ParentDirectory = super::OutputsDirectory;
 
-        file.write_all(verification_key)
-            .map_err(PackageError::io_error_verification_key_file)?;
-        Ok(path)
+    fn template(&self) -> String {
+        unimplemented!("PackageFile doesn't have a template.");
     }
+}
 
-    /// Removes the verification key at the given path if it exists. Returns `true` on success,
-    /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool> {
-        let path = self.setup_file_path(path);
-        if !path.exists() {
-            return Ok(false);
-        }
-
-        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_verification_key_file(path))?;
-        Ok(true)
-    }
-
-    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
-            }
-            path.to_mut()
-                .push(format!("{}{}", self.package_name, VERIFICATION_KEY_FILE_EXTENSION));
-        }
-        path
+impl std::fmt::Display for VerificationKeyFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}.lvk", self.package_name)
     }
 }

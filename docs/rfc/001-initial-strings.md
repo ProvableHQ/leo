@@ -8,7 +8,7 @@ The Aleo Team.
 
 IMPLEMENTED
 
-# Summary
+## Summary
 
 The purpose of this proposal is to provide initial support for strings in Leo.
 Since strings are sequences of characters,
@@ -31,7 +31,7 @@ By not prescribing a new type for strings,
 this initial proposal leaves the door open
 to a future more flexible type of resizable strings.
 
-# Motivation
+## Motivation
 
 Strings (and characters) are common in programming languages.
 Use cases for Leo include
@@ -40,19 +40,18 @@ and more complex ones like Bech32 encoding,
 edit distance in strings representing proteins,
 and zero-knowledge proofs of occurrences or absences of patterns in textual logs.
 
-# Design
+## Design
 
 Since strings are sequences of characters,
 a design for strings inextricably also involves a design for characters.
 Thus, we first present a design for both characters and strings.
 
-## Characters
+### Characters
 
 We add a new scalar type, `char` for characters.
 In accord with Leo's strong typing,
 this new type is separate from all the other scalar types.
-Type casts (a future feature of Leo) will be needed
-to convert between `char` and other types.
+Explicit constructs will be needed to convert between `char` and other types.
 
 The set of values of type `char` is isomorphic to
 the set of Unicode code points from 0 to 10FFFF (both inclusive).
@@ -103,29 +102,6 @@ creating literals, there is no need for the circuit to know
 which code points are disallowed.
 
 The equality operators `==` and `!=` are automatically available for `char`.
-Given that characters are essentially code points,
-we may also support the ordering operators `<`, `<=`, `>`, and `>=`;
-these may be useful to check whether a character is in certain range.
-
-Below is a list of possible operations we could support on characters.
-It should be fairly easy to add more.
-- [ ] `is_alphabetic` - Returns `true` if the `char` has the `Alphabetic` property.
-- [ ] `is_ascii` - Returns `true` if the `char` is in the `ASCII` range.
-- [ ] `is_ascii_alphabetic` - Returns `true` if the `char` is in the `ASCII Alphabetic` range.
-- [ ] `is_lowercase` - Returns `true` if the `char` has the `Lowercase` property.
-- [ ] `is_numeric` - Returns `true` if the `char` has one of the general categories for numbers.
-- [ ] `is_uppercase` - Returns `true` if the `char` has the `Uppercase` property.
-- [ ] `is_whitespace` - Returns `true` if the `char` has the `White_Space` property.
-- [ ] `to_digit` - Converts the `char` to the given `radix` format.
-- [ ] `from_digit` - Inverse of to_digit.
-- [ ] `to_uppercase` - Converts lowercase to uppercase, leaving others unchanged.
-- [ ] `to_lowercase` - Converts uppercase to lowercase, leaving others unchanged.
-
-It seems natural to convert between `char` values
-and `u8` or `u16` or `u32` values, under suitable range conditions;
-perhaps also between `char` values and
-(non-negative) `i8` or `i16` or `i32` values.
-This will be accomplished as part of the type casting extension of Leo.
 
 The following code sample illustrates three ways of defining characters:
 character literal, single-character escapes, and Unicode escapes.
@@ -146,7 +122,7 @@ function main() -> [char; 5] {
 }
 ```
 
-## Strings
+### Strings
 
 In this initial design proposal, we do not introduce any new type for strings.
 Instead, we rely on the fact that Leo already has arrays
@@ -213,19 +189,6 @@ that are also common for strings in other programming languages:
 * `s[i]` extracts the `i`-th character from the string `s`.
 * `s[1..]` removes the first character from the string `s`.
 
-Below is a list of possible operations we could support on strings.
-It should be fairly easy to add more.
-- [ ] `u8` to `[char; 2]` hexstring, .., `u128` to `[char; 32]` hexstring.
-- [ ] Field element to `[char; 64]` hexstring. (Application can test leading zeros and slice them out if it needs to return, say, a 40-hex-digit string.)
-- [ ] Apply `to_uppercase` (see above) to every character.
-- [ ] Apply `to_lowercase` (see above) to every character.
-
-Note that the latter two could be also realize via simple loops through the string.
-
-Given the natural conversions between `char` values and integer values discussed earlier,
-it may be natural to also support element-wise conversions between strings and arrays of integers.
-This may be accomplished as part of the type casting extensions of Leo.
-
 The following code shows a string literal and its actual transformation into an
 array of characters as well as possible array-like operations on strings:
 concatenation and comparison.
@@ -244,7 +207,7 @@ function main() -> bool {
 }
 ```
 
-## Format Strings
+### Format Strings
 
 Leo currently supports format strings as their own entity,
 usable exclusively as first arguments of console print calls.
@@ -256,39 +219,7 @@ which will be interpreted as a format string
 according to the semantics of console print calls.
 The internal UTF-32 string will be translated to UTF-8 for output.
 
-## Circuit Types for Character and String Operations
-
-The operations on characters and lists described earlier, e.g. `is_ascii`,
-are provided as static member functions of two new built-in or library circuit types `Char` and `String`.
-Thus, an example call is `Char::is_ascii(c)`.
-This seems a general good way to organize built-in or library operations,
-and supports the use of the same name with different circuit types,
-e.g. `Char::to_uppercase` and `String::to_uppercase`.
-
-These circuit types could also include constants, e.g. for certain ASCII characters.
-However, currently Leo does not support constants in circuit types,
-so that would have to be added separately first.
-
-These two circuit types are just meant to collect static member functions for characters and strings.
-They are not meant to be the types of characters and strings:
-as mentioned previously, `char` is a new scalar (not circuit) type (like `bool`, `address`, `u8`, etc.)
-and there is no string type as such for now, but we use character arrays for strings.
-In the future we may want all the Leo types to be circuit types of some sort,
-but that is a separate feature that would have to be designed and developed independently.
-
-## Input and Output of Literal Characters and Strings
-
-Since UTF-8 is a standard encoding, it would make sense for
-the literal characters and strings in the `.in` file
-to be automatically converted to UTF-32 by the Leo compiler.
-However, the size of a string can be confusing since multiple
-Unicode code points can be composed into a single glyph which
-then appears to be a single character.  If a parameter of type `[char; 10]`
-[if that is the syntax we decide on] is passed a literal string
-of a different size, the error message should explain that the
-size must be the number of codepoints needed to encode the string.
-
-## Compilation to R1CS
+### Compilation to R1CS
 
 So far, the discussion has been independent from R1CS
 (except for a brief reference when discussing the rationale behind the design).
@@ -346,42 +277,22 @@ We need more analysis to determine which approach is more efficient.
 The details of implementing other character and string operations in R1CS
 will be fleshed out as each operation is added.
 
-## Future Extensions
-
-As alluded to in the section about design above,
-for now, we are avoiding the introduction of a string type,
-isomorphic to but separate from character arrays,
-because we may want to introduce later a more flexible type of strings,
-in particular, one that supports resizing.
-This may be realized via a built-in or library circuit type
-that includes a character array and a fill index.
-This may be a special case of a built-in or library circuit type
-for resizable vectors,
-possibly realized via an array and a fill index.
-This hypothetical type of resizable vectors
-may have to be parameterized over the element type,
-requiring an extension of the Leo type system
-that is much more general than strings.
-
-Because of the above considerations,
-it seems premature to design a string type at this time,
-provided that the simple initial design described in the section above
-suffices to cover the initial use cases that motivate this RFC.
-
-# Drawbacks
+## Drawbacks
 
 This proposal does not appear to bring any real drawbacks,
 other than making the language inevitably slightly more complex.
 But the need to support characters and strings justifies the extra complexity.
 
-# Effect on Ecosystem
+## Effect on Ecosystem
 
 With the ability of Leo programs to process strings,
 it may be useful to have external tools that convert Leo strings
 to/from common formats, e.g. UTF-8.
 See the discussion of input files in the design section.
 
-# Alternatives
+## Alternatives
+
+### 32-bit Unsigned Integers for Characters
 
 We could avoid the new `char` type altogether,
 and instead, rely on the existing `u32` to represent Unicode code points,
@@ -401,6 +312,8 @@ even if restricted to the number of bits needed for Unicode code points,
 is less efficient than the field representation described earlier
 because `u32` requires a field element for each bit.
 
+### Separate String Type, Isomorphic to Character Arrays
+
 Instead of representing strings as character arrays,
 we could introduce a new type `string`
 whose values are finite sequences of zero or more characters.
@@ -415,9 +328,103 @@ Furthermore, as noted in the section on future extensions,
 this leaves the door open to
 introducing a future type `string` for resizable strings.
 
+### Field Elements for Characters
+
 Yet another option could be to use directly `field` to represent characters
 and `[field; N]` to represent strings of `N` characters.
 However, many values of type `field` are not valid Unicode code points,
 and many field operations do not make sense for characters.
 Thus, having a separate type `char` for characters seems better,
 and more in accordance with Leo's strong typing.
+
+## Future Extensions
+
+### Operations on Characters
+
+Given that characters are essentially code points,
+we may also support the ordering operators `<`, `<=`, `>`, and `>=`;
+these may be useful to check whether a character is in certain range.
+
+Below is a list of possible operations we could support on characters.
+It should be fairly easy to add more.
+- [ ] `is_alphabetic` - Returns `true` if the `char` has the `Alphabetic` property.
+- [ ] `is_ascii` - Returns `true` if the `char` is in the `ASCII` range.
+- [ ] `is_ascii_alphabetic` - Returns `true` if the `char` is in the `ASCII Alphabetic` range.
+- [ ] `is_lowercase` - Returns `true` if the `char` has the `Lowercase` property.
+- [ ] `is_numeric` - Returns `true` if the `char` has one of the general categories for numbers.
+- [ ] `is_uppercase` - Returns `true` if the `char` has the `Uppercase` property.
+- [ ] `is_whitespace` - Returns `true` if the `char` has the `White_Space` property.
+- [ ] `to_digit` - Converts the `char` to the given `radix` format.
+- [ ] `from_digit` - Inverse of to_digit.
+- [ ] `to_uppercase` - Converts lowercase to uppercase, leaving others unchanged.
+- [ ] `to_lowercase` - Converts uppercase to lowercase, leaving others unchanged.
+
+It seems natural to convert between `char` values
+and `u8` or `u16` or `u32` values, under suitable range conditions;
+perhaps also between `char` values and
+(non-negative) `i8` or `i16` or `i32` values.
+This may be accomplished as part of the type casting extension of Leo.
+
+### Operations on Strings
+
+Below is a list of possible operations we could support on strings.
+It should be fairly easy to add more.
+- [ ] `u8` to `[char; 2]` hexstring, .., `u128` to `[char; 32]` hexstring.
+- [ ] Field element to `[char; 64]` hexstring. (Application can test leading zeros and slice them out if it needs to return, say, a 40-hex-digit string.)
+- [ ] Apply `to_uppercase` (see above) to every character.
+- [ ] Apply `to_lowercase` (see above) to every character.
+
+Note that the latter two could be also realized via simple loops through the string.
+
+Given the natural conversions between `char` values and integer values discussed earlier,
+it may be natural to also support element-wise conversions between strings and arrays of integers.
+This may be accomplished as part of the type casting extensions of Leo.
+
+### Circuit Types for Character and String Operations
+
+The operations on characters and lists described earlier, e.g. `is_ascii`,
+are provided as static member functions of two new built-in or library circuit types `Char` and `String`.
+Thus, an example call is `Char::is_ascii(c)`.
+This seems a general good way to organize built-in or library operations,
+and supports the use of the same name with different circuit types,
+e.g. `Char::to_uppercase` and `String::to_uppercase`.
+
+These circuit types could also include constants, e.g. for certain ASCII characters.
+However, currently Leo does not support constants in circuit types,
+so that would have to be added separately first.
+
+These two circuit types are just meant to collect static member functions for characters and strings.
+They are not meant to be the types of characters and strings:
+as mentioned previously, `char` is a new scalar (not circuit) type (like `bool`, `address`, `u8`, etc.)
+and there is no string type as such for now, but we use character arrays for strings.
+In the future we may want all the Leo types to be circuit types of some sort,
+but that is a separate feature that would have to be designed and developed independently.
+
+### Input and Output of Literal Characters and Strings
+
+Since UTF-8 is a standard encoding, it would make sense for
+the literal characters and strings in the `.in` file
+to be automatically converted to UTF-32 by the Leo compiler.
+However, the size of a string can be confusing since multiple
+Unicode code points can be composed into a single glyph which
+then appears to be a single character.  If a parameter of type `[char; 10]`
+[if that is the syntax we decide on] is passed a literal string
+of a different size, the error message should explain that the
+size must be the number of codepoints needed to encode the string.
+
+### String Type
+
+As alluded to in the design section above,
+for now, we are avoiding the introduction of a string type,
+isomorphic to but separate from character arrays,
+because we may want to introduce later a more flexible type of strings,
+in particular, one that supports resizing.
+This may be realized via a built-in or library circuit type
+that includes a character array and a fill index.
+This may be a special case of a built-in or library circuit type
+for resizable vectors,
+possibly realized via an array and a fill index.
+This hypothetical type of resizable vectors
+may have to be parameterized over the element type,
+requiring an extension of the Leo type system
+that is much more general than strings.

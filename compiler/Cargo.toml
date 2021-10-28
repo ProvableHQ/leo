@@ -72,18 +72,17 @@ version = "1.5.3"
 [dependencies.tendril]
 version = "0.4"
 
-#todo 0rphon
 [dependencies.snarkvm-ir]
 version = "0.7.9"
-# path = "C:\\Users\\jonat\\AppData\\Roaming\\work\\snarkVM\\ir"
-git = "https://github.com/AleoHQ/snarkVM"
-branch = "feature/bits-bytes-ir-core-circuits"
 
 [dependencies.snarkvm-r1cs]
 version = "0.7.9"
-# path = "C:\\Users\\jonat\\AppData\\Roaming\\work\\snarkVM\\r1cs"
-git = "https://github.com/AleoHQ/snarkVM"
-branch = "feature/bits-bytes-ir-core-circuits"
+
+[dependencies.snarkvm-eval]
+version = "0.7.9"
+
+[dependencies.snarkvm-curves]
+version = "0.7.9"
 
 [dependencies.bincode]
 version = "1.3"
@@ -101,6 +100,10 @@ version = "0.8"
 [dependencies.serde]
 version = "1.0"
 
+[dependencies.serde_json]
+version = "1.0"
+features = [ "preserve_order" ]
+
 [dependencies.sha2]
 version = "0.9"
 
@@ -112,19 +115,6 @@ version = "0.8"
 
 [dependencies.num-bigint]
 version = "0.4"
-
-#todo 0rphon
-[dependencies.snarkvm-eval]
-version = "0.7.9"
-# path = "C:\\Users\\jonat\\AppData\\Roaming\\work\\snarkVM\\eval"
-git = "https://github.com/AleoHQ/snarkVM"
-branch = "feature/bits-bytes-ir-core-circuits"
-
-[dependencies.snarkvm-curves]
-version = "0.7.9"
-# path = "C:\\Users\\jonat\\AppData\\Roaming\\work\\snarkVM\\curves"
-git = "https://github.com/AleoHQ/snarkVM"
-branch = "feature/bits-bytes-ir-core-circuits"
 
 [dev-dependencies.rand_core]
 version = "0.6.3"

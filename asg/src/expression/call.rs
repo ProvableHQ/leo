@@ -69,9 +69,7 @@ impl<'a> ExpressionNode<'a> for CallExpression<'a> {
     }
 
     fn is_consty(&self) -> bool {
-        // const functions not implemented in IR
-        // self.target.get().map(|x| x.is_consty()).unwrap_or(true) && self.arguments.iter().all(|x| x.get().is_consty())
-        false
+        self.function.get().const_
     }
 }
 
@@ -101,13 +99,16 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     let circuit = match type_ {
                         // Set core mapping to function name and resolve core circuit when applicable.
                         // Otherwise resolve regular circuit.
-                        Some(Type::Array(_, _)) | Some(Type::ArrayWithoutSize(_)) | Some(Type::Tuple(_)) | None => {
+                        Some(Type::Tuple(_)) | None => {
                             return Err(AsgError::unexpected_type(
                                 "circuit",
                                 type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                                 span,
                             )
                             .into());
+                        }
+                        Some(Type::Array(_, _)) | Some(Type::ArrayWithoutSize(_)) => {
+                            scope.resolve_circuit("array").unwrap()
                         }
                         Some(Type::Circuit(circuit)) => circuit,
                         Some(Type::Integer(int_type)) => scope.resolve_circuit(&int_type.to_string()).unwrap(),
@@ -191,6 +192,9 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                 .into());
             }
         };
+        if scope.resolve_current_function().map(|f| f.const_).unwrap_or_default() && !function.const_ {
+            return Err(AsgError::calling_non_const_in_const_context(&value.span).into());
+        }
         if let Some(expected) = expected_type {
             let output: Type = function.output.clone();
             if !expected.matches(&output) {
@@ -211,8 +215,9 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
             .iter()
             .zip(function.arguments.iter())
             .map(|(expr, (_, argument))| {
+                let argument_type = argument.get().borrow().type_.clone();
+                let converted = <&Expression<'a>>::from_ast(scope, expr, Some(argument_type.partial()))?;
                 let argument = argument.get().borrow();
-                let converted = <&Expression<'a>>::from_ast(scope, expr, Some(argument.type_.clone().partial()))?;
                 if argument.const_ && !converted.is_consty() {
                     return Err(AsgError::unexpected_nonconst(expr.span()).into());
                 }

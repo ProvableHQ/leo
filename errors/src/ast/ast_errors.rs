@@ -122,4 +122,12 @@ create_errors!(
         msg: format!("failed to resolve import: '{}'", name),
         help: None,
     }
+
+    /// For when the AST fails to be represented as a JSON value.
+    @backtraced
+    failed_to_convert_ast_to_json_value {
+        args: (error: impl ErrorArg),
+        msg: format!("failed to convert ast to a json value {}", error),
+        help: None,
+    }
 );
