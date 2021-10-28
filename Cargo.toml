@@ -211,16 +211,16 @@ debug = true
 
 # Remove on pr from staging to master once snarkvm does a release.
 [patch.crates-io]
-snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
-snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
-snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
-snarkvm-eval = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
-snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
-snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
-snarkvm-ir = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
-snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
-snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
-snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "feature/bits-bytes-eval" }
+snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-eval = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-ir = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
 
 # snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }
 # snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
