@@ -19,6 +19,7 @@ use crate::{
     inputs::{InputFile, InputsDirectory, StateFile},
     root::{Gitignore, Manifest, README},
     source::{MainFile, SourceDirectory},
+    PackageDirectory, PackageFile,
 };
 
 use leo_errors::{PackageError, Result};
@@ -118,8 +119,9 @@ impl Package {
         let mut existing_files = vec![];
 
         // Check if the manifest file already exists.
-        if Manifest::exists_at(path) {
-            existing_files.push(Manifest::filename());
+        let manifest = Manifest::new(package_name, None).unwrap();
+        if manifest.exists_at(path) {
+            existing_files.push(manifest.filename());
             result = false;
         }
 
@@ -138,8 +140,9 @@ impl Package {
         }
 
         // Check if the main file already exists.
-        if MainFile::exists_at(path) {
-            existing_files.push(MainFile::filename());
+        let main_file = MainFile::new(package_name);
+        if main_file.exists_at(path) {
+            existing_files.push(main_file.to_string());
             result = false;
         }
 
@@ -158,7 +161,8 @@ impl Package {
         }
 
         // Check if the manifest file exists.
-        if !Manifest::exists_at(path) {
+        let manifest = Manifest::new(package_name, None).unwrap();
+        if !manifest.exists_at(path) {
             return false;
         }
 
@@ -175,7 +179,8 @@ impl Package {
         }
 
         // Check if the main file exists.
-        if !MainFile::exists_at(path) {
+        let main_file = MainFile::new(package_name);
+        if !main_file.exists_at(path) {
             return false;
         }
 
@@ -193,18 +198,20 @@ impl Package {
         // Next, initialize this directory as a Leo package.
         {
             // Create the manifest file.
-            Manifest::new(package_name, author)?.write_to(path)?;
+            Manifest::new(package_name, author)?.write_template(path)?;
 
+            let gitignore = Gitignore::new();
             // Verify that the .gitignore file does not exist.
-            if !Gitignore::exists_at(path) {
+            if !gitignore.exists_at(path) {
                 // Create the .gitignore file.
-                Gitignore::new().write_to(path)?;
+                gitignore.write_template(path)?;
             }
 
+            let readme = README::new(package_name);
             // Verify that the README.md file does not exist.
-            if !README::exists_at(path) {
+            if !readme.exists_at(path) {
                 // Create the README.md file.
-                README::new(package_name).write_to(path)?;
+                readme.write_template(path)?;
             }
 
             // Create the source directory.
@@ -214,13 +221,13 @@ impl Package {
             InputsDirectory::create(path)?;
 
             // Create the input file in the inputs directory.
-            InputFile::new(package_name).write_to(path)?;
+            InputFile::new(package_name).write_template(path)?;
 
             // Create the state file in the inputs directory.
-            StateFile::new(package_name).write_to(path)?;
+            StateFile::new(package_name).write_template(path)?;
 
             // Create the main file in the source directory.
-            MainFile::new(package_name).write_to(path)?;
+            MainFile::new(package_name).write_template(path)?;
         }
         // Next, verify that a valid Leo package has been initialized in this directory
         {

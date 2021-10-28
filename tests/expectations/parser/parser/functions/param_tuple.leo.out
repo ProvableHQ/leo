@@ -29,6 +29,7 @@ outputs:
                 col_stop: 13
                 path: ""
                 content: "function x(x: (u32, i32)) {"
+        const_: false
         output: ~
         core_mapping: ~
         block:

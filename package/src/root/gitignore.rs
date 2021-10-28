@@ -16,42 +16,29 @@
 
 //! The `.gitignore` file.
 
-use leo_errors::{PackageError, Result};
+use crate::PackageFile;
 
 use serde::Deserialize;
-use std::{borrow::Cow, fs::File, io::Write, path::Path};
-
-pub static GITIGNORE_FILENAME: &str = ".gitignore";
 
 #[derive(Deserialize, Default)]
 pub struct Gitignore;
 
-impl Gitignore {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn exists_at(path: &Path) -> bool {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            path.to_mut().push(GITIGNORE_FILENAME);
-        }
-        path.exists()
-    }
-
-    pub fn write_to(self, path: &Path) -> Result<()> {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            path.to_mut().push(GITIGNORE_FILENAME);
-        }
-
-        let mut file = File::create(&path).map_err(PackageError::io_error_gitignore_file)?;
-        file.write_all(self.template().as_bytes())
-            .map_err(PackageError::io_error_gitignore_file)?;
-        Ok(())
-    }
+impl PackageFile for Gitignore {
+    type ParentDirectory = super::RootDirectory;
 
     fn template(&self) -> String {
         "outputs/\n".to_string()
+    }
+}
+
+impl std::fmt::Display for Gitignore {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, ".gitignore")
+    }
+}
+
+impl Gitignore {
+    pub fn new() -> Self {
+        Self::default()
     }
 }

@@ -134,6 +134,72 @@ impl Namespace for ParseNamespace {
     }
 }
 
+struct SerializeNamespace;
+
+// Helper functions to recursively filter keys from AST JSON.
+// Redeclaring here since we don't want to make this public.
+fn remove_key_from_json(value: &mut serde_json::Value, key: &str) {
+    match value {
+        serde_json::value::Value::Object(map) => {
+            map.remove(key);
+            for val in map.values_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        serde_json::value::Value::Array(values) => {
+            for val in values.iter_mut() {
+                remove_key_from_json(val, key);
+            }
+        }
+        _ => (),
+    }
+}
+
+// Helper function to normalize AST
+// Redeclaring here because we don't want to make this public
+fn normalize_json_value(value: serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Array(vec) => {
+            let orig_length = vec.len();
+            let mut new_vec: Vec<serde_json::Value> = vec
+                .into_iter()
+                .filter(|v| !matches!(v, serde_json::Value::Object(map) if map.is_empty()))
+                .map(normalize_json_value)
+                .collect();
+
+            if orig_length == 2 && new_vec.len() == 1 {
+                new_vec.pop().unwrap()
+            } else {
+                serde_json::Value::Array(new_vec)
+            }
+        }
+        serde_json::Value::Object(map) => {
+            serde_json::Value::Object(map.into_iter().map(|(k, v)| (k, normalize_json_value(v))).collect())
+        }
+        _ => value,
+    }
+}
+
+impl Namespace for SerializeNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Whole
+    }
+
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
+        let mut tokens = ParserContext::new(tokenizer);
+
+        let parsed = tokens.parse_program().map_err(|x| x.to_string())?;
+        not_fully_consumed(&mut tokens)?;
+
+        let mut json = serde_json::to_value(parsed).expect("failed to convert to json value");
+        remove_key_from_json(&mut json, "span");
+        json = normalize_json_value(json);
+
+        Ok(serde_json::from_value::<serde_yaml::Value>(json).expect("failed serialization"))
+    }
+}
+
 struct TestRunner;
 
 impl Runner for TestRunner {
@@ -143,6 +209,7 @@ impl Runner for TestRunner {
             "ParseStatement" => Box::new(ParseStatementNamespace),
             "ParseExpression" => Box::new(ParseExpressionNamespace),
             "Token" => Box::new(TokenNamespace),
+            "Serialize" => Box::new(SerializeNamespace),
             _ => return None,
         })
     }

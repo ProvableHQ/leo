@@ -336,6 +336,22 @@ mod cli_tests {
     }
 
     #[test]
+    fn snapshot_options() {
+        let dir = testdir("build-test");
+        let path = dir.path("build-test");
+
+        assert!(run_cmd("leo new setup-test", &Some(path.clone())).is_ok());
+
+        let build_path = &Some(path.join("setup-test"));
+
+        assert!(run_cmd("leo build --enable-canonicalized-ast-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-imports-resolved-ast-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-initial-ast-snapshot", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-all-snapshots", build_path).is_ok());
+        assert!(run_cmd("leo build --emit-ir", build_path).is_ok());
+    }
+
+    #[test]
     fn setup_prove_run_clean() {
         let dir = testdir("test");
         let path = dir.path("test");

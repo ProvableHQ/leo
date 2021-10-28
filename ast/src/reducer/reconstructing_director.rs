@@ -550,9 +550,9 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_function(&mut self, function: &Function) -> Result<Function> {
         let identifier = self.reduce_identifier(&function.identifier)?;
 
-        let mut annotations = vec![];
-        for annotation in function.annotations.iter() {
-            annotations.push(self.reduce_annotation(annotation)?);
+        let mut annotations = IndexMap::new();
+        for (name, annotation) in function.annotations.iter() {
+            annotations.insert(name.clone(), self.reduce_annotation(annotation)?);
         }
 
         let mut inputs = vec![];
@@ -568,7 +568,14 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
         let block = self.reduce_block(&function.block)?;
 
-        self.reducer
-            .reduce_function(function, identifier, annotations, inputs, output, block)
+        self.reducer.reduce_function(
+            function,
+            identifier,
+            annotations,
+            inputs,
+            function.const_,
+            output,
+            block,
+        )
     }
 }

@@ -17,7 +17,7 @@
 //! Compiles a Leo program from a file path.
 
 use crate::{asg_group_coordinate_to_ir, decode_address, CompilerOptions, Output, OutputFile, Program};
-use crate::{AstSnapshotOptions, TypeInferencePhase};
+use crate::{OutputOptions, TypeInferencePhase};
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, CircuitMember, GroupValue, Program as AsgProgram};
 use leo_ast::AstPass;
@@ -42,6 +42,7 @@ use snarkvm_eval::{Evaluator, GroupType, PrimeField};
 use snarkvm_ir::InputData;
 use snarkvm_ir::{Group, Integer, Type, Value};
 use snarkvm_r1cs::ConstraintSystem;
+use std::io::Write;
 use std::{convert::TryFrom, fs, path::PathBuf};
 
 use indexmap::IndexMap;
@@ -75,7 +76,7 @@ pub struct Compiler<'a> {
     asg: Option<AsgProgram<'a>>,
     options: CompilerOptions,
     imports_map: IndexMap<String, String>,
-    ast_snapshot_options: AstSnapshotOptions,
+    output_options: OutputOptions,
 }
 
 impl<'a> Compiler<'a> {
@@ -89,7 +90,7 @@ impl<'a> Compiler<'a> {
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
         imports_map: IndexMap<String, String>,
-        ast_snapshot_options: Option<AstSnapshotOptions>,
+        output_options: Option<OutputOptions>,
     ) -> Self {
         // load static files
         // TODO remove this once we implement a determinstic include_dir
@@ -104,7 +105,7 @@ impl<'a> Compiler<'a> {
             context,
             options: options.unwrap_or_default(),
             imports_map,
-            ast_snapshot_options: ast_snapshot_options.unwrap_or_default(),
+            output_options: output_options.unwrap_or_default(),
         }
     }
 
@@ -122,7 +123,7 @@ impl<'a> Compiler<'a> {
         context: AsgContext<'a>,
         options: Option<CompilerOptions>,
         imports_map: IndexMap<String, String>,
-        ast_snapshot_options: Option<AstSnapshotOptions>,
+        output_options: Option<OutputOptions>,
     ) -> Result<Self> {
         let mut compiler = Self::new(
             package_name,
@@ -131,7 +132,7 @@ impl<'a> Compiler<'a> {
             context,
             options,
             imports_map,
-            ast_snapshot_options,
+            output_options,
         );
 
         compiler.parse_program()?;
@@ -164,8 +165,12 @@ impl<'a> Compiler<'a> {
 
         let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
 
-        if self.ast_snapshot_options.initial {
-            ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
+        if self.output_options.ast_initial {
+            if self.output_options.spans_enabled {
+                ast.to_json_file(self.output_directory.clone(), "initial_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "initial_ast.json", &["span"])?;
+            }
         }
 
         // Preform import resolution.
@@ -177,15 +182,23 @@ impl<'a> Compiler<'a> {
             ast.into_repr(),
         )?;
 
-        if self.ast_snapshot_options.imports_resolved {
-            ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
+        if self.output_options.ast_imports_resolved {
+            if self.output_options.spans_enabled {
+                ast.to_json_file(self.output_directory.clone(), "imports_resolved_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "imports_resolved_ast.json", &["span"])?;
+            }
         }
 
         // Preform canonicalization of AST always.
-        ast = leo_ast_passes::Canonicalizer::do_pass(leo_ast_passes::Canonicalizer::default(), ast.into_repr())?;
+        ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
 
-        if self.ast_snapshot_options.canonicalized {
-            ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
+        if self.output_options.ast_canonicalized {
+            if self.output_options.spans_enabled {
+                ast.to_json_file(self.output_directory.clone(), "canonicalization_ast.json")?;
+            } else {
+                ast.to_json_file_without_keys(self.output_directory.clone(), "canonicalization_ast.json", &["span"])?;
+            }
         }
 
         // Store the main program file.
@@ -197,11 +210,20 @@ impl<'a> Compiler<'a> {
         // Create a new symbol table from the program, imported_programs, and program_input.
         let asg = Asg::new(self.context, &self.program)?;
 
-        if self.ast_snapshot_options.type_inferenced {
+        if self.output_options.ast_type_inferenced {
             let new_ast = TypeInferencePhase::default()
                 .phase_ast(&self.program, &asg.clone().into_repr())
                 .expect("Failed to produce type inference ast.");
-            new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
+
+            if self.output_options.spans_enabled {
+                new_ast.to_json_file(self.output_directory.clone(), "type_inferenced_ast.json")?;
+            } else {
+                new_ast.to_json_file_without_keys(
+                    self.output_directory.clone(),
+                    "type_inferenced_ast.json",
+                    &["span"],
+                )?;
+            }
         }
 
         tracing::debug!("ASG generation complete");
@@ -241,7 +263,7 @@ impl<'a> Compiler<'a> {
 
         program.enforce_program(input)?;
 
-        Ok(program.render())
+        Ok(program.render(&self.options))
     }
 
     pub fn compile<F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
@@ -250,6 +272,26 @@ impl<'a> Compiler<'a> {
         input: &leo_ast::Input,
     ) -> Result<CompilationData> {
         let compiled = self.compile_ir(input)?;
+
+        if self.output_options.emit_ir {
+            let writer = |extension: &str, data: Vec<u8>| {
+                let mut f = std::fs::File::create(
+                    self.output_directory
+                        .clone()
+                        .join(format!("{}{}", self.program_name, extension)),
+                )
+                .unwrap();
+                f.write_all(&data).unwrap();
+            };
+
+            writer(".leo.ir", compiled.serialize().unwrap());
+            writer(".leo.ir.fmt", compiled.to_string().as_bytes().to_vec());
+            writer(
+                ".leo.ir.input",
+                self.process_input(input, &compiled.header)?.serialize().unwrap(),
+            );
+        }
+
         self.compile_inner::<F, G, CS>(cs, input, compiled)
     }
 
@@ -283,13 +325,7 @@ impl<'a> Compiler<'a> {
         let program_name = program.asg.name.clone();
         let mut output_file_name = program_name.clone();
 
-        let input_file = function
-            .annotations
-            .iter()
-            .find(|x| x.name.name.as_ref() == "test")
-            .unwrap()
-            .arguments
-            .get(0);
+        let input_file = function.annotations.get("test").unwrap().arguments.get(0);
         // get input file name from annotation or use test_name
         let input_pair = match input_file {
             Some(file_id) => {
@@ -353,7 +389,7 @@ impl<'a> Compiler<'a> {
         // run test function on new program with input
         let mut temporary_program = program.clone();
         temporary_program.enforce_function(&program.asg, function, &secondary_functions, &input)?;
-        Ok((input, temporary_program.render(), output_file_name))
+        Ok((input, temporary_program.render(&self.options), output_file_name))
     }
 
     pub fn compile_test(&self, input: InputPairs) -> Result<(u32, u32)> {
@@ -377,12 +413,7 @@ impl<'a> Compiler<'a> {
         let mut failed = 0;
 
         for (test_name, function) in tests.into_iter() {
-            let mut cs = CircuitSynthesizer::<Bls12_377> {
-                constraints: Default::default(),
-                public_variables: Default::default(),
-                private_variables: Default::default(),
-                namespaces: Default::default(),
-            };
+            let mut cs = CircuitSynthesizer::<Bls12_377>::default();
             let full_test_name = format!("{}::{}", program_name, test_name);
 
             let result = match self.compile_ir_test(&program, function, &input) {

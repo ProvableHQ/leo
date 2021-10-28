@@ -88,15 +88,11 @@ impl Program {
         }
     }
 
-    pub fn set_core_mapping(&self) {
-        for (_, circuit) in self.circuits.iter() {
-            for member in circuit.members.iter() {
+    pub fn set_core_mapping(&mut self) {
+        for (_, circuit) in self.circuits.iter_mut() {
+            for member in circuit.members.iter_mut() {
                 if let CircuitMember::CircuitFunction(function) = member {
-                    if let Some(core_map) = function
-                        .annotations
-                        .iter()
-                        .find(|x| x.name.name.as_ref() == "CoreFunction")
-                    {
+                    if let Some(core_map) = function.annotations.remove("CoreFunction") {
                         function.core_mapping.replace(
                             core_map
                                 .arguments

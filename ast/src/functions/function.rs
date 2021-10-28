@@ -17,14 +17,16 @@
 use crate::{Annotation, Block, FunctionInput, Identifier, Node, Type};
 use leo_errors::Span;
 
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Function {
-    pub annotations: Vec<Annotation>,
+    pub annotations: IndexMap<String, Annotation>,
     pub identifier: Identifier,
     pub input: Vec<FunctionInput>,
+    pub const_: bool,
     pub output: Option<Type>,
     pub core_mapping: std::cell::RefCell<Option<String>>,
     pub block: Block,
@@ -40,8 +42,19 @@ impl PartialEq for Function {
 impl Eq for Function {}
 
 impl Function {
+    ///
+    /// Returns function name.
+    ///
     pub fn get_name(&self) -> &str {
         &self.identifier.name
+    }
+
+    ///
+    /// Returns `true` if the function name is `main`.
+    /// Returns false otherwise.
+    ///
+    pub fn is_main(&self) -> bool {
+        self.get_name() == "main"
     }
 
     ///
@@ -67,6 +80,9 @@ impl Function {
         self.input.iter().filter(|input| !input.is_self())
     }
 
+    ///
+    /// Private formatting method used for optimizing [fmt::Debug] and [fmt::Display] implementations.
+    ///
     fn format(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "function {}", self.identifier)?;
 

@@ -265,7 +265,7 @@ outputs:
       - input_file: u8_f.in
         output:
           registers: {}
-    initial_ast: 5b897f743a1f8b1d1ee94b99d214d3c72e519273f5a575ecdfee5b624681f67c
-    imports_resolved_ast: 68eecff4e901deb9402db62047b260592843ff7adf7e34b95eac208f32eee935
-    canonicalized_ast: 78bcefc30c332575d1a0d3fbcf1d814d09975f3cdbdef42a04e1f51247aa3ef0
-    type_inferenced_ast: e9040a0bc99ee8cdee6451ce31475ce19e5f77c8e60d2213ad7b18d00d5a546e
+    initial_ast: be3ee1647e228568ca0d5e1fde70f5619788f81939fff5e8bd42767fdb555d85
+    imports_resolved_ast: 4ac453bcebe75957479305ab52551fb5ca62127b0b78bfd50db46442233de67a
+    canonicalized_ast: 861c35d93d3df56f5cbbb3c700a88e305c8cee6742c8142e5e5473da76d70c8f
+    type_inferenced_ast: 98ad5e3a287537d7f67e6a46a17a10f5eaf6d7a6aeaab74bbfb34b9e29189d05

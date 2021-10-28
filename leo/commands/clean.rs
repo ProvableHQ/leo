@@ -17,8 +17,12 @@
 use crate::{commands::Command, context::Context};
 use leo_compiler::OutputFile;
 use leo_errors::Result;
-use leo_package::outputs::{
-    ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, Snapshot, SnapshotFile, VerificationKeyFile,
+use leo_package::{
+    outputs::{
+        ChecksumFile, CircuitFile, IrSnapshot, IrSnapshotFile, ProofFile, ProvingKeyFile, Snapshot, SnapshotFile,
+        VerificationKeyFile,
+    },
+    PackageFile,
 };
 
 use structopt::StructOpt;
@@ -68,6 +72,10 @@ impl Command for Clean {
         SnapshotFile::new(&package_name, Snapshot::ImportsResolved).remove(&path)?;
         SnapshotFile::new(&package_name, Snapshot::TypeInference).remove(&path)?;
         SnapshotFile::new(&package_name, Snapshot::Canonicalization).remove(&path)?;
+
+        IrSnapshotFile::new(&package_name, IrSnapshot::Formatted).remove(&path)?;
+        IrSnapshotFile::new(&package_name, IrSnapshot::Input).remove(&path)?;
+        IrSnapshotFile::new(&package_name, IrSnapshot::Raw).remove(&path)?;
 
         Ok(())
     }

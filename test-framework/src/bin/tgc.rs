@@ -114,43 +114,32 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
             // Do this to match test-framework ast bc of spans
             let text = &text[end_of_header + 2..];
             // Write all files into the directory.
-            let (initial, imports_resolved, canonicalized, type_inferenced) = generate_asts(cwd, text)?;
-
-            target.push("initial_ast.json");
-            fs::write(target.clone(), initial)?;
-            target.pop();
-
-            target.push("imports_resolved_ast.json");
-            fs::write(target.clone(), imports_resolved)?;
-            target.pop();
-
-            target.push("canonicalization_ast.json");
-            fs::write(target.clone(), canonicalized)?;
-            target.pop();
-
-            target.push("type_inferenced_ast.json");
-            fs::write(target.clone(), type_inferenced)?;
+            generate_asts(cwd, target, text)?;
         }
     }
 
     Ok(())
 }
 
-/// Do what Compiler does - prepare 3 stages of AST: initial, canonicalized and type_inferenced
-fn generate_asts(path: PathBuf, text: &str) -> Result<(String, String, String, String), Box<dyn Error>> {
+/// Do what Compiler does - prepare 3 stages of AST: initial, imports_resolved, canonicalized and type_inferenced
+/// Write these ASTs without Spans to JSON
+fn generate_asts(src_path: PathBuf, target_path: PathBuf, text: &str) -> Result<(), Box<dyn Error>> {
     std::env::set_var("LEO_TESTFRAMEWORK", "true");
 
-    let mut ast = leo_parser::parse_ast(path.clone().into_os_string().into_string().unwrap(), text)?;
-    let initial = ast.to_json_string()?;
+    let mut ast = leo_parser::parse_ast(src_path.clone().into_os_string().into_string().unwrap(), text)?;
+
+    ast.to_json_file_without_keys(target_path.clone(), "initial_ast.json", &["span"])?;
 
     ast = leo_ast_passes::Importer::do_pass(
-        leo_ast_passes::Importer::new(&mut ImportParser::new(path, Default::default()), "bls12_377"),
+        leo_ast_passes::Importer::new(&mut ImportParser::new(src_path, Default::default()), "bls12_377"),
         ast.into_repr(),
     )?;
-    let imports_resolved = ast.to_json_string()?;
+
+    ast.to_json_file_without_keys(target_path.clone(), "imports_resolved_ast.json", &["span"])?;
 
     ast = leo_ast_passes::Canonicalizer::do_pass(leo_ast_passes::Canonicalizer::default(), ast.into_repr())?;
-    let canonicalized = ast.to_json_string()?;
+
+    ast.to_json_file_without_keys(target_path.clone(), "canonicalization_ast.json", &["span"])?;
 
     let mut ti_ast = ast.into_repr();
     ti_ast.name = "test".to_string(); // Do this to match test-framework ast
@@ -159,12 +148,13 @@ fn generate_asts(path: PathBuf, text: &str) -> Result<(String, String, String, S
 
     let type_inferenced = TypeInferencePhase::default()
         .phase_ast(&ti_ast, &asg.clone().into_repr())
-        .expect("Failed to produce type inference ast.")
-        .to_json_string()?;
+        .expect("Failed to produce type inference ast.");
+
+    type_inferenced.to_json_file_without_keys(target_path, "type_inferenced_ast.json", &["span"])?;
 
     std::env::remove_var("LEO_TESTFRAMEWORK");
 
-    Ok((initial, imports_resolved, canonicalized, type_inferenced))
+    Ok(())
 }
 
 fn handle_error(res: Result<(), Box<dyn Error>>) {

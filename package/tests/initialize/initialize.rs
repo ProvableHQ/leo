@@ -20,6 +20,7 @@ use leo_package::{
     package::Package,
     root::Manifest,
     source::{MainFile, SourceDirectory},
+    PackageDirectory, PackageFile,
 };
 
 const TEST_PACKAGE_NAME: &str = "test-package";
@@ -68,7 +69,7 @@ fn initialize_fails_with_existing_manifest() {
     // Manually add a manifest file to the `test_directory`
     Manifest::new(TEST_PACKAGE_NAME, None)
         .unwrap()
-        .write_to(&test_directory)
+        .write_template(&test_directory)
         .unwrap();
 
     // Attempt to initialize a package at the `test_directory`
@@ -87,7 +88,9 @@ fn initialize_fails_with_existing_input_file() {
 
     // Manually add an inputs directory and an input file to the `test_directory`
     InputsDirectory::create(&test_directory).unwrap();
-    InputFile::new(TEST_PACKAGE_NAME).write_to(&test_directory).unwrap();
+    InputFile::new(TEST_PACKAGE_NAME)
+        .write_template(&test_directory)
+        .unwrap();
 
     // Attempt to initialize a package at the `test_directory`
     assert!(Package::initialize(TEST_PACKAGE_NAME, &test_directory, Some(String::from("test_user"))).is_err());
@@ -105,7 +108,9 @@ fn initialize_fails_with_existing_state_file() {
 
     // Manually add an inputs directory and a state file to the `test_directory`
     InputsDirectory::create(&test_directory).unwrap();
-    StateFile::new(TEST_PACKAGE_NAME).write_to(&test_directory).unwrap();
+    StateFile::new(TEST_PACKAGE_NAME)
+        .write_template(&test_directory)
+        .unwrap();
 
     // Attempt to initialize a package at the `test_directory`
     assert!(Package::initialize(TEST_PACKAGE_NAME, &test_directory, None).is_err());
@@ -123,7 +128,9 @@ fn initialize_fails_with_existing_main_file() {
 
     // Manually add a source directory and a main file to the `test_directory`
     SourceDirectory::create(&test_directory).unwrap();
-    MainFile::new(TEST_PACKAGE_NAME).write_to(&test_directory).unwrap();
+    MainFile::new(TEST_PACKAGE_NAME)
+        .write_template(&test_directory)
+        .unwrap();
 
     // Attempt to initialize a package at the `test_directory`
     assert!(Package::initialize(TEST_PACKAGE_NAME, &test_directory, None).is_err());

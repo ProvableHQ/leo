@@ -130,7 +130,7 @@ fn resolve_file(file: &str, mapping: bool) -> Result<Program> {
         .get(&file.to_string())
         .ok_or_else(|| ImportError::no_such_stdlib_file(file))?;
 
-    let ast = leo_parser::parse_ast(file, resolved)?.into_repr();
+    let mut ast = leo_parser::parse_ast(file, resolved)?.into_repr();
     if mapping {
         ast.set_core_mapping();
     }

@@ -127,6 +127,7 @@ pub enum Token {
     As,
     Circuit,
     Console,
+    /// Const variable and a const function.
     Const,
     Else,
     For,

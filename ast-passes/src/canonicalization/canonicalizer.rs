@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use indexmap::IndexMap;
 use leo_ast::*;
 use leo_errors::{AstError, Result, Span};
 
@@ -489,6 +490,7 @@ impl Canonicalizer {
                 return CircuitMember::CircuitFunction(Box::new(Function {
                     annotations: function.annotations.clone(),
                     identifier: function.identifier.clone(),
+                    const_: function.const_,
                     input,
                     output,
                     block,
@@ -690,8 +692,9 @@ impl ReconstructingReducer for Canonicalizer {
         &mut self,
         function: &Function,
         identifier: Identifier,
-        annotations: Vec<Annotation>,
+        annotations: IndexMap<String, Annotation>,
         input: Vec<FunctionInput>,
+        const_: bool,
         output: Option<Type>,
         block: Block,
     ) -> Result<Function> {
@@ -704,6 +707,7 @@ impl ReconstructingReducer for Canonicalizer {
             identifier,
             annotations,
             input,
+            const_,
             output: new_output,
             block,
             core_mapping: function.core_mapping.clone(),

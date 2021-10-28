@@ -35,7 +35,7 @@ version = "0.6.5"
 default-features = false
 
 [dependencies.backtrace]
-version = "0.3.61"
+version = "0.3.62"
 
 [dependencies.pest]
 version = "2.0"
@@ -48,4 +48,4 @@ features = [ "derive", "rc" ]
 version = "0.4.2"
 
 [dependencies.thiserror]
-version = "1.0.29"
+version = "1.0.30"

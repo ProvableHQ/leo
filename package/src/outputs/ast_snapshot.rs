@@ -14,13 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! The serialized circuit output file.
-
-use crate::outputs::OUTPUTS_DIRECTORY_NAME;
-use leo_errors::{PackageError, Result};
+use crate::PackageFile;
 
 use serde::Deserialize;
-use std::{borrow::Cow, fmt, fs, path::Path};
+use std::fmt;
 
 /// Enum to handle all 3 types of snapshots.
 #[derive(Deserialize)]
@@ -37,10 +34,10 @@ impl fmt::Display for Snapshot {
             f,
             "{}",
             match self {
-                Self::Initial => "initial_ast",
-                Self::ImportsResolved => "imports_resolved_ast",
-                Self::TypeInference => "type_inferenced_ast",
-                Self::Canonicalization => "canonicalization_ast",
+                Self::Initial => "initial_ast.json",
+                Self::ImportsResolved => "imports_resolved_ast.json",
+                Self::TypeInference => "type_inferenced_ast.json",
+                Self::Canonicalization => "canonicalization_ast.json",
             }
         )
     }
@@ -56,50 +53,25 @@ pub struct SnapshotFile {
     pub snapshot: Snapshot,
 }
 
+impl PackageFile for SnapshotFile {
+    type ParentDirectory = super::OutputsDirectory;
+
+    fn template(&self) -> String {
+        unimplemented!("Snapshot files don't have templates.");
+    }
+}
+
+impl std::fmt::Display for SnapshotFile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.snapshot)
+    }
+}
+
 impl SnapshotFile {
     pub fn new(package_name: &str, snapshot: Snapshot) -> Self {
         Self {
             package_name: package_name.to_string(),
             snapshot,
         }
-    }
-
-    pub fn exists_at(&self, path: &Path) -> bool {
-        let path = self.snapshot_file_path(path);
-        path.exists()
-    }
-
-    /// Reads the serialized circuit from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<String> {
-        let path = self.snapshot_file_path(path);
-
-        let result =
-            fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_snapshot_file(path.into_owned()))?;
-
-        Ok(result)
-    }
-
-    /// Removes the serialized circuit at the given path if it exists. Returns `true` on success,
-    /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool> {
-        let path = self.snapshot_file_path(path);
-        if !path.exists() {
-            return Ok(false);
-        }
-
-        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_snapshot_file(path.into_owned()))?;
-        Ok(true)
-    }
-
-    fn snapshot_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
-            }
-            path.to_mut()
-                .push(format!("{}{}", self.snapshot, AST_SNAPSHOT_FILE_EXTENSION));
-        }
-        path
     }
 }

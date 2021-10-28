@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::root::Dependency;
+use crate::PackageFile;
 use leo_errors::{PackageError, Result};
 
 use indexmap::IndexMap;
@@ -37,29 +38,9 @@ pub struct LockFile {
     pub package: Vec<Package>,
 }
 
-/// Single dependency record.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Package {
-    pub name: String,
-    pub version: String,
-    pub author: String,
-    pub import_name: Option<String>,
-    #[serde(skip_serializing_if = "IndexMap::is_empty", default)]
-    pub dependencies: IndexMap<String, String>,
-}
-
 impl LockFile {
     pub fn new() -> Self {
         LockFile { package: vec![] }
-    }
-
-    /// Check if LockFile exists in a directory.
-    pub fn exists_at(path: &Path) -> bool {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            path.to_mut().push(LOCKFILE_FILENAME);
-        }
-        path.exists()
     }
 
     /// Add Package record to the lock file. Chainable.
@@ -126,6 +107,31 @@ impl TryFrom<&Path> for LockFile {
 
         toml::from_str(&buffer).map_err(|error| PackageError::failed_to_parse_lock_file(LOCKFILE_FILENAME, error))
     }
+}
+
+impl PackageFile for LockFile {
+    type ParentDirectory = super::RootDirectory;
+
+    fn template(&self) -> String {
+        unimplemented!("PackageFile doesn't have a template.");
+    }
+}
+
+impl std::fmt::Display for LockFile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Leo.lock")
+    }
+}
+
+/// Single dependency record.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Package {
+    pub name: String,
+    pub version: String,
+    pub author: String,
+    pub import_name: Option<String>,
+    #[serde(skip_serializing_if = "IndexMap::is_empty", default)]
+    pub dependencies: IndexMap<String, String>,
 }
 
 impl Package {
