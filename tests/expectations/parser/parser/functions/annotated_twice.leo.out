@@ -12,7 +12,8 @@ outputs:
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x() {\\\"}\"}":
         annotations:
-          - span:
+          test:
+            span:
               line_start: 3
               line_stop: 3
               col_start: 1
@@ -21,7 +22,8 @@ outputs:
               content: "@test @test2"
             name: "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test @test2\\\"}\"}"
             arguments: []
-          - span:
+          test2:
+            span:
               line_start: 3
               line_stop: 3
               col_start: 7

@@ -11,7 +11,7 @@ outputs:
     global_consts: {}
     functions:
       "{\"name\":\"inf\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function inf() {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"inf\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function inf() {\\\"}\"}"
         input: []
         const_: false
@@ -54,7 +54,7 @@ outputs:
           path: ""
           content: "function inf() {\n     ...\n}"
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
         input:
           - Variable:

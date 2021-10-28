@@ -2,7 +2,6 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-<<<<<<< HEAD
   - Call:
       function:
         Access:
@@ -14,12 +13,13 @@ outputs:
                     Integer:
                       - U8
                       - "0"
-                      - line_start: 1
-                        line_stop: 1
-                        col_start: 2
-                        col_stop: 5
-                        path: ""
-                        content: "[0u8; 1].len()"
+                      - span:
+                          line_start: 1
+                          line_stop: 1
+                          col_start: 2
+                          col_stop: 5
+                          path: ""
+                          content: "[0u8; 1].len()"
                 dimensions:
                   - value: "1"
                 span:
@@ -39,32 +39,6 @@ outputs:
               content: "[0u8; 1].len()"
             type_: ~
       arguments: []
-=======
-  - LengthOf:
-      inner:
-        ArrayInit:
-          element:
-            Value:
-              Integer:
-                - U8
-                - "0"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 2
-                    col_stop: 5
-                    path: ""
-                    content: "[0u8; 1].len()"
-          dimensions:
-            - value: "1"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 9
-            path: ""
-            content: "[0u8; 1].len()"
->>>>>>> 03f78d568ba81da851f2d747bfff6c8023fffe0f
       span:
         line_start: 1
         line_stop: 1
@@ -72,7 +46,6 @@ outputs:
         col_stop: 15
         path: ""
         content: "[0u8; 1].len()"
-<<<<<<< HEAD
   - Call:
       function:
         Access:
@@ -83,12 +56,13 @@ outputs:
                   Value:
                     Implicit:
                       - "0"
-                      - line_start: 1
-                        line_stop: 1
-                        col_start: 2
-                        col_stop: 3
-                        path: ""
-                        content: "[0; 1].len()"
+                      - span:
+                          line_start: 1
+                          line_stop: 1
+                          col_start: 2
+                          col_stop: 3
+                          path: ""
+                          content: "[0; 1].len()"
                 dimensions:
                   - value: "1"
                 span:
@@ -108,31 +82,6 @@ outputs:
               content: "[0; 1].len()"
             type_: ~
       arguments: []
-=======
-  - LengthOf:
-      inner:
-        ArrayInit:
-          element:
-            Value:
-              Implicit:
-                - "0"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 2
-                    col_stop: 3
-                    path: ""
-                    content: "[0; 1].len()"
-          dimensions:
-            - value: "1"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 7
-            path: ""
-            content: "[0; 1].len()"
->>>>>>> 03f78d568ba81da851f2d747bfff6c8023fffe0f
       span:
         line_start: 1
         line_stop: 1
@@ -140,7 +89,6 @@ outputs:
         col_stop: 13
         path: ""
         content: "[0; 1].len()"
-<<<<<<< HEAD
   - Call:
       function:
         Access:
@@ -151,12 +99,13 @@ outputs:
                   Value:
                     Implicit:
                       - "0"
-                      - line_start: 1
-                        line_stop: 1
-                        col_start: 2
-                        col_stop: 3
-                        path: ""
-                        content: "[0; (1)].len()"
+                      - span:
+                          line_start: 1
+                          line_stop: 1
+                          col_start: 2
+                          col_stop: 3
+                          path: ""
+                          content: "[0; (1)].len()"
                 dimensions:
                   - value: "1"
                 span:
@@ -176,31 +125,6 @@ outputs:
               content: "[0; (1)].len()"
             type_: ~
       arguments: []
-=======
-  - LengthOf:
-      inner:
-        ArrayInit:
-          element:
-            Value:
-              Implicit:
-                - "0"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 2
-                    col_stop: 3
-                    path: ""
-                    content: "[0; (1)].len()"
-          dimensions:
-            - value: "1"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 9
-            path: ""
-            content: "[0; (1)].len()"
->>>>>>> 03f78d568ba81da851f2d747bfff6c8023fffe0f
       span:
         line_start: 1
         line_stop: 1
@@ -208,7 +132,6 @@ outputs:
         col_stop: 15
         path: ""
         content: "[0; (1)].len()"
-<<<<<<< HEAD
   - Call:
       function:
         Access:
@@ -219,12 +142,13 @@ outputs:
                   Value:
                     Implicit:
                       - "0"
-                      - line_start: 1
-                        line_stop: 1
-                        col_start: 2
-                        col_stop: 3
-                        path: ""
-                        content: "[0; (1, 2)].len()"
+                      - span:
+                          line_start: 1
+                          line_stop: 1
+                          col_start: 2
+                          col_stop: 3
+                          path: ""
+                          content: "[0; (1, 2)].len()"
                 dimensions:
                   - value: "1"
                   - value: "2"
@@ -245,32 +169,6 @@ outputs:
               content: "[0; (1, 2)].len()"
             type_: ~
       arguments: []
-=======
-  - LengthOf:
-      inner:
-        ArrayInit:
-          element:
-            Value:
-              Implicit:
-                - "0"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 2
-                    col_stop: 3
-                    path: ""
-                    content: "[0; (1, 2)].len()"
-          dimensions:
-            - value: "1"
-            - value: "2"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 12
-            path: ""
-            content: "[0; (1, 2)].len()"
->>>>>>> 03f78d568ba81da851f2d747bfff6c8023fffe0f
       span:
         line_start: 1
         line_stop: 1
@@ -278,7 +176,6 @@ outputs:
         col_stop: 18
         path: ""
         content: "[0; (1, 2)].len()"
-<<<<<<< HEAD
   - Call:
       function:
         Access:
@@ -289,12 +186,13 @@ outputs:
                   Value:
                     Implicit:
                       - "0"
-                      - line_start: 1
-                        line_stop: 1
-                        col_start: 2
-                        col_stop: 3
-                        path: ""
-                        content: "[0; (1, 2, 3)].len()"
+                      - span:
+                          line_start: 1
+                          line_stop: 1
+                          col_start: 2
+                          col_stop: 3
+                          path: ""
+                          content: "[0; (1, 2, 3)].len()"
                 dimensions:
                   - value: "1"
                   - value: "2"
@@ -316,33 +214,6 @@ outputs:
               content: "[0; (1, 2, 3)].len()"
             type_: ~
       arguments: []
-=======
-  - LengthOf:
-      inner:
-        ArrayInit:
-          element:
-            Value:
-              Implicit:
-                - "0"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 2
-                    col_stop: 3
-                    path: ""
-                    content: "[0; (1, 2, 3)].len()"
-          dimensions:
-            - value: "1"
-            - value: "2"
-            - value: "3"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 15
-            path: ""
-            content: "[0; (1, 2, 3)].len()"
->>>>>>> 03f78d568ba81da851f2d747bfff6c8023fffe0f
       span:
         line_start: 1
         line_stop: 1
@@ -350,7 +221,6 @@ outputs:
         col_stop: 21
         path: ""
         content: "[0; (1, 2, 3)].len()"
-<<<<<<< HEAD
   - Call:
       function:
         Access:
@@ -365,12 +235,13 @@ outputs:
                           Value:
                             Implicit:
                               - "0"
-                              - line_start: 1
-                                line_stop: 1
-                                col_start: 4
-                                col_stop: 5
-                                path: ""
-                                content: "[[[0; 3]; 2]; 1].len()"
+                              - span:
+                                  line_start: 1
+                                  line_stop: 1
+                                  col_start: 4
+                                  col_stop: 5
+                                  path: ""
+                                  content: "[[[0; 3]; 2]; 1].len()"
                         dimensions:
                           - value: "3"
                         span:
@@ -408,53 +279,6 @@ outputs:
               content: "[[[0; 3]; 2]; 1].len()"
             type_: ~
       arguments: []
-=======
-  - LengthOf:
-      inner:
-        ArrayInit:
-          element:
-            ArrayInit:
-              element:
-                ArrayInit:
-                  element:
-                    Value:
-                      Implicit:
-                        - "0"
-                        - span:
-                            line_start: 1
-                            line_stop: 1
-                            col_start: 4
-                            col_stop: 5
-                            path: ""
-                            content: "[[[0; 3]; 2]; 1].len()"
-                  dimensions:
-                    - value: "3"
-                  span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 3
-                    col_stop: 9
-                    path: ""
-                    content: "[[[0; 3]; 2]; 1].len()"
-              dimensions:
-                - value: "2"
-              span:
-                line_start: 1
-                line_stop: 1
-                col_start: 2
-                col_stop: 13
-                path: ""
-                content: "[[[0; 3]; 2]; 1].len()"
-          dimensions:
-            - value: "1"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 17
-            path: ""
-            content: "[[[0; 3]; 2]; 1].len()"
->>>>>>> 03f78d568ba81da851f2d747bfff6c8023fffe0f
       span:
         line_start: 1
         line_stop: 1

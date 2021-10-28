@@ -11,7 +11,7 @@ outputs:
     global_consts: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const y: u32) {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const y: u32) {\\\"}\"}"
         input:
           - Variable:
@@ -131,7 +131,7 @@ outputs:
           path: ""
           content: "function x(const y: u32) {\n     ...\n     ...\n     ...\n}"
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
         input:
           - Variable:

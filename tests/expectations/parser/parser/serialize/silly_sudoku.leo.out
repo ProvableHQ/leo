@@ -18,7 +18,7 @@ outputs:
     global_consts: {}
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}"
         input:
           - Variable:
@@ -178,7 +178,8 @@ outputs:
                   Identifier: "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":12,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return result;\\\"}\"}"
       "{\"name\":\"test_solve_pass\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_pass() {\\\"}\"}":
         annotations:
-          - arguments: []
+          test:
+            arguments: []
             name: "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":25,\\\"line_stop\\\":25,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
         identifier: "{\"name\":\"test_solve_pass\",\"span\":\"{\\\"line_start\\\":26,\\\"line_stop\\\":26,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_pass() {\\\"}\"}"
         input: []
@@ -310,7 +311,8 @@ outputs:
                       op: Eq
       "{\"name\":\"test_solve_fail\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_fail() {\\\"}\"}":
         annotations:
-          - arguments: []
+          test:
+            arguments: []
             name: "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":43,\\\"line_stop\\\":43,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
         identifier: "{\"name\":\"test_solve_fail\",\"span\":\"{\\\"line_start\\\":44,\\\"line_stop\\\":44,\\\"col_start\\\":10,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_fail() {\\\"}\"}"
         input: []
@@ -442,7 +444,8 @@ outputs:
                       op: Eq
       "{\"name\":\"test_solve_with_input\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":10,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_with_input(\\\"}\"}":
         annotations:
-          - arguments:
+          test:
+            arguments:
               - test_input
             name: "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test(test_input)\\\"}\"}"
         identifier: "{\"name\":\"test_solve_with_input\",\"span\":\"{\\\"line_start\\\":62,\\\"line_stop\\\":62,\\\"col_start\\\":10,\\\"col_stop\\\":31,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_solve_with_input(\\\"}\"}"
