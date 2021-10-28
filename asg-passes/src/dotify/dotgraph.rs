@@ -14,43 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use petgraph::graph::{EdgeIndex, NodeIndex};
-use std::borrow::{Borrow, Cow};
-
-pub enum LabelType {
-    Label,
-    Esc,
-    Html,
-}
+use petgraph::graph::{EdgeIndex, Graph, NodeIndex};
+use std::borrow::Cow;
 
 pub struct DotNode {
     pub id: String,
-    pub shape: Option<(String, LabelType)>,
-    pub label: (String, LabelType),
-    pub style: dot::Style,
-    pub color: Option<(String, LabelType)>,
+    pub name: String,
+    pub labels: Vec<(&'static str, String)>,
 }
 
 pub struct DotEdge {
     pub start_idx: NodeIndex,
     pub end_idx: NodeIndex,
-    pub label: (String, LabelType),
-    pub end_arrow: dot::ArrowShape,
-    pub start_arrow: dot::ArrowShape,
-    pub style: dot::Style,
-    pub color: Option<(String, LabelType)>,
+    pub label: String,
+    pub color: &'static str,
 }
 
 pub struct DotGraph {
     id: String,
-    graph: petgraph::Graph<DotNode, DotEdge>,
+    graph: Graph<DotNode, DotEdge>,
 }
 
 impl DotGraph {
     pub fn new(id: String) -> Self {
         DotGraph {
             id,
-            graph: petgraph::Graph::new(),
+            graph: Graph::new(),
         }
     }
 
@@ -59,7 +48,7 @@ impl DotGraph {
     }
 
     pub fn add_edge(&mut self, edge: DotEdge) -> EdgeIndex {
-        // Prevents duplicate edges
+        // Prevents duplicate edges as traversals may go through paths multiple times
         self.graph.update_edge(edge.start_idx, edge.end_idx, edge)
     }
 }
@@ -74,71 +63,21 @@ impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> f
         dot::Id::new(self.graph[i].id.as_str()).unwrap()
     }
 
-    fn node_shape(&'a self, n: &(NodeIndex, &'a DotNode)) -> Option<dot::LabelText<'a>> {
-        let &(i, _) = n;
-        if let Some((str, typ)) = self.graph[i].shape.borrow() {
-            Some(create_label_text(str, typ))
-        } else {
-            None
-        }
-    }
-
-    fn node_label(&'a self, n: &(NodeIndex, &'a DotNode)) -> dot::LabelText<'a> {
-        let &(i, _) = n;
-        let (str, typ) = self.graph[i].label.borrow();
-        create_label_text(str, typ)
+    fn node_label(&'a self, _n: &(NodeIndex, &'a DotNode)) -> dot::LabelText<'a> {
+        //TODO: Filter label
+        todo!()
     }
 
     fn edge_label(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> dot::LabelText<'a> {
-        let &(i, _) = e;
-        let (str, typ) = self.graph[i].label.borrow();
-        create_label_text(str, typ)
+        dot::LabelText::label(e.1.label.as_str())
     }
 
-    fn node_style(&'a self, n: &(NodeIndex, &'a DotNode)) -> dot::Style {
-        n.1.style
-    }
-
-    fn node_color(&'a self, n: &(NodeIndex, &'a DotNode)) -> Option<dot::LabelText<'a>> {
-        let &(i, _) = n;
-        if let Some((str, typ)) = self.graph[i].color.borrow() {
-            Some(create_label_text(str, typ))
-        } else {
-            None
-        }
-    }
-
-    fn edge_end_arrow(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> dot::Arrow {
-        dot::Arrow::from_arrow(e.1.end_arrow)
-    }
-
-    fn edge_start_arrow(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> dot::Arrow {
-        dot::Arrow::from_arrow(e.1.start_arrow)
-    }
-
-    fn edge_style(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> dot::Style {
-        e.1.style
+    fn edge_end_arrow(&'a self, _e: &(EdgeIndex, &'a DotEdge)) -> dot::Arrow {
+        dot::Arrow::from_arrow(dot::ArrowShape::Normal(dot::Fill::Filled, dot::Side::Both))
     }
 
     fn edge_color(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> Option<dot::LabelText<'a>> {
-        let &(i, _) = e;
-        if let Some((str, typ)) = self.graph[i].color.borrow() {
-            Some(create_label_text(str, typ))
-        } else {
-            None
-        }
-    }
-
-    fn kind(&self) -> dot::Kind {
-        dot::Kind::Digraph
-    }
-}
-
-fn create_label_text<'a>(str: &'a str, typ: &LabelType) -> dot::LabelText<'a> {
-    match typ {
-        LabelType::Label => dot::LabelText::label(str),
-        LabelType::Esc => dot::LabelText::escaped(str),
-        LabelType::Html => dot::LabelText::html(str),
+        Some(dot::LabelText::label(e.1.color))
     }
 }
 
@@ -152,6 +91,7 @@ impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> 
     }
 
     fn edges(&'a self) -> dot::Edges<'a, (EdgeIndex, &'a DotEdge)> {
+        //TODO: Filter edges
         let mut dot_edges = Vec::new();
         for (idx, edge) in self.graph.edge_indices().zip(self.graph.edge_weights()) {
             dot_edges.push((idx, edge))
@@ -167,15 +107,5 @@ impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> 
     fn target(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> (NodeIndex, &'a DotNode) {
         let &(_, edge) = e;
         (edge.end_idx, &self.graph[edge.end_idx])
-    }
-}
-
-trait LabelGen {
-    fn generate_label() -> DotNode;
-}
-
-impl<'a> LabelGen for dyn leo_asg::ExpressionNode<'a> {
-    fn generate_label() -> DotNode {
-        todo!()
     }
 }

@@ -24,48 +24,37 @@ type M = Fixed<NodeIndex>;
 
 impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
     fn reduce_function(&mut self, input: &'a Function<'a>, arguments: Vec<M>, body: M) -> M {
-        let mut label = format!(
-            "Function: {:}\nNode ID: {:}\n\nFunction Qualifier: {:}\nOutput: {:}\nAnnotations: ",
-            input.name.borrow().name.to_string(),
-            input.id,
-            match input.qualifier {
-                FunctionQualifier::SelfRef => "SelfRef",
-                FunctionQualifier::ConstSelfRef => "ConstSelfRef",
-                FunctionQualifier::MutSelfRef => "MutSelfRef",
-                FunctionQualifier::Static => "Static",
-            },
-            input.output,
-        );
+        let mut labels = vec![
+            ("NodeID", input.id.to_string()),
+            ("Name", input.name.borrow().name.to_string()),
+            (
+                "FunctionQualifier",
+                match input.qualifier {
+                    FunctionQualifier::SelfRef => "SelfRef",
+                    FunctionQualifier::ConstSelfRef => "ConstSelfRef",
+                    FunctionQualifier::MutSelfRef => "MutSelfRef",
+                    FunctionQualifier::Static => "Static",
+                }
+                .to_string(),
+            ),
+            ("OutputType", input.output.to_string()),
+            //TODO: Display for Vec<Annotation>
+            ("Annotations", format!("{:?}", input.annotations)),
+        ];
 
-        for anno in &input.annotations {
-            label.push_str(format!("{:},", anno).as_str())
-        }
+        Dotifier::add_span_info(&mut labels, &input.span);
 
-        let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
+        let start_idx = self.add_or_get_node(input.id, "Function".to_string(), labels);
+
         for (i, Fixed(end_idx)) in arguments.iter().enumerate() {
-            self.add_edge(
-                start_idx,
-                *end_idx,
-                (format!("variable_{:}", i), LabelType::Label),
-                Some(("olive".to_string(), LabelType::Label)),
-            );
+            self.add_edge(start_idx, *end_idx, format!("variable_{:}", i), "olive");
         }
 
         let Fixed(end_idx) = body;
-        self.add_edge(
-            start_idx,
-            end_idx,
-            ("body".to_string(), LabelType::Label),
-            Some(("black".to_string(), LabelType::Label)),
-        );
+        self.add_edge(start_idx, end_idx, "body".to_string(), "black");
 
         if let Some(circuit) = input.circuit.get() {
-            self.edges.push((
-                input.id,
-                circuit.id,
-                ("circuit".to_string(), LabelType::Label),
-                Some(("green".to_string(), LabelType::Label)),
-            ))
+            self.edges.push((input.id, circuit.id, "circuit".to_string(), "green"))
         }
 
         Fixed(start_idx)
@@ -74,8 +63,9 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
     fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>, function: Option<M>) -> M {
         if let CircuitMember::Variable(typ) = input {
             let id = self.context.get_id();
-            let label = format!("Variable\nNode ID: {:}\n\nType: {:}", id, typ,);
-            let start_idx = self.add_or_get_node(id, label, LabelType::Esc);
+            let labels = vec![("NodeID", id.to_string()), ("Type", typ.to_string())];
+
+            let start_idx = self.add_or_get_node(id, "Variable".to_string(), labels);
             Fixed(start_idx)
         } else {
             function.unwrap() // If circuit member is a function, monoidal director always visits it
@@ -83,33 +73,33 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_circuit(&mut self, input: &'a Circuit<'a>, members: Vec<M>) -> M {
-        let label = format!(
-            "Circuit: {:}\nNode ID: {:}\n\nCore Mapping: {:}\n\n{:}",
-            input.name.borrow().name.to_string(),
-            input.id,
-            match input.core_mapping.borrow().deref() {
-                None => "None",
-                Some(s) => s.as_str(),
-            },
-            Dotifier::generate_span_info(&input.span)
-        );
-        let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
+        let mut labels = vec![
+            ("NodeID", input.id.to_string()),
+            ("Name", input.name.borrow().name.to_string()),
+            (
+                "CoreMapping",
+                match input.core_mapping.borrow().deref() {
+                    None => "None",
+                    Some(s) => s.as_str(),
+                }
+                .to_string(),
+            ),
+        ];
+
+        Dotifier::add_span_info(&mut labels, &input.span);
+
+        let start_idx = self.add_or_get_node(input.id, "Circuit".to_string(), labels);
 
         for (i, Fixed(end_idx)) in members.iter().enumerate() {
-            self.add_edge(
-                start_idx,
-                *end_idx,
-                (format!("member_{:}", i), LabelType::Label),
-                Some(("black".to_string(), LabelType::Label)),
-            );
+            self.add_edge(start_idx, *end_idx, format!("member_{:}", i), "black");
         }
 
         Fixed(start_idx)
     }
 
     fn reduce_alias(&mut self, input: &'a Alias<'a>) -> M {
-        let label = format!("Alias\nNode ID: {:}\n\n", input.id);
-        let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
+        let labels = vec![("Node ID", input.id.to_string())];
+        let start_idx = self.add_or_get_node(input.id, "Alias".to_string(), labels);
 
         Fixed(start_idx)
     }
@@ -123,52 +113,28 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
         global_consts: Vec<M>,
         circuits: Vec<M>,
     ) -> M {
-        let label = format!("Program: {:}\nNode ID: {:}", input.name, input.id);
-        let start_idx = self.add_or_get_node(input.id, label, LabelType::Esc);
+        let labels = vec![("Node ID", input.id.to_string()), ("Name", input.name.clone())];
+
+        let start_idx = self.add_or_get_node(input.id, "Program".to_string(), labels);
 
         for (i, Fixed(end_idx)) in imported_modules.iter().enumerate() {
-            self.add_edge(
-                start_idx,
-                *end_idx,
-                (format!("import_{:}", i), LabelType::Label),
-                Some(("orange".to_string(), LabelType::Label)),
-            );
+            self.add_edge(start_idx, *end_idx, format!("import_{:}", i), "orange");
         }
 
         for (i, Fixed(end_idx)) in aliases.iter().enumerate() {
-            self.add_edge(
-                start_idx,
-                *end_idx,
-                (format!("alias_{:}", i), LabelType::Label),
-                Some(("pink".to_string(), LabelType::Label)),
-            );
+            self.add_edge(start_idx, *end_idx, format!("alias_{:}", i), "pink");
         }
 
         for (i, Fixed(end_idx)) in functions.iter().enumerate() {
-            self.add_edge(
-                start_idx,
-                *end_idx,
-                (format!("function_{:}", i), LabelType::Label),
-                Some(("black".to_string(), LabelType::Label)),
-            );
+            self.add_edge(start_idx, *end_idx, format!("function_{:}", i), "black");
         }
 
         for (i, Fixed(end_idx)) in global_consts.iter().enumerate() {
-            self.add_edge(
-                start_idx,
-                *end_idx,
-                (format!("global_const_{:}", i), LabelType::Label),
-                Some(("purple".to_string(), LabelType::Label)),
-            );
+            self.add_edge(start_idx, *end_idx, format!("global_const_{:}", i), "purple");
         }
 
         for (i, Fixed(end_idx)) in circuits.iter().enumerate() {
-            self.add_edge(
-                start_idx,
-                *end_idx,
-                (format!("circuit_{:}", i), LabelType::Label),
-                Some(("black".to_string(), LabelType::Label)),
-            );
+            self.add_edge(start_idx, *end_idx, format!("circuit_{:}", i), "black");
         }
 
         self.add_remaining_edges();

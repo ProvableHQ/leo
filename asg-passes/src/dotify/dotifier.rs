@@ -18,17 +18,14 @@ use super::*;
 use leo_asg::*;
 use leo_errors::Span;
 
-use dot::{ArrowShape, Style};
 use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
 
-type LabelInfo = (String, LabelType);
-type ColorInfo = Option<(String, LabelType)>;
 pub struct Dotifier<'a, 'b> {
     pub graph: DotGraph,
     pub context: &'b AsgContext<'a>,
     pub id_map: HashMap<u32, NodeIndex>,
-    pub edges: Vec<(u32, u32, LabelInfo, ColorInfo)>, // For edges that are meant to be added after entire ASG is traversed
+    pub edges: Vec<(u32, u32, String, &'static str)>, // For edges that are meant to be added after entire ASG is traversed
 }
 
 impl<'a, 'b> Dotifier<'a, 'b> {
@@ -42,7 +39,7 @@ impl<'a, 'b> Dotifier<'a, 'b> {
     }
 
     // Helper functions to make it easier to construct graphs
-    pub fn add_or_get_node(&mut self, id: u32, label: String, typ: LabelType) -> NodeIndex {
+    pub fn add_or_get_node(&mut self, id: u32, name: String, labels: Vec<(&'static str, String)>) -> NodeIndex {
         let &mut Dotifier {
             ref mut id_map,
             ref mut graph,
@@ -52,23 +49,18 @@ impl<'a, 'b> Dotifier<'a, 'b> {
         *id_map.entry(id).or_insert_with(|| {
             let node = DotNode {
                 id: format!("N{:}", id),
-                shape: None,
-                label: (label, typ),
-                style: Style::None,
-                color: None,
+                name,
+                labels,
             };
             graph.add_node(node)
         })
     }
 
-    pub fn add_edge(&mut self, start_idx: NodeIndex, end_idx: NodeIndex, label: LabelInfo, color: ColorInfo) {
+    pub fn add_edge(&mut self, start_idx: NodeIndex, end_idx: NodeIndex, label: String, color: &'static str) {
         let edge = DotEdge {
             start_idx,
             end_idx,
             label,
-            end_arrow: ArrowShape::Normal(dot::Fill::Filled, dot::Side::Both),
-            start_arrow: ArrowShape::NoArrow,
-            style: Style::None,
             color,
         };
         self.graph.add_edge(edge);
@@ -82,25 +74,17 @@ impl<'a, 'b> Dotifier<'a, 'b> {
                 start_idx: *start_idx,
                 end_idx: *end_idx,
                 label,
-                end_arrow: ArrowShape::Normal(dot::Fill::Filled, dot::Side::Both),
-                start_arrow: ArrowShape::NoArrow,
-                style: Style::None,
                 color,
             };
             self.graph.add_edge(edge);
         }
     }
 
-    pub fn generate_span_info(span: &Option<Span>) -> String {
+    pub fn add_span_info(labels: &mut Vec<(&'a str, String)>, span: &Option<Span>) {
         if let Some(span) = span {
-            format!(
-                "File: {:}\nLocation: {:}\n\nContent: {:}",
-                span.path.to_string(),
-                span,
-                span.content.to_string(),
-            )
-        } else {
-            "".to_string()
+            labels.push(("File", span.path.to_string()));
+            labels.push(("Location", format!("{:}", span)));
+            labels.push(("Content", span.content.to_string()));
         }
     }
 
