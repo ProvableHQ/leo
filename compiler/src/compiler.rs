@@ -252,6 +252,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
             self.asg = Some(leo_asg_passes::Dotifier::do_pass((
                 self.asg.take().unwrap(),
                 &self.context,
+                &self.output_options.asg_exclude_labels,
                 "initial_asg".to_string(),
                 path,
             ))?);
@@ -268,6 +269,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
                 self.asg = Some(leo_asg_passes::Dotifier::do_pass((
                     self.asg.take().unwrap(),
                     &self.context,
+                    &self.output_options.asg_exclude_labels,
                     "constants_folded_asg".to_string(),
                     path,
                 ))?);
@@ -285,6 +287,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
                 self.asg = Some(leo_asg_passes::Dotifier::do_pass((
                     self.asg.take().unwrap(),
                     &self.context,
+                    &self.output_options.asg_exclude_labels,
                     "dead_code_eliminated_asg".to_string(),
                     path,
                 ))?);

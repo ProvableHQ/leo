@@ -22,14 +22,14 @@ use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
 
 pub struct Dotifier<'a, 'b> {
-    pub graph: DotGraph,
+    pub graph: DotGraph<'b>,
     pub context: &'b AsgContext<'a>,
     pub id_map: HashMap<u32, NodeIndex>,
     pub edges: Vec<(u32, u32, String, &'static str)>, // For edges that are meant to be added after entire ASG is traversed
 }
 
 impl<'a, 'b> Dotifier<'a, 'b> {
-    pub fn new(graph: DotGraph, context: &'b AsgContext<'a>) -> Self {
+    pub fn new(graph: DotGraph<'b>, context: &'b AsgContext<'a>) -> Self {
         Dotifier {
             graph,
             context,

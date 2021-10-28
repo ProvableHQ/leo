@@ -49,5 +49,6 @@ pub struct OutputOptions {
     pub asg_initial: bool,
     pub asg_constants_folded: bool,
     pub asg_dead_code_eliminated: bool,
+    pub asg_exclude_labels: Vec<String>,
     pub emit_ir: bool,
 }

@@ -30,16 +30,18 @@ pub struct DotEdge {
     pub color: &'static str,
 }
 
-pub struct DotGraph {
+pub struct DotGraph<'a> {
     id: String,
     graph: Graph<DotNode, DotEdge>,
+    filter_keys: &'a [String],
 }
 
-impl DotGraph {
-    pub fn new(id: String) -> Self {
+impl<'a> DotGraph<'a> {
+    pub fn new(id: String, filter_keys: &'a [String]) -> Self {
         DotGraph {
             id,
             graph: Graph::new(),
+            filter_keys,
         }
     }
 
@@ -53,7 +55,7 @@ impl DotGraph {
     }
 }
 
-impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph {
+impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph<'a> {
     fn graph_id(&'a self) -> dot::Id<'a> {
         dot::Id::new(self.id.as_str()).unwrap()
     }
@@ -63,9 +65,14 @@ impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> f
         dot::Id::new(self.graph[i].id.as_str()).unwrap()
     }
 
-    fn node_label(&'a self, _n: &(NodeIndex, &'a DotNode)) -> dot::LabelText<'a> {
-        //TODO: Filter label
-        todo!()
+    fn node_label(&'a self, n: &(NodeIndex, &'a DotNode)) -> dot::LabelText<'a> {
+        let mut label = String::new();
+        for (key, value) in &n.1.labels {
+            if !self.filter_keys.contains(&String::from(*key)) {
+                label.push_str(format!("{:}: {:}\n", key, value).as_str())
+            }
+        }
+        dot::LabelText::escaped(label)
     }
 
     fn edge_label(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> dot::LabelText<'a> {
@@ -81,7 +88,7 @@ impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> f
     }
 }
 
-impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph {
+impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph<'a> {
     fn nodes(&'a self) -> dot::Nodes<'a, (NodeIndex, &'a DotNode)> {
         let mut dot_nodes = Vec::new();
         for (idx, node) in self.graph.node_indices().zip(self.graph.node_weights()) {
@@ -91,10 +98,11 @@ impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> 
     }
 
     fn edges(&'a self) -> dot::Edges<'a, (EdgeIndex, &'a DotEdge)> {
-        //TODO: Filter edges
         let mut dot_edges = Vec::new();
         for (idx, edge) in self.graph.edge_indices().zip(self.graph.edge_weights()) {
-            dot_edges.push((idx, edge))
+            if !self.filter_keys.contains(&edge.label) {
+                dot_edges.push((idx, edge))
+            }
         }
         Cow::Owned(dot_edges)
     }
