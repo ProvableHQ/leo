@@ -21,6 +21,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct TupleAccess<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub tuple_ref: Cell<&'a Expression<'a>>,
@@ -100,6 +101,7 @@ impl<'a> FromAst<'a, leo_ast::TupleAccess> for TupleAccess<'a> {
         }
 
         Ok(TupleAccess {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             tuple_ref: Cell::new(tuple),

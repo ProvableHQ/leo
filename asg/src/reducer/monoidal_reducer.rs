@@ -34,7 +34,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         T::default().append_all(elements.into_iter())
     }
 
-    fn reduce_binary(&mut self, input: &BinaryExpression<'a>, left: T, right: T) -> T {
+    fn reduce_binary(&mut self, input: &'a BinaryExpression<'a>, left: T, right: T) -> T {
         left.append(right)
     }
 
@@ -42,7 +42,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         target.unwrap_or_default().append_all(arguments.into_iter())
     }
 
-    fn reduce_circuit_init(&mut self, input: &CircuitInitExpression<'a>, values: Vec<T>) -> T {
+    fn reduce_circuit_init(&mut self, input: &'a CircuitInitExpression<'a>, values: Vec<T>) -> T {
         T::default().append_all(values.into_iter())
     }
 
@@ -60,7 +60,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         inner
     }
 
-    fn reduce_array_access(&mut self, input: &ArrayAccess<'a>, array: T, index: T) -> T {
+    fn reduce_array_access(&mut self, input: &'a ArrayAccess<'a>, array: T, index: T) -> T {
         array.append(index)
     }
 
@@ -70,7 +70,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
 
     fn reduce_array_range_access(
         &mut self,
-        input: &ArrayRangeAccess<'a>,
+        input: &'a ArrayRangeAccess<'a>,
         array: T,
         left: Option<T>,
         right: Option<T>,
@@ -78,11 +78,11 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         array.append_option(left).append_option(right)
     }
 
-    fn reduce_circuit_access(&mut self, input: &CircuitAccess<'a>, target: Option<T>) -> T {
+    fn reduce_circuit_access(&mut self, input: &'a CircuitAccess<'a>, target: Option<T>) -> T {
         target.unwrap_or_default()
     }
 
-    fn reduce_tuple_access(&mut self, input: &TupleAccess<'a>, tuple_ref: T) -> T {
+    fn reduce_tuple_access(&mut self, input: &'a TupleAccess<'a>, tuple_ref: T) -> T {
         tuple_ref
     }
 

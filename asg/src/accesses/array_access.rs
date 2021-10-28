@@ -127,6 +127,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::ArrayAccess> for ArrayAccess<'a> {
         }
 
         Ok(ArrayAccess {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             array: Cell::new(array),

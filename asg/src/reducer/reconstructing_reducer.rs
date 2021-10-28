@@ -136,6 +136,7 @@ pub trait ReconstructingReducerExpression<'a> {
         index: &'a Expression<'a>,
     ) -> AccessExpression<'a> {
         AccessExpression::Array(ArrayAccess {
+            id: input.id,
             parent: input.parent,
             array: Cell::new(array),
             index: Cell::new(index),
@@ -151,6 +152,7 @@ pub trait ReconstructingReducerExpression<'a> {
         right: Option<&'a Expression<'a>>,
     ) -> AccessExpression<'a> {
         AccessExpression::ArrayRange(ArrayRangeAccess {
+            id: input.id,
             parent: input.parent,
             array: Cell::new(array),
             left: Cell::new(left),
@@ -166,6 +168,7 @@ pub trait ReconstructingReducerExpression<'a> {
         target: Option<&'a Expression<'a>>,
     ) -> AccessExpression<'a> {
         AccessExpression::Circuit(CircuitAccess {
+            id: input.id,
             parent: input.parent,
             circuit: input.circuit,
             target: Cell::new(target),
@@ -176,6 +179,7 @@ pub trait ReconstructingReducerExpression<'a> {
 
     fn reduce_tuple_access(&mut self, input: TupleAccess<'a>, tuple_ref: &'a Expression<'a>) -> AccessExpression<'a> {
         AccessExpression::Tuple(TupleAccess {
+            id: input.id,
             parent: input.parent,
             tuple_ref: Cell::new(tuple_ref),
             index: input.index,

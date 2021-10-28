@@ -18,7 +18,6 @@ use super::*;
 use leo_asg::*;
 
 use petgraph::graph::NodeIndex;
-use std::ops::Deref;
 
 type M = Fixed<NodeIndex>;
 
@@ -76,14 +75,6 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
         let mut labels = vec![
             ("NodeID", input.id.to_string()),
             ("Name", input.name.borrow().name.to_string()),
-            (
-                "CoreMapping",
-                match input.core_mapping.borrow().deref() {
-                    None => "None",
-                    Some(s) => s.as_str(),
-                }
-                .to_string(),
-            ),
         ];
 
         Dotifier::add_span_info(&mut labels, &input.span);

@@ -89,28 +89,6 @@ impl<'a> Expression<'a> {
         std::ptr::eq(self as *const Expression<'a>, other as *const Expression<'a>)
     }
 
-    pub fn get_parent(&self) -> Option<&'a Expression<'a>> {
-        use Expression::*;
-        match self {
-            VariableRef(x) => x.parent.get(),
-            Constant(x) => x.parent.get(),
-            Binary(x) => x.parent.get(),
-            Unary(x) => x.parent.get(),
-            Ternary(x) => x.parent.get(),
-            Cast(x) => x.parent.get(),
-            LengthOf(x) => x.parent.get(),
-            ArrayInline(x) => x.parent.get(),
-            ArrayInit(x) => x.parent.get(),
-            ArrayAccess(x) => x.parent.get(),
-            ArrayRangeAccess(x) => x.parent.get(),
-            TupleInit(x) => x.parent.get(),
-            TupleAccess(x) => x.parent.get(),
-            CircuitInit(x) => x.parent.get(),
-            CircuitAccess(x) => x.parent.get(),
-            Call(x) => x.parent.get(),
-        }
-    }
-
     pub fn get_id(&self) -> u32 {
         use Expression::*;
         match self {
@@ -120,15 +98,12 @@ impl<'a> Expression<'a> {
             Unary(x) => x.id,
             Ternary(x) => x.id,
             Cast(x) => x.id,
+            Access(x) => x.get_id(),
             LengthOf(x) => x.id,
             ArrayInline(x) => x.id,
             ArrayInit(x) => x.id,
-            ArrayAccess(x) => x.id,
-            ArrayRangeAccess(x) => x.id,
             TupleInit(x) => x.id,
-            TupleAccess(x) => x.id,
             CircuitInit(x) => x.id,
-            CircuitAccess(x) => x.id,
             Call(x) => x.id,
         }
     }

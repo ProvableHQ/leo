@@ -24,6 +24,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct CircuitAccess<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub circuit: Cell<&'a Circuit<'a>>,
@@ -145,6 +146,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::MemberAccess> for CircuitAccess<'a> {
         }
 
         Ok(CircuitAccess {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             target: Cell::new(Some(target)),
@@ -183,6 +185,7 @@ impl<'a> FromAst<'a, leo_ast::accesses::StaticAccess> for CircuitAccess<'a> {
         }
 
         Ok(CircuitAccess {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
             target: Cell::new(None),

@@ -30,25 +30,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         value
     }
 
-    fn reduce_array_access(&mut self, input: &'a ArrayAccessExpression<'a>, array: M, index: M) -> M {
-        let mut labels = vec![
-            ("NodeID", input.id.to_string()),
-            ("Type", Dotifier::generate_type_info(input.get_type())),
-        ];
-
-        Dotifier::add_span_info(&mut labels, &input.span);
-
-        let start_idx = self.add_or_get_node(input.id, "ArrayAccessExpression".to_string(), labels);
-
-        let Fixed(end_idx) = array;
-        self.add_edge(start_idx, end_idx, "array".to_string(), "black");
-
-        let Fixed(end_idx) = index;
-        self.add_edge(start_idx, end_idx, "index".to_string(), "black");
-
-        Fixed(start_idx)
-    }
-
     fn reduce_array_init(&mut self, input: &'a ArrayInitExpression<'a>, element: M) -> M {
         let mut labels = vec![
             ("NodeID", input.id.to_string()),
@@ -77,37 +58,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
         for (i, Fixed(end_idx)) in elements.iter().enumerate() {
             self.add_edge(start_idx, *end_idx, format!("element_{:}", i), "black");
-        }
-
-        Fixed(start_idx)
-    }
-
-    fn reduce_array_range_access(
-        &mut self,
-        input: &'a ArrayRangeAccessExpression<'a>,
-        array: M,
-        left: Option<M>,
-        right: Option<M>,
-    ) -> M {
-        let mut labels = vec![
-            ("NodeID", input.id.to_string()),
-            ("Type", Dotifier::generate_type_info(input.get_type())),
-            ("Length", input.length.to_string()),
-        ];
-
-        Dotifier::add_span_info(&mut labels, &input.span);
-
-        let start_idx = self.add_or_get_node(input.id, "ArrayRangeAccessExpression".to_string(), labels);
-
-        let Fixed(end_idx) = array;
-        self.add_edge(start_idx, end_idx, "array".to_string(), "black");
-
-        if let Some(Fixed(end_idx)) = left {
-            self.add_edge(start_idx, end_idx, "left".to_string(), "black");
-        }
-
-        if let Some(Fixed(end_idx)) = right {
-            self.add_edge(start_idx, end_idx, "right".to_string(), "black");
         }
 
         Fixed(start_idx)
@@ -148,23 +98,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
         if let Some(Fixed(end_idx)) = target {
             self.add_edge(start_idx, end_idx, "target".to_string(), "black")
-        }
-
-        Fixed(start_idx)
-    }
-
-    fn reduce_circuit_access(&mut self, input: &'a CircuitAccessExpression<'a>, target: Option<M>) -> M {
-        let mut labels = vec![
-            ("NodeID", input.id.to_string()),
-            ("Type", Dotifier::generate_type_info(input.get_type())),
-        ];
-
-        Dotifier::add_span_info(&mut labels, &input.span);
-
-        let start_idx = self.add_or_get_node(input.id, "CircuitAccessExpression".to_string(), labels);
-
-        if let Some(Fixed(end_idx)) = target {
-            self.add_edge(start_idx, end_idx, "target".to_string(), "black");
         }
 
         Fixed(start_idx)
@@ -230,6 +163,25 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         Fixed(start_idx)
     }
 
+    fn reduce_array_access(&mut self, input: &'a ArrayAccess<'a>, array: M, index: M) -> M {
+        let mut labels = vec![
+            ("NodeID", input.id.to_string()),
+            ("Type", Dotifier::generate_type_info(input.get_type())),
+        ];
+
+        Dotifier::add_span_info(&mut labels, &input.span);
+
+        let start_idx = self.add_or_get_node(input.id, "ArrayAccess".to_string(), labels);
+
+        let Fixed(end_idx) = array;
+        self.add_edge(start_idx, end_idx, "array".to_string(), "black");
+
+        let Fixed(end_idx) = index;
+        self.add_edge(start_idx, end_idx, "index".to_string(), "black");
+
+        Fixed(start_idx)
+    }
+
     fn reduce_lengthof_expression(&mut self, input: &'a LengthOfExpression<'a>, inner: M) -> M {
         let mut labels = vec![
             ("NodeID", input.id.to_string()),
@@ -259,7 +211,55 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_tuple_access(&mut self, input: &'a TupleAccessExpression<'a>, tuple_ref: M) -> M {
+    fn reduce_array_range_access(
+        &mut self,
+        input: &'a ArrayRangeAccess<'a>,
+        array: M,
+        left: Option<M>,
+        right: Option<M>,
+    ) -> M {
+        let mut labels = vec![
+            ("NodeID", input.id.to_string()),
+            ("Type", Dotifier::generate_type_info(input.get_type())),
+            ("Length", input.length.to_string()),
+        ];
+
+        Dotifier::add_span_info(&mut labels, &input.span);
+
+        let start_idx = self.add_or_get_node(input.id, "ArrayRangeAccess".to_string(), labels);
+
+        let Fixed(end_idx) = array;
+        self.add_edge(start_idx, end_idx, "array".to_string(), "black");
+
+        if let Some(Fixed(end_idx)) = left {
+            self.add_edge(start_idx, end_idx, "left".to_string(), "black");
+        }
+
+        if let Some(Fixed(end_idx)) = right {
+            self.add_edge(start_idx, end_idx, "right".to_string(), "black");
+        }
+
+        Fixed(start_idx)
+    }
+
+    fn reduce_circuit_access(&mut self, input: &'a CircuitAccess<'a>, target: Option<M>) -> M {
+        let mut labels = vec![
+            ("NodeID", input.id.to_string()),
+            ("Type", Dotifier::generate_type_info(input.get_type())),
+        ];
+
+        Dotifier::add_span_info(&mut labels, &input.span);
+
+        let start_idx = self.add_or_get_node(input.id, "CircuitAccess".to_string(), labels);
+
+        if let Some(Fixed(end_idx)) = target {
+            self.add_edge(start_idx, end_idx, "target".to_string(), "black");
+        }
+
+        Fixed(start_idx)
+    }
+
+    fn reduce_tuple_access(&mut self, input: &'a TupleAccess<'a>, tuple_ref: M) -> M {
         let mut labels = vec![
             ("NodeID", input.id.to_string()),
             ("Type", Dotifier::generate_type_info(input.get_type())),
