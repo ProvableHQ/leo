@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use indexmap::IndexMap;
 use leo_ast::*;
 use leo_errors::{AstError, Result, Span};
 
@@ -691,7 +692,7 @@ impl ReconstructingReducer for Canonicalizer {
         &mut self,
         function: &Function,
         identifier: Identifier,
-        annotations: Vec<Annotation>,
+        annotations: IndexMap<String, Annotation>,
         input: Vec<FunctionInput>,
         const_: bool,
         output: Option<Type>,

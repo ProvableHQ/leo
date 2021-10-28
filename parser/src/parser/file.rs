@@ -472,9 +472,10 @@ impl ParserContext {
     /// and function definition.
     ///
     pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
-        let mut annotations = Vec::new();
+        let mut annotations = IndexMap::new();
         while self.peek_token().as_ref() == &Token::At {
-            annotations.push(self.parse_annotation()?);
+            let annotation = self.parse_annotation()?;
+            annotations.insert(annotation.name.name.to_string(), annotation);
         }
 
         // Eat const modifier or get false.

@@ -18,7 +18,7 @@ outputs:
               - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    y: i32,\\\"}\"}"
               - IntegerType: I32
           - CircuitFunction:
-              annotations: []
+              annotations: {}
               identifier: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(x: i32, y: i32) -> Self { \\\"}\"}"
               input:
                 - Variable:
@@ -56,7 +56,7 @@ outputs:
                   - Identifier: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    points: [Point; 5],\\\"}\"}"
                   - - value: "5"
           - CircuitFunction:
-              annotations: []
+              annotations: {}
               identifier: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":16,\\\"line_stop\\\":16,\\\"col_start\\\":14,\\\"col_stop\\\":17,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function new(points: [Point; 5]) -> Self { \\\"}\"}"
               input:
                 - Variable:
@@ -80,7 +80,7 @@ outputs:
                             - identifier: "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { points };\\\"}\"}"
                               expression: ~
           - CircuitFunction:
-              annotations: []
+              annotations: {}
               identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":14,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function slope(self) -> i32 { \\\"}\"}"
               input:
                 - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":21,\\\"line_stop\\\":21,\\\"col_start\\\":20,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function slope(self) -> i32 { \\\"}\"}"
@@ -347,7 +347,7 @@ outputs:
                       expression:
                         Identifier: "{\"name\":\"slope\",\"span\":\"{\\\"line_start\\\":38,\\\"line_stop\\\":38,\\\"col_start\\\":16,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return slope;\\\"}\"}"
           - CircuitFunction:
-              annotations: []
+              annotations: {}
               identifier: "{\"name\":\"offset\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":14,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}"
               input:
                 - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":41,\\\"line_stop\\\":41,\\\"col_start\\\":21,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function offset(self, slope: i32) -> i32 {\\\"}\"}"
@@ -472,7 +472,7 @@ outputs:
     global_consts: {}
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":55,\\\"line_stop\\\":55,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main (x: i32, y: i32) -> [i32; 2] {\\\"}\"}"
         input:
           - Variable:

@@ -11,7 +11,7 @@ outputs:
     global_consts: {}
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(str: [char; 20]) -> bool {\\\"}\"}"
         input:
           - Variable:
@@ -35,7 +35,7 @@ outputs:
                     arguments:
                       - Identifier: "{\"name\":\"str\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":26,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return is_palindrome(str);\\\"}\"}"
       "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"is_palindrome\",\"span\":\"{\\\"line_start\\\":10,\\\"line_stop\\\":10,\\\"col_start\\\":10,\\\"col_stop\\\":23,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function is_palindrome(str: [char; 20]) -> bool {\\\"}\"}"
         input:
           - Variable:
@@ -368,7 +368,8 @@ outputs:
                   Identifier: "{\"name\":\"result\",\"span\":\"{\\\"line_start\\\":50,\\\"line_stop\\\":50,\\\"col_start\\\":12,\\\"col_stop\\\":18,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return result;\\\"}\"}"
       "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}":
         annotations:
-          - arguments: []
+          test:
+            arguments: []
             name: "{\"name\":\"test\",\"span\":\"{\\\"line_start\\\":53,\\\"line_stop\\\":53,\\\"col_start\\\":2,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"@test\\\"}\"}"
         identifier: "{\"name\":\"test_is_palindrome\",\"span\":\"{\\\"line_start\\\":54,\\\"line_stop\\\":54,\\\"col_start\\\":10,\\\"col_stop\\\":28,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function test_is_palindrome() {\\\"}\"}"
         input: []

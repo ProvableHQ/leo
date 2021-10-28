@@ -47,7 +47,7 @@ pub struct Function<'a> {
     pub core_mapping: RefCell<Option<String>>,
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
-    pub annotations: Vec<Annotation>,
+    pub annotations: IndexMap<String, Annotation>,
     pub const_: bool,
 }
 
@@ -161,19 +161,20 @@ impl<'a> Function<'a> {
         }
 
         if value.is_main() {
-            if let Some(annotation) = value.annotations.get(0) {
+            if let Some((_, annotation)) = value.annotations.first() {
                 return Err(
                     AsgError::main_cannot_have_annotations(&(&annotation.span + &value.identifier.span)).into(),
                 );
             }
         } else {
-            let illegal_annotations = value.annotations.iter().filter(|f| !f.is_test());
-            if let Some(annotation) = illegal_annotations.clone().next() {
-                return Err(AsgError::unsupported_annotation(
-                    &annotation.name,
-                    &(&annotation.span + &value.identifier.span),
-                )
-                .into());
+            let illegal_annotations = value
+                .annotations
+                .iter()
+                .filter(|(_, annotation)| !annotation.is_valid_annotation());
+            if let Some((name, annotation)) = illegal_annotations.clone().next() {
+                return Err(
+                    AsgError::unsupported_annotation(name, &(&annotation.span + &value.identifier.span)).into(),
+                );
             }
         }
 
@@ -223,7 +224,7 @@ impl<'a> Function<'a> {
     }
 
     pub fn is_test(&self) -> bool {
-        self.annotations.iter().any(|x| x.is_test())
+        self.annotations.contains_key("test")
     }
 }
 

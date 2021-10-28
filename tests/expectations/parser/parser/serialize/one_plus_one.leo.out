@@ -11,7 +11,7 @@ outputs:
     global_consts: {}
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}"
         input: []
         const_: false

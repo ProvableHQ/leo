@@ -45,8 +45,6 @@ mod call;
 pub use call::*;
 mod cast;
 pub use cast::*;
-mod lengthof;
-pub use lengthof::*;
 
 /// Expression that evaluates to a value
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -58,8 +56,6 @@ pub enum Expression {
     Ternary(TernaryExpression),
     Cast(CastExpression),
     Access(AccessExpression),
-
-    LengthOf(LengthOfExpression),
 
     ArrayInline(ArrayInlineExpression),
     ArrayInit(ArrayInitExpression),
@@ -87,7 +83,6 @@ impl Node for Expression {
             Call(n) => n.span(),
             Cast(n) => n.span(),
             Access(n) => n.span(),
-            LengthOf(n) => n.span(),
         }
     }
 
@@ -106,7 +101,6 @@ impl Node for Expression {
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
             Access(n) => n.set_span(span),
-            LengthOf(n) => n.set_span(span),
         }
     }
 }
@@ -127,7 +121,6 @@ impl fmt::Display for Expression {
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
             Access(n) => n.fmt(f),
-            LengthOf(n) => n.fmt(f),
         }
     }
 }

@@ -58,7 +58,6 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::Ternary(ternary) => Expression::Ternary(self.reduce_ternary(ternary)?),
             Expression::Cast(cast) => Expression::Cast(self.reduce_cast(cast)?),
             Expression::Access(access) => Expression::Access(self.reduce_access(access)?),
-            Expression::LengthOf(lengthof) => Expression::LengthOf(lengthof.clone()), // Expression::LengthOf(self.reduce_lengthof(lengthof)?), // TODO: add reducer
 
             Expression::ArrayInline(array_inline) => Expression::ArrayInline(self.reduce_array_inline(array_inline)?),
             Expression::ArrayInit(array_init) => Expression::ArrayInit(self.reduce_array_init(array_init)?),
@@ -551,9 +550,9 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
     pub fn reduce_function(&mut self, function: &Function) -> Result<Function> {
         let identifier = self.reduce_identifier(&function.identifier)?;
 
-        let mut annotations = vec![];
-        for annotation in function.annotations.iter() {
-            annotations.push(self.reduce_annotation(annotation)?);
+        let mut annotations = IndexMap::new();
+        for (name, annotation) in function.annotations.iter() {
+            annotations.insert(name.clone(), self.reduce_annotation(annotation)?);
         }
 
         let mut inputs = vec![];

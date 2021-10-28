@@ -28,9 +28,10 @@ pub struct Annotation {
     pub arguments: Vec<StrTendril>,
 }
 
+const ALLOWED_ANNOTATIONS: &[&str] = &["test"];
+
 impl Annotation {
-    /// Check whether annotaion is test.
-    pub fn is_test(&self) -> bool {
-        self.name.name.as_ref() == "test"
+    pub fn is_valid_annotation(&self) -> bool {
+        ALLOWED_ANNOTATIONS.iter().any(|name| self.name.name.as_ref() == *name)
     }
 }

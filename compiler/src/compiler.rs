@@ -325,13 +325,7 @@ impl<'a> Compiler<'a> {
         let program_name = program.asg.name.clone();
         let mut output_file_name = program_name.clone();
 
-        let input_file = function
-            .annotations
-            .iter()
-            .find(|x| x.name.name.as_ref() == "test")
-            .unwrap()
-            .arguments
-            .get(0);
+        let input_file = function.annotations.get("test").unwrap().arguments.get(0);
         // get input file name from annotation or use test_name
         let input_pair = match input_file {
             Some(file_id) => {

@@ -465,7 +465,7 @@ pub trait ReconstructingReducer {
         &mut self,
         function: &Function,
         identifier: Identifier,
-        annotations: Vec<Annotation>,
+        annotations: IndexMap<String, Annotation>,
         input: Vec<FunctionInput>,
         const_: bool,
         output: Option<Type>,
