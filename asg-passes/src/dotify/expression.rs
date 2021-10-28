@@ -182,21 +182,6 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         Fixed(start_idx)
     }
 
-    fn reduce_lengthof_expression(&mut self, input: &'a LengthOfExpression<'a>, inner: M) -> M {
-        let mut labels = vec![
-            ("NodeID", input.id.to_string()),
-            ("Type", Dotifier::generate_type_info(input.get_type())),
-        ];
-
-        Dotifier::add_span_info(&mut labels, &input.span);
-
-        let start_idx = self.add_or_get_node(input.id, "LengthOfExpression".to_string(), labels);
-        let Fixed(end_idx) = inner;
-        self.add_edge(start_idx, end_idx, "inner".to_string(), "black");
-
-        Fixed(start_idx)
-    }
-
     fn reduce_constant(&mut self, input: &'a Constant<'a>) -> M {
         let mut labels = vec![
             ("NodeID", input.id.to_string()),

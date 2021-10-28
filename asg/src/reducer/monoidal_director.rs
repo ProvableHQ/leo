@@ -140,7 +140,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_circuit_access(input, target)
     }
 
-    pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
+    pub fn reduce_constant(&mut self, input: &'a Constant<'a>) -> T {
         self.reducer.reduce_constant(input)
     }
 
