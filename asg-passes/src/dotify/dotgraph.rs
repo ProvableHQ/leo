@@ -15,12 +15,24 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use petgraph::graph::{EdgeIndex, Graph, NodeIndex};
+use petgraph::visit::{DfsPostOrder, EdgeRef};
+use petgraph::Direction;
 use std::borrow::Cow;
 
 pub struct DotNode {
     pub id: String,
     pub name: String,
     pub labels: Vec<(&'static str, String)>,
+}
+
+impl DotNode {
+    pub fn filter_labels(&mut self, excluded_labels: &[String]) {
+        self.labels = self
+            .labels
+            .drain(..)
+            .filter(|(key, _)| excluded_labels.contains(&String::from(*key)))
+            .collect();
+    }
 }
 
 pub struct DotEdge {
@@ -30,19 +42,27 @@ pub struct DotEdge {
     pub color: &'static str,
 }
 
-pub struct DotGraph<'a> {
+pub struct DotGraph {
     id: String,
     graph: Graph<DotNode, DotEdge>,
-    filter_keys: &'a [String],
+    source: NodeIndex,
 }
 
-impl<'a> DotGraph<'a> {
-    pub fn new(id: String, filter_keys: &'a [String]) -> Self {
+impl DotGraph {
+    pub fn new(id: String) -> Self {
         DotGraph {
             id,
             graph: Graph::new(),
-            filter_keys,
+            source: NodeIndex::default(),
         }
+    }
+
+    pub fn get_source(&self) -> NodeIndex {
+        self.source
+    }
+
+    pub fn set_source(&mut self, idx: NodeIndex) {
+        self.source = idx;
     }
 
     pub fn add_node(&mut self, node: DotNode) -> NodeIndex {
@@ -53,9 +73,32 @@ impl<'a> DotGraph<'a> {
         // Prevents duplicate edges as traversals may go through paths multiple times
         self.graph.update_edge(edge.start_idx, edge.end_idx, edge)
     }
+
+    pub fn filter_node_labels(&mut self, excluded_labels: &[String]) {
+        for node in self.graph.node_weights_mut() {
+            node.filter_labels(excluded_labels)
+        }
+    }
+
+    pub fn filter_node_edges(&mut self, excluded_edges: &[String]) {
+        self.graph.retain_edges(|graph, edge_idx| {
+            let edge = &graph[edge_idx];
+            !excluded_edges.contains(&edge.label)
+        });
+    }
+
+    //todo: implement caching
+    pub fn get_reachable_set(&self) -> Vec<NodeIndex> {
+        let mut dfs = DfsPostOrder::new(&self.graph, self.source);
+        let mut idxs = Vec::new();
+        while let Some(idx) = dfs.next(&self.graph) {
+            idxs.push(idx)
+        }
+        idxs
+    }
 }
 
-impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph<'a> {
+impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph {
     fn graph_id(&'a self) -> dot::Id<'a> {
         dot::Id::new(self.id.as_str()).unwrap()
     }
@@ -68,9 +111,7 @@ impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> f
     fn node_label(&'a self, n: &(NodeIndex, &'a DotNode)) -> dot::LabelText<'a> {
         let mut label = n.1.name.clone();
         for (key, value) in &n.1.labels {
-            if !self.filter_keys.contains(&String::from(*key)) {
-                label.push_str(format!("\n{:}: {:}", key, value).as_str())
-            }
+            label.push_str(format!("\n{:}: {:}", key, value).as_str())
         }
         dot::LabelText::escaped(label)
     }
@@ -88,20 +129,20 @@ impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> f
     }
 }
 
-impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph<'a> {
+impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph {
     fn nodes(&'a self) -> dot::Nodes<'a, (NodeIndex, &'a DotNode)> {
         let mut dot_nodes = Vec::new();
-        for (idx, node) in self.graph.node_indices().zip(self.graph.node_weights()) {
-            dot_nodes.push((idx, node))
+        for idx in self.get_reachable_set() {
+            dot_nodes.push((idx, &self.graph[idx]))
         }
         Cow::Owned(dot_nodes)
     }
 
     fn edges(&'a self) -> dot::Edges<'a, (EdgeIndex, &'a DotEdge)> {
         let mut dot_edges = Vec::new();
-        for (idx, edge) in self.graph.edge_indices().zip(self.graph.edge_weights()) {
-            if !self.filter_keys.contains(&edge.label) {
-                dot_edges.push((idx, edge))
+        for idx in self.get_reachable_set() {
+            for edge in self.graph.edges_directed(idx, Direction::Outgoing) {
+                dot_edges.push((edge.id(), edge.weight()));
             }
         }
         Cow::Owned(dot_edges)

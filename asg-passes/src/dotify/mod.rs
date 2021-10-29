@@ -32,16 +32,29 @@ use std::fs::File;
 use std::path::PathBuf;
 
 impl<'a, 'b> AsgPass<'a> for Dotifier<'a, 'b> {
-    type Input = (Program<'a>, &'b AsgContext<'a>, &'b [String], String, PathBuf);
+    type Input = (
+        Program<'a>,
+        &'b AsgContext<'a>,
+        &'b [String],
+        &'b [String],
+        String,
+        PathBuf,
+    );
     type Output = Result<Program<'a>>;
 
-    fn do_pass((asg, ctx, filter_keys, id, path): Self::Input) -> Self::Output {
-        let graph = DotGraph::new(id, filter_keys);
+    fn do_pass((asg, ctx, excluded_edges, excluded_labels, id, path): Self::Input) -> Self::Output {
+        let graph = DotGraph::new(id);
         let mut director = MonoidalDirector::new(Dotifier::new(graph, ctx));
-        director.reduce_program(&asg);
+        let Fixed(program_idx) = director.reduce_program(&asg);
+
+        let mut graph = director.reducer().graph;
+
+        graph.set_source(program_idx);
+        graph.filter_node_edges(excluded_labels);
+        graph.filter_node_edges(excluded_edges);
 
         let mut file = File::create(path).unwrap();
-        dot::render(&director.reducer().graph, &mut file).unwrap();
+        dot::render(&graph, &mut file).unwrap();
         Ok(asg)
     }
 }

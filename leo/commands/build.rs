@@ -70,7 +70,9 @@ pub struct BuildOptions {
     pub enable_constants_folded_asg_snapshot: bool,
     #[structopt(long, help = "Writes ASG snapshot after the dead code elimination phase.")]
     pub enable_dead_code_eliminated_asg_snapshot: bool,
-    #[structopt(long, help = "Edge and node labels to exclude from ASG snapshot.")]
+    #[structopt(long, help = "Edges to exclude from ASG snapshot.")]
+    pub asg_exclude_edges: Vec<String>,
+    #[structopt(long, help = "Node labels to exclude from ASG snapshot.")]
     pub asg_exclude_labels: Vec<String>,
     #[structopt(
         long,
@@ -98,6 +100,7 @@ impl Default for BuildOptions {
             enable_initial_asg_snapshot: Default::default(),
             enable_constants_folded_asg_snapshot: Default::default(),
             enable_dead_code_eliminated_asg_snapshot: Default::default(),
+            asg_exclude_edges: Default::default(),
             asg_exclude_labels: Default::default(),
             inline_limit: DEFAULT_INLINE_LIMIT,
             enable_spans: Default::default(),
@@ -135,6 +138,7 @@ impl From<BuildOptions> for OutputOptions {
             asg_initial: options.enable_initial_asg_snapshot,
             asg_constants_folded: options.enable_constants_folded_asg_snapshot,
             asg_dead_code_eliminated: options.enable_dead_code_eliminated_asg_snapshot,
+            asg_exclude_edges: options.asg_exclude_edges,
             asg_exclude_labels: options.asg_exclude_labels,
             emit_ir: options.emit_ir,
         };
