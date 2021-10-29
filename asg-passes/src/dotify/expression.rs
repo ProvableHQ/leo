@@ -100,6 +100,9 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
             self.add_edge(start_idx, end_idx, "target".to_string(), "black")
         }
 
+        self.edges
+            .push((input.id, input.function.get().id, "function".to_string(), "magenta"));
+
         Fixed(start_idx)
     }
 

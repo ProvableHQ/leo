@@ -13,7 +13,6 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
-
 use petgraph::graph::{EdgeIndex, Graph, NodeIndex};
 use petgraph::visit::{DfsPostOrder, EdgeRef};
 use petgraph::Direction;
@@ -26,6 +25,14 @@ pub struct DotNode {
 }
 
 impl DotNode {
+    pub fn new(id: String, name: String) -> Self {
+        DotNode {
+            id,
+            name,
+            labels: Vec::new(),
+        }
+    }
+
     pub fn filter_labels(&mut self, excluded_labels: &[String]) {
         self.labels = self
             .labels
@@ -156,5 +163,172 @@ impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> 
     fn target(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> (NodeIndex, &'a DotNode) {
         let &(_, edge) = e;
         (edge.end_idx, &self.graph[edge.end_idx])
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::dotify::dotgraph::{DotEdge, DotGraph, DotNode};
+    use std::error::Error;
+
+    #[test]
+    fn test_render() -> Result<(), Box<dyn Error>> {
+        let mut graph = DotGraph::new("example1".to_string());
+        let node0 = graph.add_node(DotNode::new("N0".to_string(), "".to_string()));
+        let node1 = graph.add_node(DotNode::new("N1".to_string(), "".to_string()));
+        let node2 = graph.add_node(DotNode::new("N2".to_string(), "".to_string()));
+        let node3 = graph.add_node(DotNode::new("N3".to_string(), "".to_string()));
+        let node4 = graph.add_node(DotNode::new("N4".to_string(), "".to_string()));
+
+        let edge0 = DotEdge {
+            start_idx: node0,
+            end_idx: node1,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        let edge1 = DotEdge {
+            start_idx: node0,
+            end_idx: node2,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        let edge2 = DotEdge {
+            start_idx: node1,
+            end_idx: node3,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        let edge3 = DotEdge {
+            start_idx: node2,
+            end_idx: node3,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        let edge4 = DotEdge {
+            start_idx: node3,
+            end_idx: node4,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        let edge5 = DotEdge {
+            start_idx: node4,
+            end_idx: node4,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        graph.add_edge(edge0);
+        graph.add_edge(edge1);
+        graph.add_edge(edge2);
+        graph.add_edge(edge3);
+        graph.add_edge(edge4);
+        graph.add_edge(edge5);
+
+        let mut raw_output = Vec::new();
+        dot::render(&graph, &mut raw_output)?;
+
+        let output = String::from_utf8(raw_output)?;
+
+        let expected_output = String::from(
+            "\
+        digraph example1 {\n\
+        \x20\x20\x20\x20N4[label=\"\"];\n\
+        \x20\x20\x20\x20N3[label=\"\"];\n\
+        \x20\x20\x20\x20N1[label=\"\"];\n\
+        \x20\x20\x20\x20N2[label=\"\"];\n\
+        \x20\x20\x20\x20N0[label=\"\"];\n\
+        \x20\x20\x20\x20N4 -> N4[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        \x20\x20\x20\x20N3 -> N4[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        \x20\x20\x20\x20N1 -> N3[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        \x20\x20\x20\x20N2 -> N3[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        \x20\x20\x20\x20N0 -> N2[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        \x20\x20\x20\x20N0 -> N1[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        }\n",
+        );
+
+        assert_eq!(output, expected_output);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_render_reachable_set() -> Result<(), Box<dyn Error>> {
+        let mut graph = DotGraph::new("example1".to_string());
+        let node0 = graph.add_node(DotNode::new("N0".to_string(), "".to_string()));
+        let node1 = graph.add_node(DotNode::new("N1".to_string(), "".to_string()));
+        let node2 = graph.add_node(DotNode::new("N2".to_string(), "".to_string()));
+        let node3 = graph.add_node(DotNode::new("N3".to_string(), "".to_string()));
+        let node4 = graph.add_node(DotNode::new("N4".to_string(), "".to_string()));
+
+        let edge0 = DotEdge {
+            start_idx: node0,
+            end_idx: node1,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        let edge2 = DotEdge {
+            start_idx: node1,
+            end_idx: node3,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        let edge3 = DotEdge {
+            start_idx: node2,
+            end_idx: node3,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        let edge4 = DotEdge {
+            start_idx: node3,
+            end_idx: node4,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        let edge5 = DotEdge {
+            start_idx: node4,
+            end_idx: node4,
+            label: "".to_string(),
+            color: "black",
+        };
+
+        graph.add_edge(edge0);
+        graph.add_edge(edge2);
+        graph.add_edge(edge3);
+        graph.add_edge(edge4);
+        graph.add_edge(edge5);
+
+        graph.set_source(node0);
+
+        let mut raw_output = Vec::new();
+        dot::render(&graph, &mut raw_output)?;
+
+        let output = String::from_utf8(raw_output)?;
+
+        let expected_output = String::from(
+            "\
+        digraph example1 {\n\
+        \x20\x20\x20\x20N4[label=\"\"];\n\
+        \x20\x20\x20\x20N3[label=\"\"];\n\
+        \x20\x20\x20\x20N1[label=\"\"];\n\
+        \x20\x20\x20\x20N0[label=\"\"];\n\
+        \x20\x20\x20\x20N4 -> N4[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        \x20\x20\x20\x20N3 -> N4[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        \x20\x20\x20\x20N1 -> N3[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        \x20\x20\x20\x20N0 -> N1[label=\"\"][color=\"black\"][arrowhead=\"normal\"];\n\
+        }\n",
+        );
+
+        assert_eq!(output, expected_output);
+
+        Ok(())
     }
 }
