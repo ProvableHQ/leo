@@ -37,8 +37,7 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
                 .to_string(),
             ),
             ("OutputType", input.output.to_string()),
-            //TODO: Display for Vec<Annotation>
-            ("Annotations", format!("{:?}", input.annotations)),
+            ("Annotations", format!("{:?}", input.annotations)), //Note: Debug seems to work
         ];
 
         Dotifier::add_span_info(&mut labels, &input.span);

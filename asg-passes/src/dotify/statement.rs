@@ -128,10 +128,9 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
     }
 
     fn reduce_formatted_string(&mut self, input: &ConsoleArgs<'a>, parameters: Vec<M>) -> M {
-        //TODO: Implement Display for CharValue, don't use debug
         let mut labels = vec![
             ("NodeID", input.id.to_string()),
-            ("String", format!("{:?}", input.string)),
+            ("String", format!("{:?}", input.string)), //Note: Debug seems to work, revisit if needed
         ];
 
         Dotifier::add_span_info(&mut labels, &Some(input.span.clone()));
