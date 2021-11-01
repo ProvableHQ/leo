@@ -16,6 +16,7 @@ categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
 edition = "2021"
+rust-version = "1.56"
 
 [dependencies.leo-ast]
 path = "../ast"
