@@ -50,7 +50,7 @@ impl<'a, 'b> AsgPass<'a> for Dotifier<'a, 'b> {
         let mut graph = director.reducer().graph;
 
         graph.set_source(program_idx);
-        graph.filter_node_edges(excluded_labels);
+        graph.filter_node_labels(excluded_labels);
         graph.filter_node_edges(excluded_edges);
 
         let mut file = File::create(path).unwrap();

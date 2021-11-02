@@ -47,9 +47,9 @@ pub struct BuildOptions {
     pub disable_all_optimizations: bool,
     #[structopt(
         long,
-        help = "Writes all AST snapshots for the different compiler phases and emits IR."
+        help = "Writes all AST snapshots and ASG debug graphs for the different compiler phases and emits IR."
     )]
-    pub enable_all_snapshots: bool,
+    pub enable_all_outputs: bool,
     #[structopt(long, help = "Enable spans in AST snapshots.")]
     pub enable_spans: bool,
     #[structopt(long, help = "Writes all AST snapshots for the different compiler phases.")]
@@ -63,16 +63,16 @@ pub struct BuildOptions {
     #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
     pub enable_type_inferenced_ast_snapshot: bool,
     #[structopt(long, help = "Writes all ASG snapshots for the different compiler phases.")]
-    pub enable_all_asg_snapshots: bool,
+    pub enable_all_asg_debug_graphs: bool,
     #[structopt(long, help = "Writes ASG snapshot before the ASG compiler phases.")]
-    pub enable_initial_asg_snapshot: bool,
+    pub enable_initial_asg_debug_graph: bool,
     #[structopt(long, help = "Writes ASG snapshot after the constants folding phase.")]
-    pub enable_constants_folded_asg_snapshot: bool,
+    pub enable_constants_folded_asg_debug_graph: bool,
     #[structopt(long, help = "Writes ASG snapshot after the dead code elimination phase.")]
-    pub enable_dead_code_eliminated_asg_snapshot: bool,
-    #[structopt(long, help = "Edges to exclude from ASG snapshot.")]
+    pub enable_dead_code_eliminated_asg_debug_graph: bool,
+    #[structopt(long, help = "Edges to exclude from ASG debug graph.")]
     pub asg_exclude_edges: Vec<String>,
-    #[structopt(long, help = "Node labels to exclude from ASG snapshot.")]
+    #[structopt(long, help = "Node labels to exclude from ASG debug graph.")]
     pub asg_exclude_labels: Vec<String>,
     #[structopt(
         long,
@@ -90,16 +90,16 @@ impl Default for BuildOptions {
             disable_constant_folding: Default::default(),
             disable_code_elimination: Default::default(),
             disable_all_optimizations: Default::default(),
-            enable_all_snapshots: Default::default(),
+            enable_all_outputs: Default::default(),
             enable_all_ast_snapshots: Default::default(),
             enable_initial_ast_snapshot: Default::default(),
             enable_imports_resolved_ast_snapshot: Default::default(),
             enable_canonicalized_ast_snapshot: Default::default(),
             enable_type_inferenced_ast_snapshot: Default::default(),
-            enable_all_asg_snapshots: Default::default(),
-            enable_initial_asg_snapshot: Default::default(),
-            enable_constants_folded_asg_snapshot: Default::default(),
-            enable_dead_code_eliminated_asg_snapshot: Default::default(),
+            enable_all_asg_debug_graphs: Default::default(),
+            enable_initial_asg_debug_graph: Default::default(),
+            enable_constants_folded_asg_debug_graph: Default::default(),
+            enable_dead_code_eliminated_asg_debug_graph: Default::default(),
             asg_exclude_edges: Default::default(),
             asg_exclude_labels: Default::default(),
             inline_limit: DEFAULT_INLINE_LIMIT,
@@ -135,9 +135,9 @@ impl From<BuildOptions> for OutputOptions {
             ast_imports_resolved: options.enable_imports_resolved_ast_snapshot,
             ast_canonicalized: options.enable_canonicalized_ast_snapshot,
             ast_type_inferenced: options.enable_type_inferenced_ast_snapshot,
-            asg_initial: options.enable_initial_asg_snapshot,
-            asg_constants_folded: options.enable_constants_folded_asg_snapshot,
-            asg_dead_code_eliminated: options.enable_dead_code_eliminated_asg_snapshot,
+            asg_initial: options.enable_initial_asg_debug_graph,
+            asg_constants_folded: options.enable_constants_folded_asg_debug_graph,
+            asg_dead_code_eliminated: options.enable_dead_code_eliminated_asg_debug_graph,
             asg_exclude_edges: options.asg_exclude_edges,
             asg_exclude_labels: options.asg_exclude_labels,
             emit_ir: options.emit_ir,
@@ -150,13 +150,13 @@ impl From<BuildOptions> for OutputOptions {
             out_options.ast_type_inferenced = true;
         }
 
-        if options.enable_all_asg_snapshots {
+        if options.enable_all_asg_debug_graphs {
             out_options.asg_initial = true;
             out_options.asg_constants_folded = true;
             out_options.asg_dead_code_eliminated = true;
         }
 
-        if options.enable_all_snapshots {
+        if options.enable_all_outputs {
             out_options.spans_enabled = options.enable_spans;
             out_options.ast_initial = true;
             out_options.ast_imports_resolved = true;

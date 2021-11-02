@@ -37,7 +37,7 @@ impl DotNode {
         self.labels = self
             .labels
             .drain(..)
-            .filter(|(key, _)| excluded_labels.contains(&String::from(*key)))
+            .filter(|(key, _)| !excluded_labels.contains(&String::from(*key)))
             .collect();
     }
 }
