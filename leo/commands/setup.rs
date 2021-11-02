@@ -47,7 +47,11 @@ pub struct Setup {
 
 impl<'a> Command<'a> for Setup {
     type Input = <Build as Command<'a>>::Output;
-    type Output = (CompilerWrapper, ProvingKey<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
+    type Output = (
+        CompilerWrapper<'a>,
+        ProvingKey<Bls12_377>,
+        PreparedVerifyingKey<Bls12_377>,
+    );
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Setup")

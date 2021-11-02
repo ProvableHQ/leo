@@ -17,6 +17,7 @@
 use crate::{api::Api, config};
 use leo_errors::{emitter::Handler, CliError, Result};
 use leo_package::root::{LockFile, Manifest};
+use leo_package::PackageFile as _;
 
 use std::{convert::TryFrom, env::current_dir, path::PathBuf};
 

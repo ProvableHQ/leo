@@ -183,6 +183,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
             leo_ast_passes::Importer::new(
                 &mut ImportParser::new(self.handler, self.main_file_path.clone(), self.imports_map.clone()),
                 "bls12_377",
+                self.handler,
             ),
             ast.into_repr(),
         )?;

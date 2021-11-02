@@ -33,7 +33,11 @@ impl<'a, T> Importer<'a, T> {
     where
         T: ImportResolver,
     {
-        Self { resolver, curve, handler }
+        Self {
+            resolver,
+            curve,
+            handler,
+        }
     }
 }
 

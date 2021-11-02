@@ -36,7 +36,8 @@ impl ImportParser<'_> {
         }
 
         let program = Self::parse_import_file(self.handler, package, span)?;
-        let ast = leo_ast_passes::Importer::do_pass(leo_ast_passes::Importer::new(self, ""), program)?.into_repr();
+        let ast = leo_ast_passes::Importer::do_pass(leo_ast_passes::Importer::new(self, "", self.handler), program)?
+            .into_repr();
 
         Ok(ast)
     }
