@@ -64,7 +64,7 @@ fn new_compiler(handler: &Handler, path: PathBuf, theorem_options: Option<Output
     )
 }
 
-pub(crate) fn parse_program(
+pub(crate) fn parse_program<'a>(
     handler: &'a Handler,
     program_string: &str,
     theorem_options: Option<OutputOptions>,

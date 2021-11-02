@@ -187,10 +187,7 @@ impl Namespace for SerializeNamespace {
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
         let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
-        let mut tokens = ParserContext::new(tokenizer);
-
-        let parsed = tokens.parse_program().map_err(|x| x.to_string())?;
-        not_fully_consumed(&mut tokens)?;
+        let parsed = with_handler(tokenizer, |p| p.parse_program())?;
 
         let mut json = serde_json::to_value(parsed).expect("failed to convert to json value");
         remove_key_from_json(&mut json, "span");
