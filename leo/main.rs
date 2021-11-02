@@ -355,11 +355,11 @@ mod cli_tests {
         assert!(run_cmd("leo build --enable-canonicalized-ast-snapshot", build_path).is_ok());
         assert!(run_cmd("leo build --enable-type-inferenced-ast-snapshot", build_path).is_ok());
         assert!(run_cmd("leo build --enable-all-ast-snapshots", build_path).is_ok());
-        assert!(run_cmd("leo build --enable-initial-asg-snapshot", build_path).is_ok());
-        assert!(run_cmd("leo build --enable-constants-folded-asg-snapshot", build_path).is_ok());
-        assert!(run_cmd("leo build --enable-dead-code-eliminated-asg-snapshot", build_path).is_ok());
-        assert!(run_cmd("leo build --enable-all-asg-snapshots", build_path).is_ok());
-        assert!(run_cmd("leo build --enable-all-snapshots", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-initial-asg-debug-graph", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-constants-folded-asg-debug-graph", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-dead-code-eliminated-asg-debug-graph", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-all-asg-debug-graphs", build_path).is_ok());
+        assert!(run_cmd("leo build --enable-all-outputs", build_path).is_ok());
         assert!(run_cmd("leo build --emit-ir", build_path).is_ok());
     }
 
