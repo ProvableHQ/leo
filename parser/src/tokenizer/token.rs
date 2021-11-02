@@ -136,7 +136,9 @@ pub enum Token {
     In,
     Let,
     Mut,
-    Ampersand, // Used for `Reference` and `BitAnd`
+    /// Represents `&`.
+    /// Used for `Reference` and `BitAnd`.
+    Ampersand,
     Return,
     Static,
     Type,
