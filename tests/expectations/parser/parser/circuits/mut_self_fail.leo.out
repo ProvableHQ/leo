@@ -2,4 +2,4 @@
 namespace: Parse
 expectation: Fail
 outputs:
-  - "Error [EPAR0370019]: `mut self` is deprecated. Use `&self` if you would like to pass in a mutable reference to `self`\n    --> test:4:16\n     |\n   4 |     function x(mut self) {\n     |                ^^^^^^^^"
+  - "Error [EPAR0370019]: `mut self` is no longer accepted. Use `&self` if you would like to pass in a mutable reference to `self`\n    --> test:4:16\n     |\n   4 |     function x(mut self) {\n     |                ^^^^^^^^"
