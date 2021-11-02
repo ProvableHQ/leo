@@ -285,7 +285,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
 
             if self.output_options.asg_dead_code_eliminated {
                 let mut path = self.output_directory.clone();
-                path.push("dead_code_eliminated.dot");
+                path.push("dead_code_eliminated_asg.dot");
                 self.asg = Some(leo_asg_passes::Dotifier::do_pass((
                     self.asg.take().unwrap(),
                     &self.context,

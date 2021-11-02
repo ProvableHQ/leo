@@ -62,13 +62,13 @@ pub struct BuildOptions {
     pub enable_canonicalized_ast_snapshot: bool,
     #[structopt(long, help = "Writes AST snapshot after the type inference phase.")]
     pub enable_type_inferenced_ast_snapshot: bool,
-    #[structopt(long, help = "Writes all ASG snapshots for the different compiler phases.")]
+    #[structopt(long, help = "Writes all ASG debug graphs for the different compiler phases.")]
     pub enable_all_asg_debug_graphs: bool,
-    #[structopt(long, help = "Writes ASG snapshot before the ASG compiler phases.")]
+    #[structopt(long, help = "Writes ASG debug graph before the ASG compiler phases.")]
     pub enable_initial_asg_debug_graph: bool,
-    #[structopt(long, help = "Writes ASG snapshot after the constants folding phase.")]
+    #[structopt(long, help = "Writes ASG debug graph after the constants folding phase.")]
     pub enable_constants_folded_asg_debug_graph: bool,
-    #[structopt(long, help = "Writes ASG snapshot after the dead code elimination phase.")]
+    #[structopt(long, help = "Writes ASG debug graph after the dead code elimination phase.")]
     pub enable_dead_code_eliminated_asg_debug_graph: bool,
     #[structopt(long, help = "Edges to exclude from ASG debug graph.")]
     pub asg_exclude_edges: Vec<String>,
