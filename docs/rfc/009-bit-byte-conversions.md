@@ -157,7 +157,7 @@ in this case, there is no difference between little and big endian order.
 These conversions are available for completeness, but may not be very useful in practice.
 
 Conversions between `i8` and bytes amount to
-converting between the intger and the singleton array that contains the integer re-interpreted as unsigned;
+converting between the integer and the singleton array that contains the integer re-interpreted as unsigned;
 in this case, there is no different between little and big endian order.
 Thus, these conversions may be used to re-interpret between signed and unsigned bytes,
 but arguably there should be more dedicated and comprehensive operations for that in Leo:
@@ -289,7 +289,7 @@ console.assert(bool::from_bits_be([true]) == true);
 
 ### Conversions with Addresses
 
-A Leo address is a sequence of 63 lowecase letters and decimal digits that starts with `aleo1`.
+A Leo address is a sequence of 63 lowercase letters and decimal digits that starts with `aleo1`.
 In this form, it is not a number or combination of numbers of any sort.
 
 However, as documented elsewhere,
