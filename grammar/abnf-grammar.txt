@@ -409,7 +409,6 @@ keyword = %s"address"
         / %s"in"
         / %s"input"
         / %s"let"
-        / %s"mut"
         / %s"return"
         / %s"Self"
         / %s"self"
@@ -590,7 +589,7 @@ atomic-literal = untyped-literal
 ; it seems appropriate to still consider it a symbol,
 ; particularly since it starts with a proper symbol.
 
-symbol = "!" / "&&" / "||"
+symbol = "!" / "&" / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
        / "+" / "-" / "*" / "/" / "**"
@@ -1011,7 +1010,7 @@ annotation = annotation-name
 ; In general, a function input consists of an identifier and a type,
 ; with an optional 'const' modifier.
 ; Additionally, functions inside circuits
-; may start with a `mut self` or `const self` or `self` parameter.
+; may start with a `&self` or `const self` or `self` parameter.
 
 function-declaration = *annotation [ %s"const" ] %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
@@ -1021,7 +1020,7 @@ function-parameters = self-parameter
                     / self-parameter "," function-inputs
                     / function-inputs
 
-self-parameter = [ %s"mut" / %s"const" ] %s"self"
+self-parameter = [ %s"&" / %s"const" ] %s"self"
 
 function-inputs = function-input *( "," function-input )
 

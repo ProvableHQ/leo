@@ -13,9 +13,9 @@ outputs:
         members:
           - CircuitFunction:
               annotations: {}
-              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(mut self) {\\\"}\"}"
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":14,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(&self) {\\\"}\"}"
               input:
-                - MutSelfKeyword: "{\"name\":\"mut self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(mut self) {\\\"}\"}"
+                - RefSelfKeyword: "{\"name\":\"&self\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":16,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    function x(&self) {\\\"}\"}"
               const_: false
               output: ~
               core_mapping: ~
@@ -42,16 +42,16 @@ outputs:
                 span:
                   line_start: 4
                   line_stop: 6
-                  col_start: 26
+                  col_start: 23
                   col_stop: 6
                   path: ""
-                  content: "    function x(mut self) {\n         ...\n    }"
+                  content: "    function x(&self) {\n         ...\n    }"
               span:
                 line_start: 4
                 line_stop: 6
                 col_start: 5
                 col_stop: 6
                 path: ""
-                content: "    function x(mut self) {\n         ...\n    }"
+                content: "    function x(&self) {\n         ...\n    }"
     global_consts: {}
     functions: {}

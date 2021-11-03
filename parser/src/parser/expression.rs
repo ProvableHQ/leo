@@ -169,7 +169,7 @@ impl ParserContext<'_> {
     ///
     // pub fn parse_bit_and_expression(&mut self) -> Result<Expression> {
     //     let mut expr = self.parse_equality_expression()?;
-    //     while self.eat(Token::BitAnd).is_some() {
+    //     while self.eat(Token::Ampersand).is_some() {
     //         let right = self.parse_equality_expression()?;
     //         expr = Expression::Binary(BinaryExpression {
     //             span: expr.span() + right.span(),

@@ -437,6 +437,7 @@ impl ParserContext<'_> {
     pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
+        let reference = self.eat(Token::Ampersand);
         let mut name = if let Some(token) = self.eat(Token::LittleSelf) {
             Identifier {
                 name: token.token.to_string().into(),
@@ -447,10 +448,12 @@ impl ParserContext<'_> {
         };
         if name.name.as_ref() == "self" {
             if let Some(mutable) = &mutable {
+                return Err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)).into());
+            } else if let Some(reference) = &reference {
                 // Handle `mut self`.
-                name.span = &mutable.span + &name.span;
-                name.name = "mut self".to_string().into();
-                return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
+                name.span = &reference.span + &name.span;
+                name.name = "&self".to_string().into();
+                return Ok(FunctionInput::RefSelfKeyword(RefSelfKeyword { identifier: name }));
             } else if let Some(const_) = &const_ {
                 // Handle `const self`.
                 name.span = &const_.span + &name.span;

@@ -559,7 +559,6 @@ keyword = %s"address"
         / %s"in"
         / %s"input"
         / %s"let"
-        / %s"mut"
         / %s"return"
         / %s"Self"
         / %s"self"
@@ -902,7 +901,7 @@ particularly since it starts with a proper symbol.
 
 <a name="symbol"></a>
 ```abnf
-symbol = "!" / "&&" / "||"
+symbol = "!" / "&" / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
        / "+" / "-" / "*" / "/" / "**"
@@ -1675,7 +1674,7 @@ The output type is optional, defaulting to the empty tuple type.
 In general, a function input consists of an identifier and a type,
 with an optional 'const' modifier.
 Additionally, functions inside circuits
-may start with a `mut self` or `const self` or `self` parameter.
+may start with a `&self` or `const self` or `self` parameter.
 
 <a name="function-declaration"></a>
 ```abnf
@@ -1699,7 +1698,7 @@ Go to: _[function-inputs](#user-content-function-inputs), [self-parameter](#user
 
 <a name="self-parameter"></a>
 ```abnf
-self-parameter = [ %s"mut" / %s"const" ] %s"self"
+self-parameter = [ %s"&" / %s"const" ] %s"self"
 ```
 
 <a name="function-inputs"></a>
