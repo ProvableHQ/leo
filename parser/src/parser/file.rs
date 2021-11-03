@@ -336,9 +336,11 @@ impl ParserContext {
                 let (const_, last_const, last_var) = self.parse_const_member_variable_declaration()?;
                 members.push(const_);
 
+                // If it is the last constant update the varaible so we no longer expect consts.
                 if last_const {
                     last_constant = last_const;
                 }
+                // If there is no variable after the constant update the variable so we don't expect any variables.
                 if last_var {
                     last_variable = last_var;
                 }
@@ -373,23 +375,27 @@ impl ParserContext {
         Ok(members)
     }
 
-    ///
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
-    ///
-    pub fn parse_const_member_variable_declaration(&mut self) -> Result<(CircuitMember, bool, bool)> {
-        self.expect(Token::Static)?;
-        self.expect(Token::Const)?;
-
+    fn parse_member_variable_name_and_type(&mut self) -> Result<(Identifier, Type)> {
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
 
+        Ok((name, type_))
+    }
+
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
+    pub fn parse_const_member_variable_declaration(&mut self) -> Result<(CircuitMember, bool, bool)> {
+        self.expect(Token::Static)?;
+        self.expect(Token::Const)?;
+
+        let (name, type_) = self.parse_member_variable_name_and_type()?;
+
         self.expect(Token::Assign)?;
         let literal = self.parse_primary_expression()?;
         self.expect(Token::Semicolon)?;
-
         let peeked = &self.peek()?.token;
-        let last_variable = peeked == &Token::Function || peeked == &Token::At || peeked == &Token::RightCurly;
+        // check if we just grabbed the last variable.
+        let last_variable = self.peek_is_function()?;
 
         Ok((
             CircuitMember::CircuitConst(name, type_, literal),
@@ -402,16 +408,12 @@ impl ParserContext {
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
     ///
     pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        let name = self.expect_ident()?;
-        self.expect(Token::Colon)?;
-        let type_ = self.parse_type()?.0;
+        let (name, type_) = self.parse_member_variable_name_and_type()?;
 
         Ok(CircuitMember::CircuitVariable(name, type_))
     }
 
-    ///
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
-    ///
     pub fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
         let peeked = self.peek()?.clone();
         if self.peek_is_function()? {

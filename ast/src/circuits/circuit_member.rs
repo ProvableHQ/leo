@@ -21,11 +21,17 @@ use std::fmt;
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum CircuitMember {
-    // (const_name, const_type, const_expression)
+    /// Represented as three elements.
+    /// const_name - An Identifier representing the constant name.
+    /// const_type - The type of the constant.
+    /// const_expression - The expression representing the value of the constant.
     CircuitConst(Identifier, Type, Expression),
-    // (variable_name, variable_type)
+    /// Represented as two elements.
+    /// variable_name - An Identifier representing the variable name.
+    /// variable_type - The type of the variable.
     CircuitVariable(Identifier, Type),
-    // (function)
+    /// Represented as a single element.
+    /// function - The function definition.
     CircuitFunction(Box<Function>),
 }
 

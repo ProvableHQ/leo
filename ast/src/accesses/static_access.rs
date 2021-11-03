@@ -25,6 +25,7 @@ use serde::{Deserialize, Serialize};
 pub struct StaticAccess {
     pub inner: Box<Expression>,
     pub name: Identifier,
+    /// An optional type initially None, it is later assigned during type inference snapshot if necessary.
     pub type_: Option<Type>,
     pub span: Span,
 }

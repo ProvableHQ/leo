@@ -4,7 +4,7 @@ expectation: Pass
 input_file: input/dummy.in
 */
 
-circuit Foo {    
+circuit Foo {
     function echo(x: u32) -> u32 {
         return x;
     }
