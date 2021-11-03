@@ -16,19 +16,20 @@
 
 use crate::ImportParser;
 use leo_ast::Program;
+use leo_errors::emitter::Handler;
 use leo_errors::{ImportError, Result, Span};
 
 use std::fs::DirEntry;
 
 static MAIN_FILE: &str = "src/main.leo";
 
-impl ImportParser {
+impl ImportParser<'_> {
     ///
     /// Returns a Leo syntax tree from a given package.
     ///
     /// Builds an abstract syntax tree from the given file and then builds the Leo syntax tree.
     ///
-    pub(crate) fn parse_import_file(package: &DirEntry, span: &Span) -> Result<Program> {
+    pub(crate) fn parse_import_file(handler: &Handler, package: &DirEntry, span: &Span) -> Result<Program> {
         // Get the package file type.
         let file_type = package
             .file_type()
@@ -52,7 +53,7 @@ impl ImportParser {
         // Build the package abstract syntax tree.
         let program_string =
             &std::fs::read_to_string(&file_path).map_err(|x| ImportError::io_error(file_path_str, x, span))?;
-        let mut program = leo_parser::parse(file_path_str, program_string)?;
+        let mut program = leo_parser::parse(handler, file_path_str, program_string)?;
         program.name = file_name;
         Ok(program)
     }

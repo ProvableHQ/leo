@@ -14,30 +14,25 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{commands::Command, context::Context};
-use leo_errors::Result;
+use super::*;
 
-use structopt::StructOpt;
-use tracing::span::Span;
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ErrExpression {
+    pub span: Span,
+}
 
-/// Lint Leo code command
-#[derive(StructOpt, Debug)]
-#[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
-pub struct Lint {}
+impl fmt::Display for ErrExpression {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str("error")
+    }
+}
 
-impl<'a> Command<'a> for Lint {
-    type Input = ();
-    type Output = ();
-
-    fn log_span(&self) -> Span {
-        tracing::span!(tracing::Level::INFO, "Linting")
+impl Node for ErrExpression {
+    fn span(&self) -> &Span {
+        &self.span
     }
 
-    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
-        Ok(())
-    }
-
-    fn apply(self, _: Context<'a>, _: Self::Input) -> Result<Self::Output> {
-        unimplemented!("Lint command has not been implemented yet");
+    fn set_span(&mut self, span: Span) {
+        self.span = span;
     }
 }

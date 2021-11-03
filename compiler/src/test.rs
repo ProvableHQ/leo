@@ -22,6 +22,7 @@ use std::{
 };
 
 use leo_asg::*;
+use leo_errors::emitter::Handler;
 use leo_errors::Result;
 use leo_errors::Span;
 
@@ -38,7 +39,7 @@ use snarkvm_ir::{InputData, Program as IR_Program};
 use crate::{compiler::Compiler, Output, OutputOptions};
 use indexmap::IndexMap;
 
-pub type TestCompiler = Compiler<'static>;
+pub type TestCompiler<'a> = Compiler<'static, 'a>;
 
 //convenience function for tests, leaks memory
 pub(crate) fn make_test_context() -> AsgContext<'static> {
@@ -46,12 +47,13 @@ pub(crate) fn make_test_context() -> AsgContext<'static> {
     new_context(allocator)
 }
 
-fn new_compiler(path: PathBuf, theorem_options: Option<OutputOptions>) -> TestCompiler {
+fn new_compiler(handler: &Handler, path: PathBuf, theorem_options: Option<OutputOptions>) -> TestCompiler<'_> {
     let program_name = "test".to_string();
     let output_dir = PathBuf::from("/tmp/output/");
     fs::create_dir_all(output_dir.clone()).unwrap();
 
     TestCompiler::new(
+        handler,
         program_name,
         path,
         output_dir,
@@ -62,12 +64,13 @@ fn new_compiler(path: PathBuf, theorem_options: Option<OutputOptions>) -> TestCo
     )
 }
 
-pub(crate) fn parse_program(
+pub(crate) fn parse_program<'a>(
+    handler: &'a Handler,
     program_string: &str,
     theorem_options: Option<OutputOptions>,
     cwd: Option<PathBuf>,
-) -> Result<TestCompiler> {
-    let mut compiler = new_compiler(cwd.unwrap_or_else(|| "compiler-test".into()), theorem_options);
+) -> Result<TestCompiler<'a>> {
+    let mut compiler = new_compiler(handler, cwd.unwrap_or_else(|| "compiler-test".into()), theorem_options);
 
     compiler.parse_program_from_string(program_string)?;
 
@@ -120,7 +123,9 @@ impl Namespace for CompileNamespace {
         });
         // .unwrap_or(test.path.clone());
 
+        let handler = Handler::default();
         let parsed = parse_program(
+            &handler,
             &test.content,
             Some(OutputOptions {
                 spans_enabled: false,

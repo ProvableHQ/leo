@@ -26,7 +26,7 @@ use tracing::span::Span;
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Init {}
 
-impl Command for Init {
+impl<'a> Command<'a> for Init {
     type Input = ();
     type Output = ();
 
@@ -34,11 +34,11 @@ impl Command for Init {
         tracing::span!(tracing::Level::INFO, "Initializing")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         // Derive the package directory path.
         let path = context.dir()?;
 

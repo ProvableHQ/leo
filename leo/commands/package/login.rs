@@ -46,7 +46,7 @@ impl Login {
     }
 }
 
-impl Command for Login {
+impl<'a> Command<'a> for Login {
     type Input = ();
     type Output = String;
 
@@ -54,11 +54,11 @@ impl Command for Login {
         tracing::span!(tracing::Level::INFO, "Login")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         let mut api = context.clone().api;
 
         // ...or trying to use arguments to either get token or user-pass

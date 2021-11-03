@@ -161,6 +161,9 @@ pub enum ConstValue<'a> {
     Tuple(Vec<ConstValue<'a>>),
     Array(Vec<ConstValue<'a>>),
     Circuit(&'a Circuit<'a>, IndexMap<String, (Identifier, ConstValue<'a>)>),
+
+    // Error sentinel value
+    Err,
 }
 
 macro_rules! const_int_op {
@@ -356,6 +359,7 @@ impl<'a> ConstValue<'a> {
             }
             ConstValue::Array(values) => Type::Array(Box::new(values.get(0)?.get_type()?), values.len() as u32),
             ConstValue::Circuit(circuit, _) => Type::Circuit(circuit),
+            ConstValue::Err => Type::Err,
         })
     }
 

@@ -45,22 +45,26 @@ pub struct Setup {
     pub(crate) compiler_options: BuildOptions,
 }
 
-impl Command for Setup {
-    type Input = <Build as Command>::Output;
-    type Output = (CompilerWrapper, ProvingKey<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
+impl<'a> Command<'a> for Setup {
+    type Input = <Build as Command<'a>>::Output;
+    type Output = (
+        CompilerWrapper<'a>,
+        ProvingKey<Bls12_377>,
+        PreparedVerifyingKey<Bls12_377>,
+    );
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Setup")
     }
 
-    fn prelude(&self, context: Context) -> Result<Self::Input> {
+    fn prelude(&self, context: Context<'a>) -> Result<Self::Input> {
         (Build {
             compiler_options: self.compiler_options.clone(),
         })
         .execute(context)
     }
 
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, input: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
         let package_name = context.manifest()?.get_package_name();
 

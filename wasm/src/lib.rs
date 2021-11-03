@@ -18,8 +18,7 @@
 // which is not wasm compatible. All compiler passes (such as TypeInference)
 
 use leo_ast::AstPass;
-use leo_errors::LeoError;
-
+use leo_errors::emitter::{ErrBuffer, Handler};
 use serde_json::json;
 use wasm_bindgen::prelude::*;
 
@@ -32,25 +31,33 @@ export interface LeoError { text: string, code: string, exitCode: number }
 /// Parse the code and return an AST as JSON or an error object.
 #[wasm_bindgen(method, catch)]
 pub fn parse(program: &str) -> Result<String, JsValue> {
-    parse_program(program).map_err(error_to_value)
+    Handler::with(|h| parse_program(h, program)).map_err(error_to_value)
 }
 
 /// Parse the program and pass the Canonicalization phase;
 /// Asg is useless without compiler passes, so we need to add them once the compatibility problem in
 /// snarkvm is solved.
-fn parse_program(program: &str) -> leo_errors::Result<String> {
-    let ast = leo_parser::parse_ast("", program)?;
+fn parse_program(handler: &Handler, program: &str) -> leo_errors::Result<String> {
+    let ast = leo_parser::parse_ast(handler, "", program)?;
     let ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?.to_json_string()?;
 
     Ok(ast)
 }
 
-/// Make a pretty-print JS object for the thrown error.
-fn error_to_value(err: LeoError) -> JsValue {
-    JsValue::from_serde(&json!({
-       "error": err.to_string(),
-       "code": err.error_code(),
-       "exitCode": err.exit_code()
-    }))
+/// Make a pretty-print JS object for the thrown errors.
+fn error_to_value(errors: ErrBuffer) -> JsValue {
+    JsValue::from_serde(
+        &errors
+            .into_inner()
+            .into_iter()
+            .map(|err| {
+                json!({
+                   "error": err.to_string(),
+                   "code": err.error_code(),
+                   "exitCode": err.exit_code()
+                })
+            })
+            .collect::<Vec<_>>(),
+    )
     .expect("Unable to create an error object from JSON")
 }

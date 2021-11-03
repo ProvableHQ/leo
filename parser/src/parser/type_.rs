@@ -35,7 +35,7 @@ pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::Char,
 ];
 
-impl ParserContext {
+impl ParserContext<'_> {
     ///
     /// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
     ///

@@ -31,14 +31,15 @@ pub mod parser;
 pub use parser::*;
 
 use leo_ast::{Ast, Input};
+use leo_errors::emitter::Handler;
 use leo_errors::Result;
 
 #[cfg(test)]
 mod test;
 
 /// Creates a new AST from a given file path and source code text.
-pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(path: T, source: Y) -> Result<Ast> {
-    Ok(Ast::new(parser::parse(path.as_ref(), source.as_ref())?))
+pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, source: Y) -> Result<Ast> {
+    Ok(Ast::new(parser::parse(handler, path.as_ref(), source.as_ref())?))
 }
 
 /// Parses program input from from the input file path and state file path

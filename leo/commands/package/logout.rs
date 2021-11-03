@@ -25,7 +25,7 @@ use tracing::Span;
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Logout {}
 
-impl Command for Logout {
+impl<'a> Command<'a> for Logout {
     type Input = ();
     type Output = ();
 
@@ -33,11 +33,11 @@ impl Command for Logout {
         tracing::span!(tracing::Level::INFO, "Logout")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, _context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         // the only error we're interested here is NotFound
         // however err in this case can also be of kind PermissionDenied or other
         remove_token_and_username()?;

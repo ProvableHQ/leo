@@ -26,9 +26,8 @@ use commands::{
     package::{Clone, Fetch, Login, Logout, Publish},
     Build, Clean, Command, Deploy, Init, Lint, New, Prove, Run, Setup, Test, Update, Watch,
 };
-use leo_errors::Result;
-
-use std::{path::PathBuf, process::exit};
+use leo_errors::{emitter::Handler, Result};
+use std::path::PathBuf;
 use structopt::{clap::AppSettings, StructOpt};
 
 /// CLI Arguments entry point - includes global parameters and subcommands
@@ -174,11 +173,14 @@ enum CommandOpts {
 }
 
 fn main() {
-    handle_error(run_with_args(Opt::from_args()))
+    // Initialize a handler for errors.
+    let handler = Handler::default();
+
+    handle_error(&handler, run_with_args(&handler, Opt::from_args()))
 }
 
 /// Run command with custom build arguments.
-fn run_with_args(opt: Opt) -> Result<()> {
+fn run_with_args(handler: &Handler, opt: Opt) -> Result<()> {
     if !opt.quiet {
         // Init logger with optional debug flag.
         logger::init_logger(
@@ -190,14 +192,21 @@ fn run_with_args(opt: Opt) -> Result<()> {
         )?;
     }
 
-    // Get custom root folder and create context for it.
-    // If not specified, default context will be created in cwd.
-    let context = handle_error(match opt.path {
-        Some(path) => context::create_context(path, opt.api),
-        None => context::get_context(opt.api),
-    });
+    let context = create_context(handler, opt.path, opt.api)?;
+    try_execute_command(opt.command, context)
+}
 
-    match opt.command {
+/// Returns custom root folder and creates a context for it.
+/// If not specified, the default context will be created in cwd.
+fn create_context(handler: &Handler, path: Option<PathBuf>, api: Option<String>) -> Result<context::Context<'_>> {
+    match path {
+        Some(path) => context::create_context(handler, path, api),
+        None => context::get_context(handler, api),
+    }
+}
+
+fn try_execute_command(command: CommandOpts, context: context::Context) -> Result<()> {
+    match command {
         CommandOpts::Init { command } => command.try_execute(context),
         CommandOpts::New { command } => command.try_execute(context),
         CommandOpts::Build { command } => command.try_execute(context),
@@ -221,20 +230,17 @@ fn run_with_args(opt: Opt) -> Result<()> {
     }
 }
 
-fn handle_error<T>(res: Result<T>) -> T {
+fn handle_error<T>(handler: &Handler, res: Result<T>) -> T {
     match res {
         Ok(t) => t,
-        Err(err) => {
-            eprintln!("{}", err);
-            exit(err.exit_code());
-        }
+        Err(err) => handler.fatal_err(err),
     }
 }
 
 #[cfg(test)]
 mod cli_tests {
     use crate::{run_with_args, Opt};
-    use leo_errors::{CliError, Result};
+    use leo_errors::{emitter::Handler, CliError, Result};
 
     use snarkvm_utilities::Write;
     use std::path::PathBuf;
@@ -255,7 +261,7 @@ mod cli_tests {
             opts.quiet = true;
         }
 
-        run_with_args(opts)
+        run_with_args(&Handler::default(), opts)
     }
 
     // Create a test directory with name.
