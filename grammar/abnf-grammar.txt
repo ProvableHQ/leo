@@ -1027,7 +1027,7 @@ function-inputs = function-input *( "," function-input )
 
 function-input = [ %s"const" ] identifier ":" type
 
-; A circuit member constant declaration
+; A circuit member constant declaration consists of
 ; the static and const keywords followed by
 ; an identifier and a type, then an assignment
 ; with a literal terminated by semicolon.
@@ -1052,6 +1052,8 @@ member-variable-declarations = *( identifier ":" type ( "," / ";" ) )
 
 member-function-declaration = function-declaration
 
+; A circuit declaration defines a circuit type,
+; as consisting of member constants, variables and functions.
 ; A circuit member constant declaration
 ; as consisting of member constants, member variables, and member functions.
 ; To more simply accommodate the backward compatibility

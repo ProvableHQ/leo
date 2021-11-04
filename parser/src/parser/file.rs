@@ -375,7 +375,7 @@ impl ParserContext {
         Ok(members)
     }
 
-    fn parse_member_variable_name_and_type(&mut self) -> Result<(Identifier, Type)> {
+    fn parse_typed_field_name(&mut self) -> Result<(Identifier, Type)> {
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
@@ -388,7 +388,7 @@ impl ParserContext {
         self.expect(Token::Static)?;
         self.expect(Token::Const)?;
 
-        let (name, type_) = self.parse_member_variable_name_and_type()?;
+        let (name, type_) = self.parse_typed_field_name()?;
 
         self.expect(Token::Assign)?;
         let literal = self.parse_primary_expression()?;
@@ -408,7 +408,7 @@ impl ParserContext {
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
     ///
     pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
-        let (name, type_) = self.parse_member_variable_name_and_type()?;
+        let (name, type_) = self.parse_typed_field_name()?;
 
         Ok(CircuitMember::CircuitVariable(name, type_))
     }
