@@ -159,10 +159,9 @@ These conversions are available for completeness, but may not be very useful in 
 Conversions between `i8` and bytes amount to
 converting between the integer and the singleton array that contains the integer re-interpreted as unsigned;
 in this case, there is no difference between little and big endian order.
-Thus, these conversions may be used to re-interpret between signed and unsigned bytes,
-but arguably there should be more dedicated and comprehensive operations for that in Leo:
-that is an independent extension of Leo,
-which may make the conversions between `i8` and bytes just available for completeness, but not very useful in practice.
+Thus, these conversions may be used to re-interpret signed bytes as unsigned bytes and vice versa.
+However, arguably there should be more dedicated and comprehensive operations for this kind of "re-interpreatation" in Leo;
+that is an independent extension of Leo.
 
 ### Conversions with Field Elements
 
