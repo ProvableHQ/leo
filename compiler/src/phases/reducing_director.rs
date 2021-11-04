@@ -34,8 +34,8 @@ use leo_asg::{
     VariableRef as AsgVariableRef,
 };
 use leo_ast::{
-    AccessExpression as AstAccessExpression, ArrayAccess as AstArrayAccess, ArrayDimensions,
-    ArrayInitExpression as AstArrayInitExpression, ArrayInlineExpression as AstArrayInlineExpression,
+    AccessExpression as AstAccessExpression, ArrayAccess as AstArrayAccess, ArrayDimension as AstArrayDimension,
+    ArrayDimensions, ArrayInitExpression as AstArrayInitExpression, ArrayInlineExpression as AstArrayInlineExpression,
     ArrayRangeAccess as AstArrayRangeAccess, AssignStatement as AstAssignStatement, Assignee,
     AssigneeAccess as AstAssignAccess, BinaryExpression as AstBinaryExpression, Block as AstBlockStatement,
     CallExpression as AstCallExpression, CastExpression as AstCastExpression, Char, CharValue as AstCharValue,
@@ -75,9 +75,9 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 if self.options.type_inference_enabled() {
                     AstType::Array(
                         Box::new(self.reduce_type(ast_type, asg_type, span)?),
-                        Some(ArrayDimensions(vec![PositiveNumber {
+                        Some(ArrayDimensions(vec![AstArrayDimension::Number(PositiveNumber {
                             value: StrTendril::from(format!("{}", asg_dimensions)),
-                        }])),
+                        })])),
                     )
                 } else {
                     AstType::Array(

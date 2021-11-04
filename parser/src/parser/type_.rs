@@ -60,7 +60,7 @@ impl ParserContext {
     ///
     pub fn parse_array_dimensions(&mut self) -> Result<Option<ArrayDimensions>> {
         Ok(if let Some((int, _)) = self.eat_int() {
-            Some(ArrayDimensions(vec![int]))
+            Some(ArrayDimensions(vec![ArrayDimension::Number(int)]))
         } else if self.eat(Token::Underscore).is_some() {
             None
         } else {
@@ -68,7 +68,9 @@ impl ParserContext {
             let mut dimensions = Vec::new();
             loop {
                 if let Some((int, _)) = self.eat_int() {
-                    dimensions.push(int);
+                    dimensions.push(ArrayDimension::Number(int));
+                } else if self.eat(Token::Underscore).is_some() {
+                    dimensions.push(ArrayDimension::Unspecified);
                 } else {
                     let token = self.peek()?;
                     return Err(ParserError::unexpected_str(&token.token, "int", &token.span).into());

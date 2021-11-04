@@ -227,9 +227,11 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
             Integer(int_type) => leo_ast::Type::IntegerType(int_type.clone()),
             Array(type_, len) => leo_ast::Type::Array(
                 Box::new(type_.as_ref().into()),
-                Some(leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {
-                    value: len.to_string().into(),
-                }])),
+                Some(leo_ast::ArrayDimensions(vec![leo_ast::ArrayDimension::Number(
+                    leo_ast::PositiveNumber {
+                        value: len.to_string().into(),
+                    },
+                )])),
             ),
             ArrayWithoutSize(type_) => leo_ast::Type::Array(Box::new(type_.as_ref().into()), None),
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),

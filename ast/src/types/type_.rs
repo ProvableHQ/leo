@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayDimensions, Identifier, IntegerType, PositiveNumber};
+use crate::{ArrayDimension, ArrayDimensions, Identifier, IntegerType, PositiveNumber};
 use leo_input::types::{
     ArrayType as InputArrayType, DataType as InputDataType, TupleType as InputTupleType, Type as InputType,
 };
@@ -179,7 +179,6 @@ impl fmt::Display for Type {
     }
 }
 
-///
 /// Returns the type of the inner array given an array element and array dimensions.
 ///
 /// If the array has no dimensions, then an inner array does not exist. Simply return the given
@@ -188,7 +187,6 @@ impl fmt::Display for Type {
 /// If the array has dimensions, then an inner array exists. Create a new type for the
 /// inner array. The element type of the new array should be the same as the old array. The
 /// dimensions of the new array should be the old array dimensions with the first dimension removed.
-///
 pub fn inner_array_type(element_type: Type, dimensions: ArrayDimensions) -> Type {
     if dimensions.is_empty() {
         // The array has one dimension.
@@ -199,21 +197,20 @@ pub fn inner_array_type(element_type: Type, dimensions: ArrayDimensions) -> Type
     }
 }
 
-///
 /// Custom Serializer for Type::Array. Handles the case when ArrayDimensions are None and turns it into
 /// a Vec<PositiveNumber>, where the only element is "0".
-///
 fn serialize_array<S>(type_: &Type, dimensions: &Option<ArrayDimensions>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
     let mut seq = serializer.serialize_seq(Some(2))?;
     seq.serialize_element(type_)?;
-    // seq.serialize_element(dimensions)?;
     if let Some(dimensions) = dimensions {
         seq.serialize_element(&dimensions)?;
     } else {
-        seq.serialize_element(&ArrayDimensions(vec![PositiveNumber { value: "0".into() }]))?;
+        seq.serialize_element(&ArrayDimensions(vec![ArrayDimension::Number(PositiveNumber {
+            value: "0".into(),
+        })]))?;
     }
     seq.end()
 }

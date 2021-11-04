@@ -202,11 +202,15 @@ impl<'a> Scope<'a> {
 
                 if let Some(dimensions) = dimensions {
                     for dimension in dimensions.0.iter().rev() {
-                        let dimension = dimension
-                            .value
-                            .parse::<u32>()
-                            .map_err(|_| AsgError::parse_index_error(span))?;
-                        item = Box::new(Type::Array(item, dimension));
+                        if let Some(dimension) = dimension.get_number() {
+                            let dimension = dimension
+                                .value
+                                .parse::<u32>()
+                                .map_err(|_| AsgError::parse_index_error(span))?;
+                            item = Box::new(Type::Array(item, dimension));
+                        } else {
+                            item = Box::new(Type::ArrayWithoutSize(item))
+                        }
                     }
                 } else {
                     item = Box::new(Type::ArrayWithoutSize(item));
