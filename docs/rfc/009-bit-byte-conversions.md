@@ -230,7 +230,7 @@ the notion of big and little endian as such does not directly apply to group ele
 but only to their individual coordinates.
 
 Not all (little or big endian) sequences of `N` bits represent group elements.
-Not only each `N/2`-bit half must represent a field element (see discussion for field elements above),
+Not only must each `N/2`-bit half represent a field element (see discussion for field elements above),
 but also the resulting point (_x_, _y_) must satisfy the curve equation.
 Attempting to convert to a group element a sequence of `N` bits that does not actually represent a group element
 causes an error, in the same sense as division by zero causes an error.
