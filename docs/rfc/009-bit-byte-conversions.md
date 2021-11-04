@@ -260,7 +260,8 @@ A character can be always converted to a (little or big endian) sequence of bits
 However, analogously to field and group elements,
 attempting to convert to a character a sequence whose numeric value exceeds 10FFFFh
 causes an error in Leo.
-This is the case also if `N` and `M` are reduced to be 21 and 3.
+Note that the possibility of this kind of errors will remain even if we reduce `N` and `M` to be 21 and 3
+(which, as discussed above, suffices to represent all characters).
 
 ```ts
 let x: char = 'A';
