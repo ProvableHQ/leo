@@ -158,7 +158,7 @@ These conversions are available for completeness, but may not be very useful in 
 
 Conversions between `i8` and bytes amount to
 converting between the integer and the singleton array that contains the integer re-interpreted as unsigned;
-in this case, there is no different between little and big endian order.
+in this case, there is no difference between little and big endian order.
 Thus, these conversions may be used to re-interpret between signed and unsigned bytes,
 but arguably there should be more dedicated and comprehensive operations for that in Leo:
 that is an independent extension of Leo,
@@ -243,13 +243,13 @@ Conversions with byte sequences are handled by juxtaposition of the byte sequenc
   where `x` is the conversion of _x_ to little endian bytes and `y` is the conversion of _y_ to little endian bytes.
 
 For the currently supported elliptic curve in Leo, `N` is 506, and `M` is 64.
-These valuee will change with the curve, when Leo is independently extended with support for more curves,
+These values will change with the curve, when Leo is independently extended with support for more curves,
 as discussed earlier for field elements.
 
 ### Conversions with Characters
 
 A character is a Unicode code point, i.e. an integer between 0 and 10FFFFh.
-Thus, it can be viewed as a 21-bit unsigned integers,
+Thus, it can be viewed as a 21-bit unsigned integer,
 with bit conversions defined in a natural way,
 and byte coversions defined by adding 3 most significant zero bits to reach 24 bits, which is 3 bytes.
 
@@ -259,7 +259,7 @@ namely `N` is 253 and `M` is 32.
 
 A character can be always converted to a (little or big endian) sequence of bits or bytes.
 However, analogously to field and group elements,
-attempting to convert to character a sequence whose numeric value exceeds 10FFFFh
+attempting to convert to a character a sequence whose numeric value exceeds 10FFFFh
 causes an error in Leo.
 This is the case also if `N` and `M` are reduced to be 21 and 3.
 
@@ -369,7 +369,7 @@ Leo provides two aggregate types whose components are organized as a sequence: t
 So an alternative is to represent bit and byte sequences as tuples instead of arrays.
 However, arrays are much more flexible, and have elements of the same type unlike tuples.
 Empty arrays are disallowed, but empty arrays are not needed for the conversions proposed in this RFC.
-On the other hand, 1-tuples are (currently) disallowed in Leo, which would be problematic for some of the conversions.
+On the other hand, 1-tuples are currently disallowed in Leo, which would be problematic for some of the conversions.
 
 ### Shorter Conversions with Characters
 
