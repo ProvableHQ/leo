@@ -18,38 +18,42 @@ use std::{borrow::Cow, unimplemented};
 
 use crate::{assert_no_whitespace, tokenizer::*, Token, KEYWORD_TOKENS};
 use leo_ast::*;
+use leo_errors::emitter::Handler;
 use leo_errors::{LeoError, ParserError, Result, Span};
 use tendril::format_tendril;
 
 /// Stores a program in tokenized format plus additional context.
 /// May be converted into a [`Program`] AST by parsing all tokens.
-pub struct ParserContext {
+pub struct ParserContext<'a> {
+    #[allow(dead_code)]
+    pub(crate) handler: &'a Handler,
     tokens: Vec<SpannedToken>,
     end_span: Span,
     // true if parsing an expression for an if statement -- means circuit inits are not legal
     pub(crate) fuzzy_struct_state: bool,
 }
 
-impl Iterator for ParserContext {
+impl Iterator for ParserContext<'_> {
     type Item = SpannedToken;
 
     fn next(&mut self) -> Option<SpannedToken> {
-        self.tokens.pop()
+        self.bump()
     }
 }
 
-impl ParserContext {
+impl<'a> ParserContext<'a> {
     ///
     /// Returns a new [`ParserContext`] type given a vector of tokens.
     ///
-    pub fn new(mut tokens: Vec<SpannedToken>) -> Self {
+    pub fn new(handler: &'a Handler, mut tokens: Vec<SpannedToken>) -> Self {
         tokens.reverse();
         // todo: performance optimization here: drain filter
         tokens = tokens
             .into_iter()
             .filter(|x| !matches!(x.token, Token::CommentLine(_) | Token::CommentBlock(_)))
             .collect();
-        ParserContext {
+        Self {
+            handler,
             end_span: tokens
                 .iter()
                 .find(|x| !x.span.content.trim().is_empty())
@@ -58,6 +62,11 @@ impl ParserContext {
             tokens,
             fuzzy_struct_state: false,
         }
+    }
+
+    /// Returns the current token if there is one.
+    pub fn curr(&self) -> Option<&SpannedToken> {
+        self.tokens.last()
     }
 
     ///
@@ -78,7 +87,7 @@ impl ParserContext {
     /// Returns a reference to the next SpannedToken or error if it does not exist.
     ///
     pub fn peek(&self) -> Result<&SpannedToken> {
-        self.tokens.last().ok_or_else(|| self.eof())
+        self.curr().ok_or_else(|| self.eof())
     }
 
     ///
@@ -115,14 +124,19 @@ impl ParserContext {
         !self.tokens.is_empty()
     }
 
+    /// Advances the current token.
+    pub fn bump(&mut self) -> Option<SpannedToken> {
+        self.tokens.pop()
+    }
+
     ///
     /// Removes the next token if it exists and returns it, or [None] if
     /// the next token does not exist.
     ///
     pub fn eat(&mut self, token: Token) -> Option<SpannedToken> {
-        if let Some(SpannedToken { token: inner, .. }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, .. }) = self.curr() {
             if &token == inner {
-                return self.tokens.pop();
+                return self.bump();
             }
         }
         None
@@ -142,13 +156,12 @@ impl ParserContext {
     pub fn eat_identifier(&mut self) -> Option<Identifier> {
         if let Some(SpannedToken {
             token: Token::Ident(_), ..
-        }) = self.tokens.last()
+        }) = self.curr()
         {
-            let token = self.tokens.pop().unwrap();
             if let SpannedToken {
                 token: Token::Ident(name),
                 span,
-            } = token
+            } = self.bump().unwrap()
             {
                 return Some(Identifier { name, span });
             } else {
@@ -195,7 +208,11 @@ impl ParserContext {
     ///
     pub fn peek_is_function(&self) -> Result<bool> {
         let first = &self.peek()?.token;
-        let next = &self.peek_next()?.token;
+        let next = if self.tokens.len() >= 2 {
+            &self.peek_next()?.token
+        } else {
+            return Ok(false);
+        };
         let is_func =
             first == &Token::Function || first == &Token::At || (first == &Token::Const && next == &Token::Function);
 
@@ -279,13 +296,12 @@ impl ParserContext {
     pub fn eat_int(&mut self) -> Option<(PositiveNumber, Span)> {
         if let Some(SpannedToken {
             token: Token::Int(_), ..
-        }) = self.tokens.last()
+        }) = self.curr()
         {
-            let token = self.tokens.pop().unwrap();
             if let SpannedToken {
                 token: Token::Int(value),
                 span,
-            } = token
+            } = self.bump().unwrap()
             {
                 return Some((PositiveNumber { value }, span));
             } else {
@@ -300,9 +316,9 @@ impl ParserContext {
     /// the next token  does not exist.
     ///
     pub fn eat_any(&mut self, token: &[Token]) -> Option<SpannedToken> {
-        if let Some(SpannedToken { token: inner, .. }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, .. }) = self.curr() {
             if token.iter().any(|x| x == inner) {
-                return self.tokens.pop();
+                return self.bump();
             }
         }
         None
@@ -312,9 +328,9 @@ impl ParserContext {
     /// Returns the span of the next token if it is equal to the given [`Token`], or error.
     ///
     pub fn expect(&mut self, token: Token) -> Result<Span> {
-        if let Some(SpannedToken { token: inner, span }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if &token == inner {
-                Ok(self.tokens.pop().unwrap().span)
+                Ok(self.bump().unwrap().span)
             } else {
                 Err(ParserError::unexpected(inner, token, span).into())
             }
@@ -327,9 +343,9 @@ impl ParserContext {
     /// Returns the span of the next token if it is equal to one of the given [`Token`]s, or error.
     ///
     pub fn expect_oneof(&mut self, token: &[Token]) -> Result<SpannedToken> {
-        if let Some(SpannedToken { token: inner, span }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if token.iter().any(|x| x == inner) {
-                Ok(self.tokens.pop().unwrap())
+                Ok(self.bump().unwrap())
             } else {
                 return Err(ParserError::unexpected(
                     inner,
@@ -364,13 +380,12 @@ impl ParserContext {
     /// Returns the [`Identifier`] of the next token if it is an [`Identifier`], or error.
     ///
     pub fn expect_ident(&mut self) -> Result<Identifier> {
-        if let Some(SpannedToken { token: inner, span }) = self.tokens.last() {
+        if let Some(SpannedToken { token: inner, span }) = self.curr() {
             if let Token::Ident(_) = inner {
-                let token = self.tokens.pop().unwrap();
                 if let SpannedToken {
                     token: Token::Ident(name),
                     span,
-                } = token
+                } = self.bump().unwrap()
                 {
                     Ok(Identifier { name, span })
                 } else {

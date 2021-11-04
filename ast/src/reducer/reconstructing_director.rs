@@ -67,6 +67,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             Expression::CircuitInit(circuit_init) => Expression::CircuitInit(self.reduce_circuit_init(circuit_init)?),
 
             Expression::Call(call) => Expression::Call(self.reduce_call(call)?),
+            Expression::Err(s) => Expression::Err(s.clone()),
         };
 
         self.reducer.reduce_expression(expression, new)

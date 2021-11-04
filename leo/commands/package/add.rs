@@ -79,7 +79,7 @@ impl Add {
     }
 }
 
-impl Command for Add {
+impl<'a> Command<'a> for Add {
     type Input = ();
     type Output = PathBuf;
 
@@ -87,11 +87,11 @@ impl Command for Add {
         tracing::span!(tracing::Level::INFO, "Adding")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         // Check that a manifest exists for the current package.
         context.manifest().map_err(|_| CliError::manifest_file_not_found())?;
 

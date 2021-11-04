@@ -1,10 +1,8 @@
 circuit Foo {
     a: u8;
 
-    function bar() {}
-
-    function set_a(mut self, new: u8) {
-        self.bar = new;
+    function set_a(self, new: u8) {
+        self.a = new;
     }
 }
 

@@ -95,7 +95,7 @@ impl<'a> Function<'a> {
                     FunctionInput::ConstSelfKeyword(_) => {
                         qualifier = FunctionQualifier::ConstSelfRef;
                     }
-                    FunctionInput::MutSelfKeyword(_) => {
+                    FunctionInput::RefSelfKeyword(_) => {
                         qualifier = FunctionQualifier::MutSelfRef;
                     }
                     FunctionInput::Variable(input_variable) => {

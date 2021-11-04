@@ -30,7 +30,8 @@ Bolded ones are also keywords.
 #### Symbols
 - At
 - Not
-- And
+- And (`&&`)
+- Ampersand (`&`)
 - Or
 - Eq
 - NotEq
@@ -98,7 +99,6 @@ Bolded ones are also keywords.
 - **If**
 - **In**
 - **Let**
-- **Mut**
 - **Return**
 - **Static**
 - **String**

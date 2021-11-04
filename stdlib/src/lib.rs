@@ -17,6 +17,7 @@
 #![doc = include_str!("../README.md")]
 
 use leo_ast::Program;
+use leo_errors::emitter::Handler;
 use leo_errors::{ImportError, Result};
 
 use std::sync::Mutex;
@@ -123,14 +124,14 @@ pub fn static_include_stdlib() {
     );
 }
 
-fn resolve_file(file: &str, mapping: bool) -> Result<Program> {
+fn resolve_file(handler: &Handler, file: &str, mapping: bool) -> Result<Program> {
     let stdlib = STDLIB.lock().unwrap();
 
     let resolved = stdlib
         .get(&file.to_string())
         .ok_or_else(|| ImportError::no_such_stdlib_file(file))?;
 
-    let mut ast = leo_parser::parse_ast(file, resolved)?.into_repr();
+    let mut ast = leo_parser::parse_ast(handler, file, resolved)?.into_repr();
     if mapping {
         ast.set_core_mapping();
     }
@@ -138,12 +139,12 @@ fn resolve_file(file: &str, mapping: bool) -> Result<Program> {
     Ok(ast)
 }
 
-pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
+pub fn resolve_prelude_modules(handler: &Handler) -> Result<IndexMap<Vec<String>, Program>> {
     let mut preludes: IndexMap<Vec<String>, Program> = IndexMap::new();
 
     for path in PRELUDE.iter() {
-        // If on windows repalce \\ with / as all paths are stored in unix style.
-        let program = resolve_file(path, true)?;
+        // If on windows replace \\ with / as all paths are stored in unix style.
+        let program = resolve_file(handler, path, true)?;
 
         let removed_extension = path.replace(".leo", "");
         let mut parts: Vec<String> = vec![String::from("std")];
@@ -159,9 +160,9 @@ pub fn resolve_prelude_modules() -> Result<IndexMap<Vec<String>, Program>> {
     Ok(preludes)
 }
 
-pub fn resolve_stdlib_module(module: &str) -> Result<Program> {
+pub fn resolve_stdlib_module(handler: &Handler, module: &str) -> Result<Program> {
     let mut file_path = module.replace(".", "/");
     file_path.push_str(".leo");
 
-    resolve_file(&file_path, true)
+    resolve_file(handler, &file_path, true)
 }

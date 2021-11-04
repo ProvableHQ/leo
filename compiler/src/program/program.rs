@@ -275,6 +275,7 @@ impl<'a> Program<'a> {
 
 fn asg_to_ir_type(type_: &AsgType) -> Type {
     match type_ {
+        AsgType::Err => todo!(),
         AsgType::Address => Type::Address,
         AsgType::Boolean => Type::Boolean,
         AsgType::Char => Type::Char,

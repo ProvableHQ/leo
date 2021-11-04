@@ -17,50 +17,50 @@
 use crate::load_asg;
 
 #[test]
-fn test_let_mut() {
-    let program_string = include_str!("let_mut.leo");
+fn test_let_mutate() {
+    let program_string = include_str!("let_mutate.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
-fn test_let_mut_nested() {
-    let program_string = include_str!("let_mut_nested.leo");
+fn test_let_mutate_nested() {
+    let program_string = include_str!("let_mutate_nested.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
-fn test_array_mut() {
-    let program_string = include_str!("array_mut.leo");
+fn test_array_mutate() {
+    let program_string = include_str!("array_mutate.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
-fn test_array_tuple_mut() {
-    let program_string = include_str!("array_tuple_mut.leo");
+fn test_array_tuple_mutate() {
+    let program_string = include_str!("array_tuple_mutate.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
-fn test_array_splice_mut() {
-    let program_string = include_str!("array_splice_mut.leo");
+fn test_array_splice_mutate() {
+    let program_string = include_str!("array_splice_mutate.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
-fn test_circuit_mut() {
-    let program_string = include_str!("circuit_mut.leo");
+fn test_circuit_mutate() {
+    let program_string = include_str!("circuit_mutate.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
-fn test_circuit_variable_mut() {
-    let program_string = include_str!("circuit_variable_mut.leo");
+fn test_circuit_variable_mutate() {
+    let program_string = include_str!("circuit_variable_mutate.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
-fn test_function_input_mut() {
-    let program_string = include_str!("function_input_mut.leo");
+fn test_function_input_mutate() {
+    let program_string = include_str!("function_input_mutate.leo");
     load_asg(program_string).unwrap();
 }
 

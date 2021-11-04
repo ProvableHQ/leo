@@ -38,7 +38,7 @@ pub struct Watch {
     compiler_options: BuildOptions,
 }
 
-impl Command for Watch {
+impl<'a> Command<'a> for Watch {
     type Input = ();
     type Output = ();
 
@@ -46,11 +46,11 @@ impl Command for Watch {
         tracing::span!(tracing::Level::INFO, "Watching")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         let (tx, rx) = channel();
         let mut watcher = watcher(tx, Duration::from_secs(self.interval)).unwrap();
 

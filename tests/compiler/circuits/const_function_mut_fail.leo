@@ -5,7 +5,7 @@ expectation: Fail
 
 circuit Foo {
     a: u8,
-    const function set_a(mut self, new: u8) {
+    const function set_a(&self, new: u8) {
         self.a = new;
     }
 }

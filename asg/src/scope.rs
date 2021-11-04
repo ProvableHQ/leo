@@ -189,15 +189,15 @@ impl<'a> Scope<'a> {
     /// Returns the type returned by the current scope.
     ///
     pub fn resolve_ast_type(&self, type_: &leo_ast::Type, span: &Span) -> Result<Type<'a>> {
-        use leo_ast::Type::*;
         Ok(match type_ {
-            Address => Type::Address,
-            Boolean => Type::Boolean,
-            Char => Type::Char,
-            Field => Type::Field,
-            Group => Type::Group,
-            IntegerType(int_type) => Type::Integer(int_type.clone()),
-            Array(sub_type, dimensions) => {
+            leo_ast::Type::Address => Type::Address,
+            leo_ast::Type::Boolean => Type::Boolean,
+            leo_ast::Type::Char => Type::Char,
+            leo_ast::Type::Field => Type::Field,
+            leo_ast::Type::Group => Type::Group,
+            leo_ast::Type::Err => Type::Err,
+            leo_ast::Type::IntegerType(int_type) => Type::Integer(int_type.clone()),
+            leo_ast::Type::Array(sub_type, dimensions) => {
                 let mut item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
 
                 if let Some(dimensions) = dimensions {
@@ -214,14 +214,14 @@ impl<'a> Scope<'a> {
 
                 *item
             }
-            Tuple(sub_types) => Type::Tuple(
+            leo_ast::Type::Tuple(sub_types) => Type::Tuple(
                 sub_types
                     .iter()
                     .map(|x| self.resolve_ast_type(x, span))
                     .collect::<Result<Vec<_>>>()?,
             ),
-            SelfType => return Err(AsgError::unexpected_big_self(span).into()),
-            Identifier(name) => {
+            leo_ast::Type::SelfType => return Err(AsgError::unexpected_big_self(span).into()),
+            leo_ast::Type::Identifier(name) => {
                 if let Some(circuit) = self.resolve_circuit(&name.name) {
                     Type::Circuit(circuit)
                 } else if let Some(alias) = self.resolve_alias(&name.name) {

@@ -183,4 +183,12 @@ create_errors!(
         msg: "unable to parse array dimensions",
         help: None,
     }
+
+    /// For when the parser encountered a deprecated `mut self` parameter in a member function declaration.
+    @formatted
+    mut_self_parameter {
+        args: (),
+        msg: "`mut self` is no longer accepted. Use `&self` if you would like to pass in a mutable reference to `self`",
+        help: None,
+    }
 );

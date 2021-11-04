@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ConstSelfKeyword, FunctionInputVariable, MutSelfKeyword, Node, SelfKeyword};
+use crate::{ConstSelfKeyword, FunctionInputVariable, Node, RefSelfKeyword, SelfKeyword};
 use leo_errors::Span;
 
 use serde::{Deserialize, Serialize};
@@ -25,7 +25,7 @@ use std::fmt;
 pub enum FunctionInput {
     SelfKeyword(SelfKeyword),
     ConstSelfKeyword(ConstSelfKeyword),
-    MutSelfKeyword(MutSelfKeyword),
+    RefSelfKeyword(RefSelfKeyword),
     Variable(FunctionInputVariable),
 }
 
@@ -38,7 +38,7 @@ impl FunctionInput {
         match self {
             FunctionInput::SelfKeyword(_) => true,
             FunctionInput::ConstSelfKeyword(_) => true,
-            FunctionInput::MutSelfKeyword(_) => true,
+            FunctionInput::RefSelfKeyword(_) => true,
             FunctionInput::Variable(_) => false,
         }
     }
@@ -51,7 +51,7 @@ impl FunctionInput {
         match self {
             FunctionInput::SelfKeyword(_) => false,
             FunctionInput::ConstSelfKeyword(_) => true,
-            FunctionInput::MutSelfKeyword(_) => false,
+            FunctionInput::RefSelfKeyword(_) => false,
             FunctionInput::Variable(_) => false,
         }
     }
@@ -64,7 +64,7 @@ impl FunctionInput {
         match self {
             FunctionInput::SelfKeyword(_) => false,
             FunctionInput::ConstSelfKeyword(_) => false,
-            FunctionInput::MutSelfKeyword(_) => true,
+            FunctionInput::RefSelfKeyword(_) => true,
             FunctionInput::Variable(_) => false,
         }
     }
@@ -85,7 +85,7 @@ impl FunctionInput {
         match self {
             FunctionInput::SelfKeyword(keyword) => write!(f, "{}", keyword),
             FunctionInput::ConstSelfKeyword(keyword) => write!(f, "{}", keyword),
-            FunctionInput::MutSelfKeyword(keyword) => write!(f, "{}", keyword),
+            FunctionInput::RefSelfKeyword(keyword) => write!(f, "{}", keyword),
             FunctionInput::Variable(function_input) => write!(f, "{}", function_input),
         }
     }
@@ -109,7 +109,7 @@ impl PartialEq for FunctionInput {
         match (self, other) {
             (FunctionInput::SelfKeyword(_), FunctionInput::SelfKeyword(_)) => true,
             (FunctionInput::ConstSelfKeyword(_), FunctionInput::ConstSelfKeyword(_)) => true,
-            (FunctionInput::MutSelfKeyword(_), FunctionInput::MutSelfKeyword(_)) => true,
+            (FunctionInput::RefSelfKeyword(_), FunctionInput::RefSelfKeyword(_)) => true,
             (FunctionInput::Variable(left), FunctionInput::Variable(right)) => left.eq(right),
             _ => false,
         }
@@ -124,7 +124,7 @@ impl Node for FunctionInput {
         match self {
             SelfKeyword(keyword) => &keyword.identifier.span,
             ConstSelfKeyword(keyword) => &keyword.identifier.span,
-            MutSelfKeyword(keyword) => &keyword.identifier.span,
+            RefSelfKeyword(keyword) => &keyword.identifier.span,
             Variable(variable) => &variable.span,
         }
     }
@@ -134,7 +134,7 @@ impl Node for FunctionInput {
         match self {
             SelfKeyword(keyword) => keyword.identifier.span = span,
             ConstSelfKeyword(keyword) => keyword.identifier.span = span,
-            MutSelfKeyword(keyword) => keyword.identifier.span = span,
+            RefSelfKeyword(keyword) => keyword.identifier.span = span,
             Variable(variable) => variable.span = span,
         }
     }

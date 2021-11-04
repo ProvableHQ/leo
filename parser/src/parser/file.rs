@@ -22,7 +22,7 @@ use crate::KEYWORD_TOKENS;
 
 use super::*;
 
-impl ParserContext {
+impl ParserContext<'_> {
     ///
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     ///
@@ -41,9 +41,21 @@ impl ParserContext {
                     import_statements.push(self.parse_import_statement()?);
                 }
                 Token::Circuit => {
+                    self.expect(Token::Circuit)?;
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
                 }
+                Token::Ident(ident) => match ident.as_ref() {
+                    "test" => return Err(ParserError::test_function(&token.span).into()),
+                    kw @ ("struct" | "class") => {
+                        self.handler
+                            .emit_err(ParserError::unexpected(kw, "circuit", &token.span).into());
+                        self.bump().unwrap();
+                        let (id, circuit) = self.parse_circuit()?;
+                        circuits.insert(id, circuit);
+                    }
+                    _ => return Err(Self::unexpected_item(token).into()),
+                },
                 // Const functions share the first token with the global Const.
                 Token::Const if self.peek_is_function()? => {
                     let (id, function) = self.parse_function_declaration()?;
@@ -57,31 +69,11 @@ impl ParserContext {
                     let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
                 }
-                Token::Ident(ident) if ident.as_ref() == "test" => {
-                    return Err(ParserError::test_function(&token.span).into());
-                }
                 Token::Type => {
                     let (name, alias) = self.parse_type_alias()?;
                     aliases.insert(name, alias);
                 }
-                _ => {
-                    return Err(ParserError::unexpected(
-                        &token.token,
-                        [
-                            Token::Import,
-                            Token::Circuit,
-                            Token::Function,
-                            Token::Ident("test".into()),
-                            Token::At,
-                        ]
-                        .iter()
-                        .map(|x| format!("'{}'", x))
-                        .collect::<Vec<_>>()
-                        .join(", "),
-                        &token.span,
-                    )
-                    .into());
-                }
+                _ => return Err(Self::unexpected_item(token).into()),
             }
         }
         Ok(Program {
@@ -94,6 +86,24 @@ impl ParserContext {
             functions,
             global_consts,
         })
+    }
+
+    fn unexpected_item(token: &SpannedToken) -> ParserError {
+        ParserError::unexpected(
+            &token.token,
+            [
+                Token::Import,
+                Token::Circuit,
+                Token::Function,
+                Token::Ident("test".into()),
+                Token::At,
+            ]
+            .iter()
+            .map(|x| format!("'{}'", x))
+            .collect::<Vec<_>>()
+            .join(", "),
+            &token.span,
+        )
     }
 
     ///
@@ -438,7 +448,6 @@ impl ParserContext {
     /// circuit name and definition statement.
     ///
     pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
-        self.expect(Token::Circuit)?;
         let name = if let Some(ident) = self.eat_identifier() {
             ident
         } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
@@ -469,6 +478,7 @@ impl ParserContext {
     pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
+        let reference = self.eat(Token::Ampersand);
         let mut name = if let Some(token) = self.eat(Token::LittleSelf) {
             Identifier {
                 name: token.token.to_string().into(),
@@ -479,10 +489,12 @@ impl ParserContext {
         };
         if name.name.as_ref() == "self" {
             if let Some(mutable) = &mutable {
+                return Err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)).into());
+            } else if let Some(reference) = &reference {
                 // Handle `mut self`.
-                name.span = &mutable.span + &name.span;
-                name.name = "mut self".to_string().into();
-                return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
+                name.span = &reference.span + &name.span;
+                name.name = "&self".to_string().into();
+                return Ok(FunctionInput::RefSelfKeyword(RefSelfKeyword { identifier: name }));
             } else if let Some(const_) = &const_ {
                 // Handle `const self`.
                 name.span = &const_.span + &name.span;
