@@ -22,6 +22,10 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         value
     }
 
+    fn reduce_err(&mut self, input: &ErrExpression<'a>) -> T {
+        T::default()
+    }
+
     fn reduce_array_init(&mut self, input: &ArrayInitExpression<'a>, element: T) -> T {
         element
     }

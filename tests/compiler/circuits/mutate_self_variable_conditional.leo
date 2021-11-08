@@ -15,7 +15,7 @@ function main(y: bool) -> bool {
 circuit Foo {
     a: u32;
 
-    function bar(mut self) {
+    function bar(&self) {
         if true {
             self.a = 5u32; // Mutating a variable inside a conditional statement should work.
         }

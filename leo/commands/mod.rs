@@ -61,7 +61,7 @@ pub use watch::Watch;
 pub mod package;
 
 /// Base trait for the Leo CLI, see methods and their documentation for details.
-pub trait Command {
+pub trait Command<'a> {
     /// If the current command requires running another command beforehand
     /// and needs its output result, this is where the result type is defined.
     /// Example: type Input: <CommandA as Command>::Out
@@ -81,21 +81,21 @@ pub trait Command {
     }
 
     /// Runs the prelude and returns the Input of the current command.
-    fn prelude(&self, context: Context) -> Result<Self::Input>
+    fn prelude(&self, context: Context<'a>) -> Result<Self::Input>
     where
-        Self: std::marker::Sized;
+        Self: Sized;
 
     /// Runs the main operation of this command. This function is run within
     /// context of 'execute' function, which sets logging and timers.
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output>
+    fn apply(self, context: Context<'a>, input: Self::Input) -> Result<Self::Output>
     where
-        Self: std::marker::Sized;
+        Self: Sized;
 
     /// A wrapper around the `apply` method.
     /// This function sets up tracing, timing, and the context.
-    fn execute(self, context: Context) -> Result<Self::Output>
+    fn execute(self, context: Context<'a>) -> Result<Self::Output>
     where
-        Self: std::marker::Sized,
+        Self: Sized,
     {
         let input = self.prelude(context.clone())?;
 
@@ -120,9 +120,9 @@ pub trait Command {
     /// Executes command but empty the result. Comes in handy where there's a
     /// need to make match arms compatible while keeping implementation-specific
     /// output possible. Errors however are all of the type Error
-    fn try_execute(self, context: Context) -> Result<()>
+    fn try_execute(self, context: Context<'a>) -> Result<()>
     where
-        Self: std::marker::Sized,
+        Self: Sized,
     {
         self.execute(context).map(|_| Ok(()))?
     }

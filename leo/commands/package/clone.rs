@@ -90,7 +90,7 @@ impl Clone {
     }
 }
 
-impl Command for Clone {
+impl<'a> Command<'a> for Clone {
     type Input = ();
     type Output = ();
 
@@ -98,11 +98,11 @@ impl Command for Clone {
         tracing::span!(tracing::Level::INFO, "Cloning")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         let (author, package_name) = self.try_read_arguments()?;
 
         // Attempt to fetch the package.

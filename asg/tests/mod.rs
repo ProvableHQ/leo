@@ -16,6 +16,7 @@
 
 use leo_asg::*;
 use leo_ast::AstPass;
+use leo_errors::emitter::{ErrBuffer, Handler};
 use leo_errors::LeoError;
 use leo_parser::parse_ast;
 
@@ -24,12 +25,16 @@ mod pass;
 
 const TESTING_FILEPATH: &str = "input.leo";
 
-fn load_asg(program_string: &str) -> Result<Program<'static>, LeoError> {
-    load_asg_imports(make_test_context(), program_string)
+fn load_asg(program_string: &str) -> Result<Program<'static>, ErrBuffer> {
+    Handler::with(|h| load_asg_imports(h, make_test_context(), program_string))
 }
 
-fn load_asg_imports<'a>(context: AsgContext<'a>, program_string: &str) -> Result<Program<'a>, LeoError> {
-    let mut ast = parse_ast(&TESTING_FILEPATH, program_string)?;
+fn load_asg_imports<'a>(
+    handler: &Handler,
+    context: AsgContext<'a>,
+    program_string: &str,
+) -> Result<Program<'a>, LeoError> {
+    let ast = parse_ast(handler, &TESTING_FILEPATH, program_string)?;
     ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
     Program::new(context, &ast.as_repr())
 }

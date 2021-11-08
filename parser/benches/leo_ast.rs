@@ -15,54 +15,46 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use criterion::{criterion_group, criterion_main, Criterion};
+use leo_ast::Ast;
+use leo_errors::emitter::Handler;
 use std::time::Duration;
 
-fn bench_big_if_else(c: &mut Criterion) {
-    let program_string = include_str!("./big_if_else.leo");
-    let ast = leo_parser::parse_ast("./big_if_else.leo", program_string).expect("failed to parse benchmark");
+fn parse_ast(path: &str, input: &str) -> Ast {
+    leo_parser::parse_ast(&Handler::default(), path, input).expect("failed to parse benchmark")
+}
 
+fn bench_big_if_else(c: &mut Criterion) {
+    let ast = parse_ast("./big_if_else.leo", include_str!("./big_if_else.leo"));
     c.bench_function("Ast::big_if_else", |b| b.iter(|| &ast));
 }
 
 fn bench_big_ternary(c: &mut Criterion) {
-    let program_string = include_str!("./big_ternary.leo");
-    let ast = leo_parser::parse_ast("./big_ternary.leo", program_string).expect("failed to parse benchmark");
-
+    let ast = parse_ast("./big_ternary.leo", include_str!("./big_ternary.leo"));
     c.bench_function("Ast::big_ternary", |b| b.iter(|| &ast));
 }
 
 fn bench_big_circuit(c: &mut Criterion) {
-    let program_string = include_str!("./big_circuit.leo");
-    let ast = leo_parser::parse_ast("./big_circuit.leo", program_string).expect("failed to parse benchmark");
-
+    let ast = parse_ast("./big_circuit.leo", include_str!("./big_circuit.leo"));
     c.bench_function("Ast::big_circuit", |b| b.iter(|| &ast));
 }
 
 fn bench_long_expr(c: &mut Criterion) {
-    let program_string = include_str!("./long_expr.leo");
-    let ast = leo_parser::parse_ast("./long_expr.leo", program_string).expect("failed to parse benchmark");
-
+    let ast = parse_ast("./long_expr.leo", include_str!("./long_expr.leo"));
     c.bench_function("Ast::long_expr", |b| b.iter(|| &ast));
 }
 
 fn bench_long_array(c: &mut Criterion) {
-    let program_string = include_str!("./long_array.leo");
-    let ast = leo_parser::parse_ast("./long_array.leo", program_string).expect("failed to parse benchmark");
-
+    let ast = parse_ast("./long_array.leo", include_str!("./long_array.leo"));
     c.bench_function("Ast::long_array", |b| b.iter(|| &ast));
 }
 
 fn bench_many_foos(c: &mut Criterion) {
-    let program_string = include_str!("./many_foos.leo");
-    let ast = leo_parser::parse_ast("./many_foos.leo", program_string).expect("failed to parse benchmark");
-
+    let ast = parse_ast("./many_foos.leo", include_str!("./many_foos.leo"));
     c.bench_function("Ast::many_foos", |b| b.iter(|| &ast));
 }
 
 fn bench_many_assigns(c: &mut Criterion) {
-    let program_string = include_str!("./many_assigns.leo");
-    let ast = leo_parser::parse_ast("./many_assigns.leo", program_string).expect("failed to parse benchmark");
-
+    let ast = parse_ast("./many_assigns.leo", include_str!("./many_assigns.leo"));
     c.bench_function("Ast::many_assigns", |b| b.iter(|| &ast));
 }
 

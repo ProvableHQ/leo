@@ -33,7 +33,7 @@ pub struct Remove {
     name: String,
 }
 
-impl Command for Remove {
+impl<'a> Command<'a> for Remove {
     type Input = ();
     type Output = ();
 
@@ -41,11 +41,11 @@ impl Command for Remove {
         tracing::span!(tracing::Level::INFO, "Removing")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
         let package_name = self.name;
 

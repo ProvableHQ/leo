@@ -16,6 +16,7 @@
 
 use leo_ast::Program;
 use leo_ast_passes::ImportResolver;
+use leo_errors::emitter::Handler;
 use leo_errors::{ImportError, LeoError, Result, Span};
 
 use indexmap::{IndexMap, IndexSet};
@@ -25,17 +26,23 @@ use std::path::PathBuf;
 ///
 /// A program can import one or more packages. A package can be found locally in the source
 /// directory, foreign in the imports directory, or part of the core package list.
-#[derive(Clone, Default)]
-pub struct ImportParser {
+#[derive(Clone)]
+pub struct ImportParser<'a> {
+    pub(crate) handler: &'a Handler,
     program_path: PathBuf,
     partial_imports: IndexSet<String>,
     imports: IndexMap<String, Program>,
     pub imports_map: IndexMap<String, String>,
 }
 
-impl ImportParser {
-    pub fn new(program_path: PathBuf, imports_map: IndexMap<String, String>) -> Self {
+impl<'a> ImportParser<'a> {
+    pub fn default(handler: &'a Handler) -> Self {
+        Self::new(handler, <_>::default(), <_>::default())
+    }
+
+    pub fn new(handler: &'a Handler, program_path: PathBuf, imports_map: IndexMap<String, String>) -> Self {
         ImportParser {
+            handler,
             program_path,
             partial_imports: Default::default(),
             imports: Default::default(),
@@ -44,7 +51,11 @@ impl ImportParser {
     }
 }
 
-impl ImportResolver for ImportParser {
+impl ImportResolver for ImportParser<'_> {
+    fn handler(&self) -> &Handler {
+        self.handler
+    }
+
     fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>> {
         let full_path = package_segments.join(".");
         if self.partial_imports.contains(&full_path) {

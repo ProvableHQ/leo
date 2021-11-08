@@ -352,7 +352,7 @@ impl Token {
                 // else if let Some(len) = eat(input, "&=") {
                 //     return (len, Some(Token::BitAndEq));
                 // }
-                // return (1, Some(Token::BitAnd));
+                return (1, Some(Token::Ampersand));
             }
             b'(' => return (1, Some(Token::LeftParen)),
             b')' => return (1, Some(Token::RightParen)),

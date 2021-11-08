@@ -34,7 +34,7 @@ use tracing::span::Span;
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Fetch {}
 
-impl Command for Fetch {
+impl<'a> Command<'a> for Fetch {
     /// Names of dependencies in the current branch of a dependency tree.
     type Input = IndexSet<String>;
     type Output = ();
@@ -43,7 +43,7 @@ impl Command for Fetch {
         tracing::span!(tracing::Level::INFO, "Fetching")
     }
 
-    fn prelude(&self, context: Context) -> Result<Self::Input> {
+    fn prelude(&self, context: Context<'a>) -> Result<Self::Input> {
         let package_name = context.manifest()?.get_package_name();
 
         let mut set = IndexSet::new();
@@ -52,7 +52,7 @@ impl Command for Fetch {
         Ok(set)
     }
 
-    fn apply(self, context: Context, tree: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, tree: Self::Input) -> Result<Self::Output> {
         let dependencies = context
             .manifest()
             .map_err(|_| CliError::manifest_file_not_found())?
@@ -81,7 +81,7 @@ impl Fetch {
     /// recursive dependencies with dependency tree.
     fn add_dependencies(
         &self,
-        context: Context,
+        context: Context<'_>,
         mut tree: IndexSet<String>,
         lock_file: &mut LockFile,
         dependencies: IndexMap<String, Dependency>,
@@ -117,7 +117,7 @@ impl Fetch {
             }
 
             // Check imported dependency's dependencies.
-            let imported_dependencies = create_context(path, None)?
+            let imported_dependencies = create_context(context.handler, path, None)?
                 .manifest()
                 .map_err(|_| CliError::unable_to_read_imported_dependency_manifest())?
                 .get_package_dependencies();

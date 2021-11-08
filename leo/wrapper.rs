@@ -7,9 +7,9 @@ use snarkvm_r1cs::ConstraintSystem;
 use snarkvm_r1cs::SynthesisError;
 
 #[derive(Clone)]
-pub struct CompilerWrapper(pub Compiler<'static>, pub leo_ast::Input);
+pub struct CompilerWrapper<'a>(pub Compiler<'static, 'a>, pub leo_ast::Input);
 
-impl<'a> ConstraintSynthesizer<Fr> for CompilerWrapper {
+impl<'a> ConstraintSynthesizer<Fr> for CompilerWrapper<'_> {
     ///
     /// Synthesizes the circuit with program input.
     ///

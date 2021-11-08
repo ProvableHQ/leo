@@ -50,6 +50,7 @@ pub fn decode_address(value: &str, span: &Span) -> Result<Vec<u8>> {
 impl<'a> Program<'a> {
     pub(crate) fn enforce_const_value(&mut self, value: &ConstValue, span: &Span) -> Result<Value> {
         Ok(match value {
+            ConstValue::Err => todo!(),
             ConstValue::Address(value) => Value::Address(decode_address(value.as_ref(), span)?),
             ConstValue::Boolean(value) => Value::Boolean(*value),
             ConstValue::Char(value) => Value::Char(match value {
@@ -146,6 +147,8 @@ impl<'a> Program<'a> {
                     self.enforce_tuple_access(tuple_ref.get(), *index)
                 }
             },
+
+            Expression::Err(_) => todo!(),
 
             // Cast
             Expression::Cast(_) => unimplemented!("casts not implemented"),

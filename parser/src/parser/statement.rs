@@ -36,7 +36,7 @@ const ASSIGN_TOKENS: &[Token] = &[
     // Token::AndEq,
 ];
 
-impl ParserContext {
+impl ParserContext<'_> {
     ///
     /// Returns an [`Identifier`] AST node if the given [`Expression`] AST node evaluates to an
     /// identifier access. The access is stored in the given accesses.

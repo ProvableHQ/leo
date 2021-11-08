@@ -15,21 +15,13 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::Program;
+use leo_errors::emitter::Handler;
 use leo_errors::{Result, Span};
 use leo_stdlib::resolve_stdlib_module;
 
-use indexmap::IndexMap;
-
 pub trait ImportResolver {
+    fn handler(&self) -> &Handler;
     fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>>;
-}
-
-pub struct NullImportResolver;
-
-impl ImportResolver for NullImportResolver {
-    fn resolve_package(&mut self, _package_segments: &[&str], _span: &Span) -> Result<Option<Program>> {
-        Ok(None)
-    }
 }
 
 pub struct CoreImportResolver<'a, T: ImportResolver> {
@@ -44,21 +36,17 @@ impl<'a, T: ImportResolver> CoreImportResolver<'a, T> {
 }
 
 impl<'a, T: ImportResolver> ImportResolver for CoreImportResolver<'a, T> {
+    fn handler(&self) -> &Handler {
+        self.inner.handler()
+    }
     fn resolve_package(&mut self, package_segments: &[&str], span: &Span) -> Result<Option<Program>> {
         if !package_segments.is_empty() && package_segments.get(0).unwrap() == &"std" {
-            Ok(Some(resolve_stdlib_module(&*package_segments[1..].join("."))?))
+            Ok(Some(resolve_stdlib_module(
+                self.handler(),
+                &*package_segments[1..].join("."),
+            )?))
         } else {
             self.inner.resolve_package(package_segments, span)
         }
-    }
-}
-
-pub struct MockedImportResolver {
-    pub packages: IndexMap<String, Program>,
-}
-
-impl ImportResolver for MockedImportResolver {
-    fn resolve_package(&mut self, package_segments: &[&str], _span: &Span) -> Result<Option<Program>> {
-        Ok(self.packages.get(&package_segments.join(".")).cloned())
     }
 }

@@ -38,6 +38,10 @@ pub enum Type {
     Tuple(Vec<Type>),
     Identifier(Identifier), // ex Circuit or Alias
     SelfType,
+
+    /// Placeholder for a type that could not be resolved or was not well-formed.
+    /// Will eventually lead to a compile error.
+    Err,
 }
 
 impl Type {
@@ -168,6 +172,7 @@ impl fmt::Display for Type {
 
                 write!(f, "({})", types)
             }
+            Type::Err => write!(f, "error"),
         }
     }
 }

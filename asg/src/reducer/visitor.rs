@@ -36,6 +36,10 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
+    fn visit_err(&mut self, input: &ErrExpression<'a>) -> VisitResult {
+        Default::default()
+    }
+
     fn visit_array_init(&mut self, input: &ArrayInitExpression<'a>) -> VisitResult {
         Default::default()
     }

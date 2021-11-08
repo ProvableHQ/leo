@@ -22,6 +22,7 @@ pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
 use leo_asg::{Asg, AsgPass, CircuitMember, GroupValue, Program as AsgProgram};
 use leo_ast::AstPass;
 use leo_ast::{InputValue, IntegerType, Program as AstProgram};
+use leo_errors::emitter::Handler;
 use leo_errors::AsgError;
 use leo_errors::SnarkVMError;
 use leo_errors::StateError;
@@ -67,7 +68,8 @@ pub struct CompilationData {
 
 /// Stores information to compile a Leo program.
 #[derive(Clone)]
-pub struct Compiler<'a> {
+pub struct Compiler<'a, 'b> {
+    handler: &'b Handler,
     pub program_name: String,
     main_file_path: PathBuf,
     pub output_directory: PathBuf,
@@ -79,11 +81,11 @@ pub struct Compiler<'a> {
     output_options: OutputOptions,
 }
 
-impl<'a> Compiler<'a> {
-    ///
+impl<'a, 'b> Compiler<'a, 'b> {
     /// Returns a new Leo program compiler.
-    ///
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
+        handler: &'b Handler,
         package_name: String,
         main_file_path: PathBuf,
         output_directory: PathBuf,
@@ -97,6 +99,7 @@ impl<'a> Compiler<'a> {
         leo_stdlib::static_include_stdlib();
 
         Self {
+            handler,
             program_name: package_name.clone(),
             main_file_path,
             output_directory,
@@ -109,14 +112,14 @@ impl<'a> Compiler<'a> {
         }
     }
 
-    ///
     /// Returns a new `Compiler` from the given main file path.
     ///
     /// Parses and stores a program from the main file path.
     /// Parses and stores all imported programs.
     /// Performs type inference checking on the program and imported programs.
-    ///
+    #[allow(clippy::too_many_arguments)]
     pub fn parse_program_without_input(
+        handler: &'b Handler,
         package_name: String,
         main_file_path: PathBuf,
         output_directory: PathBuf,
@@ -126,6 +129,7 @@ impl<'a> Compiler<'a> {
         output_options: Option<OutputOptions>,
     ) -> Result<Self> {
         let mut compiler = Self::new(
+            handler,
             package_name,
             main_file_path,
             output_directory,
@@ -147,7 +151,6 @@ impl<'a> Compiler<'a> {
     /// Parses and stores the main program file, constructs a syntax tree, and generates a program.
     ///
     /// Parses and stores all programs imported by the main program file.
-    ///
     pub fn parse_program(&mut self) -> Result<()> {
         // Load the program file.
         let content = fs::read_to_string(&self.main_file_path)
@@ -156,14 +159,16 @@ impl<'a> Compiler<'a> {
         self.parse_program_from_string(&content)
     }
 
-    ///
     /// Equivalent to parse_and_check_program but uses the given program_string instead of a main
     /// file path.
-    ///
     pub fn parse_program_from_string(&mut self, program_string: &str) -> Result<()> {
         // Use the parser to construct the abstract syntax tree (ast).
 
-        let mut ast: leo_ast::Ast = parse_ast(self.main_file_path.to_str().unwrap_or_default(), program_string)?;
+        let mut ast: leo_ast::Ast = parse_ast(
+            self.handler,
+            self.main_file_path.to_str().unwrap_or_default(),
+            program_string,
+        )?;
 
         if self.output_options.ast_initial {
             if self.output_options.spans_enabled {
@@ -176,8 +181,9 @@ impl<'a> Compiler<'a> {
         // Preform import resolution.
         ast = leo_ast_passes::Importer::do_pass(
             leo_ast_passes::Importer::new(
-                &mut ImportParser::new(self.main_file_path.clone(), self.imports_map.clone()),
+                &mut ImportParser::new(self.handler, self.main_file_path.clone(), self.imports_map.clone()),
                 "bls12_377",
+                self.handler,
             ),
             ast.into_repr(),
         )?;
@@ -236,9 +242,7 @@ impl<'a> Compiler<'a> {
         Ok(())
     }
 
-    ///
     /// Run compiler optimization passes on the program in asg format.
-    ///
     fn do_asg_passes(&mut self) -> Result<()> {
         assert!(self.asg.is_some());
 
@@ -463,7 +467,6 @@ impl<'a> Compiler<'a> {
 
     ///
     /// Returns a SHA256 checksum of the program file.
-    ///
     pub fn checksum(&self) -> Result<String> {
         // Read in the main file as string
         let unparsed_file = fs::read_to_string(&self.main_file_path)
