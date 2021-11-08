@@ -35,23 +35,29 @@ impl Emitter for StderrEmitter {
     }
 }
 
-/// A buffer of `LeoError`s.
-#[derive(Default, Debug)]
-pub struct ErrBuffer(Vec<LeoError>);
+/// A buffer of `T`s.
+#[derive(Debug)]
+pub struct Buffer<T>(Vec<T>);
 
-impl ErrBuffer {
-    /// Push `err` to the buffer.
-    pub fn push(&mut self, err: LeoError) {
-        self.0.push(err);
+impl<T> Default for Buffer<T> {
+    fn default() -> Self {
+        Self(Vec::new())
+    }
+}
+
+impl<T> Buffer<T> {
+    /// Push `x` to the buffer.
+    pub fn push(&mut self, x: T) {
+        self.0.push(x);
     }
 
-    /// Extract the underlying list of errors.
-    pub fn into_inner(self) -> Vec<LeoError> {
+    /// Extract the underlying list of Ts.
+    pub fn into_inner(self) -> Vec<T> {
         self.0
     }
 }
 
-impl fmt::Display for ErrBuffer {
+impl<T: fmt::Display> fmt::Display for Buffer<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut iter = self.0.iter();
         if let Some(x) = iter.next() {
@@ -64,6 +70,9 @@ impl fmt::Display for ErrBuffer {
     }
 }
 
+/// A buffer of `LeoError`s.
+pub type ErrBuffer = Buffer<LeoError>;
+
 /// An `Emitter` that collects into a list.
 #[derive(Default, Clone)]
 pub struct BufferEmitter(Rc<RefCell<ErrBuffer>>);
@@ -71,7 +80,7 @@ pub struct BufferEmitter(Rc<RefCell<ErrBuffer>>);
 impl BufferEmitter {
     /// Returns a new buffered emitter.
     pub fn new() -> Self {
-        BufferEmitter(Rc::new(RefCell::new(<_>::default())))
+        BufferEmitter(<_>::default())
     }
 
     /// Extracts all the errors collected in this emitter.
