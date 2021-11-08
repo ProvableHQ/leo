@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EPAR0370019]: `mut self` is no longer accepted. Use `&self` if you would like to pass in a mutable reference to `self`\n    --> compiler-test:5:26\n     |\n   5 |     const function set_a(mut self, new: u8) {\n     |                          ^^^^^^^^"
+  - "Error [EASG0373056]: const function cannot have non-const input\n    --> compiler-test:5:26\n     |\n   5 |     const function set_a(&self, new: u8) {\n     |                          ^^^^^"

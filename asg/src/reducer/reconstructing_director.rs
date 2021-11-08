@@ -318,6 +318,7 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
 
     pub fn reduce_circuit_member(&mut self, input: CircuitMember<'a>) -> CircuitMember<'a> {
         match input {
+            CircuitMember::Const(_) => self.reducer.reduce_circuit_member_const(input),
             CircuitMember::Function(function) => {
                 let function = self.reduce_function(function);
                 self.reducer.reduce_circuit_member_function(input, function)

@@ -152,6 +152,7 @@ outputs:
                           inner:
                             Identifier: "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":22,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
                           name: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":36,\\\"col_stop\\\":39,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
+                          type_: ~
                     arguments:
                       - Identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":24,\\\"line_stop\\\":24,\\\"col_start\\\":40,\\\"col_stop\\\":50,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const pedersen = PedersenHash::new(parameters);\\\"}\"}"
             - Return:

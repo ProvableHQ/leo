@@ -381,9 +381,9 @@ impl<'a, 'b> Compiler<'a, 'b> {
                     .members
                     .borrow()
                     .iter()
-                    .flat_map(|(_, member)| match member {
+                    .filter_map(|(_, member)| match member {
+                        CircuitMember::Const(_) | CircuitMember::Variable(_) => None,
                         CircuitMember::Function(function) => Some(*function),
-                        CircuitMember::Variable(_) => None,
                     })
                     .collect::<Vec<_>>()
                     .into_iter()

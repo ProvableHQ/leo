@@ -52,15 +52,12 @@ impl<'a> ExpressionNode<'a> for CircuitAccess<'a> {
     }
 
     fn get_type(&self) -> Option<Type<'a>> {
-        if self.target.get().is_none() {
-            None // function target only for static
-        } else {
-            let members = self.circuit.get().members.borrow();
-            let member = members.get(self.member.name.as_ref())?;
-            match member {
-                CircuitMember::Variable(type_) => Some(type_.clone()),
-                CircuitMember::Function(_) => None,
-            }
+        let members = self.circuit.get().members.borrow();
+        let member = members.get(self.member.name.as_ref())?;
+        match member {
+            CircuitMember::Const(value) => value.get_type(),
+            CircuitMember::Variable(type_) => Some(type_.clone()),
+            CircuitMember::Function(_) => None,
         }
     }
 
@@ -158,9 +155,9 @@ impl<'a> FromAst<'a, leo_ast::accesses::MemberAccess> for CircuitAccess<'a> {
 
 impl<'a> FromAst<'a, leo_ast::accesses::StaticAccess> for CircuitAccess<'a> {
     fn from_ast(
-        scope: &Scope<'a>,
+        scope: &'a Scope<'a>,
         value: &leo_ast::accesses::StaticAccess,
-        expected_type: Option<PartialType>,
+        expected_type: Option<PartialType<'a>>,
     ) -> Result<CircuitAccess<'a>> {
         let circuit = match &*value.inner {
             leo_ast::Expression::Identifier(name) => scope
@@ -171,19 +168,17 @@ impl<'a> FromAst<'a, leo_ast::accesses::StaticAccess> for CircuitAccess<'a> {
             }
         };
 
-        if let Some(expected_type) = expected_type {
-            return Err(AsgError::unexpected_type("none", expected_type, &value.span).into());
-        }
-
-        if let Some(CircuitMember::Function(_)) = circuit.members.borrow().get(value.name.name.as_ref()) {
-            // okay
-        } else {
-            return Err(AsgError::unresolved_circuit_member(
-                &circuit.name.borrow().name,
-                &value.name.name,
-                &value.span,
-            )
-            .into());
+        let member_type = circuit
+            .members
+            .borrow()
+            .get(value.name.name.as_ref())
+            .map(|m| m.get_type())
+            .flatten();
+        match (expected_type, member_type) {
+            (Some(expected_type), Some(type_)) if !expected_type.matches(&type_) => {
+                return Err(AsgError::unexpected_type(expected_type, type_, &value.span).into());
+            }
+            _ => {}
         }
 
         Ok(CircuitAccess {
@@ -211,6 +206,7 @@ impl<'a> Into<leo_ast::Expression> for &CircuitAccess<'a> {
                     self.circuit.get().name.borrow().clone(),
                 )),
                 name: self.member.clone(),
+                type_: None,
                 span: self.span.clone().unwrap_or_default(),
             }))
         }

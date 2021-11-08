@@ -208,7 +208,11 @@ impl<'a> ParserContext<'a> {
     ///
     pub fn peek_is_function(&self) -> Result<bool> {
         let first = &self.peek()?.token;
-        let next = &self.peek_next()?.token;
+        let next = if self.tokens.len() >= 2 {
+            &self.peek_next()?.token
+        } else {
+            return Ok(false);
+        };
         let is_func =
             first == &Token::Function || first == &Token::At || (first == &Token::Const && next == &Token::Function);
 

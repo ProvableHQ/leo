@@ -476,6 +476,14 @@ create_errors!(
         help: None,
     }
 
+    /// For when a user tries to call a circuit variable as a function.
+    @formatted
+    circuit_const_call {
+        args: (circuit_name: impl Display, name: impl Display),
+        msg: format!("cannot call const member '{}' of circuit '{}'", name, circuit_name),
+        help: None,
+    }
+
     /// For when `input` variable is accessed inside a const function.
     @formatted
     illegal_input_variable_reference_in_const_function {

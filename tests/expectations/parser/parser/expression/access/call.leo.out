@@ -70,6 +70,7 @@ outputs:
             inner:
               Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
             name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
+            type_: ~
             span:
               line_start: 1
               line_stop: 1
@@ -92,6 +93,7 @@ outputs:
             inner:
               Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
             name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
+            type_: ~
             span:
               line_start: 1
               line_stop: 1
