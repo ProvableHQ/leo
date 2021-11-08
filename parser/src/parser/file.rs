@@ -489,12 +489,12 @@ impl ParserContext<'_> {
         };
         if name.name.as_ref() == "self" {
             if let Some(mutable) = &mutable {
-                return Err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)).into());
+                self.handler
+                    .emit_err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)).into());
+                return Ok(Self::build_ref_self(name, mutable));
             } else if let Some(reference) = &reference {
-                // Handle `mut self`.
-                name.span = &reference.span + &name.span;
-                name.name = "&self".to_string().into();
-                return Ok(FunctionInput::RefSelfKeyword(RefSelfKeyword { identifier: name }));
+                // Handle `&self`.
+                return Ok(Self::build_ref_self(name, reference));
             } else if let Some(const_) = &const_ {
                 // Handle `const self`.
                 name.span = &const_.span + &name.span;
@@ -506,7 +506,8 @@ impl ParserContext<'_> {
         }
 
         if let Some(mutable) = &mutable {
-            return Err(ParserError::mut_function_input(&(&mutable.span + &name.span)).into());
+            self.handler
+                .emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)).into());
         }
 
         self.expect(Token::Colon)?;
@@ -518,6 +519,13 @@ impl ParserContext<'_> {
             span: name.span.clone(),
             identifier: name,
         }))
+    }
+
+    /// Builds a function parameter `&self`.
+    fn build_ref_self(mut name: Identifier, reference: &SpannedToken) -> FunctionInput {
+        name.span = &reference.span + &name.span;
+        name.name = "&self".to_string().into();
+        FunctionInput::RefSelfKeyword(RefSelfKeyword { identifier: name })
     }
 
     ///
