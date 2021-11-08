@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_asg::*;
+use leo_ast::AstPass;
 use leo_errors::LeoError;
 use leo_parser::parse_ast;
 
@@ -28,7 +29,8 @@ fn load_asg(program_string: &str) -> Result<Program<'static>, LeoError> {
 }
 
 fn load_asg_imports<'a>(context: AsgContext<'a>, program_string: &str) -> Result<Program<'a>, LeoError> {
-    let ast = parse_ast(&TESTING_FILEPATH, program_string)?;
+    let mut ast = parse_ast(&TESTING_FILEPATH, program_string)?;
+    ast = leo_ast_passes::Canonicalizer::do_pass(Default::default(), ast.into_repr())?;
     Program::new(context, &ast.as_repr())
 }
 

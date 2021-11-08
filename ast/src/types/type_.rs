@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{ArrayDimension, ArrayDimensions, Identifier, IntegerType, PositiveNumber};
+use crate::{ArrayDimensions, Identifier, IntegerType};
 use leo_input::types::{
     ArrayType as InputArrayType, DataType as InputDataType, TupleType as InputTupleType, Type as InputType,
 };
 
-use serde::{ser::SerializeSeq, Deserialize, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Explicit type used for defining a variable or expression type
@@ -34,8 +34,7 @@ pub enum Type {
     IntegerType(IntegerType),
 
     // Data type wrappers
-    #[serde(serialize_with = "serialize_array")]
-    Array(Box<Type>, Option<ArrayDimensions>),
+    Array(Box<Type>, ArrayDimensions),
     Tuple(Vec<Type>),
     Identifier(Identifier), // ex Circuit or Alias
     SelfType,
@@ -77,13 +76,13 @@ impl Type {
                 let right_dim_owned = right_dim.to_owned();
 
                 // Unable to compare arrays with unspecified sizes.
-                if left_dim_owned.is_none() || right_dim_owned.is_none() {
+                if !left_dim_owned.is_specified() || !right_dim_owned.is_specified() {
                     return false;
                 }
 
                 // We know that values are Some, safe to unwrap.
-                let mut left_dim_owned = left_dim_owned.unwrap();
-                let mut right_dim_owned = right_dim_owned.unwrap();
+                let mut left_dim_owned = left_dim_owned;
+                let mut right_dim_owned = right_dim_owned;
 
                 // Remove the first element from both dimensions.
                 let left_first = left_dim_owned.remove_first();
@@ -130,7 +129,7 @@ impl<'ast> From<InputArrayType<'ast>> for Type {
         let element_type = Box::new(Type::from(*array_type.type_));
         let dimensions = ArrayDimensions::from(array_type.dimensions);
 
-        Type::Array(element_type, Some(dimensions))
+        Type::Array(element_type, dimensions)
     }
 }
 
@@ -163,13 +162,7 @@ impl fmt::Display for Type {
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
             Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
             Type::SelfType => write!(f, "SelfType"),
-            Type::Array(ref array, ref dimensions) => {
-                if let Some(dimensions) = dimensions {
-                    write!(f, "[{}; {}]", *array, dimensions)
-                } else {
-                    write!(f, "[{}; _]", *array)
-                }
-            }
+            Type::Array(ref array, ref dimensions) => write!(f, "[{}; {}]", *array, dimensions),
             Type::Tuple(ref tuple) => {
                 let types = tuple.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
 
@@ -193,24 +186,6 @@ pub fn inner_array_type(element_type: Type, dimensions: ArrayDimensions) -> Type
         element_type
     } else {
         // The array has multiple dimensions.
-        Type::Array(Box::new(element_type), Some(dimensions))
+        Type::Array(Box::new(element_type), dimensions)
     }
-}
-
-/// Custom Serializer for Type::Array. Handles the case when ArrayDimensions are None and turns it into
-/// a Vec<PositiveNumber>, where the only element is "0".
-fn serialize_array<S>(type_: &Type, dimensions: &Option<ArrayDimensions>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    let mut seq = serializer.serialize_seq(Some(2))?;
-    seq.serialize_element(type_)?;
-    if let Some(dimensions) = dimensions {
-        seq.serialize_element(&dimensions)?;
-    } else {
-        seq.serialize_element(&ArrayDimensions(vec![ArrayDimension::Number(PositiveNumber {
-            value: "0".into(),
-        })]))?;
-    }
-    seq.end()
 }

@@ -349,10 +349,12 @@ impl InputValue {
 /// is returned.
 ///
 fn parse_array_dimensions(array_dimensions_type: ArrayDimensions, span: &Span) -> Result<Vec<usize>, InputParserError> {
-    // Convert the array dimensions to usize.
-    let mut array_dimensions = Vec::with_capacity(array_dimensions_type.0.len());
+    let dimensions = array_dimensions_type.flatten();
 
-    for dimension in array_dimensions_type.0 {
+    // Convert the array dimensions to usize.
+    let mut result_array_dimensions = Vec::with_capacity(dimensions.len());
+
+    for dimension in dimensions {
         // Convert the dimension to a string.
         let dimension_string = dimension.to_string();
 
@@ -363,10 +365,10 @@ fn parse_array_dimensions(array_dimensions_type: ArrayDimensions, span: &Span) -
         };
 
         // Collect dimension usize values.
-        array_dimensions.push(dimension_usize);
+        result_array_dimensions.push(dimension_usize);
     }
 
-    Ok(array_dimensions)
+    Ok(result_array_dimensions)
 }
 
 ///
