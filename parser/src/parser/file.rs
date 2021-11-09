@@ -14,13 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use tendril::format_tendril;
-
-use leo_errors::{ParserError, Result, Span};
-
-use crate::KEYWORD_TOKENS;
-
 use super::*;
+use crate::KEYWORD_TOKENS;
+use leo_errors::{ParserError, Result, Span};
+use tendril::format_tendril;
 
 impl ParserContext<'_> {
     ///
@@ -105,15 +102,10 @@ impl ParserContext<'_> {
         )
     }
 
-    ///
     /// Returns an [`Annotation`] AST node if the next tokens represent a supported annotation.
-    ///
     pub fn parse_annotation(&mut self) -> Result<Annotation> {
         let start = self.expect(Token::At)?;
-        let name = self.expect_ident()?;
-        if name.name.as_ref() == "context" {
-            return Err(ParserError::context_annotation(&name.span).into());
-        }
+        let name = self.parse_annotation_name()?;
 
         assert_no_whitespace(&start, &name.span, &name.name, "@")?;
 
@@ -144,8 +136,8 @@ impl ParserContext<'_> {
                 } else if let Some((int, _)) = self.eat_int() {
                     args.push(int.value);
                 } else {
-                    let token = self.peek()?;
-                    return Err(ParserError::unexpected_str(&token.token, "ident or int", &token.span).into());
+                    let token = self.expect_any()?;
+                    self.emit_err(ParserError::unexpected_str(&token.token, "ident or int", &token.span));
                 }
                 if self.eat(Token::Comma).is_none() && !comma {
                     end_span = self.expect(Token::RightParen)?;
@@ -163,6 +155,19 @@ impl ParserContext<'_> {
             arguments,
             span: start + end_span,
         })
+    }
+
+    /// Parses `foo` in an annotation `@foo . That is, the name of the annotation.
+    fn parse_annotation_name(&mut self) -> Result<Identifier> {
+        let mut name = self.expect_ident()?;
+
+        // Recover `context` instead of `test`.
+        if name.name.as_ref() == "context" {
+            self.emit_err(ParserError::context_annotation(&name.span));
+            name.name = "test".into();
+        }
+
+        Ok(name)
     }
 
     ///
