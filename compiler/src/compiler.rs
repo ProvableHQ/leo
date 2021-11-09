@@ -549,7 +549,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
                         );
                     }
                 } else {
-                    return Err(CompilerError::invalid_input_array_dimensions(0, values.len(), span).into());
+                    return Err(CompilerError::input_array_size_must_be_specified(span).into());
                 }
 
                 let mut out = Vec::with_capacity(values.len());

@@ -296,4 +296,12 @@ create_errors!(
         msg: "len() can only be called on an array value".to_string(),
         help: None,
     }
+
+    /// For when arrays with unspecified size are used in main.
+    @formatted
+    input_array_size_must_be_specified {
+        args: (),
+        msg: "arrays in main function input must have known size",
+        help: None,
+    }
 );

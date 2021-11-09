@@ -51,6 +51,7 @@ impl<'a> ExpressionNode<'a> for ArrayAccess<'a> {
     fn get_type(&self) -> Option<Type<'a>> {
         match self.array.get().get_type() {
             Some(Type::Array(element, _)) => Some(*element),
+            Some(Type::ArrayWithoutSize(element)) => Some(*element),
             _ => None,
         }
     }
