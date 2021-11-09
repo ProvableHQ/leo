@@ -48,8 +48,7 @@ impl ParserContext<'_> {
                 Token::Ident(ident) => match ident.as_ref() {
                     "test" => return Err(ParserError::test_function(&token.span).into()),
                     kw @ ("struct" | "class") => {
-                        self.handler
-                            .emit_err(ParserError::unexpected(kw, "circuit", &token.span).into());
+                        self.emit_err(ParserError::unexpected(kw, "circuit", &token.span));
                         self.bump().unwrap();
                         let (id, circuit) = self.parse_circuit()?;
                         circuits.insert(id, circuit);
@@ -489,8 +488,7 @@ impl ParserContext<'_> {
         };
         if name.name.as_ref() == "self" {
             if let Some(mutable) = &mutable {
-                self.handler
-                    .emit_err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)).into());
+                self.emit_err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)));
                 return Ok(Self::build_ref_self(name, mutable));
             } else if let Some(reference) = &reference {
                 // Handle `&self`.
@@ -506,8 +504,7 @@ impl ParserContext<'_> {
         }
 
         if let Some(mutable) = &mutable {
-            self.handler
-                .emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)).into());
+            self.emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)));
         }
 
         self.expect(Token::Colon)?;
