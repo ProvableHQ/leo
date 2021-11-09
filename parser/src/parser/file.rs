@@ -109,46 +109,21 @@ impl ParserContext<'_> {
 
         assert_no_whitespace(&start, &name.span, &name.name, "@")?;
 
-        let end_span;
-        let arguments = if self.eat(Token::LeftParen).is_some() {
-            let mut args = Vec::new();
-            let mut comma = false;
-            loop {
-                if let Some(end) = self.eat(Token::RightParen) {
-                    if comma {
-                        return Err(ParserError::unexpected(
-                            Token::RightParen,
-                            [Token::Ident("identifier".into()), Token::Int("number".into())]
-                                .iter()
-                                .map(|x| format!("'{}'", x))
-                                .collect::<Vec<_>>()
-                                .join(", "),
-                            &end.span,
-                        )
-                        .into());
-                    }
-                    end_span = end.span;
-                    break;
-                }
-                comma = false;
-                if let Some(ident) = self.eat_identifier() {
-                    args.push(ident.name);
-                } else if let Some((int, _)) = self.eat_int() {
-                    args.push(int.value);
+        let (end_span, arguments) = if let Some(Token::LeftParen) = self.curr().map(|t| &t.token) {
+            let (args, _, span) = self.parse_paren_comma_list(|p| {
+                Ok(if let Some(ident) = p.eat_identifier() {
+                    Some(ident.name)
+                } else if let Some((int, _)) = p.eat_int() {
+                    Some(int.value)
                 } else {
-                    let token = self.expect_any()?;
-                    self.emit_err(ParserError::unexpected_str(&token.token, "ident or int", &token.span));
-                }
-                if self.eat(Token::Comma).is_none() && !comma {
-                    end_span = self.expect(Token::RightParen)?;
-                    break;
-                }
-                comma = true;
-            }
-            args
+                    let token = p.expect_any()?;
+                    p.emit_err(ParserError::unexpected_str(&token.token, "ident or int", &token.span));
+                    None
+                })
+            })?;
+            (span, args)
         } else {
-            end_span = name.span.clone();
-            Vec::new()
+            (name.span.clone(), Vec::new())
         };
         Ok(Annotation {
             name,
@@ -170,27 +145,60 @@ impl ParserContext<'_> {
         Ok(name)
     }
 
-    ///
     /// Returns a vector of [`PackageAccess`] AST nodes if the next tokens represent package access
     /// expressions within an import statement.
-    ///
     pub fn parse_package_accesses(&mut self, span: &Span) -> Result<Vec<PackageAccess>> {
-        let mut out = Vec::new();
-        self.expect(Token::LeftParen)?;
-        while self.eat(Token::RightParen).is_none() {
-            out.push(self.parse_package_access()?);
-
-            if self.eat(Token::Comma).is_none() {
-                self.expect(Token::RightParen)?;
-                break;
-            }
-        }
+        let (out, ..) = self.parse_paren_comma_list(|p| p.parse_package_access().map(Some))?;
 
         if out.is_empty() {
             self.emit_err(ParserError::invalid_import_list(span));
         }
 
         Ok(out)
+    }
+
+    /// Parses a list of `T`s using `inner`
+    /// The opening and closing delimiters are `bra` and `ket`,
+    /// and elements in the list are separated by `sep`.
+    /// When `(list, true)` is returned, `sep` was a terminator.
+    fn parse_list<T>(
+        &mut self,
+        open: Token,
+        close: Token,
+        sep: Token,
+        mut inner: impl FnMut(&mut Self) -> Result<Option<T>>,
+    ) -> Result<(Vec<T>, bool, Span)> {
+        let mut list = Vec::new();
+        let mut trailing = false;
+
+        // Parse opening delimiter.
+        self.expect(open)?;
+
+        while self.peek()?.token != close {
+            // Parse the element. We allow inner parser recovery through the `Option`.
+            if let Some(elem) = inner(self)? {
+                list.push(elem);
+            }
+
+            // Parse the separator.
+            if self.eat(sep.clone()).is_none() {
+                trailing = false;
+                break;
+            }
+        }
+
+        // Parse closing delimiter.
+        let end_span = self.expect(close)?;
+
+        Ok((list, trailing, end_span))
+    }
+
+    /// Parse a list separated by `,` and delimited by parens.
+    fn parse_paren_comma_list<T>(
+        &mut self,
+        f: impl FnMut(&mut Self) -> Result<Option<T>>,
+    ) -> Result<(Vec<T>, bool, Span)> {
+        self.parse_list(Token::LeftParen, Token::RightParen, Token::Comma, f)
     }
 
     ///

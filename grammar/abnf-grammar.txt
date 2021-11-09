@@ -1000,10 +1000,9 @@ print-call = print-function print-arguments
 
 ; An annotation consists of an annotation name (which starts with `@`)
 ; with optional annotation arguments, which are identifiers.
-; Note that no parentheses are used if there are no arguments.
 
 annotation = annotation-name
-             [ "(" identifier *( "," identifier ) ")" ]
+             [ "(" *( identifier "," ) [ identifier ] ")" ]
 
 ; A function declaration defines a function.
 ; The output type is optional, defaulting to the empty tuple type.
