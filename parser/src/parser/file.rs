@@ -178,8 +178,8 @@ impl ParserContext<'_> {
         let mut out = Vec::new();
         self.expect(Token::LeftParen)?;
         while self.eat(Token::RightParen).is_none() {
-            let access = self.parse_package_access()?;
-            out.push(access);
+            out.push(self.parse_package_access()?);
+
             if self.eat(Token::Comma).is_none() {
                 self.expect(Token::RightParen)?;
                 break;
@@ -187,7 +187,7 @@ impl ParserContext<'_> {
         }
 
         if out.is_empty() {
-            return Err(ParserError::invalid_import_list(span).into());
+            self.emit_err(ParserError::invalid_import_list(span));
         }
 
         Ok(out)
