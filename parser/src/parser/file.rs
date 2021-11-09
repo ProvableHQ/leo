@@ -374,12 +374,11 @@ impl ParserContext<'_> {
             });
         }
 
-        //self.ban_mixed_member_order(&members);
+        self.ban_mixed_member_order(&members);
 
         Ok(members)
     }
 
-    /*
     /// Emits errors if order isn't `consts variables functions`.
     fn ban_mixed_member_order(&self, members: &[CircuitMember]) {
         let mut had_var = false;
@@ -401,7 +400,6 @@ impl ParserContext<'_> {
             }
         }
     }
-    */
 
     /// Parses `IDENT: TYPE`.
     fn parse_typed_field_name(&mut self) -> Result<(Identifier, Type)> {

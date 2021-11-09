@@ -1,6 +1,6 @@
 /*
 namespace: Parse
-expectation: Pass
+expectation: Fail
 */
 
 circuit A {

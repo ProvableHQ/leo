@@ -80,32 +80,6 @@ create_errors!(
         help: None,
     }
 
-    /*
-    /// When a member const comes after a member variable.
-    @formatted
-    member_const_after_var {
-        args: (),
-        msg: "Member variables must come after member consts.",
-        help: None,
-    }
-
-    /// When a member const comes after a member function.
-    @formatted
-    member_const_after_fun {
-        args: (),
-        msg: "Member functions must come after member consts.",
-        help: None,
-    }
-
-    /// When a member variable comes after a member function.
-    @formatted
-    member_var_after_fun {
-        args: (),
-        msg: "Member functions must come after member variables.",
-        help: None,
-    }
-    */
-
     /// For when the parser encountered an unexpected identifier.
     @formatted
     unexpected_ident {
@@ -215,6 +189,30 @@ create_errors!(
     mut_self_parameter {
         args: (),
         msg: "`mut self` is no longer accepted. Use `&self` if you would like to pass in a mutable reference to `self`",
+        help: None,
+    }
+
+    /// When a member const comes after a member variable.
+    @formatted
+    member_const_after_var {
+        args: (),
+        msg: "Member variables must come after member consts.",
+        help: None,
+    }
+
+    /// When a member const comes after a member function.
+    @formatted
+    member_const_after_fun {
+        args: (),
+        msg: "Member functions must come after member consts.",
+        help: None,
+    }
+
+    /// When a member variable comes after a member function.
+    @formatted
+    member_var_after_fun {
+        args: (),
+        msg: "Member functions must come after member variables.",
         help: None,
     }
 );
