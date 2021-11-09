@@ -358,14 +358,14 @@ impl ParserContext<'_> {
 
                 if let Some(semi) = self.eat(Token::Semicolon) {
                     if commas {
-                        return Err(ParserError::mixed_commas_and_semicolons(&semi.span).into());
+                        self.emit_err(ParserError::mixed_commas_and_semicolons(&semi.span));
                     }
                     semi_colons = true;
                 }
 
                 if let Some(comma) = self.eat(Token::Comma) {
                     if semi_colons {
-                        return Err(ParserError::mixed_commas_and_semicolons(&comma.span).into());
+                        self.emit_err(ParserError::mixed_commas_and_semicolons(&comma.span));
                     }
                     commas = true;
                 }
