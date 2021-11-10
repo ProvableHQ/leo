@@ -15,6 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{Expression, Function, Identifier, Type};
+
 use serde::{Deserialize, Serialize};
 use std::fmt;
 

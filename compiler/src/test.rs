@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{compiler::Compiler, Output, OutputOptions};
-use core::fmt;
-use indexmap::IndexMap;
+
 use leo_asg::*;
 use leo_errors::emitter::{Buffer, Emitter, Handler};
 use leo_errors::{LeoError, Span};
@@ -25,18 +24,19 @@ use leo_test_framework::{
     runner::{Namespace, ParseType, Runner},
     Test,
 };
-use serde_yaml::Value;
 use snarkvm_curves::bls12_377::Bls12_377;
 use snarkvm_eval::Evaluator;
 use snarkvm_ir::{InputData, Program as IR_Program};
+
+use core::fmt;
+use indexmap::IndexMap;
+use serde_yaml::Value;
 use std::cell::RefCell;
 use std::fs::File;
+use std::fs::{self, create_dir_all};
 use std::io::Write;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
-use std::{
-    fs::{self, create_dir_all},
-    path::{Path, PathBuf},
-};
 
 pub type TestCompiler<'a> = Compiler<'static, 'a>;
 
