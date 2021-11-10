@@ -16,7 +16,7 @@
 
 use crate::program::Program;
 use leo_asg::{CircuitMember, Identifier, Type};
-use leo_errors::Result;
+use leo_errors::{CompilerError, Result};
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 use super::ResolverContext;
@@ -37,7 +37,11 @@ impl<'a> Program<'a> {
                     .expect("illegal member name in circuit member assignment");
                 let inner_type = match member {
                     CircuitMember::Variable(type_) => type_.clone(),
-                    _ => panic!("attempt to assign to circuit function"),
+                    CircuitMember::Const(_) | CircuitMember::Function(_) => {
+                        return Err(
+                            CompilerError::illegal_static_member_assignment(name.name.as_ref(), &name.span).into(),
+                        )
+                    }
                 };
                 (inner_type, index)
             }

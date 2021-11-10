@@ -293,7 +293,23 @@ create_errors!(
     @formatted
     lengthof_can_only_be_used_on_arrays {
         args: (),
-        msg: "len() can only be called on an array value".to_string(),
+        msg: "len() can only be called on an array value",
+        help: None,
+    }
+
+    /// For when a circuit static const access was execpted.
+    @formatted
+    expected_circuit_static_const_access {
+        args: (),
+        msg: "A circuit static const access was expected",
+        help: None,
+    }
+
+    /// For when a user tries to assign to a circuit static member.
+    @formatted
+    illegal_static_member_assignment {
+        args: (member: impl Display),
+        msg: format!("Tried to assign to static member `{}`", member),
         help: None,
     }
 

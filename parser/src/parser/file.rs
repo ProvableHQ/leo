@@ -337,11 +337,27 @@ impl ParserContext<'_> {
             return Ok(members);
         }
 
+        let peeked = &self.peek()?.token;
+        let mut last_constant = matches!(peeked, &Token::Ident(_)) || self.peek_is_function()?;
         let mut last_variable = self.peek_is_function()?;
         let (mut semi_colons, mut commas) = (false, false);
         while self.eat(Token::RightCurly).is_none() {
-            if !last_variable {
-                members.push(self.parse_member_variable_declaration()?);
+            if !last_constant {
+                let (const_, last_const, last_var) = self.parse_const_member_variable_declaration()?;
+                members.push(const_);
+
+                // If it is the last constant update the varaible so we no longer expect consts.
+                if last_const {
+                    last_constant = last_const;
+                }
+                // If there is no variable after the constant update the variable so we don't expect any variables.
+                if last_var {
+                    last_variable = last_var;
+                }
+            } else if !last_variable {
+                let variable = self.parse_member_variable_declaration()?;
+
+                members.push(variable);
 
                 if let Some(semi) = self.eat(Token::Semicolon) {
                     if commas {
@@ -369,20 +385,45 @@ impl ParserContext<'_> {
         Ok(members)
     }
 
-    ///
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
-    ///
-    pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+    fn parse_typed_field_name(&mut self) -> Result<(Identifier, Type)> {
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
 
-        Ok(CircuitMember::CircuitVariable(name, type_))
+        Ok((name, type_))
+    }
+
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
+    pub fn parse_const_member_variable_declaration(&mut self) -> Result<(CircuitMember, bool, bool)> {
+        self.expect(Token::Static)?;
+        self.expect(Token::Const)?;
+
+        let (name, type_) = self.parse_typed_field_name()?;
+
+        self.expect(Token::Assign)?;
+        let literal = self.parse_primary_expression()?;
+        self.expect(Token::Semicolon)?;
+        let peeked = &self.peek()?.token;
+        // check if we just grabbed the last variable.
+        let last_variable = self.peek_is_function()?;
+
+        Ok((
+            CircuitMember::CircuitConst(name, type_, literal),
+            matches!(peeked, &Token::Ident(_)) || last_variable,
+            last_variable,
+        ))
     }
 
     ///
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
     ///
+    pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+        let (name, type_) = self.parse_typed_field_name()?;
+
+        Ok(CircuitMember::CircuitVariable(name, type_))
+    }
+
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
     pub fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
         let peeked = self.peek()?.clone();
         if self.peek_is_function()? {

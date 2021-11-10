@@ -631,6 +631,7 @@ outputs:
                           inner:
                             Identifier: "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":13,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
                           name: "{\"name\":\"new\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":31,\\\"col_stop\\\":34,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
+                          type_: ~
                     arguments:
                       - Identifier: "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":63,\\\"line_stop\\\":63,\\\"col_start\\\":35,\\\"col_stop\\\":41,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"  let reg = LinearRegression::new(points);\\\"}\"}"
             - Definition:

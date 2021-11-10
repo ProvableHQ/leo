@@ -120,6 +120,9 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                         .get(name.name.as_ref())
                         .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
                     match member {
+                        CircuitMember::Const(_) => {
+                            return Err(AsgError::circuit_const_call(circuit_name, &name.name, span).into());
+                        }
                         CircuitMember::Function(body) => {
                             if body.qualifier == FunctionQualifier::Static {
                                 return Err(
@@ -141,6 +144,7 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     inner: ast_value,
                     name,
                     span,
+                    ..
                 }) => {
                     let circuit = if let leo_ast::Expression::Identifier(circuit_name) = &**ast_value {
                         scope
@@ -156,6 +160,9 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                         .get(name.name.as_ref())
                         .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
                     match member {
+                        CircuitMember::Const(_) => {
+                            return Err(AsgError::circuit_const_call(circuit_name, &name.name, span).into());
+                        }
                         CircuitMember::Function(body) => {
                             if body.qualifier != FunctionQualifier::Static {
                                 return Err(
@@ -241,6 +248,7 @@ impl<'a> Into<leo_ast::CallExpression> for &CallExpression<'a> {
                 leo_ast::Expression::Access(leo_ast::AccessExpression::Static(leo_ast::accesses::StaticAccess {
                     inner: Box::new(leo_ast::Expression::Identifier(circuit.name.borrow().clone())),
                     name: self.function.get().name.borrow().clone(),
+                    type_: None,
                     span: self.span.clone().unwrap_or_default(),
                 }))
             } else {

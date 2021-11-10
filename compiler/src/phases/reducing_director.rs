@@ -27,9 +27,9 @@ use leo_asg::{
     CircuitMember as AsgCircuitMember, ConditionalStatement as AsgConditionalStatement,
     ConsoleFunction as AsgConsoleFunction, ConsoleStatement as AsgConsoleStatement, ConstValue,
     Constant as AsgConstant, DefinitionStatement as AsgDefinitionStatement, Expression as AsgExpression,
-    ExpressionStatement as AsgExpressionStatement, Function as AsgFunction, GroupValue as AsgGroupValue,
-    IterationStatement as AsgIterationStatement, ReturnStatement as AsgReturnStatement, Statement as AsgStatement,
-    TernaryExpression as AsgTernaryExpression, TupleAccess as AsgTupleAccess,
+    ExpressionNode, ExpressionStatement as AsgExpressionStatement, Function as AsgFunction,
+    GroupValue as AsgGroupValue, IterationStatement as AsgIterationStatement, ReturnStatement as AsgReturnStatement,
+    Statement as AsgStatement, TernaryExpression as AsgTernaryExpression, TupleAccess as AsgTupleAccess,
     TupleInitExpression as AsgTupleInitExpression, Type as AsgType, UnaryExpression as AsgUnaryExpression,
     VariableRef as AsgVariableRef,
 };
@@ -256,9 +256,21 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             .reduce_member_access(ast, *ast.inner.clone(), ast.name.clone(), type_)
     }
 
-    pub fn reduce_static_access(&mut self, ast: &StaticAccess, _asg: &AsgCircuitAccess) -> Result<StaticAccess> {
+    pub fn reduce_static_access(&mut self, ast: &StaticAccess, asg: &AsgCircuitAccess) -> Result<StaticAccess> {
+        let type_ = if self.options.type_inference_enabled() {
+            let members = asg.circuit.get().members.borrow();
+            let member = members.get(asg.member.name.as_ref());
+            match member {
+                Some(AsgCircuitMember::Const(value)) => value.get_type().as_ref().map(|t| t.into()),
+                Some(AsgCircuitMember::Variable(type_)) => Some(type_.into()),
+                _ => None,
+            }
+        } else {
+            None
+        };
+
         self.ast_reducer
-            .reduce_static_access(ast, *ast.inner.clone(), ast.name.clone())
+            .reduce_static_access(ast, *ast.inner.clone(), type_, ast.name.clone())
     }
 
     pub fn reduce_tuple_access(&mut self, ast: &AstTupleAccess, asg: &AsgTupleAccess) -> Result<AstTupleAccess> {

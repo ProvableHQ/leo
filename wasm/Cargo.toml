@@ -3,7 +3,7 @@ name = "leo-wasm"
 authors = [ "The Aleo Team <hello@aleo.org>" ]
 description = "Leo compiler as WASM"
 version = "1.5.3"
-edition = "2018"
+edition = "2021"
 homepage = "https://aleo.org"
 repository = "https://github.com/AleoHQ/leo"
 keywords = [
@@ -17,6 +17,7 @@ keywords = [
 categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
+rust-version = "1.56"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

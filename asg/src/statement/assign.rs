@@ -175,6 +175,9 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                             })?;
 
                             let x = match &member {
+                                CircuitMember::Const(value) => value
+                                    .get_type()
+                                    .ok_or_else(|| AsgError::unresolved_type("unknown", &statement.span))?,
                                 CircuitMember::Variable(type_) => type_.clone(),
                                 CircuitMember::Function(_) => {
                                     return Err(AsgError::illegal_function_assign(&name.name, &statement.span).into());

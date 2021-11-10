@@ -169,11 +169,13 @@ pub trait ReconstructingReducer {
         &mut self,
         static_access: &StaticAccess,
         value: Expression,
+        type_: Option<Type>,
         name: Identifier,
     ) -> Result<StaticAccess> {
         Ok(StaticAccess {
             inner: Box::new(value),
             name,
+            type_,
             span: static_access.span.clone(),
         })
     }

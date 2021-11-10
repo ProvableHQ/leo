@@ -7,6 +7,7 @@ outputs:
         inner:
           Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y\\\"}\"}"
         name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y\\\"}\"}"
+        type_: ~
         span:
           line_start: 1
           line_stop: 1
@@ -19,6 +20,7 @@ outputs:
         inner:
           Identifier: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"X::Y\\\"}\"}"
         name: "{\"name\":\"Y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"X::Y\\\"}\"}"
+        type_: ~
         span:
           line_start: 1
           line_stop: 1
@@ -34,6 +36,7 @@ outputs:
               inner:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y::z\\\"}\"}"
               name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y::z\\\"}\"}"
+              type_: ~
               span:
                 line_start: 1
                 line_stop: 1
@@ -42,6 +45,7 @@ outputs:
                 path: ""
                 content: "x::y::z"
         name: "{\"name\":\"z\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":7,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y::z\\\"}\"}"
+        type_: ~
         span:
           line_start: 1
           line_stop: 1
@@ -56,6 +60,7 @@ outputs:
             inner:
               Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
             name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
+            type_: ~
             span:
               line_start: 1
               line_stop: 1
@@ -79,6 +84,7 @@ outputs:
               inner:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y.0\\\"}\"}"
               name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y.0\\\"}\"}"
+              type_: ~
               span:
                 line_start: 1
                 line_stop: 1
@@ -103,6 +109,7 @@ outputs:
               inner:
                 Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y[1]\\\"}\"}"
               name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y[1]\\\"}\"}"
+              type_: ~
               span:
                 line_start: 1
                 line_stop: 1

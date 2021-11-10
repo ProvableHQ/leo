@@ -17,19 +17,24 @@
 //! Enforces a circuit access expression in a compiled Leo program.
 
 use crate::program::Program;
-use leo_asg::CircuitAccess;
-use leo_errors::Result;
+use leo_asg::{CircuitAccess, CircuitMember};
+use leo_errors::{CompilerError, Result};
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
 impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
     pub fn enforce_circuit_access(&mut self, expr: &CircuitAccess<'a>) -> Result<Value> {
-        let target = expr.target.get().expect("invalid static access");
-        let target_value = self.enforce_expression(target)?;
         let members = expr.circuit.get().members.borrow();
-        let mut index = members
-            .get_index_of(expr.member.name.as_ref())
-            .expect("missing member from struct");
+        let (target_value, mut index) = if let Some(target) = expr.target.get() {
+            let index = members
+                .get_index_of(expr.member.name.as_ref())
+                .expect("missing member from struct");
+            (self.enforce_expression(target)?, index)
+        } else if let Some(CircuitMember::Const(value)) = members.get(expr.member.name.as_ref()) {
+            (Value::Tuple(vec![self.enforce_expression(value)?]), 0)
+        } else {
+            return Err(CompilerError::expected_circuit_static_const_access(expr.span.as_ref().unwrap()).into());
+        };
 
         if let Some(category) = expr.circuit.get().input_type() {
             index = self.input_index(category, expr.member.name.as_ref());

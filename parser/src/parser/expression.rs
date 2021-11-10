@@ -494,6 +494,7 @@ impl ParserContext<'_> {
                     expr = Expression::Access(AccessExpression::Static(StaticAccess {
                         span: expr.span() + &ident.span,
                         inner: Box::new(expr),
+                        type_: None,
                         name: ident,
                     }));
                 }

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373052]: input access is illegal in const functions\n    --> compiler-test:8:12\n     |\n   8 |     return input.record.is_dummy;\n     |            ^^^^^"
+  - "Error [EASG0373053]: input access is illegal in const functions\n    --> compiler-test:8:12\n     |\n   8 |     return input.record.is_dummy;\n     |            ^^^^^"

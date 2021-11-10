@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [ECMP0376031]: Tried to assign to static member `x`\n    --> compiler-test:9:7\n     |\n   9 |     f.x = 0;\n     |       ^"
