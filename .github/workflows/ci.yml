@@ -30,7 +30,7 @@ jobs:
       RUSTC_WRAPPER: sccache
       SCCACHE_CACHE_SIZE: 2G
       SCCACHE_DIR: ${{ matrix.sccache-path }}
-      SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
+      # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
     steps:
       - name: Checkout
         uses: actions/checkout@v2
