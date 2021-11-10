@@ -87,12 +87,11 @@ impl ArrayDimensions {
 }
 
 impl ArrayDimensions {
-    /// Returns a PositiveNumber if Dimension is specified, returns None otherwise.
-    pub fn get_number(&self) -> Option<&PositiveNumber> {
+    /// Returns `PositiveNumber` if `Dimension` is specified, returns `None` otherwise.
+    pub fn number(&self) -> Option<&PositiveNumber> {
         match self {
             ArrayDimensions::Number(num) => Some(num),
-            ArrayDimensions::Unspecified => None,
-            ArrayDimensions::Multi(_) => None,
+            ArrayDimensions::Unspecified | ArrayDimensions::Multi(_) => None,
         }
     }
 }

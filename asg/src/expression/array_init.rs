@@ -82,7 +82,7 @@ impl<'a> FromAst<'a, leo_ast::ArrayInitExpression> for ArrayInitExpression<'a> {
             .flatten()
             .iter()
             .map(|x| {
-                Ok(x.get_number()
+                Ok(x.number()
                     .ok_or_else(|| AsgError::parse_dimension_error(&value.span))?
                     .value
                     .parse::<u32>()

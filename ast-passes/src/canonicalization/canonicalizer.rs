@@ -516,7 +516,7 @@ impl ReconstructingReducer for Canonicalizer {
     fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type> {
         match new.clone() {
             Type::Array(type_, array_dimensions) => {
-                // HERE WE WANT TO REDUCE EVERYTHING LIKE TWAS UNIFORMLY DEFINED
+                // The goal of this part is to reduce `ArrayDimensions::Multi` into nested Array type.
                 Ok(match &array_dimensions {
                     ArrayDimensions::Unspecified | ArrayDimensions::Number(_) => Type::Array(type_, array_dimensions),
 
@@ -605,8 +605,6 @@ impl ReconstructingReducer for Canonicalizer {
         if array_init.dimensions.is_zero() {
             return Err(AstError::invalid_array_dimension_size(&array_init.span).into());
         }
-
-        // @todo: get here again and review
 
         let element = Box::new(element);
         let mut dimensions = array_init.dimensions.flatten();
