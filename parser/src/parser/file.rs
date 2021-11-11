@@ -443,7 +443,7 @@ impl ParserContext<'_> {
         } else {
             return Err(ParserError::unexpected(
                 &peeked.token,
-                [Token::Function, Token::At]
+                [Token::Function, Token::At, Token::Const]
                     .iter()
                     .map(|x| format!("'{}'", x))
                     .collect::<Vec<_>>()
