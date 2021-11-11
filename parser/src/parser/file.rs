@@ -594,7 +594,7 @@ impl ParserContext<'_> {
             .variable_names
             .iter()
             .map(|variable_name| variable_name.identifier.clone())
-            .collect::<Vec<Identifier>>();
+            .collect();
 
         Ok((variable_names, statement))
     }
