@@ -16,187 +16,39 @@
 
 //! Resolves assignees in a compiled Leo program.
 
-use std::convert::TryInto;
-
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType, Integer};
-use leo_asg::{ConstInt, Expression, Node};
-use leo_errors::{CompilerError, Result};
-
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::traits::{eq::EvaluateEqGadget, select::CondSelectGadget};
-use snarkvm_r1cs::ConstraintSystem;
+use crate::program::Program;
+use leo_asg::{Expression, Type};
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, QueryData, Value};
 
 use super::ResolverContext;
 
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub(super) fn resolve_target_access_array_index<'b, CS: ConstraintSystem<F>>(
+impl<'a> Program<'a> {
+    pub(super) fn resolve_target_access_array_index<'b>(
         &mut self,
-        cs: &mut CS,
-        mut context: ResolverContext<'a, 'b, F, G>,
+        mut context: ResolverContext<'a, 'b>,
         index: &'a Expression<'a>,
-    ) -> Result<()> {
-        let input_len = context.input.len();
+    ) -> Result<Value> {
+        let index_value = self.enforce_expression(index)?;
+        let input_var = context.input_register;
 
-        let index_resolved = self.enforce_index(cs, index, &context.span)?;
-        if !context.from_range && input_len == 1 {
-            match context.input.remove(0) {
-                ConstrainedValue::Array(input) => {
-                    if let Some(index) = index_resolved.to_usize() {
-                        if index >= input.len() {
-                            Err(
-                                CompilerError::statement_array_assign_index_bounds(index, input.len(), &context.span)
-                                    .into(),
-                            )
-                        } else {
-                            let target = input.get_mut(index).unwrap();
-                            if context.remaining_accesses.is_empty() {
-                                self.enforce_assign_context(cs, &context, target)
-                            } else {
-                                context.input = vec![target];
-                                self.resolve_target_access(cs, context)
-                            }
-                        }
-                    } else {
-                        let span = index.span().cloned().unwrap_or_default();
-                        {
-                            let array_len: u32 = input
-                                .len()
-                                .try_into()
-                                .map_err(|_| CompilerError::array_length_out_of_bounds(&span))?;
-                            self.array_bounds_check(cs, &index_resolved, array_len, &span)?;
-                        }
+        let inner_type = match &context.input_type {
+            Type::Array(inner_type, _) => &**inner_type,
+            _ => panic!("illegal type in array index assignment"),
+        };
 
-                        for (i, item) in input.iter_mut().enumerate() {
-                            let namespace_string = format!(
-                                "evaluate dyn array assignment eq {} {}:{}",
-                                i, span.line_start, span.col_start
-                            );
-                            let eq_namespace = cs.ns(|| namespace_string);
-
-                            let index_bounded = i
-                                .try_into()
-                                .map_err(|_| CompilerError::array_index_out_of_legal_bounds(&span))?;
-                            let const_index = ConstInt::U32(index_bounded).cast_to(&index_resolved.get_type());
-                            let index_comparison = index_resolved
-                                .evaluate_equal(eq_namespace, &Integer::new(&const_index))
-                                .map_err(|_| CompilerError::cannot_evaluate_expression("==", &span))?;
-
-                            let mut unique_namespace = cs.ns(|| {
-                                format!(
-                                    "select array dyn assignment {} {}:{}",
-                                    i, span.line_start, span.col_start
-                                )
-                            });
-                            let temp_item = {
-                                let mut item = item.clone();
-                                let mut new_context = ResolverContext {
-                                    input: vec![&mut item],
-                                    span: context.span.clone(),
-                                    target_value: context.target_value.clone(),
-                                    remaining_accesses: context.remaining_accesses,
-                                    indicator: context.indicator,
-                                    operation: context.operation,
-                                    from_range: false,
-                                };
-                                if context.remaining_accesses.is_empty() {
-                                    let item = new_context.input.remove(0);
-                                    self.enforce_assign_context(&mut unique_namespace, &new_context, item)?;
-                                } else {
-                                    self.resolve_target_access(&mut unique_namespace, new_context)?;
-                                }
-                                item
-                            };
-                            let value = ConstrainedValue::conditionally_select(
-                                unique_namespace,
-                                &index_comparison,
-                                &temp_item,
-                                item,
-                            )
-                            .map_err(|e| CompilerError::cannot_enforce_expression("conditional select", e, &span))?;
-                            *item = value;
-                        }
-                        Ok(())
-                    }
-                }
-                _ => Err(CompilerError::statement_array_assign_interior_index(&context.span).into()),
-            }
-        } else if context.from_range && input_len != 0 {
-            context.from_range = false;
-            if let Some(index) = index_resolved.to_usize() {
-                if index >= input_len {
-                    return Err(
-                        CompilerError::statement_array_assign_index_bounds(index, input_len, &context.span).into(),
-                    );
-                }
-                let target = context.input.remove(index);
-
-                if context.remaining_accesses.is_empty() {
-                    self.enforce_assign_context(cs, &context, target)
-                } else {
-                    context.input = vec![target];
-                    self.resolve_target_access(cs, context)
-                }
-            } else {
-                // index is input variable
-                let span = index.span().cloned().unwrap_or_default();
-                {
-                    let array_len: u32 = context
-                        .input
-                        .len()
-                        .try_into()
-                        .map_err(|_| CompilerError::array_length_out_of_bounds(&span))?;
-                    self.array_bounds_check(cs, &index_resolved, array_len, &span)?;
-                }
-
-                for (i, item) in context.input.iter_mut().enumerate() {
-                    let namespace_string = format!(
-                        "evaluate dyn array assignment eq {} {}:{}",
-                        i, span.line_start, span.col_start
-                    );
-                    let eq_namespace = cs.ns(|| namespace_string);
-
-                    let index_bounded = i
-                        .try_into()
-                        .map_err(|_| CompilerError::array_index_out_of_legal_bounds(&span))?;
-                    let const_index = ConstInt::U32(index_bounded).cast_to(&index_resolved.get_type());
-                    let index_comparison = index_resolved
-                        .evaluate_equal(eq_namespace, &Integer::new(&const_index))
-                        .map_err(|_| CompilerError::cannot_evaluate_expression("==", &span))?;
-
-                    let mut unique_namespace = cs.ns(|| {
-                        format!(
-                            "select array dyn assignment {} {}:{}",
-                            i, span.line_start, span.col_start
-                        )
-                    });
-                    let temp_item = {
-                        let mut item = item.clone();
-                        let mut new_context = ResolverContext {
-                            input: vec![&mut item],
-                            span: context.span.clone(),
-                            target_value: context.target_value.clone(),
-                            remaining_accesses: context.remaining_accesses,
-                            indicator: context.indicator,
-                            operation: context.operation,
-                            from_range: false,
-                        };
-                        if context.remaining_accesses.is_empty() {
-                            let item = new_context.input.remove(0);
-                            self.enforce_assign_context(&mut unique_namespace, &new_context, item)?;
-                        } else {
-                            self.resolve_target_access(&mut unique_namespace, new_context)?;
-                        }
-                        item
-                    };
-                    let value =
-                        ConstrainedValue::conditionally_select(unique_namespace, &index_comparison, &temp_item, item)
-                            .map_err(|e| CompilerError::cannot_enforce_expression("conditional select", e, &span))?;
-                    **item = value;
-                }
-                Ok(())
-            }
-        } else {
-            Err(CompilerError::statement_array_assign_interior_index(&context.span).into())
-        }
+        let out = self.alloc();
+        self.emit(Instruction::ArrayIndexGet(QueryData {
+            destination: out,
+            values: vec![Value::Ref(input_var), index_value.clone()],
+        }));
+        context.input_register = out;
+        context.input_type = inner_type.clone();
+        let inner = self.resolve_target_access(context)?;
+        self.emit(Instruction::ArrayIndexStore(QueryData {
+            destination: input_var,
+            values: vec![index_value, inner],
+        }));
+        Ok(Value::Ref(input_var))
     }
 }

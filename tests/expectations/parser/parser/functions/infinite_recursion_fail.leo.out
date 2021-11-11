@@ -1,0 +1,120 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    import_statements: []
+    imports: {}
+    aliases: {}
+    circuits: {}
+    global_consts: {}
+    functions:
+      "{\"name\":\"inf\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function inf() {\\\"}\"}":
+        annotations: {}
+        identifier: "{\"name\":\"inf\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function inf() {\\\"}\"}"
+        input: []
+        const_: false
+        output: ~
+        core_mapping: ~
+        block:
+          statements:
+            - Expression:
+                expression:
+                  Call:
+                    function:
+                      Identifier: "{\"name\":\"inf\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    inf();\\\"}\"}"
+                    arguments: []
+                    span:
+                      line_start: 4
+                      line_stop: 4
+                      col_start: 5
+                      col_stop: 10
+                      path: ""
+                      content: "    inf();"
+                span:
+                  line_start: 4
+                  line_stop: 4
+                  col_start: 5
+                  col_stop: 10
+                  path: ""
+                  content: "    inf();"
+          span:
+            line_start: 3
+            line_stop: 5
+            col_start: 16
+            col_stop: 2
+            path: ""
+            content: "function inf() {\n     ...\n}"
+        span:
+          line_start: 3
+          line_stop: 5
+          col_start: 1
+          col_stop: 2
+          path: ""
+          content: "function inf() {\n     ...\n}"
+      "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}":
+        annotations: {}
+        identifier: "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+        input:
+          - Variable:
+              identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":7,\\\"line_stop\\\":7,\\\"col_start\\\":15,\\\"col_stop\\\":16,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(y: bool) -> bool {\\\"}\"}"
+              const_: false
+              mutable: true
+              type_: Boolean
+              span:
+                line_start: 7
+                line_stop: 7
+                col_start: 15
+                col_stop: 16
+                path: ""
+                content: "function main(y: bool) -> bool {"
+        const_: false
+        output: Boolean
+        core_mapping: ~
+        block:
+          statements:
+            - Expression:
+                expression:
+                  Call:
+                    function:
+                      Identifier: "{\"name\":\"inf\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":5,\\\"col_stop\\\":8,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    inf();\\\"}\"}"
+                    arguments: []
+                    span:
+                      line_start: 8
+                      line_stop: 8
+                      col_start: 5
+                      col_stop: 10
+                      path: ""
+                      content: "    inf();"
+                span:
+                  line_start: 8
+                  line_stop: 8
+                  col_start: 5
+                  col_stop: 10
+                  path: ""
+                  content: "    inf();"
+            - Return:
+                expression:
+                  Identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":9,\\\"line_stop\\\":9,\\\"col_start\\\":12,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    return y;\\\"}\"}"
+                span:
+                  line_start: 9
+                  line_stop: 9
+                  col_start: 5
+                  col_stop: 13
+                  path: ""
+                  content: "    return y;"
+          span:
+            line_start: 7
+            line_stop: 10
+            col_start: 32
+            col_stop: 2
+            path: ""
+            content: "function main(y: bool) -> bool {\n     ...\n     ...\n}"
+        span:
+          line_start: 7
+          line_stop: 10
+          col_start: 1
+          col_stop: 2
+          path: ""
+          content: "function main(y: bool) -> bool {\n     ...\n     ...\n}"

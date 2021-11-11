@@ -16,31 +16,17 @@
 
 //! Enforces a logical `&&` operator in a resolved Leo program.
 
-use crate::{value::ConstrainedValue, GroupType};
-use leo_errors::{CompilerError, Result, Span};
+use crate::Program;
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
-
-pub fn enforce_and<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-    cs: &mut CS,
-    left: ConstrainedValue<'a, F, G>,
-    right: ConstrainedValue<'a, F, G>,
-    span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>> {
-    let name = format!("{} && {}", left, right);
-
-    if let (ConstrainedValue::Boolean(left_bool), ConstrainedValue::Boolean(right_bool)) = (left, right) {
-        let result = Boolean::and(
-            cs.ns(|| format!("{} {}:{}", name, span.line_start, span.col_start)),
-            &left_bool,
-            &right_bool,
-        )
-        .map_err(|e| CompilerError::cannot_enforce_expression("&&", e, span))?;
-
-        return Ok(ConstrainedValue::Boolean(result));
+impl<'a> Program<'a> {
+    pub fn evaluate_and(&mut self, left: Value, right: Value) -> Result<Value> {
+        let output = self.alloc();
+        self.emit(Instruction::And(QueryData {
+            destination: output,
+            values: vec![left, right],
+        }));
+        Ok(Value::Ref(output))
     }
-
-    Err(CompilerError::cannot_evaluate_expression(name, span).into())
 }

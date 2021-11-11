@@ -16,19 +16,16 @@
 
 use super::build::BuildOptions;
 use crate::{commands::Command, context::Context};
-use leo_compiler::{
-    compiler::{thread_leaked_context, Compiler},
-    group::targets::edwards_bls12::EdwardsGroupType,
-};
+use leo_compiler::compiler::{thread_leaked_context, Compiler};
 use leo_errors::{CliError, Result};
 use leo_package::{
     inputs::*,
-    outputs::{OutputsDirectory, OUTPUTS_DIRECTORY_NAME},
-    source::{MainFile, MAIN_FILENAME, SOURCE_DIRECTORY_NAME},
+    outputs::OutputsDirectory,
+    source::{MainFile, SourceDirectory},
+    PackageDirectory, PackageFile,
 };
 
 use indexmap::IndexMap;
-use snarkvm_curves::edwards_bls12::Fq;
 use std::{convert::TryFrom, path::PathBuf, time::Instant};
 use structopt::StructOpt;
 use tracing::span::Span;
@@ -44,7 +41,7 @@ pub struct Test {
     pub(crate) compiler_options: BuildOptions,
 }
 
-impl Command for Test {
+impl<'a> Command<'a> for Test {
     type Input = ();
     type Output = ();
 
@@ -52,11 +49,11 @@ impl Command for Test {
         tracing::span!(tracing::Level::INFO, "Test")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         // Get the package name
         let package_name = context.manifest()?.get_package_name();
 
@@ -67,16 +64,17 @@ impl Command for Test {
         }
 
         let mut to_test: Vec<PathBuf> = Vec::new();
+        let main_file = MainFile::new(&package_name);
 
         // if -f flag was used, then we'll test only this files
         if !self.files.is_empty() {
             to_test.extend(self.files.iter().cloned());
 
         // if args were not passed - try main file
-        } else if MainFile::exists_at(&package_path) {
+        } else if main_file.exists_at(&package_path) {
             let mut file_path = package_path.clone();
-            file_path.push(SOURCE_DIRECTORY_NAME);
-            file_path.push(MAIN_FILENAME);
+            file_path.push(SourceDirectory::NAME);
+            file_path.push(main_file.to_string());
             to_test.push(file_path);
 
         // when no main file and no files marked - error
@@ -86,7 +84,7 @@ impl Command for Test {
 
         // Construct the path to the output directory;
         let mut output_directory = package_path.clone();
-        output_directory.push(OUTPUTS_DIRECTORY_NAME);
+        output_directory.push(OutputsDirectory::NAME);
 
         // Create the output directory
         OutputsDirectory::create(&package_path)?;
@@ -104,7 +102,8 @@ impl Command for Test {
             };
 
             let timer = Instant::now();
-            let program = Compiler::<Fq, EdwardsGroupType>::parse_program_without_input(
+            let program = Compiler::parse_program_without_input(
+                context.handler,
                 package_name.clone(),
                 file_path,
                 output_directory.clone(),
@@ -115,7 +114,7 @@ impl Command for Test {
             )?;
 
             let temporary_program = program;
-            let (passed, failed) = temporary_program.compile_test_constraints(input_pairs)?;
+            let (passed, failed) = temporary_program.compile_test(input_pairs)?;
             let time_taken = timer.elapsed().as_millis();
 
             if failed == 0 {

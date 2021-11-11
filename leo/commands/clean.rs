@@ -17,8 +17,12 @@
 use crate::{commands::Command, context::Context};
 use leo_compiler::OutputFile;
 use leo_errors::Result;
-use leo_package::outputs::{
-    ChecksumFile, CircuitFile, ProofFile, ProvingKeyFile, Snapshot, SnapshotFile, VerificationKeyFile,
+use leo_package::{
+    outputs::{
+        ChecksumFile, CircuitFile, IrSnapshot, IrSnapshotFile, ProofFile, ProvingKeyFile, Snapshot, SnapshotFile,
+        VerificationKeyFile,
+    },
+    PackageFile,
 };
 
 use structopt::StructOpt;
@@ -29,7 +33,7 @@ use tracing::span::Span;
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Clean {}
 
-impl Command for Clean {
+impl<'a> Command<'a> for Clean {
     type Input = ();
     type Output = ();
 
@@ -37,11 +41,11 @@ impl Command for Clean {
         tracing::span!(tracing::Level::INFO, "Cleaning")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         let path = context.dir()?;
         let package_name = context.manifest()?.get_package_name();
 
@@ -68,6 +72,10 @@ impl Command for Clean {
         SnapshotFile::new(&package_name, Snapshot::ImportsResolved).remove(&path)?;
         SnapshotFile::new(&package_name, Snapshot::TypeInference).remove(&path)?;
         SnapshotFile::new(&package_name, Snapshot::Canonicalization).remove(&path)?;
+
+        IrSnapshotFile::new(&package_name, IrSnapshot::Formatted).remove(&path)?;
+        IrSnapshotFile::new(&package_name, IrSnapshot::Input).remove(&path)?;
+        IrSnapshotFile::new(&package_name, IrSnapshot::Raw).remove(&path)?;
 
         Ok(())
     }

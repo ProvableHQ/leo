@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use leo_errors::Result;
+use leo_errors::{emitter::Handler, Result};
 use std::path::PathBuf;
 
 use crate::{
@@ -47,84 +47,92 @@ pub fn build_pedersen_hash() -> Result<()> {
     (Build {
         compiler_options: Default::default(),
     })
-    .apply(context()?, ())?;
+    .apply(context(&Handler::default())?, ())?;
     Ok(())
 }
 
 #[test]
 pub fn setup_pedersen_hash() -> Result<()> {
+    let handler = Handler::default();
+
     let build = (Build {
         compiler_options: Default::default(),
     })
-    .apply(context()?, ())?;
+    .apply(context(&handler)?, ())?;
     (Setup {
         skip_key_check: false,
         compiler_options: Default::default(),
     })
-    .apply(context()?, build.clone())?;
+    .apply(context(&handler)?, build.clone())?;
     (Setup {
         skip_key_check: true,
         compiler_options: Default::default(),
     })
-    .apply(context()?, build)?;
+    .apply(context(&handler)?, build)?;
     Ok(())
 }
 
 #[test]
 pub fn prove_pedersen_hash() -> Result<()> {
+    let handler = Handler::default();
+
     let build = (Build {
         compiler_options: Default::default(),
     })
-    .apply(context()?, ())?;
+    .apply(context(&handler)?, ())?;
     let setup = (Setup {
         skip_key_check: false,
         compiler_options: Default::default(),
     })
-    .apply(context()?, build)?;
+    .apply(context(&handler)?, build)?;
     (Prove {
         skip_key_check: false,
         compiler_options: Default::default(),
     })
-    .apply(context()?, setup.clone())?;
+    .apply(context(&handler)?, setup.clone())?;
     (Prove {
         skip_key_check: true,
         compiler_options: Default::default(),
     })
-    .apply(context()?, setup)?;
+    .apply(context(&handler)?, setup)?;
     Ok(())
 }
 
 #[test]
 pub fn run_pedersen_hash() -> Result<()> {
+    let handler = Handler::default();
+
     let build = (Build {
         compiler_options: Default::default(),
     })
-    .apply(context()?, ())?;
+    .apply(context(&handler)?, ())?;
     let setup = (Setup {
         skip_key_check: false,
         compiler_options: Default::default(),
     })
-    .apply(context()?, build)?;
+    .apply(context(&handler)?, build)?;
     let prove = (Prove {
         skip_key_check: false,
         compiler_options: Default::default(),
     })
-    .apply(context()?, setup)?;
+    .apply(context(&handler)?, setup)?;
     (Run {
         skip_key_check: false,
         compiler_options: Default::default(),
     })
-    .apply(context()?, prove.clone())?;
+    .apply(context(&handler)?, prove.clone())?;
     (Run {
         skip_key_check: true,
         compiler_options: Default::default(),
     })
-    .apply(context()?, prove)?;
+    .apply(context(&handler)?, prove)?;
     Ok(())
 }
 
 #[test]
 pub fn test_pedersen_hash() -> Result<()> {
+    let handler = Handler::default();
+
     let mut main_file = PathBuf::from(PEDERSEN_HASH_PATH);
     main_file.push("src/main.leo");
 
@@ -132,18 +140,18 @@ pub fn test_pedersen_hash() -> Result<()> {
         files: vec![],
         compiler_options: Default::default(),
     })
-    .apply(context()?, ())?;
+    .apply(context(&handler)?, ())?;
     (Test {
         files: vec![main_file],
         compiler_options: Default::default(),
     })
-    .apply(context()?, ())?;
+    .apply(context(&handler)?, ())?;
     Ok(())
 }
 
 #[test]
 pub fn test_logout() -> Result<()> {
-    let logout = (Logout {}).apply(context()?, ());
+    let logout = (Logout {}).apply(context(&Handler::default())?, ());
     assert!(logout.is_err());
     Ok(())
 }
@@ -152,22 +160,24 @@ pub fn test_logout() -> Result<()> {
 // So this test only tells that error cases are errors
 #[test]
 pub fn login_incorrect_credentials_or_token() -> Result<()> {
+    let handler = Handler::default();
+
     test_logout()?;
 
     // no credentials passed
-    let login = Login::new(None, None, None).apply(context()?, ());
+    let login = Login::new(None, None, None).apply(context(&handler)?, ());
     assert!(login.is_err());
 
     // incorrect token
-    let login = Login::new(Some("none".to_string()), None, None).apply(context()?, ());
+    let login = Login::new(Some("none".to_string()), None, None).apply(context(&handler)?, ());
     assert!(login.is_err());
 
     // only user, no pass
-    let login = Login::new(None, Some("user".to_string()), None).apply(context()?, ());
+    let login = Login::new(None, Some("user".to_string()), None).apply(context(&handler)?, ());
     assert!(login.is_err());
 
     // no user, only pass
-    let login = Login::new(None, None, Some("pass".to_string())).apply(context()?, ());
+    let login = Login::new(None, None, Some("pass".to_string())).apply(context(&handler)?, ());
     assert!(login.is_err());
 
     Ok(())
@@ -177,49 +187,50 @@ pub fn login_incorrect_credentials_or_token() -> Result<()> {
 #[test]
 pub fn leo_update_and_update_automatic() -> Result<()> {
     use crate::commands::{Update, UpdateAutomatic};
+    let handler = Handler::default();
 
     let update = Update {
         list: true,
         studio: true,
         automatic: None,
     };
-    update.apply(context()?, ())?;
+    update.apply(context(&handler)?, ())?;
 
     let update = Update {
         list: false,
         studio: true,
         automatic: None,
     };
-    update.apply(context()?, ())?;
+    update.apply(context(&handler)?, ())?;
 
     let update = Update {
         list: false,
         studio: false,
         automatic: None,
     };
-    update.apply(context()?, ())?;
+    update.apply(context(&handler)?, ())?;
 
     let update = Update {
         list: false,
         studio: false,
         automatic: Some(UpdateAutomatic::Automatic { value: true }),
     };
-    update.apply(context()?, ())?;
+    update.apply(context(&handler)?, ())?;
 
     let update = Update {
         list: false,
         studio: false,
         automatic: Some(UpdateAutomatic::Automatic { value: false }),
     };
-    update.apply(context()?, ())?;
+    update.apply(context(&handler)?, ())?;
 
     Ok(())
 }
 
 /// Create context for Pedersen Hash example
-fn context() -> Result<Context> {
+fn context(handler: &Handler) -> Result<Context<'_>> {
     let path = PathBuf::from(&PEDERSEN_HASH_PATH);
-    let context = create_context(path, None)?;
+    let context = create_context(handler, path, None)?;
 
     Ok(context)
 }

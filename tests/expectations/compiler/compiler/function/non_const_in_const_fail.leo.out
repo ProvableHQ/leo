@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373054]: non-const functions cannot be called from const context\n    --> compiler-test:10:12\n     |\n  10 |     return read_input() ? 10 : 5;\n     |            ^^^^^^^^^^^^"

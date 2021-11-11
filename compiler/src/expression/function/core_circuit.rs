@@ -16,7 +16,7 @@
 
 use std::cell::Cell;
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreCircuit, GroupType};
+use crate::{program::ConstrainedProgram, value::ConstrainedValue, CoreCircuitFuncCall, GroupType};
 
 use leo_asg::{Expression, Function};
 use leo_errors::{Result, Span};
@@ -27,7 +27,7 @@ use snarkvm_r1cs::ConstraintSystem;
 impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
     /// Call a default core circuit function with arguments
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>, C: CoreCircuit<'a, F, G>>(
+    pub fn enforce_core_circuit_call_expression<CS: ConstraintSystem<F>, C: CoreCircuitFuncCall<'a, F, G>>(
         &mut self,
         cs: &mut CS,
         core_circuit: &C,

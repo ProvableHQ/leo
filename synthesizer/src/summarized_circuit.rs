@@ -19,7 +19,7 @@ use sha2::{Digest, Sha256};
 
 use crate::SerializedCircuit;
 
-#[derive(Serialize, Deserialize, PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Default)]
 pub struct SummarizedCircuit {
     pub num_public_variables: usize,
     pub num_private_variables: usize,

@@ -14,17 +14,19 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
+use crate::PackageDirectory;
+
 pub mod ast_snapshot;
 pub use self::ast_snapshot::*;
+
+pub mod ir_snapshot;
+pub use self::ir_snapshot::*;
 
 pub mod circuit;
 pub use self::circuit::*;
 
 pub mod checksum;
 pub use self::checksum::*;
-
-pub mod directory;
-pub use directory::*;
 
 pub mod proof;
 pub use self::proof::*;
@@ -34,3 +36,9 @@ pub use self::proving_key::*;
 
 pub mod verification_key;
 pub use self::verification_key::*;
+
+pub struct OutputsDirectory;
+
+impl PackageDirectory for OutputsDirectory {
+    const NAME: &'static str = "outputs/";
+}

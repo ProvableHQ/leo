@@ -34,17 +34,11 @@ pub use self::conditional::*;
 pub mod expression;
 pub use self::expression::*;
 
-pub mod function;
-pub use self::function::*;
-
 pub mod variable_ref;
 pub use self::variable_ref::*;
 
 pub mod logical;
 pub use self::logical::*;
-
-pub mod operator;
-pub use self::operator::*;
 
 pub mod relational;
 pub use self::relational::*;

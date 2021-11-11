@@ -16,32 +16,21 @@
 
 //! Enforces a binary expression in a compiled Leo program.
 
-use crate::{program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::program::Program;
 use leo_asg::Expression;
 use leo_errors::Result;
+use snarkvm_ir::Value;
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-type ConstrainedValuePair<'a, T, U> = (ConstrainedValue<'a, T, U>, ConstrainedValue<'a, T, U>);
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_binary_expression<CS: ConstraintSystem<F>>(
+    pub fn enforce_binary_expression(
         &mut self,
-        cs: &mut CS,
         left: &'a Expression<'a>,
         right: &'a Expression<'a>,
-    ) -> Result<ConstrainedValuePair<'a, F, G>> {
-        let resolved_left = {
-            let mut left_namespace = cs.ns(|| "left".to_string());
-            self.enforce_expression(&mut left_namespace, left)?
-        };
+    ) -> Result<(Value, Value)> {
+        let resolved_left = { self.enforce_expression(left)? };
 
-        let resolved_right = {
-            let mut right_namespace = cs.ns(|| "right".to_string());
-            self.enforce_expression(&mut right_namespace, right)?
-        };
+        let resolved_right = { self.enforce_expression(right)? };
 
         Ok((resolved_left, resolved_right))
     }

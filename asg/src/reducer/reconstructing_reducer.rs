@@ -18,7 +18,7 @@ use std::cell::Cell;
 
 use leo_ast::Identifier;
 
-use crate::{expression::*, program::*, statement::*, AsgContext};
+use crate::{accesses::*, expression::*, program::*, statement::*, AsgContext};
 
 #[allow(unused_variables)]
 pub trait ReconstructingReducerExpression<'a> {
@@ -26,16 +26,9 @@ pub trait ReconstructingReducerExpression<'a> {
         value
     }
 
-    fn reduce_array_access(
-        &mut self,
-        input: ArrayAccessExpression<'a>,
-        array: &'a Expression<'a>,
-        index: &'a Expression<'a>,
-    ) -> Expression<'a> {
-        Expression::ArrayAccess(ArrayAccessExpression {
+    fn reduce_err(&mut self, input: ErrExpression<'a>) -> Expression<'a> {
+        Expression::Err(ErrExpression {
             parent: input.parent,
-            array: Cell::new(array),
-            index: Cell::new(index),
             span: input.span,
         })
     }
@@ -58,23 +51,6 @@ pub trait ReconstructingReducerExpression<'a> {
             parent: input.parent,
             elements: elements.into_iter().map(|x| (Cell::new(x.0), x.1)).collect(),
             span: input.span,
-        })
-    }
-
-    fn reduce_array_range_access(
-        &mut self,
-        input: ArrayRangeAccessExpression<'a>,
-        array: &'a Expression<'a>,
-        left: Option<&'a Expression<'a>>,
-        right: Option<&'a Expression<'a>>,
-    ) -> Expression<'a> {
-        Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
-            parent: input.parent,
-            array: Cell::new(array),
-            left: Cell::new(left),
-            right: Cell::new(right),
-            span: input.span,
-            length: input.length,
         })
     }
 
@@ -104,20 +80,6 @@ pub trait ReconstructingReducerExpression<'a> {
             function: input.function,
             target: Cell::new(target),
             arguments: arguments.into_iter().map(Cell::new).collect(),
-            span: input.span,
-        })
-    }
-
-    fn reduce_circuit_access(
-        &mut self,
-        input: CircuitAccessExpression<'a>,
-        target: Option<&'a Expression<'a>>,
-    ) -> Expression<'a> {
-        Expression::CircuitAccess(CircuitAccessExpression {
-            parent: input.parent,
-            circuit: input.circuit,
-            target: Cell::new(target),
-            member: input.member,
             span: input.span,
         })
     }
@@ -160,21 +122,66 @@ pub trait ReconstructingReducerExpression<'a> {
         })
     }
 
-    fn reduce_constant(&mut self, input: Constant<'a>) -> Expression<'a> {
-        Expression::Constant(input)
+    fn reduce_array_access(
+        &mut self,
+        input: ArrayAccess<'a>,
+        array: &'a Expression<'a>,
+        index: &'a Expression<'a>,
+    ) -> AccessExpression<'a> {
+        AccessExpression::Array(ArrayAccess {
+            parent: input.parent,
+            array: Cell::new(array),
+            index: Cell::new(index),
+            span: input.span,
+        })
     }
 
-    fn reduce_tuple_access(
+    fn reduce_array_range_access(
         &mut self,
-        input: TupleAccessExpression<'a>,
-        tuple_ref: &'a Expression<'a>,
-    ) -> Expression<'a> {
-        Expression::TupleAccess(TupleAccessExpression {
+        input: ArrayRangeAccess<'a>,
+        array: &'a Expression<'a>,
+        left: Option<&'a Expression<'a>>,
+        right: Option<&'a Expression<'a>>,
+    ) -> AccessExpression<'a> {
+        AccessExpression::ArrayRange(ArrayRangeAccess {
+            parent: input.parent,
+            array: Cell::new(array),
+            left: Cell::new(left),
+            right: Cell::new(right),
+            span: input.span,
+            length: input.length,
+        })
+    }
+
+    fn reduce_circuit_access(
+        &mut self,
+        input: CircuitAccess<'a>,
+        target: Option<&'a Expression<'a>>,
+    ) -> AccessExpression<'a> {
+        AccessExpression::Circuit(CircuitAccess {
+            parent: input.parent,
+            circuit: input.circuit,
+            target: Cell::new(target),
+            member: input.member,
+            span: input.span,
+        })
+    }
+
+    fn reduce_tuple_access(&mut self, input: TupleAccess<'a>, tuple_ref: &'a Expression<'a>) -> AccessExpression<'a> {
+        AccessExpression::Tuple(TupleAccess {
             parent: input.parent,
             tuple_ref: Cell::new(tuple_ref),
             index: input.index,
             span: input.span,
         })
+    }
+
+    fn reduce_access_expression(&mut self, input: AccessExpression<'a>) -> Expression<'a> {
+        Expression::Access(input)
+    }
+
+    fn reduce_constant(&mut self, input: Constant<'a>) -> Expression<'a> {
+        Expression::Constant(input)
     }
 
     fn reduce_tuple_init(&mut self, input: TupleInitExpression<'a>, values: Vec<&'a Expression<'a>>) -> Expression<'a> {
@@ -359,6 +366,10 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
     // todo @protryon: this is kind of hacky
     fn reduce_function(&mut self, input: &'a Function<'a>, body: Option<&'a Statement<'a>>) -> &'a Function<'a> {
         input.body.set(body);
+        input
+    }
+
+    fn reduce_circuit_member_const(&mut self, input: CircuitMember<'a>) -> CircuitMember<'a> {
         input
     }
 

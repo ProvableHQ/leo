@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373026]: expected const, found non-const value\n    --> compiler-test:5:17\n     |\n   5 |     for i in 0..strlen(\"I swear to god I had something for this\") {\n     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"

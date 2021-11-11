@@ -16,7 +16,7 @@
 
 use std::cell::Cell;
 
-use crate::{expression::*, program::*, statement::*};
+use crate::{accesses::*, expression::*, program::*, statement::*};
 
 pub enum VisitResult {
     VisitChildren,
@@ -36,7 +36,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_array_access(&mut self, input: &ArrayAccessExpression<'a>) -> VisitResult {
+    fn visit_err(&mut self, input: &ErrExpression<'a>) -> VisitResult {
         Default::default()
     }
 
@@ -48,19 +48,11 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_array_range_access(&mut self, input: &ArrayRangeAccessExpression<'a>) -> VisitResult {
-        Default::default()
-    }
-
     fn visit_binary(&mut self, input: &BinaryExpression<'a>) -> VisitResult {
         Default::default()
     }
 
     fn visit_call(&mut self, input: &CallExpression<'a>) -> VisitResult {
-        Default::default()
-    }
-
-    fn visit_circuit_access(&mut self, input: &CircuitAccessExpression<'a>) -> VisitResult {
         Default::default()
     }
 
@@ -76,7 +68,19 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_lengthof_expression(&mut self, input: &LengthOfExpression<'a>) -> VisitResult {
+    fn visit_array_access(&mut self, input: &ArrayAccess<'a>) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_array_range_access(&mut self, input: &ArrayRangeAccess<'a>) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_circuit_access(&mut self, input: &CircuitAccess<'a>) -> VisitResult {
+        Default::default()
+    }
+
+    fn visit_tuple_access(&mut self, input: &TupleAccess<'a>) -> VisitResult {
         Default::default()
     }
 
@@ -84,7 +88,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_tuple_access(&mut self, input: &TupleAccessExpression<'a>) -> VisitResult {
+    fn visit_access_expression(&mut self, input: &AccessExpression<'a>) -> VisitResult {
         Default::default()
     }
 

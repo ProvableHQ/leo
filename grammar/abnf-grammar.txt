@@ -409,7 +409,6 @@ keyword = %s"address"
         / %s"in"
         / %s"input"
         / %s"let"
-        / %s"mut"
         / %s"return"
         / %s"Self"
         / %s"self"
@@ -590,7 +589,7 @@ atomic-literal = untyped-literal
 ; it seems appropriate to still consider it a symbol,
 ; particularly since it starts with a proper symbol.
 
-symbol = "!" / "&&" / "||"
+symbol = "!" / "&" / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
        / "+" / "-" / "*" / "/" / "**"
@@ -657,6 +656,19 @@ address-type = %s"address"
 character-type = %s"char"
 
 scalar-type =  boolean-type / arithmetic-type / address-type / character-type
+
+; Circuit and Alias types are denoted by identifiers and the keyword `Self`.
+; The latter is only allowed inside a circuit definition,
+; to denote the circuit being defined.
+
+self-type = %s"Self"
+
+circuit-or-alias-type = identifier / self-type
+
+; A type that represents the combination of scalar types
+; and circuit, alias and self types.
+
+named-type = circuit-or-alias-type / scalar-type
 
 ; A tuple type consists of zero, two, or more component types.
 
@@ -821,7 +833,8 @@ postfix-expression = primary-expression
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / identifier-or-self-type "::" identifier function-arguments
+                   / named-type "::" identifier function-arguments
+                   / named-type "::" identifier
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 
@@ -997,9 +1010,9 @@ annotation = annotation-name
 ; In general, a function input consists of an identifier and a type,
 ; with an optional 'const' modifier.
 ; Additionally, functions inside circuits
-; may start with a `mut self` or `const self` or `self` parameter.
+; may start with a `&self` or `const self` or `self` parameter.
 
-function-declaration = *annotation %s"function" identifier
+function-declaration = *annotation [ %s"const" ] %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
                        block
 
@@ -1007,11 +1020,18 @@ function-parameters = self-parameter
                     / self-parameter "," function-inputs
                     / function-inputs
 
-self-parameter = [ %s"mut" / %s"const" ] %s"self"
+self-parameter = [ %s"&" / %s"const" ] %s"self"
 
 function-inputs = function-input *( "," function-input )
 
 function-input = [ %s"const" ] identifier ":" type
+
+; A circuit member constant declaration consists of
+; the static and const keywords followed by
+; an identifier and a type, then an assignment
+; with a literal terminated by semicolon.
+
+member-constant-declaration = %s"static" %s"const" identifier ":" type "=" literal ";"
 
 ; A circuit member variable declaration consists of
 ; an identifier and a type, terminated by semicolon.
@@ -1032,7 +1052,9 @@ member-variable-declarations = *( identifier ":" type ( "," / ";" ) )
 member-function-declaration = function-declaration
 
 ; A circuit declaration defines a circuit type,
-; as consisting of member variables and functions.
+; as consisting of member constants, variables and functions.
+; A circuit member constant declaration
+; as consisting of member constants, member variables, and member functions.
 ; To more simply accommodate the backward compatibility
 ; described for the rule `member-variable-declarations`,
 ; all the member variables must precede all the member functions;
@@ -1040,7 +1062,8 @@ member-function-declaration = function-declaration
 ; allowing member variables and member functions to be intermixed.
 
 circuit-declaration = %s"circuit" identifier
-                      "{" [ member-variable-declarations ]
+                      "{" *member-constant-declaration
+                      [ member-variable-declarations ]
                       *member-function-declaration "}"
 
 ; An import declaration consists of the `import` keyword

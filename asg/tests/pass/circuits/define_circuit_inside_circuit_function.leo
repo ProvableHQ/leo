@@ -9,5 +9,5 @@ circuit Bar {
 }
 
 function main() {
-    const b = Bar::bar();
+    let b = Bar::bar();
 }

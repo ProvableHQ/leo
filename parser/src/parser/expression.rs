@@ -35,7 +35,7 @@ const INT_TYPES: &[Token] = &[
     Token::Group,
 ];
 
-impl ParserContext {
+impl ParserContext<'_> {
     ///
     /// Returns an [`Expression`] AST node if the next token is an expression.
     /// Includes circuit init expressions.
@@ -169,7 +169,7 @@ impl ParserContext {
     ///
     // pub fn parse_bit_and_expression(&mut self) -> Result<Expression> {
     //     let mut expr = self.parse_equality_expression()?;
-    //     while self.eat(Token::BitAnd).is_some() {
+    //     while self.eat(Token::Ampersand).is_some() {
     //         let right = self.parse_equality_expression()?;
     //         expr = Expression::Binary(BinaryExpression {
     //             span: expr.span() + right.span(),
@@ -210,7 +210,7 @@ impl ParserContext {
     /// binary relational expression: less than, less than or equals, greater than, greater than or equals.
     ///
     /// Otherwise, tries to parse the next token using [`parse_shift_expression`].
-    ///    
+    ///
     pub fn parse_ordering_expression(&mut self) -> Result<Expression> {
         let mut expr = self.parse_additive_expression()?;
         while let Some(SpannedToken { token: op, .. }) = self.eat_any(&[Token::Lt, Token::LtEq, Token::Gt, Token::GtEq])
@@ -401,21 +401,12 @@ impl ParserContext {
     /// Otherwise, tries to parse the next token using [`parse_primary_expression`].
     ///
     pub fn parse_postfix_expression(&mut self) -> Result<Expression> {
+        // We don't directly parse named-type's and Identifier's here as
+        // the ABNF states. Rather the primary expression already
+        // handle those. The ABNF is more specific for language reasons.
         let mut expr = self.parse_primary_expression()?;
-        while let Some(token) = self.eat_any(&[
-            Token::LeftSquare,
-            Token::Dot,
-            Token::LeftParen,
-            Token::DoubleColon,
-            Token::LengthOf,
-        ]) {
+        while let Some(token) = self.eat_any(&[Token::LeftSquare, Token::Dot, Token::LeftParen, Token::DoubleColon]) {
             match token.token {
-                Token::LengthOf => {
-                    expr = Expression::LengthOf(LengthOfExpression {
-                        span: expr.span().clone(),
-                        inner: Box::new(expr),
-                    })
-                }
                 Token::LeftSquare => {
                     if self.eat(Token::DotDot).is_some() {
                         let right = if self.peek_token().as_ref() != &Token::RightSquare {
@@ -425,12 +416,12 @@ impl ParserContext {
                         };
 
                         let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                        expr = Expression::Access(AccessExpression::ArrayRange(ArrayRangeAccess {
                             span: expr.span() + &end,
                             array: Box::new(expr),
                             left: None,
                             right,
-                        });
+                        }));
                         continue;
                     }
 
@@ -443,35 +434,35 @@ impl ParserContext {
                         };
 
                         let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::ArrayRangeAccess(ArrayRangeAccessExpression {
+                        expr = Expression::Access(AccessExpression::ArrayRange(ArrayRangeAccess {
                             span: expr.span() + &end,
                             array: Box::new(expr),
                             left: Some(Box::new(left)),
                             right,
-                        });
+                        }));
                     } else {
                         let end = self.expect(Token::RightSquare)?;
-                        expr = Expression::ArrayAccess(ArrayAccessExpression {
+                        expr = Expression::Access(AccessExpression::Array(ArrayAccess {
                             span: expr.span() + &end,
                             array: Box::new(expr),
                             index: Box::new(left),
-                        });
+                        }));
                     }
                 }
                 Token::Dot => {
                     if let Some(ident) = self.eat_identifier() {
-                        expr = Expression::CircuitMemberAccess(CircuitMemberAccessExpression {
+                        expr = Expression::Access(AccessExpression::Member(MemberAccess {
                             span: expr.span() + &ident.span,
-                            circuit: Box::new(expr),
+                            inner: Box::new(expr),
                             name: ident,
                             type_: None,
-                        });
+                        }));
                     } else if let Some((num, span)) = self.eat_int() {
-                        expr = Expression::TupleAccess(TupleAccessExpression {
+                        expr = Expression::Access(AccessExpression::Tuple(TupleAccess {
                             span: expr.span() + &span,
                             tuple: Box::new(expr),
                             index: num,
-                        });
+                        }));
                     } else {
                         let next = self.peek()?;
                         return Err(ParserError::unexpected_str(&next.token, "int or ident", &next.span).into());
@@ -500,11 +491,12 @@ impl ParserContext {
                 }
                 Token::DoubleColon => {
                     let ident = self.expect_ident()?;
-                    expr = Expression::CircuitStaticFunctionAccess(CircuitStaticFunctionAccessExpression {
+                    expr = Expression::Access(AccessExpression::Static(StaticAccess {
                         span: expr.span() + &ident.span,
-                        circuit: Box::new(expr),
+                        inner: Box::new(expr),
+                        type_: None,
                         name: ident,
-                    });
+                    }));
                 }
                 _ => unimplemented!(),
             }
@@ -617,8 +609,8 @@ impl ParserContext {
         let first = self.parse_spread_or_expression()?;
         if self.eat(Token::Semicolon).is_some() {
             let dimensions = self
-                .parse_array_dimensions()?
-                .ok_or_else(|| ParserError::unable_to_parse_array_dimensions(span))?;
+                .parse_array_dimensions()
+                .map_err(|_| ParserError::unable_to_parse_array_dimensions(span))?;
             let end = self.expect(Token::RightSquare)?;
             let first = match first {
                 SpreadOrExpression::Spread(first) => {
@@ -739,10 +731,10 @@ impl ParserContext {
                 };
                 Expression::Identifier(ident)
             }
-            // Token::LengthOf => Expression::LengthOf(LengthOfExpression {
-            //     span,
-            //     inner: Box::new(self.parse_primary_expression()?),
-            // }),
+            t if crate::type_::TYPE_TOKENS.contains(&t) => Expression::Identifier(Identifier {
+                name: t.to_string().into(),
+                span,
+            }),
             token => {
                 return Err(ParserError::unexpected_str(token, "expression", &span).into());
             }

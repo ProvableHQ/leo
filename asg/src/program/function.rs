@@ -19,10 +19,13 @@ use crate::{
 };
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
-use leo_ast::FunctionInput;
+use leo_ast::{FunctionInput, Node};
 use leo_errors::{AsgError, Result, Span};
 
-use std::cell::{Cell, RefCell};
+use std::{
+    cell::{Cell, RefCell},
+    fmt,
+};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum FunctionQualifier {
@@ -41,9 +44,23 @@ pub struct Function<'a> {
     pub circuit: Cell<Option<&'a Circuit<'a>>>,
     pub span: Option<Span>,
     pub body: Cell<Option<&'a Statement<'a>>>,
+    pub core_mapping: RefCell<Option<String>>,
     pub scope: &'a Scope<'a>,
     pub qualifier: FunctionQualifier,
-    pub annotations: Vec<Annotation>,
+    pub annotations: IndexMap<String, Annotation>,
+    pub const_: bool,
+}
+
+impl<'a> fmt::Display for Function<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "ASG Function '{}'", self.name.borrow().name.as_ref())
+    }
+}
+
+impl<'a> fmt::Debug for Function<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        <Self as fmt::Display>::fmt(self, f)
+    }
 }
 
 impl<'a> PartialEq for Function<'a> {
@@ -78,7 +95,7 @@ impl<'a> Function<'a> {
                     FunctionInput::ConstSelfKeyword(_) => {
                         qualifier = FunctionQualifier::ConstSelfRef;
                     }
-                    FunctionInput::MutSelfKeyword(_) => {
+                    FunctionInput::RefSelfKeyword(_) => {
                         qualifier = FunctionQualifier::MutSelfRef;
                     }
                     FunctionInput::Variable(input_variable) => {
@@ -107,15 +124,17 @@ impl<'a> Function<'a> {
         }
         let function = scope.context.alloc_function(Function {
             id: scope.context.get_id(),
+            annotations: value.annotations.clone(),
+            body: Cell::new(None),
+            circuit: Cell::new(None),
+            const_: value.const_,
             name: RefCell::new(value.identifier.clone()),
+            span: Some(value.span.clone()),
+            scope: new_scope,
             output,
             arguments,
-            circuit: Cell::new(None),
-            body: Cell::new(None),
             qualifier,
-            scope: new_scope,
-            span: Some(value.span.clone()),
-            annotations: value.annotations.clone(),
+            core_mapping: value.core_mapping.clone(),
         });
         function.scope.function.replace(Some(function));
 
@@ -140,6 +159,41 @@ impl<'a> Function<'a> {
                 .borrow_mut()
                 .insert("self".to_string(), self_variable);
         }
+
+        if value.is_main() {
+            if let Some((_, annotation)) = value.annotations.first() {
+                return Err(
+                    AsgError::main_cannot_have_annotations(&(&annotation.span + &value.identifier.span)).into(),
+                );
+            }
+        } else {
+            let illegal_annotations = value
+                .annotations
+                .iter()
+                .filter(|(_, annotation)| !annotation.is_valid_annotation());
+            if let Some((name, annotation)) = illegal_annotations.clone().next() {
+                return Err(
+                    AsgError::unsupported_annotation(name, &(&annotation.span + &value.identifier.span)).into(),
+                );
+            }
+        }
+
+        if value.const_ {
+            if value.is_main() {
+                return Err(AsgError::main_cannot_be_const(&value.identifier.span).into());
+            }
+
+            let non_const_input = value.input.iter().find(|a| {
+                a.get_variable()
+                    .map(|v| !v.const_)
+                    .unwrap_or(a.is_mut_self() || (a.is_self() && !a.is_const_self()))
+            });
+
+            if let Some(input) = non_const_input {
+                return Err(AsgError::const_function_cannot_have_inputs(input.span()).into());
+            }
+        }
+
         for (name, argument) in self.arguments.iter() {
             if self.scope.resolve_global_const(name).is_some() {
                 return Err(AsgError::function_input_cannot_shadow_global_const(
@@ -170,7 +224,7 @@ impl<'a> Function<'a> {
     }
 
     pub fn is_test(&self) -> bool {
-        self.annotations.iter().any(|x| x.name.name.as_ref() == "test")
+        self.annotations.contains_key("test")
     }
 }
 
@@ -204,11 +258,13 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
         let output: Type = self.output.clone();
         leo_ast::Function {
             identifier: self.name.borrow().clone(),
+            annotations: self.annotations.clone(),
+            output: Some((&output).into()),
+            const_: self.const_,
             input,
             block: body,
-            output: Some((&output).into()),
+            core_mapping: self.core_mapping.clone(),
             span,
-            annotations: self.annotations.clone(),
         }
     }
 }

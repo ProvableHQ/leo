@@ -17,14 +17,12 @@
 //! The program package zip file.
 
 use crate::{
-    imports::IMPORTS_DIRECTORY_NAME,
-    inputs::{INPUTS_DIRECTORY_NAME, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION},
-    outputs::{
-        CHECKSUM_FILE_EXTENSION, CIRCUIT_FILE_EXTENSION, OUTPUTS_DIRECTORY_NAME, PROOF_FILE_EXTENSION,
-        PROVING_KEY_FILE_EXTENSION, VERIFICATION_KEY_FILE_EXTENSION,
-    },
+    imports::ImportsDirectory,
+    inputs::{InputsDirectory, INPUT_FILE_EXTENSION, STATE_FILE_EXTENSION},
+    outputs::OutputsDirectory,
     root::{MANIFEST_FILENAME, README_FILENAME},
     source::{SOURCE_DIRECTORY_NAME, SOURCE_FILE_EXTENSION},
+    PackageDirectory,
 };
 use leo_errors::{PackageError, Result};
 
@@ -144,8 +142,8 @@ impl ZipFile {
     fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
         let mut path = Cow::from(path);
         if path.is_dir() {
-            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
+            if !path.ends_with(OutputsDirectory::NAME) {
+                path.to_mut().push(OutputsDirectory::NAME);
             }
             path.to_mut()
                 .push(format!("{}{}", self.package_name, ZIP_FILE_EXTENSION));
@@ -157,25 +155,12 @@ impl ZipFile {
 /// Check if the file path should be included in the package zip file.
 fn is_included(path: &Path) -> bool {
     // DO NOT include `imports` and `outputs` directories.
-    if path.starts_with(IMPORTS_DIRECTORY_NAME) || path.starts_with(OUTPUTS_DIRECTORY_NAME) {
-        return false;
-    }
-
-    // excluded extensions: `.in`, `.bytes`, `lpk`, `lvk`, `.proof`, `.sum`, `.zip`, `.bytes`
-    if let Some(true) = path.extension().map(|ext| {
-        ext.eq(ZIP_FILE_EXTENSION.trim_start_matches('.'))
-            | ext.eq(PROVING_KEY_FILE_EXTENSION.trim_start_matches('.'))
-            | ext.eq(VERIFICATION_KEY_FILE_EXTENSION.trim_start_matches('.'))
-            | ext.eq(PROOF_FILE_EXTENSION.trim_start_matches('.'))
-            | ext.eq(CHECKSUM_FILE_EXTENSION.trim_start_matches('.'))
-            | ext.eq(ZIP_FILE_EXTENSION.trim_start_matches('.'))
-            | ext.eq(CIRCUIT_FILE_EXTENSION.trim_start_matches('.'))
-    }) {
+    if path.starts_with(ImportsDirectory::NAME) || path.starts_with(OutputsDirectory::NAME) {
         return false;
     }
 
     // Allow `inputs` folder
-    if path.ends_with(INPUTS_DIRECTORY_NAME.trim_end_matches('/')) {
+    if path.ends_with(InputsDirectory::NAME.trim_end_matches('/')) {
         return true;
     }
 

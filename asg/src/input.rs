@@ -31,6 +31,16 @@ pub struct Input<'a> {
     pub container: &'a Variable<'a>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum InputCategory {
+    MainInput,
+    ConstInput,
+    Register,
+    PublicState,
+    StateRecord,
+    StateLeaf,
+}
+
 pub const CONTAINER_PSEUDO_CIRCUIT: &str = "$InputContainer";
 pub const REGISTERS_PSEUDO_CIRCUIT: &str = "$InputRegister";
 pub const RECORD_PSEUDO_CIRCUIT: &str = "$InputRecord";
@@ -43,7 +53,6 @@ impl<'a> Input<'a> {
             id: scope.context.get_id(),
             name: RefCell::new(Identifier::new(name.into())),
             members: RefCell::new(IndexMap::new()),
-            core_mapping: RefCell::new(None),
             scope,
             span: Some(Span::default()),
         })
@@ -72,7 +81,6 @@ impl<'a> Input<'a> {
             id: scope.context.get_id(),
             name: RefCell::new(Identifier::new(CONTAINER_PSEUDO_CIRCUIT.into())),
             members: RefCell::new(container_members),
-            core_mapping: RefCell::new(None),
             scope: input_scope,
             span: Some(Span::default()),
         });
@@ -103,5 +111,15 @@ impl<'a> Circuit<'a> {
             &*self.name.borrow().name,
             REGISTERS_PSEUDO_CIRCUIT | RECORD_PSEUDO_CIRCUIT | STATE_PSEUDO_CIRCUIT | STATE_LEAF_PSEUDO_CIRCUIT
         )
+    }
+
+    pub fn input_type(&self) -> Option<InputCategory> {
+        match self.name.borrow().name.as_ref() {
+            REGISTERS_PSEUDO_CIRCUIT => Some(InputCategory::Register),
+            RECORD_PSEUDO_CIRCUIT => Some(InputCategory::StateRecord),
+            STATE_PSEUDO_CIRCUIT => Some(InputCategory::PublicState),
+            STATE_LEAF_PSEUDO_CIRCUIT => Some(InputCategory::StateLeaf),
+            _ => None,
+        }
     }
 }

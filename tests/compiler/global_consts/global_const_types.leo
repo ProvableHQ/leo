@@ -19,7 +19,7 @@ const complex_group = (_, 1)group;
 const field_test: field = 2;
 const use_another_const = basic + 1;
 const foo = Foo { width: 10, height: 20 };
-const one = uno();
+// const one = uno();
 const character = 'a';
 const hello = "Hello, World!";
 
@@ -28,9 +28,9 @@ circuit Foo {
     height: u32,
 }
 
-function uno() -> u32 {
-    return 1u32;
-}
+// function uno() -> u32 {
+//     return 1u32;
+// }
 
 function main(a: u32) -> bool {
     let (x, y) = (1u32, 2u32);
@@ -49,7 +49,7 @@ function main(a: u32) -> bool {
         && use_another_const == 9u32 // use another const test
         && foo.width == 10u32 // circuit test
         && foo.height == 20u32
-        && one == 1u32 // function test
+        // && one == 1u32 // function test
         && character == 'a' // char test
         && hello == "Hello, World!";
 }

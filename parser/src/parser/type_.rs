@@ -17,7 +17,7 @@
 use super::*;
 use leo_errors::{ParserError, Result};
 
-const TYPE_TOKENS: &[Token] = &[
+pub(crate) const TYPE_TOKENS: &[Token] = &[
     Token::I8,
     Token::I16,
     Token::I32,
@@ -35,7 +35,7 @@ const TYPE_TOKENS: &[Token] = &[
     Token::Char,
 ];
 
-impl ParserContext {
+impl ParserContext<'_> {
     ///
     /// Returns a [`IntegerType`] AST node if the given token is a supported integer type, or [`None`].
     ///
@@ -58,17 +58,19 @@ impl ParserContext {
     ///
     /// Returns an [`ArrayDimensions`] AST node if the next tokens represent dimensions for an array type.
     ///
-    pub fn parse_array_dimensions(&mut self) -> Result<Option<ArrayDimensions>> {
+    pub fn parse_array_dimensions(&mut self) -> Result<ArrayDimensions> {
         Ok(if let Some((int, _)) = self.eat_int() {
-            Some(ArrayDimensions(vec![int]))
+            ArrayDimensions::Number(int)
         } else if self.eat(Token::Underscore).is_some() {
-            None
+            ArrayDimensions::Unspecified
         } else {
             self.expect(Token::LeftParen)?;
             let mut dimensions = Vec::new();
             loop {
                 if let Some((int, _)) = self.eat_int() {
-                    dimensions.push(int);
+                    dimensions.push(ArrayDimensions::Number(int));
+                } else if self.eat(Token::Underscore).is_some() {
+                    dimensions.push(ArrayDimensions::Unspecified);
                 } else {
                     let token = self.peek()?;
                     return Err(ParserError::unexpected_str(&token.token, "int", &token.span).into());
@@ -78,7 +80,7 @@ impl ParserContext {
                 }
             }
             self.expect(Token::RightParen)?;
-            Some(ArrayDimensions(dimensions))
+            ArrayDimensions::Multi(dimensions)
         })
     }
 

@@ -15,7 +15,8 @@ keywords = [
 categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "leo", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
-edition = "2018"
+edition = "2021"
+rust-version = "1.56"
 
 [lib]
 path = "leo/lib.rs"
@@ -101,6 +102,9 @@ version = "0.7.9"
 default-features = false
 
 [dependencies.snarkvm-utilities]
+version = "0.7.9"
+
+[dependencies.snarkvm-eval]
 version = "0.7.9"
 
 [dependencies.structopt]
@@ -205,3 +209,27 @@ opt-level = 0
 opt-level = 0
 debug-assertions = true
 debug = true
+
+# Remove on pr from staging to master once snarkvm does a release.
+[patch.crates-io]
+snarkvm-algorithms = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-curves = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-dpc = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-eval = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-fields = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-gadgets = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-ir = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-parameters = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-r1cs = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+snarkvm-utilities = { git = "https://github.com/AleoHQ/snarkVM", branch = "master" }
+
+# snarkvm-algorithms = { path = "D:\\Work\\leo_repos\\snarkVM\\algorithms" }
+# snarkvm-curves = { path = "D:\\Work\\leo_repos\\snarkVM\\curves" }
+# snarkvm-dpc = { path = "D:\\Work\\leo_repos\\snarkVM\\dpc" }
+# snarkvm-eval = { path = "D:\\Work\\leo_repos\\snarkVM\\eval" }
+# snarkvm-fields = { path = "D:\\Work\\leo_repos\\snarkVM\\fields" }
+# snarkvm-gadgets = { path = "D:\\Work\\leo_repos\\snarkVM\\gadgets" }
+# snarkvm-ir = { path = "D:\\Work\\leo_repos\\snarkVM\\ir" }
+# snarkvm-parameters = { path = "D:\\Work\\leo_repos\\snarkVM\\parameters" }
+# snarkvm-r1cs = { path = "D:\\Work\\leo_repos\\snarkVM\\r1cs" }
+# snarkvm-utilities = { path = "D:\\Work\\leo_repos\\snarkVM\\utilities" }

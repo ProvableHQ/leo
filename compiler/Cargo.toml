@@ -15,7 +15,8 @@ keywords = [
 categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
-edition = "2018"
+edition = "2021"
+rust-version = "1.56"
 
 [dependencies.leo-ast]
 path = "../ast"
@@ -24,6 +25,10 @@ version = "1.5.3"
 [dependencies.leo-errors]
 path = "../errors"
 version = "1.5.3"
+
+[dependencies.eyre]
+version = "0.6.5"
+default-features = false
 
 [dependencies.leo-imports]
 path = "../imports"
@@ -39,6 +44,10 @@ version = "1.5.3"
 
 [dependencies.leo-state]
 path = "../state"
+version = "1.5.3"
+
+[dependencies.leo-stdlib]
+path = "../stdlib"
 version = "1.5.3"
 
 [dependencies.leo-asg]
@@ -64,28 +73,16 @@ version = "1.5.3"
 [dependencies.tendril]
 version = "0.4"
 
-[dependencies.snarkvm-curves]
+[dependencies.snarkvm-ir]
 version = "0.7.9"
-default-features = false
-
-[dependencies.snarkvm-fields]
-version = "0.7.9"
-default-features = false
-
-[dependencies.snarkvm-dpc]
-version = "0.7.9"
-default-features = false
-
-[dependencies.snarkvm-gadgets]
-version = "0.7.9"
-default-features = false
-features = [ "curves" ]
 
 [dependencies.snarkvm-r1cs]
 version = "0.7.9"
-default-features = false
 
-[dependencies.snarkvm-utilities]
+[dependencies.snarkvm-eval]
+version = "0.7.9"
+
+[dependencies.snarkvm-curves]
 version = "0.7.9"
 
 [dependencies.bincode]
@@ -114,7 +111,10 @@ version = "0.9"
 [dependencies.tracing]
 version = "0.1"
 
-[dev-dependencies.num-bigint]
+[dependencies.bech32]
+version = "0.8"
+
+[dependencies.num-bigint]
 version = "0.4"
 
 [dev-dependencies.rand_core]
@@ -122,10 +122,6 @@ version = "0.6.3"
 
 [dev-dependencies.rand_xorshift]
 version = "0.3"
-default-features = false
-
-[dev-dependencies.snarkvm-algorithms]
-version = "0.7.6"
 default-features = false
 
 [dev-dependencies.tempfile]

@@ -20,6 +20,7 @@ use leo_errors::{CliError, Result};
 use leo_package::{
     outputs::OutputsDirectory,
     root::{ZipFile, AUTHOR_PLACEHOLDER},
+    PackageDirectory,
 };
 use leo_parser::KEYWORD_TOKENS;
 
@@ -30,19 +31,19 @@ use structopt::StructOpt;
 #[structopt(setting = structopt::clap::AppSettings::ColoredHelp)]
 pub struct Publish {}
 
-impl Command for Publish {
-    type Input = <Build as Command>::Output;
+impl<'a> Command<'a> for Publish {
+    type Input = <Build as Command<'a>>::Output;
     type Output = String;
 
     /// Build program before publishing
-    fn prelude(&self, context: Context) -> Result<Self::Input> {
+    fn prelude(&self, context: Context<'a>) -> Result<Self::Input> {
         (Build {
             compiler_options: Default::default(),
         })
         .execute(context)
     }
 
-    fn apply(self, context: Context, _input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _input: Self::Input) -> Result<Self::Output> {
         // Get the package manifest
         let path = context.dir()?;
         let manifest = context.manifest()?;

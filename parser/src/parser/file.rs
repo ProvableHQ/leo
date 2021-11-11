@@ -22,7 +22,7 @@ use crate::KEYWORD_TOKENS;
 
 use super::*;
 
-impl ParserContext {
+impl ParserContext<'_> {
     ///
     /// Returns a [`Program`] AST if all tokens can be consumed and represent a valid Leo program.
     ///
@@ -41,42 +41,39 @@ impl ParserContext {
                     import_statements.push(self.parse_import_statement()?);
                 }
                 Token::Circuit => {
+                    self.expect(Token::Circuit)?;
                     let (id, circuit) = self.parse_circuit()?;
                     circuits.insert(id, circuit);
                 }
-                Token::Function | Token::At => {
+                Token::Ident(ident) => match ident.as_ref() {
+                    "test" => return Err(ParserError::test_function(&token.span).into()),
+                    kw @ ("struct" | "class") => {
+                        self.handler
+                            .emit_err(ParserError::unexpected(kw, "circuit", &token.span).into());
+                        self.bump().unwrap();
+                        let (id, circuit) = self.parse_circuit()?;
+                        circuits.insert(id, circuit);
+                    }
+                    _ => return Err(Self::unexpected_item(token).into()),
+                },
+                // Const functions share the first token with the global Const.
+                Token::Const if self.peek_is_function()? => {
                     let (id, function) = self.parse_function_declaration()?;
                     functions.insert(id, function);
-                }
-                Token::Ident(ident) if ident.as_ref() == "test" => {
-                    return Err(ParserError::test_function(&token.span).into());
                 }
                 Token::Const => {
                     let (name, global_const) = self.parse_global_const_declaration()?;
                     global_consts.insert(name, global_const);
                 }
+                Token::Function | Token::At => {
+                    let (id, function) = self.parse_function_declaration()?;
+                    functions.insert(id, function);
+                }
                 Token::Type => {
                     let (name, alias) = self.parse_type_alias()?;
                     aliases.insert(name, alias);
                 }
-                _ => {
-                    return Err(ParserError::unexpected(
-                        &token.token,
-                        [
-                            Token::Import,
-                            Token::Circuit,
-                            Token::Function,
-                            Token::Ident("test".into()),
-                            Token::At,
-                        ]
-                        .iter()
-                        .map(|x| format!("'{}'", x))
-                        .collect::<Vec<_>>()
-                        .join(", "),
-                        &token.span,
-                    )
-                    .into());
-                }
+                _ => return Err(Self::unexpected_item(token).into()),
             }
         }
         Ok(Program {
@@ -89,6 +86,24 @@ impl ParserContext {
             functions,
             global_consts,
         })
+    }
+
+    fn unexpected_item(token: &SpannedToken) -> ParserError {
+        ParserError::unexpected(
+            &token.token,
+            [
+                Token::Import,
+                Token::Circuit,
+                Token::Function,
+                Token::Ident("test".into()),
+                Token::At,
+            ]
+            .iter()
+            .map(|x| format!("'{}'", x))
+            .collect::<Vec<_>>()
+            .join(", "),
+            &token.span,
+        )
     }
 
     ///
@@ -317,34 +332,49 @@ impl ParserContext {
     ///
     pub fn parse_circuit_declaration(&mut self) -> Result<Vec<CircuitMember>> {
         let mut members = Vec::new();
+        // If Circuit is empty, exit.
+        if self.eat(Token::RightCurly).is_some() {
+            return Ok(members);
+        }
+
         let peeked = &self.peek()?.token;
-        let mut last_variable = peeked == &Token::Function || peeked == &Token::At;
+        let mut last_constant = matches!(peeked, &Token::Ident(_)) || self.peek_is_function()?;
+        let mut last_variable = self.peek_is_function()?;
         let (mut semi_colons, mut commas) = (false, false);
         while self.eat(Token::RightCurly).is_none() {
-            if !last_variable {
-                let (variable, last) = self.parse_member_variable_declaration()?;
+            if !last_constant {
+                let (const_, last_const, last_var) = self.parse_const_member_variable_declaration()?;
+                members.push(const_);
+
+                // If it is the last constant update the varaible so we no longer expect consts.
+                if last_const {
+                    last_constant = last_const;
+                }
+                // If there is no variable after the constant update the variable so we don't expect any variables.
+                if last_var {
+                    last_variable = last_var;
+                }
+            } else if !last_variable {
+                let variable = self.parse_member_variable_declaration()?;
 
                 members.push(variable);
 
-                let peeked = &self.peek()?;
-                if peeked.token == Token::Semicolon {
+                if let Some(semi) = self.eat(Token::Semicolon) {
                     if commas {
-                        return Err(ParserError::mixed_commas_and_semicolons(&peeked.span).into());
+                        return Err(ParserError::mixed_commas_and_semicolons(&semi.span).into());
                     }
-
                     semi_colons = true;
-                    self.expect(Token::Semicolon)?;
-                } else {
-                    if semi_colons {
-                        return Err(ParserError::mixed_commas_and_semicolons(&peeked.span).into());
-                    }
-
-                    commas = true;
-                    self.eat(Token::Comma);
                 }
 
-                if last {
-                    last_variable = last;
+                if let Some(comma) = self.eat(Token::Comma) {
+                    if semi_colons {
+                        return Err(ParserError::mixed_commas_and_semicolons(&comma.span).into());
+                    }
+                    commas = true;
+                }
+
+                if self.peek_token().as_ref() != &Token::RightCurly {
+                    last_variable = self.peek_is_function()?;
                 }
             } else {
                 let function = self.parse_member_function_declaration()?;
@@ -355,35 +385,50 @@ impl ParserContext {
         Ok(members)
     }
 
-    ///
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
-    ///
-    pub fn parse_member_variable_declaration(&mut self) -> Result<(CircuitMember, bool)> {
+    fn parse_typed_field_name(&mut self) -> Result<(Identifier, Type)> {
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
         let type_ = self.parse_type()?.0;
 
-        let peeked = &self.peek()?.token;
-        if peeked == &Token::Function || peeked == &Token::At || peeked == &Token::RightCurly {
-            return Ok((CircuitMember::CircuitVariable(name, type_), true));
-        } else if peeked == &Token::Comma || peeked == &Token::Semicolon {
-            let peeked = &self.peek_next()?.token;
-            if peeked == &Token::Function || peeked == &Token::At || peeked == &Token::RightCurly {
-                return Ok((CircuitMember::CircuitVariable(name, type_), true));
-            }
-        }
+        Ok((name, type_))
+    }
 
-        Ok((CircuitMember::CircuitVariable(name, type_), false))
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
+    pub fn parse_const_member_variable_declaration(&mut self) -> Result<(CircuitMember, bool, bool)> {
+        self.expect(Token::Static)?;
+        self.expect(Token::Const)?;
+
+        let (name, type_) = self.parse_typed_field_name()?;
+
+        self.expect(Token::Assign)?;
+        let literal = self.parse_primary_expression()?;
+        self.expect(Token::Semicolon)?;
+        let peeked = &self.peek()?.token;
+        // check if we just grabbed the last variable.
+        let last_variable = self.peek_is_function()?;
+
+        Ok((
+            CircuitMember::CircuitConst(name, type_, literal),
+            matches!(peeked, &Token::Ident(_)) || last_variable,
+            last_variable,
+        ))
     }
 
     ///
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
     ///
+    pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+        let (name, type_) = self.parse_typed_field_name()?;
+
+        Ok(CircuitMember::CircuitVariable(name, type_))
+    }
+
+    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
     pub fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
         let peeked = self.peek()?.clone();
-        if peeked.token == Token::Function || peeked.token == Token::At {
+        if self.peek_is_function()? {
             let function = self.parse_function_declaration()?;
-            Ok(CircuitMember::CircuitFunction(function.1))
+            Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
         } else {
             return Err(ParserError::unexpected(
                 &peeked.token,
@@ -403,8 +448,18 @@ impl ParserContext {
     /// circuit name and definition statement.
     ///
     pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
-        self.expect(Token::Circuit)?;
-        let name = self.expect_ident()?;
+        let name = if let Some(ident) = self.eat_identifier() {
+            ident
+        } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
+            Identifier {
+                name: scalar_type.token.to_string().into(),
+                span: scalar_type.span,
+            }
+        } else {
+            let next = self.peek()?;
+            return Err(ParserError::unexpected_str(&next.token, "ident", &next.span).into());
+        };
+
         self.expect(Token::LeftCurly)?;
         let members = self.parse_circuit_declaration()?;
 
@@ -412,7 +467,6 @@ impl ParserContext {
             name.clone(),
             Circuit {
                 circuit_name: name,
-                core_mapping: std::cell::RefCell::new(None),
                 members,
             },
         ))
@@ -424,6 +478,7 @@ impl ParserContext {
     pub fn parse_function_parameters(&mut self) -> Result<FunctionInput> {
         let const_ = self.eat(Token::Const);
         let mutable = self.eat(Token::Mut);
+        let reference = self.eat(Token::Ampersand);
         let mut name = if let Some(token) = self.eat(Token::LittleSelf) {
             Identifier {
                 name: token.token.to_string().into(),
@@ -434,10 +489,12 @@ impl ParserContext {
         };
         if name.name.as_ref() == "self" {
             if let Some(mutable) = &mutable {
-                // Handle `mut self`.
-                name.span = &mutable.span + &name.span;
-                name.name = "mut self".to_string().into();
-                return Ok(FunctionInput::MutSelfKeyword(MutSelfKeyword { identifier: name }));
+                self.handler
+                    .emit_err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)).into());
+                return Ok(Self::build_ref_self(name, mutable));
+            } else if let Some(reference) = &reference {
+                // Handle `&self`.
+                return Ok(Self::build_ref_self(name, reference));
             } else if let Some(const_) = &const_ {
                 // Handle `const self`.
                 name.span = &const_.span + &name.span;
@@ -449,7 +506,8 @@ impl ParserContext {
         }
 
         if let Some(mutable) = &mutable {
-            return Err(ParserError::mut_function_input(&(&mutable.span + &name.span)).into());
+            self.handler
+                .emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)).into());
         }
 
         self.expect(Token::Colon)?;
@@ -463,17 +521,29 @@ impl ParserContext {
         }))
     }
 
+    /// Builds a function parameter `&self`.
+    fn build_ref_self(mut name: Identifier, reference: &SpannedToken) -> FunctionInput {
+        name.span = &reference.span + &name.span;
+        name.name = "&self".to_string().into();
+        FunctionInput::RefSelfKeyword(RefSelfKeyword { identifier: name })
+    }
+
     ///
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
     ///
     pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
-        let mut annotations = Vec::new();
+        let mut annotations = IndexMap::new();
         while self.peek_token().as_ref() == &Token::At {
-            annotations.push(self.parse_annotation()?);
+            let annotation = self.parse_annotation()?;
+            annotations.insert(annotation.name.name.to_string(), annotation);
         }
+
+        // Eat const modifier or get false.
+        let const_ = self.eat(Token::Const).is_some();
         let start = self.expect(Token::Function)?;
         let name = self.expect_ident()?;
+
         self.expect(Token::LeftParen)?;
         let mut inputs = Vec::new();
         while self.eat(Token::RightParen).is_none() {
@@ -496,9 +566,11 @@ impl ParserContext {
                 annotations,
                 identifier: name,
                 input: inputs,
+                const_,
                 output,
                 span: start + block.span.clone(),
                 block,
+                core_mapping: std::cell::RefCell::new(None),
             },
         ))
     }

@@ -69,6 +69,21 @@ macro_rules! record_input_section {
             pub fn values(&self) -> IndexMap<Parameter, Option<InputValue>> {
                 self.values.clone()
             }
+
+            /// a list of all defined name -> type pairs
+            pub fn types(&self) -> Vec<(String, crate::Type)> {
+                self.values.iter()
+                    .map(|(parameter, _)| (parameter.variable.name.to_string(), parameter.type_.clone()))
+                    .collect()
+            }
+
+            /// a map of all defined name -> value pairs, if present
+            pub fn raw_values(&self) -> IndexMap<String, InputValue> {
+                self.values.iter()
+                    .filter(|(_, value)| value.is_some())
+                    .map(|(parameter, value)| (parameter.variable.name.to_string(), value.as_ref().unwrap().clone()))
+                    .collect()
+            }
         }
     )*)
 }
@@ -126,6 +141,10 @@ macro_rules! main_input_section {
             /// Returns an `Option` of the main function input at `name`.
             pub fn get(&self, name: &str) -> Option<Option<InputValue>> {
                 self.input.get(name).cloned()
+            }
+
+            pub fn iter(&self) -> impl Iterator<Item=(&String, &Option<InputValue>)> {
+                self.input.iter()
             }
         }
     )*)

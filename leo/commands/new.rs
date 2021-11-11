@@ -30,7 +30,7 @@ pub struct New {
     name: String,
 }
 
-impl Command for New {
+impl<'a> Command<'a> for New {
     type Input = ();
     type Output = ();
 
@@ -38,11 +38,11 @@ impl Command for New {
         tracing::span!(tracing::Level::INFO, "New")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, context: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         // Check that the given package name is valid.
         let package_name = self.name;
         if !LeoPackage::is_package_name_valid(&package_name) {

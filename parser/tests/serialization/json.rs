@@ -17,7 +17,7 @@
 use leo_ast::Ast;
 #[cfg(not(feature = "ci_skip"))]
 use leo_ast::Program;
-use leo_errors::{LeoError, Result};
+use leo_errors::{emitter::Handler, LeoError, Result};
 
 use std::fs::File;
 use std::io::BufReader;
@@ -28,7 +28,7 @@ fn to_ast(program_filepath: &Path) -> Result<Ast> {
     let program_string = std::fs::read_to_string(program_filepath).expect("failed to open test");
 
     // Parses the Leo file and constructs a leo ast.
-    leo_parser::parse_ast("", &program_string)
+    leo_parser::parse_ast(&Handler::default(), "", &program_string)
 }
 
 fn setup() {

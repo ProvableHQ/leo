@@ -7,9 +7,9 @@ circuit Foo {
 }
 
 function main() {
-    const a = Foo { foo: 1 };
+    let a = Foo { foo: 1 };
 
-    const b = a.foo + Foo::bar();
+    let b = a.foo + Foo::bar();
 
     console.assert(b == 2u32);
 }

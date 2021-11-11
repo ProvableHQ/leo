@@ -42,13 +42,13 @@ fn test_circuit() {
 
 #[test]
 fn test_circuit_function_mut() {
-    let program_string = include_str!("circuit_function_mut.leo");
+    let program_string = include_str!("circuit_function_mutate.leo");
     load_asg(program_string).err().unwrap();
 }
 
 #[test]
 fn test_circuit_static_function_mut() {
-    let program_string = include_str!("circuit_static_function_mut.leo");
+    let program_string = include_str!("circuit_static_function_mutate.leo");
     load_asg(program_string).err().unwrap();
 }
 

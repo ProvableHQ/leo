@@ -31,17 +31,21 @@ pub enum Type<'a> {
     Integer(IntegerType),
 
     // Data type wrappers
-    Array(Box<Type<'a>>, usize),
+    Array(Box<Type<'a>>, u32),
     ArrayWithoutSize(Box<Type<'a>>),
     Tuple(Vec<Type<'a>>),
     Circuit(&'a Circuit<'a>),
+
+    /// Placeholder for a type that could not be resolved or was not well-formed.
+    /// Will eventually lead to a compile error.
+    Err,
 }
 
 #[derive(Clone, PartialEq)]
 pub enum PartialType<'a> {
     Type(Type<'a>),                                    // non-array or tuple
     Integer(Option<IntegerType>, Option<IntegerType>), // specific, context-specific
-    Array(Option<Box<PartialType<'a>>>, Option<usize>),
+    Array(Option<Box<PartialType<'a>>>, Option<u32>),
     Tuple(Vec<Option<PartialType<'a>>>),
 }
 
@@ -151,6 +155,7 @@ impl<'a> fmt::Display for Type<'a> {
             Type::Char => write!(f, "char"),
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
+            Type::Err => write!(f, "error"),
             Type::Integer(sub_type) => sub_type.fmt(f),
             Type::Array(sub_type, len) => write!(f, "[{}; {}]", sub_type, len),
             Type::ArrayWithoutSize(sub_type) => write!(f, "[{}; _]", sub_type),
@@ -166,6 +171,12 @@ impl<'a> fmt::Display for Type<'a> {
             }
             Type::Circuit(circuit) => write!(f, "{}", &circuit.name.borrow().name),
         }
+    }
+}
+
+impl<'a> fmt::Debug for Type<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        <Self as fmt::Display>::fmt(self, f)
     }
 }
 
@@ -221,13 +232,16 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
             Integer(int_type) => leo_ast::Type::IntegerType(int_type.clone()),
             Array(type_, len) => leo_ast::Type::Array(
                 Box::new(type_.as_ref().into()),
-                Some(leo_ast::ArrayDimensions(vec![leo_ast::PositiveNumber {
+                leo_ast::ArrayDimensions::Multi(vec![leo_ast::ArrayDimensions::Number(leo_ast::PositiveNumber {
                     value: len.to_string().into(),
-                }])),
+                })]),
             ),
-            ArrayWithoutSize(type_) => leo_ast::Type::Array(Box::new(type_.as_ref().into()), None),
+            ArrayWithoutSize(type_) => {
+                leo_ast::Type::Array(Box::new(type_.as_ref().into()), leo_ast::ArrayDimensions::Unspecified)
+            }
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),
             Circuit(circuit) => leo_ast::Type::Identifier(circuit.name.borrow().clone()),
+            Err => leo_ast::Type::Err,
         }
     }
 }

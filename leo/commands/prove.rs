@@ -17,7 +17,7 @@
 use super::{build::BuildOptions, setup::Setup};
 use crate::{commands::Command, context::Context};
 use leo_errors::{CliError, Result, SnarkVMError};
-use leo_package::outputs::ProofFile;
+use leo_package::{outputs::ProofFile, PackageFile};
 use snarkvm_algorithms::{
     snark::groth16::{Groth16, PreparedVerifyingKey, Proof},
     traits::SNARK,
@@ -40,15 +40,15 @@ pub struct Prove {
     pub(crate) compiler_options: BuildOptions,
 }
 
-impl Command for Prove {
-    type Input = <Setup as Command>::Output;
+impl<'a> Command<'a> for Prove {
+    type Input = <Setup as Command<'a>>::Output;
     type Output = (Proof<Bls12_377>, PreparedVerifyingKey<Bls12_377>);
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Proving")
     }
 
-    fn prelude(&self, context: Context) -> Result<Self::Input> {
+    fn prelude(&self, context: Context<'a>) -> Result<Self::Input> {
         (Setup {
             skip_key_check: self.skip_key_check,
             compiler_options: self.compiler_options.clone(),
@@ -56,7 +56,7 @@ impl Command for Prove {
         .execute(context)
     }
 
-    fn apply(self, context: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, context: Context<'a>, input: Self::Input) -> Result<Self::Output> {
         let (program, parameters, prepared_verifying_key) = input;
 
         // Get the package name
@@ -73,7 +73,7 @@ impl Command for Prove {
         // Write the proof file to the output directory
         let mut proof = vec![];
         program_proof.write_le(&mut proof).map_err(CliError::cli_io_error)?;
-        ProofFile::new(&package_name).write_to(&path, &proof)?;
+        ProofFile::new(&package_name).write_to(&path, &proof[..])?;
 
         Ok((program_proof, prepared_verifying_key))
     }

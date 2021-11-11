@@ -16,43 +16,19 @@
 
 //! Enforces an assert equals statement in a compiled Leo program.
 
-use crate::{get_indicator_value, program::ConstrainedProgram, value::ConstrainedValue, GroupType};
+use crate::program::Program;
 use leo_asg::Expression;
-use leo_errors::{CompilerError, Result, Span};
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, PredicateData};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::boolean::Boolean;
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
-    pub fn evaluate_console_assert<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        indicator: &Boolean,
-        expression: &'a Expression<'a>,
-        span: &Span,
-    ) -> Result<()> {
+impl<'a> Program<'a> {
+    pub fn evaluate_console_assert(&mut self, expression: &'a Expression<'a>) -> Result<()> {
         // Evaluate assert expression
-        let assert_expression = self.enforce_expression(cs, expression)?;
+        let assert_expression = self.enforce_expression(expression)?;
 
-        // If the indicator bit is false, do not evaluate the assertion
-        // This is okay since we are not enforcing any constraints
-        if !get_indicator_value(indicator) {
-            return Ok(()); // Continue execution.
-        }
-
-        // Unwrap assertion value and handle errors
-        let result_option = match assert_expression {
-            ConstrainedValue::Boolean(boolean) => boolean.get_value(),
-            _ => {
-                return Err(CompilerError::console_assertion_must_be_boolean(span).into());
-            }
-        };
-        let result_bool = result_option.ok_or_else(|| CompilerError::console_assertion_depends_on_input(span))?;
-
-        if !result_bool {
-            return Err(CompilerError::console_assertion_failed(span).into());
-        }
+        self.emit(Instruction::Assert(PredicateData {
+            values: vec![assert_expression],
+        }));
 
         Ok(())
     }

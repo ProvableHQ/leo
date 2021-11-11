@@ -22,6 +22,7 @@ pub mod config;
 pub mod context;
 pub mod logger;
 pub mod updater;
+pub mod wrapper;
 
 #[cfg(test)]
 mod tests;

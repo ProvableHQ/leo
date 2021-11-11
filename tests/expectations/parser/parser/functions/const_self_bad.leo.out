@@ -11,11 +11,13 @@ outputs:
     global_consts: {}
     functions:
       "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const self) {\\\"}\"}":
-        annotations: []
+        annotations: {}
         identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const self) {\\\"}\"}"
         input:
           - ConstSelfKeyword: "{\"name\":\"const self\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":12,\\\"col_stop\\\":22,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function x(const self) {\\\"}\"}"
+        const_: false
         output: ~
+        core_mapping: ~
         block:
           statements:
             - Return:
