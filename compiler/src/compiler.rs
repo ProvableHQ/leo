@@ -542,14 +542,11 @@ impl<'a, 'b> Compiler<'a, 'b> {
                 value.parse().map_err(|_| AsgError::invalid_int(value, span))?,
             )),
             (Type::Array(inner, len), InputValue::Array(values)) => {
-                if values.len() != len.unwrap() as usize {
-                    return Err(CompilerError::invalid_input_array_dimensions(
-                        len.unwrap() as usize,
-                        values.len(),
-                        span,
-                    )
-                    .into());
+                let len = len.ok_or_else(|| CompilerError::input_array_size_must_be_specified(span))?;
+                if values.len() != len as usize {
+                    return Err(CompilerError::invalid_input_array_dimensions(len, values.len(), span).into());
                 }
+
                 let mut out = Vec::with_capacity(values.len());
                 for value in values {
                     out.push(Self::process_input_value(value, &**inner, span)?);

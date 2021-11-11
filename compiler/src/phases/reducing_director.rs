@@ -75,9 +75,9 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 if self.options.type_inference_enabled() {
                     AstType::Array(
                         Box::new(self.reduce_type(ast_type, asg_type, span)?),
-                        Some(ArrayDimensions(vec![PositiveNumber {
+                        ArrayDimensions::Number(PositiveNumber {
                             value: StrTendril::from(format!("{}", asg_dimensions)),
-                        }])),
+                        }),
                     )
                 } else {
                     AstType::Array(

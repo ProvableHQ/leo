@@ -198,21 +198,19 @@ impl<'a> Scope<'a> {
             leo_ast::Type::Err => Type::Err,
             leo_ast::Type::IntegerType(int_type) => Type::Integer(int_type.clone()),
             leo_ast::Type::Array(sub_type, dimensions) => {
-                let mut item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
+                let item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
 
-                if let Some(dimensions) = dimensions {
-                    for dimension in dimensions.0.iter().rev() {
-                        let dimension = dimension
-                            .value
+                use leo_ast::ArrayDimensions::*;
+                match dimensions {
+                    Unspecified => Type::ArrayWithoutSize(item),
+                    Number(num) => Type::Array(
+                        item,
+                        num.to_string()
                             .parse::<u32>()
-                            .map_err(|_| AsgError::parse_index_error(span))?;
-                        item = Box::new(Type::Array(item, dimension));
-                    }
-                } else {
-                    item = Box::new(Type::ArrayWithoutSize(item));
+                            .map_err(|_| AsgError::parse_index_error(span))?,
+                    ),
+                    Multi(_) => unimplemented!("multi array type should not exist at asg level"),
                 }
-
-                *item
             }
             leo_ast::Type::Tuple(sub_types) => Type::Tuple(
                 sub_types

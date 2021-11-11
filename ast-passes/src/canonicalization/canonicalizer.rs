@@ -522,35 +522,31 @@ impl ReconstructingReducer for Canonicalizer {
     }
 
     fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type> {
-        match new {
-            Type::Array(type_, dimensions) => {
-                if let Some(mut dimensions) = dimensions {
-                    if dimensions.is_zero() {
-                        return Err(AstError::invalid_array_dimension_size(span).into());
-                    }
+        match new.clone() {
+            Type::Array(type_, array_dimensions) => {
+                // The goal of this part is to reduce `ArrayDimensions::Multi` into nested Array type.
+                Ok(match &array_dimensions {
+                    ArrayDimensions::Unspecified | ArrayDimensions::Number(_) => Type::Array(type_, array_dimensions),
 
-                    let mut next = Type::Array(type_, Some(ArrayDimensions(vec![dimensions.remove_last().unwrap()])));
-                    let mut array = next.clone();
+                    // Only canonicalize multidimensional Arrays
+                    ArrayDimensions::Multi(dimensions) => {
+                        let mut iter = dimensions.iter().rev();
 
-                    loop {
-                        if dimensions.is_empty() {
-                            break;
+                        // Get the last Array dimension to place it inside others.
+                        if let Some(last) = iter.next() {
+                            let mut prev = Type::Array(type_, last.clone());
+                            for next in iter {
+                                prev = Type::Array(Box::new(prev), next.clone());
+                            }
+                            prev
+                        } else {
+                            Type::Array(type_, array_dimensions)
                         }
-
-                        array = Type::Array(
-                            Box::new(next),
-                            Some(ArrayDimensions(vec![dimensions.remove_last().unwrap()])),
-                        );
-                        next = array.clone();
                     }
-
-                    Ok(array)
-                } else {
-                    Ok(Type::Array(type_, None))
-                }
+                })
             }
             Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
-            _ => Ok(new.clone()),
+            _ => Ok(new),
         }
     }
 
@@ -619,40 +615,40 @@ impl ReconstructingReducer for Canonicalizer {
         }
 
         let element = Box::new(element);
+        let mut dimensions = array_init.dimensions.flatten();
 
-        if array_init.dimensions.0.len() == 1 {
+        if dimensions.len() == 1 {
             return Ok(ArrayInitExpression {
                 element,
-                dimensions: array_init.dimensions.clone(),
+                dimensions: dimensions.get(0).unwrap().clone(),
                 span: array_init.span.clone(),
             });
-        }
-
-        let mut dimensions = array_init.dimensions.clone();
+        };
 
         let mut next = Expression::ArrayInit(ArrayInitExpression {
             element,
-            dimensions: ArrayDimensions(vec![dimensions.remove_last().unwrap()]),
+            dimensions: dimensions.pop().unwrap(),
             span: array_init.span.clone(),
         });
 
         let mut outer_element = Box::new(next.clone());
-        for (index, dimension) in dimensions.0.iter().rev().enumerate() {
-            if index == dimensions.0.len() - 1 {
+        for (index, dimension) in dimensions.iter().rev().enumerate() {
+            if index == dimensions.len() - 1 {
                 break;
             }
 
             next = Expression::ArrayInit(ArrayInitExpression {
                 element: outer_element,
-                dimensions: ArrayDimensions(vec![dimension.clone()]),
+                dimensions: dimension.clone(),
                 span: array_init.span.clone(),
             });
+
             outer_element = Box::new(next.clone());
         }
 
         Ok(ArrayInitExpression {
             element: outer_element,
-            dimensions: ArrayDimensions(vec![dimensions.remove_first().unwrap()]),
+            dimensions: dimensions.remove(0),
             span: array_init.span.clone(),
         })
     }

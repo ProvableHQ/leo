@@ -1231,6 +1231,7 @@ dependencies = [
  "criterion",
  "indexmap",
  "leo-ast",
+ "leo-ast-passes",
  "leo-errors",
  "leo-parser",
  "num-bigint",

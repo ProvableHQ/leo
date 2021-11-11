@@ -312,4 +312,12 @@ create_errors!(
         msg: format!("Tried to assign to static member `{}`", member),
         help: None,
     }
+
+    /// For when arrays with unspecified size are used in main.
+    @formatted
+    input_array_size_must_be_specified {
+        args: (),
+        msg: "arrays in main function input must have known size",
+        help: None,
+    }
 );
