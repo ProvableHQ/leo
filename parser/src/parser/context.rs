@@ -207,10 +207,8 @@ impl<'a> ParserContext<'a> {
         })
     }
 
-    ///
     /// Returns `true` if the next token is Function or if it is a Const followed by Function.
     /// Returns `false` otherwise.
-    ///
     pub fn peek_is_function(&self) -> Result<bool> {
         let first = &self.peek()?.token;
         let next = if self.tokens.len() >= 2 {
@@ -218,10 +216,10 @@ impl<'a> ParserContext<'a> {
         } else {
             return Ok(false);
         };
-        let is_func =
-            first == &Token::Function || first == &Token::At || (first == &Token::Const && next == &Token::Function);
-
-        Ok(is_func)
+        Ok(matches!(
+            (first, next),
+            (Token::Function | Token::At, _) | (Token::Const, Token::Function)
+        ))
     }
 
     ///
