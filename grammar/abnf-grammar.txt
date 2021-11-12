@@ -685,8 +685,7 @@ array-type = "[" type ";" array-type-dimensions "]"
 array-type-dimension = natural / "_"
 
 array-type-dimensions = array-type-dimension
-                      / "(" array-type-dimension
-                            *( "," array-type-dimension ) ")"
+                      / "(" array-type-dimension *( "," array-type-dimension ) [","] ")"
 
 ; The keyword `Self` denotes the enclosing circuit type.
 ; It is only allowed inside a circuit type declaration.

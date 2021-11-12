@@ -159,50 +159,6 @@ impl ParserContext<'_> {
         Ok(out)
     }
 
-    /// Parses a list of `T`s using `inner`
-    /// The opening and closing delimiters are `bra` and `ket`,
-    /// and elements in the list are separated by `sep`.
-    /// When `(list, true)` is returned, `sep` was a terminator.
-    fn parse_list<T>(
-        &mut self,
-        open: Token,
-        close: Token,
-        sep: Token,
-        mut inner: impl FnMut(&mut Self) -> Result<Option<T>>,
-    ) -> Result<(Vec<T>, bool, Span)> {
-        let mut list = Vec::new();
-        let mut trailing = false;
-
-        // Parse opening delimiter.
-        self.expect(open)?;
-
-        while self.peek()?.token != close {
-            // Parse the element. We allow inner parser recovery through the `Option`.
-            if let Some(elem) = inner(self)? {
-                list.push(elem);
-            }
-
-            // Parse the separator.
-            if self.eat(sep.clone()).is_none() {
-                trailing = false;
-                break;
-            }
-        }
-
-        // Parse closing delimiter.
-        let end_span = self.expect(close)?;
-
-        Ok((list, trailing, end_span))
-    }
-
-    /// Parse a list separated by `,` and delimited by parens.
-    fn parse_paren_comma_list<T>(
-        &mut self,
-        f: impl FnMut(&mut Self) -> Result<Option<T>>,
-    ) -> Result<(Vec<T>, bool, Span)> {
-        self.parse_list(Token::LeftParen, Token::RightParen, Token::Comma, f)
-    }
-
     ///
     /// Returns a [`PackageAccess`] AST node if the next tokens represent a package access expression
     /// within an import statement.
