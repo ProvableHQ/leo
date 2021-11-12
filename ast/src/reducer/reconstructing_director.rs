@@ -110,7 +110,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         let left = self.reduce_expression(&binary.left)?;
         let right = self.reduce_expression(&binary.right)?;
 
-        self.reducer.reduce_binary(binary, left, right, binary.op.clone())
+        self.reducer.reduce_binary(binary, left, right, binary.op)
     }
 
     pub fn reduce_unary(&mut self, unary: &UnaryExpression) -> Result<UnaryExpression> {

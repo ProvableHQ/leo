@@ -223,7 +223,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
         Ok(BinaryExpression {
             parent: Cell::new(None),
             span: Some(value.span.clone()),
-            operation: value.op.clone(),
+            operation: value.op,
             left: Cell::new(left),
             right: Cell::new(right),
         })
@@ -233,7 +233,7 @@ impl<'a> FromAst<'a, leo_ast::BinaryExpression> for BinaryExpression<'a> {
 impl<'a> Into<leo_ast::BinaryExpression> for &BinaryExpression<'a> {
     fn into(self) -> leo_ast::BinaryExpression {
         leo_ast::BinaryExpression {
-            op: self.operation.clone(),
+            op: self.operation,
             left: Box::new(self.left.get().into()),
             right: Box::new(self.right.get().into()),
             span: self.span.clone().unwrap_or_default(),

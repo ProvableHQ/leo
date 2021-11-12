@@ -155,7 +155,7 @@ impl Canonicalizer {
                 return Expression::Binary(BinaryExpression {
                     left,
                     right,
-                    op: binary.op.clone(),
+                    op: binary.op,
                     span: binary.span.clone(),
                 });
             }
