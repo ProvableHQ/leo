@@ -485,39 +485,17 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
-    /// Returns an [`Expression`] AST node if the next tokens represent an
+    /// Returns an [`Expression`] AST node if the next tokens represent a
     /// circuit initialization expression.
-    ///
     pub fn parse_circuit_expression(&mut self, identifier: Identifier) -> Result<Expression> {
-        self.expect(Token::LeftCurly)?;
-        let mut members = Vec::new();
-        let end_span;
-        loop {
-            if let Some(end) = self.eat(Token::RightCurly) {
-                end_span = end.span;
-                break;
-            }
-            let name = self.expect_ident()?;
-            if self.eat(Token::Colon).is_some() {
-                let expression = self.parse_expression()?;
-                members.push(CircuitImpliedVariableDefinition {
-                    identifier: name,
-                    expression: Some(expression),
-                });
-            } else {
-                members.push(CircuitImpliedVariableDefinition {
-                    identifier: name.clone(),
-                    expression: None,
-                });
-            }
-            if self.eat(Token::Comma).is_none() {
-                end_span = self.expect(Token::RightCurly)?;
-                break;
-            }
-        }
+        let (members, _, span) = self.parse_list(Token::LeftCurly, Token::RightCurly, Token::Comma, |p| {
+            Ok(Some(CircuitImpliedVariableDefinition {
+                identifier: p.expect_ident()?,
+                expression: p.eat(Token::Colon).map(|_| p.parse_expression()).transpose()?,
+            }))
+        })?;
         Ok(Expression::CircuitInit(CircuitInitExpression {
-            span: &identifier.span + &end_span,
+            span: &identifier.span + &span,
             name: identifier,
             members,
         }))
