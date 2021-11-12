@@ -264,7 +264,7 @@ impl ParserContext<'_> {
     pub fn parse_package_path(&mut self) -> Result<PackageOrPackages> {
         let package_name = self.parse_package_name()?;
         self.expect(Token::Dot)?;
-        if self.peek()?.token == Token::LeftParen {
+        if self.peek_is_left_par() {
             let accesses = self.parse_package_accesses(&package_name.span)?;
             Ok(PackageOrPackages::Packages(Packages {
                 span: &package_name.span + accesses.last().map(|x| x.span()).unwrap_or(&package_name.span),

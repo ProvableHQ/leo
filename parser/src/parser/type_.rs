@@ -89,31 +89,17 @@ impl ParserContext<'_> {
         }
     }
 
-    ///
-    /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type. Also
-    /// returns the span of the parsed token.
-    ///
+    /// Returns a [`(Type, Span)`] tuple of AST nodes if the next token represents a type.
+    /// Also returns the span of the parsed token.
     pub fn parse_type(&mut self) -> Result<(Type, Span)> {
         Ok(if let Some(token) = self.eat(Token::BigSelf) {
             (Type::SelfType, token.span)
         } else if let Some(ident) = self.eat_identifier() {
             let span = ident.span.clone();
             (Type::Identifier(ident), span)
-        } else if let Some(token) = self.eat(Token::LeftParen) {
-            let mut types = Vec::new();
-            let end_span;
-            loop {
-                if let Some(end) = self.eat(Token::RightParen) {
-                    end_span = end.span;
-                    break;
-                }
-                types.push(self.parse_type()?.0);
-                if self.eat(Token::Comma).is_none() {
-                    end_span = self.expect(Token::RightParen)?;
-                    break;
-                }
-            }
-            (Type::Tuple(types), token.span + end_span)
+        } else if self.peek_is_left_par() {
+            let (types, _, span) = self.parse_paren_comma_list(|p| p.parse_type().map(|t| Some(t.0)))?;
+            (Type::Tuple(types), span)
         } else if let Some(token) = self.eat(Token::LeftSquare) {
             let (inner, _) = self.parse_type()?;
             self.expect(Token::Semicolon)?;
