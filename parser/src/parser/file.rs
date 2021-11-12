@@ -111,7 +111,7 @@ impl ParserContext<'_> {
 
         assert_no_whitespace(&start, &name.span, &name.name, "@")?;
 
-        let (end_span, arguments) = if let Some(Token::LeftParen) = self.curr().map(|t| &t.token) {
+        let (end_span, arguments) = if self.peek_is_left_par() {
             let (args, _, span) = self.parse_paren_comma_list(|p| {
                 Ok(if let Some(ident) = p.eat_identifier() {
                     Some(ident.name)
@@ -493,38 +493,36 @@ impl ParserContext<'_> {
         FunctionInput::RefSelfKeyword(RefSelfKeyword { identifier: name })
     }
 
-    ///
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
-    ///
     pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
+        // Parse any annotations.
         let mut annotations = IndexMap::new();
         while self.peek_token().as_ref() == &Token::At {
             let annotation = self.parse_annotation()?;
             annotations.insert(annotation.name.name.to_string(), annotation);
         }
 
-        // Eat const modifier or get false.
+        // Parse optional const modifier.
         let const_ = self.eat(Token::Const).is_some();
+
+        // Parse `function IDENT`.
         let start = self.expect(Token::Function)?;
         let name = self.expect_ident()?;
 
-        self.expect(Token::LeftParen)?;
-        let mut inputs = Vec::new();
-        while self.eat(Token::RightParen).is_none() {
-            let input = self.parse_function_parameters()?;
-            inputs.push(input);
-            if self.eat(Token::Comma).is_none() {
-                self.expect(Token::RightParen)?;
-                break;
-            }
-        }
+        // Parse parameters.
+        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameters().map(Some))?;
+
+        // Parse return type.
         let output = if self.eat(Token::Arrow).is_some() {
             Some(self.parse_type()?.0)
         } else {
             None
         };
+
+        // Parse the function body.
         let block = self.parse_block()?;
+
         Ok((
             name.clone(),
             Function {

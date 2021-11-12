@@ -456,4 +456,9 @@ impl<'a> ParserContext<'a> {
     ) -> Result<(Vec<T>, bool, Span)> {
         self.parse_list(Token::LeftParen, Token::RightParen, Token::Comma, f)
     }
+
+    /// Returns true if the current token is `(`.
+    pub(super) fn peek_is_left_par(&self) -> bool {
+        matches!(self.curr().map(|t| &t.token), Some(Token::LeftParen))
+    }
 }
