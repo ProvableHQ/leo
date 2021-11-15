@@ -69,6 +69,11 @@ impl<'a> ParserContext<'a> {
         self.tokens.last()
     }
 
+    /// Emit the error `err`.
+    pub(crate) fn emit_err(&self, err: ParserError) {
+        self.handler.emit_err(err.into());
+    }
+
     ///
     /// Returns an unexpected end of function [`SyntaxError`].
     ///

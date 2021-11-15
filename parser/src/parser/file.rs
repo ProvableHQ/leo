@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use tendril::format_tendril;
+use super::*;
+use crate::KEYWORD_TOKENS;
 
 use leo_errors::{ParserError, Result, Span};
 
-use crate::KEYWORD_TOKENS;
-
-use super::*;
+use tendril::format_tendril;
 
 impl ParserContext<'_> {
     ///
@@ -48,8 +47,7 @@ impl ParserContext<'_> {
                 Token::Ident(ident) => match ident.as_ref() {
                     "test" => return Err(ParserError::test_function(&token.span).into()),
                     kw @ ("struct" | "class") => {
-                        self.handler
-                            .emit_err(ParserError::unexpected(kw, "circuit", &token.span).into());
+                        self.emit_err(ParserError::unexpected(kw, "circuit", &token.span));
                         self.bump().unwrap();
                         let (id, circuit) = self.parse_circuit()?;
                         circuits.insert(id, circuit);
@@ -106,58 +104,28 @@ impl ParserContext<'_> {
         )
     }
 
-    ///
     /// Returns an [`Annotation`] AST node if the next tokens represent a supported annotation.
-    ///
     pub fn parse_annotation(&mut self) -> Result<Annotation> {
         let start = self.expect(Token::At)?;
-        let name = self.expect_ident()?;
-        if name.name.as_ref() == "context" {
-            return Err(ParserError::context_annotation(&name.span).into());
-        }
+        let name = self.parse_annotation_name()?;
 
         assert_no_whitespace(&start, &name.span, &name.name, "@")?;
 
-        let end_span;
-        let arguments = if self.eat(Token::LeftParen).is_some() {
-            let mut args = Vec::new();
-            let mut comma = false;
-            loop {
-                if let Some(end) = self.eat(Token::RightParen) {
-                    if comma {
-                        return Err(ParserError::unexpected(
-                            Token::RightParen,
-                            [Token::Ident("identifier".into()), Token::Int("number".into())]
-                                .iter()
-                                .map(|x| format!("'{}'", x))
-                                .collect::<Vec<_>>()
-                                .join(", "),
-                            &end.span,
-                        )
-                        .into());
-                    }
-                    end_span = end.span;
-                    break;
-                }
-                comma = false;
-                if let Some(ident) = self.eat_identifier() {
-                    args.push(ident.name);
-                } else if let Some((int, _)) = self.eat_int() {
-                    args.push(int.value);
+        let (end_span, arguments) = if let Some(Token::LeftParen) = self.curr().map(|t| &t.token) {
+            let (args, _, span) = self.parse_paren_comma_list(|p| {
+                Ok(if let Some(ident) = p.eat_identifier() {
+                    Some(ident.name)
+                } else if let Some((int, _)) = p.eat_int() {
+                    Some(int.value)
                 } else {
-                    let token = self.peek()?;
-                    return Err(ParserError::unexpected_str(&token.token, "ident or int", &token.span).into());
-                }
-                if self.eat(Token::Comma).is_none() && !comma {
-                    end_span = self.expect(Token::RightParen)?;
-                    break;
-                }
-                comma = true;
-            }
-            args
+                    let token = p.expect_any()?;
+                    p.emit_err(ParserError::unexpected_str(&token.token, "ident or int", &token.span));
+                    None
+                })
+            })?;
+            (span, args)
         } else {
-            end_span = name.span.clone();
-            Vec::new()
+            (name.span.clone(), Vec::new())
         };
         Ok(Annotation {
             name,
@@ -166,27 +134,73 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
+    /// Parses `foo` in an annotation `@foo . That is, the name of the annotation.
+    fn parse_annotation_name(&mut self) -> Result<Identifier> {
+        let mut name = self.expect_ident()?;
+
+        // Recover `context` instead of `test`.
+        if name.name.as_ref() == "context" {
+            self.emit_err(ParserError::context_annotation(&name.span));
+            name.name = "test".into();
+        }
+
+        Ok(name)
+    }
+
     /// Returns a vector of [`PackageAccess`] AST nodes if the next tokens represent package access
     /// expressions within an import statement.
-    ///
     pub fn parse_package_accesses(&mut self, span: &Span) -> Result<Vec<PackageAccess>> {
-        let mut out = Vec::new();
-        self.expect(Token::LeftParen)?;
-        while self.eat(Token::RightParen).is_none() {
-            let access = self.parse_package_access()?;
-            out.push(access);
-            if self.eat(Token::Comma).is_none() {
-                self.expect(Token::RightParen)?;
+        let (out, ..) = self.parse_paren_comma_list(|p| p.parse_package_access().map(Some))?;
+
+        if out.is_empty() {
+            self.emit_err(ParserError::invalid_import_list(span));
+        }
+
+        Ok(out)
+    }
+
+    /// Parses a list of `T`s using `inner`
+    /// The opening and closing delimiters are `bra` and `ket`,
+    /// and elements in the list are separated by `sep`.
+    /// When `(list, true)` is returned, `sep` was a terminator.
+    fn parse_list<T>(
+        &mut self,
+        open: Token,
+        close: Token,
+        sep: Token,
+        mut inner: impl FnMut(&mut Self) -> Result<Option<T>>,
+    ) -> Result<(Vec<T>, bool, Span)> {
+        let mut list = Vec::new();
+        let mut trailing = false;
+
+        // Parse opening delimiter.
+        self.expect(open)?;
+
+        while self.peek()?.token != close {
+            // Parse the element. We allow inner parser recovery through the `Option`.
+            if let Some(elem) = inner(self)? {
+                list.push(elem);
+            }
+
+            // Parse the separator.
+            if self.eat(sep.clone()).is_none() {
+                trailing = false;
                 break;
             }
         }
 
-        if out.is_empty() {
-            return Err(ParserError::invalid_import_list(span).into());
-        }
+        // Parse closing delimiter.
+        let end_span = self.expect(close)?;
 
-        Ok(out)
+        Ok((list, trailing, end_span))
+    }
+
+    /// Parse a list separated by `,` and delimited by parens.
+    fn parse_paren_comma_list<T>(
+        &mut self,
+        f: impl FnMut(&mut Self) -> Result<Option<T>>,
+    ) -> Result<(Vec<T>, bool, Span)> {
+        self.parse_list(Token::LeftParen, Token::RightParen, Token::Comma, f)
     }
 
     ///
@@ -326,65 +340,70 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
     /// or circuit member function.
-    ///
     pub fn parse_circuit_declaration(&mut self) -> Result<Vec<CircuitMember>> {
         let mut members = Vec::new();
-        // If Circuit is empty, exit.
-        if self.eat(Token::RightCurly).is_some() {
-            return Ok(members);
-        }
 
-        let peeked = &self.peek()?.token;
-        let mut last_constant = matches!(peeked, &Token::Ident(_)) || self.peek_is_function()?;
-        let mut last_variable = self.peek_is_function()?;
         let (mut semi_colons, mut commas) = (false, false);
+
         while self.eat(Token::RightCurly).is_none() {
-            if !last_constant {
-                let (const_, last_const, last_var) = self.parse_const_member_variable_declaration()?;
-                members.push(const_);
-
-                // If it is the last constant update the varaible so we no longer expect consts.
-                if last_const {
-                    last_constant = last_const;
-                }
-                // If there is no variable after the constant update the variable so we don't expect any variables.
-                if last_var {
-                    last_variable = last_var;
-                }
-            } else if !last_variable {
+            members.push(if self.peek_is_function()? {
+                // function
+                self.parse_member_function_declaration()?
+            } else if *self.peek_token() == Token::Static {
+                // static const
+                self.parse_const_member_variable_declaration()?
+            } else {
+                // variable
                 let variable = self.parse_member_variable_declaration()?;
-
-                members.push(variable);
 
                 if let Some(semi) = self.eat(Token::Semicolon) {
                     if commas {
-                        return Err(ParserError::mixed_commas_and_semicolons(&semi.span).into());
+                        self.emit_err(ParserError::mixed_commas_and_semicolons(&semi.span));
                     }
                     semi_colons = true;
                 }
 
                 if let Some(comma) = self.eat(Token::Comma) {
                     if semi_colons {
-                        return Err(ParserError::mixed_commas_and_semicolons(&comma.span).into());
+                        self.emit_err(ParserError::mixed_commas_and_semicolons(&comma.span));
                     }
                     commas = true;
                 }
 
-                if self.peek_token().as_ref() != &Token::RightCurly {
-                    last_variable = self.peek_is_function()?;
-                }
-            } else {
-                let function = self.parse_member_function_declaration()?;
-                members.push(function);
-            }
+                variable
+            });
         }
+
+        self.ban_mixed_member_order(&members);
 
         Ok(members)
     }
 
+    /// Emits errors if order isn't `consts variables functions`.
+    fn ban_mixed_member_order(&self, members: &[CircuitMember]) {
+        let mut had_var = false;
+        let mut had_fun = false;
+        for member in members {
+            match member {
+                CircuitMember::CircuitConst(id, _, e) if had_var => {
+                    self.emit_err(ParserError::member_const_after_var(&(id.span() + e.span())));
+                }
+                CircuitMember::CircuitConst(id, _, e) if had_fun => {
+                    self.emit_err(ParserError::member_const_after_fun(&(id.span() + e.span())));
+                }
+                CircuitMember::CircuitVariable(id, _) if had_fun => {
+                    self.emit_err(ParserError::member_var_after_fun(id.span()));
+                }
+                CircuitMember::CircuitConst(..) => {}
+                CircuitMember::CircuitVariable(..) => had_var = true,
+                CircuitMember::CircuitFunction(..) => had_fun = true,
+            }
+        }
+    }
+
+    /// Parses `IDENT: TYPE`.
     fn parse_typed_field_name(&mut self) -> Result<(Identifier, Type)> {
         let name = self.expect_ident()?;
         self.expect(Token::Colon)?;
@@ -394,24 +413,18 @@ impl ParserContext<'_> {
     }
 
     /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
-    pub fn parse_const_member_variable_declaration(&mut self) -> Result<(CircuitMember, bool, bool)> {
+    pub fn parse_const_member_variable_declaration(&mut self) -> Result<CircuitMember> {
         self.expect(Token::Static)?;
         self.expect(Token::Const)?;
 
+        // `IDENT: TYPE = EXPR`:
         let (name, type_) = self.parse_typed_field_name()?;
-
         self.expect(Token::Assign)?;
         let literal = self.parse_primary_expression()?;
-        self.expect(Token::Semicolon)?;
-        let peeked = &self.peek()?.token;
-        // check if we just grabbed the last variable.
-        let last_variable = self.peek_is_function()?;
 
-        Ok((
-            CircuitMember::CircuitConst(name, type_, literal),
-            matches!(peeked, &Token::Ident(_)) || last_variable,
-            last_variable,
-        ))
+        self.expect(Token::Semicolon)?;
+
+        Ok(CircuitMember::CircuitConst(name, type_, literal))
     }
 
     ///
@@ -489,8 +502,7 @@ impl ParserContext<'_> {
         };
         if name.name.as_ref() == "self" {
             if let Some(mutable) = &mutable {
-                self.handler
-                    .emit_err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)).into());
+                self.emit_err(ParserError::mut_self_parameter(&(&mutable.span + &name.span)));
                 return Ok(Self::build_ref_self(name, mutable));
             } else if let Some(reference) = &reference {
                 // Handle `&self`.
@@ -506,8 +518,7 @@ impl ParserContext<'_> {
         }
 
         if let Some(mutable) = &mutable {
-            self.handler
-                .emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)).into());
+            self.emit_err(ParserError::mut_function_input(&(&mutable.span + &name.span)));
         }
 
         self.expect(Token::Colon)?;
