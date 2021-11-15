@@ -22,7 +22,7 @@ path = "src/lib.rs"
 
 [dependencies]
 indexmap = "1.7.0"
-include_dir = "0.6.1"
+include_dir = "0.7.0"
 
 [dependencies.leo-ast]
 path = "../ast"
