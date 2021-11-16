@@ -296,14 +296,13 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
-    ///
     pub fn parse_variable_name(&mut self, span: &SpannedToken) -> Result<VariableName> {
         let mutable = self.eat(Token::Mut);
+
         if let Some(mutable) = &mutable {
-            return Err(ParserError::let_mut_statement(&(&mutable.span + &span.span)).into());
+            self.emit_err(ParserError::let_mut_statement(&(&mutable.span + &span.span)));
         }
 
         let name = self.expect_ident()?;
