@@ -111,7 +111,7 @@ impl ParserContext<'_> {
 
         assert_no_whitespace(&start, &name.span, &name.name, "@")?;
 
-        let (end_span, arguments) = if let Some(Token::LeftParen) = self.curr().map(|t| &t.token) {
+        let (end_span, arguments) = if self.peek_is_left_par() {
             let (args, _, span) = self.parse_paren_comma_list(|p| {
                 Ok(if let Some(ident) = p.eat_identifier() {
                     Some(ident.name)
@@ -157,50 +157,6 @@ impl ParserContext<'_> {
         }
 
         Ok(out)
-    }
-
-    /// Parses a list of `T`s using `inner`
-    /// The opening and closing delimiters are `bra` and `ket`,
-    /// and elements in the list are separated by `sep`.
-    /// When `(list, true)` is returned, `sep` was a terminator.
-    fn parse_list<T>(
-        &mut self,
-        open: Token,
-        close: Token,
-        sep: Token,
-        mut inner: impl FnMut(&mut Self) -> Result<Option<T>>,
-    ) -> Result<(Vec<T>, bool, Span)> {
-        let mut list = Vec::new();
-        let mut trailing = false;
-
-        // Parse opening delimiter.
-        self.expect(open)?;
-
-        while self.peek()?.token != close {
-            // Parse the element. We allow inner parser recovery through the `Option`.
-            if let Some(elem) = inner(self)? {
-                list.push(elem);
-            }
-
-            // Parse the separator.
-            if self.eat(sep.clone()).is_none() {
-                trailing = false;
-                break;
-            }
-        }
-
-        // Parse closing delimiter.
-        let end_span = self.expect(close)?;
-
-        Ok((list, trailing, end_span))
-    }
-
-    /// Parse a list separated by `,` and delimited by parens.
-    fn parse_paren_comma_list<T>(
-        &mut self,
-        f: impl FnMut(&mut Self) -> Result<Option<T>>,
-    ) -> Result<(Vec<T>, bool, Span)> {
-        self.parse_list(Token::LeftParen, Token::RightParen, Token::Comma, f)
     }
 
     ///
@@ -249,9 +205,7 @@ impl ParserContext<'_> {
         }
     }
 
-    ///
     /// Returns an [`Identifier`] AST node if the next tokens represent a valid package name.
-    ///
     pub fn parse_package_name(&mut self) -> Result<Identifier> {
         // Build the package name, starting with valid characters up to a dash `-` (Token::Minus).
         let mut base = self.expect_loose_identifier()?;
@@ -287,7 +241,7 @@ impl ParserContext<'_> {
 
         // Return an error if the package name contains a keyword.
         if let Some(token) = KEYWORD_TOKENS.iter().find(|x| x.to_string() == base.name.as_ref()) {
-            return Err(ParserError::unexpected_str(token, "package name", &base.span).into());
+            self.emit_err(ParserError::unexpected_str(token, "package name", &base.span));
         }
 
         // Return an error if the package name contains invalid characters.
@@ -296,7 +250,7 @@ impl ParserContext<'_> {
             .chars()
             .all(|x| x.is_ascii_lowercase() || x.is_ascii_digit() || x == '-' || x == '_')
         {
-            return Err(ParserError::invalid_package_name(&base.span).into());
+            self.emit_err(ParserError::invalid_package_name(&base.span));
         }
 
         // Return the package name.
@@ -310,7 +264,7 @@ impl ParserContext<'_> {
     pub fn parse_package_path(&mut self) -> Result<PackageOrPackages> {
         let package_name = self.parse_package_name()?;
         self.expect(Token::Dot)?;
-        if self.peek()?.token == Token::LeftParen {
+        if self.peek_is_left_par() {
             let accesses = self.parse_package_accesses(&package_name.span)?;
             Ok(PackageOrPackages::Packages(Packages {
                 span: &package_name.span + accesses.last().map(|x| x.span()).unwrap_or(&package_name.span),
@@ -445,7 +399,7 @@ impl ParserContext<'_> {
         } else {
             return Err(ParserError::unexpected(
                 &peeked.token,
-                [Token::Function, Token::At]
+                [Token::Function, Token::At, Token::Const]
                     .iter()
                     .map(|x| format!("'{}'", x))
                     .collect::<Vec<_>>()
@@ -539,38 +493,36 @@ impl ParserContext<'_> {
         FunctionInput::RefSelfKeyword(RefSelfKeyword { identifier: name })
     }
 
-    ///
     /// Returns an [`(Identifier, Function)`] AST node if the next tokens represent a function name
     /// and function definition.
-    ///
     pub fn parse_function_declaration(&mut self) -> Result<(Identifier, Function)> {
+        // Parse any annotations.
         let mut annotations = IndexMap::new();
         while self.peek_token().as_ref() == &Token::At {
             let annotation = self.parse_annotation()?;
             annotations.insert(annotation.name.name.to_string(), annotation);
         }
 
-        // Eat const modifier or get false.
+        // Parse optional const modifier.
         let const_ = self.eat(Token::Const).is_some();
+
+        // Parse `function IDENT`.
         let start = self.expect(Token::Function)?;
         let name = self.expect_ident()?;
 
-        self.expect(Token::LeftParen)?;
-        let mut inputs = Vec::new();
-        while self.eat(Token::RightParen).is_none() {
-            let input = self.parse_function_parameters()?;
-            inputs.push(input);
-            if self.eat(Token::Comma).is_none() {
-                self.expect(Token::RightParen)?;
-                break;
-            }
-        }
+        // Parse parameters.
+        let (inputs, ..) = self.parse_paren_comma_list(|p| p.parse_function_parameters().map(Some))?;
+
+        // Parse return type.
         let output = if self.eat(Token::Arrow).is_some() {
             Some(self.parse_type()?.0)
         } else {
             None
         };
+
+        // Parse the function body.
         let block = self.parse_block()?;
+
         Ok((
             name.clone(),
             Function {
@@ -596,7 +548,7 @@ impl ParserContext<'_> {
             .variable_names
             .iter()
             .map(|variable_name| variable_name.identifier.clone())
-            .collect::<Vec<Identifier>>();
+            .collect();
 
         Ok((variable_names, statement))
     }

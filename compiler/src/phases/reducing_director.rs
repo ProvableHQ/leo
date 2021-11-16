@@ -180,7 +180,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         let left = self.reduce_expression(&ast.left, asg.left.get())?;
         let right = self.reduce_expression(&ast.right, asg.right.get())?;
 
-        self.ast_reducer.reduce_binary(ast, left, right, ast.op.clone())
+        self.ast_reducer.reduce_binary(ast, left, right, ast.op)
     }
 
     pub fn reduce_call(&mut self, ast: &AstCallExpression, asg: &AsgCallExpression) -> Result<AstCallExpression> {

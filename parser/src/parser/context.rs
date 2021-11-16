@@ -207,10 +207,8 @@ impl<'a> ParserContext<'a> {
         })
     }
 
-    ///
     /// Returns `true` if the next token is Function or if it is a Const followed by Function.
     /// Returns `false` otherwise.
-    ///
     pub fn peek_is_function(&self) -> Result<bool> {
         let first = &self.peek()?.token;
         let next = if self.tokens.len() >= 2 {
@@ -218,10 +216,10 @@ impl<'a> ParserContext<'a> {
         } else {
             return Ok(false);
         };
-        let is_func =
-            first == &Token::Function || first == &Token::At || (first == &Token::Const && next == &Token::Function);
-
-        Ok(is_func)
+        Ok(matches!(
+            (first, next),
+            (Token::Function | Token::At, _) | (Token::Const, Token::Function)
+        ))
     }
 
     ///
@@ -413,5 +411,54 @@ impl<'a> ParserContext<'a> {
         } else {
             Err(self.eof())
         }
+    }
+
+    /// Parses a list of `T`s using `inner`
+    /// The opening and closing delimiters are `bra` and `ket`,
+    /// and elements in the list are separated by `sep`.
+    /// When `(list, true)` is returned, `sep` was a terminator.
+    pub(super) fn parse_list<T>(
+        &mut self,
+        open: Token,
+        close: Token,
+        sep: Token,
+        mut inner: impl FnMut(&mut Self) -> Result<Option<T>>,
+    ) -> Result<(Vec<T>, bool, Span)> {
+        let mut list = Vec::new();
+        let mut trailing = false;
+
+        // Parse opening delimiter.
+        let open_span = self.expect(open)?;
+
+        while self.peek()?.token != close {
+            // Parse the element. We allow inner parser recovery through the `Option`.
+            if let Some(elem) = inner(self)? {
+                list.push(elem);
+            }
+
+            // Parse the separator.
+            if self.eat(sep.clone()).is_none() {
+                trailing = false;
+                break;
+            }
+        }
+
+        // Parse closing delimiter.
+        let close_span = self.expect(close)?;
+
+        Ok((list, trailing, open_span + close_span))
+    }
+
+    /// Parse a list separated by `,` and delimited by parens.
+    pub(super) fn parse_paren_comma_list<T>(
+        &mut self,
+        f: impl FnMut(&mut Self) -> Result<Option<T>>,
+    ) -> Result<(Vec<T>, bool, Span)> {
+        self.parse_list(Token::LeftParen, Token::RightParen, Token::Comma, f)
+    }
+
+    /// Returns true if the current token is `(`.
+    pub(super) fn peek_is_left_par(&self) -> bool {
+        matches!(self.curr().map(|t| &t.token), Some(Token::LeftParen))
     }
 }

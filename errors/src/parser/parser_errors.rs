@@ -215,4 +215,12 @@ create_errors!(
         msg: "Member functions must come after member variables.",
         help: None,
     }
+
+    /// E.g., on `[u8; ()]`.
+    @formatted
+    array_tuple_dimensions_empty {
+        args: (),
+        msg: "Array dimensions specified as a tuple cannot be empty.",
+        help: None,
+    }
 );
