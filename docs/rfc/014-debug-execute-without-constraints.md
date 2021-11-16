@@ -19,10 +19,10 @@ Consider the following Leo program, which takes as input an array of one hundred
 
 ```
 // The 'round-robin-shuffle' main function.
-function main(arr: [u32; 100000]) -> [u32; 100000] {
-   let shuffled: [u32; 100000] = [0; 100000];
-   for i in 0..100000 {
-       let new_idx = ((i - ((i / 4) * 4)) * 25000) + i / 4;
+function main(arr: [u32; 10000]) -> [u32; 10000] {
+   let shuffled: [u32; 10000] = [0; 10000];
+   for i in 0..10000 {
+       let new_idx = ((i - ((i / 4) * 4)) * 2500) + i / 4;
        shuffled[new_idx] = arr[i];
    }
    return shuffled;
