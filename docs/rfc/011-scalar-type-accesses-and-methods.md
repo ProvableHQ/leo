@@ -45,6 +45,15 @@ postfix-expression = primary-expression
                    / named-type "::" identifier ; this is new to allow member constants
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
+
+; Also need to add a new static member variable declaration rule to allow for static constant members.
+member-constant-declaration = %s"static" %s"const" identifier ":" type = literal ";"
+
+; We then need to modify the circuit declaration rule.
+circuit-declaration = %s"circuit" identifier
+                      "{" *member-constant-declaration
+                      [ member-variable-declarations ]
+                      *member-function-declaration "}"
 ```
 
 Now methods and static members would be first-class citizens of scalar types and their values. For example, the following could be done:
@@ -53,6 +62,23 @@ Now methods and static members would be first-class citizens of scalar types and
 let x = 1u8.to_bits(); // A method call on on a scalar value itself
 let x = u8::MAX; // A constant value on the scalar type
 let y = u8::to_bits(1u8); // A static method on the scalar type
+```
+
+It also allows for static constants for circuits in general:
+
+```ts
+circuit Point {
+  static SLOPE: u32 = 3;
+  x: u32;
+  y: u32;
+
+  function new(x: u32, y: u32) -> Self {
+    return Self {
+      x,
+      y: y + Self::SLOPE
+    };
+  }
+}
 ```
 
 ## Drawbacks
