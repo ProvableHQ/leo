@@ -24,15 +24,15 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 15
-            col_stop: 22
+            col_start: 14
+            col_stop: 23
             path: ""
             content: "console.error(\"{}\", x);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 22
+        col_stop: 23
         path: ""
         content: "console.error(\"{}\", x);"
   - Console:
@@ -49,15 +49,15 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 15
-            col_stop: 27
+            col_start: 14
+            col_stop: 28
             path: ""
             content: "console.error(\"{}{}\", x, y);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 27
+        col_stop: 28
         path: ""
         content: "console.error(\"{}{}\", x, y);"
   - Console:
@@ -69,15 +69,15 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 15
-            col_stop: 18
+            col_start: 14
+            col_stop: 19
             path: ""
             content: "console.error(\"x\");"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 18
+        col_stop: 19
         path: ""
         content: "console.error(\"x\");"
   - Console:
@@ -91,15 +91,15 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 13
-            col_stop: 20
+            col_start: 12
+            col_stop: 21
             path: ""
             content: "console.log(\"{}\", x);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 20
+        col_stop: 21
         path: ""
         content: "console.log(\"{}\", x);"
   - Console:
@@ -116,15 +116,15 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 13
-            col_stop: 25
+            col_start: 12
+            col_stop: 26
             path: ""
             content: "console.log(\"{}{}\", x, y);"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 25
+        col_stop: 26
         path: ""
         content: "console.log(\"{}{}\", x, y);"
   - Console:
@@ -136,14 +136,14 @@ outputs:
           span:
             line_start: 1
             line_stop: 1
-            col_start: 13
-            col_stop: 16
+            col_start: 12
+            col_stop: 17
             path: ""
             content: "console.log(\"x\");"
       span:
         line_start: 1
         line_stop: 1
         col_start: 1
-        col_stop: 16
+        col_stop: 17
         path: ""
         content: "console.log(\"x\");"
