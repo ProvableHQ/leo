@@ -237,11 +237,6 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
 </pre><pre class="rust"><code><span class="comment">// Copyright (C) 2019-2021 Aleo Systems Inc.</span>
 <span class="comment">// This file is part of the Leo library.</span>
 
@@ -406,12 +401,7 @@
     <span class="ident">N</span>: <span class="kw">for</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">FormatFields</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     <span class="ident">T</span>: <span class="ident">FormatTime</span>,
 {
-    <span class="kw">fn</span> <span class="ident">format_event</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">context</span>: <span class="kw-2">&amp;</span><span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>,
-        <span class="ident">writer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">fmt::Write</span>,
-        <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+    <span class="kw">fn</span> <span class="ident">format_event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">context</span>: <span class="kw-2">&amp;</span><span class="ident">FmtContext</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">S</span>, <span class="ident">N</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">writer</span>: <span class="ident">Writer</span>, <span class="ident">event</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
         <span class="kw">let</span> <span class="ident">meta</span> <span class="op">=</span> <span class="ident">event</span>.<span class="ident">metadata</span>();
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">display_level</span> {
@@ -446,11 +436,11 @@
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">std::fmt::Error</span>),
             }
 
-            <span class="macro">write!</span>(<span class="ident">writer</span>, <span class="string">&quot;{:&gt;10} &quot;</span>, <span class="ident">colored_string</span>(<span class="ident">meta</span>.<span class="ident">level</span>(), <span class="kw-2">&amp;</span><span class="ident">message</span>)).<span class="ident">expect</span>(<span class="string">&quot;Error writing event&quot;</span>);
+            <span class="macro">write!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">writer</span>, <span class="string">&quot;{:&gt;10} &quot;</span>, <span class="ident">colored_string</span>(<span class="ident">meta</span>.<span class="ident">level</span>(), <span class="kw-2">&amp;</span><span class="ident">message</span>)).<span class="ident">expect</span>(<span class="string">&quot;Error writing event&quot;</span>);
         }
 
-        <span class="ident">context</span>.<span class="ident">format_fields</span>(<span class="ident">writer</span>, <span class="ident">event</span>)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(<span class="ident">writer</span>)
+        <span class="ident">context</span>.<span class="ident">format_fields</span>(<span class="ident">writer</span>.<span class="ident">by_ref</span>(), <span class="ident">event</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">writer</span>)
     }
 }
 
