@@ -181,9 +181,7 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
     /// Returns a [`ConditionalStatement`] AST node if the next tokens represent a conditional statement.
-    ///
     pub fn parse_conditional_statement(&mut self) -> Result<ConditionalStatement> {
         let start = self.expect(Token::If)?;
         self.fuzzy_struct_state = true;
@@ -192,12 +190,10 @@ impl ParserContext<'_> {
         let body = self.parse_block()?;
         let next = if self.eat(Token::Else).is_some() {
             let s = self.parse_statement()?;
-            match s {
-                Statement::Block(_) | Statement::Conditional(_) => Some(Box::new(s)),
-                s => {
-                    return Err(ParserError::unexpected_statement(&s, "Block or Conditional", s.span()).into());
-                }
+            if !matches!(s, Statement::Block(_) | Statement::Conditional(_)) {
+                self.emit_err(ParserError::unexpected_statement(&s, "Block or Conditional", s.span()));
             }
+            Some(Box::new(s))
         } else {
             None
         };
@@ -210,19 +206,20 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
     /// Returns an [`IterationStatement`] AST node if the next tokens represent an iteration statement.
-    ///
     pub fn parse_loop_statement(&mut self) -> Result<IterationStatement> {
         let start_span = self.expect(Token::For)?;
         let ident = self.expect_ident()?;
         self.expect(Token::In)?;
+
+        // Parse iteration range.
         let start = self.parse_expression()?;
         self.expect(Token::DotDot)?;
         let inclusive = self.eat(Token::Assign).is_some();
         self.fuzzy_struct_state = true;
         let stop = self.parse_conditional_expression()?;
         self.fuzzy_struct_state = false;
+
         let block = self.parse_block()?;
 
         Ok(IterationStatement {
@@ -235,59 +232,56 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
     /// Returns a [`ConsoleArgs`] AST node if the next tokens represent a formatted string.
-    ///
     pub fn parse_console_args(&mut self) -> Result<ConsoleArgs> {
-        let start_span;
-        let string = match self.expect_any()? {
-            SpannedToken {
-                token: Token::StringLit(chars),
-                span,
-            } => {
-                start_span = span;
-                chars
+        let mut string = None;
+        let (parameters, _, span) = self.parse_paren_comma_list(|p| {
+            if string.is_none() {
+                let SpannedToken { token, span } = p.expect_any()?;
+                string = Some(match token {
+                    Token::StringLit(chars) => chars,
+                    _ => {
+                        p.emit_err(ParserError::unexpected_str(token, "formatted string", &span));
+                        Vec::new()
+                    }
+                });
+                Ok(None)
+            } else {
+                p.parse_expression().map(Some)
             }
-            SpannedToken { token, span } => {
-                return Err(ParserError::unexpected_str(token, "formatted string", &span).into());
-            }
-        };
-
-        // let parts = FormatStringPart::from_string(string);
-
-        let mut parameters = Vec::new();
-        while self.eat(Token::Comma).is_some() {
-            let param = self.parse_expression()?;
-            parameters.push(param);
-        }
+        })?;
 
         Ok(ConsoleArgs {
-            string,
-            span: &start_span + parameters.last().map(|x| x.span()).unwrap_or(&start_span),
+            string: string.unwrap_or_default(),
+            span,
             parameters,
         })
     }
 
-    ///
     /// Returns a [`ConsoleStatement`] AST node if the next tokens represent a console statement.
-    ///
     pub fn parse_console_statement(&mut self) -> Result<ConsoleStatement> {
         let keyword = self.expect(Token::Console)?;
         self.expect(Token::Dot)?;
         let function = self.expect_ident()?;
-        self.expect(Token::LeftParen)?;
         let function = match &*function.name {
             "assert" => {
+                self.expect(Token::LeftParen)?;
                 let expr = self.parse_expression()?;
+                self.expect(Token::RightParen)?;
                 ConsoleFunction::Assert(expr)
             }
             "error" => ConsoleFunction::Error(self.parse_console_args()?),
             "log" => ConsoleFunction::Log(self.parse_console_args()?),
             x => {
-                return Err(ParserError::unexpected_ident(x, &["assert", "error", "log"], &function.span).into());
+                // Not sure what it is, assume it's `log`.
+                self.emit_err(ParserError::unexpected_ident(
+                    x,
+                    &["assert", "error", "log"],
+                    &function.span,
+                ));
+                ConsoleFunction::Log(self.parse_console_args()?)
             }
         };
-        self.expect(Token::RightParen)?;
         self.expect(Token::Semicolon)?;
 
         Ok(ConsoleStatement {
@@ -296,14 +290,13 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
     /// Returns a [`VariableName`] AST node if the next tokens represent a variable name with
     /// valid keywords.
-    ///
     pub fn parse_variable_name(&mut self, span: &SpannedToken) -> Result<VariableName> {
         let mutable = self.eat(Token::Mut);
+
         if let Some(mutable) = &mutable {
-            return Err(ParserError::let_mut_statement(&(&mutable.span + &span.span)).into());
+            self.emit_err(ParserError::let_mut_statement(&(&mutable.span + &span.span)));
         }
 
         let name = self.expect_ident()?;
@@ -314,34 +307,23 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
-    ///
     pub fn parse_definition_statement(&mut self) -> Result<DefinitionStatement> {
         let declare = self.expect_oneof(&[Token::Let, Token::Const])?;
-        let mut variable_names = Vec::new();
 
-        let next = self.eat(Token::LeftParen);
-        variable_names.push(self.parse_variable_name(&declare)?);
-        if next.is_some() {
-            let mut eaten_ending = false;
-            while self.eat(Token::Comma).is_some() {
-                if self.eat(Token::RightParen).is_some() {
-                    eaten_ending = true;
-                    break;
-                }
-                variable_names.push(self.parse_variable_name(&declare)?);
-            }
-            if !eaten_ending {
-                self.expect(Token::RightParen)?;
-            }
-        }
-
-        let type_ = if self.eat(Token::Colon).is_some() {
-            Some(self.parse_type()?.0)
+        // Parse variable names.
+        let variable_names = if self.peek_is_left_par() {
+            self.parse_paren_comma_list(|p| p.parse_variable_name(&declare).map(Some))
+                .map(|(vars, ..)| vars)?
         } else {
-            None
+            vec![self.parse_variable_name(&declare)?]
         };
+
+        // Parse an optional type ascription.
+        let type_ = self
+            .eat(Token::Colon)
+            .map(|_| self.parse_type().map(|t| t.0))
+            .transpose()?;
 
         self.expect(Token::Assign)?;
         let expr = self.parse_expression()?;
