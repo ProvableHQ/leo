@@ -314,34 +314,23 @@ impl ParserContext<'_> {
         })
     }
 
-    ///
     /// Returns a [`DefinitionStatement`] AST node if the next tokens represent a definition statement.
-    ///
     pub fn parse_definition_statement(&mut self) -> Result<DefinitionStatement> {
         let declare = self.expect_oneof(&[Token::Let, Token::Const])?;
-        let mut variable_names = Vec::new();
 
-        let next = self.eat(Token::LeftParen);
-        variable_names.push(self.parse_variable_name(&declare)?);
-        if next.is_some() {
-            let mut eaten_ending = false;
-            while self.eat(Token::Comma).is_some() {
-                if self.eat(Token::RightParen).is_some() {
-                    eaten_ending = true;
-                    break;
-                }
-                variable_names.push(self.parse_variable_name(&declare)?);
-            }
-            if !eaten_ending {
-                self.expect(Token::RightParen)?;
-            }
-        }
-
-        let type_ = if self.eat(Token::Colon).is_some() {
-            Some(self.parse_type()?.0)
+        // Parse variable names.
+        let variable_names = if self.peek_is_left_par() {
+            self.parse_paren_comma_list(|p| p.parse_variable_name(&declare).map(Some))
+                .map(|(vars, ..)| vars)?
         } else {
-            None
+            vec![self.parse_variable_name(&declare)?]
         };
+
+        // Parse an optional type ascription.
+        let type_ = self
+            .eat(Token::Colon)
+            .map(|_| self.parse_type().map(|t| t.0))
+            .transpose()?;
 
         self.expect(Token::Assign)?;
         let expr = self.parse_expression()?;
