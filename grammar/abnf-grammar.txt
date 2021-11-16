@@ -657,19 +657,6 @@ character-type = %s"char"
 
 scalar-type =  boolean-type / arithmetic-type / address-type / character-type
 
-; Circuit and Alias types are denoted by identifiers and the keyword `Self`.
-; The latter is only allowed inside a circuit definition,
-; to denote the circuit being defined.
-
-self-type = %s"Self"
-
-circuit-or-alias-type = identifier / self-type
-
-; A type that represents the combination of scalar types
-; and circuit, alias and self types.
-
-named-type = circuit-or-alias-type / scalar-type
-
 ; A tuple type consists of zero, two, or more component types.
 
 tuple-type = "(" [ type 1*( "," type ) ] ")"
@@ -709,6 +696,11 @@ type = scalar-type / tuple-type / array-type / identifier / self-type
 ; either identifiers or `Self`, as this is used in other rules.
 
 identifier-or-self-type = identifier / self-type
+
+; A named type is an identifier, the `Self` type, or a scalar type.
+; These are types that are named by identifiers or keywords.
+
+named-type = identifier / self-type / scalar-type
 
 ; The lexical grammar given earlier defines product group literals.
 ; The other kind of group literal is a pair of integer coordinates,
@@ -825,6 +817,10 @@ circuit-expression = circuit-construction
 ; instance (i.e. non-static) member function calls, and
 ; static member function calls.
 ; What changes is the start, but they all end in an argument list.
+
+; Accesses to static constants are also postfix expressions.
+; They consist of a named type followed by the constant name,
+; as static constants are associated to named types.
 
 function-arguments = "(" [ expression *( "," expression ) ] ")"
 
