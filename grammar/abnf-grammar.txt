@@ -672,7 +672,8 @@ array-type = "[" type ";" array-type-dimensions "]"
 array-type-dimension = natural / "_"
 
 array-type-dimensions = array-type-dimension
-                      / "(" array-type-dimension *( "," array-type-dimension ) [","] ")"
+                      / "(" array-type-dimension
+                            *( "," array-type-dimension ) [","] ")"
 
 ; The keyword `Self` denotes the enclosing circuit type.
 ; It is only allowed inside a circuit type declaration.
@@ -1021,11 +1022,12 @@ function-inputs = function-input *( "," function-input )
 function-input = [ %s"const" ] identifier ":" type
 
 ; A circuit member constant declaration consists of
-; the static and const keywords followed by
-; an identifier and a type, then an assignment
+; the `static` and `const` keywords followed by
+; an identifier and a type, then an initializer
 ; with a literal terminated by semicolon.
 
-member-constant-declaration = %s"static" %s"const" identifier ":" type "=" literal ";"
+member-constant-declaration = %s"static" %s"const" identifier ":" type
+                              "=" literal ";"
 
 ; A circuit member variable declaration consists of
 ; an identifier and a type, terminated by semicolon.

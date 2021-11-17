@@ -1059,7 +1059,7 @@ Go to: _[natural](#user-content-natural)_;
 ```abnf
 array-type-dimensions = array-type-dimension
                       / "(" array-type-dimension
-                            *( "," array-type-dimension ) ")"
+                            *( "," array-type-dimension ) [","] ")"
 ```
 
 Go to: _[array-type-dimension](#user-content-array-type-dimension)_;
@@ -1733,13 +1733,14 @@ Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
 
 
 A circuit member constant declaration consists of
-the static and const keywords followed by
-an identifier and a type, then an assignment
+the `static` and `const` keywords followed by
+an identifier and a type, then an initializer
 with a literal terminated by semicolon.
 
 <a name="member-constant-declaration"></a>
 ```abnf
-member-constant-declaration = %s"static" %s"const" identifier ":" type "=" literal ";"
+member-constant-declaration = %s"static" %s"const" identifier ":" type
+                              "=" literal ";"
 ```
 
 Go to: _[identifier](#user-content-identifier), [literal](#user-content-literal), [type](#user-content-type)_;
