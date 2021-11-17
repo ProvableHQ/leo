@@ -44,6 +44,10 @@ pub trait Namespace {
 
 pub trait Runner {
     fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>>;
+
+    fn compare_output(&self, expected: &Value, real: &Value) -> bool {
+        expected == real
+    }
 }
 
 pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
@@ -156,6 +160,7 @@ pub fn run_tests<T: Runner>(runner: &T, expectation_category: &str) {
                 config: config.extra.clone(),
             });
             if let Some(error) = emit_errors(
+                runner,
                 output.as_ref().map_err(|x| &**x),
                 &config.expectation,
                 expected_output,

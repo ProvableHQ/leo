@@ -28,7 +28,7 @@ pub struct ArrayInlineExpression<'a> {
 }
 
 impl<'a> ArrayInlineExpression<'a> {
-    pub fn expanded_length(&self) -> usize {
+    pub fn expanded_length(&self) -> u32 {
         self.elements
             .iter()
             .map(|(expr, is_spread)| {

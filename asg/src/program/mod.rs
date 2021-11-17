@@ -32,7 +32,10 @@ use leo_ast::{PackageAccess, PackageOrPackages};
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
-use std::cell::{Cell, RefCell};
+use std::{
+    cell::{Cell, RefCell},
+    fmt,
+};
 
 /// Stores the Leo program abstract semantic graph (ASG).
 #[derive(Clone)]
@@ -400,5 +403,17 @@ impl<'a> Program<'a> {
                 .collect(),
             scope,
         })
+    }
+}
+
+impl<'a> fmt::Display for Program<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "AsgProgram")
+    }
+}
+
+impl<'a> fmt::Debug for Program<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        <Self as fmt::Display>::fmt(self, f)
     }
 }

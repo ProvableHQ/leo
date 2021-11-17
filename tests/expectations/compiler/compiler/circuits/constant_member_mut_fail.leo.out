@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370011]: invalid assignment target\n    --> compiler-test:8:5\n     |\n   8 |     Foo::y = 0;\n     |     ^^^^^^"

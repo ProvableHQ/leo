@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use leo_ast::Ast;
-use leo_errors::Result;
+use leo_errors::{emitter::Handler, Result};
 use std::{env, fs, path::Path};
 
 fn to_leo_tree(filepath: &Path) -> Result<String> {
@@ -24,7 +24,8 @@ fn to_leo_tree(filepath: &Path) -> Result<String> {
     let program_string = fs::read_to_string(&program_filepath).expect("failed to open input file");
 
     // Parses the Leo file and constructs an ast.
-    let ast = leo_parser::parse_ast(filepath.to_str().unwrap(), &program_string)?;
+    let handler = Handler::default();
+    let ast = leo_parser::parse_ast(&handler, filepath.to_str().unwrap(), &program_string)?;
 
     let serialized_leo_ast = Ast::to_json_string(&ast).expect("serialization failed");
 

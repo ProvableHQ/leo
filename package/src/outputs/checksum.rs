@@ -16,24 +16,27 @@
 
 //! The build checksum file.
 
-use crate::outputs::OUTPUTS_DIRECTORY_NAME;
-use leo_errors::{PackageError, Result};
+use crate::PackageFile;
 
 use serde::Deserialize;
-use std::{
-    borrow::Cow,
-    fs::{
-        File, {self},
-    },
-    io::Write,
-    path::Path,
-};
-
-pub static CHECKSUM_FILE_EXTENSION: &str = ".sum";
 
 #[derive(Deserialize)]
 pub struct ChecksumFile {
     pub package_name: String,
+}
+
+impl PackageFile for ChecksumFile {
+    type ParentDirectory = super::OutputsDirectory;
+
+    fn template(&self) -> String {
+        unimplemented!("ChecksumFile doesn't have a template.");
+    }
+}
+
+impl std::fmt::Display for ChecksumFile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}.sum", self.package_name)
+    }
 }
 
 impl ChecksumFile {
@@ -41,53 +44,5 @@ impl ChecksumFile {
         Self {
             package_name: package_name.to_string(),
         }
-    }
-
-    pub fn exists_at(&self, path: &Path) -> bool {
-        let path = self.setup_file_path(path);
-        path.exists()
-    }
-
-    /// Reads the checksum from the given file path if it exists.
-    pub fn read_from(&self, path: &Path) -> Result<String> {
-        let path = self.setup_file_path(path);
-
-        let string =
-            fs::read_to_string(&path).map_err(|_| PackageError::failed_to_read_checksum_file(path.into_owned()))?;
-        Ok(string)
-    }
-
-    /// Writes the given checksum to a file.
-    pub fn write_to(&self, path: &Path, checksum: String) -> Result<()> {
-        let path = self.setup_file_path(path);
-        let mut file = File::create(&path).map_err(PackageError::io_error_checksum_file)?;
-
-        file.write_all(checksum.as_bytes())
-            .map_err(PackageError::io_error_checksum_file)?;
-        Ok(())
-    }
-
-    /// Removes the checksum at the given path if it exists. Returns `true` on success,
-    /// `false` if the file doesn't exist, and `Error` if the file system fails during operation.
-    pub fn remove(&self, path: &Path) -> Result<bool> {
-        let path = self.setup_file_path(path);
-        if !path.exists() {
-            return Ok(false);
-        }
-
-        fs::remove_file(&path).map_err(|_| PackageError::failed_to_remove_checksum_file(path.into_owned()))?;
-        Ok(true)
-    }
-
-    fn setup_file_path<'a>(&self, path: &'a Path) -> Cow<'a, Path> {
-        let mut path = Cow::from(path);
-        if path.is_dir() {
-            if !path.ends_with(OUTPUTS_DIRECTORY_NAME) {
-                path.to_mut().push(OUTPUTS_DIRECTORY_NAME);
-            }
-            path.to_mut()
-                .push(format!("{}{}", self.package_name, CHECKSUM_FILE_EXTENSION));
-        }
-        path
     }
 }

@@ -16,21 +16,17 @@
 
 //! Enforces a unary negate `-` operator in a resolved Leo program.
 
-use crate::{value::ConstrainedValue, GroupType};
-use leo_errors::{CompilerError, Result, Span};
+use crate::Program;
+use leo_errors::Result;
+use snarkvm_ir::{Instruction, QueryData, Value};
 
-use snarkvm_fields::PrimeField;
-use snarkvm_r1cs::ConstraintSystem;
-
-pub fn enforce_negate<'a, F: PrimeField, G: GroupType<F>, CS: ConstraintSystem<F>>(
-    cs: &mut CS,
-    value: ConstrainedValue<'a, F, G>,
-    span: &Span,
-) -> Result<ConstrainedValue<'a, F, G>> {
-    match value {
-        ConstrainedValue::Integer(integer) => Ok(ConstrainedValue::Integer(integer.negate(cs, span)?)),
-        ConstrainedValue::Field(field) => Ok(ConstrainedValue::Field(field.negate(cs, span)?)),
-        ConstrainedValue::Group(group) => Ok(ConstrainedValue::Group(group.negate(cs, span)?)),
-        value => return Err(CompilerError::incompatible_types(format!("-{}", value), span).into()),
+impl<'a> Program<'a> {
+    pub fn evaluate_negate(&mut self, inner: Value) -> Result<Value> {
+        let output = self.alloc();
+        self.emit(Instruction::Negate(QueryData {
+            destination: output,
+            values: vec![inner],
+        }));
+        Ok(Value::Ref(output))
     }
 }

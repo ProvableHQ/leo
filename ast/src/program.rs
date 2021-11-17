@@ -17,7 +17,7 @@
 //! A Leo program consists of import, circuit, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Alias, Circuit, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
+use crate::{Alias, Circuit, CircuitMember, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -88,9 +88,21 @@ impl Program {
         }
     }
 
-    pub fn set_core_mapping(&self, mapping: Option<&str>) {
-        for (_, circuit) in self.circuits.iter() {
-            circuit.core_mapping.replace(mapping.map(str::to_string));
+    pub fn set_core_mapping(&mut self) {
+        for (_, circuit) in self.circuits.iter_mut() {
+            for member in circuit.members.iter_mut() {
+                if let CircuitMember::CircuitFunction(function) = member {
+                    if let Some(core_map) = function.annotations.remove("CoreFunction") {
+                        function.core_mapping.replace(
+                            core_map
+                                .arguments
+                                .get(0)
+                                .or(Some(&function.identifier.name))
+                                .map(|f| f.to_string()),
+                        );
+                    }
+                }
+            }
         }
     }
 

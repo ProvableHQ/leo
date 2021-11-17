@@ -46,7 +46,7 @@ pub struct Update {
     pub(crate) automatic: Option<Automatic>,
 }
 
-impl Command for Update {
+impl<'a> Command<'a> for Update {
     type Input = ();
     type Output = ();
 
@@ -54,11 +54,11 @@ impl Command for Update {
         tracing::span!(tracing::Level::INFO, "Updating")
     }
 
-    fn prelude(&self, _: Context) -> Result<Self::Input> {
+    fn prelude(&self, _: Context<'a>) -> Result<Self::Input> {
         Ok(())
     }
 
-    fn apply(self, _: Context, _: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _: Context<'a>, _: Self::Input) -> Result<Self::Output> {
         // If --list is passed, list all available versions and return.
         if self.list {
             return Updater::show_available_releases();

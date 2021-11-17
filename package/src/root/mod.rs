@@ -15,6 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 pub mod gitignore;
+use crate::PackageDirectory;
+
 pub use self::gitignore::*;
 
 pub mod lock_file;
@@ -28,3 +30,9 @@ pub use self::readme::*;
 
 pub mod zip;
 pub use self::zip::*;
+
+pub struct RootDirectory {}
+
+impl PackageDirectory for RootDirectory {
+    const NAME: &'static str = "";
+}

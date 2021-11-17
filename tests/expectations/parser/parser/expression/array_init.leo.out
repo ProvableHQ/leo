@@ -99,6 +99,28 @@ outputs:
                 col_start: 2
                 col_stop: 3
                 path: ""
+                content: "[0; (1, 2,)]"
+      dimensions:
+        - value: "1"
+        - value: "2"
+      span:
+        line_start: 1
+        line_stop: 1
+        col_start: 1
+        col_stop: 13
+        path: ""
+        content: "[0; (1, 2,)]"
+  - ArrayInit:
+      element:
+        Value:
+          Implicit:
+            - "0"
+            - span:
+                line_start: 1
+                line_stop: 1
+                col_start: 2
+                col_stop: 3
+                path: ""
                 content: "[0; (1, 2, 3)]"
       dimensions:
         - value: "1"

@@ -2,4 +2,4 @@
 namespace: Compile
 expectation: Fail
 outputs:
-  - "Error [EASG0373044]: a alias named \"Int\" already exists in this scope\n    --> compiler-test:3:9\n     |\n   3 | circuit Int {\n     |         ^^^"
+  - "Error [EASG0373044]: an alias named \"Int\" already exists in this scope\n    --> compiler-test:3:9\n     |\n   3 | circuit Int {\n     |         ^^^"

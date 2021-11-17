@@ -17,102 +17,132 @@
 use crate::PositiveNumber;
 use leo_input::types::ArrayDimensions as InputArrayDimensions;
 
-use serde::{Deserialize, Serialize};
+use serde::{ser::SerializeSeq, Deserialize, Serialize, Serializer};
 use std::fmt;
 
-/// A vector of positive numbers that represent array dimensions.
+/// Type for handling different definitions of ArrayDimensions.
 /// Can be used in an array [`Type`] or an array initializer [`Expression`].
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq, Default, Hash)]
-pub struct ArrayDimensions(pub Vec<PositiveNumber>);
+#[derive(Clone, Deserialize, Debug, PartialEq, Eq, Hash)]
+pub enum ArrayDimensions {
+    Unspecified,
+    Number(PositiveNumber),
+    Multi(Vec<ArrayDimensions>),
+}
 
 impl ArrayDimensions {
-    ///
-    /// Appends a vector of array dimensions to the self array dimensions.
-    ///
-    pub fn append(&mut self, other: &mut ArrayDimensions) {
-        self.0.append(&mut other.0)
-    }
-
-    ///
-    /// Returns the array dimensions as strings.
-    ///
-    pub fn to_strings(&self) -> Vec<String> {
-        self.0.iter().map(|number| number.to_string()).collect()
-    }
-
-    ///
     /// Returns `true` if the all array dimensions have been removed.
     ///
     /// This method is called after repeated calls to `remove_first`.
-    ///
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        match self {
+            Self::Multi(dimensions) => dimensions.len() != 0,
+            Self::Number(_) | Self::Unspecified => false,
+        }
     }
 
-    ///
+    pub fn is_specified(&self) -> bool {
+        match self {
+            Self::Multi(_) | Self::Number(_) => true,
+            Self::Unspecified => false,
+        }
+    }
+
+    pub fn flatten(&self) -> Vec<ArrayDimensions> {
+        match self {
+            dimension @ (ArrayDimensions::Number(_) | ArrayDimensions::Unspecified) => vec![dimension.clone()],
+            ArrayDimensions::Multi(dimensions) => dimensions.iter().flat_map(|dim| dim.flatten()).collect(),
+        }
+    }
+
     /// Returns `true` if there is an array dimension equal to zero.
-    ///
     pub fn is_zero(&self) -> bool {
-        self.0.iter().any(|number| number.is_zero())
+        match self {
+            ArrayDimensions::Multi(dimensions) => dimensions.iter().any(|a| a.is_zero()),
+            ArrayDimensions::Number(num) => num.is_zero(),
+            ArrayDimensions::Unspecified => false,
+        }
     }
 
-    ///
-    /// Returns the first dimension of the array.
-    ///
-    pub fn first(&self) -> Option<&PositiveNumber> {
-        self.0.first()
-    }
-
-    ///
     /// Attempts to remove the first dimension from the array.
     ///
     /// If the first dimension exists, then remove and return `Some(PositiveNumber)`.
     /// If the first dimension does not exist, then return `None`.
-    ///
-    pub fn remove_first(&mut self) -> Option<PositiveNumber> {
-        // If there are no dimensions in the array, then return None.
-        self.0.first()?;
-
-        // Remove the first dimension.
-        let removed = self.0.remove(0);
-
-        // Return the first dimension.
-        Some(removed)
+    pub fn remove_first(&mut self) -> Option<ArrayDimensions> {
+        match self {
+            Self::Multi(dims) => Some(dims.remove(0)),
+            _ => None,
+        }
     }
 
-    ///
     /// Attempts to remove the last dimension from the array.
     ///
     /// If the last dimension exists, then remove and return `Some(PositiveNumber)`.
     /// If the last dimension does not exist, then return `None`.
-    ///
-    pub fn remove_last(&mut self) -> Option<PositiveNumber> {
-        self.0.pop()
+    pub fn remove_last(&mut self) -> Option<ArrayDimensions> {
+        match self {
+            Self::Multi(dims) => dims.pop(),
+            _ => None,
+        }
+    }
+}
+
+impl ArrayDimensions {
+    /// Returns `PositiveNumber` if `Dimension` is specified, returns `None` otherwise.
+    pub fn number(&self) -> Option<&PositiveNumber> {
+        match self {
+            ArrayDimensions::Number(num) => Some(num),
+            ArrayDimensions::Unspecified | ArrayDimensions::Multi(_) => None,
+        }
+    }
+}
+
+/// Custom Serializer for ArrayDimensios is required to ignore internal ArrayDimension nodes in the AST.
+impl Serialize for ArrayDimensions {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let dimensions = self.flatten();
+        let mut seq = serializer.serialize_seq(Some(dimensions.len()))?;
+        for dimension in dimensions.iter() {
+            match dimension {
+                ArrayDimensions::Number(num) => seq.serialize_element(&num)?,
+                ArrayDimensions::Unspecified => seq.serialize_element(&PositiveNumber { value: "0".into() })?,
+                ArrayDimensions::Multi(_) => unimplemented!("there are no multi dimensions after flattening"),
+            }
+        }
+        seq.end()
     }
 }
 
 /// Create a new [`ArrayDimensions`] from a [`InputArrayDimensions`] in a Leo program file.
 impl<'ast> From<InputArrayDimensions<'ast>> for ArrayDimensions {
     fn from(dimensions: InputArrayDimensions<'ast>) -> Self {
-        Self(match dimensions {
-            InputArrayDimensions::Single(single) => vec![PositiveNumber::from(single.number)],
-            InputArrayDimensions::Multiple(multiple) => {
-                multiple.numbers.into_iter().map(PositiveNumber::from).collect()
-            }
-        })
+        match dimensions {
+            InputArrayDimensions::Single(single) => ArrayDimensions::Number(PositiveNumber::from(single.number)),
+            InputArrayDimensions::Multiple(multiple) => ArrayDimensions::Multi(
+                multiple
+                    .numbers
+                    .into_iter()
+                    .map(|num| ArrayDimensions::Number(PositiveNumber::from(num)))
+                    .collect(),
+            ),
+        }
     }
 }
 
 impl fmt::Display for ArrayDimensions {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.0.len() == 1 {
-            // Write dimensions without parenthesis.
-            write!(f, "{}", self.0[0])
-        } else {
-            // Write dimensions with parenthesis.
-            let dimensions = self.0.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ");
-
-            write!(f, "({})", dimensions)
+        match self {
+            ArrayDimensions::Unspecified => write!(f, "_"),
+            ArrayDimensions::Number(num) => write!(f, "{}", num),
+            ArrayDimensions::Multi(dimensions) => {
+                write!(
+                    f,
+                    "({})",
+                    dimensions.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(", ")
+                )
+            }
         }
     }
 }

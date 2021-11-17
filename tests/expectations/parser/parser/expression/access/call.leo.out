@@ -65,17 +65,19 @@ outputs:
         content: "x(x, y, z)"
   - Call:
       function:
-        CircuitStaticFunctionAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 5
-            path: ""
-            content: "x::y()"
+        Access:
+          Static:
+            inner:
+              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
+            name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y()\\\"}\"}"
+            type_: ~
+            span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 5
+              path: ""
+              content: "x::y()"
       arguments: []
       span:
         line_start: 1
@@ -86,17 +88,19 @@ outputs:
         content: "x::y()"
   - Call:
       function:
-        CircuitStaticFunctionAccess:
-          circuit:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
-          name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 5
-            path: ""
-            content: "x::y(x)"
+        Access:
+          Static:
+            inner:
+              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
+            name: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
+            type_: ~
+            span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 5
+              path: ""
+              content: "x::y(x)"
       arguments:
         - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x::y(x)\\\"}\"}"
       span:
@@ -108,18 +112,19 @@ outputs:
         content: "x::y(x)"
   - Call:
       function:
-        TupleAccess:
-          tuple:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.0(x)\\\"}\"}"
-          index:
-            value: "0"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 4
-            path: ""
-            content: x.0(x)
+        Access:
+          Tuple:
+            tuple:
+              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.0(x)\\\"}\"}"
+            index:
+              value: "0"
+            span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 4
+              path: ""
+              content: x.0(x)
       arguments:
         - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x.0(x)\\\"}\"}"
       span:
@@ -131,27 +136,28 @@ outputs:
         content: x.0(x)
   - Call:
       function:
-        ArrayAccess:
-          array:
-            Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0](x)\\\"}\"}"
-          index:
-            Value:
-              Implicit:
-                - "0"
-                - span:
-                    line_start: 1
-                    line_stop: 1
-                    col_start: 3
-                    col_stop: 4
-                    path: ""
-                    content: "x[0](x)"
-          span:
-            line_start: 1
-            line_stop: 1
-            col_start: 1
-            col_stop: 5
-            path: ""
-            content: "x[0](x)"
+        Access:
+          Array:
+            array:
+              Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0](x)\\\"}\"}"
+            index:
+              Value:
+                Implicit:
+                  - "0"
+                  - span:
+                      line_start: 1
+                      line_stop: 1
+                      col_start: 3
+                      col_stop: 4
+                      path: ""
+                      content: "x[0](x)"
+            span:
+              line_start: 1
+              line_stop: 1
+              col_start: 1
+              col_stop: 5
+              path: ""
+              content: "x[0](x)"
       arguments:
         - Identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":6,\\\"col_stop\\\":7,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x[0](x)\\\"}\"}"
       span:

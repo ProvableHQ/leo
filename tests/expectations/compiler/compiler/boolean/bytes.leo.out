@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "f#0 i#1: `to_bytes_le` call not implemented for target `true`"

@@ -409,7 +409,6 @@ keyword = %s"address"
         / %s"in"
         / %s"input"
         / %s"let"
-        / %s"mut"
         / %s"return"
         / %s"Self"
         / %s"self"
@@ -590,7 +589,7 @@ atomic-literal = untyped-literal
 ; it seems appropriate to still consider it a symbol,
 ; particularly since it starts with a proper symbol.
 
-symbol = "!" / "&&" / "||"
+symbol = "!" / "&" / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
        / "+" / "-" / "*" / "/" / "**"
@@ -673,8 +672,7 @@ array-type = "[" type ";" array-type-dimensions "]"
 array-type-dimension = natural / "_"
 
 array-type-dimensions = array-type-dimension
-                      / "(" array-type-dimension
-                            *( "," array-type-dimension ) ")"
+                      / "(" array-type-dimension *( "," array-type-dimension ) [","] ")"
 
 ; The keyword `Self` denotes the enclosing circuit type.
 ; It is only allowed inside a circuit type declaration.
@@ -697,6 +695,11 @@ type = scalar-type / tuple-type / array-type / identifier / self-type
 ; either identifiers or `Self`, as this is used in other rules.
 
 identifier-or-self-type = identifier / self-type
+
+; A named type is an identifier, the `Self` type, or a scalar type.
+; These are types that are named by identifiers or keywords.
+
+named-type = identifier / self-type / scalar-type
 
 ; The lexical grammar given earlier defines product group literals.
 ; The other kind of group literal is a pair of integer coordinates,
@@ -778,7 +781,7 @@ array-expression = array-construction
 
 ; Circuit expressions construct circuit values.
 ; Each lists values for all the member variables (in any order);
-; there must be at least one member variable.
+; there may be zero or more member variables.
 ; A single identifier abbreviates
 ; a pair consisting of the same identifier separated by colon;
 ; note that, in the expansion, the left one denotes a member name,
@@ -786,8 +789,8 @@ array-expression = array-construction
 ; so they are syntactically identical but semantically different.
 
 circuit-construction = identifier-or-self-type "{"
-                       circuit-inline-element
-                       *( "," circuit-inline-element ) [ "," ]
+                       [ circuit-inline-element
+                         *( "," circuit-inline-element ) [ "," ] ]
                        "}"
 
 circuit-inline-element = identifier ":" expression / identifier
@@ -814,6 +817,10 @@ circuit-expression = circuit-construction
 ; static member function calls.
 ; What changes is the start, but they all end in an argument list.
 
+; Accesses to static constants are also postfix expressions.
+; They consist of a named type followed by the constant name,
+; as static constants are associated to named types.
+
 function-arguments = "(" [ expression *( "," expression ) ] ")"
 
 postfix-expression = primary-expression
@@ -821,7 +828,8 @@ postfix-expression = primary-expression
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / identifier-or-self-type "::" identifier function-arguments
+                   / named-type "::" identifier function-arguments
+                   / named-type "::" identifier
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 
@@ -972,7 +980,7 @@ assignment-statement = expression assignment-operator expression ";"
 ; Note that the console function names are identifiers, not keywords.
 ; There are three kinds of print commands.
 
-console-statement = %s"console" "." console-call
+console-statement = %s"console" "." console-call ";"
 
 console-call = assert-call
              / print-call
@@ -987,19 +995,18 @@ print-call = print-function print-arguments
 
 ; An annotation consists of an annotation name (which starts with `@`)
 ; with optional annotation arguments, which are identifiers.
-; Note that no parentheses are used if there are no arguments.
 
 annotation = annotation-name
-             [ "(" identifier *( "," identifier ) ")" ]
+             [ "(" *( identifier "," ) [ identifier ] ")" ]
 
 ; A function declaration defines a function.
 ; The output type is optional, defaulting to the empty tuple type.
 ; In general, a function input consists of an identifier and a type,
 ; with an optional 'const' modifier.
 ; Additionally, functions inside circuits
-; may start with a `mut self` or `const self` or `self` parameter.
+; may start with a `&self` or `const self` or `self` parameter.
 
-function-declaration = *annotation %s"function" identifier
+function-declaration = *annotation [ %s"const" ] %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
                        block
 
@@ -1007,11 +1014,18 @@ function-parameters = self-parameter
                     / self-parameter "," function-inputs
                     / function-inputs
 
-self-parameter = [ %s"mut" / %s"const" ] %s"self"
+self-parameter = [ %s"&" / %s"const" ] %s"self"
 
 function-inputs = function-input *( "," function-input )
 
 function-input = [ %s"const" ] identifier ":" type
+
+; A circuit member constant declaration consists of
+; the static and const keywords followed by
+; an identifier and a type, then an assignment
+; with a literal terminated by semicolon.
+
+member-constant-declaration = %s"static" %s"const" identifier ":" type "=" literal ";"
 
 ; A circuit member variable declaration consists of
 ; an identifier and a type, terminated by semicolon.
@@ -1032,7 +1046,9 @@ member-variable-declarations = *( identifier ":" type ( "," / ";" ) )
 member-function-declaration = function-declaration
 
 ; A circuit declaration defines a circuit type,
-; as consisting of member variables and functions.
+; as consisting of member constants, variables and functions.
+; A circuit member constant declaration
+; as consisting of member constants, member variables, and member functions.
 ; To more simply accommodate the backward compatibility
 ; described for the rule `member-variable-declarations`,
 ; all the member variables must precede all the member functions;
@@ -1040,7 +1056,8 @@ member-function-declaration = function-declaration
 ; allowing member variables and member functions to be intermixed.
 
 circuit-declaration = %s"circuit" identifier
-                      "{" [ member-variable-declarations ]
+                      "{" *member-constant-declaration
+                      [ member-variable-declarations ]
                       *member-function-declaration "}"
 
 ; An import declaration consists of the `import` keyword

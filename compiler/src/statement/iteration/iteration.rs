@@ -16,67 +16,20 @@
 
 //! Enforces an iteration statement in a compiled Leo program.
 
-use crate::{
-    program::ConstrainedProgram, value::ConstrainedValue, GroupType, IndicatorAndConstrainedValue, Integer,
-    IntegerTrait, StatementResult,
-};
+use crate::{program::Program, StatementResult};
 use leo_asg::IterationStatement;
-use leo_errors::CompilerError;
 
-use snarkvm_fields::PrimeField;
-use snarkvm_gadgets::{boolean::Boolean, integers::uint::UInt32};
-use snarkvm_r1cs::ConstraintSystem;
-
-impl<'a, F: PrimeField, G: GroupType<F>> ConstrainedProgram<'a, F, G> {
+impl<'a> Program<'a> {
     #[allow(clippy::too_many_arguments)]
-    pub fn enforce_iteration_statement<CS: ConstraintSystem<F>>(
-        &mut self,
-        cs: &mut CS,
-        indicator: &Boolean,
-        statement: &IterationStatement<'a>,
-    ) -> StatementResult<Vec<IndicatorAndConstrainedValue<'a, F, G>>> {
-        let mut results = vec![];
-
+    pub fn enforce_iteration_statement(&mut self, statement: &IterationStatement<'a>) -> StatementResult<()> {
         let span = statement.span.clone().unwrap_or_default();
+        let from = self.enforce_index(statement.start.get(), &span)?;
+        let to = self.enforce_index(statement.stop.get(), &span)?;
 
-        let from = self
-            .enforce_index(cs, statement.start.get(), &span)?
-            .to_usize()
-            .ok_or_else(|| CompilerError::statement_loop_index_const(&span))?;
-        let to = self
-            .enforce_index(cs, statement.stop.get(), &span)?
-            .to_usize()
-            .ok_or_else(|| CompilerError::statement_loop_index_const(&span))?;
+        self.repeat(statement.variable, statement.inclusive, from, to, |program| {
+            program.enforce_statement(statement.body.get())
+        })?;
 
-        let iter: Box<dyn Iterator<Item = usize>> = match (from < to, statement.inclusive) {
-            (true, true) => Box::new(from..=to),
-            (true, false) => Box::new(from..to),
-            (false, true) => Box::new((to..=from).rev()),
-            // add the range to the values to get correct bound
-            (false, false) => Box::new(((to + 1)..(from + 1)).rev()),
-        };
-
-        for i in iter {
-            // Store index in current function scope.
-            // For loop scope is not implemented.
-            let variable = statement.variable.borrow();
-
-            // todo: replace definition with var typed
-            self.store(
-                variable.id,
-                ConstrainedValue::Integer(Integer::U32(UInt32::constant(i as u32))),
-            );
-
-            // Evaluate statements and possibly return early
-            let result = self.enforce_statement(
-                &mut cs.ns(|| format!("for loop iteration {} {}:{}", i, &span.line_start, &span.col_start)),
-                indicator,
-                statement.body.get(),
-            )?;
-
-            results.extend(result);
-        }
-
-        Ok(results)
+        Ok(())
     }
 }

@@ -2,6 +2,7 @@
 /tmp/
 **.idea/
 *.DS_Store
+.vscode/
 
 **/process.yml
 

@@ -559,7 +559,6 @@ keyword = %s"address"
         / %s"in"
         / %s"input"
         / %s"let"
-        / %s"mut"
         / %s"return"
         / %s"Self"
         / %s"self"
@@ -902,7 +901,7 @@ particularly since it starts with a proper symbol.
 
 <a name="symbol"></a>
 ```abnf
-symbol = "!" / "&&" / "||"
+symbol = "!" / "&" / "&&" / "||"
        / "==" / "!="
        / "<" / "<=" / ">" / ">="
        / "+" / "-" / "*" / "/" / "**"
@@ -1103,6 +1102,17 @@ identifier-or-self-type = identifier / self-type
 Go to: _[identifier](#user-content-identifier), [self-type](#user-content-self-type)_;
 
 
+A named type is an identifier, the `Self` type, or a scalar type.
+These are types that are named by identifiers or keywords.
+
+<a name="named-type"></a>
+```abnf
+named-type = identifier / self-type / scalar-type
+```
+
+Go to: _[identifier](#user-content-identifier), [scalar-type](#user-content-scalar-type), [self-type](#user-content-self-type)_;
+
+
 The lexical grammar given earlier defines product group literals.
 The other kind of group literal is a pair of integer coordinates,
 which are reduced modulo the prime to identify a point,
@@ -1261,7 +1271,7 @@ Go to: _[array-construction](#user-content-array-construction)_;
 
 Circuit expressions construct circuit values.
 Each lists values for all the member variables (in any order);
-there must be at least one member variable.
+there may be zero or more member variables.
 A single identifier abbreviates
 a pair consisting of the same identifier separated by colon;
 note that, in the expansion, the left one denotes a member name,
@@ -1271,8 +1281,8 @@ so they are syntactically identical but semantically different.
 <a name="circuit-construction"></a>
 ```abnf
 circuit-construction = identifier-or-self-type "{"
-                       circuit-inline-element
-                       *( "," circuit-inline-element ) [ "," ]
+                       [ circuit-inline-element
+                         *( "," circuit-inline-element ) [ "," ] ]
                        "}"
 ```
 
@@ -1315,6 +1325,10 @@ instance (i.e. non-static) member function calls, and
 static member function calls.
 What changes is the start, but they all end in an argument list.
 
+Accesses to static constants are also postfix expressions.
+They consist of a named type followed by the constant name,
+as static constants are associated to named types.
+
 <a name="function-arguments"></a>
 ```abnf
 function-arguments = "(" [ expression *( "," expression ) ] ")"
@@ -1330,12 +1344,13 @@ postfix-expression = primary-expression
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / identifier-or-self-type "::" identifier function-arguments
+                   / named-type "::" identifier function-arguments
+                   / named-type "::" identifier
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```
 
-Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier-or-self-type](#user-content-identifier-or-self-type), [identifier](#user-content-identifier), [natural](#user-content-natural), [postfix-expression](#user-content-postfix-expression), [primary-expression](#user-content-primary-expression)_;
+Go to: _[expression](#user-content-expression), [function-arguments](#user-content-function-arguments), [identifier](#user-content-identifier), [named-type](#user-content-named-type), [natural](#user-content-natural), [postfix-expression](#user-content-postfix-expression), [primary-expression](#user-content-primary-expression)_;
 
 
 Unary operators have the highest operator precedence.
@@ -1613,7 +1628,7 @@ There are three kinds of print commands.
 
 <a name="console-statement"></a>
 ```abnf
-console-statement = %s"console" "." console-call
+console-statement = %s"console" "." console-call ";"
 ```
 
 Go to: _[console-call](#user-content-console-call)_;
@@ -1659,12 +1674,11 @@ Go to: _[print-arguments](#user-content-print-arguments), [print-function](#user
 
 An annotation consists of an annotation name (which starts with `@`)
 with optional annotation arguments, which are identifiers.
-Note that no parentheses are used if there are no arguments.
 
 <a name="annotation"></a>
 ```abnf
 annotation = annotation-name
-             [ "(" identifier *( "," identifier ) ")" ]
+             [ "(" *( identifier "," ) [ identifier ] ")" ]
 ```
 
 Go to: _[annotation-name](#user-content-annotation-name), [identifier](#user-content-identifier)_;
@@ -1675,11 +1689,11 @@ The output type is optional, defaulting to the empty tuple type.
 In general, a function input consists of an identifier and a type,
 with an optional 'const' modifier.
 Additionally, functions inside circuits
-may start with a `mut self` or `const self` or `self` parameter.
+may start with a `&self` or `const self` or `self` parameter.
 
 <a name="function-declaration"></a>
 ```abnf
-function-declaration = *annotation %s"function" identifier
+function-declaration = *annotation [ %s"const" ] %s"function" identifier
                        "(" [ function-parameters ] ")" [ "->" type ]
                        block
 ```
@@ -1699,7 +1713,7 @@ Go to: _[function-inputs](#user-content-function-inputs), [self-parameter](#user
 
 <a name="self-parameter"></a>
 ```abnf
-self-parameter = [ %s"mut" / %s"const" ] %s"self"
+self-parameter = [ %s"&" / %s"const" ] %s"self"
 ```
 
 <a name="function-inputs"></a>
@@ -1716,6 +1730,19 @@ function-input = [ %s"const" ] identifier ":" type
 ```
 
 Go to: _[identifier](#user-content-identifier), [type](#user-content-type)_;
+
+
+A circuit member constant declaration consists of
+the static and const keywords followed by
+an identifier and a type, then an assignment
+with a literal terminated by semicolon.
+
+<a name="member-constant-declaration"></a>
+```abnf
+member-constant-declaration = %s"static" %s"const" identifier ":" type "=" literal ";"
+```
+
+Go to: _[identifier](#user-content-identifier), [literal](#user-content-literal), [type](#user-content-type)_;
 
 
 A circuit member variable declaration consists of
@@ -1749,7 +1776,9 @@ Go to: _[function-declaration](#user-content-function-declaration)_;
 
 
 A circuit declaration defines a circuit type,
-as consisting of member variables and functions.
+as consisting of member constants, variables and functions.
+A circuit member constant declaration
+as consisting of member constants, member variables, and member functions.
 To more simply accommodate the backward compatibility
 described for the rule `member-variable-declarations`,
 all the member variables must precede all the member functions;
@@ -1759,7 +1788,8 @@ allowing member variables and member functions to be intermixed.
 <a name="circuit-declaration"></a>
 ```abnf
 circuit-declaration = %s"circuit" identifier
-                      "{" [ member-variable-declarations ]
+                      "{" *member-constant-declaration
+                      [ member-variable-declarations ]
                       *member-function-declaration "}"
 ```
 

@@ -17,6 +17,8 @@
 use leo_asg::Asg;
 use leo_ast::AstPass;
 use leo_compiler::{compiler::thread_leaked_context, TypeInferencePhase};
+use leo_errors::emitter::Handler;
+use leo_errors::LeoError;
 use leo_imports::ImportParser;
 use leo_test_framework::{
     fetch::find_tests,
@@ -114,7 +116,7 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
             // Do this to match test-framework ast bc of spans
             let text = &text[end_of_header + 2..];
             // Write all files into the directory.
-            generate_asts(cwd, target, text)?;
+            Handler::with(|h| generate_asts(h, cwd, target, text)).map_err(|b| b.to_string())?;
         }
     }
 
@@ -123,18 +125,25 @@ fn run_with_args(opt: Opt) -> Result<(), Box<dyn Error>> {
 
 /// Do what Compiler does - prepare 3 stages of AST: initial, imports_resolved, canonicalized and type_inferenced
 /// Write these ASTs without Spans to JSON
-fn generate_asts(src_path: PathBuf, target_path: PathBuf, text: &str) -> Result<(), Box<dyn Error>> {
+fn generate_asts(handler: &Handler, src_path: PathBuf, target_path: PathBuf, text: &str) -> Result<(), LeoError> {
     std::env::set_var("LEO_TESTFRAMEWORK", "true");
 
-    let mut ast = leo_parser::parse_ast(src_path.clone().into_os_string().into_string().unwrap(), text)?;
+    let mut ast = leo_parser::parse_ast(handler, src_path.clone().into_os_string().into_string().unwrap(), text)?;
 
     ast.to_json_file_without_keys(target_path.clone(), "initial_ast.json", &["span"])?;
 
-    ast = leo_ast_passes::Importer::do_pass(ast.into_repr(), &mut ImportParser::new(src_path, Default::default()))?;
+    ast = leo_ast_passes::Importer::do_pass(
+        leo_ast_passes::Importer::new(
+            &mut ImportParser::new(&handler, src_path, Default::default()),
+            "bls12_377",
+            handler,
+        ),
+        ast.into_repr(),
+    )?;
 
     ast.to_json_file_without_keys(target_path.clone(), "imports_resolved_ast.json", &["span"])?;
 
-    ast = leo_ast_passes::Canonicalizer::do_pass(ast.into_repr())?;
+    ast = leo_ast_passes::Canonicalizer::do_pass(leo_ast_passes::Canonicalizer::default(), ast.into_repr())?;
 
     ast.to_json_file_without_keys(target_path.clone(), "canonicalization_ast.json", &["span"])?;
 

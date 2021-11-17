@@ -15,8 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use super::{build::BuildOptions, prove::Prove};
-use crate::{commands::Command, context::Context};
-use leo_compiler::{compiler::Compiler, group::targets::edwards_bls12::EdwardsGroupType};
+use crate::{commands::Command, context::Context, wrapper::CompilerWrapper};
 use leo_errors::{Result, SnarkVMError};
 
 use snarkvm_algorithms::{snark::groth16::Groth16, traits::SNARK};
@@ -35,15 +34,15 @@ pub struct Run {
     pub(crate) compiler_options: BuildOptions,
 }
 
-impl Command for Run {
-    type Input = <Prove as Command>::Output;
+impl<'a> Command<'a> for Run {
+    type Input = <Prove as Command<'a>>::Output;
     type Output = ();
 
     fn log_span(&self) -> Span {
         tracing::span!(tracing::Level::INFO, "Verifying")
     }
 
-    fn prelude(&self, context: Context) -> Result<Self::Input> {
+    fn prelude(&self, context: Context<'a>) -> Result<Self::Input> {
         (Prove {
             skip_key_check: self.skip_key_check,
             compiler_options: self.compiler_options.clone(),
@@ -51,18 +50,15 @@ impl Command for Run {
         .execute(context)
     }
 
-    fn apply(self, _context: Context, input: Self::Input) -> Result<Self::Output> {
+    fn apply(self, _context: Context<'a>, input: Self::Input) -> Result<Self::Output> {
         let (proof, prepared_verifying_key) = input;
 
         tracing::info!("Starting...");
 
         // Run the verifier
-        let is_success = Groth16::<Bls12_377, Compiler<Fr, EdwardsGroupType>, Vec<Fr>>::verify(
-            &prepared_verifying_key,
-            &vec![],
-            &proof,
-        )
-        .map_err(|_| SnarkVMError::default())?;
+        let is_success =
+            Groth16::<Bls12_377, CompilerWrapper, Vec<Fr>>::verify(&prepared_verifying_key, &vec![], &proof)
+                .map_err(|_| SnarkVMError::default())?;
 
         // Log the verifier output
         match is_success {

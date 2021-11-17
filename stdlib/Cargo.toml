@@ -15,14 +15,11 @@ keywords = [
 categories = [ "cryptography::cryptocurrencies", "web-programming" ]
 include = [ "Cargo.toml", "src", "README.md", "LICENSE.md" ]
 license = "GPL-3.0"
-edition = "2018"
+edition = "2021"
+rust-version = "1.56"
 
 [lib]
 path = "src/lib.rs"
-
-[dependencies]
-indexmap = "1.7.0"
-include_dir = "0.6.1"
 
 [dependencies.leo-ast]
 path = "../ast"
@@ -35,3 +32,9 @@ version = "1.5.3"
 [dependencies.leo-parser]
 path = "../parser"
 version = "1.5.3"
+
+[dependencies.indexmap]
+version = "1.7.0"
+
+[dependencies.lazy_static]
+version = "1.4.0"

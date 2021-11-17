@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370022]: Member functions must come after member variables.\n    --> test:7:5\n     |\n   7 |     foo: u8,\n     |     ^^^\nError [EPAR0370021]: Member functions must come after member consts.\n    --> test:9:18\n     |\n   9 |     static const BAR: u8 = 0u8;\n     |                  ^^^^^^^^^^^^^\nError [EPAR0370020]: Member variables must come after member consts.\n    --> test:15:18\n     |\n  15 |     static const BAR: u8 = 0u8;\n     |                  ^^^^^^^^^^^^^"

@@ -130,5 +130,4 @@ create_errors!(
         msg: format!("failed to convert ast to a json value {}", error),
         help: None,
     }
-
 );

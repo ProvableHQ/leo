@@ -17,22 +17,40 @@
 use crate::resolver::*;
 
 use leo_ast::*;
+use leo_errors::emitter::Handler;
 use leo_errors::{AstError, Result, Span};
 
 use indexmap::IndexMap;
 
-pub struct Importer {}
+pub struct Importer<'a, T> {
+    resolver: &'a mut T,
+    curve: &'a str,
+    handler: &'a Handler,
+}
 
-impl Importer {
-    pub fn do_pass<T>(program: Program, importer: &mut T) -> Result<Ast>
+impl<'a, T> Importer<'a, T> {
+    pub fn new(resolver: &'a mut T, curve: &'a str, handler: &'a Handler) -> Self
     where
         T: ImportResolver,
     {
-        let mut ast = program.clone();
-        ast.imports.extend(leo_stdlib::resolve_prelude_modules()?);
+        Self {
+            resolver,
+            curve,
+            handler,
+        }
+    }
+}
+
+impl<'a, T> AstPass for Importer<'a, T>
+where
+    T: ImportResolver,
+{
+    fn do_pass(self, ast: Program) -> Result<Ast> {
+        let mut ast = ast;
+        ast.imports.extend(leo_stdlib::resolve_prelude_modules(self.handler)?);
 
         let mut imported_symbols: Vec<(Vec<String>, ImportSymbol, Span)> = vec![];
-        for import_statement in program.import_statements.iter() {
+        for import_statement in ast.import_statements.iter() {
             resolve_import_package(&mut imported_symbols, vec![], &import_statement.package_or_packages);
         }
 
@@ -41,7 +59,7 @@ impl Importer {
             deduplicated_imports.insert(package.clone(), span.clone());
         }
 
-        let mut wrapped_resolver = CoreImportResolver::new(importer);
+        let mut wrapped_resolver = CoreImportResolver::new(self.resolver, self.curve);
 
         let mut resolved_packages: IndexMap<Vec<String>, Program> = IndexMap::new();
         for (package, span) in deduplicated_imports {

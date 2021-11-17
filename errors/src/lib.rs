@@ -17,6 +17,9 @@
 #![deny(clippy::all, clippy::missing_docs_in_private_items)]
 #![doc = include_str!("../README.md")]
 
+/// Contains traits and types for channels through which errors go.
+pub mod emitter;
+
 /// Contains the ASG error definitions.
 pub mod asg;
 pub use self::asg::*;

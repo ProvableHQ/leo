@@ -183,4 +183,44 @@ create_errors!(
         msg: "unable to parse array dimensions",
         help: None,
     }
+
+    /// For when the parser encountered a deprecated `mut self` parameter in a member function declaration.
+    @formatted
+    mut_self_parameter {
+        args: (),
+        msg: "`mut self` is no longer accepted. Use `&self` if you would like to pass in a mutable reference to `self`",
+        help: None,
+    }
+
+    /// When a member const comes after a member variable.
+    @formatted
+    member_const_after_var {
+        args: (),
+        msg: "Member variables must come after member consts.",
+        help: None,
+    }
+
+    /// When a member const comes after a member function.
+    @formatted
+    member_const_after_fun {
+        args: (),
+        msg: "Member functions must come after member consts.",
+        help: None,
+    }
+
+    /// When a member variable comes after a member function.
+    @formatted
+    member_var_after_fun {
+        args: (),
+        msg: "Member functions must come after member variables.",
+        help: None,
+    }
+
+    /// E.g., on `[u8; ()]`.
+    @formatted
+    array_tuple_dimensions_empty {
+        args: (),
+        msg: "Array dimensions specified as a tuple cannot be empty.",
+        help: None,
+    }
 );

@@ -8,237 +8,330 @@ The Aleo Team.
 
 FINAL
 
-# Summary
+## Summary
 
-This RFC proposes the addition of natively implemented global functions to perform conversions
-between Leo integer values and sequences of bits or bytes in big endian or little endian order.
-This RFC also proposes a future transition from these functions to methods associated to the integer types.
+This RFC proposes the addition of natively implemented scalar type methods to perform conversions
+between Leo scalar values and sequences of bits or bytes.
 
-# Motivation
+## Motivation
 
-Conversions of integers to bits and bytes are fairly common in programming languages.
-Use case include communication with the external world
-(since external data is sometimes represented as bits and bytes rather than higher-level data structures),
+Conversions of values to sequences of bits and bytes are fairly common in programming languages.
+Use cases include communication with the external world
+(since external data is often represented as bits and bytes rather than higher-level data structures),
 and serialization/deserialization for cryptographic purposes (e.g. hashing data).
 
-# Design
+## Design
 
-## Concepts
+### Bits and Bit Sequences
 
-The Leo integer values can be thought of sequences of bits.
-Therefore, it makes sense to convert between integer values and their corresponding sequences of bits;
-the sequences of bits can be in little or big endian order (i.e. least vs. most significant bit first),
-naturally leading to two possible conversions.
-Obviously, the bits represent the integers in base 2.
+The conversions represent:
+* Bits as booleans, i.e. values of type `bool`.
+* Bit sequences as arrays of booleans, i.e. values of types `[bool; N]` for suitable values of `N`.
 
-Since all the Leo integer values consist of multiples of 8 bits,
-it also makes sense to convert between integer values and squences of bytes,
-which represents the integers in base 256.
-Again, the bytes may be in little or big endian order.
+### Bytes and Byte Sequences
 
-It could also make sense to convert between integers consisting of `N` bits
-and sequences of "words" of `M` bits if `N` is a multiple of `M`,
-e.g. convert a `u32` into a sequence of two `u16`s, or convert a `u128` into a sequence of four `u32`s.
-However, the case in which `M` is 1 (bits) or 8 (bytes) is by far the most common,
-and therefore the initial focus of this RFC;
-nonetheless, it seems valuable to keep these possible generalizations in mind as we work though this initial design.
+The conversions represent:
+* Bytes as 8-bit unsigned integers, i.e. values of type `u8`.
+* Byte sequences as arrays of 8-bit unsigned integers, i.e. values of types `[u8; M]` for suitable values of `M`.
 
-Another possible generalization is to lift these conversions to sequences,
-e.g. converting from a sequence of integer values to a sequence of bits or bytes
-by concatenating the results of converting the integer values,
-and converting from a sequence of bits or bytes to a sequence of integer values
-by grouping the bits or bytes into chunks and converting each chunk into an integer.
-For instance, a sequence of 4 `u32` values can be turned into a sequence of 32 bytes or a sequence of 128 bits.
-Note that, in these cases, the endianness only applies to the individual element conversion,
-not to the ordering of the integer values, which should be preserved by the conversion.
+### Conversions to Bits and Bytes
 
-Besides integers, it could make sense to consider converting other Leo values between bits and bytes,
-namely characters, field elements, group elements, and addresses (but perhaps not booleans).
-If this is further extended to aggregate values (tuples, arrays, and circuits),
-then this moves towards a general serialization/deserialization library for Leo, which could be a separate feature.
-
-## Representation of Bits
-
-In Leo's current type system, bits can be represented as `bool` values.
-These are not quite the numbers 0 and 1, but they are isomorphic, and it is easy to convert between booleans and bits:
+Conversions from values of scalar type `T` to (sequences of) bits and bytes
+are realized as instance methods associated to `T` of the form
 ```ts
-// convert a boolean x to a bit:
-(x ? 1 : 0)
+function to_bits_le(self) -> [bool; N];
+function to_bits_be(self) -> [bool; N];
+function to_bytes_le(self) -> [u8; M];
+function to_bytes_be(self) -> [u8; M];
+```
+where `le` stands for 'little endian', `be` stands for 'big endian',
+and the values of `N` and `M` are described below for each `T`, along with the exact behavior of each conversion.
 
-// convert f bit y to a boolean:
-(y == 1)
+Thus, if `t` is an expression of type `T`:
+* The expression `t.to_bits_le()` has type `[bool; N]`.
+* The expression `t.to_bits_be()` has type `[bool; N]`.
+* The expression `t.to_bytes_le()` has type `[u8; M]`.
+* The expression `t.to_bytes_be()` has type `[u8; M]`.
+
+These instance methods are provided by the Leo standard library.
+They have no bodies, because they are implemented natively (in Rust), not in Leo.
+
+### Conversions from Bits and Bytes
+
+Conversions from (sequences of) bits and bytes to values of scalar type `T`
+are realized as static methods associated to `T` of the form
+```ts
+function from_bits_le(bits: [bool; N]) -> T;
+function from_bits_be(bits: [bool; N]) -> T;
+function from_bytes_le(bytes: [u8; M]) -> T;
+function from_bytes_be(bytes: [u8; M]) -> T;
+```
+where `le` stands for 'little endian', `be` stands for 'big endian',
+and the values of `N` and `M` are described below for each `T`, along with the exact behavior of each conversion.
+
+Thus, if `bits` is an expression of type `[bool; N]` and `bytes` is an expression of type `[u8; M]`:
+* The expression `T::from_bits_le(bits)` has type `T`.
+* The expression `T::from_bits_be(bits)` has type `T`.
+* The expression `T::from_bytes_le(bytes)` has type `T`.
+* The expression `T::from_bytes_be(bytes)` has type `T`.
+
+These static methods are provided by the Leo standard library.
+They have no bodies, because they are implemented natively (in Rust), not in Leo.
+
+### Conversions with Integers
+
+The Leo integer values have a natural representation as bits:
+* Unsigned integer values of type `uN`, with `N` in {8, 16, 32, 64, 128},
+  can be viewed as sequences of `N` bits,
+  according to the usual positional representation in base 2.
+* Signed integer values of type `iN`, with `N` in {8, 16, 32, 64, 128},
+  can be viewed as sequences of `N` bits,
+  according to the usual two's complement representation.
+
+The bit sequences can be ordered in little or big endian,
+based on whether the first bit in the sequence is the most or least significant one
+(for signed integers, that is the sign bit).
+
+Every integer of type `uN` or `iN` can be converted to a (little or big endian) sequence of `N` bits.
+Every (little or big endian) sequence of `N` bits can be converted to an integer of type `uN` or `iN`.
+These conversions are always well-defined.
+
+Examples:
+```ts
+// unsigned:
+let x: u8 = 1;
+let xle: [bool; 8] = x.to_bits_le();
+let xbe: [bool; 8] = x.to_bits_be();
+console.assert(xle == [true, false, false, false, false, false, false, false]);
+console.assert(xbe == [false, false, false, false, false, false, false, true]);
+console.assert(x == u8::from_bits_le(xle));
+console.assert(x == u8::from_bits_be(xbe));
+// signed:
+let y: i8 = -128;
+let yle: [bool; 8] = y.to_bits_le();
+let ybe: [bool; 8] = y.to_bits_be();
+console.assert(yle == [false, false, false, false, false, false, false, true]);
+console.assert(ybe == [true, false, false, false, false, false, false, false]);
+console.assert(y == i8::from_bits_le(yle));
+console.assert(y == i8::from_bits_be(ybe));
 ```
 
-If Leo had a type `u1` for unsigned 1-bit integers, we could use that instead of `bool`.
-Separately from this RFC, such a type could be added.
-There is also an outstanding proposal (not in an RFC currently) to support types `uN` and `iN` for every positive `N`,
-in which case `u1` would be an instance of that.
+Because the five values of `N` above are all multiples of 8,
+we can group `N` bits into `M` chunks of 8 bits each, i.e. `M` bytes, so that:
+* Unsigned integer values of type `uN`, with `N` in {8, 16, 32, 64, 128},
+  can be viewed as sequences of `M` bytes, with `M` in {1, 2, 4, 8, 16}.
+* Signed integer values of type `iN`, with `N` in {8, 16, 32, 64, 128},
+  can be viewed as sequences of `M` bytes, with `M` in {1, 2, 4, 8, 16}.
 
-## Representation of Bytes
+The byte sequences can be ordered in little or big endian,
+based on whether the first byte in the sequence contains the 8 most or least significant bits
+(for signed integers, the most significant bit is the sign bit).
 
-The type `u8` is the natural way to represent a byte.
-The type `i8` is isomorphic to that, but we tend to think of bytes as unsigned.
+Every integer of type `uN` or `iN` can be converted to a (little or big endian) sequence of `M = N/8` bytes.
+Every (little or big endian) sequence of `M = N/8` bytes can be converted to an integer of type `uN` or `iN`.
+These conversions are always well-defined.
 
-## Representation of Sequences
-
-This applies to the sequence of bits or bytes that a Leo integer converts to or from.
-E.g. a `u32` is converted to/from a sequence of bits or bytes.
-
-Sequences in Leo may be ntaurally represented as arrays or tuples.
-Arrays are more flexible; in particular, they allow indexing via expressions rather than just numbers, unlike tuples.
-Thus, arrays are the natural choice to represent these sequences.
-
-## Conversion Functions
-
-We propose the following global functions,
-for which we write declarations without bodies below,
-since the implementation is native.
-(It is a separate issue whether the syntax below should be allowed,
-in order to represent natively implemented functions,
-or whether there should be a more explicit indication such as `native` in Java).
-
-These are tentative names, which we can tweak.
-What is more important is the selection of operations, and their input/output types.
-
-### Conversions between Integers and Bits
-
+Examples:
 ```ts
-// unsigned to bits, little and big endian
-function u8_to_bits_le(x: u8) -> [bool; 8];
-function u8_to_bits_be(x: u8) -> [bool; 8];
-function u16_to_bits_le(x: u16) -> [bool; 16];
-function u16_to_bits_be(x: u16) -> [bool; 16];
-function u32_to_bits_le(x: u32) -> [bool; 32];
-function u32_to_bits_be(x: u32) -> [bool; 32];
-function u64_to_bits_le(x: u64) -> [bool; 64];
-function u64_to_bits_be(x: u64) -> [bool; 64];
-function u128_to_bits_le(x: u128) -> [bool; 128];
-function u128_to_bits_be(x: u128) -> [bool; 128];
-
-// signed to bits, little and big endian
-function i8_to_bits_le(x: i8) -> [bool; 8];
-function i8_to_bits_be(x: i8) -> [bool; 8];
-function i16_to_bits_le(x: i16) -> [bool; 16];
-function i16_to_bits_be(x: i16) -> [bool; 16];
-function i32_to_bits_le(x: i32) -> [bool; 32];
-function i32_to_bits_be(x: i32) -> [bool; 32];
-function i64_to_bits_le(x: i64) -> [bool; 64];
-function i64_to_bits_be(x: i64) -> [bool; 64];
-function i128_to_bits_le(x: i128) -> [bool; 128];
-function i128_to_bits_be(x: i128) -> [bool; 128];
-
-// unsigned from bits, little and big endian
-function u8_from_bits_le(x: [bool; 8]) -> u8;
-function u8_from_bits_be(x: [bool; 8]) -> u8;
-function u16_from_bits_le(x: [bool; 16]) -> u16;
-function u16_from_bits_be(x: [bool; 16]) -> u16;
-function u32_from_bits_le(x: [bool; 32]) -> u32;
-function u32_from_bits_be(x: [bool; 32]) -> u32;
-function u64_from_bits_le(x: [bool; 64]) -> u64;
-function u64_from_bits_be(x: [bool; 64]) -> u64;
-function u128_from_bits_le(x: [bool; 128]) -> u128;
-function u128_from_bits_be(x: [bool; 128]) -> u128;
-
-// signed from bits, little and big endian
-function i8_from_bits_le(x: [bool; 8]) -> i8;
-function i8_from_bits_be(x: [bool; 8]) -> i8;
-function i16_from_bits_le(x: [bool; 16]) -> i16;
-function i16_from_bits_be(x: [bool; 16]) -> i16;
-function i32_from_bits_le(x: [bool; 32]) -> i32;
-function i32_from_bits_be(x: [bool; 32]) -> i32;
-function i64_from_bits_le(x: [bool; 64]) -> i64;
-function i64_from_bits_be(x: [bool; 64]) -> i64;
-function i128_from_bits_le(x: [bool; 128]) -> i128;
-function i128_from_bits_be(x: [bool; 128]) -> i128;
+// unsigned:
+let x: u32 = 10;
+let xle: [u8; 4] = x.to_bytes_le();
+let xbe: [u8; 4] = x.to_bytes_be();
+console.assert(xle == [10, 0, 0, 0]);
+console.assert(xbe == [0, 0, 0, 10]);
+console.assert(x == u8::from_bytes_le(xle));
+console.assert(x == u8::from_bytes_be(xbe));
+// signed:
+let y: i32 = -2147483648;
+let yle: [u8; 4] = y.to_bytes_le();
+let ybe: [u8; 4] = y.to_bytes_be();
+console.assert(yle == [0, 0, 0, 128]);
+console.assert(ybe == [128, 0, 0, 0]);
+console.assert(y == u8::from_bytes_le(yle));
+console.assert(y == u8::from_bytes_be(ybe));
 ```
 
-### Conversions between Integers and Bytes
+Conversions between `u8` and bytes amount to
+converting between the integer and the singleton array that contains the integer;
+in this case, there is no difference between little and big endian order.
+These conversions are available for completeness, but may not be very useful in practice.
 
+Conversions between `i8` and bytes amount to
+converting between the integer and the singleton array that contains the integer re-interpreted as unsigned;
+in this case, there is no difference between little and big endian order.
+Thus, these conversions may be used to re-interpret signed bytes as unsigned bytes and vice versa.
+However, arguably there should be more dedicated and comprehensive operations for this kind of "re-interpreatation" in Leo;
+that is an independent extension of Leo.
+
+### Conversions with Field Elements
+
+A field element is a non-negative integer less than the prime number that defines the field.
+If the prime number is `N` bits long (i.e. it is represented in binary form as `N` bits `1xxx...xxx`),
+then a field element can be viewed as an `N`-bit unsigned integer,
+leading to natural conversions to `N` bits in little or big endian.
+
+Every field element can be converted to a (little or big endian) sequence of `N` bits,
+but not all (little or big endian) sequences of `N` bits represent a field element:
+they may represent an `N`-bit unsigned integer that is greater than or equal to the prime number;
+such integers must exist because the prime number cannot be a power of 2,
+and therefore at least the sequence of `N` one bits `1...1` is not a field element.
+Attempting to convert these bit sequences to field elements causes an error,
+in the same sense as division by zero causes an error.
+
+The value of `N` depends on the choice of elliptic curve.
+Currently Leo supports one elliptic curve (Edwards BLS12), leading to a fixed value of `N`, but that will change:
+we will independently extend Leo with mechanisms to handle different elliptic curves,
+which will lead to different values of `N` for field element conversions.
+For the currently supported curve, `N` is 253.
+
+Since `N` is not a multiple of 8,
+the conversions between field elements and byte sequences are defined
+by adding 3 most significant zero bits to the bit sequence prior to grouping it into 8-bit chunks,
+leading to `M = 32` bytes, where the 3 high bits of the most significant byte are always 0.
+
+Every field element can be converted to a (little or big endian) sequence of `M` bytes,
+but, similarly to the conversions from bits above,
+attempting to convert some sequences of `M` bytes to a field element causes an error,
+precisely when the numeric value is greater than or equal to the prime number.
+
+Examples:
 ```ts
-// unsigned to bytes, little and big endian
-function u16_to_bytes_le(x: u16) -> [u8; 2];
-function u16_to_bytes_be(x: u16) -> [u8; 2];
-function u32_to_bytes_le(x: u32) -> [u8; 4];
-function u32_to_bytes_be(x: u32) -> [u8; 4];
-function u64_to_bytes_le(x: u64) -> [u8; 8];
-function u64_to_bytes_be(x: u64) -> [u8; 8];
-function u128_to_bytes_le(x: u128) -> [u8; 16];
-function u128_to_bytes_be(x: u128) -> [u8; 16];
-
-// signed to bytes, little and big endian
-function i16_to_bytes_le(x: i16) -> [u8; 2];
-function i16_to_bytes_be(x: i16) -> [u8; 2];
-function i32_to_bytes_le(x: i32) -> [u8; 4];
-function i32_to_bytes_be(x: i32) -> [u8; 4];
-function i64_to_bytes_le(x: i64) -> [u8; 8];
-function i64_to_bytes_be(x: i64) -> [u8; 8];
-function i128_to_bytes_le(x: i128) -> [u8; 16];
-function i128_to_bytes_be(x: i128) -> [u8; 16];
-
-// unsigned from bytes, little and big endian
-function u16_from_bytes_le(x: [u8; 2]) -> u16;
-function u16_from_bytes_be(x: [u8; 2]) -> u16;
-function u32_from_bytes_le(x: [u8; 4]) -> u32;
-function u32_from_bytes_be(x: [u8; 4]) -> u32;
-function u64_from_bytes_le(x: [u8; 8]) -> u64;
-function u64_from_bytes_be(x: [u8; 8]) -> u64;
-function u128_from_bytes_le(x: [u8; 16]) -> u128;
-function u128_from_bytes_be(x: [u8; 16]) -> u128;
-
-// signed from bytes, little and big endian
-function i16_from_bytes_le(x: [u8; 2]) -> i16;
-function i16_from_bytes_be(x: [u8; 2]) -> i16;
-function i32_from_bytes_le(x: [u8; 4]) -> i32;
-function i32_from_bytes_be(x: [u8; 4]) -> i32;
-function i64_from_bytes_le(x: [u8; 8]) -> i64;
-function i64_from_bytes_be(x: [u8; 8]) -> i64;
-function i128_from_bytes_le(x: [u8; 16]) -> i128;
-function i128_from_bytes_be(x: [u8; 16]) -> i128;
+let x:field = 3;
+console.assert(x.to_bits_le() == [true, true, ...[false; 251]]);
+console.assert(x.to_bits_be() == [...[false; 251], true, true]);
+console.assert(x.to_bytes_le() == [3, ...[0; 31]];
+console.assert(x.to_bytes_be() == [...[0; 31], 3];
+let y:field = field::from_bits_le([true; 253]); // error
+let y:field = field::from_bits_be([true; 253]); // error
+let y:field = field::from_bytes_le([255; 32]); // error
+let y:field = field::from_bytes_be([255; 32]); // error
 ```
 
-## Handling of the Native Functions
+### Conversions with Group Elements
 
-Given the relatively large number and regular structure of the functions above,
-it makes sense to generate them programmatically (e.g. via Rust macros),
-rather than enumerating all of them explicitly in the implementation.
-It may also makes sense, at R1CS generation time,
-to use generated or suitably parameterized code to recognize them and turn them into the corresponding gadgets.
+A group element consists of two field elements that satisfy the elliptic curve equation,
+i.e. a group element is a point on the curve on the plane defined by the cartesian product of the field with itself.
+The point consists of an _x_ and a _y_ coordinate.
 
-## Transition to Methods
+A group element is converted to a sequence of `N` bits,
+where `N` is twice the bit length of the prime number that defines the field,
+by juxtaposing the `N/2` bits obtained from converting the _x_ and _y_ coordinates as field elements.
+More precisely:
+* The conversion of a group element (_x_, _y_) to big endian bits is `[...x, ...y]`,
+  where `x` is the conversion of _x_ to big endian bits and `y` is the conversion of _y_ to big endian bits.
+* The conversion of a group element (_x_, _y_) to little endian bits is `[...y, ...x]`,
+  where `x` is the conversion of _x_ to little endian bits and `y` is the conversion of _y_ to little endian bits.
 
-Once a separate proposal for adding methods to Leo scalar types is realized,
-we may want to turn the global functions listed above into methods,
-deprecating the global functions, and eventually eliminating them.
+Reversing the order of the coordinates for little endian means that
+the little endian conversion of a group element is the reverse of the big endian conversion of the same group element,
+a property shared with the integer and field element conversions.
+However, given that a group element is not a single number,
+the notion of big and little endian as such does not directly apply to group elements,
+but only to their individual coordinates.
 
-Conversions to bits or bytes will be instance methods of the integer types,
-e.g. `u8` will include an instance method `to_bits_le` that takes no arguments and that returns a `[bool; 8]`.
-Example:
+Not all (little or big endian) sequences of `N` bits represent group elements.
+Not only must each `N/2`-bit half represent a field element (see discussion for field elements above),
+but also the resulting point (_x_, _y_) must satisfy the curve equation.
+Attempting to convert to a group element a sequence of `N` bits that does not actually represent a group element
+causes an error, in the same sense as division by zero causes an error.
+
+Conversions with byte sequences are handled by juxtaposition of the byte sequence representations of _x_ and _y_:
+* The conversion of a group element (_x_, _y_) to big endian bytes is `[...x, ...y]`,
+  where `x` is the conversion of _x_ to big endian bytes and `y` is the conversion of _y_ to big endian bytes.
+* The conversion of a group element (_x_, _y_) to little endian bytes is `[...y, ...x]`,
+  where `x` is the conversion of _x_ to little endian bytes and `y` is the conversion of _y_ to little endian bytes.
+
+For the currently supported elliptic curve in Leo, `N` is 506, and `M` is 64.
+These values will change with the curve, when Leo is independently extended with support for more curves,
+as discussed earlier for field elements.
+
+### Conversions with Characters
+
+A character is a Unicode code point, i.e. an integer between 0 and 10FFFFh.
+Thus, it can be viewed as a 21-bit unsigned integer,
+with bit conversions defined in a natural way,
+and byte coversions defined by adding 3 most significant zero bits to reach 24 bits, which is 3 bytes.
+
+However, currently characters are represented as field elements under the hood,
+and this causes the conversions to use the same number of bits and bytes as the field conversions,
+namely `N` is 253 and `M` is 32.
+
+A character can be always converted to a (little or big endian) sequence of bits or bytes.
+However, analogously to field and group elements,
+attempting to convert to a character a sequence whose numeric value exceeds 10FFFFh
+causes an error in Leo.
+Note that the possibility of this kind of errors will remain even if we reduce `N` and `M` to be 21 and 3
+(which, as discussed above, suffices to represent all characters).
+
 ```ts
-let int: u8 = 12;
-let bits: [bool; 8] = int.to_bits_le();
-console.assert(bits == [false, false, true, true, false, false, false, false]); // 00110000 (little endian)
+let x: char = 'A';
+console.assert(x.to_bits_le() == [true, false, false, false, false, false, true, false, ...[false; 245]];
+console.assert(x.to_bits_be() == [...[false; 245], false, true, false, false, false, false, false, true];
+console.assert(x.to_bytes_le() == [65, ...[0; 31]];
+console.assert(x.to_bytes_be() == [...[0; 31], 65];
+let y: char = char::from_bits_le([true; 21]); // error
+let y: char = char::from_bytes_le([255, 255, 255]); // error
 ```
 
-Conversions from bits or bytes will be static methods of the integer types,
-e.g. `u8` will include a static metod `from_bits_le` that takes a `[bool; 8]` argument and returns a `u8`.
-Example:
+### Conversions with Booleans
+
+Converting between booleans and boolean sequences amount to
+converting between the boolean and the singleton array that contains the boolean;
+in this case, there is no difference between little and big endian order.
+These conversions are available for completeness, but may not be very useful in practice.
+
 ```ts
-let bits: [bool; 8] = [false, false, true, true, false, false, false, false]; // 00110000 (little endian)
-let int = u8::from_bits_le(bits);
-console.assert(int == 12);
+console.assert(false.to_bits_le() == [false]);
+console.assert(false.to_bits_be() == [false]);
+console.assert(bool::from_bits_le([true]) == true);
+console.assert(bool::from_bits_be([true]) == true);
 ```
 
-# Drawbacks
+### Conversions with Addresses
+
+A Leo address is a sequence of 63 lowercase letters and decimal digits that starts with `aleo1`.
+In this form, it is not a number or combination of numbers of any sort.
+
+However, as documented elsewhere,
+an address is essentially a public key that consists of the _x_ coordinate of a curve point.
+The `aleo1...` sequence of 63 characters can be derived from that,
+and the value of the _x_ coordinate can be derived from a (properly formed) `aleo1...` sequence of 63 characters.
+
+Thus, an address can be treated in the same way as a field element for the purpose of bit/byte conversions.
+This is what the bit/byte conversion functions for addresses do in Leo.
+
+### Implementation Considerations
+
+These conversions are internally implemented as member functions of _pseudo_ circuit types for the scalar types, e.g.
+```ts
+circuit u8 {
+    function to_bits_le(self) -> [bool; 8] {
+        return [false; 8];
+    }
+    function from_bits_le(bits: [bool; 8]) -> u8 {
+      return 0u8;
+    }
+}
+```
+These are not real circuit types, because scalar types are disjoint from circuit types;
+it is just an internal representation.
+
+Currently the bodies return dummy values.
+However, these dummy values are never returned,
+because the bodies are overwritten at evaluation time with native Rust code done from snarkVM.
+In the future we will be able to declare functions without a defining a body, as per the native functions RFC.
+
+## Drawbacks
 
 This does not seem to bring any drawbacks.
 
-# Effect on Ecosystem
+## Effect on Ecosystem
 
 None.
 
-# Alternatives
+## Alternatives
 
-## Pure Leo Implementation
+### Pure Leo Implementation
 
 These conversions can be realized in Leo (i.e. without native implementations),
 provided that Leo is extended with certain operations that are already separately planned:
@@ -247,31 +340,91 @@ provided that Leo is extended with certain operations that are already separatel
 
 However, compiling the Leo code that realizes the conversions may result in less efficient R1CS than the native ones.
 
-## Naming Bit and Byte Types Explicitly
+### Representation of Bits
 
-Names like `u8_to_bits_le` and `u32_to_bytes_le` talk about bits and bytes,
-therefore relying on a choice of representation for bits and bytes,
-which is `bool` for bits and `u8` for bytes as explained above.
-An alternative is to have names like `u8_to_bools_le` and `u32_to_u8s_le`,
-which explicate the representation of bits and bytes in the name,
-and open the door to additional conversions to different representations.
-In particular, if and when Leo is extended with a type `u1` for bits,
-there could be additional operations like `u8_to_u1s_le`.
+Bits are normally thought of as the numbers 0 or 1 (i.e. binary digits), rather than the booleans `true` and `false`.
+However, booleans are isomorphic to {0, 1}, and it is easy to convert between them:
+```ts
+// convert a boolean x to a bit:
+(x ? 1 : 0)
 
-This more explicit naming scheme also provides a path towards extending
-bit and byte conversions to more generic "word" conversions,
-such as `u64_to_u16s_le`, which would turn a `u64` into a `[u16; 4]`.
-In general, it makes sense to convert between `uN` or `iN` and `[uM; P]` when `N == M * P`.
-If Leo were extended with types `uN` and `iN` for all positive `N` as proposed elsewhere,
-there could be a family of all such conversions.
+// convert a bit y to a boolean:
+(y == 1)
+```
 
-## Methods Directly
+An alternative is to use `u8` values 0 and 1 for bits, or any other integer type in fact.
+However, the conversions from bits would have to check that each integer is 0 or 1, since the type alone would not guarantee that.
+Furthermore, Leo types `uN` and `iN` are compiled to `N` boolean-constrained field elements in R1CS, resulting in wasted constraints.
+Given all of this, `bool` is the most appropriate representational choice for bits.
 
-Given that we eventually plan to use methods on scalar types for these conversions,
-it may make sense to do that right away.
-This is predicated on having support for methods on scalar types,
-for which a separate RFC is in the works.
+### Representation of Bytes
 
-If we decide for this approach, we will revise the above proposal to reflect that.
-The concepts and (essential) names and input/output types remain unchanged,
-but the conversions are packaged in slightly different form.
+Since `u8` and `i8` are isomorphic, bytes could be represented as `i8` values instead of `u8` values.
+However, we tend to think of bytes, in the sense of sequences of 8 bits,
+as unsigned, numbered from 0 to 255 according to binary notation.
+
+### Representation of Sequences
+
+Leo provides two aggregate types whose components are organized as a sequence: tuples and arrays.
+So an alternative is to represent bit and byte sequences as tuples instead of arrays.
+However, arrays are much more flexible, and have elements of the same type unlike tuples.
+Empty arrays are disallowed, but empty arrays are not needed for the conversions proposed in this RFC.
+On the other hand, 1-tuples are currently disallowed in Leo, which would be problematic for some of the conversions.
+
+### Shorter Conversions with Characters
+
+As mentioned earlier, 21 bits and 3 bytes should suffice for characters.
+This requires support on the snarkVM side.
+
+### Shorter Conversions with Group Elements
+
+Given the fact that group elements are only a subset of all the possible pairs of field elements,
+we could use shorter bit and byte sequences.
+In particular, for the Edwards BLS12 curve, just the x coordinate suffices.
+
+## Future Extensions
+
+### Interaction with Fine-Grained Integer Types
+
+There is an independent proposal to extend Leo with fine-grained integer types `uN` and `iN`
+for any positive integer value of `N`.
+
+If that extension is done, `u1`, whose values are exactly 0 and 1, could be used for bits instead of `bool`.
+The two types are isomorphic, but `u1` can be more readily used in arithmetic.
+
+Also, if that extension is done, conversions to/from bits extend easily to all values of `N`.
+For values of `N` that are not multiples of 8,
+conversions to/from bytes can be handled by adding 0 bits as done for field elements (see above),
+but that introduces the possibility that conversions may fail when the numeric value in the bytes is too large.
+This is not a problem, as it can be handled as discussed above.
+
+### Conversions with Words
+
+Besides bits and bytes, words of different bit sizes are used in certain contexts.
+There is no standardized terminology
+(in fact, even bytes are not completely standard, which is why the term 'octet' is sometimes used),
+but one can think of `P`-bit words for any positive integer value of `P`.
+In this light, bits are 1-bit words and bytes are 8-bit words.
+
+It may make sense to introduce conversions from Leo scalar types to words of different sizes besides bits and bytes.
+Words consisting of `P` bits could be represented as values of type `uP`, provided it is a supported type;
+note that the fine-grained integer types mentioned above would support words of every size.
+
+If `N` is a multiple of `P`, then integers of `uN` or `iN` types
+can be converted to/from sequences (i.e. arrays) of type `uP`.
+Examples include converting a `u32` value to an array of two `u16` values, in big or little endian.
+A regular naming scheme should be used for these conversions.
+
+If `N` is not a multiple of `P`, it is still possible to convert to/from sequences of `P`-bit words,
+but the conversions from words will need to handle error conditions.
+
+### Conversions of Aggregate Values
+
+Besides scalar types, Leo has aggregate types:
+tuple types, array types, and circuit types.
+It may make sense to add conversions between aggregate values and bit/byte/word sequences,
+where an aggregate value is represented as a concatenation of
+bit/byte/word sequences that represent the components (recursively).
+In order for the conversions from bit/byte/word sequences to work,
+variable-sized components must be encoded with some indication of their size,
+e.g. using TLV (type-length-value or tag-length-value) approaches.

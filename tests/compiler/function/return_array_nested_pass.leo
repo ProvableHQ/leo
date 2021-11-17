@@ -13,7 +13,7 @@ function array_3x2_tuple() -> [[u8; 2]; 3] {
 }
 
 function main(y: bool) -> bool {
-    const a = array_3x2_nested();
-    const b = array_3x2_tuple();
+    let a = array_3x2_nested();
+    let b = array_3x2_tuple();
     return y == true;
 }

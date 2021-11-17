@@ -27,3 +27,11 @@ pub struct Annotation {
     #[serde(with = "crate::common::vec_tendril_json")]
     pub arguments: Vec<StrTendril>,
 }
+
+const ALLOWED_ANNOTATIONS: &[&str] = &["test"];
+
+impl Annotation {
+    pub fn is_valid_annotation(&self) -> bool {
+        ALLOWED_ANNOTATIONS.iter().any(|name| self.name.name.as_ref() == *name)
+    }
+}

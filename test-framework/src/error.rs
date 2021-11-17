@@ -18,7 +18,7 @@ use std::fmt;
 
 use serde_yaml::Value;
 
-use crate::test::TestExpectationMode;
+use crate::{test::TestExpectationMode, Runner};
 
 pub struct TestFailure {
     pub path: String,
@@ -81,7 +81,8 @@ impl fmt::Display for TestError {
     }
 }
 
-pub fn emit_errors(
+pub fn emit_errors<T: Runner>(
+    runner: &T,
     output: Result<&Value, &str>,
     mode: &TestExpectationMode,
     expected_output: Option<Value>,
@@ -91,7 +92,7 @@ pub fn emit_errors(
         (Ok(output), TestExpectationMode::Pass) => {
             // passed and should have
             if let Some(expected_output) = expected_output.as_ref() {
-                if output != expected_output {
+                if !runner.compare_output(expected_output, output) {
                     // invalid output
                     return Some(TestError::UnexpectedOutput {
                         index: test_index,

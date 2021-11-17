@@ -19,6 +19,7 @@ use crate::{
 };
 
 use leo_errors::{AsgError, Result, Span};
+use std::convert::TryInto;
 
 use std::cell::Cell;
 
@@ -138,12 +139,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 Constant {
                     parent: Cell::new(None),
                     span: Some(value.span().clone()),
-                    value: ConstValue::Group(match &**value {
-                        leo_ast::GroupValue::Single(value, _) => GroupValue::Single(value.clone()),
-                        leo_ast::GroupValue::Tuple(leo_ast::GroupTuple { x, y, .. }) => {
-                            GroupValue::Tuple(x.into(), y.into())
-                        }
-                    }),
+                    value: ConstValue::Group((&**value).clone().try_into()?),
                 }
             }
             Implicit(value, span) => match expected_type {
@@ -163,7 +159,9 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                 Some(PartialType::Type(Type::Group)) => Constant {
                     parent: Cell::new(None),
                     span: Some(span.clone()),
-                    value: ConstValue::Group(GroupValue::Single(value.clone())),
+                    value: ConstValue::Group(GroupValue::Single(
+                        value.parse().map_err(|_| AsgError::invalid_int(value, span))?,
+                    )),
                 },
                 Some(PartialType::Type(Type::Address)) => Constant {
                     parent: Cell::new(None),
@@ -189,7 +187,7 @@ impl<'a> FromAst<'a, leo_ast::ValueExpression> for Constant<'a> {
                     value: ConstValue::Int(ConstInt::parse(int_type, value, span)?),
                 }
             }
-            String(_str_type, _value) => {
+            String(_str_type, _span) => {
                 unimplemented!("strings do not exist on ASG level")
             }
         })
@@ -220,7 +218,7 @@ impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
             }
             ConstValue::Group(value) => leo_ast::ValueExpression::Group(Box::new(match value {
                 GroupValue::Single(single) => {
-                    leo_ast::GroupValue::Single(single.clone(), self.span.clone().unwrap_or_default())
+                    leo_ast::GroupValue::Single(single.to_string().into(), self.span.clone().unwrap_or_default())
                 }
                 GroupValue::Tuple(left, right) => leo_ast::GroupValue::Tuple(leo_ast::GroupTuple {
                     x: left.into(),
@@ -236,6 +234,7 @@ impl<'a> Into<leo_ast::ValueExpression> for &Constant<'a> {
             ConstValue::Tuple(_) => unimplemented!(),
             ConstValue::Array(_) => unimplemented!(),
             ConstValue::Circuit(_, _) => unimplemented!(),
+            ConstValue::Err => unimplemented!(),
         }
     }
 }

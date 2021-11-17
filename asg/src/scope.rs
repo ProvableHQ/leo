@@ -189,39 +189,37 @@ impl<'a> Scope<'a> {
     /// Returns the type returned by the current scope.
     ///
     pub fn resolve_ast_type(&self, type_: &leo_ast::Type, span: &Span) -> Result<Type<'a>> {
-        use leo_ast::Type::*;
         Ok(match type_ {
-            Address => Type::Address,
-            Boolean => Type::Boolean,
-            Char => Type::Char,
-            Field => Type::Field,
-            Group => Type::Group,
-            IntegerType(int_type) => Type::Integer(int_type.clone()),
-            Array(sub_type, dimensions) => {
-                let mut item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
+            leo_ast::Type::Address => Type::Address,
+            leo_ast::Type::Boolean => Type::Boolean,
+            leo_ast::Type::Char => Type::Char,
+            leo_ast::Type::Field => Type::Field,
+            leo_ast::Type::Group => Type::Group,
+            leo_ast::Type::Err => Type::Err,
+            leo_ast::Type::IntegerType(int_type) => Type::Integer(int_type.clone()),
+            leo_ast::Type::Array(sub_type, dimensions) => {
+                let item = Box::new(self.resolve_ast_type(&*sub_type, span)?);
 
-                if let Some(dimensions) = dimensions {
-                    for dimension in dimensions.0.iter().rev() {
-                        let dimension = dimension
-                            .value
-                            .parse::<usize>()
-                            .map_err(|_| AsgError::parse_index_error(span))?;
-                        item = Box::new(Type::Array(item, dimension));
-                    }
-                } else {
-                    item = Box::new(Type::ArrayWithoutSize(item));
+                use leo_ast::ArrayDimensions::*;
+                match dimensions {
+                    Unspecified => Type::ArrayWithoutSize(item),
+                    Number(num) => Type::Array(
+                        item,
+                        num.to_string()
+                            .parse::<u32>()
+                            .map_err(|_| AsgError::parse_index_error(span))?,
+                    ),
+                    Multi(_) => unimplemented!("multi array type should not exist at asg level"),
                 }
-
-                *item
             }
-            Tuple(sub_types) => Type::Tuple(
+            leo_ast::Type::Tuple(sub_types) => Type::Tuple(
                 sub_types
                     .iter()
                     .map(|x| self.resolve_ast_type(x, span))
                     .collect::<Result<Vec<_>>>()?,
             ),
-            SelfType => return Err(AsgError::unexpected_big_self(span).into()),
-            Identifier(name) => {
+            leo_ast::Type::SelfType => return Err(AsgError::unexpected_big_self(span).into()),
+            leo_ast::Type::Identifier(name) => {
                 if let Some(circuit) = self.resolve_circuit(&name.name) {
                     Type::Circuit(circuit)
                 } else if let Some(alias) = self.resolve_alias(&name.name) {
@@ -231,5 +229,44 @@ impl<'a> Scope<'a> {
                 }
             }
         })
+    }
+
+    pub fn get_functions(&self) -> IndexMap<String, &Function<'a>> {
+        let mut functions = self
+            .functions
+            .borrow()
+            .iter()
+            .map(|(n, f)| (n.clone(), *f))
+            .collect::<IndexMap<String, &Function<'a>>>();
+        if let Some(parent) = &self.parent_scope.get() {
+            functions.extend(parent.get_functions())
+        }
+        functions
+    }
+
+    pub fn get_circuits(&self) -> IndexMap<String, &Circuit<'a>> {
+        let mut circuits = self
+            .circuits
+            .borrow()
+            .iter()
+            .map(|(n, f)| (n.clone(), *f))
+            .collect::<IndexMap<String, &Circuit<'a>>>();
+        if let Some(parent) = &self.parent_scope.get() {
+            circuits.extend(parent.get_circuits())
+        }
+        circuits
+    }
+
+    pub fn get_global_consts(&self) -> IndexMap<String, &DefinitionStatement<'a>> {
+        let mut global_consts = self
+            .global_consts
+            .borrow()
+            .iter()
+            .map(|(n, f)| (n.clone(), *f))
+            .collect::<IndexMap<String, &DefinitionStatement<'a>>>();
+        if let Some(parent) = &self.parent_scope.get() {
+            global_consts.extend(parent.get_global_consts())
+        }
+        global_consts
     }
 }
