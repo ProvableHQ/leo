@@ -39,7 +39,8 @@ The entire process must be re-run every time the program or inputs are modified,
 
 ### CLI
 
-We propose adding a `--release` flag to `leo run` and `leo test`. If the flag is set, then the compiler synthesizes the circuit and runs the steps required for verification. Otherwise, the program is executed directly.
+We propose adding in a new command, `eval` to the Leo CLI. A user can invoke `leo eval` to run the program on the input file, without synthesizing or verifying the corresponding circuit. If a user enables the `--test` flag, then the tests are run instead.
+
 
 
 ### Implementation
@@ -58,6 +59,10 @@ With a faster mechanism for executing their programs, developers can rapidly pro
 
 ### CLI
 
+#### Option 1
+Add a `--release` flag to `leo run` and `leo test`. If the flag is set, then the compiler synthesizes the circuit and runs the steps required for verification. Otherwise, the program is executed directly.
+
+#### Option 2
 Introduce two new commands
 * `leo execute`: Directly executes the `main` function on inputs
 * `leo check`: Directly executes tests
