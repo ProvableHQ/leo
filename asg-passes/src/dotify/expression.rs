@@ -30,6 +30,19 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         value
     }
 
+    fn reduce_err(&mut self, input: &'a ErrExpression<'a>) -> M {
+        let mut labels = vec![
+            ("NodeID", input.id.to_string()),
+            ("Type", Dotifier::generate_type_info(input.get_type())),
+        ];
+
+        Dotifier::add_span_info(&mut labels, &input.span);
+
+        let start_idx = self.add_or_get_node(input.id, "ErrExpression".to_string(), labels);
+
+        Fixed(start_idx)
+    }
+
     fn reduce_array_init(&mut self, input: &'a ArrayInitExpression<'a>, element: M) -> M {
         let mut labels = vec![
             ("NodeID", input.id.to_string()),

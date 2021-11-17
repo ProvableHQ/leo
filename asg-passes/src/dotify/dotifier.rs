@@ -71,7 +71,7 @@ impl<'a, 'b> Dotifier<'a, 'b> {
             //let start_idx = self.id_map.get(&start_id).unwrap(); // All nodes should have been added to ID map
             //let end_idx = self.id_map.get(&end_id).unwrap(); // All nodes should have been added to ID map
             //todo: ASG passes can leave references to nodes that are no longer part of the ASG
-            //todo: skipping for now
+            //note: skipping for now
             if let (Some(start_idx), Some(end_idx)) = (self.id_map.get(&start_id), self.id_map.get(&end_id)) {
                 let edge = DotEdge {
                     start_idx: *start_idx,

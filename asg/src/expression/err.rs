@@ -21,6 +21,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct ErrExpression<'a> {
+    pub id: u32,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
 }
@@ -63,8 +64,9 @@ impl<'a> ExpressionNode<'a> for ErrExpression<'a> {
 }
 
 impl<'a> FromAst<'a, leo_ast::ErrExpression> for ErrExpression<'a> {
-    fn from_ast(_: &'a Scope<'a>, value: &leo_ast::ErrExpression, _: Option<PartialType<'a>>) -> Result<Self> {
+    fn from_ast(scope: &'a Scope<'a>, value: &leo_ast::ErrExpression, _: Option<PartialType<'a>>) -> Result<Self> {
         Ok(Self {
+            id: scope.context.get_id(),
             parent: Cell::new(None),
             span: Some(value.span.clone()),
         })

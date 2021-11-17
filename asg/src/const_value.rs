@@ -179,6 +179,7 @@ impl<'a> fmt::Display for ConstValue<'a> {
             ConstValue::Tuple(_) => write!(f, "Tuple"),
             ConstValue::Array(_) => write!(f, "Array"),
             ConstValue::Circuit(_, _) => write!(f, "Circuit"),
+            ConstValue::Err => write!(f, "Err"),
         }
     }
 }

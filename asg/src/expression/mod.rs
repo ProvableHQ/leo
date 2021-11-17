@@ -104,6 +104,7 @@ impl<'a> Expression<'a> {
             TupleInit(x) => x.id,
             CircuitInit(x) => x.id,
             Call(x) => x.id,
+            Err(x) => x.id,
         }
     }
 }

@@ -28,6 +28,7 @@ pub trait ReconstructingReducerExpression<'a> {
 
     fn reduce_err(&mut self, input: ErrExpression<'a>) -> Expression<'a> {
         Expression::Err(ErrExpression {
+            id: input.id,
             parent: input.parent,
             span: input.span,
         })

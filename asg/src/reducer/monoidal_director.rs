@@ -56,11 +56,11 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_expression(input, value)
     }
 
-    pub fn reduce_err(&mut self, input: &ErrExpression<'a>) -> T {
+    pub fn reduce_err(&mut self, input: &'a ErrExpression<'a>) -> T {
         self.reducer.reduce_err(input)
     }
 
-    pub fn reduce_array_init(&mut self, input: &ArrayInitExpression<'a>) -> T {
+    pub fn reduce_array_init(&mut self, input: &'a ArrayInitExpression<'a>) -> T {
         let element = self.reduce_expression(input.element.get());
 
         self.reducer.reduce_array_init(input, element)
