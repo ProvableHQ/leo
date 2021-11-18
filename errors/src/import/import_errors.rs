@@ -113,4 +113,12 @@ create_errors!(
         msg: format!("failed to read the stdlib import file `{}`", import),
         help: None,
     }
+
+    /// For when directory name matches file name in the same source folder.
+    @formatted
+    conflicting_local_imports {
+        args: (names: impl Debug),
+        msg: format!("unable to select import location, conflicting paths are found: `{:?}`", names),
+        help: None,
+    }
 );

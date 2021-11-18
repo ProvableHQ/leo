@@ -83,7 +83,8 @@ impl ImportParser<'_> {
             .map_err(|error| ImportError::directory_error(error, &error_path, span))?;
 
         // Check if the imported package name is in the source directory.
-        let matched_source_entry = entries.into_iter().find(|entry| {
+        // let source_entries: Vec<DirEntry> = entries
+        let mut source_entries = entries.into_iter().filter(|entry| {
             entry
                 .file_name()
                 .into_string()
@@ -91,6 +92,18 @@ impl ImportParser<'_> {
                 .trim_end_matches(SOURCE_FILE_EXTENSION)
                 .eq(package_name)
         });
+
+        let matched_source_entry = source_entries.next();
+        if let Some(conflicting_path) = source_entries.next() {
+            return Err(ImportError::conflicting_local_imports(
+                [
+                    matched_source_entry.map_or("".into(), |e| e.path()),
+                    conflicting_path.path(),
+                ],
+                span,
+            )
+            .into());
+        }
 
         if imports_directory.exists() {
             // Get a vector of all packages in the imports directory.
