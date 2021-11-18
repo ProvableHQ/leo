@@ -21,6 +21,8 @@ use leo_errors::Span;
 use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
 
+//todo: Add documentation
+
 pub struct Dotifier<'a, 'b> {
     pub graph: DotGraph,
     pub context: &'b AsgContext<'a>,

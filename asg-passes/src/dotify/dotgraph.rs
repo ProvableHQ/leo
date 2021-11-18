@@ -17,6 +17,9 @@ use petgraph::graph::{EdgeIndex, Graph, NodeIndex};
 use petgraph::visit::{DfsPostOrder, EdgeRef};
 use petgraph::Direction;
 use std::borrow::Cow;
+use std::iter;
+
+//todo: Comments
 
 pub struct DotNode {
     pub id: String,
@@ -34,11 +37,13 @@ impl DotNode {
     }
 
     pub fn filter_labels(&mut self, excluded_labels: &[String]) {
-        self.labels = self
-            .labels
-            .drain(..)
-            .filter(|(key, _)| !excluded_labels.contains(&String::from(*key)))
-            .collect();
+        //self.labels = self
+        //    .labels
+        //    .drain(..)
+        //    .filter(|(key, _)| !excluded_labels.contains(&String::from(*key)))
+        //    .collect();
+        self.labels
+            .retain(|(key, _)| !excluded_labels.iter().any(|label| label == key));
     }
 }
 
@@ -97,11 +102,7 @@ impl DotGraph {
     //todo: implement caching
     pub fn get_reachable_set(&self) -> Vec<NodeIndex> {
         let mut dfs = DfsPostOrder::new(&self.graph, self.source);
-        let mut idxs = Vec::new();
-        while let Some(idx) = dfs.next(&self.graph) {
-            idxs.push(idx)
-        }
-        idxs
+        iter::from_fn(|| dfs.next(&self.graph)).collect()
     }
 }
 
@@ -174,60 +175,31 @@ mod tests {
     #[test]
     fn test_render() -> Result<(), Box<dyn Error>> {
         let mut graph = DotGraph::new("example1".to_string());
-        let node0 = graph.add_node(DotNode::new("N0".to_string(), "".to_string()));
-        let node1 = graph.add_node(DotNode::new("N1".to_string(), "".to_string()));
-        let node2 = graph.add_node(DotNode::new("N2".to_string(), "".to_string()));
-        let node3 = graph.add_node(DotNode::new("N3".to_string(), "".to_string()));
-        let node4 = graph.add_node(DotNode::new("N4".to_string(), "".to_string()));
 
-        let edge0 = DotEdge {
-            start_idx: node0,
-            end_idx: node1,
-            label: "".to_string(),
-            color: "black",
+        let mut add_node = |id: &str| graph.add_node(DotNode::new(id.to_string(), "".to_string()));
+
+        let node0 = add_node("N0");
+        let node1 = add_node("N1");
+        let node2 = add_node("N2");
+        let node3 = add_node("N3");
+        let node4 = add_node("N4");
+
+        let mut add_edge = |start_idx, end_idx| {
+            let edge = DotEdge {
+                start_idx,
+                end_idx,
+                label: "".to_string(),
+                color: "black",
+            };
+            graph.add_edge(edge)
         };
 
-        let edge1 = DotEdge {
-            start_idx: node0,
-            end_idx: node2,
-            label: "".to_string(),
-            color: "black",
-        };
-
-        let edge2 = DotEdge {
-            start_idx: node1,
-            end_idx: node3,
-            label: "".to_string(),
-            color: "black",
-        };
-
-        let edge3 = DotEdge {
-            start_idx: node2,
-            end_idx: node3,
-            label: "".to_string(),
-            color: "black",
-        };
-
-        let edge4 = DotEdge {
-            start_idx: node3,
-            end_idx: node4,
-            label: "".to_string(),
-            color: "black",
-        };
-
-        let edge5 = DotEdge {
-            start_idx: node4,
-            end_idx: node4,
-            label: "".to_string(),
-            color: "black",
-        };
-
-        graph.add_edge(edge0);
-        graph.add_edge(edge1);
-        graph.add_edge(edge2);
-        graph.add_edge(edge3);
-        graph.add_edge(edge4);
-        graph.add_edge(edge5);
+        add_edge(node0, node1);
+        add_edge(node0, node2);
+        add_edge(node1, node3);
+        add_edge(node2, node3);
+        add_edge(node3, node4);
+        add_edge(node4, node4);
 
         let mut raw_output = Vec::new();
         dot::render(&graph, &mut raw_output)?;
@@ -259,52 +231,30 @@ mod tests {
     #[test]
     fn test_render_reachable_set() -> Result<(), Box<dyn Error>> {
         let mut graph = DotGraph::new("example1".to_string());
-        let node0 = graph.add_node(DotNode::new("N0".to_string(), "".to_string()));
-        let node1 = graph.add_node(DotNode::new("N1".to_string(), "".to_string()));
-        let node2 = graph.add_node(DotNode::new("N2".to_string(), "".to_string()));
-        let node3 = graph.add_node(DotNode::new("N3".to_string(), "".to_string()));
-        let node4 = graph.add_node(DotNode::new("N4".to_string(), "".to_string()));
 
-        let edge0 = DotEdge {
-            start_idx: node0,
-            end_idx: node1,
-            label: "".to_string(),
-            color: "black",
+        let mut add_node = |id: &str| graph.add_node(DotNode::new(id.to_string(), "".to_string()));
+
+        let node0 = add_node("N0");
+        let node1 = add_node("N1");
+        let node2 = add_node("N2");
+        let node3 = add_node("N3");
+        let node4 = add_node("N4");
+
+        let mut add_edge = |start_idx, end_idx| {
+            let edge = DotEdge {
+                start_idx,
+                end_idx,
+                label: "".to_string(),
+                color: "black",
+            };
+            graph.add_edge(edge)
         };
 
-        let edge2 = DotEdge {
-            start_idx: node1,
-            end_idx: node3,
-            label: "".to_string(),
-            color: "black",
-        };
-
-        let edge3 = DotEdge {
-            start_idx: node2,
-            end_idx: node3,
-            label: "".to_string(),
-            color: "black",
-        };
-
-        let edge4 = DotEdge {
-            start_idx: node3,
-            end_idx: node4,
-            label: "".to_string(),
-            color: "black",
-        };
-
-        let edge5 = DotEdge {
-            start_idx: node4,
-            end_idx: node4,
-            label: "".to_string(),
-            color: "black",
-        };
-
-        graph.add_edge(edge0);
-        graph.add_edge(edge2);
-        graph.add_edge(edge3);
-        graph.add_edge(edge4);
-        graph.add_edge(edge5);
+        add_edge(node0, node1);
+        add_edge(node1, node3);
+        add_edge(node2, node3);
+        add_edge(node3, node4);
+        add_edge(node4, node4);
 
         graph.set_source(node0);
 

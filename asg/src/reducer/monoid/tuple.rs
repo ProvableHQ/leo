@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use super::*;
 
-// macro for implementing n-ary tuple functions and operations
+/// Expands to implementations of `Monoid` for tuples.
 macro_rules! tuple_monoid_impls {
     ($(
         $Tuple:ident {
@@ -25,17 +25,28 @@ macro_rules! tuple_monoid_impls {
         $(
             impl<$($T:Monoid),+> Monoid for ($($T,)+) {
 
-                fn append(self, other: ($($T,)+)) -> ($($T,)+) {
+                fn append(self, other: Self) -> Self {
                     ($(self.$idx.append(other.$idx)),+,)
                 }
 
-                fn append_all(self, others: impl Iterator<Item = ($($T,)+)>) -> ($($T,)+) {
+                fn append_all(self, others: impl Iterator<Item = ($($T,)+)>) -> Self {
                     others.fold(self, |acc, tup| acc.append(tup))
                 }
             }
         )+
     }
 }
+
+impl Monoid for () {
+    fn append(self, _: Self) -> Self {
+        ()
+    }
+
+    fn append_all(self, _: impl Iterator<Item=Self>) -> Self {
+        ()
+    }
+}
+
 
 tuple_monoid_impls! {
     Tuple1 {
