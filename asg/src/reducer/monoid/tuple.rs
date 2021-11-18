@@ -38,15 +38,8 @@ macro_rules! tuple_monoid_impls {
 }
 
 impl Monoid for () {
-    fn append(self, _: Self) -> Self {
-        ()
-    }
-
-    fn append_all(self, _: impl Iterator<Item=Self>) -> Self {
-        ()
-    }
+    fn append(self, _: Self) -> Self {}
 }
-
 
 tuple_monoid_impls! {
     Tuple1 {
