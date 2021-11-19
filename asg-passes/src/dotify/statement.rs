@@ -112,7 +112,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
         Dotifier::add_span_info(&mut labels, &input.span);
 
-        let start_idx = self.add_or_get_node(input.id, "ConsoleStatement".to_string(), labels);
+        let start_idx = self.add_or_get_node(input.id, "ConditionalStatement".to_string(), labels);
 
         let Fixed(end_idx) = condition;
         self.add_edge(start_idx, end_idx, "condition".to_string(), "black");
