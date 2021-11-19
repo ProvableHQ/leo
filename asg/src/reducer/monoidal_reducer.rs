@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{accesses::*, expression::*, program::*, statement::*, Monoid, Variable};
+use crate::{accesses::*, expression::*, program::*, statement::*, Magma, Variable};
 
 #[allow(unused_variables)]
-pub trait MonoidalReducerExpression<'a, T: Monoid> {
+pub trait MonoidalReducerExpression<'a, T: Magma> {
     fn reduce_expression(&mut self, input: &'a Expression<'a>, value: T) -> T {
         value
     }
@@ -31,19 +31,19 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
     }
 
     fn reduce_array_inline(&mut self, input: &'a ArrayInlineExpression<'a>, elements: Vec<T>) -> T {
-        T::default().append_all(elements.into_iter())
+        T::default().merge_all(elements.into_iter())
     }
 
     fn reduce_binary(&mut self, input: &'a BinaryExpression<'a>, left: T, right: T) -> T {
-        left.append(right)
+        left.merge(right)
     }
 
     fn reduce_call(&mut self, input: &'a CallExpression<'a>, target: Option<T>, arguments: Vec<T>) -> T {
-        target.unwrap_or_default().append_all(arguments.into_iter())
+        target.unwrap_or_default().merge_all(arguments.into_iter())
     }
 
     fn reduce_circuit_init(&mut self, input: &'a CircuitInitExpression<'a>, values: Vec<T>) -> T {
-        T::default().append_all(values.into_iter())
+        T::default().merge_all(values.into_iter())
     }
 
     fn reduce_ternary_expression(
@@ -53,7 +53,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         if_true: T,
         if_false: T,
     ) -> T {
-        condition.append(if_true).append(if_false)
+        condition.merge(if_true).merge(if_false)
     }
 
     fn reduce_cast_expression(&mut self, input: &'a CastExpression<'a>, inner: T) -> T {
@@ -61,7 +61,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
     }
 
     fn reduce_array_access(&mut self, input: &'a ArrayAccess<'a>, array: T, index: T) -> T {
-        array.append(index)
+        array.merge(index)
     }
 
     fn reduce_constant(&mut self, input: &'a Constant<'a>) -> T {
@@ -75,7 +75,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         left: Option<T>,
         right: Option<T>,
     ) -> T {
-        array.append_option(left).append_option(right)
+        array.merge_option(left).merge_option(right)
     }
 
     fn reduce_circuit_access(&mut self, input: &'a CircuitAccess<'a>, target: Option<T>) -> T {
@@ -87,7 +87,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
     }
 
     fn reduce_tuple_init(&mut self, input: &'a TupleInitExpression<'a>, values: Vec<T>) -> T {
-        T::default().append_all(values.into_iter())
+        T::default().merge_all(values.into_iter())
     }
 
     fn reduce_unary(&mut self, input: &'a UnaryExpression<'a>, inner: T) -> T {
@@ -99,27 +99,27 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
     }
 
     fn reduce_variable_ref(&mut self, input: &'a VariableRef<'a>, variable: T) -> T {
-        T::default().append(variable)
+        T::default().merge(variable)
     }
 }
 
 #[allow(unused_variables)]
-pub trait MonoidalReducerStatement<'a, T: Monoid>: MonoidalReducerExpression<'a, T> {
+pub trait MonoidalReducerStatement<'a, T: Magma>: MonoidalReducerExpression<'a, T> {
     fn reduce_statement(&mut self, input: &'a Statement<'a>, value: T) -> T {
         value
     }
 
     // left = Some(ArrayIndex.0) always if AssignAccess::ArrayIndex. if member/tuple, always None
     fn reduce_assign_access(&mut self, input: &AssignAccess<'a>, left: Option<T>, right: Option<T>) -> T {
-        left.unwrap_or_default().append_option(right)
+        left.unwrap_or_default().merge_option(right)
     }
 
     fn reduce_assign(&mut self, input: &AssignStatement<'a>, variable: T, accesses: Vec<T>, value: T) -> T {
-        variable.append_all(accesses.into_iter()).append(value)
+        variable.merge_all(accesses.into_iter()).merge(value)
     }
 
     fn reduce_block(&mut self, input: &BlockStatement<'a>, statements: Vec<T>) -> T {
-        T::default().append_all(statements.into_iter())
+        T::default().merge_all(statements.into_iter())
     }
 
     fn reduce_conditional_statement(
@@ -129,11 +129,11 @@ pub trait MonoidalReducerStatement<'a, T: Monoid>: MonoidalReducerExpression<'a,
         if_true: T,
         if_false: Option<T>,
     ) -> T {
-        condition.append(if_true).append_option(if_false)
+        condition.merge(if_true).merge_option(if_false)
     }
 
     fn reduce_formatted_string(&mut self, input: &ConsoleArgs<'a>, parameters: Vec<T>) -> T {
-        T::default().append_all(parameters.into_iter())
+        T::default().merge_all(parameters.into_iter())
     }
 
     fn reduce_console(&mut self, input: &ConsoleStatement<'a>, argument: T) -> T {
@@ -141,7 +141,7 @@ pub trait MonoidalReducerStatement<'a, T: Monoid>: MonoidalReducerExpression<'a,
     }
 
     fn reduce_definition(&mut self, input: &DefinitionStatement<'a>, variables: Vec<T>, value: T) -> T {
-        T::default().append_all(variables.into_iter()).append(value)
+        T::default().merge_all(variables.into_iter()).merge(value)
     }
 
     fn reduce_expression_statement(&mut self, input: &ExpressionStatement<'a>, expression: T) -> T {
@@ -149,7 +149,7 @@ pub trait MonoidalReducerStatement<'a, T: Monoid>: MonoidalReducerExpression<'a,
     }
 
     fn reduce_iteration(&mut self, input: &IterationStatement<'a>, variable: T, start: T, stop: T, body: T) -> T {
-        variable.append(start).append(stop).append(body)
+        variable.merge(start).merge(stop).merge(body)
     }
 
     fn reduce_return(&mut self, input: &ReturnStatement<'a>, value: T) -> T {
@@ -158,9 +158,9 @@ pub trait MonoidalReducerStatement<'a, T: Monoid>: MonoidalReducerExpression<'a,
 }
 
 #[allow(unused_variables)]
-pub trait MonoidalReducerProgram<'a, T: Monoid>: MonoidalReducerStatement<'a, T> {
+pub trait MonoidalReducerProgram<'a, T: Magma>: MonoidalReducerStatement<'a, T> {
     fn reduce_function(&mut self, input: &'a Function<'a>, arguments: Vec<T>, body: T) -> T {
-        T::default().append_all(arguments.into_iter()).append(body)
+        T::default().merge_all(arguments.into_iter()).merge(body)
     }
 
     fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>, function: Option<T>) -> T {
@@ -168,7 +168,7 @@ pub trait MonoidalReducerProgram<'a, T: Monoid>: MonoidalReducerStatement<'a, T>
     }
 
     fn reduce_circuit(&mut self, input: &'a Circuit<'a>, members: Vec<T>) -> T {
-        T::default().append_all(members.into_iter())
+        T::default().merge_all(members.into_iter())
     }
 
     fn reduce_alias(&mut self, input: &'a Alias<'a>) -> T {
@@ -185,10 +185,10 @@ pub trait MonoidalReducerProgram<'a, T: Monoid>: MonoidalReducerStatement<'a, T>
         circuits: Vec<T>,
     ) -> T {
         T::default()
-            .append_all(imported_modules.into_iter())
-            .append_all(aliases.into_iter())
-            .append_all(functions.into_iter())
-            .append_all(global_consts.into_iter())
-            .append_all(circuits.into_iter())
+            .merge_all(imported_modules.into_iter())
+            .merge_all(aliases.into_iter())
+            .merge_all(functions.into_iter())
+            .merge_all(global_consts.into_iter())
+            .merge_all(circuits.into_iter())
     }
 }

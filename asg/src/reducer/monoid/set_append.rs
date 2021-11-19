@@ -27,13 +27,13 @@ impl<T: Hash + Eq + 'static> Default for SetAppend<T> {
     }
 }
 
-impl<T: Hash + Eq + 'static> Monoid for SetAppend<T> {
-    fn append(mut self, other: Self) -> Self {
+impl<T: Hash + Eq + 'static> Magma for SetAppend<T> {
+    fn merge(mut self, other: Self) -> Self {
         self.0.extend(other.0);
         SetAppend(self.0)
     }
 
-    fn append_all(mut self, others: impl Iterator<Item = Self>) -> Self {
+    fn merge_all(mut self, others: impl Iterator<Item = Self>) -> Self {
         let all: Vec<IndexSet<T>> = others.map(|x| x.0).collect();
         let total_size = all.iter().fold(0, |acc, v| acc + v.len());
         self.0.reserve(total_size);

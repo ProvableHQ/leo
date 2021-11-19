@@ -19,12 +19,12 @@ use crate::{accesses::*, expression::*, program::*, statement::*, Variable};
 
 use std::marker::PhantomData;
 
-pub struct MonoidalDirector<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> {
+pub struct MonoidalDirector<'a, T: Magma, R: MonoidalReducerExpression<'a, T>> {
     reducer: R,
     _monoid: PhantomData<&'a T>,
 }
 
-impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T, R> {
+impl<'a, T: Magma, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T, R> {
     pub fn new(reducer: R) -> Self {
         Self {
             reducer,
@@ -183,7 +183,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
     }
 }
 
-impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, R> {
+impl<'a, T: Magma, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, R> {
     pub fn reduce_statement(&mut self, input: &'a Statement<'a>) -> T {
         let value = match input {
             Statement::Assign(s) => self.reduce_assign(s),
@@ -292,7 +292,7 @@ impl<'a, T: Monoid, R: MonoidalReducerStatement<'a, T>> MonoidalDirector<'a, T, 
     }
 }
 
-impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R> {
+impl<'a, T: Magma, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R> {
     pub fn reduce_function(&mut self, input: &'a Function<'a>) -> T {
         let arguments = input
             .arguments

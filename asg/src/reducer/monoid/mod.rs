@@ -29,21 +29,26 @@ pub use tuple::*;
 mod forgetful;
 pub use forgetful::*;
 
-pub trait Monoid: Default {
-    fn append(self, other: Self) -> Self;
+/// Types that are `magma`s, a basic kind of algebraic structure.
+/// See https://en.wikipedia.org/wiki/Magma_(algebra)
+pub trait Magma: Default {
+    /// Combine an elements of a magma into `self`.
+    fn merge(self, other: Self) -> Self;
 
-    fn append_all(self, others: impl Iterator<Item = Self>) -> Self {
+    /// Combine multiple elements of a magma into `self`, from left to right.
+    fn merge_all(self, others: impl Iterator<Item = Self>) -> Self {
         let mut current = self;
         for item in others {
-            current = current.append(item);
+            current = current.merge(item);
         }
         current
     }
 
-    fn append_option(self, other: Option<Self>) -> Self {
+    /// Optionally combine an element of a magma into `self`.
+    fn merge_option(self, other: Option<Self>) -> Self {
         match other {
             None => self,
-            Some(other) => self.append(other),
+            Some(other) => self.merge(other),
         }
     }
 }

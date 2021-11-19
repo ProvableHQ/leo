@@ -15,30 +15,26 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 use super::*;
 
-/// Expands to implementations of `Monoid` for tuples.
+/// Expands to implementations of `Magma` for tuples.
 macro_rules! tuple_monoid_impls {
     ($(
-        $Tuple:ident {
+        $_:ident {
             $(($idx:tt) -> $T:ident)+
         }
     )+) => {
+        impl Magma for () {
+            fn merge(self, _: Self) -> Self {}
+        }
+
         $(
-            impl<$($T:Monoid),+> Monoid for ($($T,)+) {
+            impl<$($T:Magma),+> Magma for ($($T,)*) {
 
-                fn append(self, other: Self) -> Self {
-                    ($(self.$idx.append(other.$idx)),+,)
-                }
-
-                fn append_all(self, others: impl Iterator<Item = ($($T,)+)>) -> Self {
-                    others.fold(self, |acc, tup| acc.append(tup))
+                fn merge(self, other: Self) -> Self {
+                    ($(self.$idx.merge(other.$idx)),+,)
                 }
             }
         )+
     }
-}
-
-impl Monoid for () {
-    fn append(self, _: Self) -> Self {}
 }
 
 tuple_monoid_impls! {

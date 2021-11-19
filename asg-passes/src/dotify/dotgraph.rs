@@ -113,7 +113,6 @@ impl DotGraph {
     }
 }
 
-
 impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph {
     fn graph_id(&'a self) -> dot::Id<'a> {
         dot::Id::new(self.id.as_str()).unwrap()

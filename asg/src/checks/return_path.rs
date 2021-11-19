@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{statement::*, BoolAnd, Expression, Monoid, MonoidalReducerExpression, MonoidalReducerStatement, Node};
+use crate::{statement::*, BoolAnd, Expression, Magma, MonoidalReducerExpression, MonoidalReducerStatement, Node};
 
 use leo_errors::Span;
 
@@ -88,7 +88,7 @@ impl<'a> MonoidalReducerStatement<'a, BoolAnd> for ReturnPathReducer {
                 "cannot have asymmetrical return in if statement".to_string(),
             );
         }
-        if_true.append(if_false.unwrap_or(BoolAnd(false)))
+        if_true.merge(if_false.unwrap_or(BoolAnd(false)))
     }
 
     fn reduce_formatted_string(&mut self, input: &ConsoleArgs, parameters: Vec<BoolAnd>) -> BoolAnd {

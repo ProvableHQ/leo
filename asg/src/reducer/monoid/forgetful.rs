@@ -16,7 +16,7 @@
 
 use super::*;
 
-/// This monoid ignores all append operations
+/// A fixed magma. Ignores all merge operations.
 pub struct Fixed<T: Default>(pub T);
 
 impl<T: Default> Default for Fixed<T> {
@@ -25,12 +25,12 @@ impl<T: Default> Default for Fixed<T> {
     }
 }
 
-impl<T: Default> Monoid for Fixed<T> {
-    fn append(self, _other: Self) -> Self {
+impl<T: Default> Magma for Fixed<T> {
+    fn merge(self, _other: Self) -> Self {
         self
     }
 
-    fn append_all(self, _others: impl Iterator<Item = Self>) -> Self {
+    fn merge_all(self, _others: impl Iterator<Item = Self>) -> Self {
         self
     }
 }
