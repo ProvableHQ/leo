@@ -49,7 +49,7 @@ pub struct OutputOptions {
     pub asg_initial: bool,
     pub asg_constants_folded: bool,
     pub asg_dead_code_eliminated: bool,
-    pub asg_exclude_edges: Vec<String>,
-    pub asg_exclude_labels: Vec<String>,
+    pub asg_exclude_edges: Vec<Box<str>>,
+    pub asg_exclude_labels: Vec<Box<str>>,
     pub emit_ir: bool,
 }

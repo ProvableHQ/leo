@@ -16,14 +16,14 @@
 
 use leo_ast::IntegerType;
 
-use crate::{Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
+use crate::{AsgId, Expression, ExpressionNode, FromAst, InnerVariable, Node, PartialType, Scope, Statement, Variable};
 use leo_errors::{AsgError, Result, Span};
 
 use std::cell::{Cell, RefCell};
 
 #[derive(Clone)]
 pub struct IterationStatement<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub variable: &'a Variable<'a>,

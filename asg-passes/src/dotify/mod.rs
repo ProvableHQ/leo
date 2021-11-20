@@ -35,8 +35,8 @@ impl<'a, 'b> AsgPass<'a> for Dotifier<'a, 'b> {
     type Input = (
         Program<'a>,
         &'b AsgContext<'a>,
-        &'b [String],
-        &'b [String],
+        &'b [Box<str>],
+        &'b [Box<str>],
         String,
         PathBuf,
     );

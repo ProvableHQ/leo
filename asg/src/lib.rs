@@ -72,6 +72,9 @@ pub use context::*;
 pub use leo_ast::{Ast, Identifier};
 use leo_errors::Result;
 
+/// A unique identifier for each ASG node.
+type AsgId = u32;
+
 /// The abstract semantic graph (ASG) for a Leo program.
 ///
 /// The [`Asg`] type represents a Leo program as a series of recursive data types.

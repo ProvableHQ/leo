@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    Circuit, CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType, Scope, Type,
+    AsgId, Circuit, CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Identifier, Node, PartialType,
+    Scope, Type,
 };
 
 use leo_errors::{AsgError, Result, Span};
@@ -24,7 +25,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct CircuitAccess<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub circuit: Cell<&'a Circuit<'a>>,

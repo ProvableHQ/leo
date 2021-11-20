@@ -19,12 +19,13 @@ use petgraph::Direction;
 use std::borrow::Cow;
 use std::iter;
 
-//todo: Comments
-
 /// A node in a DOT graph.
 pub struct DotNode {
+    /// Unique id for the node.
     pub id: String,
+    /// Name of the node.
     pub name: String,
+    /// Labels associated with the node.
     pub labels: Vec<(&'static str, String)>,
 }
 
@@ -39,24 +40,31 @@ impl DotNode {
     }
 
     /// Remove labels from the DotNode.
-    pub fn filter_labels(&mut self, excluded_labels: &[String]) {
+    pub fn filter_labels(&mut self, excluded_labels: &[Box<str>]) {
         self.labels
-            .retain(|(key, _)| !excluded_labels.iter().any(|label| label == key));
+            .retain(|(key, _)| !excluded_labels.iter().any(|label| label.as_ref() == *key));
     }
 }
 
-/// An edge in a DOT graph.
+/// A directed edge in a DOT graph.
 pub struct DotEdge {
+    /// NodeIndex corresponding to the start of the edge.
     pub start_idx: NodeIndex,
+    /// NodeIndex corresponding to the end of the edge.
     pub end_idx: NodeIndex,
+    /// Edge's label.
     pub label: String,
+    /// Edge's color.
     pub color: &'static str,
 }
 
 /// A directed graph that can be rendered into the DOT language.
 pub struct DotGraph {
+    /// An identifier for the graph.
     id: String,
+    /// Underlying graph data structure.
     graph: Graph<DotNode, DotEdge>,
+    /// NodeIndex corresponding to the source.
     source: NodeIndex,
 }
 
@@ -85,24 +93,43 @@ impl DotGraph {
         self.graph.add_node(node)
     }
 
-    /// Add a node to the DotGraph.
-    pub fn add_edge(&mut self, edge: DotEdge) -> EdgeIndex {
+    /// Add an edge to the DotGraph.
+    pub fn add_edge(
+        &mut self,
+        start_idx: NodeIndex,
+        end_idx: NodeIndex,
+        label: String,
+        color: &'static str,
+    ) -> EdgeIndex {
         // Prevents duplicate edges as traversals may go through paths multiple times
-        self.graph.update_edge(edge.start_idx, edge.end_idx, edge)
+        self.graph.update_edge(
+            start_idx,
+            end_idx,
+            DotEdge {
+                start_idx,
+                end_idx,
+                label,
+                color,
+            },
+        )
+    }
+
+    pub fn add_default_edge(&mut self, start_idx: NodeIndex, end_idx: NodeIndex, label: String) -> EdgeIndex {
+        self.add_edge(start_idx, end_idx, label, "black")
     }
 
     /// Remove labels from all nodes in the DotGraph.
-    pub fn filter_node_labels(&mut self, excluded_labels: &[String]) {
+    pub fn filter_node_labels(&mut self, excluded_labels: &[Box<str>]) {
         for node in self.graph.node_weights_mut() {
             node.filter_labels(excluded_labels)
         }
     }
 
     /// Remove edges with certain labels from the DotGraph.
-    pub fn filter_node_edges(&mut self, excluded_edges: &[String]) {
+    pub fn filter_node_edges(&mut self, excluded_edges: &[Box<str>]) {
         self.graph.retain_edges(|graph, edge_idx| {
             let edge = &graph[edge_idx];
-            !excluded_edges.contains(&edge.label)
+            !excluded_edges.iter().any(|exclude| exclude.as_ref() == edge.label)
         });
     }
 
@@ -191,15 +218,7 @@ mod tests {
         let node3 = add_node("N3");
         let node4 = add_node("N4");
 
-        let mut add_edge = |start_idx, end_idx| {
-            let edge = DotEdge {
-                start_idx,
-                end_idx,
-                label: "".to_string(),
-                color: "black",
-            };
-            graph.add_edge(edge)
-        };
+        let mut add_edge = |start_idx, end_idx| graph.add_default_edge(start_idx, end_idx, "".to_string());
 
         add_edge(node0, node1);
         add_edge(node0, node2);
@@ -247,15 +266,7 @@ mod tests {
         let node3 = add_node("N3");
         let node4 = add_node("N4");
 
-        let mut add_edge = |start_idx, end_idx| {
-            let edge = DotEdge {
-                start_idx,
-                end_idx,
-                label: "".to_string(),
-                color: "black",
-            };
-            graph.add_edge(edge)
-        };
+        let mut add_edge = |start_idx, end_idx| graph.add_default_edge(start_idx, end_idx, "".to_string());
 
         add_edge(node0, node1);
         add_edge(node1, node3);

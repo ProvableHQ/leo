@@ -54,11 +54,11 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(id, "AssignAccess".to_string(), labels);
 
         if let Some(Fixed(end_idx)) = left {
-            self.add_edge(start_idx, end_idx, "left".to_string(), "black");
+            self.graph.add_edge(start_idx, end_idx, "left".to_string(), "black");
         }
 
         if let Some(Fixed(end_idx)) = right {
-            self.add_edge(start_idx, end_idx, "right".to_string(), "black")
+            self.graph.add_edge(start_idx, end_idx, "right".to_string(), "black");
         }
 
         Fixed(start_idx)
@@ -75,14 +75,12 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, "AssignStatement".to_string(), labels);
 
         let Fixed(end_idx) = variable;
-        self.add_edge(start_idx, end_idx, "variable".to_string(), "olive");
+        self.graph.add_edge(start_idx, end_idx, "variable".to_string(), "olive");
 
-        for (i, Fixed(end_idx)) in accesses.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("access_{:}", i), "black");
-        }
+        self.enumerate_and_add_edges(start_idx, "black", "access_", accesses);
 
         let Fixed(end_idx) = value;
-        self.add_edge(start_idx, end_idx, "value".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "value".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -94,9 +92,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "BlockStatement".to_string(), labels);
 
-        for (i, Fixed(end_idx)) in statements.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("statement_{:}", i), "black");
-        }
+        self.enumerate_and_add_edges(start_idx, "black", "statement_", statements);
 
         Fixed(start_idx)
     }
@@ -115,13 +111,14 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, "ConditionalStatement".to_string(), labels);
 
         let Fixed(end_idx) = condition;
-        self.add_edge(start_idx, end_idx, "condition".to_string(), "black");
+        self.graph
+            .add_edge(start_idx, end_idx, "condition".to_string(), "black");
 
         let Fixed(end_idx) = if_true;
-        self.add_edge(start_idx, end_idx, "if_true".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "if_true".to_string(), "black");
 
         if let Some(Fixed(end_idx)) = if_false {
-            self.add_edge(start_idx, end_idx, "if_false".to_string(), "black");
+            self.graph.add_edge(start_idx, end_idx, "if_false".to_string(), "black");
         }
 
         Fixed(start_idx)
@@ -136,9 +133,8 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
         Dotifier::add_span_info(&mut labels, &Some(input.span.clone()));
 
         let start_idx = self.add_or_get_node(input.id, "ConsoleArgs".to_string(), labels);
-        for (i, Fixed(end_idx)) in parameters.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("parameter_{:}", i), "black");
-        }
+
+        self.enumerate_and_add_edges(start_idx, "black", "parameter_", parameters);
 
         Fixed(start_idx)
     }
@@ -161,7 +157,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "ConsoleStatement".to_string(), labels);
         let Fixed(end_idx) = argument;
-        self.add_edge(start_idx, end_idx, "argument".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "argument".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -172,12 +168,10 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "DefinitionStatement".to_string(), labels);
 
-        for (i, Fixed(end_idx)) in variables.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("variable_{:}", i), "olive");
-        }
+        self.enumerate_and_add_edges(start_idx, "olive", "variable_", variables);
 
         let Fixed(end_idx) = value;
-        self.add_edge(start_idx, end_idx, "value".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "value".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -188,7 +182,8 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "ExpressionStatement".to_string(), labels);
         let Fixed(end_idx) = expression;
-        self.add_edge(start_idx, end_idx, "expression".to_string(), "black");
+        self.graph
+            .add_edge(start_idx, end_idx, "expression".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -203,16 +198,16 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "IterationStatement".to_string(), labels);
         let Fixed(end_idx) = variable;
-        self.add_edge(start_idx, end_idx, "variable".to_string(), "olive");
+        self.graph.add_edge(start_idx, end_idx, "variable".to_string(), "olive");
 
         let Fixed(end_idx) = start;
-        self.add_edge(start_idx, end_idx, "start".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "start".to_string(), "black");
 
         let Fixed(end_idx) = stop;
-        self.add_edge(start_idx, end_idx, "stop".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "stop".to_string(), "black");
 
         let Fixed(end_idx) = body;
-        self.add_edge(start_idx, end_idx, "body".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "body".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -223,7 +218,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "ReturnStatement".to_string(), labels);
         let Fixed(end_idx) = value;
-        self.add_edge(start_idx, end_idx, "value".to_string(), "black");
+        self.graph.add_default_edge(start_idx, end_idx, "value".to_string());
 
         Fixed(start_idx)
     }

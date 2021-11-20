@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Identifier, Node, Scope, Type};
+use crate::{AsgId, Identifier, Node, Scope, Type};
 use leo_errors::{Result, Span};
 
 use std::cell::RefCell;
 
 #[derive(Clone)]
 pub struct Alias<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub name: RefCell<Identifier>,
     pub span: Option<Span>,
     pub represents: Type<'a>,

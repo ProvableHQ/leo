@@ -42,7 +42,7 @@ pub use iteration::*;
 mod return_;
 pub use return_::*;
 
-use crate::{FromAst, Node, PartialType, Scope};
+use crate::{AsgId, FromAst, Node, PartialType, Scope};
 use leo_errors::{Result, Span};
 
 #[derive(Clone)]
@@ -78,7 +78,7 @@ impl<'a> Statement<'a> {
         }
     }
 
-    pub fn get_id(&self) -> u32 {
+    pub fn get_id(&self) -> AsgId {
         use Statement::*;
         match self {
             Return(s) => s.id,

@@ -35,6 +35,12 @@ use snarkvm_r1cs::ConstraintSystem;
 use structopt::StructOpt;
 use tracing::span::Span;
 
+// Custom parser for exclude_asg_edges, exclude_asg_labels
+#[allow(dead_code)]
+fn parse_excluded_names(src: &str) -> Vec<Box<str>> {
+    src.split(' ').map(Box::from).collect()
+}
+
 // Compiler Options wrapper for Build command. Also used by other commands which
 // require Build command output as their input.
 #[derive(StructOpt, Clone, Debug)]
@@ -70,10 +76,10 @@ pub struct BuildOptions {
     pub enable_constants_folded_asg_debug_graph: bool,
     #[structopt(long, help = "Writes ASG debug graph after the dead code elimination phase.")]
     pub enable_dead_code_eliminated_asg_debug_graph: bool,
-    #[structopt(long, help = "Edges to exclude from ASG debug graph.")]
-    pub asg_exclude_edges: Vec<String>,
-    #[structopt(long, help = "Node labels to exclude from ASG debug graph.")]
-    pub asg_exclude_labels: Vec<String>,
+    #[structopt(long, parse(from_str), help = "Edges to exclude from ASG debug graph.")]
+    pub exclude_asg_edges: Vec<Box<str>>,
+    #[structopt(long, parse(from_str), help = "Node labels to exclude from ASG debug graph.")]
+    pub exclude_asg_labels: Vec<Box<str>>,
     #[structopt(
         long,
         default_value = "1000",
@@ -100,8 +106,8 @@ impl Default for BuildOptions {
             enable_initial_asg_debug_graph: Default::default(),
             enable_constants_folded_asg_debug_graph: Default::default(),
             enable_dead_code_eliminated_asg_debug_graph: Default::default(),
-            asg_exclude_edges: Default::default(),
-            asg_exclude_labels: Default::default(),
+            exclude_asg_edges: Default::default(),
+            exclude_asg_labels: Default::default(),
             inline_limit: DEFAULT_INLINE_LIMIT,
             enable_spans: Default::default(),
             emit_ir: Default::default(),
@@ -138,8 +144,8 @@ impl From<BuildOptions> for OutputOptions {
             asg_initial: options.enable_initial_asg_debug_graph,
             asg_constants_folded: options.enable_constants_folded_asg_debug_graph,
             asg_dead_code_eliminated: options.enable_dead_code_eliminated_asg_debug_graph,
-            asg_exclude_edges: options.asg_exclude_edges,
-            asg_exclude_labels: options.asg_exclude_labels,
+            asg_exclude_edges: options.exclude_asg_edges,
+            asg_exclude_labels: options.exclude_asg_labels,
             emit_ir: options.emit_ir,
         };
 

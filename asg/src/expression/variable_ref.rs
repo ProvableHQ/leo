@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    ConstValue, Constant, DefinitionStatement, Expression, ExpressionNode, FromAst, Node, PartialType, Scope,
+    AsgId, ConstValue, Constant, DefinitionStatement, Expression, ExpressionNode, FromAst, Node, PartialType, Scope,
     Statement, Type, Variable,
 };
 
@@ -25,7 +25,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct VariableRef<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub variable: &'a Variable<'a>,

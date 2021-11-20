@@ -59,7 +59,7 @@ pub use cast::*;
 mod err;
 pub use err::*;
 
-use crate::{ConstValue, FromAst, Node, PartialType, Scope, Type};
+use crate::{AsgId, ConstValue, FromAst, Node, PartialType, Scope, Type};
 use leo_errors::{Result, Span};
 
 #[derive(Clone)]
@@ -89,7 +89,7 @@ impl<'a> Expression<'a> {
         std::ptr::eq(self as *const Expression<'a>, other as *const Expression<'a>)
     }
 
-    pub fn get_id(&self) -> u32 {
+    pub fn get_id(&self) -> AsgId {
         use Expression::*;
         match self {
             VariableRef(x) => x.id,

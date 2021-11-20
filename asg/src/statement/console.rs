@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{CharValue, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
+use crate::{AsgId, CharValue, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
 use leo_ast::ConsoleFunction as AstConsoleFunction;
 use leo_errors::{Result, Span};
 
@@ -23,7 +23,7 @@ use std::cell::Cell;
 // TODO (protryon): Refactor to not require/depend on span
 #[derive(Clone)]
 pub struct ConsoleArgs<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub string: Vec<CharValue>,
     pub parameters: Vec<Cell<&'a Expression<'a>>>,
     pub span: Span,
@@ -38,7 +38,7 @@ pub enum ConsoleFunction<'a> {
 
 #[derive(Clone)]
 pub struct ConsoleStatement<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub function: ConsoleFunction<'a>,

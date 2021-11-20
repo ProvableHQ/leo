@@ -44,12 +44,10 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "Function".to_string(), labels);
 
-        for (i, Fixed(end_idx)) in arguments.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("variable_{:}", i), "olive");
-        }
+        self.enumerate_and_add_edges(start_idx, "olive", "variable_", arguments);
 
         let Fixed(end_idx) = body;
-        self.add_edge(start_idx, end_idx, "body".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "body".to_string(), "black");
 
         if let Some(circuit) = input.circuit.get() {
             self.edges.push((input.id, circuit.id, "circuit".to_string(), "green"))
@@ -79,10 +77,7 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
         Dotifier::add_span_info(&mut labels, &input.span);
 
         let start_idx = self.add_or_get_node(input.id, "Circuit".to_string(), labels);
-
-        for (i, Fixed(end_idx)) in members.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("member_{:}", i), "black");
-        }
+        self.enumerate_and_add_edges(start_idx, "black", "member_", members);
 
         Fixed(start_idx)
     }
@@ -107,25 +102,11 @@ impl<'a, 'b> MonoidalReducerProgram<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "Program".to_string(), labels);
 
-        for (i, Fixed(end_idx)) in imported_modules.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("import_{:}", i), "orange");
-        }
-
-        for (i, Fixed(end_idx)) in aliases.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("alias_{:}", i), "pink");
-        }
-
-        for (i, Fixed(end_idx)) in functions.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("function_{:}", i), "black");
-        }
-
-        for (i, Fixed(end_idx)) in global_consts.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("global_const_{:}", i), "purple");
-        }
-
-        for (i, Fixed(end_idx)) in circuits.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("circuit_{:}", i), "black");
-        }
+        self.enumerate_and_add_edges(start_idx, "orange", "import_", imported_modules);
+        self.enumerate_and_add_edges(start_idx, "pink", "alias_", aliases);
+        self.enumerate_and_add_edges(start_idx, "black", "function_", functions);
+        self.enumerate_and_add_edges(start_idx, "purple", "global_const_", global_consts);
+        self.enumerate_and_add_edges(start_idx, "black", "circuit_", circuits);
 
         self.add_remaining_edges();
 

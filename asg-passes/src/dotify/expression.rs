@@ -54,7 +54,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, "ArrayInitExpression".to_string(), labels);
 
         let Fixed(end_idx) = element;
-        self.add_edge(start_idx, end_idx, "element".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "element".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -69,9 +69,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "ArrayInlineExpression".to_string(), labels);
 
-        for (i, Fixed(end_idx)) in elements.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("element_{:}", i), "black");
-        }
+        self.enumerate_and_add_edges(start_idx, "black", "element_", elements);
 
         Fixed(start_idx)
     }
@@ -87,10 +85,10 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, "BinaryExpression".to_string(), labels);
 
         let Fixed(end_idx) = left;
-        self.add_edge(start_idx, end_idx, "left".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "left".to_string(), "black");
 
         let Fixed(end_idx) = right;
-        self.add_edge(start_idx, end_idx, "right".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "right".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -105,12 +103,10 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "CallExpression".to_string(), labels);
 
-        for (i, Fixed(end_idx)) in arguments.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("argument_{:}", i), "black");
-        }
+        self.enumerate_and_add_edges(start_idx, "black", "argument_", arguments);
 
         if let Some(Fixed(end_idx)) = target {
-            self.add_edge(start_idx, end_idx, "target".to_string(), "black")
+            self.graph.add_edge(start_idx, end_idx, "target".to_string(), "black");
         }
 
         self.edges
@@ -129,9 +125,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "CircuitInitExpression".to_string(), labels);
 
-        for (i, Fixed(end_idx)) in values.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("value_{:}", i), "black");
-        }
+        self.enumerate_and_add_edges(start_idx, "black", "value_", values);
 
         Fixed(start_idx)
     }
@@ -153,13 +147,14 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, "TernaryExpression".to_string(), labels);
 
         let Fixed(end_idx) = condition;
-        self.add_edge(start_idx, end_idx, "condition".to_string(), "black");
+        self.graph
+            .add_edge(start_idx, end_idx, "condition".to_string(), "black");
 
         let Fixed(end_idx) = if_true;
-        self.add_edge(start_idx, end_idx, "if_true".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "if_true".to_string(), "black");
 
         let Fixed(end_idx) = if_false;
-        self.add_edge(start_idx, end_idx, "if_false".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "if_false".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -174,7 +169,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "CastExpression".to_string(), labels);
         let Fixed(end_idx) = inner;
-        self.add_edge(start_idx, end_idx, "inner".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "inner".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -190,10 +185,10 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, "ArrayAccess".to_string(), labels);
 
         let Fixed(end_idx) = array;
-        self.add_edge(start_idx, end_idx, "array".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "array".to_string(), "black");
 
         let Fixed(end_idx) = index;
-        self.add_edge(start_idx, end_idx, "index".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "index".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -230,14 +225,14 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, "ArrayRangeAccess".to_string(), labels);
 
         let Fixed(end_idx) = array;
-        self.add_edge(start_idx, end_idx, "array".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "array".to_string(), "black");
 
         if let Some(Fixed(end_idx)) = left {
-            self.add_edge(start_idx, end_idx, "left".to_string(), "black");
+            self.graph.add_edge(start_idx, end_idx, "left".to_string(), "black");
         }
 
         if let Some(Fixed(end_idx)) = right {
-            self.add_edge(start_idx, end_idx, "right".to_string(), "black");
+            self.graph.add_edge(start_idx, end_idx, "right".to_string(), "black");
         }
 
         Fixed(start_idx)
@@ -254,7 +249,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, "CircuitAccess".to_string(), labels);
 
         if let Some(Fixed(end_idx)) = target {
-            self.add_edge(start_idx, end_idx, "target".to_string(), "black");
+            self.graph.add_edge(start_idx, end_idx, "target".to_string(), "black");
         }
 
         Fixed(start_idx)
@@ -270,7 +265,8 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "TupleAccessExpression".to_string(), labels);
         let Fixed(end_idx) = tuple_ref;
-        self.add_edge(start_idx, end_idx, "tuple_ref".to_string(), "black");
+        self.graph
+            .add_edge(start_idx, end_idx, "tuple_ref".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -285,9 +281,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "TupleInitExpression".to_string(), labels);
 
-        for (i, Fixed(end_idx)) in values.iter().enumerate() {
-            self.add_edge(start_idx, *end_idx, format!("value_{:}", i), "black");
-        }
+        self.enumerate_and_add_edges(start_idx, "black", "value_", values);
 
         Fixed(start_idx)
     }
@@ -302,7 +296,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
 
         let start_idx = self.add_or_get_node(input.id, "UnaryExpresssion".to_string(), labels);
         let Fixed(end_idx) = inner;
-        self.add_edge(start_idx, end_idx, "inner".to_string(), "black");
+        self.graph.add_edge(start_idx, end_idx, "inner".to_string(), "black");
 
         Fixed(start_idx)
     }
@@ -354,7 +348,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         let start_idx = self.add_or_get_node(input.id, "VariableRef".to_string(), labels);
 
         let Fixed(end_idx) = variable;
-        self.add_edge(start_idx, end_idx, "variable".to_string(), "brown");
+        self.graph.add_edge(start_idx, end_idx, "variable".to_string(), "brown");
 
         Fixed(start_idx)
     }

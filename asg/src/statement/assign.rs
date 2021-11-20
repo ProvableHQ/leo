@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CircuitMember, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, Identifier, IntegerType, Node,
+    AsgId, CircuitMember, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, Identifier, IntegerType, Node,
     PartialType, Scope, Statement, Type, Variable,
 };
 pub use leo_ast::AssignOperation;
@@ -34,7 +34,7 @@ pub enum AssignAccess<'a> {
 
 #[derive(Clone)]
 pub struct AssignStatement<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub operation: AssignOperation,

@@ -15,7 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CharValue, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, GroupValue, Node, PartialType, Scope, Type,
+    AsgId, CharValue, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, GroupValue, Node, PartialType, Scope,
+    Type,
 };
 
 use leo_errors::{AsgError, Result, Span};
@@ -25,7 +26,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct Constant<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub value: ConstValue<'a>, // should not be compound constants

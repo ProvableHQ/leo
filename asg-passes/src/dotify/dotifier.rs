@@ -58,15 +58,17 @@ impl<'a, 'b> Dotifier<'a, 'b> {
         })
     }
 
-    /// Adds a DotEdge to the underlying DotGraph.
-    pub fn add_edge(&mut self, start_idx: NodeIndex, end_idx: NodeIndex, label: String, color: &'static str) {
-        let edge = DotEdge {
-            start_idx,
-            end_idx,
-            label,
-            color,
-        };
-        self.graph.add_edge(edge);
+    /// Adds outgoing edges of the same color and label format to a single node.
+    pub fn enumerate_and_add_edges(
+        &mut self,
+        start_idx: NodeIndex,
+        color: &'static str,
+        tag: &'static str,
+        indices: Vec<Fixed<NodeIndex>>,
+    ) {
+        for (i, Fixed(end_idx)) in indices.iter().enumerate() {
+            self.graph.add_edge(start_idx, *end_idx, format!("{}{}", tag, i), color);
+        }
     }
 
     /// Creates a DotEdge for each element in `self.edges` and adds it to the underlying DotGraph.
@@ -74,16 +76,12 @@ impl<'a, 'b> Dotifier<'a, 'b> {
         for (start_id, end_id, label, color) in self.edges.drain(..) {
             //let start_idx = self.id_map.get(&start_id).unwrap(); // All nodes should have been added to ID map
             //let end_idx = self.id_map.get(&end_id).unwrap(); // All nodes should have been added to ID map
+
             //todo: ASG passes can leave references to nodes that are no longer part of the ASG
-            //note: skipping for now
+            //note: doesn't seem to be a problem for now.
+
             if let (Some(start_idx), Some(end_idx)) = (self.id_map.get(&start_id), self.id_map.get(&end_id)) {
-                let edge = DotEdge {
-                    start_idx: *start_idx,
-                    end_idx: *end_idx,
-                    label,
-                    color,
-                };
-                self.graph.add_edge(edge);
+                self.graph.add_edge(*start_idx, *end_idx, label, color);
             }
         }
     }

@@ -246,17 +246,21 @@ impl<'a, 'b> Compiler<'a, 'b> {
     fn do_asg_passes(&mut self) -> Result<()> {
         assert!(self.asg.is_some());
 
-        if self.output_options.asg_initial {
+        let run_dotifier = |asg: leo_asg::Program<'a>, name: &str| -> Result<leo_asg::Program<'a>> {
             let mut path = self.output_directory.clone();
-            path.push("initial_asg.dot");
-            self.asg = Some(leo_asg_passes::Dotifier::do_pass((
-                self.asg.take().unwrap(),
+            path.push(format!("{:}.dot", name));
+            leo_asg_passes::Dotifier::do_pass((
+                asg,
                 &self.context,
                 &self.output_options.asg_exclude_edges,
                 &self.output_options.asg_exclude_labels,
-                "initial_asg".to_string(),
+                name.to_string(),
                 path,
-            ))?);
+            ))
+        };
+
+        if self.output_options.asg_initial {
+            self.asg = Some(run_dotifier(self.asg.take().unwrap(), "initial_asg")?);
         }
 
         // Do constant folding.
@@ -265,16 +269,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
             self.asg = Some(leo_asg_passes::ConstantFolding::do_pass((asg, &self.context))?);
 
             if self.output_options.asg_constants_folded {
-                let mut path = self.output_directory.clone();
-                path.push("constants_folded_asg.dot");
-                self.asg = Some(leo_asg_passes::Dotifier::do_pass((
-                    self.asg.take().unwrap(),
-                    &self.context,
-                    &self.output_options.asg_exclude_edges,
-                    &self.output_options.asg_exclude_labels,
-                    "constants_folded_asg".to_string(),
-                    path,
-                ))?);
+                self.asg = Some(run_dotifier(self.asg.take().unwrap(), "constants_folded_asg")?)
             }
         }
 
@@ -284,16 +279,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
             self.asg = Some(leo_asg_passes::DeadCodeElimination::do_pass(asg)?);
 
             if self.output_options.asg_dead_code_eliminated {
-                let mut path = self.output_directory.clone();
-                path.push("dead_code_eliminated_asg.dot");
-                self.asg = Some(leo_asg_passes::Dotifier::do_pass((
-                    self.asg.take().unwrap(),
-                    &self.context,
-                    &self.output_options.asg_exclude_edges,
-                    &self.output_options.asg_exclude_labels,
-                    "dead_code_eliminated_asg".to_string(),
-                    path,
-                ))?);
+                self.asg = Some(run_dotifier(self.asg.take().unwrap(), "dead_code_eliminated_asg")?);
             }
         }
 

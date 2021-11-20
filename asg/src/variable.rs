@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, Statement, Type};
+use crate::{AsgId, Expression, Statement, Type};
 use leo_ast::Identifier;
 
 use std::cell::RefCell;
@@ -31,7 +31,7 @@ pub enum VariableDeclaration {
 /// Stores information on a program variable.
 #[derive(Clone)]
 pub struct InnerVariable<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub name: Identifier,
     pub type_: Type<'a>,
     pub mutable: bool,

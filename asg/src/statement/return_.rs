@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Expression, FromAst, Node, PartialType, Scope, Statement, Type};
+use crate::{AsgId, Expression, FromAst, Node, PartialType, Scope, Statement, Type};
 use leo_errors::{Result, Span};
 
 use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct ReturnStatement<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Statement<'a>>>,
     pub span: Option<Span>,
     pub expression: Cell<&'a Expression<'a>>,

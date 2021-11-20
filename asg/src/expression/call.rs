@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Function, FunctionQualifier, Node, PartialType,
-    Scope, Type,
+    AsgId, CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Function, FunctionQualifier, Node,
+    PartialType, Scope, Type,
 };
 pub use leo_ast::{BinaryOperation, Node as AstNode};
 use leo_errors::{AsgError, Result, Span};
@@ -25,7 +25,7 @@ use std::cell::Cell;
 
 #[derive(Clone)]
 pub struct CallExpression<'a> {
-    pub id: u32,
+    pub id: AsgId,
     pub parent: Cell<Option<&'a Expression<'a>>>,
     pub span: Option<Span>,
     pub function: Cell<&'a Function<'a>>,
