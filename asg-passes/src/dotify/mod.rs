@@ -32,6 +32,7 @@ use std::fs::File;
 use std::path::PathBuf;
 
 impl<'a, 'b> AsgPass<'a> for Dotifier<'a, 'b> {
+    #[allow(clippy::type_complexity)]
     type Input = (
         Program<'a>,
         &'b AsgContext<'a>,

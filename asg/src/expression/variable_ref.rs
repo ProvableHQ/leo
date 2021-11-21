@@ -35,6 +35,10 @@ impl<'a> Node for VariableRef<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
+
+    fn get_id(&self) -> AsgId {
+        self.id
+    }
 }
 
 impl<'a> ExpressionNode<'a> for VariableRef<'a> {

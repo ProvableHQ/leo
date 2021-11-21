@@ -33,6 +33,10 @@ impl<'a> Node for UnaryExpression<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
+
+    fn get_id(&self) -> AsgId {
+        self.id
+    }
 }
 
 impl<'a> ExpressionNode<'a> for UnaryExpression<'a> {

@@ -88,25 +88,6 @@ impl<'a> Expression<'a> {
     pub fn ptr_eq(&self, other: &Expression<'a>) -> bool {
         std::ptr::eq(self as *const Expression<'a>, other as *const Expression<'a>)
     }
-
-    pub fn get_id(&self) -> AsgId {
-        use Expression::*;
-        match self {
-            VariableRef(x) => x.id,
-            Constant(x) => x.id,
-            Binary(x) => x.id,
-            Unary(x) => x.id,
-            Ternary(x) => x.id,
-            Cast(x) => x.id,
-            Access(x) => x.get_id(),
-            ArrayInline(x) => x.id,
-            ArrayInit(x) => x.id,
-            TupleInit(x) => x.id,
-            CircuitInit(x) => x.id,
-            Call(x) => x.id,
-            Err(x) => x.id,
-        }
-    }
 }
 
 impl<'a> Node for Expression<'a> {
@@ -126,6 +107,25 @@ impl<'a> Node for Expression<'a> {
             CircuitInit(x) => x.span(),
             Call(x) => x.span(),
             Err(x) => x.span(),
+        }
+    }
+
+    fn get_id(&self) -> AsgId {
+        use Expression::*;
+        match self {
+            VariableRef(x) => x.get_id(),
+            Constant(x) => x.get_id(),
+            Binary(x) => x.get_id(),
+            Unary(x) => x.get_id(),
+            Ternary(x) => x.get_id(),
+            Cast(x) => x.get_id(),
+            Access(x) => x.get_id(),
+            ArrayInline(x) => x.get_id(),
+            ArrayInit(x) => x.get_id(),
+            TupleInit(x) => x.get_id(),
+            CircuitInit(x) => x.get_id(),
+            Call(x) => x.get_id(),
+            Err(x) => x.get_id(),
         }
     }
 }

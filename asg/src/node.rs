@@ -14,13 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Alias, AsgContextInner, Circuit, Expression, Function, PartialType, Scope, Statement, Variable};
+use crate::{Alias, AsgContextInner, AsgId, Circuit, Expression, Function, PartialType, Scope, Statement, Variable};
 
 use leo_errors::{Result, Span};
 
 /// A node in the abstract semantic graph.
 pub trait Node {
     fn span(&self) -> Option<&Span>;
+
+    fn get_id(&self) -> AsgId;
 }
 
 pub(super) trait FromAst<'a, T: leo_ast::Node + 'static>: Sized {

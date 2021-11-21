@@ -32,6 +32,10 @@ impl<'a> Node for TupleAccess<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
+
+    fn get_id(&self) -> AsgId {
+        self.id
+    }
 }
 
 impl<'a> ExpressionNode<'a> for TupleAccess<'a> {

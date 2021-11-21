@@ -36,6 +36,10 @@ impl<'a> Node for Constant<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
+
+    fn get_id(&self) -> AsgId {
+        self.id
+    }
 }
 
 impl<'a> ExpressionNode<'a> for Constant<'a> {

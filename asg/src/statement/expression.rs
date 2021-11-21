@@ -31,6 +31,10 @@ impl<'a> Node for ExpressionStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
+
+    fn get_id(&self) -> AsgId {
+        self.id
+    }
 }
 
 impl<'a> FromAst<'a, leo_ast::ExpressionStatement> for ExpressionStatement<'a> {

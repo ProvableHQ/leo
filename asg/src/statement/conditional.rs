@@ -33,6 +33,10 @@ impl<'a> Node for ConditionalStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
+
+    fn get_id(&self) -> AsgId {
+        self.id
+    }
 }
 
 impl<'a> FromAst<'a, leo_ast::ConditionalStatement> for ConditionalStatement<'a> {

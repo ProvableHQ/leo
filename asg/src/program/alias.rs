@@ -42,6 +42,10 @@ impl<'a> Node for Alias<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
+
+    fn get_id(&self) -> AsgId {
+        self.id
+    }
 }
 
 impl<'a> Alias<'a> {

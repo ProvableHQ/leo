@@ -77,21 +77,6 @@ impl<'a> Statement<'a> {
             Empty(_s) => panic!("Method `get_parent` cannot be invoked on an Empty statement"),
         }
     }
-
-    pub fn get_id(&self) -> AsgId {
-        use Statement::*;
-        match self {
-            Return(s) => s.id,
-            Definition(s) => s.id,
-            Assign(s) => s.id,
-            Conditional(s) => s.id,
-            Iteration(s) => s.id,
-            Console(s) => s.id,
-            Expression(s) => s.id,
-            Block(s) => s.id,
-            Empty(_s) => panic!("Method `get_id` cannot be invoked on an Empty statement"),
-        }
-    }
 }
 
 impl<'a> Node for Statement<'a> {
@@ -107,6 +92,21 @@ impl<'a> Node for Statement<'a> {
             Expression(s) => s.span(),
             Block(s) => s.span(),
             Empty(s) => s.as_ref(),
+        }
+    }
+
+    fn get_id(&self) -> AsgId {
+        use Statement::*;
+        match self {
+            Return(s) => s.get_id(),
+            Definition(s) => s.get_id(),
+            Assign(s) => s.get_id(),
+            Conditional(s) => s.get_id(),
+            Iteration(s) => s.get_id(),
+            Console(s) => s.get_id(),
+            Expression(s) => s.get_id(),
+            Block(s) => s.get_id(),
+            Empty(_s) => panic!("Method `get_id` cannot be invoked on an Empty statement"),
         }
     }
 }

@@ -29,6 +29,16 @@ pub struct ConsoleArgs<'a> {
     pub span: Span,
 }
 
+impl<'a> Node for ConsoleArgs<'a> {
+    fn span(&self) -> Option<&Span> {
+        Some(&self.span)
+    }
+
+    fn get_id(&self) -> AsgId {
+        self.id
+    }
+}
+
 #[derive(Clone)]
 pub enum ConsoleFunction<'a> {
     Assert(Cell<&'a Expression<'a>>),
@@ -47,6 +57,10 @@ pub struct ConsoleStatement<'a> {
 impl<'a> Node for ConsoleStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
+    }
+
+    fn get_id(&self) -> AsgId {
+        self.id
     }
 }
 

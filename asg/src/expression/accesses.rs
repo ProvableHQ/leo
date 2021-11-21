@@ -25,18 +25,6 @@ pub enum AccessExpression<'a> {
     Tuple(TupleAccess<'a>),
 }
 
-impl<'a> AccessExpression<'a> {
-    pub fn get_id(&self) -> AsgId {
-        use AccessExpression::*;
-        match self {
-            Array(access) => access.id,
-            ArrayRange(access) => access.id,
-            Circuit(access) => access.id,
-            Tuple(access) => access.id,
-        }
-    }
-}
-
 impl<'a> Node for AccessExpression<'a> {
     fn span(&self) -> Option<&Span> {
         use AccessExpression::*;
@@ -46,6 +34,16 @@ impl<'a> Node for AccessExpression<'a> {
             ArrayRange(access) => access.span(),
             Circuit(access) => access.span(),
             Tuple(access) => access.span(),
+        }
+    }
+
+    fn get_id(&self) -> AsgId {
+        use AccessExpression::*;
+        match self {
+            Array(access) => access.id,
+            ArrayRange(access) => access.id,
+            Circuit(access) => access.id,
+            Tuple(access) => access.id,
         }
     }
 }

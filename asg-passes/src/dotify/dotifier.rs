@@ -26,7 +26,7 @@ pub struct Dotifier<'a, 'b> {
     pub graph: DotGraph,
     pub context: &'b AsgContext<'a>,
     pub id_map: HashMap<u32, NodeIndex>,
-    pub edges: Vec<(u32, u32, String, &'static str)>, // For edges that are meant to be added after entire ASG is traversed
+    pub edges: Vec<(u32, u32, String, DotColor)>, // For edges that are meant to be added after entire ASG is traversed
 }
 
 impl<'a, 'b> Dotifier<'a, 'b> {
@@ -62,7 +62,7 @@ impl<'a, 'b> Dotifier<'a, 'b> {
     pub fn enumerate_and_add_edges(
         &mut self,
         start_idx: NodeIndex,
-        color: &'static str,
+        color: DotColor,
         tag: &'static str,
         indices: Vec<Fixed<NodeIndex>>,
     ) {
@@ -86,8 +86,27 @@ impl<'a, 'b> Dotifier<'a, 'b> {
         }
     }
 
+    /// Generate labels for `DotNode`s corresponding to Expressions.
+    pub fn generate_default_expr_labels(expr: &'b dyn ExpressionNode<'b>) -> Vec<(&'a str, String)> {
+        let mut labels = vec![
+            ("NodeID", expr.get_id().to_string()),
+            ("Type", Dotifier::generate_type_info(expr.get_type())),
+        ];
+
+        Dotifier::add_span_info(&mut labels, expr.span());
+        labels
+    }
+
+    /// Generate labels for `DotNode`s corresponding to Statments.
+    pub fn generate_default_stmt_labels(stmt: &'b dyn Node) -> Vec<(&'a str, String)> {
+        let mut labels = vec![("NodeID", stmt.get_id().to_string())];
+
+        Dotifier::add_span_info(&mut labels, stmt.span());
+        labels
+    }
+
     /// Optinally adds labels for information contained in `Span`
-    pub fn add_span_info(labels: &mut Vec<(&'a str, String)>, span: &Option<Span>) {
+    pub fn add_span_info(labels: &mut Vec<(&'a str, String)>, span: Option<&Span>) {
         if let Some(span) = span {
             labels.push(("File", span.path.to_string()));
             labels.push(("Location", format!("{:}", span)));

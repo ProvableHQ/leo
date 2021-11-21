@@ -37,6 +37,10 @@ impl<'a> Node for IterationStatement<'a> {
     fn span(&self) -> Option<&Span> {
         self.span.as_ref()
     }
+
+    fn get_id(&self) -> AsgId {
+        self.id
+    }
 }
 
 impl<'a> FromAst<'a, leo_ast::IterationStatement> for &'a Statement<'a> {

@@ -13,11 +13,47 @@
 
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
+use dot::LabelText;
 use petgraph::graph::{EdgeIndex, Graph, NodeIndex};
 use petgraph::visit::{DfsPostOrder, EdgeRef};
 use petgraph::Direction;
 use std::borrow::Cow;
 use std::iter;
+
+/// Colors for DOT graph.
+#[derive(Copy, Clone)]
+pub enum DotColor {
+    Black,
+    Red,
+    Brown,
+    Olive,
+    Green,
+    Orange,
+    Pink,
+    Purple,
+    Goldenrod,
+    Magenta,
+    Navy,
+}
+
+#[allow(clippy::from_over_into)]
+impl Into<LabelText<'_>> for DotColor {
+    fn into(self) -> LabelText<'static> {
+        dot::LabelText::label(match self {
+            DotColor::Black => "black",
+            DotColor::Red => "red",
+            DotColor::Brown => "brown",
+            DotColor::Olive => "olive",
+            DotColor::Green => "green",
+            DotColor::Orange => "orange",
+            DotColor::Pink => "pink",
+            DotColor::Purple => "purple",
+            DotColor::Goldenrod => "goldenrod",
+            DotColor::Magenta => "magenta",
+            DotColor::Navy => "navy",
+        })
+    }
+}
 
 /// A node in a DOT graph.
 pub struct DotNode {
@@ -55,7 +91,7 @@ pub struct DotEdge {
     /// Edge's label.
     pub label: String,
     /// Edge's color.
-    pub color: &'static str,
+    pub color: DotColor,
 }
 
 /// A directed graph that can be rendered into the DOT language.
@@ -94,13 +130,7 @@ impl DotGraph {
     }
 
     /// Add an edge to the DotGraph.
-    pub fn add_edge(
-        &mut self,
-        start_idx: NodeIndex,
-        end_idx: NodeIndex,
-        label: String,
-        color: &'static str,
-    ) -> EdgeIndex {
+    pub fn add_edge(&mut self, start_idx: NodeIndex, end_idx: NodeIndex, label: String, color: DotColor) -> EdgeIndex {
         // Prevents duplicate edges as traversals may go through paths multiple times
         self.graph.update_edge(
             start_idx,
@@ -115,7 +145,7 @@ impl DotGraph {
     }
 
     pub fn add_default_edge(&mut self, start_idx: NodeIndex, end_idx: NodeIndex, label: String) -> EdgeIndex {
-        self.add_edge(start_idx, end_idx, label, "black")
+        self.add_edge(start_idx, end_idx, label, DotColor::Black)
     }
 
     /// Remove labels from all nodes in the DotGraph.
@@ -167,7 +197,7 @@ impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> f
     }
 
     fn edge_color(&'a self, e: &(EdgeIndex, &'a DotEdge)) -> Option<dot::LabelText<'a>> {
-        Some(dot::LabelText::label(e.1.color))
+        Some(e.1.color.into())
     }
 }
 
@@ -203,7 +233,7 @@ impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> 
 
 #[cfg(test)]
 mod tests {
-    use crate::dotify::dotgraph::{DotEdge, DotGraph, DotNode};
+    use crate::dotify::dotgraph::{DotGraph, DotNode};
     use std::error::Error;
 
     #[test]
