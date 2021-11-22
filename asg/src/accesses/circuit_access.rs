@@ -80,10 +80,6 @@ impl<'a> ExpressionNode<'a> for CircuitAccess<'a> {
     }
 
     fn is_consty(&self) -> bool {
-        if let Some(target) = self.target.get() {
-            let ast_e: leo_ast::Expression = target.into();
-            dbg!(ast_e);
-        }
         self.target.get().map(|x| x.is_consty()).unwrap_or(true)
     }
 }
