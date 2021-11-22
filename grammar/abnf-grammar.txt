@@ -413,6 +413,7 @@ keyword = %s"address"
         / %s"Self"
         / %s"self"
         / %s"static"
+        / %s"struct"
         / %s"type"
         / %s"u8"
         / %s"u16"
@@ -675,18 +676,18 @@ array-type-dimensions = array-type-dimension
                       / "(" array-type-dimension
                             *( "," array-type-dimension ) [","] ")"
 
-; The keyword `Self` denotes the enclosing circuit type.
-; It is only allowed inside a circuit type declaration.
+; The keyword `Self` denotes the enclosing struct type.
+; It is only allowed inside a struct type declaration.
 
 self-type = %s"Self"
 
-; Circuit types are denoted by identifiers and by `Self`.
+; Struct types are denoted by identifiers and by `Self`.
 ; Identifiers may also be type aliases;
 ; syntactically (i.e. without a semantic analysis),
-; they cannot be distinguished from circuit types.
+; they cannot be distinguished from struct types.
 
 ; Scalar types, tuple types, array types,
-; identifiers (which may be circuit types or type aliases),
+; identifiers (which may be struct types or type aliases),
 ; and the `Self` type
 ; form all the types.
 
@@ -748,7 +749,7 @@ primary-expression = identifier
                    / "(" expression ")"
                    / tuple-expression
                    / array-expression
-                   / circuit-expression
+                   / struct-expression
 
 ; Tuple expressions construct tuples.
 ; Each consists of zero, two, or more component expressions.
@@ -780,7 +781,7 @@ array-construction = array-inline-construction / array-repeat-construction
 
 array-expression = array-construction
 
-; Circuit expressions construct circuit values.
+; Struct expressions construct struct values.
 ; Each lists values for all the member variables (in any order);
 ; there may be zero or more member variables.
 ; A single identifier abbreviates
@@ -789,14 +790,14 @@ array-expression = array-construction
 ; while the right one denotes an expression (a variable),
 ; so they are syntactically identical but semantically different.
 
-circuit-construction = identifier-or-self-type "{"
-                       [ circuit-inline-element
-                         *( "," circuit-inline-element ) [ "," ] ]
+struct-construction = identifier-or-self-type "{"
+                       [ struct-inline-element
+                         *( "," struct-inline-element ) [ "," ] ]
                        "}"
 
-circuit-inline-element = identifier ":" expression / identifier
+struct-inline-element = identifier ":" expression / identifier
 
-circuit-expression = circuit-construction
+struct-expression = struct-construction
 
 ; After primary expressions, postfix expressions have highest precedence.
 ; They apply to primary expressions, and recursively to postfix expressions.
@@ -809,7 +810,7 @@ circuit-expression = circuit-construction
 ; the first inclusive and the second exclusive --
 ; both are optional,
 ; the first defaulting to 0 and the second to the array length.
-; A circuit access selects a member variable by name.
+; A struct access selects a member variable by name.
 
 ; Function calls are also postfix expressions.
 ; There are three kinds of function calls:
@@ -1004,7 +1005,7 @@ annotation = annotation-name
 ; The output type is optional, defaulting to the empty tuple type.
 ; In general, a function input consists of an identifier and a type,
 ; with an optional 'const' modifier.
-; Additionally, functions inside circuits
+; Additionally, functions inside structs
 ; may start with a `&self` or `const self` or `self` parameter.
 
 function-declaration = *annotation [ %s"const" ] %s"function" identifier
@@ -1021,7 +1022,7 @@ function-inputs = function-input *( "," function-input )
 
 function-input = [ %s"const" ] identifier ":" type
 
-; A circuit member constant declaration consists of
+; A struct member constant declaration consists of
 ; the `static` and `const` keywords followed by
 ; an identifier and a type, then an initializer
 ; with a literal terminated by semicolon.
@@ -1029,7 +1030,7 @@ function-input = [ %s"const" ] identifier ":" type
 member-constant-declaration = %s"static" %s"const" identifier ":" type
                               "=" literal ";"
 
-; A circuit member variable declaration consists of
+; A struct member variable declaration consists of
 ; an identifier and a type, terminated by semicolon.
 ; For backward compatibility,
 ; member variable declarations may be alternatively followed by commas,
@@ -1038,18 +1039,18 @@ member-constant-declaration = %s"static" %s"const" identifier ":" type
 ; leaving only mandatory semicolons.
 ; Note that there is no rule for a single `member-variable-declaration`,
 ; but instead one for a sequence of them;
-; see the rule `circuit-declaration`.
+; see the rule `struct-declaration`.
 
 member-variable-declarations = *( identifier ":" type ( "," / ";" ) )
                                identifier ":" type ( [ "," ] / ";" )
 
-; A circuit member function declaration consists of a function declaration.
+; A struct member function declaration consists of a function declaration.
 
 member-function-declaration = function-declaration
 
-; A circuit declaration defines a circuit type,
+; A struct declaration defines a struct type,
 ; as consisting of member constants, variables and functions.
-; A circuit member constant declaration
+; A struct member constant declaration
 ; as consisting of member constants, member variables, and member functions.
 ; To more simply accommodate the backward compatibility
 ; described for the rule `member-variable-declarations`,
@@ -1057,7 +1058,7 @@ member-function-declaration = function-declaration
 ; this may be relaxed after the backward compatibility is removed,
 ; allowing member variables and member functions to be intermixed.
 
-circuit-declaration = %s"circuit" identifier
+struct-declaration = %s"struct" identifier
                       "{" *member-constant-declaration
                       [ member-variable-declarations ]
                       *member-function-declaration "}"
@@ -1093,7 +1094,7 @@ type-alias-declaration = %s"type" identifier "=" type ";"
 
 declaration = import-declaration
             / function-declaration
-            / circuit-declaration
+            / struct-declaration
             / constant-declaration
             / type-alias-declaration
 
