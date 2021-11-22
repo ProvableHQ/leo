@@ -7,11 +7,11 @@ input_file:
 
 type int = u32;
 
-circuit Foo {
+struct Foo {
 	a: u32;
 }
 
-circuit Bar {
+struct Bar {
 	a: int;
 }
 

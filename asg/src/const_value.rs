@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Circuit, Identifier, IntegerType, Type};
+use crate::{Identifier, IntegerType, Struct, Type};
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
@@ -160,7 +160,7 @@ pub enum ConstValue<'a> {
     // compounds
     Tuple(Vec<ConstValue<'a>>),
     Array(Vec<ConstValue<'a>>),
-    Circuit(&'a Circuit<'a>, IndexMap<String, (Identifier, ConstValue<'a>)>),
+    Struct(&'a Struct<'a>, IndexMap<String, (Identifier, ConstValue<'a>)>),
 
     // Error sentinel value
     Err,
@@ -358,7 +358,7 @@ impl<'a> ConstValue<'a> {
                 Type::Tuple(sub_consts.iter().map(|x| x.get_type()).collect::<Option<Vec<Type>>>()?)
             }
             ConstValue::Array(values) => Type::Array(Box::new(values.get(0)?.get_type()?), values.len() as u32),
-            ConstValue::Circuit(circuit, _) => Type::Circuit(circuit),
+            ConstValue::Struct(structure, _) => Type::Struct(structure),
             ConstValue::Err => Type::Err,
         })
     }

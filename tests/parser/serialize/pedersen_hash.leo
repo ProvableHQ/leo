@@ -3,10 +3,10 @@ namespace: Serialize
 expectation: Pass
 */
 
-circuit PedersenHash {
+struct PedersenHash {
     parameters: [group; 256];
 
-    // Instantiates a Pedersen hash circuit
+    // Instantiates a Pedersen hash struct
     function new(parameters: [group; 256]) -> Self {
         return Self { parameters: parameters };
     }

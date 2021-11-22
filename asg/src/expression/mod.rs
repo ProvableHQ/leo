@@ -18,7 +18,7 @@
 //!
 //! Notable differences after conversion from an ast expression include:
 //! 1. Storing variable references instead of variable identifiers - better history tracking and mutability
-//! 2. Resolving constant values - optimizes execution of program circuit.
+//! 2. Resolving constant values - optimizes execution of program struct.
 
 mod accesses;
 pub use accesses::*;
@@ -35,8 +35,8 @@ pub use binary::*;
 mod call;
 pub use call::*;
 
-mod circuit_init;
-pub use circuit_init::*;
+mod struct_init;
+pub use struct_init::*;
 
 mod constant;
 pub use constant::*;
@@ -77,7 +77,7 @@ pub enum Expression<'a> {
 
     TupleInit(TupleInitExpression<'a>),
 
-    CircuitInit(CircuitInitExpression<'a>),
+    StructInit(StructInitExpression<'a>),
 
     Call(CallExpression<'a>),
 
@@ -104,7 +104,7 @@ impl<'a> Node for Expression<'a> {
             ArrayInline(x) => x.span(),
             ArrayInit(x) => x.span(),
             TupleInit(x) => x.span(),
-            CircuitInit(x) => x.span(),
+            StructInit(x) => x.span(),
             Call(x) => x.span(),
             Err(x) => x.span(),
         }
@@ -136,7 +136,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             ArrayInline(x) => x.set_parent(parent),
             ArrayInit(x) => x.set_parent(parent),
             TupleInit(x) => x.set_parent(parent),
-            CircuitInit(x) => x.set_parent(parent),
+            StructInit(x) => x.set_parent(parent),
             Call(x) => x.set_parent(parent),
             Err(x) => x.set_parent(parent),
         }
@@ -155,7 +155,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             ArrayInline(x) => x.get_parent(),
             ArrayInit(x) => x.get_parent(),
             TupleInit(x) => x.get_parent(),
-            CircuitInit(x) => x.get_parent(),
+            StructInit(x) => x.get_parent(),
             Call(x) => x.get_parent(),
             Err(x) => x.get_parent(),
         }
@@ -174,7 +174,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             ArrayInline(x) => x.enforce_parents(expr),
             ArrayInit(x) => x.enforce_parents(expr),
             TupleInit(x) => x.enforce_parents(expr),
-            CircuitInit(x) => x.enforce_parents(expr),
+            StructInit(x) => x.enforce_parents(expr),
             Call(x) => x.enforce_parents(expr),
             Err(x) => x.enforce_parents(expr),
         }
@@ -193,7 +193,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             ArrayInline(x) => x.get_type(),
             ArrayInit(x) => x.get_type(),
             TupleInit(x) => x.get_type(),
-            CircuitInit(x) => x.get_type(),
+            StructInit(x) => x.get_type(),
             Call(x) => x.get_type(),
             Err(x) => x.get_type(),
         }
@@ -212,7 +212,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             ArrayInline(x) => x.is_mut_ref(),
             ArrayInit(x) => x.is_mut_ref(),
             TupleInit(x) => x.is_mut_ref(),
-            CircuitInit(x) => x.is_mut_ref(),
+            StructInit(x) => x.is_mut_ref(),
             Call(x) => x.is_mut_ref(),
             Err(x) => x.is_mut_ref(),
         }
@@ -231,7 +231,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             ArrayInline(x) => x.const_value(),
             ArrayInit(x) => x.const_value(),
             TupleInit(x) => x.const_value(),
-            CircuitInit(x) => x.const_value(),
+            StructInit(x) => x.const_value(),
             Call(x) => x.const_value(),
             Err(x) => x.const_value(),
         }
@@ -250,7 +250,7 @@ impl<'a> ExpressionNode<'a> for Expression<'a> {
             ArrayInline(x) => x.is_consty(),
             ArrayInit(x) => x.is_consty(),
             TupleInit(x) => x.is_consty(),
-            CircuitInit(x) => x.is_consty(),
+            StructInit(x) => x.is_consty(),
             Call(x) => x.is_consty(),
             Err(x) => x.is_consty(),
         }
@@ -299,8 +299,8 @@ impl<'a> FromAst<'a, leo_ast::Expression> for &'a Expression<'a> {
                 TupleInitExpression::from_ast(scope, tuple_init, expected_type).map(Expression::TupleInit)?,
             ),
 
-            CircuitInit(circuit_init) => scope.context.alloc_expression(
-                CircuitInitExpression::from_ast(scope, circuit_init, expected_type).map(Expression::CircuitInit)?,
+            StructInit(struct_init) => scope.context.alloc_expression(
+                StructInitExpression::from_ast(scope, struct_init, expected_type).map(Expression::StructInit)?,
             ),
 
             Call(call) => scope
@@ -326,7 +326,7 @@ impl<'a> Into<leo_ast::Expression> for &Expression<'a> {
             ArrayInline(x) => leo_ast::Expression::ArrayInline(x.into()),
             ArrayInit(x) => leo_ast::Expression::ArrayInit(x.into()),
             TupleInit(x) => leo_ast::Expression::TupleInit(x.into()),
-            CircuitInit(x) => leo_ast::Expression::CircuitInit(x.into()),
+            StructInit(x) => leo_ast::Expression::StructInit(x.into()),
             Call(x) => leo_ast::Expression::Call(x.into()),
             Err(x) => leo_ast::Expression::Err(x.into()),
         }

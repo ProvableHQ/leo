@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::Circuit;
+use crate::Struct;
 pub use leo_ast::IntegerType;
 
 use std::fmt;
@@ -34,7 +34,7 @@ pub enum Type<'a> {
     Array(Box<Type<'a>>, u32),
     ArrayWithoutSize(Box<Type<'a>>),
     Tuple(Vec<Type<'a>>),
-    Circuit(&'a Circuit<'a>),
+    Struct(&'a Struct<'a>),
 
     /// Placeholder for a type that could not be resolved or was not well-formed.
     /// Will eventually lead to a compile error.
@@ -169,7 +169,7 @@ impl<'a> fmt::Display for Type<'a> {
                 }
                 write!(f, ")")
             }
-            Type::Circuit(circuit) => write!(f, "{}", &circuit.name.borrow().name),
+            Type::Struct(structure) => write!(f, "{}", &structure.name.borrow().name),
         }
     }
 }
@@ -240,7 +240,7 @@ impl<'a> Into<leo_ast::Type> for &Type<'a> {
                 leo_ast::Type::Array(Box::new(type_.as_ref().into()), leo_ast::ArrayDimensions::Unspecified)
             }
             Tuple(subtypes) => leo_ast::Type::Tuple(subtypes.iter().map(Into::into).collect()),
-            Circuit(circuit) => leo_ast::Type::Identifier(circuit.name.borrow().clone()),
+            Struct(structure) => leo_ast::Type::Identifier(structure.name.borrow().clone()),
             Err => leo_ast::Type::Err,
         }
     }

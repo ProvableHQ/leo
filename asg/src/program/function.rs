@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    BlockStatement, Circuit, FromAst, Identifier, MonoidalDirector, ReturnPathReducer, Scope, Statement, Type, Variable,
+    BlockStatement, FromAst, Identifier, MonoidalDirector, ReturnPathReducer, Scope, Statement, Struct, Type, Variable,
 };
 use indexmap::IndexMap;
 pub use leo_ast::Annotation;
@@ -41,7 +41,7 @@ pub struct Function<'a> {
     pub name: RefCell<Identifier>,
     pub output: Type<'a>,
     pub arguments: IndexMap<String, Cell<&'a Variable<'a>>>,
-    pub circuit: Cell<Option<&'a Circuit<'a>>>,
+    pub structure: Cell<Option<&'a Struct<'a>>>,
     pub span: Option<Span>,
     pub body: Cell<Option<&'a Statement<'a>>>,
     pub core_mapping: RefCell<Option<String>>,
@@ -126,7 +126,7 @@ impl<'a> Function<'a> {
             id: scope.context.get_id(),
             annotations: value.annotations.clone(),
             body: Cell::new(None),
-            circuit: Cell::new(None),
+            structure: Cell::new(None),
             const_: value.const_,
             name: RefCell::new(value.identifier.clone()),
             span: Some(value.span.clone()),
@@ -143,11 +143,11 @@ impl<'a> Function<'a> {
 
     pub(super) fn fill_from_ast(self: &'a Function<'a>, value: &leo_ast::Function) -> Result<()> {
         if self.qualifier != FunctionQualifier::Static {
-            let circuit = self.circuit.get();
+            let structure = self.structure.get();
             let self_variable = self.scope.context.alloc_variable(RefCell::new(crate::InnerVariable {
                 id: self.scope.context.get_id(),
                 name: Identifier::new("self".into()),
-                type_: Type::Circuit(circuit.as_ref().unwrap()),
+                type_: Type::Struct(structure.as_ref().unwrap()),
                 mutable: self.qualifier == FunctionQualifier::MutSelfRef,
                 const_: false,
                 declaration: crate::VariableDeclaration::Parameter,

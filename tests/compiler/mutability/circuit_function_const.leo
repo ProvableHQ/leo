@@ -4,7 +4,7 @@ expectation: Fail
 input_file: input/dummy.in
 */
 
-circuit Foo {
+struct Foo {
     x: u32
 
     function foo(&self) {
@@ -12,7 +12,7 @@ circuit Foo {
     }
 }
 
-// cannot call mutable member function 'foo' of circuit 'Foo' from immutable context
+// cannot call mutable member function 'foo' of struct 'Foo' from immutable context
 function main() -> bool {
     const a = Foo { x: 1 };
     

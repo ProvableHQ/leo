@@ -19,5 +19,5 @@ Next, generate an answer and construct it as a puzzle grid solution:
  [7, 5, 2]]
 ```
 
-The SillySudoku circuit will proceed to verify that the solution grid matches the starting puzzle grid,
+The SillySudoku struct will proceed to verify that the solution grid matches the starting puzzle grid,
 and check that each number between 1 - 9 is used exactly once.

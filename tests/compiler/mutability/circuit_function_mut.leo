@@ -4,7 +4,7 @@ expectation: Pass
 input_file: input/dummy.in
 */
 
-circuit Foo {
+struct Foo {
     x: u32
 
     function foo(&self) {

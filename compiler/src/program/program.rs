@@ -17,7 +17,7 @@
 //! An in memory store to keep track of defined names when constraining a Leo program.
 
 use leo_asg::{
-    CircuitMember, ExpressionNode, Function, FunctionQualifier, InputCategory, IntegerType, Type as AsgType, Variable,
+    ExpressionNode, Function, FunctionQualifier, InputCategory, IntegerType, StructMember, Type as AsgType, Variable,
 };
 use snarkvm_ir::{Header, Instruction, MaskData, QueryData, RepeatData, SnarkVMVersion, Type, Value};
 
@@ -295,14 +295,14 @@ fn asg_to_ir_type(type_: &AsgType) -> Type {
         },
         AsgType::Array(inner, len) => Type::Array(Box::new(asg_to_ir_type(&*inner)), Some(*len)),
         AsgType::Tuple(items) => Type::Tuple(items.iter().map(asg_to_ir_type).collect()),
-        AsgType::Circuit(circuit) => {
-            let members = circuit.members.borrow();
+        AsgType::Struct(structure) => {
+            let members = structure.members.borrow();
             let members = members
                 .iter()
                 .flat_map(|(_, member)| match member {
-                    CircuitMember::Const(value) => value.get_type().as_ref().map(asg_to_ir_type),
-                    CircuitMember::Variable(type_) => Some(asg_to_ir_type(type_)),
-                    CircuitMember::Function(_) => None,
+                    StructMember::Const(value) => value.get_type().as_ref().map(asg_to_ir_type),
+                    StructMember::Variable(type_) => Some(asg_to_ir_type(type_)),
+                    StructMember::Function(_) => None,
                 })
                 .collect();
             Type::Tuple(members)

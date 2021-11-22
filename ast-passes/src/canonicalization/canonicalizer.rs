@@ -18,17 +18,17 @@ use indexmap::IndexMap;
 use leo_ast::*;
 use leo_errors::{AstError, Result, Span};
 
-/// Replace Self when it is in a enclosing circuit type.
-/// Error when Self is outside an enclosing circuit type.
+/// Replace Self when it is in a enclosing struct type.
+/// Error when Self is outside an enclosing struct type.
 /// Tuple array types and expressions expand to nested arrays.
 /// Tuple array types and expressions error if a size of 0 is given.
 /// Compound operators become simple assignments.
 /// Functions missing output type return a empty tuple.
 #[derive(Default)]
 pub struct Canonicalizer {
-    // If we are in a circuit keep track of the circuit name.
-    circuit_name: Option<Identifier>,
-    in_circuit: bool,
+    // If we are in a struct keep track of the struct name.
+    struct_name: Option<Identifier>,
+    in_struct: bool,
 }
 
 impl AstPass for Canonicalizer {
@@ -107,7 +107,7 @@ impl Canonicalizer {
     fn canonicalize_self_type(&self, type_option: Option<&Type>) -> Option<Type> {
         match type_option {
             Some(type_) => match type_ {
-                Type::SelfType => Some(Type::Identifier(self.circuit_name.as_ref().unwrap().clone())),
+                Type::SelfType => Some(Type::Identifier(self.struct_name.as_ref().unwrap().clone())),
                 Type::Array(type_, dimensions) => Some(Type::Array(
                     Box::new(self.canonicalize_self_type(Some(type_)).unwrap()),
                     dimensions.clone(),
@@ -124,11 +124,11 @@ impl Canonicalizer {
         }
     }
 
-    fn canonicalize_circuit_implied_variable_definition(
+    fn canonicalize_struct_implied_variable_definition(
         &mut self,
-        member: &CircuitImpliedVariableDefinition,
-    ) -> CircuitImpliedVariableDefinition {
-        CircuitImpliedVariableDefinition {
+        member: &StructImpliedVariableDefinition,
+    ) -> StructImpliedVariableDefinition {
+        StructImpliedVariableDefinition {
             identifier: member.identifier.clone(),
             expression: member
                 .expression
@@ -282,20 +282,20 @@ impl Canonicalizer {
                 });
             }
 
-            Expression::CircuitInit(circuit_init) => {
-                let mut name = circuit_init.name.clone();
-                if name.name.as_ref() == "Self" && self.circuit_name.is_some() {
-                    name = self.circuit_name.as_ref().unwrap().clone();
+            Expression::StructInit(struct_init) => {
+                let mut name = struct_init.name.clone();
+                if name.name.as_ref() == "Self" && self.struct_name.is_some() {
+                    name = self.struct_name.as_ref().unwrap().clone();
                 }
 
-                return Expression::CircuitInit(CircuitInitExpression {
+                return Expression::StructInit(StructInitExpression {
                     name,
-                    members: circuit_init
+                    members: struct_init
                         .members
                         .iter()
-                        .map(|member| self.canonicalize_circuit_implied_variable_definition(member))
+                        .map(|member| self.canonicalize_struct_implied_variable_definition(member))
                         .collect(),
-                    span: circuit_init.span.clone(),
+                    span: struct_init.span.clone(),
                 });
             }
             Expression::Call(call) => {
@@ -310,8 +310,8 @@ impl Canonicalizer {
                 });
             }
             Expression::Identifier(identifier) => {
-                if identifier.name.as_ref() == "Self" && self.circuit_name.is_some() {
-                    return Expression::Identifier(self.circuit_name.as_ref().unwrap().clone());
+                if identifier.name.as_ref() == "Self" && self.struct_name.is_some() {
+                    return Expression::Identifier(self.struct_name.as_ref().unwrap().clone());
                 }
             }
             _ => (),
@@ -476,17 +476,17 @@ impl Canonicalizer {
         input.clone()
     }
 
-    fn canonicalize_circuit_member(&mut self, circuit_member: &CircuitMember) -> CircuitMember {
-        match circuit_member {
-            CircuitMember::CircuitConst(identifier, type_, value) => {
-                return CircuitMember::CircuitConst(
+    fn canonicalize_struct_member(&mut self, struct_member: &StructMember) -> StructMember {
+        match struct_member {
+            StructMember::StructConst(identifier, type_, value) => {
+                return StructMember::StructConst(
                     identifier.clone(),
                     type_.clone(),
                     self.canonicalize_expression(value),
                 );
             }
-            CircuitMember::CircuitVariable(_, _) => {}
-            CircuitMember::CircuitFunction(function) => {
+            StructMember::StructVariable(_, _) => {}
+            StructMember::StructFunction(function) => {
                 let input = function
                     .input
                     .iter()
@@ -495,7 +495,7 @@ impl Canonicalizer {
                 let output = self.canonicalize_self_type(function.output.as_ref());
                 let block = self.canonicalize_block(&function.block);
 
-                return CircuitMember::CircuitFunction(Box::new(Function {
+                return StructMember::StructFunction(Box::new(Function {
                     annotations: function.annotations.clone(),
                     identifier: function.identifier.clone(),
                     const_: function.const_,
@@ -508,17 +508,17 @@ impl Canonicalizer {
             }
         }
 
-        circuit_member.clone()
+        struct_member.clone()
     }
 }
 
 impl ReconstructingReducer for Canonicalizer {
-    fn in_circuit(&self) -> bool {
-        self.in_circuit
+    fn in_struct(&self) -> bool {
+        self.in_struct
     }
 
-    fn swap_in_circuit(&mut self) {
-        self.in_circuit = !self.in_circuit;
+    fn swap_in_struct(&mut self) {
+        self.in_struct = !self.in_struct;
     }
 
     fn reduce_type(&mut self, _type_: &Type, new: Type, span: &Span) -> Result<Type> {
@@ -545,7 +545,7 @@ impl ReconstructingReducer for Canonicalizer {
                     }
                 })
             }
-            Type::SelfType if !self.in_circuit => Err(AstError::big_self_outside_of_circuit(span).into()),
+            Type::SelfType if !self.in_struct => Err(AstError::big_self_outside_of_struct(span).into()),
             _ => Ok(new),
         }
     }
@@ -719,21 +719,21 @@ impl ReconstructingReducer for Canonicalizer {
         })
     }
 
-    fn reduce_circuit(
+    fn reduce_struct(
         &mut self,
-        _circuit: &Circuit,
-        circuit_name: Identifier,
-        members: Vec<CircuitMember>,
-    ) -> Result<Circuit> {
-        self.circuit_name = Some(circuit_name.clone());
-        let circ = Circuit {
-            circuit_name,
+        _struct: &Struct,
+        struct_name: Identifier,
+        members: Vec<StructMember>,
+    ) -> Result<Struct> {
+        self.struct_name = Some(struct_name.clone());
+        let circ = Struct {
+            struct_name,
             members: members
                 .iter()
-                .map(|member| self.canonicalize_circuit_member(member))
+                .map(|member| self.canonicalize_struct_member(member))
                 .collect(),
         };
-        self.circuit_name = None;
+        self.struct_name = None;
         Ok(circ)
     }
 }

@@ -1,4 +1,4 @@
-circuit Fab {
+struct Fab {
     x: u8;
 }
 

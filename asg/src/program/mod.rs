@@ -21,8 +21,8 @@
 mod alias;
 pub use alias::*;
 
-mod circuit;
-pub use circuit::*;
+mod structure;
+pub use structure::*;
 
 mod function;
 pub use function::*;
@@ -61,8 +61,8 @@ pub struct Program<'a> {
     /// Maps global constant name => global const code block.
     pub global_consts: IndexMap<String, &'a DefinitionStatement<'a>>,
 
-    /// Maps circuit name => circuit code block.
-    pub circuits: IndexMap<String, &'a Circuit<'a>>,
+    /// Maps structname => sstructode block.
+    pub structs: IndexMap<String, &'a Struct<'a>>,
 
     pub scope: &'a Scope<'a>,
 }
@@ -140,7 +140,7 @@ fn check_top_level_namespaces<'a>(
     span: &Span,
     aliases: &IndexMap<String, &'a Alias<'a>>,
     functions: &IndexMap<String, &'a Function<'a>>,
-    circuits: &IndexMap<String, &'a Circuit<'a>>,
+    structs: &IndexMap<String, &'a Struct<'a>>,
     global_consts: &IndexMap<String, &'a DefinitionStatement<'a>>,
 ) -> Result<()> {
     if aliases.contains_key(name) {
@@ -149,8 +149,8 @@ fn check_top_level_namespaces<'a>(
         Err(AsgError::duplicate_global_const_definition(name, span).into())
     } else if functions.contains_key(name) {
         Err(AsgError::duplicate_function_definition(name, span).into())
-    } else if circuits.contains_key(name) {
-        Err(AsgError::duplicate_circuit_definition(name, span).into())
+    } else if structs.contains_key(name) {
+        Err(AsgError::duplicate_struct_definition(name, span).into())
     } else {
         Ok(())
     }
@@ -168,7 +168,7 @@ impl<'a> Program<'a> {
     pub fn new(context: AsgContext<'a>, program: &leo_ast::Program) -> Result<Program<'a>> {
         let mut imported_aliases: IndexMap<String, &'a Alias<'a>> = IndexMap::new();
         let mut imported_functions: IndexMap<String, &'a Function<'a>> = IndexMap::new();
-        let mut imported_circuits: IndexMap<String, &'a Circuit<'a>> = IndexMap::new();
+        let mut imported_structs: IndexMap<String, &'a Struct<'a>> = IndexMap::new();
         let mut imported_global_consts: IndexMap<String, &'a DefinitionStatement<'a>> = IndexMap::new();
 
         // Convert each sub AST.
@@ -183,7 +183,7 @@ impl<'a> Program<'a> {
             if pretty_package.contains("std.prelude") {
                 imported_aliases.extend(sub_program.aliases.clone().into_iter());
                 imported_functions.extend(sub_program.functions.clone().into_iter());
-                imported_circuits.extend(sub_program.circuits.clone().into_iter());
+                imported_structs.extend(sub_program.structs.clone().into_iter());
                 imported_global_consts.extend(sub_program.global_consts.clone().into_iter());
             }
         }
@@ -209,7 +209,7 @@ impl<'a> Program<'a> {
                 ImportSymbol::All => {
                     imported_aliases.extend(resolved_package.aliases.clone().into_iter());
                     imported_functions.extend(resolved_package.functions.clone().into_iter());
-                    imported_circuits.extend(resolved_package.circuits.clone().into_iter());
+                    imported_structs.extend(resolved_package.structs.clone().into_iter());
                     imported_global_consts.extend(resolved_package.global_consts.clone().into_iter());
                 }
                 ImportSymbol::Direct(name) => {
@@ -217,8 +217,8 @@ impl<'a> Program<'a> {
                         imported_aliases.insert(name.clone(), *alias);
                     } else if let Some(function) = resolved_package.functions.get(&name) {
                         imported_functions.insert(name.clone(), *function);
-                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
-                        imported_circuits.insert(name.clone(), *circuit);
+                    } else if let Some(structure) = resolved_package.structs.get(&name) {
+                        imported_structs.insert(name.clone(), *structure);
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         imported_global_consts.insert(name.clone(), *global_const);
                     } else {
@@ -230,8 +230,8 @@ impl<'a> Program<'a> {
                         imported_aliases.insert(alias.clone(), *type_alias);
                     } else if let Some(function) = resolved_package.functions.get(&name) {
                         imported_functions.insert(alias.clone(), *function);
-                    } else if let Some(circuit) = resolved_package.circuits.get(&name) {
-                        imported_circuits.insert(alias.clone(), *circuit);
+                    } else if let Some(structure) = resolved_package.structs.get(&name) {
+                        imported_structs.insert(alias.clone(), *structure);
                     } else if let Some(global_const) = resolved_package.global_consts.get(&name) {
                         imported_global_consts.insert(alias.clone(), *global_const);
                     } else {
@@ -249,7 +249,7 @@ impl<'a> Program<'a> {
             aliases: RefCell::new(imported_aliases),
             functions: RefCell::new(imported_functions),
             global_consts: RefCell::new(imported_global_consts),
-            circuits: RefCell::new(imported_circuits),
+            structs: RefCell::new(imported_structs),
             function: Cell::new(None),
             input: Cell::new(None),
         }))) {
@@ -266,7 +266,7 @@ impl<'a> Program<'a> {
             aliases: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
             global_consts: RefCell::new(IndexMap::new()),
-            circuits: RefCell::new(IndexMap::new()),
+            structs: RefCell::new(IndexMap::new()),
             function: Cell::new(None),
         });
 
@@ -279,19 +279,19 @@ impl<'a> Program<'a> {
             scope.aliases.borrow_mut().insert(name.name.to_string(), asg_alias);
         }
 
-        for (name, circuit) in program.circuits.iter() {
-            assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = Circuit::init(scope, circuit)?;
+        for (name, structure) in program.structs.iter() {
+            assert_eq!(name.name, structure.struct_name.name);
+            let asg_struct = Struct::init(scope, structure)?;
 
-            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
+            scope.structs.borrow_mut().insert(name.name.to_string(), asg_struct);
         }
 
-        // Second pass for circuit members.
-        for (name, circuit) in program.circuits.iter() {
-            assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = Circuit::init_member(scope, circuit)?;
+        // Second pass for structmembers.
+        for (name, structure) in program.structs.iter() {
+            assert_eq!(name.name, structure.struct_name.name);
+            let asg_struct = Struct::init_member(scope, structure)?;
 
-            scope.circuits.borrow_mut().insert(name.name.to_string(), asg_circuit);
+            scope.structs.borrow_mut().insert(name.name.to_string(), asg_struct);
         }
 
         for (name, function) in program.functions.iter() {
@@ -321,7 +321,7 @@ impl<'a> Program<'a> {
         // Load concrete definitions.
         let mut aliases = IndexMap::new();
         let mut functions = IndexMap::new();
-        let mut circuits = IndexMap::new();
+        let mut structs = IndexMap::new();
         let mut global_consts = IndexMap::new();
 
         for (name, alias) in program.aliases.iter() {
@@ -330,7 +330,7 @@ impl<'a> Program<'a> {
 
             let name = name.name.to_string();
 
-            check_top_level_namespaces(&name, &alias.span, &aliases, &functions, &circuits, &global_consts)?;
+            check_top_level_namespaces(&name, &alias.span, &aliases, &functions, &structs, &global_consts)?;
 
             aliases.insert(name, asg_alias);
         }
@@ -343,29 +343,29 @@ impl<'a> Program<'a> {
 
             let name = name.name.to_string();
 
-            check_top_level_namespaces(&name, &function.span, &aliases, &functions, &circuits, &global_consts)?;
+            check_top_level_namespaces(&name, &function.span, &aliases, &functions, &structs, &global_consts)?;
 
             functions.insert(name, asg_function);
         }
 
-        for (name, circuit) in program.circuits.iter() {
-            assert_eq!(name.name, circuit.circuit_name.name);
-            let asg_circuit = *scope.circuits.borrow().get(name.name.as_ref()).unwrap();
+        for (name, structure) in program.structs.iter() {
+            assert_eq!(name.name, structure.struct_name.name);
+            let asg_struct = *scope.structs.borrow().get(name.name.as_ref()).unwrap();
 
-            asg_circuit.fill_from_ast(circuit)?;
+            asg_struct.fill_from_ast(structure)?;
 
             let name = name.name.to_string();
 
             check_top_level_namespaces(
                 &name,
-                &circuit.circuit_name.span,
+                &structure.struct_name.span,
                 &aliases,
                 &functions,
-                &circuits,
+                &structs,
                 &global_consts,
             )?;
 
-            circuits.insert(name, asg_circuit);
+            structs.insert(name, asg_struct);
         }
 
         for (names, global_const) in program.global_consts.iter() {
@@ -382,7 +382,7 @@ impl<'a> Program<'a> {
                 &global_const.span,
                 &aliases,
                 &functions,
-                &circuits,
+                &structs,
                 &global_consts,
             )?;
 
@@ -396,7 +396,7 @@ impl<'a> Program<'a> {
             aliases,
             functions,
             global_consts,
-            circuits,
+            structs,
             imported_modules: imported_modules
                 .into_iter()
                 .map(|(package, program)| (package.join("."), program))

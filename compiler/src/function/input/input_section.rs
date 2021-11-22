@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Program;
-use leo_asg::{Circuit, CircuitMember, InputCategory};
+use leo_asg::{InputCategory, Struct, StructMember};
 use leo_errors::AsgError;
 use leo_errors::{Result, Span};
 
@@ -28,7 +28,7 @@ impl<'a> Program<'a> {
         &mut self,
         name: &str,
         span: &Span,
-        expected_type: &'a Circuit<'a>,
+        expected_type: &'a Struct<'a>,
         origin: Vec<(String, leo_ast::Type)>,
     ) -> Result<Vec<Value>> {
         let mut value_out = vec![];
@@ -39,7 +39,7 @@ impl<'a> Program<'a> {
             STATE_LEAF_VARIABLE_NAME => InputCategory::StateLeaf,
             _ => panic!("unknown input section: {}", name),
         };
-        // Allocate each section definition as a circuit member value
+        // Allocate each section definition as a struct member value
         let section_members = expected_type.members.borrow();
 
         let mut names = Vec::with_capacity(origin.len());
@@ -48,7 +48,7 @@ impl<'a> Program<'a> {
 
             if let Some(member) = section_members.get(&name) {
                 let expected_type = match member {
-                    CircuitMember::Variable(inner) => inner,
+                    StructMember::Variable(inner) => inner,
                     _ => continue, // present, but unused
                 };
                 if !real_type.is_assignable_from(expected_type) {

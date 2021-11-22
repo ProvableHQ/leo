@@ -19,7 +19,7 @@
 use crate::{asg_group_coordinate_to_ir, decode_address, CompilerOptions, Output, OutputFile, Program};
 use crate::{OutputOptions, TypeInferencePhase};
 pub use leo_asg::{new_context, AsgContext as Context, AsgContext};
-use leo_asg::{Asg, AsgPass, CircuitMember, GroupValue, Program as AsgProgram};
+use leo_asg::{Asg, AsgPass, GroupValue, Program as AsgProgram, StructMember};
 use leo_ast::AstPass;
 use leo_ast::{InputValue, IntegerType, Program as AstProgram};
 use leo_errors::emitter::Handler;
@@ -376,14 +376,14 @@ impl<'a, 'b> Compiler<'a, 'b> {
             .iter()
             .filter(|(_, func)| !func.is_test())
             .map(|(_, f)| *f)
-            .chain(program.asg.scope.get_circuits().iter().flat_map(|(_, circuit)| {
-                circuit
+            .chain(program.asg.scope.get_structs().iter().flat_map(|(_, structure)| {
+                structure
                     .members
                     .borrow()
                     .iter()
                     .filter_map(|(_, member)| match member {
-                        CircuitMember::Const(_) | CircuitMember::Variable(_) => None,
-                        CircuitMember::Function(function) => Some(*function),
+                        StructMember::Const(_) | StructMember::Variable(_) => None,
+                        StructMember::Function(function) => Some(*function),
                     })
                     .collect::<Vec<_>>()
                     .into_iter()
@@ -452,14 +452,14 @@ impl<'a, 'b> Compiler<'a, 'b> {
     }
 
     // ///
-    // /// Synthesizes the circuit with program input to verify correctness.
+    // /// Synthesizes the struct with program input to verify correctness.
     // ///
     // pub fn compile_constraints(&self, program: &mut Program) -> Result<Output, CompilerError> {
     //     generate_constraints(program, &self.asg.as_ref().unwrap(), &self.program_input)
     // }
 
     // ///
-    // /// Synthesizes the circuit for test functions with program input.
+    // /// Synthesizes the struct for test functions with program input.
     // ///
     // pub fn compile_test_constraints(self, input_pairs: InputPairs) -> Result<(u32, u32), CompilerError> {
     //     generate_test_constraints(&self.asg.as_ref().unwrap(), input_pairs, &self.output_directory)
@@ -564,7 +564,7 @@ impl<'a, 'b> Compiler<'a, 'b> {
                 Value::Tuple(out)
             }
             (Type::Circuit(_), _) => {
-                return Err(CompilerError::circuit_as_input(span).into());
+                return Err(CompilerError::struct_as_input(span).into());
             }
             (type_, value) => return Err(AsgError::unexpected_type(type_, value, span).into()),
         })

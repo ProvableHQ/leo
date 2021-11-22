@@ -11,7 +11,7 @@ outputs:
       "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}":
         circuit_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":10,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit X {\\\"}\"}"
         members:
-          - CircuitConst:
+          - StructConst:
               - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const x: u32 = 2;\\\"}\"}"
               - IntegerType: U32
               - Value:
@@ -24,7 +24,7 @@ outputs:
                         col_stop: 28
                         path: ""
                         content: "    static const x: u32 = 2;"
-          - CircuitConst:
+          - StructConst:
               - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const y: u32 = 5;\\\"}\"}"
               - IntegerType: U32
               - Value:

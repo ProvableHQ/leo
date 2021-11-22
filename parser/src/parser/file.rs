@@ -28,7 +28,7 @@ impl ParserContext<'_> {
     pub fn parse_program(&mut self) -> Result<Program> {
         let mut import_statements = Vec::new();
         let mut aliases = IndexMap::new();
-        let mut circuits = IndexMap::new();
+        let mut structs = IndexMap::new();
         let mut functions = IndexMap::new();
         let mut global_consts = IndexMap::new();
         // let mut tests = IndexMap::new();
@@ -39,18 +39,24 @@ impl ParserContext<'_> {
                 Token::Import => {
                     import_statements.push(self.parse_import_statement()?);
                 }
-                Token::Circuit => {
-                    self.expect(Token::Circuit)?;
-                    let (id, circuit) = self.parse_circuit()?;
-                    circuits.insert(id, circuit);
+                Token::Struct => {
+                    if self.peek()?.token == Token::Circuit {
+                        let span = self.expect(Token::Circuit)?;
+                        self.emit_err(ParserError::cricuit_definition(&span));
+                    } else {
+                        self.expect(Token::Struct)?;
+                    }
+
+                    let (id, structure) = self.parse_struct()?;
+                    structs.insert(id, structure);
                 }
                 Token::Ident(ident) => match ident.as_ref() {
                     "test" => return Err(ParserError::test_function(&token.span).into()),
                     kw @ ("struct" | "class") => {
-                        self.emit_err(ParserError::unexpected(kw, "circuit", &token.span));
+                        self.emit_err(ParserError::unexpected(kw, "struct", &token.span));
                         self.bump().unwrap();
-                        let (id, circuit) = self.parse_circuit()?;
-                        circuits.insert(id, circuit);
+                        let (id, structure) = self.parse_struct()?;
+                        structs.insert(id, structure);
                     }
                     _ => return Err(Self::unexpected_item(token).into()),
                 },
@@ -80,7 +86,7 @@ impl ParserContext<'_> {
             import_statements,
             imports: IndexMap::new(),
             aliases,
-            circuits,
+            structs,
             functions,
             global_consts,
         })
@@ -91,7 +97,7 @@ impl ParserContext<'_> {
             &token.token,
             [
                 Token::Import,
-                Token::Circuit,
+                Token::Struct,
                 Token::Function,
                 Token::Ident("test".into()),
                 Token::At,
@@ -294,9 +300,9 @@ impl ParserContext<'_> {
         })
     }
 
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable
-    /// or circuit member function.
-    pub fn parse_circuit_declaration(&mut self) -> Result<Vec<CircuitMember>> {
+    /// Returns a [`StructMember`] AST node if the next tokens represent a struct member variable
+    /// or struct member function.
+    pub fn parse_struct_declaration(&mut self) -> Result<Vec<StructMember>> {
         let mut members = Vec::new();
 
         let (mut semi_colons, mut commas) = (false, false);
@@ -336,23 +342,23 @@ impl ParserContext<'_> {
     }
 
     /// Emits errors if order isn't `consts variables functions`.
-    fn ban_mixed_member_order(&self, members: &[CircuitMember]) {
+    fn ban_mixed_member_order(&self, members: &[StructMember]) {
         let mut had_var = false;
         let mut had_fun = false;
         for member in members {
             match member {
-                CircuitMember::CircuitConst(id, _, e) if had_var => {
+                StructMember::StructConst(id, _, e) if had_var => {
                     self.emit_err(ParserError::member_const_after_var(&(id.span() + e.span())));
                 }
-                CircuitMember::CircuitConst(id, _, e) if had_fun => {
+                StructMember::StructConst(id, _, e) if had_fun => {
                     self.emit_err(ParserError::member_const_after_fun(&(id.span() + e.span())));
                 }
-                CircuitMember::CircuitVariable(id, _) if had_fun => {
+                StructMember::StructVariable(id, _) if had_fun => {
                     self.emit_err(ParserError::member_var_after_fun(id.span()));
                 }
-                CircuitMember::CircuitConst(..) => {}
-                CircuitMember::CircuitVariable(..) => had_var = true,
-                CircuitMember::CircuitFunction(..) => had_fun = true,
+                StructMember::StructConst(..) => {}
+                StructMember::StructVariable(..) => had_var = true,
+                StructMember::StructFunction(..) => had_fun = true,
             }
         }
     }
@@ -366,8 +372,8 @@ impl ParserContext<'_> {
         Ok((name, type_))
     }
 
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member static constant.
-    pub fn parse_const_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+    /// Returns a [`StructMember`] AST node if the next tokens represent a struct member static constant.
+    pub fn parse_const_member_variable_declaration(&mut self) -> Result<StructMember> {
         self.expect(Token::Static)?;
         self.expect(Token::Const)?;
 
@@ -378,24 +384,24 @@ impl ParserContext<'_> {
 
         self.expect(Token::Semicolon)?;
 
-        Ok(CircuitMember::CircuitConst(name, type_, literal))
+        Ok(StructMember::StructConst(name, type_, literal))
     }
 
     ///
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member variable.
+    /// Returns a [`StructMember`] AST node if the next tokens represent a struct member variable.
     ///
-    pub fn parse_member_variable_declaration(&mut self) -> Result<CircuitMember> {
+    pub fn parse_member_variable_declaration(&mut self) -> Result<StructMember> {
         let (name, type_) = self.parse_typed_field_name()?;
 
-        Ok(CircuitMember::CircuitVariable(name, type_))
+        Ok(StructMember::StructVariable(name, type_))
     }
 
-    /// Returns a [`CircuitMember`] AST node if the next tokens represent a circuit member function.
-    pub fn parse_member_function_declaration(&mut self) -> Result<CircuitMember> {
+    /// Returns a [`StructMember`] AST node if the next tokens represent a struct member function.
+    pub fn parse_member_function_declaration(&mut self) -> Result<StructMember> {
         let peeked = self.peek()?.clone();
         if self.peek_is_function()? {
             let function = self.parse_function_declaration()?;
-            Ok(CircuitMember::CircuitFunction(Box::new(function.1)))
+            Ok(StructMember::StructFunction(Box::new(function.1)))
         } else {
             return Err(ParserError::unexpected(
                 &peeked.token,
@@ -411,10 +417,10 @@ impl ParserContext<'_> {
     }
 
     ///
-    /// Returns an [`(Identifier, Circuit)`] tuple of AST nodes if the next tokens represent a
-    /// circuit name and definition statement.
+    /// Returns an [`(Identifier, Struct)`] tuple of AST nodes if the next tokens represent a
+    /// struct name and definition statement.
     ///
-    pub fn parse_circuit(&mut self) -> Result<(Identifier, Circuit)> {
+    pub fn parse_struct(&mut self) -> Result<(Identifier, Struct)> {
         let name = if let Some(ident) = self.eat_identifier() {
             ident
         } else if let Some(scalar_type) = self.eat_any(crate::type_::TYPE_TOKENS) {
@@ -428,12 +434,12 @@ impl ParserContext<'_> {
         };
 
         self.expect(Token::LeftCurly)?;
-        let members = self.parse_circuit_declaration()?;
+        let members = self.parse_struct_declaration()?;
 
         Ok((
             name.clone(),
-            Circuit {
-                circuit_name: name,
+            Struct {
+                struct_name: name,
                 members,
             },
         ))

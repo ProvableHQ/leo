@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::program::Program;
-use leo_asg::{CircuitMember, Identifier, Type};
+use leo_asg::{Identifier, StructMember, Type};
 use leo_errors::{CompilerError, Result};
 use snarkvm_ir::{Instruction, Integer, QueryData, Value};
 
@@ -30,14 +30,14 @@ impl<'a> Program<'a> {
         let input_var = context.input_register;
 
         let (inner_type, index) = match &context.input_type {
-            Type::Circuit(circuit) => {
-                let members = circuit.members.borrow();
+            Type::Struct(structure) => {
+                let members = structure.members.borrow();
                 let (index, _, member) = members
                     .get_full(name.name.as_ref())
-                    .expect("illegal member name in circuit member assignment");
+                    .expect("illegal member name in struct member assignment");
                 let inner_type = match member {
-                    CircuitMember::Variable(type_) => type_.clone(),
-                    CircuitMember::Const(_) | CircuitMember::Function(_) => {
+                    StructMember::Variable(type_) => type_.clone(),
+                    StructMember::Const(_) | StructMember::Function(_) => {
                         return Err(
                             CompilerError::illegal_static_member_assignment(name.name.as_ref(), &name.span).into(),
                         )
@@ -45,7 +45,7 @@ impl<'a> Program<'a> {
                 };
                 (inner_type, index)
             }
-            _ => panic!("illegal type in circuit member assignment"),
+            _ => panic!("illegal type in struct member assignment"),
         };
 
         let out = self.alloc();

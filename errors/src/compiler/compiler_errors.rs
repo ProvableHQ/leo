@@ -106,11 +106,11 @@ create_errors!(
         help: None,
     }
 
-    /// For when the expected circuit member could not be found.
+    /// For when the expected struct member could not be found.
     @formatted
-    expected_circuit_member {
+    expected_struct_member {
         args: (expected: impl Display),
-        msg: format!("expected circuit member `{}`, not found", expected),
+        msg: format!("expected struct member `{}`, not found", expected),
         help: None,
     }
 
@@ -219,11 +219,11 @@ create_errors!(
         help: None,
     }
 
-    /// For when a circuit was passed as input
+    /// For when a struct was passed as input
     @formatted
-    circuit_as_input {
+    struct_as_input {
         args: (),
-        msg: "input circuits not supported for input",
+        msg: "input structs not supported for input",
         help: None,
     }
 
@@ -247,7 +247,7 @@ create_errors!(
     @formatted
     statement_multiple_returns {
         args: (),
-        msg: "This function returns multiple times and produces unreachable circuits with undefined behavior.",
+        msg: "This function returns multiple times and produces unreachable structs with undefined behavior.",
         help: None,
     }
 
@@ -297,15 +297,15 @@ create_errors!(
         help: None,
     }
 
-    /// For when a circuit static const access was execpted.
+    /// For when a struct static const access was execpted.
     @formatted
-    expected_circuit_static_const_access {
+    expected_struct_static_const_access {
         args: (),
-        msg: "A circuit static const access was expected",
+        msg: "A struct static const access was expected",
         help: None,
     }
 
-    /// For when a user tries to assign to a circuit static member.
+    /// For when a user tries to assign to a struct static member.
     @formatted
     illegal_static_member_assignment {
         args: (member: impl Display),

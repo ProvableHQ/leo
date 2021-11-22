@@ -42,7 +42,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         target.unwrap_or_default().append_all(arguments.into_iter())
     }
 
-    fn reduce_circuit_init(&mut self, input: &CircuitInitExpression<'a>, values: Vec<T>) -> T {
+    fn reduce_struct_init(&mut self, input: &StructInitExpression<'a>, values: Vec<T>) -> T {
         T::default().append_all(values.into_iter())
     }
 
@@ -72,7 +72,7 @@ pub trait MonoidalReducerExpression<'a, T: Monoid> {
         array.append_option(left).append_option(right)
     }
 
-    fn reduce_circuit_access(&mut self, input: &CircuitAccess<'a>, target: Option<T>) -> T {
+    fn reduce_struct_access(&mut self, input: &StructAccess<'a>, target: Option<T>) -> T {
         target.unwrap_or_default()
     }
 
@@ -153,18 +153,18 @@ pub trait MonoidalReducerProgram<'a, T: Monoid>: MonoidalReducerStatement<'a, T>
         body
     }
 
-    fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>, function: Option<T>) -> T {
+    fn reduce_struct_member(&mut self, input: &StructMember<'a>, function: Option<T>) -> T {
         function.unwrap_or_default()
     }
 
-    fn reduce_circuit(&mut self, input: &'a Circuit<'a>, members: Vec<T>) -> T {
+    fn reduce_struct(&mut self, input: &'a Struct<'a>, members: Vec<T>) -> T {
         T::default().append_all(members.into_iter())
     }
 
-    fn reduce_program(&mut self, input: &Program, imported_modules: Vec<T>, functions: Vec<T>, circuits: Vec<T>) -> T {
+    fn reduce_program(&mut self, input: &Program, imported_modules: Vec<T>, functions: Vec<T>, structure: Vec<T>) -> T {
         T::default()
             .append_all(imported_modules.into_iter())
             .append_all(functions.into_iter())
-            .append_all(circuits.into_iter())
+            .append_all(structure.into_iter())
     }
 }

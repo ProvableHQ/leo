@@ -1,7 +1,7 @@
 /**
- * The SillySudoku circuit
+ * The SillySudoku struct
  *
- * This circuit generates a silly Sudoku puzzle,
+ * This struct generates a silly Sudoku puzzle,
  * by constructing a 3x3 puzzle grid with some preset numbers 1-9,
  * and requiring an answer where each number is used exactly once.
  *
@@ -13,7 +13,7 @@
  * | 1 | 9 | 6 |
  *  -----------
  */
-circuit SillySudoku {
+struct SillySudoku {
     // The starting grid values for the Sudoku puzzle.
     // Unset cells on the puzzle grid are set to 0.
     puzzle_grid: [u8; (3, 3)];

@@ -1,3 +1,3 @@
-circuit Bat {
+struct Bat {
     t: u32;
 }

@@ -20,8 +20,8 @@ pub use array_access::*;
 mod array_range_access;
 pub use array_range_access::*;
 
-mod circuit_access;
-pub use circuit_access::*;
+mod struct_access;
+pub use struct_access::*;
 
 mod tuple_access;
 pub use tuple_access::*;

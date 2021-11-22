@@ -1,3 +1,3 @@
-circuit Car {
+struct Car {
     c: u32;
 }

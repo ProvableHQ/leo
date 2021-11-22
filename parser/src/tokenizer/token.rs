@@ -127,6 +127,7 @@ pub enum Token {
     As,
     Circuit,
     Console,
+    Struct,
     /// Const variable and a const function.
     Const,
     Else,
@@ -196,6 +197,7 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::BigSelf,
     Token::LittleSelf,
     Token::Static,
+    Token::Struct,
     Token::True,
     Token::Type,
     Token::U8,
@@ -309,6 +311,7 @@ impl fmt::Display for Token {
             Ampersand => write!(f, "&"), // Used for `Reference` and `BitAnd`
             Return => write!(f, "return"),
             Static => write!(f, "static"),
+            Struct => write!(f, "struct"),
             Type => write!(f, "type"),
             Eof => write!(f, ""),
             // BitAndEq => write!(f, "&="),

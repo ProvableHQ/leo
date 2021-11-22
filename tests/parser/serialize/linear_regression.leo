@@ -3,7 +3,7 @@ namespace: Serialize
 expectation: Pass
 */
 
-circuit Point {
+struct Point {
     x: i32,
     y: i32,
     
@@ -12,10 +12,10 @@ circuit Point {
     }
 }
 
-circuit LinearRegression {
+struct LinearRegression {
     points: [Point; 5],
     
-    // Instantiates a linear regression circuit.
+    // Instantiates a linear regression struct.
     function new(points: [Point; 5]) -> Self { 
         return Self { points };
     }

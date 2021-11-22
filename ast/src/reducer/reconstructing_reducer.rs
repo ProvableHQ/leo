@@ -21,8 +21,8 @@ use leo_errors::{Result, Span};
 // Needed to fix clippy bug.
 #[allow(clippy::redundant_closure)]
 pub trait ReconstructingReducer {
-    fn in_circuit(&self) -> bool;
-    fn swap_in_circuit(&mut self);
+    fn in_struct(&self) -> bool;
+    fn swap_in_struct(&mut self);
 
     fn reduce_type(&mut self, _type_: &Type, new: Type, _span: &Span) -> Result<Type> {
         Ok(new)
@@ -214,25 +214,25 @@ pub trait ReconstructingReducer {
         })
     }
 
-    fn reduce_circuit_implied_variable_definition(
+    fn reduce_struct_implied_variable_definition(
         &mut self,
-        _variable: &CircuitImpliedVariableDefinition,
+        _variable: &StructImpliedVariableDefinition,
         identifier: Identifier,
         expression: Option<Expression>,
-    ) -> Result<CircuitImpliedVariableDefinition> {
-        Ok(CircuitImpliedVariableDefinition { identifier, expression })
+    ) -> Result<StructImpliedVariableDefinition> {
+        Ok(StructImpliedVariableDefinition { identifier, expression })
     }
 
-    fn reduce_circuit_init(
+    fn reduce_struct_init(
         &mut self,
-        circuit_init: &CircuitInitExpression,
+        struct_init: &StructInitExpression,
         name: Identifier,
-        members: Vec<CircuitImpliedVariableDefinition>,
-    ) -> Result<CircuitInitExpression> {
-        Ok(CircuitInitExpression {
+        members: Vec<StructImpliedVariableDefinition>,
+    ) -> Result<StructInitExpression> {
+        Ok(StructInitExpression {
             name,
             members,
-            span: circuit_init.span.clone(),
+            span: struct_init.span.clone(),
         })
     }
 
@@ -383,7 +383,7 @@ pub trait ReconstructingReducer {
         import_statements: Vec<ImportStatement>,
         imports: IndexMap<Vec<String>, Program>,
         aliases: IndexMap<Identifier, Alias>,
-        circuits: IndexMap<Identifier, Circuit>,
+        structs: IndexMap<Identifier, Struct>,
         functions: IndexMap<Identifier, Function>,
         global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     ) -> Result<Program> {
@@ -393,7 +393,7 @@ pub trait ReconstructingReducer {
             import_statements,
             imports,
             aliases,
-            circuits,
+            structs,
             functions,
             global_consts,
         })
@@ -441,17 +441,17 @@ pub trait ReconstructingReducer {
         Ok((identifier, import))
     }
 
-    fn reduce_circuit_member(&mut self, _circuit_member: &CircuitMember, new: CircuitMember) -> Result<CircuitMember> {
+    fn reduce_struct_member(&mut self, _struct_member: &StructMember, new: StructMember) -> Result<StructMember> {
         Ok(new)
     }
 
-    fn reduce_circuit(
+    fn reduce_struct(
         &mut self,
-        _circuit: &Circuit,
-        circuit_name: Identifier,
-        members: Vec<CircuitMember>,
-    ) -> Result<Circuit> {
-        Ok(Circuit { circuit_name, members })
+        _structure: &Struct,
+        struct_name: Identifier,
+        members: Vec<StructMember>,
+    ) -> Result<Struct> {
+        Ok(Struct { struct_name, members })
     }
 
     fn reduce_annotation(&mut self, annotation: &Annotation, name: Identifier) -> Result<Annotation> {

@@ -43,7 +43,7 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
             Expression::ArrayInline(e) => self.reduce_array_inline(e),
             Expression::Binary(e) => self.reduce_binary(e),
             Expression::Call(e) => self.reduce_call(e),
-            Expression::CircuitInit(e) => self.reduce_circuit_init(e),
+            Expression::StructInit(e) => self.reduce_structinit(e),
             Expression::Ternary(e) => self.reduce_ternary_expression(e),
             Expression::Cast(e) => self.reduce_cast_expression(e),
             Expression::Access(e) => self.reduce_access_expression(e),
@@ -110,14 +110,14 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
         self.reducer.reduce_call(input, target, arguments)
     }
 
-    pub fn reduce_circuit_init(&mut self, input: CircuitInitExpression<'a>) -> Expression<'a> {
+    pub fn reduce_structinit(&mut self, input: StructInitExpression<'a>) -> Expression<'a> {
         let values = input
             .values
             .iter()
             .map(|(ident, e)| (ident.clone(), self.reduce_expression(e.get())))
             .collect();
 
-        self.reducer.reduce_circuit_init(input, values)
+        self.reducer.reduce_structinit(input, values)
     }
 
     pub fn reduce_ternary_expression(&mut self, input: TernaryExpression<'a>) -> Expression<'a> {
@@ -150,10 +150,10 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
         self.reducer.reduce_array_range_access(input, array, left, right)
     }
 
-    pub fn reduce_circuit_access(&mut self, input: CircuitAccess<'a>) -> AccessExpression<'a> {
+    pub fn reduce_structaccess(&mut self, input: StructAccess<'a>) -> AccessExpression<'a> {
         let target = input.target.get().map(|e| self.reduce_expression(e));
 
-        self.reducer.reduce_circuit_access(input, target)
+        self.reducer.reduce_struct_access(input, target)
     }
 
     pub fn reduce_tuple_access(&mut self, input: TupleAccess<'a>) -> AccessExpression<'a> {
@@ -168,7 +168,7 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
         let access = match input {
             Array(a) => self.reduce_array_access(a),
             ArrayRange(a) => self.reduce_array_range_access(a),
-            Circuit(a) => self.reduce_circuit_access(a),
+            Struct(a) => self.reduce_structaccess(a),
             Tuple(a) => self.reduce_tuple_access(a),
         };
 
@@ -316,26 +316,26 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
         self.reducer.reduce_function(input, body)
     }
 
-    pub fn reduce_circuit_member(&mut self, input: CircuitMember<'a>) -> CircuitMember<'a> {
+    pub fn reduce_structmember(&mut self, input: StructMember<'a>) -> StructMember<'a> {
         match input {
-            CircuitMember::Const(_) => self.reducer.reduce_circuit_member_const(input),
-            CircuitMember::Function(function) => {
+            StructMember::Const(_) => self.reducer.reduce_structmember_const(input),
+            StructMember::Function(function) => {
                 let function = self.reduce_function(function);
-                self.reducer.reduce_circuit_member_function(input, function)
+                self.reducer.reduce_structmember_function(input, function)
             }
-            CircuitMember::Variable(_) => self.reducer.reduce_circuit_member_variable(input),
+            StructMember::Variable(_) => self.reducer.reduce_structmember_variable(input),
         }
     }
 
-    pub fn reduce_circuit(&mut self, input: &'a Circuit<'a>) -> &'a Circuit<'a> {
+    pub fn reduce_struct(&mut self, input: &'a Struct<'a>) -> &'a Struct<'a> {
         let members = input
             .members
             .borrow()
             .iter()
-            .map(|(_, member)| self.reduce_circuit_member(member.clone()))
+            .map(|(_, member)| self.reduce_structmember(member.clone()))
             .collect();
 
-        self.reducer.reduce_circuit(input, members)
+        self.reducer.reduce_struct(input, members)
     }
 
     pub fn reduce_global_const(&mut self, input: &'a DefinitionStatement<'a>) -> &'a DefinitionStatement<'a> {
@@ -356,10 +356,10 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
             .iter()
             .map(|(name, f)| (name.clone(), self.reduce_function(f)))
             .collect();
-        let circuits = input
-            .circuits
+        let structs = input
+            .structs
             .iter()
-            .map(|(name, c)| (name.clone(), self.reduce_circuit(c)))
+            .map(|(name, c)| (name.clone(), self.reduce_struct(c)))
             .collect();
 
         let global_consts = input
@@ -369,6 +369,6 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
             .collect();
 
         self.reducer
-            .reduce_program(input, imported_modules, aliases, functions, circuits, global_consts)
+            .reduce_program(input, imported_modules, aliases, functions, structs, global_consts)
     }
 }

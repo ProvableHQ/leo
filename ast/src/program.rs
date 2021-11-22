@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-//! A Leo program consists of import, circuit, and function definitions.
+//! A Leo program consists of import, struct, and function definitions.
 //! Each defined type consists of ast statements and expressions.
 
-use crate::{Alias, Circuit, CircuitMember, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement};
+use crate::{Alias, DefinitionStatement, Function, FunctionInput, Identifier, ImportStatement, Struct, StructMember};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -32,7 +32,7 @@ pub struct Program {
     #[serde(with = "crate::common::imported_modules")]
     pub imports: IndexMap<Vec<String>, Program>,
     pub aliases: IndexMap<Identifier, Alias>,
-    pub circuits: IndexMap<Identifier, Circuit>,
+    pub structs: IndexMap<Identifier, Struct>,
     #[serde(with = "crate::common::global_consts_json")]
     pub global_consts: IndexMap<Vec<Identifier>, DefinitionStatement>,
     pub functions: IndexMap<Identifier, Function>,
@@ -61,8 +61,8 @@ impl fmt::Display for Program {
             writeln!(f,)?;
         }
         writeln!(f,)?;
-        for (_, circuit) in self.circuits.iter() {
-            circuit.fmt(f)?;
+        for (_, structure) in self.structs.iter() {
+            structure.fmt(f)?;
             writeln!(f,)?;
         }
         writeln!(f,)?;
@@ -82,16 +82,16 @@ impl Program {
             import_statements: vec![],
             imports: IndexMap::new(),
             aliases: IndexMap::new(),
-            circuits: IndexMap::new(),
+            structs: IndexMap::new(),
             global_consts: IndexMap::new(),
             functions: IndexMap::new(),
         }
     }
 
     pub fn set_core_mapping(&mut self) {
-        for (_, circuit) in self.circuits.iter_mut() {
-            for member in circuit.members.iter_mut() {
-                if let CircuitMember::CircuitFunction(function) = member {
+        for (_, structure) in self.structs.iter_mut() {
+            for member in structure.members.iter_mut() {
+                if let StructMember::StructFunction(function) = member {
                     if let Some(core_map) = function.annotations.remove("CoreFunction") {
                         function.core_mapping.replace(
                             core_map

@@ -14,13 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Alias, AsgContext, Circuit, DefinitionStatement, Function, Input, Type, Variable};
+use crate::{Alias, AsgContext, DefinitionStatement, Function, Input, Struct, Type, Variable};
 use leo_errors::{AsgError, Result, Span};
 
 use indexmap::IndexMap;
 use std::cell::{Cell, RefCell};
 
-/// An abstract data type that track the current bindings for variables, functions, and circuits.
+/// An abstract data type that track the current bindings for variables, functions, and structs.
 #[derive(Clone)]
 pub struct Scope<'a> {
     pub context: AsgContext<'a>,
@@ -46,8 +46,8 @@ pub struct Scope<'a> {
     /// Maps global constant name => global const code block.
     pub global_consts: RefCell<IndexMap<String, &'a DefinitionStatement<'a>>>,
 
-    /// Maps circuit name => circuit.
-    pub circuits: RefCell<IndexMap<String, &'a Circuit<'a>>>,
+    /// Maps struct name => struct.
+    pub structs: RefCell<IndexMap<String, &'a Struct<'a>>>,
 
     /// The main input to the program.
     pub input: Cell<Option<Input<'a>>>,
@@ -136,16 +136,16 @@ impl<'a> Scope<'a> {
     }
 
     ///
-    /// Returns a reference to the circuit corresponding to the name.
+    /// Returns a reference to the struct corresponding to the name.
     ///
     /// If the current scope did not have this name present, then the parent scope is checked.
     /// If there is no parent scope, then `None` is returned.
     ///
-    pub fn resolve_circuit(&self, name: &str) -> Option<&'a Circuit<'a>> {
-        if let Some(resolved) = self.circuits.borrow().get(name) {
+    pub fn resolve_struct(&self, name: &str) -> Option<&'a Struct<'a>> {
+        if let Some(resolved) = self.structs.borrow().get(name) {
             Some(*resolved)
         } else if let Some(resolved) = self.parent_scope.get() {
-            resolved.resolve_circuit(name)
+            resolved.resolve_struct(name)
         } else {
             None
         }
@@ -178,7 +178,7 @@ impl<'a> Scope<'a> {
             variables: RefCell::new(IndexMap::new()),
             aliases: RefCell::new(IndexMap::new()),
             functions: RefCell::new(IndexMap::new()),
-            circuits: RefCell::new(IndexMap::new()),
+            structs: RefCell::new(IndexMap::new()),
             global_consts: RefCell::new(IndexMap::new()),
             function: Cell::new(None),
             input: Cell::new(None),
@@ -220,12 +220,12 @@ impl<'a> Scope<'a> {
             ),
             leo_ast::Type::SelfType => return Err(AsgError::unexpected_big_self(span).into()),
             leo_ast::Type::Identifier(name) => {
-                if let Some(circuit) = self.resolve_circuit(&name.name) {
-                    Type::Circuit(circuit)
+                if let Some(structure) = self.resolve_struct(&name.name) {
+                    Type::Struct(structure)
                 } else if let Some(alias) = self.resolve_alias(&name.name) {
                     alias.represents.clone()
                 } else {
-                    return Err(AsgError::unresolved_circuit(&name.name, &name.span).into());
+                    return Err(AsgError::unresolved_struct(&name.name, &name.span).into());
                 }
             }
         })
@@ -244,17 +244,17 @@ impl<'a> Scope<'a> {
         functions
     }
 
-    pub fn get_circuits(&self) -> IndexMap<String, &Circuit<'a>> {
-        let mut circuits = self
-            .circuits
+    pub fn get_structs(&self) -> IndexMap<String, &Struct<'a>> {
+        let mut structs = self
+            .structs
             .borrow()
             .iter()
             .map(|(n, f)| (n.clone(), *f))
-            .collect::<IndexMap<String, &Circuit<'a>>>();
+            .collect::<IndexMap<String, &Struct<'a>>>();
         if let Some(parent) = &self.parent_scope.get() {
-            circuits.extend(parent.get_circuits())
+            structs.extend(parent.get_structs())
         }
-        circuits
+        structs
     }
 
     pub fn get_global_consts(&self) -> IndexMap<String, &DefinitionStatement<'a>> {

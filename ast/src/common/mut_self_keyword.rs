@@ -20,7 +20,7 @@ use leo_errors::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// The `&self` keyword can view and modify circuit values inside of a circuit function.
+/// The `&self` keyword can view and modify struct values inside of a struct function.
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct RefSelfKeyword {

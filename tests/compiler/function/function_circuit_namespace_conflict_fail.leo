@@ -7,7 +7,7 @@ input_file:
 
 function Foo() {}
 
-circuit Foo {
+struct Foo {
     x: u8;
 }
 

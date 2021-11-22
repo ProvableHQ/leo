@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-use crate::{Alias, AsgContextInner, Circuit, Expression, Function, PartialType, Scope, Statement, Variable};
+use crate::{Alias, AsgContextInner, Expression, Function, PartialType, Scope, Statement, Struct, Variable};
 
 use leo_errors::{Result, Span};
 
@@ -34,7 +34,7 @@ pub enum ArenaNode<'a> {
     Scope(Box<Scope<'a>>),
     Statement(Statement<'a>),
     Variable(Variable<'a>),
-    Circuit(Circuit<'a>),
+    Struct(Struct<'a>),
     Function(Function<'a>),
     Inner(AsgContextInner<'a>),
     Alias(Alias<'a>),

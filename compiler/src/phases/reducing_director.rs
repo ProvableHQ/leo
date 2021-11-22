@@ -22,14 +22,14 @@ use leo_asg::{
     ArrayInitExpression as AsgArrayInitExpression, ArrayInlineExpression as AsgArrayInlineExpression,
     ArrayRangeAccess as AsgArrayRangeAccess, AssignAccess as AsgAssignAccess, AssignStatement as AsgAssignStatement,
     BinaryExpression as AsgBinaryExpression, BlockStatement as AsgBlockStatement, CallExpression as AsgCallExpression,
-    CastExpression as AsgCastExpression, CharValue as AsgCharValue, Circuit as AsgCircuit,
-    CircuitAccess as AsgCircuitAccess, CircuitInitExpression as AsgCircuitInitExpression,
-    CircuitMember as AsgCircuitMember, ConditionalStatement as AsgConditionalStatement,
+    CastExpression as AsgCastExpression, CharValue as AsgCharValue, ConditionalStatement as AsgConditionalStatement,
     ConsoleFunction as AsgConsoleFunction, ConsoleStatement as AsgConsoleStatement, ConstValue,
     Constant as AsgConstant, DefinitionStatement as AsgDefinitionStatement, Expression as AsgExpression,
     ExpressionNode, ExpressionStatement as AsgExpressionStatement, Function as AsgFunction,
     GroupValue as AsgGroupValue, IterationStatement as AsgIterationStatement, ReturnStatement as AsgReturnStatement,
-    Statement as AsgStatement, TernaryExpression as AsgTernaryExpression, TupleAccess as AsgTupleAccess,
+    Statement as AsgStatement, Struct as AsgStruct, StructAccess as AsgStructAccess,
+    StructInitExpression as AsgStructInitExpression, StructMember as AsgStructMember,
+    TernaryExpression as AsgTernaryExpression, TupleAccess as AsgTupleAccess,
     TupleInitExpression as AsgTupleInitExpression, Type as AsgType, UnaryExpression as AsgUnaryExpression,
     VariableRef as AsgVariableRef,
 };
@@ -39,14 +39,14 @@ use leo_ast::{
     ArrayRangeAccess as AstArrayRangeAccess, AssignStatement as AstAssignStatement, Assignee,
     AssigneeAccess as AstAssignAccess, BinaryExpression as AstBinaryExpression, Block as AstBlockStatement,
     CallExpression as AstCallExpression, CastExpression as AstCastExpression, Char, CharValue as AstCharValue,
-    Circuit as AstCircuit, CircuitImpliedVariableDefinition, CircuitInitExpression as AstCircuitInitExpression,
-    CircuitMember as AstCircuitMember, ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
+    ConditionalStatement as AstConditionalStatement, ConsoleArgs as AstConsoleArgs,
     ConsoleFunction as AstConsoleFunction, ConsoleStatement as AstConsoleStatement,
     DefinitionStatement as AstDefinitionStatement, Expression as AstExpression,
     ExpressionStatement as AstExpressionStatement, Function as AstFunction, GroupTuple, GroupValue as AstGroupValue,
     IterationStatement as AstIterationStatement, MemberAccess, PositiveNumber, ReconstructingReducer,
     ReturnStatement as AstReturnStatement, SpreadOrExpression, Statement as AstStatement, StaticAccess,
-    TernaryExpression as AstTernaryExpression, TupleAccess as AstTupleAccess,
+    Struct as AstStruct, StructImpliedVariableDefinition, StructInitExpression as AstStructInitExpression,
+    StructMember as AstStructMember, TernaryExpression as AstTernaryExpression, TupleAccess as AstTupleAccess,
     TupleInitExpression as AstTupleInitExpression, Type as AstType, UnaryExpression as AstUnaryExpression,
     ValueExpression,
 };
@@ -129,8 +129,8 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 AstExpression::TupleInit(self.reduce_tuple_init(ast, asg)?)
             }
 
-            (AstExpression::CircuitInit(ast), AsgExpression::CircuitInit(asg)) => {
-                AstExpression::CircuitInit(self.reduce_circuit_init(ast, asg)?)
+            (AstExpression::StructInit(ast), AsgExpression::StructInit(asg)) => {
+                AstExpression::StructInit(self.reduce_struct_init(ast, asg)?)
             }
 
             (AstExpression::Call(ast), AsgExpression::Call(asg)) => AstExpression::Call(self.reduce_call(ast, asg)?),
@@ -198,9 +198,9 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
                 })
                 .flatten();
             if let AstExpression::Access(ref access) = function {
-                if let AstAccessExpression::Member(mut circuit_member) = access.clone() {
-                    circuit_member.type_ = function_type;
-                    function = AstExpression::Access(AstAccessExpression::Member(circuit_member));
+                if let AstAccessExpression::Member(mut struct_member) = access.clone() {
+                    struct_member.type_ = function_type;
+                    function = AstExpression::Access(AstAccessExpression::Member(struct_member));
                 }
             }
         }
@@ -245,9 +245,9 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         self.ast_reducer.reduce_array_range_access(ast, array, left, right)
     }
 
-    pub fn reduce_member_access(&mut self, ast: &MemberAccess, asg: &AsgCircuitAccess) -> Result<MemberAccess> {
+    pub fn reduce_member_access(&mut self, ast: &MemberAccess, asg: &AsgStructAccess) -> Result<MemberAccess> {
         let type_ = if self.options.type_inference_enabled() {
-            Some(leo_ast::Type::Identifier(asg.circuit.get().name.borrow().clone()))
+            Some(leo_ast::Type::Identifier(asg.structure.get().name.borrow().clone()))
         } else {
             None
         };
@@ -256,13 +256,13 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             .reduce_member_access(ast, *ast.inner.clone(), ast.name.clone(), type_)
     }
 
-    pub fn reduce_static_access(&mut self, ast: &StaticAccess, asg: &AsgCircuitAccess) -> Result<StaticAccess> {
+    pub fn reduce_static_access(&mut self, ast: &StaticAccess, asg: &AsgStructAccess) -> Result<StaticAccess> {
         let type_ = if self.options.type_inference_enabled() {
-            let members = asg.circuit.get().members.borrow();
+            let members = asg.structure.get().members.borrow();
             let member = members.get(asg.member.name.as_ref());
             match member {
-                Some(AsgCircuitMember::Const(value)) => value.get_type().as_ref().map(|t| t.into()),
-                Some(AsgCircuitMember::Variable(type_)) => Some(type_.into()),
+                Some(AsgStructMember::Const(value)) => value.get_type().as_ref().map(|t| t.into()),
+                Some(AsgStructMember::Variable(type_)) => Some(type_.into()),
                 _ => None,
             }
         } else {
@@ -291,10 +291,10 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             (AstAccessExpression::ArrayRange(ast), AsgAccessExpression::ArrayRange(asg)) => self
                 .reduce_array_range_access(ast, asg)
                 .map(AstAccessExpression::ArrayRange),
-            (AstAccessExpression::Member(ast), AsgAccessExpression::Circuit(asg)) => {
+            (AstAccessExpression::Member(ast), AsgAccessExpression::Struct(asg)) => {
                 self.reduce_member_access(ast, asg).map(AstAccessExpression::Member)
             }
-            (AstAccessExpression::Static(ast), AsgAccessExpression::Circuit(asg)) => {
+            (AstAccessExpression::Static(ast), AsgAccessExpression::Struct(asg)) => {
                 self.reduce_static_access(ast, asg).map(AstAccessExpression::Static)
             }
             (AstAccessExpression::Tuple(ast), AsgAccessExpression::Tuple(asg)) => {
@@ -304,11 +304,11 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         }
     }
 
-    pub fn reduce_circuit_implied_variable_definition(
+    pub fn reduce_struct_implied_variable_definition(
         &mut self,
-        ast: &CircuitImpliedVariableDefinition,
+        ast: &StructImpliedVariableDefinition,
         asg: &AsgExpression,
-    ) -> Result<CircuitImpliedVariableDefinition> {
+    ) -> Result<StructImpliedVariableDefinition> {
         let expression = ast
             .expression
             .as_ref()
@@ -316,20 +316,20 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             .transpose()?;
 
         self.ast_reducer
-            .reduce_circuit_implied_variable_definition(ast, ast.identifier.clone(), expression)
+            .reduce_struct_implied_variable_definition(ast, ast.identifier.clone(), expression)
     }
 
-    pub fn reduce_circuit_init(
+    pub fn reduce_struct_init(
         &mut self,
-        ast: &AstCircuitInitExpression,
-        asg: &AsgCircuitInitExpression,
-    ) -> Result<AstCircuitInitExpression> {
+        ast: &AstStructInitExpression,
+        asg: &AsgStructInitExpression,
+    ) -> Result<AstStructInitExpression> {
         let mut members = vec![];
         for (ast_member, asg_member) in ast.members.iter().zip(asg.values.iter()) {
-            members.push(self.reduce_circuit_implied_variable_definition(ast_member, asg_member.1.get())?);
+            members.push(self.reduce_struct_implied_variable_definition(ast_member, asg_member.1.get())?);
         }
 
-        self.ast_reducer.reduce_circuit_init(ast, ast.name.clone(), members)
+        self.ast_reducer.reduce_struct_init(ast, ast.name.clone(), members)
     }
 
     pub fn reduce_ternary(
@@ -644,12 +644,12 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             imports.insert(ast_ident.clone(), self.reduce_program(ast_program, asg_program)?);
         }
 
-        self.ast_reducer.swap_in_circuit();
-        let mut circuits = IndexMap::new();
-        for ((ast_ident, ast_circuit), (_asg_ident, asg_circuit)) in ast.circuits.iter().zip(&asg.circuits) {
-            circuits.insert(ast_ident.clone(), self.reduce_circuit(ast_circuit, asg_circuit)?);
+        self.ast_reducer.swap_in_struct();
+        let mut structs = IndexMap::new();
+        for ((ast_ident, ast_struct), (_asg_ident, asg_struct)) in ast.structs.iter().zip(&asg.structs) {
+            structs.insert(ast_ident.clone(), self.reduce_struct(ast_struct, asg_struct)?);
         }
-        self.ast_reducer.swap_in_circuit();
+        self.ast_reducer.swap_in_struct();
 
         let mut functions = IndexMap::new();
         for ((ast_ident, ast_function), (_asg_ident, asg_function)) in ast.functions.iter().zip(&asg.functions) {
@@ -668,7 +668,7 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             ast.import_statements.clone(),
             imports,
             ast.aliases.clone(),
-            circuits,
+            structs,
             functions,
             global_consts,
         )
@@ -704,33 +704,29 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
         )
     }
 
-    pub fn reduce_circuit_member(
-        &mut self,
-        ast: &AstCircuitMember,
-        asg: &AsgCircuitMember,
-    ) -> Result<AstCircuitMember> {
+    pub fn reduce_struct_member(&mut self, ast: &AstStructMember, asg: &AsgStructMember) -> Result<AstStructMember> {
         let new = match (ast, asg) {
-            (AstCircuitMember::CircuitVariable(identifier, ast_type), AsgCircuitMember::Variable(asg_type)) => {
-                AstCircuitMember::CircuitVariable(
+            (AstStructMember::StructVariable(identifier, ast_type), AsgStructMember::Variable(asg_type)) => {
+                AstStructMember::StructVariable(
                     identifier.clone(),
                     self.reduce_type(ast_type, asg_type, &identifier.span)?,
                 )
             }
-            (AstCircuitMember::CircuitFunction(ast_function), AsgCircuitMember::Function(asg_function)) => {
-                AstCircuitMember::CircuitFunction(Box::new(self.reduce_function(ast_function, asg_function)?))
+            (AstStructMember::StructFunction(ast_function), AsgStructMember::Function(asg_function)) => {
+                AstStructMember::StructFunction(Box::new(self.reduce_function(ast_function, asg_function)?))
             }
             _ => ast.clone(),
         };
 
-        self.ast_reducer.reduce_circuit_member(ast, new)
+        self.ast_reducer.reduce_struct_member(ast, new)
     }
 
-    pub fn reduce_circuit(&mut self, ast: &AstCircuit, asg: &AsgCircuit) -> Result<AstCircuit> {
+    pub fn reduce_struct(&mut self, ast: &AstStruct, asg: &AsgStruct) -> Result<AstStruct> {
         let mut members = vec![];
         for (ast_member, asg_member) in ast.members.iter().zip(asg.members.borrow().iter()) {
-            members.push(self.reduce_circuit_member(ast_member, asg_member.1)?);
+            members.push(self.reduce_struct_member(ast_member, asg_member.1)?);
         }
 
-        self.ast_reducer.reduce_circuit(ast, ast.circuit_name.clone(), members)
+        self.ast_reducer.reduce_struct(ast, ast.struct_name.clone(), members)
     }
 }

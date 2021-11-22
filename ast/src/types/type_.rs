@@ -36,7 +36,7 @@ pub enum Type {
     // Data type wrappers
     Array(Box<Type>, ArrayDimensions),
     Tuple(Vec<Type>),
-    Identifier(Identifier), // ex Circuit or Alias
+    Identifier(Identifier), // ex Struct or Alias
     SelfType,
 
     /// Placeholder for a type that could not be resolved or was not well-formed.
@@ -53,9 +53,9 @@ impl Type {
     }
 
     ///
-    /// Returns `true` if the self `Type` is a `Circuit`.
+    /// Returns `true` if the self `Type` is a `Struct`.
     ///
-    pub fn is_circuit(&self) -> bool {
+    pub fn is_struct(&self) -> bool {
         matches!(self, Type::Identifier(_))
     }
 
@@ -164,7 +164,7 @@ impl fmt::Display for Type {
             Type::Field => write!(f, "field"),
             Type::Group => write!(f, "group"),
             Type::IntegerType(ref integer_type) => write!(f, "{}", integer_type),
-            Type::Identifier(ref variable) => write!(f, "circuit {}", variable),
+            Type::Identifier(ref variable) => write!(f, "struct {}", variable),
             Type::SelfType => write!(f, "SelfType"),
             Type::Array(ref array, ref dimensions) => write!(f, "[{}; {}]", *array, dimensions),
             Type::Tuple(ref tuple) => {

@@ -19,7 +19,7 @@ function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {
     return result;
 }
 
-// Tests that the `silly-sudoku` circuit outputs true on a correct answer.
+// Tests that the `silly-sudoku` struct outputs true on a correct answer.
 @test
 function test_solve_pass() {
     let puzzle: [u8; (3, 3)] = [[0, 2, 0],
@@ -37,7 +37,7 @@ function test_solve_pass() {
     console.assert(true == result);
 }
 
-// Tests that the `silly-sudoku` circuit outputs false on an incorrect answer.
+// Tests that the `silly-sudoku` struct outputs false on an incorrect answer.
 @test
 function test_solve_fail() {
     let puzzle: [u8; (3, 3)] = [[0, 2, 0],
@@ -55,7 +55,7 @@ function test_solve_fail() {
     console.assert(false == result);
 }
 
-// Test that the `silly-sudoku` circuit outputs the expected value on a custom test input.
+// Test that the `silly-sudoku` struct outputs the expected value on a custom test input.
 @test(test_input)
 function test_solve_with_input(
     puzzle: [u8; (3, 3)],

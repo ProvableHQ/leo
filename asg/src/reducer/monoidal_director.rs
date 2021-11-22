@@ -43,7 +43,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
             Expression::ArrayInline(e) => self.reduce_array_inline(e),
             Expression::Binary(e) => self.reduce_binary(e),
             Expression::Call(e) => self.reduce_call(e),
-            Expression::CircuitInit(e) => self.reduce_circuit_init(e),
+            Expression::StructInit(e) => self.reduce_struct_init(e),
             Expression::Ternary(e) => self.reduce_ternary_expression(e),
             Expression::Cast(e) => self.reduce_cast_expression(e),
             Expression::Access(e) => self.reduce_access_expression(e),
@@ -94,14 +94,14 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_call(input, target, arguments)
     }
 
-    pub fn reduce_circuit_init(&mut self, input: &CircuitInitExpression<'a>) -> T {
+    pub fn reduce_struct_init(&mut self, input: &StructInitExpression<'a>) -> T {
         let values = input
             .values
             .iter()
             .map(|(_, e)| self.reduce_expression(e.get()))
             .collect();
 
-        self.reducer.reduce_circuit_init(input, values)
+        self.reducer.reduce_struct_init(input, values)
     }
 
     pub fn reduce_ternary_expression(&mut self, input: &TernaryExpression<'a>) -> T {
@@ -134,10 +134,10 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         self.reducer.reduce_array_range_access(input, array, left, right)
     }
 
-    pub fn reduce_circuit_access(&mut self, input: &CircuitAccess<'a>) -> T {
+    pub fn reduce_struct_access(&mut self, input: &StructAccess<'a>) -> T {
         let target = input.target.get().map(|e| self.reduce_expression(e));
 
-        self.reducer.reduce_circuit_access(input, target)
+        self.reducer.reduce_struct_access(input, target)
     }
 
     pub fn reduce_constant(&mut self, input: &Constant<'a>) -> T {
@@ -156,7 +156,7 @@ impl<'a, T: Monoid, R: MonoidalReducerExpression<'a, T>> MonoidalDirector<'a, T,
         match input {
             Array(a) => self.reduce_array_access(a),
             ArrayRange(a) => self.reduce_array_range_access(a),
-            Circuit(a) => self.reduce_circuit_access(a),
+            Struct(a) => self.reduce_struct_access(a),
             Tuple(a) => self.reduce_tuple_access(a),
         }
     }
@@ -291,24 +291,24 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
         self.reducer.reduce_function(input, body)
     }
 
-    pub fn reduce_circuit_member(&mut self, input: &CircuitMember<'a>) -> T {
+    pub fn reduce_struct_member(&mut self, input: &StructMember<'a>) -> T {
         let function = match input {
-            CircuitMember::Function(f) => Some(self.reduce_function(f)),
+            StructMember::Function(f) => Some(self.reduce_function(f)),
             _ => None,
         };
 
-        self.reducer.reduce_circuit_member(input, function)
+        self.reducer.reduce_struct_member(input, function)
     }
 
-    pub fn reduce_circuit(&mut self, input: &'a Circuit<'a>) -> T {
+    pub fn reduce_struct(&mut self, input: &'a Struct<'a>) -> T {
         let members = input
             .members
             .borrow()
             .iter()
-            .map(|(_, member)| self.reduce_circuit_member(member))
+            .map(|(_, member)| self.reduce_struct_member(member))
             .collect();
 
-        self.reducer.reduce_circuit(input, members)
+        self.reducer.reduce_struct(input, members)
     }
 
     pub fn reduce_program(&mut self, input: &Program<'a>) -> T {
@@ -318,9 +318,8 @@ impl<'a, T: Monoid, R: MonoidalReducerProgram<'a, T>> MonoidalDirector<'a, T, R>
             .map(|(_, import)| self.reduce_program(import))
             .collect();
         let functions = input.functions.iter().map(|(_, f)| self.reduce_function(f)).collect();
-        let circuits = input.circuits.iter().map(|(_, c)| self.reduce_circuit(c)).collect();
+        let structs = input.structs.iter().map(|(_, c)| self.reduce_struct(c)).collect();
 
-        self.reducer
-            .reduce_program(input, imported_modules, functions, circuits)
+        self.reducer.reduce_program(input, imported_modules, functions, structs)
     }
 }

@@ -5,7 +5,7 @@ input_file:
  - input/complex_access.in
 */
 
-circuit Circ {
+struct Circ {
     f: u32
 }
 

@@ -23,7 +23,7 @@ const foo = Foo { width: 10, height: 20 };
 const character = 'a';
 const hello = "Hello, World!";
 
-circuit Foo {
+struct Foo {
     width: u32,
     height: u32,
 }
@@ -47,7 +47,7 @@ function main(a: u32) -> bool {
         && complex_group == (_, 1)group
         && field_test == 2field // field test
         && use_another_const == 9u32 // use another const test
-        && foo.width == 10u32 // circuit test
+        && foo.width == 10u32 // struct test
         && foo.height == 20u32
         // && one == 1u32 // function test
         && character == 'a' // char test

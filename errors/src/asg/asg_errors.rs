@@ -24,66 +24,66 @@ create_errors!(
     exit_code_mask: 3000i32,
     error_code_prefix: "ASG",
 
-    /// For when a circuit of the specified type is unresolved.
-    /// Note that the type for a circuit is represented by a name.
+    /// For when a struct of the specified type is unresolved.
+    /// Note that the type for a struct is represented by a name.
     @formatted
-    unresolved_circuit {
+    unresolved_struct {
         args: (name: impl Display),
-        msg: format!("failed to resolve circuit: '{}'", name),
+        msg: format!("failed to resolve struct: '{}'", name),
         help: None,
     }
 
-     /// For when a circuit member of the specified name is unresolved.
+     /// For when a struct member of the specified name is unresolved.
     @formatted
-    unresolved_circuit_member {
-        args: (circuit_name: impl Display, name: impl Display),
+    unresolved_struct_member {
+        args: (struct_name: impl Display, name: impl Display),
         msg: format!(
-            "illegal reference to non-existant member '{}' of circuit '{}'",
-            name, circuit_name
+            "illegal reference to non-existant member '{}' of struct '{}'",
+            name, struct_name
         ),
         help: None,
     }
 
-    /// For when a user is initializing a circuit, and it's missing circuit member.
+    /// For when a user is initializing a struct, and it's missing struct member.
     @formatted
-    missing_circuit_member {
-        args: (circuit_name: impl Display, name: impl Display),
+    missing_struct_member {
+        args: (struct_name: impl Display, name: impl Display),
         msg: format!(
-            "missing circuit member '{}' for initialization of circuit '{}'",
-            name, circuit_name
+            "missing struct member '{}' for initialization of struct '{}'",
+            name, struct_name
         ),
         help: None,
     }
 
-    /// For when a user is initializing a circuit, and they declare a cirucit member twice.
+    /// For when a user is initializing a struct, and they declare a cirucit member twice.
     @formatted
-    overridden_circuit_member {
-        args: (circuit_name: impl Display, name: impl Display),
+    overridden_struct_member {
+        args: (struct_name: impl Display, name: impl Display),
         msg: format!(
-            "cannot declare circuit member '{}' more than once for initialization of circuit '{}'",
-            name, circuit_name
+            "cannot declare struct member '{}' more than once for initialization of struct '{}'",
+            name, struct_name
         ),
         help: None,
     }
 
-    /// For when a user is defining a circuit, and they define a circuit member multiple times.
+    /// For when a user is defining a struct, and they define a struct member multiple times.
     @formatted
-    redefined_circuit_member {
-        args: (circuit_name: impl Display, name: impl Display),
+    redefined_struct_member {
+        args: (struct_name: impl Display, name: impl Display),
         msg: format!(
-            "cannot declare circuit member '{}' multiple times in circuit '{}'",
-            name, circuit_name
+            "cannot declare struct member '{}' multiple times in struct '{}'",
+            name, struct_name
         ),
         help: None,
     }
 
-    /// For when a user is initializing a circuit, and they add an extra circuit member.
+    /// For when a user is initializing a struct, and they add an extra struct member.
     @formatted
-    extra_circuit_member {
-        args: (circuit_name: impl Display, name: impl Display),
+    extra_struct_member {
+        args: (struct_name: impl Display, name: impl Display),
         msg: format!(
-            "extra circuit member '{}' for initialization of circuit '{}' is not allowed",
-            name, circuit_name
+            "extra struct member '{}' for initialization of struct '{}' is not allowed",
+            name, struct_name
         ),
         help: None,
     }
@@ -96,43 +96,43 @@ create_errors!(
         help: None,
     }
 
-    /// For when a user tries to call a circuit variable as a function.
+    /// For when a user tries to call a struct variable as a function.
     @formatted
-    circuit_variable_call {
-        args: (circuit_name: impl Display, name: impl Display),
-        msg: format!("cannot call variable member '{}' of circuit '{}'", name, circuit_name),
+    struct_variable_call {
+        args: (struct_name: impl Display, name: impl Display),
+        msg: format!("cannot call variable member '{}' of struct '{}'", name, struct_name),
         help: None,
     }
 
-    /// For when a user tries to call an invalid circuit static function.
+    /// For when a user tries to call an invalid struct static function.
     @formatted
-    circuit_static_call_invalid {
-        args: (circuit_name: impl Display, name: impl Display),
+    struct_static_call_invalid {
+        args: (struct_name: impl Display, name: impl Display),
         msg: format!(
-            "cannot call static function '{}' of circuit '{}' from target",
-            name, circuit_name
+            "cannot call static function '{}' of struct '{}' from target",
+            name, struct_name
         ),
         help: None,
     }
 
-    /// For when a user tries to call a mutable circuit member function from immutable context.
+    /// For when a user tries to call a mutable struct member function from immutable context.
     @formatted
-    circuit_member_mut_call_invalid {
-        args: (circuit_name: impl Display, name: impl Display),
+    struct_member_mut_call_invalid {
+        args: (struct_name: impl Display, name: impl Display),
         msg: format!(
-            "cannot call mutable member function '{}' of circuit '{}' from immutable context",
-            name, circuit_name
+            "cannot call mutable member function '{}' of struct '{}' from immutable context",
+            name, struct_name
         ),
         help: None,
     }
 
-    /// For when a user tries to call a circuit member function from static context.
+    /// For when a user tries to call a struct member function from static context.
     @formatted
-    circuit_member_call_invalid {
-        args: (circuit_name: impl Display, name: impl Display),
+    struct_member_call_invalid {
+        args: (struct_name: impl Display, name: impl Display),
         msg: format!(
-            "cannot call member function '{}' of circuit '{}' from static context",
-            name, circuit_name
+            "cannot call member function '{}' of struct '{}' from static context",
+            name, struct_name
         ),
         help: None,
     }
@@ -355,11 +355,11 @@ create_errors!(
         help: None,
     }
 
-    /// For when a user tries to define a circuit function as a test function.
+    /// For when a user tries to define a struct function as a test function.
     @formatted
-    circuit_test_function {
+    struct_test_function {
         args: (),
-        msg: "cannot have test function as member of circuit",
+        msg: "cannot have test function as member of struct",
         help: None,
     }
 
@@ -420,11 +420,11 @@ create_errors!(
         help: None,
     }
 
-    /// For when a user defines an circuit with the same name twice.
+    /// For when a user defines an struct with the same name twice.
     @formatted
-    duplicate_circuit_definition {
+    duplicate_struct_definition {
         args: (name: impl Display),
-        msg: format!("a circuit named \"{}\" already exists in this scope", name),
+        msg: format!("a struct named \"{}\" already exists in this scope", name),
         help: None,
     }
 
@@ -476,11 +476,11 @@ create_errors!(
         help: None,
     }
 
-    /// For when a user tries to call a circuit variable as a function.
+    /// For when a user tries to call a struct variable as a function.
     @formatted
-    circuit_const_call {
-        args: (circuit_name: impl Display, name: impl Display),
-        msg: format!("cannot call const member '{}' of circuit '{}'", name, circuit_name),
+    struct_const_call {
+        args: (struct_name: impl Display, name: impl Display),
+        msg: format!("cannot call const member '{}' of struct '{}'", name, struct_name),
         help: None,
     }
 

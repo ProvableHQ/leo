@@ -25,9 +25,6 @@ pub use self::array::*;
 pub mod binary;
 pub use self::binary::*;
 
-pub mod circuit;
-pub use self::circuit::*;
-
 pub mod conditional;
 pub use self::conditional::*;
 
@@ -42,6 +39,9 @@ pub use self::logical::*;
 
 pub mod relational;
 pub use self::relational::*;
+
+pub mod structure;
+pub use self::structure::*;
 
 pub mod tuple;
 pub use self::tuple::*;

@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CircuitMember, ConstValue, Expression, ExpressionNode, FromAst, Function, FunctionQualifier, Node, PartialType,
-    Scope, Type,
+    ConstValue, Expression, ExpressionNode, FromAst, Function, FunctionQualifier, Node, PartialType, Scope,
+    StructMember, Type,
 };
 pub use leo_ast::{BinaryOperation, Node as AstNode};
 use leo_errors::{AsgError, Result, Span};
@@ -96,47 +96,45 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     let target = <&Expression<'a>>::from_ast(scope, &**ast_value, None)?;
 
                     let type_ = target.get_type();
-                    let circuit = match type_ {
-                        // Set core mapping to function name and resolve core circuit when applicable.
-                        // Otherwise resolve regular circuit.
+                    let structure = match type_ {
+                        // Set core mapping to function name and resolve core structwhen applicable.
+                        // Otherwise resolve regular struct
                         Some(Type::Tuple(_)) | None => {
                             return Err(AsgError::unexpected_type(
-                                "circuit",
+                                "struct",
                                 type_.map(|x| x.to_string()).unwrap_or_else(|| "unknown".to_string()),
                                 span,
                             )
                             .into());
                         }
                         Some(Type::Array(_, _)) | Some(Type::ArrayWithoutSize(_)) => {
-                            scope.resolve_circuit("array").unwrap()
+                            scope.resolve_struct("array").unwrap()
                         }
-                        Some(Type::Circuit(circuit)) => circuit,
-                        Some(Type::Integer(int_type)) => scope.resolve_circuit(&int_type.to_string()).unwrap(),
-                        Some(type_) => scope.resolve_circuit(&type_.to_string()).unwrap(),
+                        Some(Type::Struct(structure)) => structure,
+                        Some(Type::Integer(int_type)) => scope.resolve_struct(&int_type.to_string()).unwrap(),
+                        Some(type_) => scope.resolve_struct(&type_.to_string()).unwrap(),
                     };
-                    let circuit_name = circuit.name.borrow().name.clone();
-                    let member = circuit.members.borrow();
+                    let struct_name = structure.name.borrow().name.clone();
+                    let member = structure.members.borrow();
                     let member = member
                         .get(name.name.as_ref())
-                        .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
+                        .ok_or_else(|| AsgError::unresolved_struct_member(&struct_name, &name.name, span))?;
                     match member {
-                        CircuitMember::Const(_) => {
-                            return Err(AsgError::circuit_const_call(circuit_name, &name.name, span).into());
+                        StructMember::Const(_) => {
+                            return Err(AsgError::struct_const_call(struct_name, &name.name, span).into());
                         }
-                        CircuitMember::Function(body) => {
+                        StructMember::Function(body) => {
                             if body.qualifier == FunctionQualifier::Static {
-                                return Err(
-                                    AsgError::circuit_static_call_invalid(&circuit_name, &name.name, span).into()
-                                );
+                                return Err(AsgError::struct_static_call_invalid(&struct_name, &name.name, span).into());
                             } else if body.qualifier == FunctionQualifier::MutSelfRef && !target.is_mut_ref() {
                                 return Err(
-                                    AsgError::circuit_member_mut_call_invalid(circuit_name, &name.name, span).into(),
+                                    AsgError::struct_member_mut_call_invalid(struct_name, &name.name, span).into()
                                 );
                             }
                             (Some(target), *body)
                         }
-                        CircuitMember::Variable(_) => {
-                            return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
+                        StructMember::Variable(_) => {
+                            return Err(AsgError::struct_variable_call(struct_name, &name.name, span).into());
                         }
                     }
                 }
@@ -146,33 +144,31 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     span,
                     ..
                 }) => {
-                    let circuit = if let leo_ast::Expression::Identifier(circuit_name) = &**ast_value {
+                    let structure = if let leo_ast::Expression::Identifier(struct_name) = &**ast_value {
                         scope
-                            .resolve_circuit(&circuit_name.name)
-                            .ok_or_else(|| AsgError::unresolved_circuit(&circuit_name.name, &circuit_name.span))?
+                            .resolve_struct(&struct_name.name)
+                            .ok_or_else(|| AsgError::unresolved_struct(&struct_name.name, &struct_name.span))?
                     } else {
-                        return Err(AsgError::unexpected_type("circuit", "unknown", span).into());
+                        return Err(AsgError::unexpected_type("struct", "unknown", span).into());
                     };
-                    let circuit_name = circuit.name.borrow().name.clone();
+                    let struct_name = structure.name.borrow().name.clone();
 
-                    let member = circuit.members.borrow();
+                    let member = structure.members.borrow();
                     let member = member
                         .get(name.name.as_ref())
-                        .ok_or_else(|| AsgError::unresolved_circuit_member(&circuit_name, &name.name, span))?;
+                        .ok_or_else(|| AsgError::unresolved_struct_member(&struct_name, &name.name, span))?;
                     match member {
-                        CircuitMember::Const(_) => {
-                            return Err(AsgError::circuit_const_call(circuit_name, &name.name, span).into());
+                        StructMember::Const(_) => {
+                            return Err(AsgError::struct_const_call(struct_name, &name.name, span).into());
                         }
-                        CircuitMember::Function(body) => {
+                        StructMember::Function(body) => {
                             if body.qualifier != FunctionQualifier::Static {
-                                return Err(
-                                    AsgError::circuit_member_call_invalid(circuit_name, &name.name, span).into()
-                                );
+                                return Err(AsgError::struct_member_call_invalid(struct_name, &name.name, span).into());
                             }
                             (None, *body)
                         }
-                        CircuitMember::Variable(_) => {
-                            return Err(AsgError::circuit_variable_call(circuit_name, &name.name, span).into());
+                        StructMember::Variable(_) => {
+                            return Err(AsgError::struct_variable_call(struct_name, &name.name, span).into());
                         }
                     }
                 }
@@ -243,10 +239,10 @@ impl<'a> Into<leo_ast::CallExpression> for &CallExpression<'a> {
         let target_function = if let Some(target) = self.target.get() {
             target.into()
         } else {
-            let circuit = self.function.get().circuit.get();
-            if let Some(circuit) = circuit {
+            let structure = self.function.get().structure.get();
+            if let Some(structure) = structure {
                 leo_ast::Expression::Access(leo_ast::AccessExpression::Static(leo_ast::accesses::StaticAccess {
-                    inner: Box::new(leo_ast::Expression::Identifier(circuit.name.borrow().clone())),
+                    inner: Box::new(leo_ast::Expression::Identifier(structure.name.borrow().clone())),
                     name: self.function.get().name.borrow().clone(),
                     type_: None,
                     span: self.span.clone().unwrap_or_default(),

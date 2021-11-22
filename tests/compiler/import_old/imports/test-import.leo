@@ -1,7 +1,7 @@
 // test: ignore
 // TODO: add some tag for ignored files
 
-circuit Point {
+struct Point {
     x: u32
     y: u32
 }

@@ -19,7 +19,7 @@
 use crate::program::Program;
 use bech32::FromBase32;
 use leo_asg::{
-    accesses::*, expression::*, CharValue, CircuitMember, ConstInt, ConstValue, Expression, GroupValue, Node,
+    accesses::*, expression::*, CharValue, ConstInt, ConstValue, Expression, GroupValue, Node, StructMember,
 };
 use leo_errors::CompilerError;
 use leo_errors::{Result, Span};
@@ -95,11 +95,11 @@ impl<'a> Program<'a> {
                     .map(|x| self.enforce_const_value(x, span))
                     .collect::<Result<Vec<_>, _>>()?,
             ),
-            ConstValue::Circuit(circuit, members) => {
-                let target_members = circuit.members.borrow();
+            ConstValue::Struct(structure, members) => {
+                let target_members = structure.members.borrow();
                 let member_var_len = target_members
                     .values()
-                    .filter(|x| matches!(x, CircuitMember::Variable(_)))
+                    .filter(|x| matches!(x, StructMember::Variable(_)))
                     .count();
 
                 let mut resolved_members = vec![None; member_var_len];
@@ -108,19 +108,19 @@ impl<'a> Program<'a> {
                 for (name, inner) in members.iter() {
                     let (index, _, target) = target_members
                         .get_full(name)
-                        .expect("illegal name in asg circuit init expression");
+                        .expect("illegal name in asg struct init expression");
                     match target {
-                        CircuitMember::Variable(_type_) => {
+                        StructMember::Variable(_type_) => {
                             let variable_value = self.enforce_const_value(&inner.1, span)?;
                             resolved_members[index] = Some(variable_value);
                         }
-                        _ => return Err(CompilerError::expected_circuit_member(name, span).into()),
+                        _ => return Err(CompilerError::expected_struct_member(name, span).into()),
                     }
                 }
                 Value::Tuple(
                     resolved_members
                         .into_iter()
-                        .map(|x| x.expect("missing circuit field"))
+                        .map(|x| x.expect("missing struct field"))
                         .collect(),
                 )
             }
@@ -142,7 +142,7 @@ impl<'a> Program<'a> {
                     length,
                     ..
                 }) => self.enforce_array_range_access(array.get(), left.get(), right.get(), *length),
-                AccessExpression::Circuit(access) => self.enforce_circuit_access(access),
+                AccessExpression::Struct(access) => self.enforce_struct_access(access),
                 AccessExpression::Tuple(TupleAccess { tuple_ref, index, .. }) => {
                     self.enforce_tuple_access(tuple_ref.get(), *index)
                 }
@@ -212,8 +212,8 @@ impl<'a> Program<'a> {
             // Tuples
             Expression::TupleInit(TupleInitExpression { elements, .. }) => self.enforce_tuple(&elements[..]),
 
-            // Circuits
-            Expression::CircuitInit(expr) => self.enforce_circuit(expr, span),
+            // Structs
+            Expression::StructInit(expr) => self.enforce_struct(expr, span),
 
             // Functions
             Expression::Call(CallExpression {

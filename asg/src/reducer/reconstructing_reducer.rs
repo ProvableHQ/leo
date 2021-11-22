@@ -84,14 +84,14 @@ pub trait ReconstructingReducerExpression<'a> {
         })
     }
 
-    fn reduce_circuit_init(
+    fn reduce_structinit(
         &mut self,
-        input: CircuitInitExpression<'a>,
+        input: StructInitExpression<'a>,
         values: Vec<(Identifier, &'a Expression<'a>)>,
     ) -> Expression<'a> {
-        Expression::CircuitInit(CircuitInitExpression {
+        Expression::StructInit(StructInitExpression {
             parent: input.parent,
-            circuit: input.circuit,
+            structure: input.structure,
             values: values.into_iter().map(|x| (x.0, Cell::new(x.1))).collect(),
             span: input.span,
         })
@@ -153,14 +153,14 @@ pub trait ReconstructingReducerExpression<'a> {
         })
     }
 
-    fn reduce_circuit_access(
+    fn reduce_struct_access(
         &mut self,
-        input: CircuitAccess<'a>,
+        input: StructAccess<'a>,
         target: Option<&'a Expression<'a>>,
     ) -> AccessExpression<'a> {
-        AccessExpression::Circuit(CircuitAccess {
+        AccessExpression::Struct(StructAccess {
             parent: input.parent,
-            circuit: input.circuit,
+            structure: input.structure,
             target: Cell::new(target),
             member: input.member,
             span: input.span,
@@ -369,24 +369,24 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
         input
     }
 
-    fn reduce_circuit_member_const(&mut self, input: CircuitMember<'a>) -> CircuitMember<'a> {
+    fn reduce_structmember_const(&mut self, input: StructMember<'a>) -> StructMember<'a> {
         input
     }
 
-    fn reduce_circuit_member_variable(&mut self, input: CircuitMember<'a>) -> CircuitMember<'a> {
+    fn reduce_structmember_variable(&mut self, input: StructMember<'a>) -> StructMember<'a> {
         input
     }
 
-    fn reduce_circuit_member_function(
+    fn reduce_structmember_function(
         &mut self,
-        input: CircuitMember<'a>,
+        input: StructMember<'a>,
         function: &'a Function<'a>,
-    ) -> CircuitMember<'a> {
-        CircuitMember::Function(function)
+    ) -> StructMember<'a> {
+        StructMember::Function(function)
     }
 
     // todo @protryon: this is kind of hacky
-    fn reduce_circuit(&mut self, input: &'a Circuit<'a>, members: Vec<CircuitMember<'a>>) -> &'a Circuit<'a> {
+    fn reduce_struct(&mut self, input: &'a Struct<'a>, members: Vec<StructMember<'a>>) -> &'a Struct<'a> {
         let mut input_members = input.members.borrow_mut();
         for ((name, input_member), member) in input_members.iter_mut().zip(members) {
             *input_member = member;
@@ -409,7 +409,7 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
         imported_modules: Vec<(String, Program<'a>)>,
         aliases: Vec<(String, &'a Alias<'a>)>,
         functions: Vec<(String, &'a Function<'a>)>,
-        circuits: Vec<(String, &'a Circuit<'a>)>,
+        structs: Vec<(String, &'a Struct<'a>)>,
         global_consts: Vec<(String, &'a DefinitionStatement<'a>)>,
     ) -> Program<'a> {
         Program {
@@ -419,7 +419,7 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
             imported_modules: imported_modules.into_iter().collect(),
             aliases: aliases.into_iter().collect(),
             functions: functions.into_iter().collect(),
-            circuits: circuits.into_iter().collect(),
+            structs: structs.into_iter().collect(),
             scope: input.scope,
             global_consts: global_consts.into_iter().collect(),
         }

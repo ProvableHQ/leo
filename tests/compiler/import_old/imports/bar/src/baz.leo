@@ -1,8 +1,8 @@
-circuit Baz {
+struct Baz {
     z: u32;
 }
 
-circuit Bazzar {
+struct Bazzar {
     a: u32;
 }
 

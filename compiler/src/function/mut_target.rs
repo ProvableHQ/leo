@@ -20,8 +20,8 @@ use std::cell::Cell;
 
 use crate::program::Program;
 use leo_asg::{
-    AccessExpression, ArrayAccess, ArrayRangeAccess, AssignAccess, AssignOperation, AssignStatement, CircuitAccess,
-    Expression, Node, TupleAccess, Variable,
+    AccessExpression, ArrayAccess, ArrayRangeAccess, AssignAccess, AssignOperation, AssignStatement, Expression, Node,
+    StructAccess, TupleAccess, Variable,
 };
 use leo_errors::Result;
 use snarkvm_ir::Value;
@@ -46,7 +46,7 @@ impl<'a> Program<'a> {
                     out.push(AssignAccess::ArrayIndex(index.clone()));
                     Ok(inner)
                 }
-                AccessExpression::Circuit(CircuitAccess { target, member, .. }) => {
+                AccessExpression::Struct(StructAccess { target, member, .. }) => {
                     if let Some(target) = target.get() {
                         let inner = Self::prepare_mut_access(out, target)?;
 

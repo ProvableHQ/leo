@@ -21,7 +21,7 @@ use leo_errors::{Result, Span};
 pub enum AccessExpression<'a> {
     Array(ArrayAccess<'a>),
     ArrayRange(ArrayRangeAccess<'a>),
-    Circuit(CircuitAccess<'a>),
+    Struct(StructAccess<'a>),
     Tuple(TupleAccess<'a>),
 }
 
@@ -32,7 +32,7 @@ impl<'a> Node for AccessExpression<'a> {
         match self {
             Array(access) => access.span(),
             ArrayRange(access) => access.span(),
-            Circuit(access) => access.span(),
+            Struct(access) => access.span(),
             Tuple(access) => access.span(),
         }
     }
@@ -45,7 +45,7 @@ impl<'a> ExpressionNode<'a> for AccessExpression<'a> {
         match self {
             Array(access) => access.set_parent(parent),
             ArrayRange(access) => access.set_parent(parent),
-            Circuit(access) => access.set_parent(parent),
+            Struct(access) => access.set_parent(parent),
             Tuple(access) => access.set_parent(parent),
         }
     }
@@ -56,7 +56,7 @@ impl<'a> ExpressionNode<'a> for AccessExpression<'a> {
         match self {
             Array(access) => access.get_parent(),
             ArrayRange(access) => access.get_parent(),
-            Circuit(access) => access.get_parent(),
+            Struct(access) => access.get_parent(),
             Tuple(access) => access.get_parent(),
         }
     }
@@ -67,7 +67,7 @@ impl<'a> ExpressionNode<'a> for AccessExpression<'a> {
         match self {
             Array(access) => access.enforce_parents(expr),
             ArrayRange(access) => access.enforce_parents(expr),
-            Circuit(access) => access.enforce_parents(expr),
+            Struct(access) => access.enforce_parents(expr),
             Tuple(access) => access.enforce_parents(expr),
         }
     }
@@ -78,7 +78,7 @@ impl<'a> ExpressionNode<'a> for AccessExpression<'a> {
         match self {
             Array(access) => access.get_type(),
             ArrayRange(access) => access.get_type(),
-            Circuit(access) => access.get_type(),
+            Struct(access) => access.get_type(),
             Tuple(access) => access.get_type(),
         }
     }
@@ -89,7 +89,7 @@ impl<'a> ExpressionNode<'a> for AccessExpression<'a> {
         match self {
             Array(access) => access.is_mut_ref(),
             ArrayRange(access) => access.is_mut_ref(),
-            Circuit(access) => access.is_mut_ref(),
+            Struct(access) => access.is_mut_ref(),
             Tuple(access) => access.is_mut_ref(),
         }
     }
@@ -100,7 +100,7 @@ impl<'a> ExpressionNode<'a> for AccessExpression<'a> {
         match self {
             Array(access) => access.const_value(),
             ArrayRange(access) => access.const_value(),
-            Circuit(access) => access.const_value(),
+            Struct(access) => access.const_value(),
             Tuple(access) => access.const_value(),
         }
     }
@@ -111,7 +111,7 @@ impl<'a> ExpressionNode<'a> for AccessExpression<'a> {
         match self {
             Array(access) => access.is_consty(),
             ArrayRange(access) => access.is_consty(),
-            Circuit(access) => access.is_consty(),
+            Struct(access) => access.is_consty(),
             Tuple(access) => access.is_consty(),
         }
     }
@@ -130,9 +130,9 @@ impl<'a> FromAst<'a, leo_ast::AccessExpression> for AccessExpression<'a> {
             ArrayRange(access) => {
                 ArrayRangeAccess::from_ast(scope, access, expected_type).map(AccessExpression::ArrayRange)
             }
-            Member(access) => CircuitAccess::from_ast(scope, access, expected_type).map(AccessExpression::Circuit),
+            Member(access) => StructAccess::from_ast(scope, access, expected_type).map(AccessExpression::Struct),
             Tuple(access) => TupleAccess::from_ast(scope, access, expected_type).map(AccessExpression::Tuple),
-            Static(access) => CircuitAccess::from_ast(scope, access, expected_type).map(AccessExpression::Circuit),
+            Static(access) => StructAccess::from_ast(scope, access, expected_type).map(AccessExpression::Struct),
         }
     }
 }
@@ -144,7 +144,7 @@ impl<'a> Into<leo_ast::Expression> for &AccessExpression<'a> {
         match self {
             Array(access) => leo_ast::Expression::Access(leo_ast::AccessExpression::Array(access.into())),
             ArrayRange(access) => leo_ast::Expression::Access(leo_ast::AccessExpression::ArrayRange(access.into())),
-            Circuit(access) => access.into(),
+            Struct(access) => access.into(),
             Tuple(access) => leo_ast::Expression::Access(leo_ast::AccessExpression::Tuple(access.into())),
         }
     }

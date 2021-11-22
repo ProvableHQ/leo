@@ -24,7 +24,7 @@ use leo_errors::Result;
 macro_rules! phase {
     ($phase_name:ident, $function:item) => {
         pub struct $phase_name {
-            in_circuit: bool,
+            in_struct: bool,
         }
 
         pub struct Options;
@@ -34,18 +34,18 @@ macro_rules! phase {
         }
 
         impl ReconstructingReducer for $phase_name {
-            fn in_circuit(&self) -> bool {
-                self.in_circuit
+            fn in_struct(&self) -> bool {
+                self.in_struct
             }
 
-            fn swap_in_circuit(&mut self) {
-                self.in_circuit = !self.in_circuit;
+            fn swap_in_struct(&mut self) {
+                self.in_struct = !self.in_struct;
             }
         }
 
         impl Default for $phase_name {
             fn default() -> Self {
-                Self { in_circuit: false }
+                Self { in_struct: false }
             }
         }
 

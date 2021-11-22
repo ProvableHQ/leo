@@ -7,7 +7,7 @@ input_file:
 
 const Foo = 8u8;
 
-circuit Foo {
+struct Foo {
     x: u8;
 }
 

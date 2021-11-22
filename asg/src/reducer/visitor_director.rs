@@ -55,7 +55,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
                 Expression::ArrayInline(e) => self.visit_array_inline(e),
                 Expression::Binary(e) => self.visit_binary(e),
                 Expression::Call(e) => self.visit_call(e),
-                Expression::CircuitInit(e) => self.visit_circuit_init(e),
+                Expression::StructInit(e) => self.visit_struct_init(e),
                 Expression::Ternary(e) => self.visit_ternary_expression(e),
                 Expression::Cast(e) => self.visit_cast_expression(e),
                 Expression::Access(e) => self.visit_access_expression(e),
@@ -130,8 +130,8 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    pub fn visit_circuit_init(&mut self, input: &CircuitInitExpression<'a>) -> ConcreteVisitResult {
-        match self.visitor.visit_circuit_init(input) {
+    pub fn visit_struct_init(&mut self, input: &StructInitExpression<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_struct_init(input) {
             VisitResult::VisitChildren => {
                 for (_, argument) in input.values.iter() {
                     self.visit_expression(argument)?;
@@ -187,8 +187,8 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    pub fn visit_circuit_access(&mut self, input: &CircuitAccess<'a>) -> ConcreteVisitResult {
-        match self.visitor.visit_circuit_access(input) {
+    pub fn visit_struct_access(&mut self, input: &StructAccess<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_struct_access(input) {
             VisitResult::VisitChildren => {
                 self.visit_opt_expression(&input.target)?;
                 Ok(())
@@ -213,7 +213,7 @@ impl<'a, R: ExpressionVisitor<'a>> VisitorDirector<'a, R> {
         match input {
             Array(a) => self.visit_array_access(a),
             ArrayRange(a) => self.visit_array_range_access(a),
-            Circuit(a) => self.visit_circuit_access(a),
+            Struct(a) => self.visit_struct_access(a),
             Tuple(a) => self.visit_tuple_access(a),
         }
     }
@@ -411,10 +411,10 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    pub fn visit_circuit_member(&mut self, input: &CircuitMember<'a>) -> ConcreteVisitResult {
-        match self.visitor.visit_circuit_member(input) {
+    pub fn visit_struct_member(&mut self, input: &StructMember<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_struct_member(input) {
             VisitResult::VisitChildren => {
-                if let CircuitMember::Function(f) = input {
+                if let StructMember::Function(f) = input {
                     self.visit_function(f)?;
                 }
                 Ok(())
@@ -423,11 +423,11 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
         }
     }
 
-    pub fn visit_circuit(&mut self, input: &'a Circuit<'a>) -> ConcreteVisitResult {
-        match self.visitor.visit_circuit(input) {
+    pub fn visit_struct(&mut self, input: &'a Struct<'a>) -> ConcreteVisitResult {
+        match self.visitor.visit_struct(input) {
             VisitResult::VisitChildren => {
                 for (_, member) in input.members.borrow().iter() {
-                    self.visit_circuit_member(member)?;
+                    self.visit_struct_member(member)?;
                 }
                 Ok(())
             }
@@ -454,8 +454,8 @@ impl<'a, R: ProgramVisitor<'a>> VisitorDirector<'a, R> {
                 for (_, function) in input.functions.iter() {
                     self.visit_function(function)?;
                 }
-                for (_, circuit) in input.circuits.iter() {
-                    self.visit_circuit(circuit)?;
+                for (_, structure) in input.structs.iter() {
+                    self.visit_struct(structure)?;
                 }
                 for (_, global_const) in input.global_consts.iter() {
                     self.visit_global_const(global_const)?;

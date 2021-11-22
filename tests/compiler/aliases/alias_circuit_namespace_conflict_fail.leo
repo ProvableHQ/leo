@@ -8,7 +8,7 @@ input_file:
 
 type Int = u32;
 
-circuit Int {
+struct Int {
 	x: u8;
 }
 

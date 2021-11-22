@@ -68,9 +68,9 @@ create_errors!(
 
     /// For when a user tries to use the `Self` keyword outside of a cricuit.
     @formatted
-    big_self_outside_of_circuit {
+    big_self_outside_of_struct {
         args: (),
-        msg: "cannot call keyword `Self` outside of a circuit function",
+        msg: "cannot call keyword `Self` outside of a struct function",
         help: None,
     }
 

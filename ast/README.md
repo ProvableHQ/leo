@@ -280,7 +280,7 @@ A circuit init expression node stores the following:
 - The name of the circuit expression being initialized.
 - The aruments a list of expressions.
 
-#### [CircuitMemberAccess Expressions](./src/expression/circuit_member_access.rs)
+#### [StructMemberAccess Expressions](./src/expression/circuit_member_access.rs)
 
 A circuit member access expression node stores the following:
 

@@ -20,8 +20,8 @@ use leo_errors::Span;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-/// The `self` keyword can view circuit values inside of a circuit function.
-/// Circuit values cannot be modified. To modify values use the `mut self` [MutSelfKeyword].
+/// The `self` keyword can view struct values inside of a struct function.
+/// Struct values cannot be modified. To modify values use the `mut self` [MutSelfKeyword].
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct SelfKeyword {

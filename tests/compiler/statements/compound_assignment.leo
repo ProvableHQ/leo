@@ -4,7 +4,7 @@ expectation: Pass
 input_file: inputs/dummy.in
 */
 
-circuit Foo {
+struct Foo {
   f: u8;
   y: (u8, u8);
 

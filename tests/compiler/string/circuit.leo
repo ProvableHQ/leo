@@ -5,7 +5,7 @@ input_file:
  - inputs/string_out.in
 */
 
-circuit Foo {
+struct Foo {
     s1: [char; 13];
 }
 

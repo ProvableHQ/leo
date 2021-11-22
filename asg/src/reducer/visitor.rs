@@ -56,7 +56,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_circuit_init(&mut self, input: &CircuitInitExpression<'a>) -> VisitResult {
+    fn visit_struct_init(&mut self, input: &StructInitExpression<'a>) -> VisitResult {
         Default::default()
     }
 
@@ -76,7 +76,7 @@ pub trait ExpressionVisitor<'a> {
         Default::default()
     }
 
-    fn visit_circuit_access(&mut self, input: &CircuitAccess<'a>) -> VisitResult {
+    fn visit_struct_access(&mut self, input: &StructAccess<'a>) -> VisitResult {
         Default::default()
     }
 
@@ -159,11 +159,11 @@ pub trait ProgramVisitor<'a>: StatementVisitor<'a> {
         Default::default()
     }
 
-    fn visit_circuit_member(&mut self, input: &CircuitMember<'a>) -> VisitResult {
+    fn visit_struct_member(&mut self, input: &StructMember<'a>) -> VisitResult {
         Default::default()
     }
 
-    fn visit_circuit(&mut self, input: &'a Circuit<'a>) -> VisitResult {
+    fn visit_struct(&mut self, input: &'a Struct<'a>) -> VisitResult {
         Default::default()
     }
 

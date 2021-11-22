@@ -1,0 +1,16 @@
+/*
+namespace: Compile
+expectation: Pass
+input_file: input/dummy.in
+*/
+
+struct Foo {
+    static const x: u32 = 4u32;
+    static const y: u32 = 23;
+}
+
+function main(y: bool) -> bool {
+    let z = Foo::x + 32;
+    return (Foo::x == 4u32) && (Foo::y == 23u32) &&
+        (z == 36u32) == y;
+}

@@ -19,7 +19,7 @@ input_file:
  - inputs/unicode5.in
 */
 
-circuit Foo {
+struct Foo {
     character: char;
 }
 

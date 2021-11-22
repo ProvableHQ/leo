@@ -64,7 +64,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
 
             Expression::TupleInit(tuple_init) => Expression::TupleInit(self.reduce_tuple_init(tuple_init)?),
 
-            Expression::CircuitInit(circuit_init) => Expression::CircuitInit(self.reduce_circuit_init(circuit_init)?),
+            Expression::StructInit(struct_init) => Expression::StructInit(self.reduce_struct_init(struct_init)?),
 
             Expression::Call(call) => Expression::Call(self.reduce_call(call)?),
             Expression::Err(s) => Expression::Err(s.clone()),
@@ -235,10 +235,10 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_tuple_init(tuple_init, elements)
     }
 
-    pub fn reduce_circuit_implied_variable_definition(
+    pub fn reduce_struct_implied_variable_definition(
         &mut self,
-        variable: &CircuitImpliedVariableDefinition,
-    ) -> Result<CircuitImpliedVariableDefinition> {
+        variable: &StructImpliedVariableDefinition,
+    ) -> Result<StructImpliedVariableDefinition> {
         let identifier = self.reduce_identifier(&variable.identifier)?;
         let expression = variable
             .expression
@@ -247,18 +247,18 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .transpose()?;
 
         self.reducer
-            .reduce_circuit_implied_variable_definition(variable, identifier, expression)
+            .reduce_struct_implied_variable_definition(variable, identifier, expression)
     }
 
-    pub fn reduce_circuit_init(&mut self, circuit_init: &CircuitInitExpression) -> Result<CircuitInitExpression> {
-        let name = self.reduce_identifier(&circuit_init.name)?;
+    pub fn reduce_struct_init(&mut self, struct_init: &StructInitExpression) -> Result<StructInitExpression> {
+        let name = self.reduce_identifier(&struct_init.name)?;
 
         let mut members = vec![];
-        for member in circuit_init.members.iter() {
-            members.push(self.reduce_circuit_implied_variable_definition(member)?);
+        for member in struct_init.members.iter() {
+            members.push(self.reduce_struct_implied_variable_definition(member)?);
         }
 
-        self.reducer.reduce_circuit_init(circuit_init, name, members)
+        self.reducer.reduce_struct_init(struct_init, name, members)
     }
 
     pub fn reduce_call(&mut self, call: &CallExpression) -> Result<CallExpression> {
@@ -443,12 +443,12 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             );
         }
 
-        let mut circuits = IndexMap::new();
-        self.reducer.swap_in_circuit();
-        for (name, circuit) in program.circuits.iter() {
-            circuits.insert(name.clone(), self.reduce_circuit(circuit)?);
+        let mut structs = IndexMap::new();
+        self.reducer.swap_in_struct();
+        for (name, structure) in program.structs.iter() {
+            structs.insert(name.clone(), self.reduce_struct(structure)?);
         }
-        self.reducer.swap_in_circuit();
+        self.reducer.swap_in_struct();
 
         let mut functions = IndexMap::new();
         for (name, function) in program.functions.iter() {
@@ -466,7 +466,7 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             import_statements,
             imports,
             aliases,
-            circuits,
+            structs,
             functions,
             global_consts,
         )
@@ -522,34 +522,34 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
         self.reducer.reduce_import(new_identifer, new_import)
     }
 
-    pub fn reduce_circuit_member(&mut self, circuit_member: &CircuitMember) -> Result<CircuitMember> {
-        let new = match circuit_member {
-            CircuitMember::CircuitConst(identifier, type_, value) => CircuitMember::CircuitConst(
+    pub fn reduce_struct_member(&mut self, struct_member: &StructMember) -> Result<StructMember> {
+        let new = match struct_member {
+            StructMember::StructConst(identifier, type_, value) => StructMember::StructConst(
                 self.reduce_identifier(identifier)?,
                 self.reduce_type(type_, &identifier.span)?,
                 self.reduce_expression(value)?,
             ),
-            CircuitMember::CircuitVariable(identifier, type_) => CircuitMember::CircuitVariable(
+            StructMember::StructVariable(identifier, type_) => StructMember::StructVariable(
                 self.reduce_identifier(identifier)?,
                 self.reduce_type(type_, &identifier.span)?,
             ),
-            CircuitMember::CircuitFunction(function) => {
-                CircuitMember::CircuitFunction(Box::new(self.reduce_function(function)?))
+            StructMember::StructFunction(function) => {
+                StructMember::StructFunction(Box::new(self.reduce_function(function)?))
             }
         };
 
-        self.reducer.reduce_circuit_member(circuit_member, new)
+        self.reducer.reduce_struct_member(struct_member, new)
     }
 
-    pub fn reduce_circuit(&mut self, circuit: &Circuit) -> Result<Circuit> {
-        let circuit_name = self.reduce_identifier(&circuit.circuit_name)?;
+    pub fn reduce_struct(&mut self, structure: &Struct) -> Result<Struct> {
+        let struct_name = self.reduce_identifier(&structure.struct_name)?;
 
         let mut members = vec![];
-        for member in circuit.members.iter() {
-            members.push(self.reduce_circuit_member(member)?);
+        for member in structure.members.iter() {
+            members.push(self.reduce_struct_member(member)?);
         }
 
-        self.reducer.reduce_circuit(circuit, circuit_name, members)
+        self.reducer.reduce_struct(structure, struct_name, members)
     }
 
     fn reduce_annotation(&mut self, annotation: &Annotation) -> Result<Annotation> {

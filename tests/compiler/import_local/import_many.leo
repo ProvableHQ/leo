@@ -5,7 +5,7 @@ input_file: input/dummy.in
 cwd: local_imports
 */
 
-import circuits.(
+import structs.(
     Point,
     foo
 );

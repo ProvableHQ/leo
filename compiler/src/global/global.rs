@@ -17,7 +17,7 @@
 //! Generates R1CS constraints for a compiled Leo program.
 
 use crate::Program;
-use leo_asg::CircuitMember;
+use leo_asg::StructMember;
 use leo_errors::CompilerError;
 use leo_errors::Result;
 
@@ -35,14 +35,14 @@ impl<'a> Program<'a> {
             .iter()
             .filter(|(name, _)| *name != "main")
             .map(|(_, f)| *f)
-            .chain(asg.scope.get_circuits().iter().flat_map(|(_, circuit)| {
-                circuit
+            .chain(asg.scope.get_structs().iter().flat_map(|(_, structure)| {
+                structure
                     .members
                     .borrow()
                     .iter()
                     .filter_map(|(_, member)| match member {
-                        CircuitMember::Const(_) | CircuitMember::Variable(_) => None,
-                        CircuitMember::Function(function) => Some(*function),
+                        StructMember::Const(_) | StructMember::Variable(_) => None,
+                        StructMember::Function(function) => Some(*function),
                     })
                     .collect::<Vec<_>>()
                     .into_iter()

@@ -15,8 +15,8 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    CircuitMember, ConstInt, ConstValue, Expression, ExpressionNode, FromAst, Identifier, IntegerType, Node,
-    PartialType, Scope, Statement, Type, Variable,
+    ConstInt, ConstValue, Expression, ExpressionNode, FromAst, Identifier, IntegerType, Node, PartialType, Scope,
+    Statement, StructMember, Type, Variable,
 };
 pub use leo_ast::AssignOperation;
 use leo_ast::AssigneeAccess as AstAssigneeAccess;
@@ -162,24 +162,24 @@ impl<'a> FromAst<'a, leo_ast::AssignStatement> for &'a Statement<'a> {
                 }
                 AstAssigneeAccess::Member(name) => {
                     target_type = match target_type {
-                        Some(PartialType::Type(Type::Circuit(circuit))) => {
-                            let circuit = circuit;
+                        Some(PartialType::Type(Type::Struct(structure))) => {
+                            let structure = structure;
 
-                            let members = circuit.members.borrow();
+                            let members = structure.members.borrow();
                             let member = members.get(name.name.as_ref()).ok_or_else(|| {
-                                AsgError::unresolved_circuit_member(
-                                    &circuit.name.borrow().name,
+                                AsgError::unresolved_struct_member(
+                                    &structure.name.borrow().name,
                                     &name.name,
                                     &statement.span,
                                 )
                             })?;
 
                             let x = match &member {
-                                CircuitMember::Const(value) => value
+                                StructMember::Const(value) => value
                                     .get_type()
                                     .ok_or_else(|| AsgError::unresolved_type("unknown", &statement.span))?,
-                                CircuitMember::Variable(type_) => type_.clone(),
-                                CircuitMember::Function(_) => {
+                                StructMember::Variable(type_) => type_.clone(),
+                                StructMember::Function(_) => {
                                     return Err(AsgError::illegal_function_assign(&name.name, &statement.span).into());
                                 }
                             };

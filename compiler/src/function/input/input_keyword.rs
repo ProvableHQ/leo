@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::Program;
-use leo_asg::{Circuit, CircuitMember, Type};
+use leo_asg::{Struct, StructMember, Type};
 use leo_errors::{Result, Span};
 use snarkvm_ir::Value;
 
@@ -29,10 +29,10 @@ impl<'a> Program<'a> {
     pub fn allocate_input_keyword(
         &mut self,
         span: &Span,
-        expected_type: &'a Circuit<'a>,
+        expected_type: &'a Struct<'a>,
         input: &leo_ast::Input,
     ) -> Result<Value> {
-        // Allocate each input variable as a circuit expression
+        // Allocate each input variable as a struct expression
 
         let sections = [
             REGISTERS_VARIABLE_NAME,
@@ -43,8 +43,8 @@ impl<'a> Program<'a> {
 
         let mut out_variables = vec![];
         for name in sections.iter() {
-            let sub_circuit = match expected_type.members.borrow().get(*name) {
-                Some(CircuitMember::Variable(Type::Circuit(circuit))) => *circuit,
+            let sub_struct = match expected_type.members.borrow().get(*name) {
+                Some(StructMember::Variable(Type::Struct(structure))) => *structure,
                 _ => panic!("illegal input type definition from asg"),
             };
 
@@ -56,15 +56,12 @@ impl<'a> Program<'a> {
                 _ => panic!("illegal input section: {}", name),
             };
 
-            out_variables.push(Value::Tuple(self.allocate_input_section(
-                name,
-                span,
-                sub_circuit,
-                origin,
-            )?));
+            out_variables.push(Value::Tuple(
+                self.allocate_input_section(name, span, sub_struct, origin)?,
+            ));
         }
 
-        // Return input variable keyword as circuit expression
+        // Return input variable keyword as struct expression
 
         Ok(Value::Tuple(out_variables))
     }

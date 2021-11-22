@@ -1,3 +1,3 @@
-circuit Bar {
+struct Bar {
     r: u32;
 }

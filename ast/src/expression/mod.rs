@@ -15,7 +15,7 @@
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::{
-    ArrayDimensions, CircuitImpliedVariableDefinition, GroupValue, Identifier, IntegerType, Node, SpreadOrExpression,
+    ArrayDimensions, GroupValue, Identifier, IntegerType, Node, SpreadOrExpression, StructImpliedVariableDefinition,
 };
 
 use leo_errors::Span;
@@ -37,8 +37,8 @@ mod array_init;
 pub use array_init::*;
 mod tuple_init;
 pub use tuple_init::*;
-mod circuit_init;
-pub use circuit_init::*;
+mod struct_init;
+pub use struct_init::*;
 mod value;
 pub use value::*;
 mod call;
@@ -64,7 +64,7 @@ pub enum Expression {
 
     TupleInit(TupleInitExpression),
 
-    CircuitInit(CircuitInitExpression),
+    StructInit(StructInitExpression),
 
     Call(CallExpression),
 
@@ -85,7 +85,7 @@ impl Node for Expression {
             ArrayInline(n) => n.span(),
             ArrayInit(n) => n.span(),
             TupleInit(n) => n.span(),
-            CircuitInit(n) => n.span(),
+            StructInit(n) => n.span(),
             Call(n) => n.span(),
             Cast(n) => n.span(),
             Access(n) => n.span(),
@@ -104,7 +104,7 @@ impl Node for Expression {
             ArrayInline(n) => n.set_span(span),
             ArrayInit(n) => n.set_span(span),
             TupleInit(n) => n.set_span(span),
-            CircuitInit(n) => n.set_span(span),
+            StructInit(n) => n.set_span(span),
             Call(n) => n.set_span(span),
             Cast(n) => n.set_span(span),
             Access(n) => n.set_span(span),
@@ -125,7 +125,7 @@ impl fmt::Display for Expression {
             ArrayInline(n) => n.fmt(f),
             ArrayInit(n) => n.fmt(f),
             TupleInit(n) => n.fmt(f),
-            CircuitInit(n) => n.fmt(f),
+            StructInit(n) => n.fmt(f),
             Call(n) => n.fmt(f),
             Cast(n) => n.fmt(f),
             Access(n) => n.fmt(f),
