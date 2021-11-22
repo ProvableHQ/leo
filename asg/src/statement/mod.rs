@@ -95,18 +95,18 @@ impl<'a> Node for Statement<'a> {
         }
     }
 
-    fn get_id(&self) -> AsgId {
+    fn asg_id(&self) -> AsgId {
         use Statement::*;
         match self {
-            Return(s) => s.get_id(),
-            Definition(s) => s.get_id(),
-            Assign(s) => s.get_id(),
-            Conditional(s) => s.get_id(),
-            Iteration(s) => s.get_id(),
-            Console(s) => s.get_id(),
-            Expression(s) => s.get_id(),
-            Block(s) => s.get_id(),
-            Empty(_s) => panic!("Method `get_id` cannot be invoked on an Empty statement"),
+            Return(s) => s.asg_id(),
+            Definition(s) => s.asg_id(),
+            Assign(s) => s.asg_id(),
+            Conditional(s) => s.asg_id(),
+            Iteration(s) => s.asg_id(),
+            Console(s) => s.asg_id(),
+            Expression(s) => s.asg_id(),
+            Block(s) => s.asg_id(),
+            Empty(_s) => panic!("Method `asg_id` cannot be invoked on an Empty statement"),
         }
     }
 }

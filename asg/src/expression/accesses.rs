@@ -37,7 +37,7 @@ impl<'a> Node for AccessExpression<'a> {
         }
     }
 
-    fn get_id(&self) -> AsgId {
+    fn asg_id(&self) -> AsgId {
         use AccessExpression::*;
         match self {
             Array(access) => access.id,

@@ -36,9 +36,8 @@ use structopt::StructOpt;
 use tracing::span::Span;
 
 // Custom parser for exclude_asg_edges, exclude_asg_labels
-#[allow(dead_code)]
-fn parse_excluded_names(src: &str) -> Vec<Box<str>> {
-    src.split(' ').map(Box::from).collect()
+fn parse_excluded_names(src: &str) -> Box<str> {
+    Box::from(src)
 }
 
 // Compiler Options wrapper for Build command. Also used by other commands which
@@ -76,9 +75,9 @@ pub struct BuildOptions {
     pub enable_constants_folded_asg_debug_graph: bool,
     #[structopt(long, help = "Writes ASG debug graph after the dead code elimination phase.")]
     pub enable_dead_code_eliminated_asg_debug_graph: bool,
-    #[structopt(long, parse(from_str), help = "Edges to exclude from ASG debug graph.")]
+    #[structopt(long, parse(from_str = parse_excluded_names), help = "Edges to exclude from ASG debug graph.")]
     pub exclude_asg_edges: Vec<Box<str>>,
-    #[structopt(long, parse(from_str), help = "Node labels to exclude from ASG debug graph.")]
+    #[structopt(long, parse(from_str = parse_excluded_names), help = "Node labels to exclude from ASG debug graph.")]
     pub exclude_asg_labels: Vec<Box<str>>,
     #[structopt(
         long,

@@ -38,7 +38,7 @@ impl<'a> Node for IterationStatement<'a> {
         self.span.as_ref()
     }
 
-    fn get_id(&self) -> AsgId {
+    fn asg_id(&self) -> AsgId {
         self.id
     }
 }

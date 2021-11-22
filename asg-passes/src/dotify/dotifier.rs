@@ -21,12 +21,12 @@ use leo_errors::Span;
 use petgraph::graph::NodeIndex;
 use std::collections::HashMap;
 
-/// An ASG pass for constructung
+/// An ASG pass for constructing a DOT rendering of the ASG.
 pub struct Dotifier<'a, 'b> {
     pub graph: DotGraph,
     pub context: &'b AsgContext<'a>,
-    pub id_map: HashMap<u32, NodeIndex>,
-    pub edges: Vec<(u32, u32, String, DotColor)>, // For edges that are meant to be added after entire ASG is traversed
+    pub id_map: HashMap<AsgId, NodeIndex>,
+    pub edges: Vec<(AsgId, AsgId, String, DotColor)>, // For edges that are meant to be added after entire ASG is traversed
 }
 
 impl<'a, 'b> Dotifier<'a, 'b> {
@@ -41,7 +41,7 @@ impl<'a, 'b> Dotifier<'a, 'b> {
     }
 
     /// Adds a node to the DotGraph if it has not been added yet. Returns the corresponding NodeIndex.
-    pub fn add_or_get_node(&mut self, id: u32, name: String, labels: Vec<(&'static str, String)>) -> NodeIndex {
+    pub fn add_or_get_node(&mut self, id: AsgId, name: String, labels: Vec<(&'static str, String)>) -> NodeIndex {
         let &mut Dotifier {
             ref mut id_map,
             ref mut graph,
@@ -89,7 +89,7 @@ impl<'a, 'b> Dotifier<'a, 'b> {
     /// Generate labels for `DotNode`s corresponding to Expressions.
     pub fn generate_default_expr_labels(expr: &'b dyn ExpressionNode<'b>) -> Vec<(&'a str, String)> {
         let mut labels = vec![
-            ("NodeID", expr.get_id().to_string()),
+            ("NodeID", expr.asg_id().to_string()),
             ("Type", Dotifier::generate_type_info(expr.get_type())),
         ];
 
@@ -99,7 +99,7 @@ impl<'a, 'b> Dotifier<'a, 'b> {
 
     /// Generate labels for `DotNode`s corresponding to Statments.
     pub fn generate_default_stmt_labels(stmt: &'b dyn Node) -> Vec<(&'a str, String)> {
-        let mut labels = vec![("NodeID", stmt.get_id().to_string())];
+        let mut labels = vec![("NodeID", stmt.asg_id().to_string())];
 
         Dotifier::add_span_info(&mut labels, stmt.span());
         labels

@@ -27,7 +27,7 @@ impl<'a, 'b> MonoidalReducerStatement<'a, M> for Dotifier<'a, 'b> {
             if let Some(parent) = input.get_parent() {
                 if !parent.is_empty() {
                     self.edges
-                        .push((input.get_id(), parent.get_id(), "parent".to_string(), DotColor::Red))
+                        .push((input.asg_id(), parent.asg_id(), "parent".to_string(), DotColor::Red))
                 }
             }
         }

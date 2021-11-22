@@ -33,7 +33,7 @@ impl<'a> Node for TupleAccess<'a> {
         self.span.as_ref()
     }
 
-    fn get_id(&self) -> AsgId {
+    fn asg_id(&self) -> AsgId {
         self.id
     }
 }

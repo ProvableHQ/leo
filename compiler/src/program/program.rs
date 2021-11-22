@@ -17,7 +17,8 @@
 //! An in memory store to keep track of defined names when constraining a Leo program.
 
 use leo_asg::{
-    CircuitMember, ExpressionNode, Function, FunctionQualifier, InputCategory, IntegerType, Type as AsgType, Variable,
+    AsgId, CircuitMember, ExpressionNode, Function, FunctionQualifier, InputCategory, IntegerType, Type as AsgType,
+    Variable,
 };
 use snarkvm_ir::{Header, Instruction, MaskData, QueryData, RepeatData, SnarkVMVersion, Type, Value};
 
@@ -43,10 +44,10 @@ pub(crate) struct Program<'a> {
     pub asg: leo_asg::Program<'a>,
     pub current_function: Option<&'a Function<'a>>,
     functions: Vec<IrFunction>,
-    function_to_index: IndexMap<u32, u32>,
+    function_to_index: IndexMap<AsgId, u32>,
     next_register: u32,
     inputs: IndexMap<u32, Input>,
-    variable_to_register: IndexMap<u32, u32>,
+    variable_to_register: IndexMap<AsgId, u32>,
     input_orderings: IndexMap<InputCategory, Vec<String>>,
 }
 

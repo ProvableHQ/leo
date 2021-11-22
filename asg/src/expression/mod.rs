@@ -110,22 +110,22 @@ impl<'a> Node for Expression<'a> {
         }
     }
 
-    fn get_id(&self) -> AsgId {
+    fn asg_id(&self) -> AsgId {
         use Expression::*;
         match self {
-            VariableRef(x) => x.get_id(),
-            Constant(x) => x.get_id(),
-            Binary(x) => x.get_id(),
-            Unary(x) => x.get_id(),
-            Ternary(x) => x.get_id(),
-            Cast(x) => x.get_id(),
-            Access(x) => x.get_id(),
-            ArrayInline(x) => x.get_id(),
-            ArrayInit(x) => x.get_id(),
-            TupleInit(x) => x.get_id(),
-            CircuitInit(x) => x.get_id(),
-            Call(x) => x.get_id(),
-            Err(x) => x.get_id(),
+            VariableRef(x) => x.asg_id(),
+            Constant(x) => x.asg_id(),
+            Binary(x) => x.asg_id(),
+            Unary(x) => x.asg_id(),
+            Ternary(x) => x.asg_id(),
+            Cast(x) => x.asg_id(),
+            Access(x) => x.asg_id(),
+            ArrayInline(x) => x.asg_id(),
+            ArrayInit(x) => x.asg_id(),
+            TupleInit(x) => x.asg_id(),
+            CircuitInit(x) => x.asg_id(),
+            Call(x) => x.asg_id(),
+            Err(x) => x.asg_id(),
         }
     }
 }

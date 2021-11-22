@@ -25,7 +25,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
     fn reduce_expression(&mut self, input: &'a Expression<'a>, value: M) -> M {
         if let Some(parent) = input.get_parent() {
             self.edges
-                .push((input.get_id(), parent.get_id(), "parent".to_string(), DotColor::Red))
+                .push((input.asg_id(), parent.asg_id(), "parent".to_string(), DotColor::Red))
         }
         value
     }
@@ -256,7 +256,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         for reference in &inner_var.references {
             self.edges.push((
                 inner_var.id,
-                reference.get_id(),
+                reference.asg_id(),
                 "reference".to_string(),
                 DotColor::Navy,
             ));
@@ -265,7 +265,7 @@ impl<'a, 'b> MonoidalReducerExpression<'a, M> for Dotifier<'a, 'b> {
         for assignment in &inner_var.assignments {
             self.edges.push((
                 inner_var.id,
-                assignment.get_id(),
+                assignment.asg_id(),
                 "assignment".to_string(),
                 DotColor::Goldenrod,
             ));

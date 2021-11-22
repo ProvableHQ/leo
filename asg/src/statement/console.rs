@@ -34,7 +34,7 @@ impl<'a> Node for ConsoleArgs<'a> {
         Some(&self.span)
     }
 
-    fn get_id(&self) -> AsgId {
+    fn asg_id(&self) -> AsgId {
         self.id
     }
 }
@@ -59,7 +59,7 @@ impl<'a> Node for ConsoleStatement<'a> {
         self.span.as_ref()
     }
 
-    fn get_id(&self) -> AsgId {
+    fn asg_id(&self) -> AsgId {
         self.id
     }
 }

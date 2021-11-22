@@ -60,7 +60,6 @@ pub mod type_;
 pub use type_::*;
 
 pub mod variable;
-use typed_arena::Arena;
 pub use variable::*;
 
 pub mod pass;
@@ -72,8 +71,35 @@ pub use context::*;
 pub use leo_ast::{Ast, Identifier};
 use leo_errors::Result;
 
+use std::fmt;
+use std::fmt::Formatter;
+use std::hash::Hash;
+use std::ops::Add;
+use typed_arena::Arena;
+
 /// A unique identifier for each ASG node.
-type AsgId = u32;
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+pub struct AsgId(u32);
+
+impl From<u32> for AsgId {
+    fn from(id: u32) -> AsgId {
+        AsgId(id)
+    }
+}
+
+impl Add for AsgId {
+    type Output = AsgId;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        AsgId(self.0.add(rhs.0))
+    }
+}
+
+impl fmt::Display for AsgId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
 
 /// The abstract semantic graph (ASG) for a Leo program.
 ///

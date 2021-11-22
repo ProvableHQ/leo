@@ -36,10 +36,9 @@ pub enum DotColor {
     Navy,
 }
 
-#[allow(clippy::from_over_into)]
-impl Into<LabelText<'_>> for DotColor {
-    fn into(self) -> LabelText<'static> {
-        dot::LabelText::label(match self {
+impl From<DotColor> for LabelText<'static> {
+    fn from(color: DotColor) -> Self {
+        dot::LabelText::label(match color {
             DotColor::Black => "black",
             DotColor::Red => "red",
             DotColor::Brown => "brown",
@@ -75,8 +74,8 @@ impl DotNode {
         }
     }
 
-    /// Remove labels from the DotNode.
-    pub fn filter_labels(&mut self, excluded_labels: &[Box<str>]) {
+    /// Remove any label matching those in `excluded_labels` from the `DotNode`.
+    pub fn remove_labels(&mut self, excluded_labels: &[Box<str>]) {
         self.labels
             .retain(|(key, _)| !excluded_labels.iter().any(|label| label.as_ref() == *key));
     }
@@ -97,11 +96,11 @@ pub struct DotEdge {
 /// A directed graph that can be rendered into the DOT language.
 pub struct DotGraph {
     /// An identifier for the graph.
-    id: String,
+    pub id: String,
     /// Underlying graph data structure.
     graph: Graph<DotNode, DotEdge>,
     /// NodeIndex corresponding to the source.
-    source: NodeIndex,
+    pub source: NodeIndex,
 }
 
 impl DotGraph {
@@ -113,7 +112,6 @@ impl DotGraph {
             source: NodeIndex::default(),
         }
     }
-
 
     /// Add a node to the DotGraph.
     pub fn add_node(&mut self, node: DotNode) -> NodeIndex {
@@ -142,7 +140,7 @@ impl DotGraph {
     /// Remove labels from all nodes in the DotGraph.
     pub fn remove_node_labels(&mut self, excluded_labels: &[Box<str>]) {
         for node in self.graph.node_weights_mut() {
-            node.filter_labels(excluded_labels)
+            node.remove_labels(excluded_labels)
         }
     }
 
@@ -157,7 +155,7 @@ impl DotGraph {
     /// Returns a vector of node-indices reachable from the source node.
     pub fn get_reachable_set(&self) -> impl '_ + Iterator<Item = NodeIndex> {
         let mut dfs = DfsPostOrder::new(&self.graph, self.source);
-        iter::from_fn(|| dfs.next(&self.graph))
+        iter::from_fn(move || dfs.next(&self.graph))
     }
 }
 
@@ -198,9 +196,10 @@ impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> 
     }
 
     fn edges(&'a self) -> dot::Edges<'a, (EdgeIndex, &'a DotEdge)> {
-        let dot_edges = self.get_reachable_set()
+        let dot_edges = self
+            .get_reachable_set()
             .flat_map(|idx| self.graph.edges_directed(idx, Direction::Outgoing))
-            .map(|edge| (edge.id(), edge.weight())
+            .map(|edge| (edge.id(), edge.weight()))
             .collect();
         Cow::Owned(dot_edges)
     }
@@ -289,7 +288,7 @@ mod tests {
         add_edge(node3, node4);
         add_edge(node4, node4);
 
-        graph.set_source(node0);
+        graph.source = node0;
 
         let mut raw_output = Vec::new();
         dot::render(&graph, &mut raw_output)?;
