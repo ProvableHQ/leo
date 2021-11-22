@@ -1,4 +1,4 @@
-circuit group {
+struct group {
     @CoreFunction(group_to_bits_le)
     function to_bits_le(self) -> [bool; 506] {
         return [false; 506];

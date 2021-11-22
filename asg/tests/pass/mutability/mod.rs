@@ -47,14 +47,14 @@ fn test_array_splice_mutate() {
 }
 
 #[test]
-fn test_circuit_mutate() {
-    let program_string = include_str!("circuit_mutate.leo");
+fn test_struct_mutate() {
+    let program_string = include_str!("struct_mutate.leo");
     load_asg(program_string).unwrap();
 }
 
 #[test]
-fn test_circuit_variable_mutate() {
-    let program_string = include_str!("circuit_variable_mutate.leo");
+fn test_struct_variable_mutate() {
+    let program_string = include_str!("struct_variable_mutate.leo");
     load_asg(program_string).unwrap();
 }
 

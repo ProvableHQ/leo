@@ -35,6 +35,6 @@ outputs:
           content: import a.b as bar;
     imports: {}
     aliases: {}
-    circuits: {}
+    structs: {}
     global_consts: {}
     functions: {}

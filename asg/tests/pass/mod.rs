@@ -17,7 +17,6 @@
 pub mod address;
 pub mod array;
 pub mod boolean;
-pub mod circuits;
 pub mod console;
 pub mod core;
 pub mod definition;
@@ -28,4 +27,5 @@ pub mod input_files;
 pub mod integers;
 pub mod mutability;
 pub mod statements;
+pub mod structs;
 pub mod tuples;

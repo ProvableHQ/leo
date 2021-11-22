@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected const -- got 'function'\n    --> compiler-test:5:12\n     |\n   5 |     static function new() -> Self {\n     |            ^^^^^^^^"

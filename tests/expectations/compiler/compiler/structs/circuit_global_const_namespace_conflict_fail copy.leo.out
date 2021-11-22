@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373045]: a struct named \"Foo\" already exists in this scope\n    --> compiler-test:7:1\n     |\n   7 | const Foo = 8u8;\n     | ^^^^^^^^^^^^^^^"

@@ -1,4 +1,4 @@
-circuit address {
+struct address {
     @CoreFunction(address_to_bits_le)
     function to_bits_le(self) -> [bool; 256] {
         return [false; 256];

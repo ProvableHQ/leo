@@ -3,4 +3,4 @@ function fake_test() {}
 
 function main() {}
 
-circuit Foo {}
+struct Foo {}

@@ -7,7 +7,7 @@ outputs:
     import_statements: []
     imports: {}
     aliases: {}
-    circuits: {}
+    structs: {}
     global_consts: {}
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main() -> u8 {\\\"}\"}":

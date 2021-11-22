@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373006]: attempt to assign to function 'bar'\n    --> compiler-test:12:5\n     |\n  12 |     f.bar = 1u8;\n     |     ^^^^^^^^^^^"

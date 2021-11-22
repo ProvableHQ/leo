@@ -1,4 +1,4 @@
-circuit u8 {
+struct u8 {
     @CoreFunction(u8_to_bits_le)
     function to_bits_le(self) -> [bool; 8] {
         return [false; 8];

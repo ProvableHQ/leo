@@ -1,4 +1,4 @@
-circuit u64 {
+struct u64 {
     @CoreFunction(u64_to_bits_le)
     function to_bits_le(self) -> [bool; 64] {
         return [false; 64];

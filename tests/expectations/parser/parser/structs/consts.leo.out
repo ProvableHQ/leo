@@ -1,0 +1,41 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    import_statements: []
+    imports: {}
+    aliases: {}
+    structs:
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct X {\\\"}\"}":
+        struct_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct X {\\\"}\"}"
+        members:
+          - StructConst:
+              - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const x: u32 = 2;\\\"}\"}"
+              - IntegerType: U32
+              - Value:
+                  Implicit:
+                    - "2"
+                    - span:
+                        line_start: 4
+                        line_stop: 4
+                        col_start: 27
+                        col_stop: 28
+                        path: ""
+                        content: "    static const x: u32 = 2;"
+          - StructConst:
+              - "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":18,\\\"col_stop\\\":19,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    static const y: u32 = 5;\\\"}\"}"
+              - IntegerType: U32
+              - Value:
+                  Implicit:
+                    - "5"
+                    - span:
+                        line_start: 5
+                        line_stop: 5
+                        col_start: 27
+                        col_stop: 28
+                        path: ""
+                        content: "    static const y: u32 = 5;"
+    global_consts: {}
+    functions: {}

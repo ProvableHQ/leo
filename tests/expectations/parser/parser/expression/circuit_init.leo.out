@@ -2,7 +2,7 @@
 namespace: ParseExpression
 expectation: Pass
 outputs:
-  - CircuitInit:
+  - StructInit:
       name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x {}\\\"}\"}"
       members: []
       span:
@@ -12,7 +12,7 @@ outputs:
         col_stop: 5
         path: ""
         content: "x {}"
-  - CircuitInit:
+  - StructInit:
       name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x {y}\\\"}\"}"
       members:
         - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":4,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x {y}\\\"}\"}"
@@ -24,7 +24,7 @@ outputs:
         col_stop: 6
         path: ""
         content: "x {y}"
-  - CircuitInit:
+  - StructInit:
       name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y}\\\"}\"}"
       members:
         - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y}\\\"}\"}"
@@ -36,7 +36,7 @@ outputs:
         col_stop: 5
         path: ""
         content: "x{y}"
-  - CircuitInit:
+  - StructInit:
       name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{}\\\"}\"}"
       members: []
       span:
@@ -46,7 +46,7 @@ outputs:
         col_stop: 4
         path: ""
         content: "x{}"
-  - CircuitInit:
+  - StructInit:
       name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y: y}\\\"}\"}"
       members:
         - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y: y}\\\"}\"}"
@@ -59,7 +59,7 @@ outputs:
         col_stop: 8
         path: ""
         content: "x{y: y}"
-  - CircuitInit:
+  - StructInit:
       name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y: x}\\\"}\"}"
       members:
         - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y: x}\\\"}\"}"
@@ -72,7 +72,7 @@ outputs:
         col_stop: 8
         path: ""
         content: "x{y: x}"
-  - CircuitInit:
+  - StructInit:
       name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y: x,}\\\"}\"}"
       members:
         - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y: x,}\\\"}\"}"
@@ -85,7 +85,7 @@ outputs:
         col_stop: 9
         path: ""
         content: "x{y: x,}"
-  - CircuitInit:
+  - StructInit:
       name: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":2,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
       members:
         - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":3,\\\"col_stop\\\":4,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"x{y:x, x:y,}\\\"}\"}"
@@ -101,7 +101,7 @@ outputs:
         col_stop: 13
         path: ""
         content: "x{y:x, x:y,}"
-  - CircuitInit:
+  - StructInit:
       name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":1,\\\"line_stop\\\":1,\\\"col_start\\\":1,\\\"col_stop\\\":5,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"Self {}\\\"}\"}"
       members: []
       span:

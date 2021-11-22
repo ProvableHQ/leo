@@ -39,13 +39,15 @@ impl ParserContext<'_> {
                 Token::Import => {
                     import_statements.push(self.parse_import_statement()?);
                 }
+                Token::Circuit => {
+                    let span = self.expect(Token::Circuit)?;
+                    self.emit_err(ParserError::cricuit_definition(&span));
+
+                    let (id, structure) = self.parse_struct()?;
+                    structs.insert(id, structure);
+                }
                 Token::Struct => {
-                    if self.peek()?.token == Token::Circuit {
-                        let span = self.expect(Token::Circuit)?;
-                        self.emit_err(ParserError::cricuit_definition(&span));
-                    } else {
-                        self.expect(Token::Struct)?;
-                    }
+                    self.expect(Token::Struct)?;
 
                     let (id, structure) = self.parse_struct()?;
                     structs.insert(id, structure);

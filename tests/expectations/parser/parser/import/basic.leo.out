@@ -35,6 +35,6 @@ outputs:
           content: import a.b;
     imports: {}
     aliases: {}
-    circuits: {}
+    structs: {}
     global_consts: {}
     functions: {}

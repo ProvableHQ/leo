@@ -91,6 +91,6 @@ outputs:
           content: import hello-world.hello;
     imports: {}
     aliases: {}
-    circuits: {}
+    structs: {}
     global_consts: {}
     functions: {}

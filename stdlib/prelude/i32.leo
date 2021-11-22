@@ -1,4 +1,4 @@
-circuit i32 {
+struct i32 {
     @CoreFunction(i32_to_bits_le)
     function to_bits_le(self) -> [bool; 32] {
         return [false; 32];

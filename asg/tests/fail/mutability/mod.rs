@@ -35,20 +35,20 @@ fn test_array() {
 }
 
 #[test]
-fn test_circuit() {
-    let program_string = include_str!("circuit.leo");
+fn test_struct() {
+    let program_string = include_str!("struct.leo");
     load_asg(program_string).err().unwrap();
 }
 
 #[test]
-fn test_circuit_function_mut() {
-    let program_string = include_str!("circuit_function_mutate.leo");
+fn test_struct_function_mut() {
+    let program_string = include_str!("struct_function_mutate.leo");
     load_asg(program_string).err().unwrap();
 }
 
 #[test]
-fn test_circuit_static_function_mut() {
-    let program_string = include_str!("circuit_static_function_mutate.leo");
+fn test_struct_static_function_mut() {
+    let program_string = include_str!("struct_static_function_mutate.leo");
     load_asg(program_string).err().unwrap();
 }
 

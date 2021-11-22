@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with the Leo library. If not, see <https://www.gnu.org/licenses/>.
 
-pub mod struct_type;
-pub use struct_type::*;
+pub mod structure;
+pub use structure::*;
 
 pub mod struct_variable_definition;
 pub use struct_variable_definition::*;

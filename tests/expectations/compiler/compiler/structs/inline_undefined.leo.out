@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373000]: failed to resolve struct: 'Foo'\n    --> compiler-test:4:15\n     |\n   4 |     const a = Foo { };\n     |               ^^^"

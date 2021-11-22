@@ -14,7 +14,7 @@ outputs:
                 alias: ~
     imports: {}
     aliases: {}
-    circuits: {}
+    structs: {}
     global_consts: {}
     functions:
       "{\"name\":\"main\",\"span\":\"{\\\"line_start\\\":6,\\\"line_stop\\\":6,\\\"col_start\\\":10,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"function main(puzzle: [u8; (3, 3)], answer: [u8; (3, 3)]) -> bool {\\\"}\"}":
@@ -89,7 +89,7 @@ outputs:
                     identifier: "{\"name\":\"sudoku\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":9,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}"
                 type_: ~
                 value:
-                  CircuitInit:
+                  StructInit:
                     name: "{\"name\":\"SillySudoku\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":18,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}"
                     members:
                       - identifier: "{\"name\":\"puzzle_grid\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":32,\\\"col_stop\\\":43,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    let sudoku = SillySudoku { puzzle_grid: puzzle };\\\"}\"}"

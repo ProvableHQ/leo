@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected struct -- got 'class'\n    --> test:5:1\n     |\n   5 | class C {}\n     | ^^^^^"

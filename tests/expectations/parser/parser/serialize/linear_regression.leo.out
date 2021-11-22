@@ -7,9 +7,9 @@ outputs:
     import_statements: []
     imports: {}
     aliases: {}
-    circuits:
-      "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Point {\\\"}\"}":
-        circuit_name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit Point {\\\"}\"}"
+    structs:
+      "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct Point {\\\"}\"}":
+        struct_name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":13,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct Point {\\\"}\"}"
         members:
           - StructVariable:
               - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x: i32,\\\"}\"}"
@@ -40,15 +40,15 @@ outputs:
                 statements:
                   - Return:
                       expression:
-                        CircuitInit:
+                        StructInit:
                           name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}"
                           members:
                             - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":23,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}"
                               expression: ~
                             - identifier: "{\"name\":\"y\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":26,\\\"col_stop\\\":27,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { x, y };\\\"}\"}"
                               expression: ~
-      "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":9,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit LinearRegression {\\\"}\"}":
-        circuit_name: "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":9,\\\"col_stop\\\":25,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit LinearRegression {\\\"}\"}"
+      "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":8,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct LinearRegression {\\\"}\"}":
+        struct_name: "{\"name\":\"LinearRegression\",\"span\":\"{\\\"line_start\\\":12,\\\"line_stop\\\":12,\\\"col_start\\\":8,\\\"col_stop\\\":24,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct LinearRegression {\\\"}\"}"
         members:
           - StructVariable:
               - "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":13,\\\"line_stop\\\":13,\\\"col_start\\\":5,\\\"col_stop\\\":11,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    points: [Point; 5],\\\"}\"}"
@@ -74,7 +74,7 @@ outputs:
                 statements:
                   - Return:
                       expression:
-                        CircuitInit:
+                        StructInit:
                           name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { points };\\\"}\"}"
                           members:
                             - identifier: "{\"name\":\"points\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":23,\\\"col_stop\\\":29,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { points };\\\"}\"}"
@@ -508,7 +508,7 @@ outputs:
                   ArrayInline:
                     elements:
                       - Expression:
-                          CircuitInit:
+                          StructInit:
                             name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
                             members:
                               - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":57,\\\"line_stop\\\":57,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 1, y: y + 1},\\\"}\"}"
@@ -530,7 +530,7 @@ outputs:
                                         Implicit: "1"
                                     op: Add
                       - Expression:
-                          CircuitInit:
+                          StructInit:
                             name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
                             members:
                               - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":58,\\\"line_stop\\\":58,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 2, y: y + 2},\\\"}\"}"
@@ -552,7 +552,7 @@ outputs:
                                         Implicit: "2"
                                     op: Add
                       - Expression:
-                          CircuitInit:
+                          StructInit:
                             name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
                             members:
                               - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":59,\\\"line_stop\\\":59,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 3, y: y + 3},\\\"}\"}"
@@ -574,7 +574,7 @@ outputs:
                                         Implicit: "3"
                                     op: Add
                       - Expression:
-                          CircuitInit:
+                          StructInit:
                             name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
                             members:
                               - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":60,\\\"line_stop\\\":60,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 4, y: y + 4},\\\"}\"}"
@@ -596,7 +596,7 @@ outputs:
                                         Implicit: "4"
                                     op: Add
                       - Expression:
-                          CircuitInit:
+                          StructInit:
                             name: "{\"name\":\"Point\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":7,\\\"col_stop\\\":12,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"
                             members:
                               - identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":61,\\\"line_stop\\\":61,\\\"col_start\\\":13,\\\"col_stop\\\":14,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"      Point{x: x + 5, y: y + 5}\\\"}\"}"

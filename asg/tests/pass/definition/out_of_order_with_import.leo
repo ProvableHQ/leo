@@ -5,4 +5,4 @@ function main() {}
 
 import test_import.foo;
 
-circuit Foo {}
+struct Foo {}

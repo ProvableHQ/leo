@@ -1,4 +1,4 @@
-circuit i16 {
+struct i16 {
     @CoreFunction(i16_to_bits_le)
     function to_bits_le(self) -> [bool; 16] {
         return [false; 16];

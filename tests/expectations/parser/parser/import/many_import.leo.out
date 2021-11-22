@@ -133,6 +133,6 @@ outputs:
           content: "import bar.( // imports directory import\n         ...\n         ...\n    bat.bat.Bat,"
     imports: {}
     aliases: {}
-    circuits: {}
+    structs: {}
     global_consts: {}
     functions: {}

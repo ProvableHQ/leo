@@ -1,4 +1,4 @@
-circuit i128 {
+struct i128 {
     @CoreFunction(i128_to_bits_le)
     function to_bits_le(self) -> [bool; 128] {
         return [false; 128];

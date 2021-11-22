@@ -17,12 +17,12 @@
 pub mod address;
 pub mod array;
 pub mod boolean;
-pub mod circuits;
 pub mod console;
 pub mod core;
 pub mod definition;
 pub mod field;
 pub mod function;
+pub mod structs;
 // pub mod group; // we dont do context-specific type checking for groups
 pub mod integers;
 pub mod mutability;

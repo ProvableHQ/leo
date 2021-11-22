@@ -1,0 +1,253 @@
+---
+namespace: Parse
+expectation: Pass
+outputs:
+  - name: ""
+    expected_input: []
+    import_statements: []
+    imports: {}
+    aliases: {}
+    structs:
+      "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct X {\\\"}\"}":
+        struct_name: "{\"name\":\"X\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":9,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct X {\\\"}\"}"
+        members:
+          - StructVariable:
+              - "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":6,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    x: u32\\\"}\"}"
+              - IntegerType: U32
+          - StructFunction:
+              annotations: {}
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":5,\\\"line_stop\\\":5,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function x() { \\\"}\"}"
+              input: []
+              const_: true
+              output: ~
+              core_mapping: ~
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        TupleInit:
+                          elements: []
+                          span:
+                            line_start: 6
+                            line_stop: 6
+                            col_start: 16
+                            col_stop: 18
+                            path: ""
+                            content: "        return ();"
+                      span:
+                        line_start: 6
+                        line_stop: 6
+                        col_start: 9
+                        col_stop: 18
+                        path: ""
+                        content: "        return ();"
+                span:
+                  line_start: 5
+                  line_stop: 7
+                  col_start: 24
+                  col_stop: 6
+                  path: ""
+                  content: "    const function x() { \n         ...\n    }"
+              span:
+                line_start: 5
+                line_stop: 7
+                col_start: 11
+                col_stop: 6
+                path: ""
+                content: "    const function x() { \n         ...\n    }"
+          - StructFunction:
+              annotations: {}
+              identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function x(self) { \\\"}\"}"
+              input:
+                - SelfKeyword: "{\"name\":\"self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":22,\\\"col_stop\\\":26,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function x(self) { \\\"}\"}"
+              const_: true
+              output: ~
+              core_mapping: ~
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        TupleInit:
+                          elements: []
+                          span:
+                            line_start: 9
+                            line_stop: 9
+                            col_start: 16
+                            col_stop: 18
+                            path: ""
+                            content: "        return ();"
+                      span:
+                        line_start: 9
+                        line_stop: 9
+                        col_start: 9
+                        col_stop: 18
+                        path: ""
+                        content: "        return ();"
+                span:
+                  line_start: 8
+                  line_stop: 10
+                  col_start: 28
+                  col_stop: 6
+                  path: ""
+                  content: "    const function x(self) { \n         ...\n    }"
+              span:
+                line_start: 8
+                line_stop: 10
+                col_start: 11
+                col_stop: 6
+                path: ""
+                content: "    const function x(self) { \n         ...\n    }"
+          - StructFunction:
+              annotations: {}
+              identifier: "{\"name\":\"c\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function c(const self) { \\\"}\"}"
+              input:
+                - ConstSelfKeyword: "{\"name\":\"const self\",\"span\":\"{\\\"line_start\\\":11,\\\"line_stop\\\":11,\\\"col_start\\\":22,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function c(const self) { \\\"}\"}"
+              const_: true
+              output: ~
+              core_mapping: ~
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        TupleInit:
+                          elements: []
+                          span:
+                            line_start: 12
+                            line_stop: 12
+                            col_start: 16
+                            col_stop: 18
+                            path: ""
+                            content: "        return ();"
+                      span:
+                        line_start: 12
+                        line_stop: 12
+                        col_start: 9
+                        col_stop: 18
+                        path: ""
+                        content: "        return ();"
+                span:
+                  line_start: 11
+                  line_stop: 13
+                  col_start: 34
+                  col_stop: 6
+                  path: ""
+                  content: "    const function c(const self) { \n         ...\n    }"
+              span:
+                line_start: 11
+                line_stop: 13
+                col_start: 11
+                col_stop: 6
+                path: ""
+                content: "    const function c(const self) { \n         ...\n    }"
+          - StructFunction:
+              annotations: {}
+              identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function b(const self, x: u32) {\\\"}\"}"
+              input:
+                - ConstSelfKeyword: "{\"name\":\"const self\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":22,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function b(const self, x: u32) {\\\"}\"}"
+                - Variable:
+                    identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":14,\\\"line_stop\\\":14,\\\"col_start\\\":34,\\\"col_stop\\\":35,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function b(const self, x: u32) {\\\"}\"}"
+                    const_: false
+                    mutable: true
+                    type_:
+                      IntegerType: U32
+                    span:
+                      line_start: 14
+                      line_stop: 14
+                      col_start: 34
+                      col_stop: 35
+                      path: ""
+                      content: "    const function b(const self, x: u32) {"
+              const_: true
+              output: ~
+              core_mapping: ~
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        TupleInit:
+                          elements: []
+                          span:
+                            line_start: 15
+                            line_stop: 15
+                            col_start: 16
+                            col_stop: 18
+                            path: ""
+                            content: "        return ();"
+                      span:
+                        line_start: 15
+                        line_stop: 15
+                        col_start: 9
+                        col_stop: 18
+                        path: ""
+                        content: "        return ();"
+                span:
+                  line_start: 14
+                  line_stop: 16
+                  col_start: 42
+                  col_stop: 6
+                  path: ""
+                  content: "    const function b(const self, x: u32) {\n         ...\n    }"
+              span:
+                line_start: 14
+                line_stop: 16
+                col_start: 11
+                col_stop: 6
+                path: ""
+                content: "    const function b(const self, x: u32) {\n         ...\n    }"
+          - StructFunction:
+              annotations: {}
+              identifier: "{\"name\":\"b\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":20,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function b(const self, const x: u32) {\\\"}\"}"
+              input:
+                - ConstSelfKeyword: "{\"name\":\"const self\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":22,\\\"col_stop\\\":32,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function b(const self, const x: u32) {\\\"}\"}"
+                - Variable:
+                    identifier: "{\"name\":\"x\",\"span\":\"{\\\"line_start\\\":17,\\\"line_stop\\\":17,\\\"col_start\\\":40,\\\"col_stop\\\":41,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    const function b(const self, const x: u32) {\\\"}\"}"
+                    const_: true
+                    mutable: false
+                    type_:
+                      IntegerType: U32
+                    span:
+                      line_start: 17
+                      line_stop: 17
+                      col_start: 40
+                      col_stop: 41
+                      path: ""
+                      content: "    const function b(const self, const x: u32) {"
+              const_: true
+              output: ~
+              core_mapping: ~
+              block:
+                statements:
+                  - Return:
+                      expression:
+                        TupleInit:
+                          elements: []
+                          span:
+                            line_start: 18
+                            line_stop: 18
+                            col_start: 16
+                            col_stop: 18
+                            path: ""
+                            content: "        return ();"
+                      span:
+                        line_start: 18
+                        line_stop: 18
+                        col_start: 9
+                        col_stop: 18
+                        path: ""
+                        content: "        return ();"
+                span:
+                  line_start: 17
+                  line_stop: 19
+                  col_start: 48
+                  col_stop: 6
+                  path: ""
+                  content: "    const function b(const self, const x: u32) {\n         ...\n    }"
+              span:
+                line_start: 17
+                line_stop: 19
+                col_start: 11
+                col_stop: 6
+                path: ""
+                content: "    const function b(const self, const x: u32) {\n         ...\n    }"
+    global_consts: {}
+    functions: {}

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373000]: failed to resolve struct: 'Self'\n    --> compiler-test:4:5\n     |\n   4 |     Self::main();\n     |     ^^^^"

@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373001]: illegal reference to non-existant member 'echoed' of struct 'Foo'\n    --> compiler-test:10:17\n     |\n  10 |     const err = Foo::echoed(1u32);\n     |                 ^^^^^^^^^^^"

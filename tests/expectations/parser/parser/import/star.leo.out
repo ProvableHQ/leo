@@ -33,6 +33,6 @@ outputs:
           content: import test-import.*;
     imports: {}
     aliases: {}
-    circuits: {}
+    structs: {}
     global_consts: {}
     functions: {}

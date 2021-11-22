@@ -7,9 +7,9 @@ outputs:
     import_statements: []
     imports: {}
     aliases: {}
-    circuits:
-      "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit PedersenHash {\\\"}\"}":
-        circuit_name: "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":9,\\\"col_stop\\\":21,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"circuit PedersenHash {\\\"}\"}"
+    structs:
+      "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct PedersenHash {\\\"}\"}":
+        struct_name: "{\"name\":\"PedersenHash\",\"span\":\"{\\\"line_start\\\":3,\\\"line_stop\\\":3,\\\"col_start\\\":8,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"struct PedersenHash {\\\"}\"}"
         members:
           - StructVariable:
               - "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":4,\\\"line_stop\\\":4,\\\"col_start\\\":5,\\\"col_stop\\\":15,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"    parameters: [group; 256];\\\"}\"}"
@@ -35,7 +35,7 @@ outputs:
                 statements:
                   - Return:
                       expression:
-                        CircuitInit:
+                        StructInit:
                           name: "{\"name\":\"Self\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":16,\\\"col_stop\\\":20,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"
                           members:
                             - identifier: "{\"name\":\"parameters\",\"span\":\"{\\\"line_start\\\":8,\\\"line_stop\\\":8,\\\"col_start\\\":23,\\\"col_stop\\\":33,\\\"path\\\":\\\"\\\",\\\"content\\\":\\\"        return Self { parameters: parameters };\\\"}\"}"

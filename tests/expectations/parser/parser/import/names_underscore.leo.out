@@ -35,6 +35,6 @@ outputs:
           content: import hello_world.foo;
     imports: {}
     aliases: {}
-    circuits: {}
+    structs: {}
     global_consts: {}
     functions: {}

@@ -1,4 +1,4 @@
-circuit char {
+struct char {
     @CoreFunction(char_to_bits_le)
     function to_bits_le(self) -> [bool; 253] {
         return [false; 253];

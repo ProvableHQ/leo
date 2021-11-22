@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370024]: \"circuit {...})\" is deprecated. Did you mean struct?\n    --> test:3:1\n     |\n   3 | circuit X {} // recovery witness\n     | ^^^^^^^"

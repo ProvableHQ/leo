@@ -26,4 +26,4 @@ function main() {
 
 The above type alias is auto imported from `stdlib/prelude/string.leo`.
 
-The other directories must have explicit imports. For example, the unstable Blake2s can be imported with `import std.unstable.blake2s.Blake2s`. Which imports the `Blake2s` circuit defined in `stdlib/unstable/blake2s.leo`.
+The other directories must have explicit imports. For example, the unstable Blake2s can be imported with `import std.unstable.blake2s.Blake2s`. Which imports the `Blake2s` struct defined in `stdlib/unstable/blake2s.leo`.

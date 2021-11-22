@@ -1,0 +1,5 @@
+---
+namespace: Compile
+expectation: Fail
+outputs:
+  - "Error [EASG0373002]: missing struct member 'x' for initialization of struct 'Foo'\n    --> compiler-test:9:15\n     |\n   9 |     const a = Foo { y: 0u32 };\n     |               ^^^^^^^^^^^^^^^"
