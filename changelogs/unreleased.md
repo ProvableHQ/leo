@@ -26,7 +26,7 @@ with the exception of splitting the changelog into multiple files for readabilit
 - Global Consts
 - Shadowing disallowed on top level types
 - Rust 2021 Edition!
-- `mut self` has be-renamed `ref-self`
+- `mut self` has been renamed to `ref-self`
 - Removed loose spans from AST snapshots
 - Imports now done before ASG
 - AST passes now in its own directory
