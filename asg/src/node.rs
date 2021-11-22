@@ -22,7 +22,7 @@ use leo_errors::{Result, Span};
 pub trait Node {
     fn span(&self) -> Option<&Span>;
 
-    fn get_id(&self) -> AsgId;
+    fn asg_id(&self) -> AsgId;
 }
 
 pub(super) trait FromAst<'a, T: leo_ast::Node + 'static>: Sized {

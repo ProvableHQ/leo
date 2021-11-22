@@ -114,15 +114,6 @@ impl DotGraph {
         }
     }
 
-    /// Returns the source node in the DotGraph.
-    pub fn get_source(&self) -> NodeIndex {
-        self.source
-    }
-
-    /// Set a source node in the DotGraph.
-    pub fn set_source(&mut self, idx: NodeIndex) {
-        self.source = idx;
-    }
 
     /// Add a node to the DotGraph.
     pub fn add_node(&mut self, node: DotNode) -> NodeIndex {
@@ -149,24 +140,24 @@ impl DotGraph {
     }
 
     /// Remove labels from all nodes in the DotGraph.
-    pub fn filter_node_labels(&mut self, excluded_labels: &[Box<str>]) {
+    pub fn remove_node_labels(&mut self, excluded_labels: &[Box<str>]) {
         for node in self.graph.node_weights_mut() {
             node.filter_labels(excluded_labels)
         }
     }
 
     /// Remove edges with certain labels from the DotGraph.
-    pub fn filter_node_edges(&mut self, excluded_edges: &[Box<str>]) {
+    pub fn remove_node_edges(&mut self, excluded_edges: &[Box<str>]) {
         self.graph.retain_edges(|graph, edge_idx| {
             let edge = &graph[edge_idx];
             !excluded_edges.iter().any(|exclude| exclude.as_ref() == edge.label)
         });
     }
 
-    /// Returns a vector of nodes indices reachable from the source node.
-    pub fn get_reachable_set(&self) -> Vec<NodeIndex> {
+    /// Returns a vector of node-indices reachable from the source node.
+    pub fn get_reachable_set(&self) -> impl '_ + Iterator<Item = NodeIndex> {
         let mut dfs = DfsPostOrder::new(&self.graph, self.source);
-        iter::from_fn(|| dfs.next(&self.graph)).collect()
+        iter::from_fn(|| dfs.next(&self.graph))
     }
 }
 
@@ -203,20 +194,14 @@ impl<'a> dot::Labeller<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> f
 
 impl<'a> dot::GraphWalk<'a, (NodeIndex, &'a DotNode), (EdgeIndex, &'a DotEdge)> for DotGraph {
     fn nodes(&'a self) -> dot::Nodes<'a, (NodeIndex, &'a DotNode)> {
-        let mut dot_nodes = Vec::new();
-        for idx in self.get_reachable_set() {
-            dot_nodes.push((idx, &self.graph[idx]))
-        }
-        Cow::Owned(dot_nodes)
+        Cow::Owned(self.get_reachable_set().map(|i| (i, &self.graph[i])).collect())
     }
 
     fn edges(&'a self) -> dot::Edges<'a, (EdgeIndex, &'a DotEdge)> {
-        let mut dot_edges = Vec::new();
-        for idx in self.get_reachable_set() {
-            for edge in self.graph.edges_directed(idx, Direction::Outgoing) {
-                dot_edges.push((edge.id(), edge.weight()));
-            }
-        }
+        let dot_edges = self.get_reachable_set()
+            .flat_map(|idx| self.graph.edges_directed(idx, Direction::Outgoing))
+            .map(|edge| (edge.id(), edge.weight())
+            .collect();
         Cow::Owned(dot_edges)
     }
 
