@@ -125,7 +125,6 @@ pub enum Token {
 
     // Regular Keywords
     As,
-    Circuit,
     Console,
     Struct,
     /// Const variable and a const function.
@@ -172,7 +171,6 @@ pub const KEYWORD_TOKENS: &[Token] = &[
     Token::As,
     Token::Bool,
     Token::Char,
-    Token::Circuit,
     Token::Console,
     Token::Const,
     Token::Else,
@@ -298,7 +296,6 @@ impl fmt::Display for Token {
             Import => write!(f, "import"),
 
             As => write!(f, "as"),
-            Circuit => write!(f, "circuit"),
             Console => write!(f, "console"),
             Const => write!(f, "const"),
             Else => write!(f, "else"),

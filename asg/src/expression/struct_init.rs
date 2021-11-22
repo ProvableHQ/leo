@@ -69,7 +69,7 @@ impl<'a> ExpressionNode<'a> for StructInitExpression<'a> {
                 (identifier.clone(), member.get().const_value()?),
             );
         }
-        // Store structas well for get_type.
+        // Store struct as well for get_type.
         Some(ConstValue::Struct(self.structure.get(), members))
     }
 

@@ -223,12 +223,4 @@ create_errors!(
         msg: "Array dimensions specified as a tuple cannot be empty.",
         help: None,
     }
-
-    /// For when the parser encountered a deprecated `circuit {...}` structure.
-    @formatted
-    cricuit_definition {
-        args: (),
-        msg: "\"circuit {...})\" is deprecated. Did you mean struct?",
-        help: None,
-    }
 );

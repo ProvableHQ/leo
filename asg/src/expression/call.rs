@@ -96,9 +96,9 @@ impl<'a> FromAst<'a, leo_ast::CallExpression> for CallExpression<'a> {
                     let target = <&Expression<'a>>::from_ast(scope, &**ast_value, None)?;
 
                     let type_ = target.get_type();
+                    // Set core mapping to function name and resolve core struct when applicable.
+                    // Otherwise resolve regular struct.
                     let structure = match type_ {
-                        // Set core mapping to function name and resolve core structwhen applicable.
-                        // Otherwise resolve regular struct
                         Some(Type::Tuple(_)) | None => {
                             return Err(AsgError::unexpected_type(
                                 "struct",

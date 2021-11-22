@@ -84,7 +84,7 @@ pub trait ReconstructingReducerExpression<'a> {
         })
     }
 
-    fn reduce_structinit(
+    fn reduce_struct_init(
         &mut self,
         input: StructInitExpression<'a>,
         values: Vec<(Identifier, &'a Expression<'a>)>,
@@ -369,15 +369,15 @@ pub trait ReconstructingReducerProgram<'a>: ReconstructingReducerStatement<'a> {
         input
     }
 
-    fn reduce_structmember_const(&mut self, input: StructMember<'a>) -> StructMember<'a> {
+    fn reduce_struct_member_const(&mut self, input: StructMember<'a>) -> StructMember<'a> {
         input
     }
 
-    fn reduce_structmember_variable(&mut self, input: StructMember<'a>) -> StructMember<'a> {
+    fn reduce_struct_member_variable(&mut self, input: StructMember<'a>) -> StructMember<'a> {
         input
     }
 
-    fn reduce_structmember_function(
+    fn reduce_struct_member_function(
         &mut self,
         input: StructMember<'a>,
         function: &'a Function<'a>,

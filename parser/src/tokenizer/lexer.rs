@@ -492,7 +492,6 @@ impl Token {
                     "as" => Token::As,
                     "bool" => Token::Bool,
                     "char" => Token::Char,
-                    "circuit" => Token::Circuit,
                     "console" => Token::Console,
                     "const" => Token::Const,
                     "else" => Token::Else,

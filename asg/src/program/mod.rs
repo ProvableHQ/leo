@@ -61,7 +61,7 @@ pub struct Program<'a> {
     /// Maps global constant name => global const code block.
     pub global_consts: IndexMap<String, &'a DefinitionStatement<'a>>,
 
-    /// Maps structname => sstructode block.
+    /// Maps struct name => struct code block.
     pub structs: IndexMap<String, &'a Struct<'a>>,
 
     pub scope: &'a Scope<'a>,

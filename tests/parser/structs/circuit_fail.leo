@@ -3,7 +3,7 @@ namespace: Parse
 expectation: Fail
 */
 
-struct A {}
-struct B {}
+circuit A {}
+circuit B {}
 class C {}
-struct D {}
+circuit D {}

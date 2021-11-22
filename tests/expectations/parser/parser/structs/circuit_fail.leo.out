@@ -1,0 +1,5 @@
+---
+namespace: Parse
+expectation: Fail
+outputs:
+  - "Error [EPAR0370005]: expected struct -- got 'circuit'\n    --> test:3:1\n     |\n   3 | circuit A {}\n     | ^^^^^^^\nError [EPAR0370005]: expected struct -- got 'circuit'\n    --> test:4:1\n     |\n   4 | circuit B {}\n     | ^^^^^^^\nError [EPAR0370005]: expected struct -- got 'class'\n    --> test:5:1\n     |\n   5 | class C {}\n     | ^^^^^\nError [EPAR0370005]: expected struct -- got 'circuit'\n    --> test:6:1\n     |\n   6 | circuit D {}\n     | ^^^^^^^"

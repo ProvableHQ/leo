@@ -39,13 +39,6 @@ impl ParserContext<'_> {
                 Token::Import => {
                     import_statements.push(self.parse_import_statement()?);
                 }
-                Token::Circuit => {
-                    let span = self.expect(Token::Circuit)?;
-                    self.emit_err(ParserError::cricuit_definition(&span));
-
-                    let (id, structure) = self.parse_struct()?;
-                    structs.insert(id, structure);
-                }
                 Token::Struct => {
                     self.expect(Token::Struct)?;
 
@@ -54,7 +47,7 @@ impl ParserContext<'_> {
                 }
                 Token::Ident(ident) => match ident.as_ref() {
                     "test" => return Err(ParserError::test_function(&token.span).into()),
-                    kw @ ("struct" | "class") => {
+                    kw @ ("circuit" | "class") => {
                         self.emit_err(ParserError::unexpected(kw, "struct", &token.span));
                         self.bump().unwrap();
                         let (id, structure) = self.parse_struct()?;

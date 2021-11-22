@@ -43,7 +43,7 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
             Expression::ArrayInline(e) => self.reduce_array_inline(e),
             Expression::Binary(e) => self.reduce_binary(e),
             Expression::Call(e) => self.reduce_call(e),
-            Expression::StructInit(e) => self.reduce_structinit(e),
+            Expression::StructInit(e) => self.reduce_struct_init(e),
             Expression::Ternary(e) => self.reduce_ternary_expression(e),
             Expression::Cast(e) => self.reduce_cast_expression(e),
             Expression::Access(e) => self.reduce_access_expression(e),
@@ -110,14 +110,14 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
         self.reducer.reduce_call(input, target, arguments)
     }
 
-    pub fn reduce_structinit(&mut self, input: StructInitExpression<'a>) -> Expression<'a> {
+    pub fn reduce_struct_init(&mut self, input: StructInitExpression<'a>) -> Expression<'a> {
         let values = input
             .values
             .iter()
             .map(|(ident, e)| (ident.clone(), self.reduce_expression(e.get())))
             .collect();
 
-        self.reducer.reduce_structinit(input, values)
+        self.reducer.reduce_struct_init(input, values)
     }
 
     pub fn reduce_ternary_expression(&mut self, input: TernaryExpression<'a>) -> Expression<'a> {
@@ -150,7 +150,7 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
         self.reducer.reduce_array_range_access(input, array, left, right)
     }
 
-    pub fn reduce_structaccess(&mut self, input: StructAccess<'a>) -> AccessExpression<'a> {
+    pub fn reduce_struct_access(&mut self, input: StructAccess<'a>) -> AccessExpression<'a> {
         let target = input.target.get().map(|e| self.reduce_expression(e));
 
         self.reducer.reduce_struct_access(input, target)
@@ -168,7 +168,7 @@ impl<'a, R: ReconstructingReducerExpression<'a>> ReconstructingDirector<'a, R> {
         let access = match input {
             Array(a) => self.reduce_array_access(a),
             ArrayRange(a) => self.reduce_array_range_access(a),
-            Struct(a) => self.reduce_structaccess(a),
+            Struct(a) => self.reduce_struct_access(a),
             Tuple(a) => self.reduce_tuple_access(a),
         };
 
@@ -316,14 +316,14 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
         self.reducer.reduce_function(input, body)
     }
 
-    pub fn reduce_structmember(&mut self, input: StructMember<'a>) -> StructMember<'a> {
+    pub fn reduce_struct_member(&mut self, input: StructMember<'a>) -> StructMember<'a> {
         match input {
-            StructMember::Const(_) => self.reducer.reduce_structmember_const(input),
+            StructMember::Const(_) => self.reducer.reduce_struct_member_const(input),
             StructMember::Function(function) => {
                 let function = self.reduce_function(function);
-                self.reducer.reduce_structmember_function(input, function)
+                self.reducer.reduce_struct_member_function(input, function)
             }
-            StructMember::Variable(_) => self.reducer.reduce_structmember_variable(input),
+            StructMember::Variable(_) => self.reducer.reduce_struct_member_variable(input),
         }
     }
 
@@ -332,7 +332,7 @@ impl<'a, R: ReconstructingReducerProgram<'a>> ReconstructingDirector<'a, R> {
             .members
             .borrow()
             .iter()
-            .map(|(_, member)| self.reduce_structmember(member.clone()))
+            .map(|(_, member)| self.reduce_struct_member(member.clone()))
             .collect();
 
         self.reducer.reduce_struct(input, members)
