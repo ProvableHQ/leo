@@ -98,7 +98,7 @@ The following is true in Rust but not in this proposal for Leo:
 `'\u{1_____0__F____F______FF__________________________}' == '\u{10FFFF}'`.
 
 Note that the literal character is assembled by the compiler---for
-creating literals, there is no need for the circuit to know
+creating literals, there is no need for the struct to know
 which code points are disallowed.
 
 The equality operators `==` and `!=` are automatically available for `char`.
@@ -380,24 +380,24 @@ Given the natural conversions between `char` values and integer values discussed
 it may be natural to also support element-wise conversions between strings and arrays of integers.
 This may be accomplished as part of the type casting extensions of Leo.
 
-### Circuit Types for Character and String Operations
+### Struct Types for Character and String Operations
 
 The operations on characters and lists described earlier, e.g. `is_ascii`,
-are provided as static member functions of two new built-in or library circuit types `Char` and `String`.
+are provided as static member functions of two new built-in or library struct types `Char` and `String`.
 Thus, an example call is `Char::is_ascii(c)`.
 This seems a general good way to organize built-in or library operations,
-and supports the use of the same name with different circuit types,
+and supports the use of the same name with different struct types,
 e.g. `Char::to_uppercase` and `String::to_uppercase`.
 
-These circuit types could also include constants, e.g. for certain ASCII characters.
-However, currently Leo does not support constants in circuit types,
+These struct types could also include constants, e.g. for certain ASCII characters.
+However, currently Leo does not support constants in struct types,
 so that would have to be added separately first.
 
-These two circuit types are just meant to collect static member functions for characters and strings.
+These two struct types are just meant to collect static member functions for characters and strings.
 They are not meant to be the types of characters and strings:
-as mentioned previously, `char` is a new scalar (not circuit) type (like `bool`, `address`, `u8`, etc.)
+as mentioned previously, `char` is a new scalar (not struct) type (like `bool`, `address`, `u8`, etc.)
 and there is no string type as such for now, but we use character arrays for strings.
-In the future we may want all the Leo types to be circuit types of some sort,
+In the future we may want all the Leo types to be struct types of some sort,
 but that is a separate feature that would have to be designed and developed independently.
 
 ### Input and Output of Literal Characters and Strings
@@ -419,9 +419,9 @@ for now, we are avoiding the introduction of a string type,
 isomorphic to but separate from character arrays,
 because we may want to introduce later a more flexible type of strings,
 in particular, one that supports resizing.
-This may be realized via a built-in or library circuit type
+This may be realized via a built-in or library struct type
 that includes a character array and a fill index.
-This may be a special case of a built-in or library circuit type
+This may be a special case of a built-in or library struct type
 for resizable vectors,
 possibly realized via an array and a fill index.
 This hypothetical type of resizable vectors

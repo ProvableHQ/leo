@@ -57,12 +57,12 @@ it seems likely that we will want to provide more extensive standard/core librar
 not just for cryptographic functions, but also for data structures and operations on them.
 
 The just mentioned use case of data structures brings about an important point.
-Leo circuit types are reasonable ways to provide library data structures,
+Leo struct types are reasonable ways to provide library data structures,
 as they support static and instance member functions that realize operations on those data structures.
 Just like some Java library classes provide a mix of native and non-native methods,
-we could imagine certain Leo library circuit types providing a mix of native and non-native member functions, e.g.:
+we could imagine certain Leo library struct types providing a mix of native and non-native member functions, e.g.:
 ```ts
-circuit Point2D {
+struct Point2D {
     x: u32;
     y: u32;
     function origin() -> Point2D { ... } // probably non-native

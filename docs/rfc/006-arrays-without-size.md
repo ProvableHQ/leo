@@ -77,7 +77,7 @@ On the other hand, an array type with unspecified size that occurs in a function
 (whether a variable declaration, function input, or function output)
 could be resolved to different sizes for different inlined calls of the function.
 Finally, there seems to be no point in allowing array types of unspecified sizes in member variable declarations:
-the circuit type must be completely known, including the types of its member variables;
+the struct type must be completely known, including the types of its member variables;
 therefore, this RFC prescribes that array types with unspecified size be disallowed in member variable declarations.
 (This may be revisited if a good use case, and procedure for resolution, comes up.)
 

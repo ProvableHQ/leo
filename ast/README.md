@@ -25,13 +25,13 @@ It stores the path to an import and what is being imported.
 
 **NOTE**: The import does not contain the source code of the imported Leo Program.
 
-#### [Circuits](./src/circuits/circuit.rs)
+#### [Structs](./src/structs/struct.rs)
 
-A circuit node represents a defined Circuit in a Leo Program.
+A struct node represents a defined Struct in a Leo Program.
 A order preserving map of these are stored on the Program.
-Contains the Circuit's name, as well as it's members.
+Contains the Struct's name, as well as it's members.
 The members are a function, or a variable.
-For both of them the Circuit preserves their names.
+For both of them the Struct preserves their names.
 
 #### [Decorators](./src/annotation.rs)
 
@@ -133,13 +133,13 @@ The array type contains another type, then the number of elements of that type g
 
 The tuple type contains n types, where n is greater than or equal to 0.
 
-#### Circuit
+#### Struct
 
-The circuit type, every circuit represents a different type.
+The struct type, every struct represents a different type.
 
 #### SelfType
 
-The self type represented by `Self` and only usable inside a circuit.
+The self type represented by `Self` and only usable inside a struct.
 
 ### [Statements](./src/statements/statement.rs)
 
@@ -273,26 +273,26 @@ A call expression node stores the following:
 - The function expression being called.
 - The aruments a list of expressions.
 
-#### [CircuitInit Expressions](./src/expression/circuit_init.rs)
+#### [StructInit Expressions](./src/expression/struct_init.rs)
 
-A circuit init expression node stores the following:
+A struct init expression node stores the following:
 
-- The name of the circuit expression being initialized.
+- The name of the struct expression being initialized.
 - The aruments a list of expressions.
 
-#### [StructMemberAccess Expressions](./src/expression/circuit_member_access.rs)
+#### [StructMemberAccess Expressions](./src/expression/struct_member_access.rs)
 
-A circuit member access expression node stores the following:
-
-- The circut expression being accessed.
-- The name of the expression being accessed from the circuit.
-
-#### [CircuitStaticFunctionAccess Expressions](./src/expression/circuit_static_function_access.rs)
-
-A circuit static function access expression node stores the following:
+A struct member access expression node stores the following:
 
 - The circut expression being accessed.
-- The name of the expression being statically accessed from the circuit.
+- The name of the expression being accessed from the struct.
+
+#### [StructStaticFunctionAccess Expressions](./src/expression/struct_static_function_access.rs)
+
+A struct static function access expression node stores the following:
+
+- The circut expression being accessed.
+- The name of the expression being statically accessed from the struct.
 
 #### [Identifier Expressions](./src/common/identifier.rs)
 

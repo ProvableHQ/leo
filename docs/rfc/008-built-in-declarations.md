@@ -23,13 +23,13 @@ Leo supports five kinds of top-level declarations:
 
 - Import declarations.
 - Function declarations.
-- Circuit type declarations.
+- Struct type declarations.
 - Global constant declarations.
 - Type alias declarations. (Proposed in a separate RFC.)
 
 Leaving import declarations aside for the moment since they are "meta" in some sense
 (as they bring in names of entities declared elsewhere),
-it may make sense for any of the four kinds of declarations above to have built-in instances, i.e., we could have some built-in functions, circuit types, global constants, and type aliases. These features are why this RFC talks of built-in declarations, more broadly than just built-in type aliases that inspired it.
+it may make sense for any of the four kinds of declarations above to have built-in instances, i.e., we could have some built-in functions, struct types, global constants, and type aliases. These features are why this RFC talks of built-in declarations, more broadly than just built-in type aliases that inspired it.
 
 The built-in status of the envisioned declarations will be done through explicitly declared standard library(stdlib) files. Then these stdlib files must expressly be imported, except the files found in stdlib/prelude/*. The ones found in the prelude are features determined to be helpful enough in standard programs and are auto-imported.
 

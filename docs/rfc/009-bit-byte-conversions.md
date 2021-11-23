@@ -302,9 +302,9 @@ This is what the bit/byte conversion functions for addresses do in Leo.
 
 ### Implementation Considerations
 
-These conversions are internally implemented as member functions of _pseudo_ circuit types for the scalar types, e.g.
+These conversions are internally implemented as member functions of _pseudo_ struct types for the scalar types, e.g.
 ```ts
-circuit u8 {
+struct u8 {
     function to_bits_le(self) -> [bool; 8] {
         return [false; 8];
     }
@@ -313,7 +313,7 @@ circuit u8 {
     }
 }
 ```
-These are not real circuit types, because scalar types are disjoint from circuit types;
+These are not real struct types, because scalar types are disjoint from struct types;
 it is just an internal representation.
 
 Currently the bodies return dummy values.
@@ -421,7 +421,7 @@ but the conversions from words will need to handle error conditions.
 ### Conversions of Aggregate Values
 
 Besides scalar types, Leo has aggregate types:
-tuple types, array types, and circuit types.
+tuple types, array types, and struct types.
 It may make sense to add conversions between aggregate values and bit/byte/word sequences,
 where an aggregate value is represented as a concatenation of
 bit/byte/word sequences that represent the components (recursively).

@@ -19,7 +19,7 @@ to write applications with only a very high-level understanding of zero-knowledg
 ## Motivation
 
 While Leo can be described as a regular programming language
-(albeit with certain non-standard restrictions motivated by its compilation to zero-knowledge circuits),
+(albeit with certain non-standard restrictions motivated by its compilation to zero-knowledge structs),
 its purpose is to build applications for the Aleo blockchain.
 It is thus important to describe precisely how Leo programs operate in the Aleo blockchain.
 
@@ -92,7 +92,7 @@ However, for the high-level purpose of this RFC, these are zero-knowledge detail
 
 In general, the `main` function takes some `const` and some non-`const` inputs (declared as parameters),
 and returns an output (declared as a return type), which may be a tuple to represent "multiple" outputs.
-The `const` inputs are compiled into the zero-knowledge circuit,
+The `const` inputs are compiled into the zero-knowledge struct,
 so they can be ignored for our purpose here,
 leaving only the non-`const` inputs and the output for consideration.
 
@@ -159,7 +159,7 @@ function mint(...) -> ... { ... }
 @entrypoint
 function transfer(...) -> ... { ... }
 ```
-This has a precedent, in the use of `@test` to designate Leo test functions that are not compiled to circuits.
+This has a precedent, in the use of `@test` to designate Leo test functions that are not compiled to structs.
 
 Another approach is to use a keyword, e.g.
 ```
@@ -186,7 +186,7 @@ We propose to add types for transaction inputs and outputs to the Leo standard l
 and possibly include them in the prelude that is implicitly imported by every Leo program.
 
 Given that records have a fixed structure with typed slots,
-their format could be described by a Leo circuit type, e.g. called `Record`,
+their format could be described by a Leo struct type, e.g. called `Record`,
 whose member variables correspond to the slots.
 The types of the slots are fairly low-level,
 i.e. byte arrays (e.g. `u8[128]` for the payload)
@@ -198,10 +198,10 @@ standard serialization/deserialization libraries for Leo types may be provided f
 as an independent and more generally useful feature.
 
 Given that a transaction input consists of two records and possibly additional information,
-it makes sense to also have a circuit type `TransactionInput`,
+it makes sense to also have a struct type `TransactionInput`,
 which includes two `Record` slots and possibly additional slots.
 
-Additionally, it makes sense to have a circuit type `TransactionOutput`
+Additionally, it makes sense to have a struct type `TransactionOutput`
 that describes the output data of a transaction that is produced by the Leo program.
 This could also include two `Record` slots for the new records,
 or possibly "subsets" of records if the values of some record slots are calculated
@@ -260,12 +260,12 @@ However, this is not a necessary restriction, and we may decide to demote that t
 
 ### Access to Transaction Input and Output Types
 
-Currently the member variables of Leo circuit types are always accessible for both reading and writing.
+Currently the member variables of Leo struct types are always accessible for both reading and writing.
 It is thus possible for a Leo program
 to read from the member variables of `TransactionInput`
 and to write to the member variables of `TransactionOutput`.
 Therefore, for an initial implementation,
-it suffices for these two circuit types to provide member variables for the needed slots.
+it suffices for these two struct types to provide member variables for the needed slots.
 
 We might want the member variables of `TransactionInput` to be read-only.
 This is not necessary for the transaction model to work:
@@ -277,12 +277,12 @@ Nonetheless, we may want to enforce this restriction to encourage good coding pr
 
 There is currently no mechanism in Leo to enforce that.
 Designating the transaction input as `const` is not right,
-as that designation normally means that the value is compiled into the circuit.
+as that designation normally means that the value is compiled into the struct.
 
 We could provide read-only access via member function (e.g. `payload()`, `balance()`),
-but we still have to prohibit assignments to member variables (which is currently allowed on any circuit type).
+but we still have to prohibit assignments to member variables (which is currently allowed on any struct type).
 As an orthogonal and more generally useful feature,
-we could consider adding public/private access designations to Leo circuit members.
+we could consider adding public/private access designations to Leo struct members.
 Another approach is to avoid exposing the member variables,
 and just make the member functions available via an implicit import declaration.
 All of this needs to be thought through more carefully, in the broader context of the Leo language design.

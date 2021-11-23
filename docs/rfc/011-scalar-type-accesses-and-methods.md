@@ -49,8 +49,8 @@ postfix-expression = primary-expression
 ; Also need to add a new static member variable declaration rule to allow for static constant members.
 member-constant-declaration = %s"static" %s"const" identifier ":" type = literal ";"
 
-; We then need to modify the circuit declaration rule.
-circuit-declaration = %s"circuit" identifier
+; We then need to modify the struct declaration rule.
+struct-declaration = %s"struct" identifier
                       "{" *member-constant-declaration
                       [ member-variable-declarations ]
                       *member-function-declaration "}"
@@ -64,10 +64,10 @@ let x = u8::MAX; // A constant value on the scalar type
 let y = u8::to_bits(1u8); // A static method on the scalar type
 ```
 
-It also allows for static constants for circuits in general:
+It also allows for static constants for structs in general:
 
 ```ts
-circuit Point {
+struct Point {
   static SLOPE: u32 = 3;
   x: u32;
   y: u32;

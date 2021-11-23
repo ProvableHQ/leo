@@ -45,7 +45,7 @@ Comments should be complete sentences. Start with a capital letter, end with a p
 Example:
 ```rust
 
-use crate::Circuit;
+use crate::Struct;
 use leo_ast::IntegerType;
 
 use serde::Serialize;

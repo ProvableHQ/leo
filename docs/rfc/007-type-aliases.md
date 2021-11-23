@@ -49,7 +49,7 @@ type-alias-declaration = %s"type" identifier "=" type ";"
 ; modified rule:
 declaration = import-declaration
             / function-declaration
-            / circuit-declaration
+            / struct-declaration
             / constant-declaration
             / type-alias-declaration ; new
 
@@ -58,27 +58,27 @@ declaration = import-declaration
 
 A type alias declaration introduces the identifier to stand for the type.
 Only top-level type alias declarations are supported;
-they are not supported inside functions or circuit types.
+they are not supported inside functions or struct types.
 
 In addition, the following changes to the grammar are appropriate.
 
 First, the rule
 ```
-circuit-type = identifier / self-type ; replace with the one below
+struct-type = identifier / self-type ; replace with the one below
 ```
 should be replaced with the rule
 ```
-circuit-or-alias-type = identifier / self-type
+struct-or-alias-type = identifier / self-type
 ```
-The reason is that, at parsing time, an identifier is not necessarily a circuit type;
-it may be a type alias that may expand to a (circuit or non-circuit type).
-Thus, the nomenclature `circuit-or-alias-type` is appropriate.
-Consequently, references to `circuit-type` in the following rules must be replaced with `circuit-or-alias-type`:
+The reason is that, at parsing time, an identifier is not necessarily a struct type;
+it may be a type alias that may expand to a (struct or non-struct type).
+Thus, the nomenclature `struct-or-alias-type` is appropriate.
+Consequently, references to `struct-type` in the following rules must be replaced with `struct-or-alias-type`:
 ```
 ; modified rule:
-circuit-construction = circuit-or-alias-type "{" ; modified
-                       circuit-inline-element
-                       *( "," circuit-inline-element ) [ "," ]
+struct-construction = struct-or-alias-type "{" ; modified
+                       struct-inline-element
+                       *( "," struct-inline-element ) [ "," ]
                        "}"
 
 ; modified rule:
@@ -87,16 +87,16 @@ postfix-expression = primary-expression
                    / postfix-expression "." identifier
                    / identifier function-arguments
                    / postfix-expression "." identifier function-arguments
-                   / circuit-or-alias-type "::" identifier function-arguments ; modified
+                   / struct-or-alias-type "::" identifier function-arguments ; modified
                    / postfix-expression "[" expression "]"
                    / postfix-expression "[" [expression] ".." [expression] "]"
 ```
 
 Second, the rule
 ```
-aggregate-type = tuple-type / array-type / circuit-type
+aggregate-type = tuple-type / array-type / struct-type
 ```
-should be removed, because if we replaced `circuit-type` with `circuit-or-alias-type` there,
+should be removed, because if we replaced `struct-type` with `struct-or-alias-type` there,
 the identifier could be a type alias, not necessarily an aggregate type.
 (The notion of aggregate type remains at a semantic level, but has no longer a place in the grammar.)
 Consequently, the rule
@@ -105,9 +105,9 @@ type = scalar-type / aggregate-type
 ```
 should be rephrased as
 ```
-type = scalar-type / tuple-type / array-type / circuit-or-alias-type
+type = scalar-type / tuple-type / array-type / struct-or-alias-type
 ```
-which "inlines" the previous `aggregate-type` with `circuit-type` replaced with `circuit-or-alias-type`.
+which "inlines" the previous `aggregate-type` with `struct-type` replaced with `struct-or-alias-type`.
 
 ## Semantics
 
@@ -115,8 +115,8 @@ There must be no direct or indirect circularity in the type aliases.
 That is, it must be possible to expand all the type aliases away,
 obtaining an equivalent program without any type aliases.
 
-Note that the built-in `Self` is a bit like a type alias, standing for the enclosing circuit type;
-and `Self` is replaced with the enclosing circuit type during canonicalization.
+Note that the built-in `Self` is a bit like a type alias, standing for the enclosing struct type;
+and `Self` is replaced with the enclosing struct type during canonicalization.
 Thus, canonicalization could be a natural place to expand user-defined type aliases;
 after all, type aliases introduce multiple ways to denote the same types
 (and not just via direct aliasing, but also via indirect aliasing, or via aliasing of components),
@@ -179,9 +179,9 @@ An alternative to creating a type alias
 ```ts
 type T = U;
 ```
-is to create a circuit type
+is to create a struct type
 ```ts
-circuit T { get: U }
+struct T { get: U }
 ```
 that contains a single member variable.
 
@@ -196,10 +196,10 @@ more precisely two syntactically different ways to designate the same semantic t
 
 While the conversions generally cause overhead in traditional programming languages,
 this may not be the case for Leo's compilation to R1CS,
-in which everything is flattened, including member variables of circuit types.
-Thus, it may be the case that the circuit `T` above reduces to just its member `U` in R1CS.
+in which everything is flattened, including member variables of struct types.
+Thus, it may be the case that the struct `T` above reduces to just its member `U` in R1CS.
 
-It might also be argued that wrapping a type into a one-member-variable circuit type
+It might also be argued that wrapping a type into a one-member-variable struct type
 could be a better practice than aliasing the type, to enforce better type separation and safety.
 
 We need to consider the pros and cons of the two approaches,

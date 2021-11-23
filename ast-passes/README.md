@@ -12,8 +12,8 @@ The code here is split into several usages. Each usage represents a different pa
 
 This pass of the code has a few changes it must complete:
 
-- `Self` is not allowed outside a circuit.
-- `Self` in circuits must be replaced with an Identifier containing the Circuit Name.
+- `Self` is not allowed outside a struct.
+- `Self` in structs must be replaced with an Identifier containing the Struct Name.
 - Any 0 size array definitions should be rejected.
 - Multi-size array definitions should be expanded such that `[0u8; (2, 3)]` becomes `[[0u8; 3] 2]`.
 - Compound assignments become simple assignments such that `a += 2;` becomes `a = a + 2;`.

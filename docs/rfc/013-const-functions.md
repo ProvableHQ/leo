@@ -40,7 +40,7 @@ This applies to both top-level and member functions.
 ### Static Semantics
 
 A `const` function declaration must satisfy the following conditions:
-* All its parameters are `const`, including the `self` parameter for instance circuit member functions.
+* All its parameters are `const`, including the `self` parameter for instance struct member functions.
 * The body does not reference the special `input` variable.
 * The body only calls other `const` functions.
 
@@ -78,7 +78,7 @@ const function len(const arr: [u8; _]) -> u32 {
     return arr.len();
 }
 
-circuit Sample {
+struct Sample {
     x: [char; 5]
     const function say_hi(const self) -> [char; 5] {
         return self.x;

@@ -90,7 +90,7 @@ Bolded ones are also keywords.
 - **LittleSelf**
 - **Import**
 - **As**
-- **Circuit**
+- **Struct**
 - **Console**
 - **Const**
 - **Else**

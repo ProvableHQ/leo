@@ -72,11 +72,11 @@ create_errors!(
         help: None,
     }
 
-    /// For when the parser encountered a mix of commas and semi-colons in circuit member variables.
+    /// For when the parser encountered a mix of commas and semi-colons in struct member variables.
     @formatted
     mixed_commas_and_semicolons {
         args: (),
-        msg: "Cannot mix use of commas and semi-colons for circuit member variable declarations.",
+        msg: "Cannot mix use of commas and semi-colons for struct member variable declarations.",
         help: None,
     }
 
