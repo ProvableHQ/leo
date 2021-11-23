@@ -208,7 +208,6 @@ impl<'a> Function<'a> {
 
         // Have to handle non-existant blocks here for internal function definitions.
         // If it exists we do our standard checks and set it.
-        // dbg!(&value.block);
         if let Some(block) = &value.block {
             let main_block = BlockStatement::from_ast(self.scope, block, None)?;
 
