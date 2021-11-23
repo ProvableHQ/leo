@@ -62,9 +62,10 @@ fn not_fully_consumed(tokens: &mut ParserContext) -> Result<(), String> {
 fn with_handler<T>(
     tokens: Vec<SpannedToken>,
     logic: impl FnOnce(&mut ParserContext<'_>) -> Result<T, LeoError>,
+    internal: bool,
 ) -> Result<T, String> {
     let (handler, buf) = Handler::new_with_buf();
-    let mut tokens = ParserContext::new(&handler, false, tokens);
+    let mut tokens = ParserContext::new(&handler, internal, tokens);
     let parsed = handler
         .extend_if_error(logic(&mut tokens))
         .map_err(|_| buf.extract().to_string())?;
@@ -91,7 +92,7 @@ impl Namespace for ParseExpressionNamespace {
         {
             return Ok(serde_yaml::to_value(&implcit_value_expr()).expect("serialization failed"));
         }
-        let expr = with_handler(tokenizer, |p| p.parse_expression())?;
+        let expr = with_handler(tokenizer, |p| p.parse_expression(), false)?;
         Ok(serde_yaml::to_value(&expr).expect("serialization failed"))
     }
 }
@@ -115,7 +116,7 @@ impl Namespace for ParseStatementNamespace {
             }))
             .expect("serialization failed"));
         }
-        let stmt = with_handler(tokenizer, |p| p.parse_statement())?;
+        let stmt = with_handler(tokenizer, |p| p.parse_statement(), false)?;
         Ok(serde_yaml::to_value(&stmt).expect("serialization failed"))
     }
 }
@@ -129,7 +130,21 @@ impl Namespace for ParseNamespace {
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
         let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
-        let program = with_handler(tokenizer, |p| p.parse_program())?;
+        let program = with_handler(tokenizer, |p| p.parse_program(), false)?;
+        Ok(serde_yaml::to_value(&program).expect("serialization failed"))
+    }
+}
+
+struct ParseInternalNamespace;
+
+impl Namespace for ParseInternalNamespace {
+    fn parse_type(&self) -> ParseType {
+        ParseType::Whole
+    }
+
+    fn run_test(&self, test: Test) -> Result<Value, String> {
+        let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
+        let program = with_handler(tokenizer, |p| p.parse_program(), true)?;
         Ok(serde_yaml::to_value(&program).expect("serialization failed"))
     }
 }
@@ -187,7 +202,7 @@ impl Namespace for SerializeNamespace {
 
     fn run_test(&self, test: Test) -> Result<Value, String> {
         let tokenizer = tokenizer::tokenize("test", test.content.into()).map_err(|x| x.to_string())?;
-        let parsed = with_handler(tokenizer, |p| p.parse_program())?;
+        let parsed = with_handler(tokenizer, |p| p.parse_program(), false)?;
 
         let mut json = serde_json::to_value(parsed).expect("failed to convert to json value");
         remove_key_from_json(&mut json, "span");
@@ -203,6 +218,7 @@ impl Runner for TestRunner {
     fn resolve_namespace(&self, name: &str) -> Option<Box<dyn Namespace>> {
         Some(match name {
             "Parse" => Box::new(ParseNamespace),
+            "ParseInternal" => Box::new(ParseInternalNamespace),
             "ParseStatement" => Box::new(ParseStatementNamespace),
             "ParseExpression" => Box::new(ParseExpressionNamespace),
             "Token" => Box::new(TokenNamespace),
