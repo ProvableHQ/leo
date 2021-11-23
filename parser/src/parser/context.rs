@@ -27,6 +27,7 @@ use tendril::format_tendril;
 pub struct ParserContext<'a> {
     #[allow(dead_code)]
     pub(crate) handler: &'a Handler,
+    pub(crate) internal: bool,
     tokens: Vec<SpannedToken>,
     end_span: Span,
     // true if parsing an expression for an if statement -- means circuit inits are not legal
@@ -45,7 +46,7 @@ impl<'a> ParserContext<'a> {
     ///
     /// Returns a new [`ParserContext`] type given a vector of tokens.
     ///
-    pub fn new(handler: &'a Handler, mut tokens: Vec<SpannedToken>) -> Self {
+    pub fn new(handler: &'a Handler, internal: bool, mut tokens: Vec<SpannedToken>) -> Self {
         tokens.reverse();
         // todo: performance optimization here: drain filter
         tokens = tokens
@@ -54,6 +55,7 @@ impl<'a> ParserContext<'a> {
             .collect();
         Self {
             handler,
+            internal,
             end_span: tokens
                 .iter()
                 .find(|x| !x.span.content.trim().is_empty())

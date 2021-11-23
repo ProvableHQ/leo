@@ -471,7 +471,7 @@ pub trait ReconstructingReducer {
         input: Vec<FunctionInput>,
         const_: bool,
         output: Option<Type>,
-        block: Block,
+        block: Option<Block>,
     ) -> Result<Function> {
         Ok(Function {
             identifier,

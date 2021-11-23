@@ -493,7 +493,7 @@ impl Canonicalizer {
                     .map(|input| self.canonicalize_function_input(input))
                     .collect();
                 let output = self.canonicalize_self_type(function.output.as_ref());
-                let block = self.canonicalize_block(&function.block);
+                let block = function.block.as_ref().map(|block| self.canonicalize_block(block));
 
                 return CircuitMember::CircuitFunction(Box::new(Function {
                     annotations: function.annotations.clone(),
@@ -700,7 +700,7 @@ impl ReconstructingReducer for Canonicalizer {
         input: Vec<FunctionInput>,
         const_: bool,
         output: Option<Type>,
-        block: Block,
+        block: Option<Block>,
     ) -> Result<Function> {
         let new_output = match output {
             None => Some(Type::Tuple(vec![])),

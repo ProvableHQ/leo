@@ -64,7 +64,7 @@ fn with_handler<T>(
     logic: impl FnOnce(&mut ParserContext<'_>) -> Result<T, LeoError>,
 ) -> Result<T, String> {
     let (handler, buf) = Handler::new_with_buf();
-    let mut tokens = ParserContext::new(&handler, tokens);
+    let mut tokens = ParserContext::new(&handler, false, tokens);
     let parsed = handler
         .extend_if_error(logic(&mut tokens))
         .map_err(|_| buf.extract().to_string())?;

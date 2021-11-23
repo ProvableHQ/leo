@@ -577,7 +577,11 @@ impl<R: ReconstructingReducer> ReconstructingDirector<R> {
             .map(|type_| self.reduce_type(type_, &function.span))
             .transpose()?;
 
-        let block = self.reduce_block(&function.block)?;
+        let block = function
+            .block
+            .as_ref()
+            .map(|block| self.reduce_block(block))
+            .transpose()?;
 
         self.reducer.reduce_function(
             function,

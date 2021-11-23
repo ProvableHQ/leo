@@ -39,7 +39,12 @@ mod test;
 
 /// Creates a new AST from a given file path and source code text.
 pub fn parse_ast<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, source: Y) -> Result<Ast> {
-    Ok(Ast::new(parser::parse(handler, path.as_ref(), source.as_ref())?))
+    Ok(Ast::new(parser::parse(handler, false, path.as_ref(), source.as_ref())?))
+}
+
+/// Creates a new AST from a given file path and source code text for internal Leo code.
+pub fn parse_ast_internal<T: AsRef<str>, Y: AsRef<str>>(handler: &Handler, path: T, source: Y) -> Result<Ast> {
+    Ok(Ast::new(parser::parse(handler, true, path.as_ref(), source.as_ref())?))
 }
 
 /// Parses program input from from the input file path and state file path

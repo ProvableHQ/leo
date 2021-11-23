@@ -29,7 +29,7 @@ pub struct Function {
     pub const_: bool,
     pub output: Option<Type>,
     pub core_mapping: std::cell::RefCell<Option<String>>,
-    pub block: Block,
+    pub block: Option<Block>,
     pub span: Span,
 }
 
@@ -88,10 +88,11 @@ impl Function {
 
         let parameters = self.input.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
         let returns = self.output.as_ref().map(|type_| type_.to_string());
-        if returns.is_none() {
-            write!(f, "({}) {}", parameters, self.block)
-        } else {
-            write!(f, "({}) -> {} {}", parameters, returns.unwrap(), self.block)
+        match (returns, &self.block) {
+            (None, Some(block)) => write!(f, "({}) {}", parameters, block),
+            (None, None) => write!(f, "({})", parameters),
+            (Some(returns), Some(block)) => write!(f, "({}) -> {} {}", parameters, returns, block),
+            (Some(returns), None) => write!(f, "({}) -> {}", parameters, returns),
         }
     }
 }

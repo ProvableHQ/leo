@@ -206,19 +206,25 @@ impl<'a> Function<'a> {
             self.scope.variables.borrow_mut().insert(name.clone(), argument.get());
         }
 
-        let main_block = BlockStatement::from_ast(self.scope, &value.block, None)?;
-        let mut director = MonoidalDirector::new(ReturnPathReducer::new());
-        if !director.reduce_block(&main_block).0 && !self.output.is_unit() {
-            return Err(AsgError::function_missing_return(&self.name.borrow().name, &value.span).into());
-        }
+        // Have to handle non-existant blocks here for internal function definitions.
+        // If it exists we do our standard checks and set it.
+        // dbg!(&value.block);
+        if let Some(block) = &value.block {
+            let main_block = BlockStatement::from_ast(self.scope, block, None)?;
 
-        #[allow(clippy::never_loop)] // TODO @Protryon: How should we return multiple errors?
-        for (span, error) in director.reducer().errors {
-            return Err(AsgError::function_return_validation(&self.name.borrow().name, error, &span).into());
-        }
+            let mut director = MonoidalDirector::new(ReturnPathReducer::new());
+            if !director.reduce_block(&main_block).0 && !self.output.is_unit() {
+                return Err(AsgError::function_missing_return(&self.name.borrow().name, &value.span).into());
+            }
 
-        self.body
-            .replace(Some(self.scope.context.alloc_statement(Statement::Block(main_block))));
+            #[allow(clippy::never_loop)] // TODO @Protryon: How should we return multiple errors?
+            for (span, error) in director.reducer().errors {
+                return Err(AsgError::function_return_validation(&self.name.borrow().name, error, &span).into());
+            }
+
+            self.body
+                .replace(Some(self.scope.context.alloc_statement(Statement::Block(main_block))));
+        }
 
         Ok(())
     }
@@ -245,15 +251,9 @@ impl<'a> Into<leo_ast::Function> for &Function<'a> {
             })
             .collect();
         let (body, span) = match self.body.get() {
-            Some(Statement::Block(block)) => (block.into(), block.span.clone().unwrap_or_default()),
+            Some(Statement::Block(block)) => (Some(block.into()), block.span.clone().unwrap_or_default()),
             Some(_) => unimplemented!(),
-            None => (
-                leo_ast::Block {
-                    statements: vec![],
-                    span: Default::default(),
-                },
-                Default::default(),
-            ),
+            None => (None, Default::default()),
         };
         let output: Type = self.output.clone();
         leo_ast::Function {

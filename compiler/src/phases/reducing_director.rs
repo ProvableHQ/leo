@@ -681,16 +681,23 @@ impl<R: ReconstructingReducer, O: CombinerOptions> CombineAstAsgDirector<R, O> {
             .map(|type_| self.reduce_type(type_, &asg.output, &ast.span))
             .transpose()?;
 
-        let mut statements = vec![];
-        if let Some(AsgStatement::Block(asg_block)) = asg.body.get() {
-            for (ast_statement, asg_statement) in ast.block.statements.iter().zip(asg_block.statements.iter()) {
-                statements.push(self.reduce_statement(ast_statement, asg_statement.get())?);
-            }
-        }
+        let block = if let Some(AsgStatement::Block(asg_block)) = asg.body.get() {
+            if let Some(ast_block) = &ast.block {
+                let mut statements = vec![];
 
-        let block = AstBlockStatement {
-            statements,
-            span: ast.block.span.clone(),
+                for (ast_statement, asg_statement) in ast_block.statements.iter().zip(asg_block.statements.iter()) {
+                    statements.push(self.reduce_statement(ast_statement, asg_statement.get())?);
+                }
+
+                Some(AstBlockStatement {
+                    statements,
+                    span: ast_block.span.clone(),
+                })
+            } else {
+                None
+            }
+        } else {
+            None
         };
 
         self.ast_reducer.reduce_function(

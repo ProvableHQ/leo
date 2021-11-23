@@ -27,6 +27,11 @@ use std::cell::Cell;
 impl<'a> Program<'a> {
     pub(crate) fn enforce_function_definition(&mut self, function: &'a Function<'a>) -> Result<()> {
         self.begin_function(function);
+
+        if function.body.get().is_none() {
+            return Ok(());
+        }
+
         let statement = function
             .body
             .get()

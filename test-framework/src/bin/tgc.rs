@@ -134,7 +134,7 @@ fn generate_asts(handler: &Handler, src_path: PathBuf, target_path: PathBuf, tex
 
     ast = leo_ast_passes::Importer::do_pass(
         leo_ast_passes::Importer::new(
-            &mut ImportParser::new(&handler, src_path, Default::default()),
+            &mut ImportParser::new(handler, src_path, Default::default()),
             "bls12_377",
             handler,
         ),

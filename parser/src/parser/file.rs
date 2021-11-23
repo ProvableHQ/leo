@@ -520,8 +520,16 @@ impl ParserContext<'_> {
             None
         };
 
-        // Parse the function body.
-        let block = self.parse_block()?;
+        // Parse the function body if it exists and we are not an internal parse.
+        // If it is internal the body definition allowed to be None.
+        let (block, span) = if self.peek()?.token == Token::Semicolon && self.internal {
+            let end = self.expect(Token::Semicolon)?;
+            (None, start + end)
+        } else {
+            let block = self.parse_block()?;
+            let span = start + block.span.clone();
+            (Some(block), span)
+        };
 
         Ok((
             name.clone(),
@@ -531,7 +539,7 @@ impl ParserContext<'_> {
                 input: inputs,
                 const_,
                 output,
-                span: start + block.span.clone(),
+                span,
                 block,
                 core_mapping: std::cell::RefCell::new(None),
             },
