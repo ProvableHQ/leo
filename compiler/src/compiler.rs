@@ -291,6 +291,10 @@ impl<'a, 'b> Compiler<'a, 'b> {
             writer(".leo.ir", compiled.serialize().unwrap());
             writer(".leo.ir.fmt", compiled.to_string().as_bytes().to_vec());
             writer(
+                ".leo.ir.json",
+                serde_json::to_string(&compiled).unwrap().as_bytes().to_vec(),
+            );
+            writer(
                 ".leo.ir.input",
                 self.process_input(input, &compiled.header)?.serialize().unwrap(),
             );
